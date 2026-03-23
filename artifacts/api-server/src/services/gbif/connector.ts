@@ -117,8 +117,20 @@ export function serializeGeography(geo: GeographyParams): string {
   return `countries:US,CA,MX`;
 }
 
-function buildGbifOccurrenceUrl(usageKey: number): string {
-  return `https://www.gbif.org/occurrence/search?taxonKey=${usageKey}`;
+function buildGbifOccurrenceUrl(usageKey: number, geo?: GeographyParams): string {
+  const base = `https://www.gbif.org/occurrence/search?taxonKey=${usageKey}`;
+  if (!geo) return base;
+  if (geo.mode === "countries" && geo.countries && geo.countries.length > 0) {
+    return base + "&" + geo.countries.map((c) => `country=${c}`).join("&");
+  }
+  if (geo.mode === "continent" && geo.continent) {
+    return `${base}&continent=${geo.continent}`;
+  }
+  if (geo.mode === "bbox" && geo.bbox) {
+    const { minLat, minLon, maxLat, maxLon } = geo.bbox;
+    return `${base}&geometry=POLYGON((${minLon} ${minLat},${maxLon} ${minLat},${maxLon} ${maxLat},${minLon} ${maxLat},${minLon} ${minLat}))`;
+  }
+  return base;
 }
 
 export function parseGeography(params: {
@@ -239,17 +251,14 @@ export async function resolveToAcceptedUsageKey(usageKey: number): Promise<{ res
   return { resolvedKey: usageKey, wasSynonym: false };
 }
 
-export async function fetchReconcile(usageKey: number): Promise<GbifReconcileResult> {
-  const synonymsUrl = `${GBIF_API_BASE}/species/${usageKey}/synonyms?limit=100`;
-  const vernacularUrl = `${GBIF_API_BASE}/species/${usageKey}/vernacularNames?limit=500`;
+async function fetchAllSynonyms(usageKey: number): Promise<{ synonyms: GbifSynonymRecord[]; total: number; firstUrl: string }> {
+  const PAGE_SIZE = 100;
+  const firstUrl = `${GBIF_API_BASE}/species/${usageKey}/synonyms?limit=${PAGE_SIZE}&offset=0`;
+  const firstPage = (await gbifFetch(firstUrl)) as Record<string, unknown>;
+  const total = (firstPage.count as number) ?? 0;
+  const firstResults = (firstPage.results as Record<string, unknown>[]) || [];
 
-  const [synonymsRaw, vernacularRaw] = await Promise.all([
-    gbifFetch(synonymsUrl) as Promise<Record<string, unknown>>,
-    gbifFetch(vernacularUrl) as Promise<Record<string, unknown>>,
-  ]);
-
-  const synonymResults = (synonymsRaw.results as Record<string, unknown>[]) || [];
-  const synonyms: GbifSynonymRecord[] = synonymResults.map((s) => ({
+  const toRecord = (s: Record<string, unknown>): GbifSynonymRecord => ({
     key: s.key as number,
     canonicalName: (s.canonicalName as string) || "",
     scientificName: (s.scientificName as string) || "",
@@ -257,7 +266,34 @@ export async function fetchReconcile(usageKey: number): Promise<GbifReconcileRes
     taxonomicStatus: (s.taxonomicStatus as string) || "",
     nameType: (s.nameType as string) || "",
     publishedIn: (s.publishedIn as string) || null,
-  }));
+  });
+
+  const synonyms: GbifSynonymRecord[] = firstResults.map(toRecord);
+
+  if (total > PAGE_SIZE) {
+    const pageCount = Math.ceil(total / PAGE_SIZE);
+    const extraPages = await Promise.all(
+      Array.from({ length: pageCount - 1 }, (_, i) => {
+        const url = `${GBIF_API_BASE}/species/${usageKey}/synonyms?limit=${PAGE_SIZE}&offset=${(i + 1) * PAGE_SIZE}`;
+        return gbifFetch(url) as Promise<Record<string, unknown>>;
+      }),
+    );
+    for (const page of extraPages) {
+      const results = (page.results as Record<string, unknown>[]) || [];
+      synonyms.push(...results.map(toRecord));
+    }
+  }
+
+  return { synonyms, total, firstUrl };
+}
+
+export async function fetchReconcile(usageKey: number): Promise<GbifReconcileResult> {
+  const vernacularUrl = `${GBIF_API_BASE}/species/${usageKey}/vernacularNames?limit=500`;
+
+  const [synonymData, vernacularRaw] = await Promise.all([
+    fetchAllSynonyms(usageKey),
+    gbifFetch(vernacularUrl) as Promise<Record<string, unknown>>,
+  ]);
 
   const vernacularResults = (vernacularRaw.results as Record<string, unknown>[]) || [];
   const vernacularNames: GbifVernacularRecord[] = vernacularResults.map((v) => ({
@@ -270,12 +306,12 @@ export async function fetchReconcile(usageKey: number): Promise<GbifReconcileRes
   const primaryEnglish = vernacularNames.find((v) => v.language === "eng")?.vernacularName || null;
 
   return {
-    synonyms,
-    synonym_count: (synonymsRaw.count as number) ?? synonyms.length,
+    synonyms: synonymData.synonyms,
+    synonym_count: synonymData.total,
     vernacular_names: vernacularNames,
     vernacular_name_primary: primaryEnglish,
     vernacular_name_count: (vernacularRaw.count as number) ?? vernacularNames.length,
-    synonyms_upstream_url: synonymsUrl,
+    synonyms_upstream_url: synonymData.firstUrl,
     vernacular_upstream_url: vernacularUrl,
   };
 }
@@ -352,7 +388,7 @@ export async function fetchOccurrences(usageKey: number, geo: GeographyParams): 
     occurrence_count: occurrenceCount,
     occurrence_count_us: occurrenceCountUs,
     recent_occurrences,
-    source_url: buildGbifOccurrenceUrl(usageKey),
+    source_url: buildGbifOccurrenceUrl(usageKey, geo),
     upstream_url: countUrl,
   };
 }

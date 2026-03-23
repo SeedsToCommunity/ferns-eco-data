@@ -2,11 +2,12 @@ import { Router, type IRouter } from "express";
 import { db, registryEntriesTable } from "@workspace/db";
 import { GetRegistryResponse } from "@workspace/api-zod";
 import { ensureBonapRegistryEntry } from "../services/bonap/seed.js";
+import { ensureGbifRegistryEntry } from "../services/gbif/seed.js";
 
 const router: IRouter = Router();
 
 router.get("/registry", async (_req, res) => {
-  await ensureBonapRegistryEntry();
+  await Promise.all([ensureBonapRegistryEntry(), ensureGbifRegistryEntry()]);
 
   const entries = await db.select().from(registryEntriesTable).orderBy(registryEntriesTable.service_id);
 

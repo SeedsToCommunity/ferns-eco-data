@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 interface RawJsonPanelProps {
   title: string;
-  data: any;
+  data: unknown;
 }
 
 export function RawJsonPanel({ title, data }: RawJsonPanelProps) {

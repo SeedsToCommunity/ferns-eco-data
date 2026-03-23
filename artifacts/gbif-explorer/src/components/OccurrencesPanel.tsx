@@ -253,16 +253,29 @@ export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
                     )}
                   </span>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleRefresh}
-                  disabled={occQuery.isFetching}
-                  className="h-8 text-xs"
-                >
-                  <RefreshCw className={cn("w-3 h-3 mr-1.5", occQuery.isFetching && "animate-spin")} />
-                  Bypass Cache
-                </Button>
+                <div className="flex items-center gap-2">
+                  {occQuery.data.source_url && (
+                    <a
+                      href={occQuery.data.source_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 h-8 px-3 text-xs rounded-md border border-border bg-background hover:bg-muted/50 transition-colors font-medium"
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                      View all on GBIF
+                    </a>
+                  )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRefresh}
+                    disabled={occQuery.isFetching}
+                    className="h-8 text-xs"
+                  >
+                    <RefreshCw className={cn("w-3 h-3 mr-1.5", occQuery.isFetching && "animate-spin")} />
+                    Bypass Cache
+                  </Button>
+                </div>
               </div>
             </div>
 
