@@ -20,7 +20,7 @@ The primary users are general public — homeowners, community members, restorat
 - **ORM**: Drizzle
 - **Hosting**: Replit
 
-Do not suggest alternatives. Do not introduce additional frameworks or databases without explicit instruction.
+Do not introduce additional frameworks or databases without explicit instruction.
 
 ---
 
@@ -47,7 +47,7 @@ Shared infrastructure plus one repeating service structure per source.
 
 ### Layer 3: Applications
 
-Built by others, on top of the Knowledge API. Trust tiers, cross-source logic, name reconciliation decisions, and UX live here. This repo does not build applications.
+Built by others, on top of the Knowledge API. Trust tiers, cross-source logic, name reconciliation decisions, and UX have their own implementations in the application layer. This repo does not build applications.
 
 ---
 
@@ -83,7 +83,9 @@ derivation_summary: string      // plain language: what this data is and where i
 
 derivation_scientific: string   // research-grade: methods, measurement protocols, algorithms,
                                 // prompts used, citations, transformations applied —
-                                // sufficient for a scientist to evaluate and reproduce
+                                // sufficient for a scientist to understand and compare sources.
+                                // Include warnings about data being shared or copied from or to 
+                                // other data sources. 
 ```
 
 Both derivation fields are exposed through the Knowledge API. Applications decide which level to show based on their audience.
@@ -173,7 +175,7 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 
 ## FERNS — Federated Ecological Resource Network System
 
-**FERNS** is the primary project in this workspace. It wraps external botanical data sources with provenance tracking, caching, and a research-focused UI. The first source is the **BONAP North American Plant Atlas (NAPA)** knowledge service.
+**FERNS** is the primary project in this workspace. It wraps external botanical data sources with provenance tracking, caching, and a research-focused UI. 
 
 ### What FERNS Is
 
