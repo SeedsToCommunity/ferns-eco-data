@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { z } from "zod";
+import { GetBonnapMapQueryParams, GetBonnapMapResponse } from "@workspace/api-zod";
 import { normalizeInput, verifyMapExists, buildCacheKey, buildProvenance } from "../services/bonap/connector.js";
 import { lookupCache, storeCache } from "../services/bonap/cache.js";
 import {
@@ -15,27 +15,22 @@ import { ensureBonappRegistryEntry } from "../services/bonap/seed.js";
 
 const router: IRouter = Router();
 
-const mapQuerySchema = z.object({
-  genus: z.string().min(1, "genus is required"),
-  species: z.string().optional(),
-  map_type: z.enum(["county_species", "state_species", "genus_county"]).default("county_species"),
-  refresh: z
-    .string()
-    .optional()
-    .transform((v: string | undefined) => v === "true" || v === "1"),
-});
-
 router.get("/bonap/map", async (req, res) => {
-  const parsed = mapQuerySchema.safeParse(req.query);
+  const parsed = GetBonnapMapQueryParams.safeParse(req.query);
   if (!parsed.success) {
     res.status(400).json({
       error: "invalid_input",
-      message: parsed.error.issues.map((i: { message: string }) => i.message).join("; "),
+      message: parsed.error.issues.map((i) => i.message).join("; "),
     });
     return;
   }
 
   const { genus, species, map_type, refresh } = parsed.data;
+
+  if (!genus || genus.trim() === "") {
+    res.status(400).json({ error: "invalid_input", message: "genus is required" });
+    return;
+  }
 
   if (map_type === "state_species") {
     res.status(501).json({
@@ -52,7 +47,7 @@ router.get("/bonap/map", async (req, res) => {
   if (!refresh) {
     const cached = await lookupCache(cacheKey);
     if (cached) {
-      const response = buildMapResponse(cached, "hit");
+      const response = GetBonnapMapResponse.parse(buildMapResponse(cached, "hit"));
       res.json(response);
       return;
     }
@@ -61,7 +56,7 @@ router.get("/bonap/map", async (req, res) => {
   const result = await verifyMapExists(normalized);
   const provenance = buildProvenance(result);
   const stored = await storeCache(cacheKey, result, provenance);
-  const response = buildMapResponse(stored, refresh ? "bypassed" : "miss");
+  const response = GetBonnapMapResponse.parse(buildMapResponse(stored, refresh ? "bypassed" : "miss"));
   res.json(response);
 });
 
@@ -88,24 +83,24 @@ function buildMapResponse(
     source_url: row.source_url,
     found: row.status === "found",
     data: {
-      map_url: row.map_url,
-      map_type_served: row.map_type,
+      map_url: row.map_url ?? null,
+      map_type_served: row.map_type as "county_species" | "state_species" | "genus_county",
       genus: row.genus,
-      species: row.species,
+      species: row.species ?? null,
       species_stripped: row.species_stripped,
-      status: row.status,
-      tdc_taxon_id: row.tdc_taxon_id,
+      status: row.status as "found" | "not_found" | "unverified",
+      tdc_taxon_id: row.tdc_taxon_id ?? null,
       color_key_url: BONAP_COLOR_KEY_URL,
       color_key: BONAP_COLOR_KEY,
       data_vintage: BONAP_DATA_VINTAGE,
       permission_granted: BONAP_PERMISSION_GRANTED,
       attribution: BONAP_ATTRIBUTION,
       cache_status,
-      queried_at: new Date().toISOString(),
+      queried_at: new Date(),
     },
     provenance: {
       source_id: row.source_id,
-      fetched_at: row.fetched_at.toISOString(),
+      fetched_at: row.fetched_at,
       method: row.method,
       upstream_url: row.upstream_url,
       derivation_summary: row.derivation_summary,

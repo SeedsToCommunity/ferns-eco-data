@@ -36,9 +36,9 @@ export async function storeCache(
   },
 ): Promise<BonappMap> {
   const expiresAt =
-    result.status === "not_found"
-      ? new Date(Date.now() + NEGATIVE_TTL_DAYS * 24 * 60 * 60 * 1000)
-      : null;
+    result.status === "found"
+      ? null
+      : new Date(Date.now() + NEGATIVE_TTL_DAYS * 24 * 60 * 60 * 1000);
 
   const insert: InsertBonappMap = {
     cache_key: cacheKey,

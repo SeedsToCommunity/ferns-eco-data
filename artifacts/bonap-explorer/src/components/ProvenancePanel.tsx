@@ -56,8 +56,12 @@ export function ProvenancePanel({ response }: { response: BonnapMapResponse }) {
             <span className="text-foreground">{meta.attribution.maintainer}</span>
           </div>
           <div className="grid grid-cols-[120px_1fr] gap-4">
-            <span className="text-muted-foreground font-medium">Citation</span>
+            <span className="text-muted-foreground font-medium">Citation (NAPA)</span>
             <span className="text-foreground italic bg-background p-3 rounded-lg border">{meta.attribution.citation_napa}</span>
+          </div>
+          <div className="grid grid-cols-[120px_1fr] gap-4">
+            <span className="text-muted-foreground font-medium">Citation (TDC)</span>
+            <span className="text-foreground italic bg-background p-3 rounded-lg border">{meta.attribution.citation_tdc}</span>
           </div>
           <div className="grid grid-cols-[120px_1fr] gap-4">
             <span className="text-muted-foreground font-medium">Copyright</span>

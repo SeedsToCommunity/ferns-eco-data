@@ -14,7 +14,7 @@ export interface NormalizedInput {
 }
 
 export interface VerificationResult {
-  status: "found" | "not_found";
+  status: "found" | "not_found" | "unverified";
   map_url: string | null;
   source_url: string | null;
   upstream_url: string;
@@ -126,8 +126,8 @@ export async function verifyMapExists(
 
   if (input.map_type === "genus_county") {
     return {
-      status: mapUrl ? "found" : "not_found",
-      map_url: mapUrl,
+      status: "unverified" as const,
+      map_url: null,
       source_url: sourceUrl,
       upstream_url:
         sourceUrl ??
