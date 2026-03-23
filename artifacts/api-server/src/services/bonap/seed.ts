@@ -5,7 +5,7 @@ import { logger } from "../../lib/logger.js";
 
 let seeded = false;
 
-export async function ensureBonappRegistryEntry(): Promise<void> {
+export async function ensureBonapRegistryEntry(): Promise<void> {
   if (seeded) return;
 
   try {

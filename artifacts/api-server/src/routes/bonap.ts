@@ -11,7 +11,7 @@ import {
   BONAP_PERMISSION_STATUS,
   BONAP_SOURCE_ID,
 } from "../services/bonap/metadata.js";
-import { ensureBonappRegistryEntry } from "../services/bonap/seed.js";
+import { ensureBonapRegistryEntry } from "../services/bonap/seed.js";
 
 const router: IRouter = Router();
 
@@ -22,9 +22,15 @@ router.get("/bonap/map", async (req, res) => {
     return;
   }
 
+  const rawRefresh = req.query.refresh;
+  if (rawRefresh !== undefined && rawRefresh !== "true" && rawRefresh !== "false" && rawRefresh !== "1" && rawRefresh !== "0") {
+    res.status(400).json({ error: "invalid_input", message: "refresh must be 'true', 'false', '1', or '0' if provided" });
+    return;
+  }
+
   const rawQuery = {
     ...req.query,
-    refresh: req.query.refresh === "true" || req.query.refresh === "1" ? true : undefined,
+    refresh: rawRefresh === "true" || rawRefresh === "1" ? true : undefined,
   };
   const parsed = GetBonapMapQueryParams.safeParse(rawQuery);
   if (!parsed.success) {
@@ -36,6 +42,11 @@ router.get("/bonap/map", async (req, res) => {
   }
 
   const { genus, species, map_type, refresh } = parsed.data;
+
+  if (map_type === "county_species" && (!species || species.trim() === "")) {
+    res.status(400).json({ error: "invalid_input", message: "species is required for county_species map type; use genus_county for genus-level maps" });
+    return;
+  }
 
   if (map_type === "state_species") {
     res.status(501).json({
@@ -120,7 +131,7 @@ function buildMapResponse(
 }
 
 router.get("/bonap/metadata", async (_req, res) => {
-  await ensureBonappRegistryEntry();
+  await ensureBonapRegistryEntry();
 
   const payload = GetBonapMetadataResponse.parse({
     service_id: BONAP_SOURCE_ID,

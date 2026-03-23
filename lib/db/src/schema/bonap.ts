@@ -23,8 +23,8 @@ export const bonapMapsTable = pgTable("bonap_maps", {
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
-export const insertBonappMapSchema = createInsertSchema(bonapMapsTable).omit({ id: true });
-export const selectBonappMapSchema = createSelectSchema(bonapMapsTable);
+export const insertBonapMapSchema = createInsertSchema(bonapMapsTable).omit({ id: true });
+export const selectBonapMapSchema = createSelectSchema(bonapMapsTable);
 
-export type InsertBonappMap = z.infer<typeof insertBonappMapSchema>;
-export type BonappMap = typeof bonapMapsTable.$inferSelect;
+export type InsertBonapMap = z.infer<typeof insertBonapMapSchema>;
+export type BonapMap = typeof bonapMapsTable.$inferSelect;

@@ -1,11 +1,11 @@
 import { db, bonapMapsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import type { VerificationResult } from "./connector.js";
-import type { InsertBonappMap, BonappMap } from "@workspace/db";
+import type { InsertBonapMap, BonapMap } from "@workspace/db";
 
 const NEGATIVE_TTL_DAYS = 30;
 
-export async function lookupCache(cacheKey: string): Promise<BonappMap | null> {
+export async function lookupCache(cacheKey: string): Promise<BonapMap | null> {
   const rows = await db
     .select()
     .from(bonapMapsTable)
@@ -34,13 +34,13 @@ export async function storeCache(
     derivation_summary: string;
     derivation_scientific: string;
   },
-): Promise<BonappMap> {
+): Promise<BonapMap> {
   const expiresAt =
     result.status === "found"
       ? null
       : new Date(Date.now() + NEGATIVE_TTL_DAYS * 24 * 60 * 60 * 1000);
 
-  const insert: InsertBonappMap = {
+  const insert: InsertBonapMap = {
     cache_key: cacheKey,
     genus: result.normalized.genus,
     species: result.normalized.species,
