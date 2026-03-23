@@ -1,9 +1,113 @@
-import { useGetGbifMatch, useGetGbifReconcile, getGetGbifMatchQueryKey, getGetGbifReconcileQueryKey, type GbifVernacularRecord, type GbifSynonymRecord } from "@workspace/api-client-react";
+import { useState, type ReactNode } from "react";
+import { useGetGbifMatch, useGetGbifReconcile, getGetGbifMatchQueryKey, getGetGbifReconcileQueryKey, type GbifVernacularRecord, type GbifSynonymRecord, type GbifReconcileData } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, CheckCircle, Info, ExternalLink, Leaf } from "lucide-react";
+import { AlertTriangle, CheckCircle, ChevronDown, ChevronRight, Info, ExternalLink, Leaf } from "lucide-react";
 import { RawJsonPanel } from "./RawJsonPanel";
 import { OccurrencesPanel } from "./OccurrencesPanel";
+
+function ExpandableSection({ title, count, icon, children, defaultOpen = false }: {
+  title: string;
+  count: number;
+  icon: ReactNode;
+  children: ReactNode;
+  defaultOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <Card>
+      <button
+        type="button"
+        className="w-full text-left"
+        onClick={() => setOpen(o => !o)}
+        aria-expanded={open}
+      >
+        <CardHeader className="pb-3 border-b border-border/50">
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-lg flex items-center gap-2">
+              {icon}
+              {title}
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary">{count}</Badge>
+              {open ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
+            </div>
+          </div>
+        </CardHeader>
+      </button>
+      {open && (
+        <CardContent className="pt-4">
+          {children}
+        </CardContent>
+      )}
+    </Card>
+  );
+}
+
+function ReconcilePanels({ data }: { data: GbifReconcileData }) {
+  return (
+    <div className="space-y-4">
+      {data.vernacular_name_primary && (
+        <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/30 px-4 py-3">
+          <Leaf className="w-5 h-5 text-primary flex-shrink-0" />
+          <div>
+            <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide leading-none mb-1">Primary Common Name</div>
+            <div className="text-base font-semibold">{data.vernacular_name_primary}</div>
+          </div>
+        </div>
+      )}
+
+      <div className="grid md:grid-cols-2 gap-4">
+        <ExpandableSection
+          title="Common Names"
+          count={data.vernacular_name_count}
+          icon={<Leaf className="w-5 h-5 text-primary" />}
+        >
+          {data.vernacular_names.length === 0 ? (
+            <p className="text-sm text-muted-foreground italic">No common names recorded.</p>
+          ) : (
+            <ul className="space-y-3">
+              {data.vernacular_names.map((vn: GbifVernacularRecord, i: number) => (
+                <li key={i} className="flex justify-between items-start border-b border-border/50 pb-2 last:border-0 last:pb-0">
+                  <span className="font-medium text-sm">{vn.vernacularName}</span>
+                  <div className="flex gap-2 ml-2 flex-shrink-0">
+                    {vn.language && <Badge variant="outline" className="text-[10px]">{vn.language.toUpperCase()}</Badge>}
+                    {vn.country && <Badge variant="outline" className="text-[10px] bg-muted">{vn.country}</Badge>}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </ExpandableSection>
+
+        <ExpandableSection
+          title="Synonyms"
+          count={data.synonym_count}
+          icon={
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/></svg>
+          }
+        >
+          {data.synonyms.length === 0 ? (
+            <p className="text-sm text-muted-foreground italic">No synonyms recorded.</p>
+          ) : (
+            <ul className="space-y-3">
+              {data.synonyms.map((syn: GbifSynonymRecord, i: number) => (
+                <li key={i} className="text-sm border-b border-border/50 pb-2 last:border-0 last:pb-0">
+                  <div className="font-medium italic">{syn.canonicalName || syn.scientificName}</div>
+                  <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                    <span>{syn.taxonomicStatus}</span>
+                    <span>•</span>
+                    <span className="uppercase">{syn.rank}</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </ExpandableSection>
+      </div>
+    </div>
+  );
+}
 
 interface ScientificMatchPanelProps {
   scientificName: string;
@@ -158,68 +262,7 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
           {reconcileQuery.isLoading ? (
             <div className="h-32 rounded-2xl bg-muted animate-pulse" />
           ) : reconcileQuery.data?.data ? (
-            <div className="grid md:grid-cols-2 gap-6">
-              
-              <Card>
-                <CardHeader className="pb-3 border-b border-border/50">
-                  <div className="flex justify-between items-center">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Leaf className="w-5 h-5 text-primary" />
-                      Vernacular Names
-                    </CardTitle>
-                    <Badge variant="secondary">{reconcileQuery.data.data.vernacular_name_count}</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-4 max-h-[300px] overflow-y-auto">
-                  {reconcileQuery.data.data.vernacular_names.length === 0 ? (
-                    <p className="text-sm text-muted-foreground italic">No common names recorded.</p>
-                  ) : (
-                    <ul className="space-y-3">
-                      {reconcileQuery.data.data.vernacular_names.map((vn: GbifVernacularRecord, i: number) => (
-                        <li key={i} className="flex justify-between items-start border-b border-border/50 pb-2 last:border-0 last:pb-0">
-                          <span className="font-medium">{vn.vernacularName}</span>
-                          <div className="flex gap-2">
-                            {vn.language && <Badge variant="outline" className="text-[10px]">{vn.language.toUpperCase()}</Badge>}
-                            {vn.country && <Badge variant="outline" className="text-[10px] bg-muted">{vn.country}</Badge>}
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="pb-3 border-b border-border/50">
-                  <div className="flex justify-between items-center">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/></svg>
-                      Synonyms
-                    </CardTitle>
-                    <Badge variant="secondary">{reconcileQuery.data.data.synonym_count}</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-4 max-h-[300px] overflow-y-auto">
-                  {reconcileQuery.data.data.synonyms.length === 0 ? (
-                    <p className="text-sm text-muted-foreground italic">No synonyms recorded.</p>
-                  ) : (
-                    <ul className="space-y-3">
-                      {reconcileQuery.data.data.synonyms.map((syn: GbifSynonymRecord, i: number) => (
-                        <li key={i} className="text-sm border-b border-border/50 pb-2 last:border-0 last:pb-0">
-                          <div className="font-medium italic">{syn.canonicalName || syn.scientificName}</div>
-                          <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                            <span>{syn.taxonomicStatus}</span>
-                            <span>•</span>
-                            <span className="uppercase">{syn.rank}</span>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </CardContent>
-              </Card>
-
-            </div>
+            <ReconcilePanels data={reconcileQuery.data.data} />
           ) : null}
 
           {reconcileKey && <OccurrencesPanel usageKey={reconcileKey} />}

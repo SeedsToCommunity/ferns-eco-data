@@ -290,7 +290,7 @@ export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
                         </td>
                       </tr>
                     ) : (
-                      occQuery.data.data.recent_occurrences.slice(0, 50).map((occ: GbifOccurrenceRecord, i: number) => (
+                      occQuery.data.data.recent_occurrences.slice(0, 20).map((occ: GbifOccurrenceRecord, i: number) => (
                         <tr key={i} className="hover:bg-muted/30 transition-colors">
                           <td className="px-4 py-3 whitespace-nowrap">
                             {occ.eventDate
@@ -336,10 +336,9 @@ export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
                   </tbody>
                 </table>
               </div>
-              {occQuery.data.data.recent_occurrences.length > 50 && (
+              {occQuery.data.data.recent_occurrences.length > 20 && (
                 <div className="px-4 py-3 text-center border-t border-border bg-muted/20 text-xs text-muted-foreground">
-                  Showing top 50 recent records out of {occQuery.data.data.recent_occurrences.length}{" "}
-                  fetched.
+                  Showing 20 most recent records (of {occQuery.data.data.recent_occurrences.length} fetched).
                 </div>
               )}
             </div>

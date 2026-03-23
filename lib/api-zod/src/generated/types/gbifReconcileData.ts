@@ -10,6 +10,8 @@ import type { GbifVernacularRecord } from "./gbifVernacularRecord";
 
 export interface GbifReconcileData {
   usage_key: number;
+  /** The original synonym usageKey if auto-resolution occurred, null otherwise */
+  resolved_from_synonym_key?: number | null;
   synonyms: GbifSynonymRecord[];
   synonym_count: number;
   vernacular_names: GbifVernacularRecord[];

@@ -817,6 +817,10 @@ components:
       properties:
         usage_key:
           type: integer
+        resolved_from_synonym_key:
+          type: integer
+          nullable: true
+          description: The original synonym usageKey if auto-resolution occurred, null otherwise
         synonyms:
           type: array
           items:
@@ -1041,6 +1045,32 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/GbifVocabularyEntry"
+        registry_entry:
+          type: object
+          description: Full registry entry for this GBIF service source
+          properties:
+            service_id:
+              type: string
+            service_name:
+              type: string
+            knowledge_type:
+              type: string
+            input_summary:
+              type: string
+            output_summary:
+              type: string
+            data_lineage:
+              type: string
+            update_frequency:
+              type: string
+            geographic_scope:
+              type: string
+            taxonomic_scope:
+              type: string
+            permission_status:
+              type: string
+            known_limitations:
+              type: string
         queried_at:
           type: string
           format: date-time

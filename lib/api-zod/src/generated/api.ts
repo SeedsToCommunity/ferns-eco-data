@@ -360,6 +360,12 @@ export const GetGbifReconcileResponse = zod.object({
   data: zod
     .object({
       usage_key: zod.number(),
+      resolved_from_synonym_key: zod
+        .number()
+        .nullish()
+        .describe(
+          "The original synonym usageKey if auto-resolution occurred, null otherwise",
+        ),
       synonyms: zod.array(
         zod.object({
           key: zod.number(),
@@ -656,6 +662,22 @@ export const GetGbifMetadataResponse = zod.object({
       )
       .optional(),
   }),
+  registry_entry: zod
+    .object({
+      service_id: zod.string().optional(),
+      service_name: zod.string().optional(),
+      knowledge_type: zod.string().optional(),
+      input_summary: zod.string().optional(),
+      output_summary: zod.string().optional(),
+      data_lineage: zod.string().optional(),
+      update_frequency: zod.string().optional(),
+      geographic_scope: zod.string().optional(),
+      taxonomic_scope: zod.string().optional(),
+      permission_status: zod.string().optional(),
+      known_limitations: zod.string().optional(),
+    })
+    .optional()
+    .describe("Full registry entry for this GBIF service source"),
   queried_at: zod.date(),
 });
 

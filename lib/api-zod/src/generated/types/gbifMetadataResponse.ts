@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { GbifMetadataResponseAttribution } from "./gbifMetadataResponseAttribution";
+import type { GbifMetadataResponseRegistryEntry } from "./gbifMetadataResponseRegistryEntry";
 import type { GbifMetadataResponseVocabularies } from "./gbifMetadataResponseVocabularies";
 
 export interface GbifMetadataResponse {
@@ -15,5 +16,7 @@ export interface GbifMetadataResponse {
   permission_status: string;
   attribution: GbifMetadataResponseAttribution;
   vocabularies: GbifMetadataResponseVocabularies;
+  /** Full registry entry for this GBIF service source */
+  registry_entry?: GbifMetadataResponseRegistryEntry;
   queried_at: Date;
 }

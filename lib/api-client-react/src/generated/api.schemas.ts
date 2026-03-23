@@ -274,6 +274,8 @@ export interface GbifMatchResponse {
 
 export interface GbifReconcileData {
   usage_key: number;
+  /** The original synonym usageKey if auto-resolution occurred, null otherwise */
+  resolved_from_synonym_key?: number | null;
   synonyms: GbifSynonymRecord[];
   synonym_count: number;
   vernacular_names: GbifVernacularRecord[];
@@ -375,6 +377,23 @@ export type GbifMetadataResponseVocabularies = {
   occurrenceStatus?: GbifVocabularyEntry[];
 };
 
+/**
+ * Full registry entry for this GBIF service source
+ */
+export type GbifMetadataResponseRegistryEntry = {
+  service_id?: string;
+  service_name?: string;
+  knowledge_type?: string;
+  input_summary?: string;
+  output_summary?: string;
+  data_lineage?: string;
+  update_frequency?: string;
+  geographic_scope?: string;
+  taxonomic_scope?: string;
+  permission_status?: string;
+  known_limitations?: string;
+};
+
 export interface GbifMetadataResponse {
   service_id: string;
   service_name: string;
@@ -382,6 +401,8 @@ export interface GbifMetadataResponse {
   permission_status: string;
   attribution: GbifMetadataResponseAttribution;
   vocabularies: GbifMetadataResponseVocabularies;
+  /** Full registry entry for this GBIF service source */
+  registry_entry?: GbifMetadataResponseRegistryEntry;
   queried_at: string;
 }
 

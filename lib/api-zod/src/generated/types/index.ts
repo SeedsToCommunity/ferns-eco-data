@@ -23,6 +23,7 @@ export * from "./gbifMatchDataMatchType";
 export * from "./gbifMatchResponse";
 export * from "./gbifMetadataResponse";
 export * from "./gbifMetadataResponseAttribution";
+export * from "./gbifMetadataResponseRegistryEntry";
 export * from "./gbifMetadataResponseVocabularies";
 export * from "./gbifOccurrenceRecord";
 export * from "./gbifOccurrencesData";
