@@ -65,6 +65,24 @@ export function ResultDisplay({ isLoading, error, response }: ResultDisplayProps
         )}
       </div>
 
+      {/* Prominent top info */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {data?.attribution?.website && (
+          <div className="bg-card border rounded-xl p-4 space-y-1">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Source Website</p>
+            <a href={data.attribution.website} target="_blank" rel="noreferrer" className="text-primary font-medium hover:underline break-all">
+              {data.attribution.website}
+            </a>
+          </div>
+        )}
+        {response?.provenance?.derivation_summary && (
+          <div className="bg-card border rounded-xl p-4 space-y-1">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Derivation Summary</p>
+            <p className="text-sm text-foreground leading-relaxed">{response.provenance.derivation_summary}</p>
+          </div>
+        )}
+      </div>
+
       {/* Warning Banner */}
       {data?.data_vintage && (
         <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-xl p-4 flex gap-3 text-amber-900 dark:text-amber-200">
