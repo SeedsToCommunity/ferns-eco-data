@@ -87,15 +87,17 @@ export function buildCacheKey(input: NormalizedInput): string {
 
 async function checkImageUrl(url: string): Promise<boolean> {
   try {
-    const response = await fetch(url, {
+    const headResponse = await fetch(url, {
       method: "HEAD",
       signal: AbortSignal.timeout(10000),
     });
-    const contentType = response.headers.get("content-type") ?? "";
-    if (response.ok && contentType.includes("image/png")) {
+    const headContentType = headResponse.headers.get("content-type") ?? "";
+    if (headResponse.ok && headContentType.includes("image/png")) {
       return true;
     }
-    if (!contentType && response.ok) {
+    const shouldFallbackToGet =
+      !headResponse.ok || !headContentType;
+    if (shouldFallbackToGet) {
       const getResponse = await fetch(url, {
         signal: AbortSignal.timeout(10000),
       });
