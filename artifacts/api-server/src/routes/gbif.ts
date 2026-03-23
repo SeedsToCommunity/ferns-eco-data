@@ -137,25 +137,29 @@ router.get("/gbif/reconcile", async (req, res) => {
     return;
   }
 
+  const refresh = req.query.refresh === "true" || req.query.refresh === "1";
+
   const synKey = buildSynonymsCacheKey(usageKey);
   const vernKey = buildVernacularCacheKey(usageKey);
 
-  const [cachedSyn, cachedVern] = await Promise.all([
-    lookupSynonyms(synKey),
-    lookupVernacular(vernKey),
-  ]);
+  if (!refresh) {
+    const [cachedSyn, cachedVern] = await Promise.all([
+      lookupSynonyms(synKey),
+      lookupVernacular(vernKey),
+    ]);
 
-  if (cachedSyn && cachedVern) {
-    res.json(buildReconcileResponse(usageKey, cachedSyn, cachedVern));
-    return;
+    if (cachedSyn && cachedVern) {
+      res.json(buildReconcileResponse(usageKey, cachedSyn, cachedVern));
+      return;
+    }
   }
 
   try {
     const result = await fetchReconcile(usageKey);
 
     const [storedSyn, storedVern] = await Promise.all([
-      cachedSyn ? Promise.resolve(cachedSyn) : storeSynonyms(synKey, usageKey, result),
-      cachedVern ? Promise.resolve(cachedVern) : storeVernacular(vernKey, usageKey, result),
+      storeSynonyms(synKey, usageKey, result),
+      storeVernacular(vernKey, usageKey, result),
     ]);
 
     res.json(buildReconcileResponse(usageKey, storedSyn, storedVern));
@@ -209,6 +213,8 @@ function buildReconcileResponse(
   };
 }
 
+const VALID_CONTINENTS = new Set(["AFRICA","ANTARCTICA","ASIA","EUROPE","NORTH_AMERICA","OCEANIA","SOUTH_AMERICA"]);
+
 router.get("/gbif/occurrences", async (req, res) => {
   const rawKey = req.query.usageKey;
   const usageKey = Number(rawKey);
@@ -217,10 +223,32 @@ router.get("/gbif/occurrences", async (req, res) => {
     return;
   }
 
+  const rawCountries = typeof req.query.countries === "string" ? req.query.countries : undefined;
+  const rawContinent = typeof req.query.continent === "string" ? req.query.continent : undefined;
+  const rawBbox = typeof req.query.bbox === "string" ? req.query.bbox : undefined;
+
+  if (rawContinent && !VALID_CONTINENTS.has(rawContinent)) {
+    res.status(400).json({ error: "invalid_input", message: `continent must be one of: ${[...VALID_CONTINENTS].join(", ")}` });
+    return;
+  }
+
+  if (rawBbox) {
+    const parts = rawBbox.split(",").map(Number);
+    if (parts.length !== 4 || parts.some((n) => isNaN(n))) {
+      res.status(400).json({ error: "invalid_input", message: "bbox must be comma-separated minLat,minLon,maxLat,maxLon (4 decimal numbers)" });
+      return;
+    }
+    const [minLat, minLon, maxLat, maxLon] = parts;
+    if (minLat < -90 || maxLat > 90 || minLon < -180 || maxLon > 180 || minLat >= maxLat || minLon >= maxLon) {
+      res.status(400).json({ error: "invalid_input", message: "bbox values out of range or inverted: minLat,minLon must be less than maxLat,maxLon; lat in [-90,90], lon in [-180,180]" });
+      return;
+    }
+  }
+
   const geo = parseGeography({
-    countries: typeof req.query.countries === "string" ? req.query.countries : undefined,
-    continent: typeof req.query.continent === "string" ? req.query.continent : undefined,
-    bbox: typeof req.query.bbox === "string" ? req.query.bbox : undefined,
+    countries: rawCountries,
+    continent: rawContinent,
+    bbox: rawBbox,
   });
 
   const refresh = req.query.refresh === "true" || req.query.refresh === "1";
