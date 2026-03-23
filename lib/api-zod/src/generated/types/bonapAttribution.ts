@@ -6,7 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface BonnapAttribution {
+export interface BonapAttribution {
   source_name: string;
   maintainer: string;
   organization: string;

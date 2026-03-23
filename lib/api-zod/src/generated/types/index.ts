@@ -6,19 +6,19 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export * from "./bonnapAttribution";
-export * from "./bonnapMapData";
-export * from "./bonnapMapDataCacheStatus";
-export * from "./bonnapMapDataMapTypeServed";
-export * from "./bonnapMapDataStatus";
-export * from "./bonnapMapResponse";
-export * from "./bonnapMetadataResponse";
+export * from "./bonapAttribution";
+export * from "./bonapMapData";
+export * from "./bonapMapDataCacheStatus";
+export * from "./bonapMapDataMapTypeServed";
+export * from "./bonapMapDataStatus";
+export * from "./bonapMapResponse";
+export * from "./bonapMetadataResponse";
 export * from "./colorKeyEntry";
 export * from "./colorKeyEntryLayer";
 export * from "./errorResponse";
 export * from "./fernsProvenance";
-export * from "./getBonnapMapMapType";
-export * from "./getBonnapMapParams";
+export * from "./getBonapMapMapType";
+export * from "./getBonapMapParams";
 export * from "./healthStatus";
 export * from "./registryEntryData";
 export * from "./registryListResponse";

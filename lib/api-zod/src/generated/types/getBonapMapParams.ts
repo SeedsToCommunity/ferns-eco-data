@@ -5,9 +5,9 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetBonnapMapMapType } from "./getBonnapMapMapType";
+import type { GetBonapMapMapType } from "./getBonapMapMapType";
 
-export type GetBonnapMapParams = {
+export type GetBonapMapParams = {
   /**
  * Genus name. First letter capitalized, remainder lowercase (e.g. Asclepias). The service normalizes to title case before URL construction.
 
@@ -22,7 +22,7 @@ export type GetBonnapMapParams = {
  * Map type to retrieve. county_species is the default and most useful. state_species returns 501 Not Implemented — URL pattern is unverified. genus_county returns the genus browsing page URL only — PNG URL unconfirmed.
 
  */
-  map_type?: GetBonnapMapMapType;
+  map_type?: GetBonapMapMapType;
   /**
    * If true, bypasses cache and fetches fresh from BONAP.
    */

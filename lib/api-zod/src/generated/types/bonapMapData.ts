@@ -5,17 +5,17 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { BonnapAttribution } from "./bonnapAttribution";
-import type { BonnapMapDataCacheStatus } from "./bonnapMapDataCacheStatus";
-import type { BonnapMapDataMapTypeServed } from "./bonnapMapDataMapTypeServed";
-import type { BonnapMapDataStatus } from "./bonnapMapDataStatus";
+import type { BonapAttribution } from "./bonapAttribution";
+import type { BonapMapDataCacheStatus } from "./bonapMapDataCacheStatus";
+import type { BonapMapDataMapTypeServed } from "./bonapMapDataMapTypeServed";
+import type { BonapMapDataStatus } from "./bonapMapDataStatus";
 import type { ColorKeyEntry } from "./colorKeyEntry";
 
-export interface BonnapMapData {
+export interface BonapMapData {
   /** Direct URL to the PNG image on BONAP's server. Present when status is found. Null when not found. Applications display this via an img tag — do not proxy.
    */
   map_url?: string | null;
-  map_type_served: BonnapMapDataMapTypeServed;
+  map_type_served: BonapMapDataMapTypeServed;
   /** Normalized genus name as used in URL construction */
   genus: string;
   /** Normalized species epithet. Null for genus-level requests. */
@@ -24,7 +24,7 @@ export interface BonnapMapData {
   species_stripped: boolean;
   /** found — URL returned a valid image during cache population. not_found — BONAP returned a non-image response for this binomial. unverified — URL was returned from cache without re-verification.
    */
-  status: BonnapMapDataStatus;
+  status: BonapMapDataStatus;
   /** BONAP internal taxon ID if known. Enables future TDC-based lookups. */
   tdc_taxon_id?: number | null;
   /** Always 'http://www.bonap.org/MapKey.html' */
@@ -39,8 +39,8 @@ export interface BonnapMapData {
   /** Human-readable permission status string. Matches the value from the metadata endpoint. Applications should display this when permission_granted is false.
    */
   permission_status: string;
-  attribution: BonnapAttribution;
-  cache_status: BonnapMapDataCacheStatus;
+  attribution: BonapAttribution;
+  cache_status: BonapMapDataCacheStatus;
   queried_at: Date;
   /** Human-readable note attached to this response. Present when FERNS cannot fully verify the map URL — for example, genus_county map type returns a source browsing URL but the PNG URL is unconfirmed. Null for standard county_species responses.
    */

@@ -1,17 +1,18 @@
 import { z } from "zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
 import { Search, Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { GetBonnapMapMapType } from "@workspace/api-client-react";
+import { GetBonapMapMapType } from "@workspace/api-client-react";
 
 const searchSchema = z.object({
   genus: z.string().min(1, "Genus is required").trim(),
   species: z.string().trim().optional(),
-  map_type: z.nativeEnum(GetBonnapMapMapType),
+  map_type: z.nativeEnum(GetBonapMapMapType),
 });
 
 type SearchFormValues = z.infer<typeof searchSchema>;
@@ -27,6 +28,7 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
     handleSubmit,
     setValue,
     watch,
+    control,
     formState: { errors },
   } = useForm<SearchFormValues>({
     resolver: zodResolver(searchSchema),
@@ -38,6 +40,19 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
   });
 
   const selectedMapType = watch("map_type");
+  const speciesValue = useWatch({ control, name: "species", defaultValue: "" });
+
+  // Auto-switch map type: blank species → genus_county; filled species → county_species
+  useEffect(() => {
+    const species = watch("species");
+    const mapType = watch("map_type");
+    const isBlank = !species || species.trim() === "";
+    if (isBlank && mapType === "county_species") {
+      setValue("map_type", "genus_county");
+    } else if (!isBlank && mapType === "genus_county") {
+      setValue("map_type", "county_species");
+    }
+  }, [speciesValue, watch, setValue]);
 
   return (
     <form onSubmit={handleSubmit(onSearch)} className="bg-card border rounded-2xl shadow-sm overflow-hidden">
@@ -74,7 +89,7 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
           <Label className="text-foreground font-medium mb-4 block">Map Type</Label>
           <RadioGroup 
             value={selectedMapType} 
-            onValueChange={(v) => setValue("map_type", v as GetBonnapMapMapType)}
+            onValueChange={(v) => setValue("map_type", v as GetBonapMapMapType)}
             className="grid grid-cols-1 md:grid-cols-3 gap-4"
           >
             {[

@@ -10,10 +10,10 @@
  * found — URL returned a valid image during cache population. not_found — BONAP returned a non-image response for this binomial. unverified — URL was returned from cache without re-verification.
 
  */
-export type BonnapMapDataStatus =
-  (typeof BonnapMapDataStatus)[keyof typeof BonnapMapDataStatus];
+export type BonapMapDataStatus =
+  (typeof BonapMapDataStatus)[keyof typeof BonapMapDataStatus];
 
-export const BonnapMapDataStatus = {
+export const BonapMapDataStatus = {
   found: "found",
   not_found: "not_found",
   unverified: "unverified",

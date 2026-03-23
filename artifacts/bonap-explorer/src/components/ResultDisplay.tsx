@@ -1,14 +1,14 @@
 import { motion } from "framer-motion";
 import { AlertCircle, ExternalLink, Leaf, Map as MapIcon } from "lucide-react";
-import type { BonnapMapResponse, GetBonnapMapQueryError } from "@workspace/api-client-react";
+import type { BonapMapResponse, GetBonapMapQueryError } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { ColorKey } from "./ColorKey";
 import { ProvenancePanel } from "./ProvenancePanel";
 
 interface ResultDisplayProps {
   isLoading: boolean;
-  error: GetBonnapMapQueryError | null;
-  response?: BonnapMapResponse;
+  error: GetBonapMapQueryError | null;
+  response?: BonapMapResponse;
 }
 
 export function ResultDisplay({ isLoading, error, response }: ResultDisplayProps) {
@@ -70,7 +70,7 @@ export function ResultDisplay({ isLoading, error, response }: ResultDisplayProps
         <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-xl p-4 flex gap-3 text-amber-900 dark:text-amber-200">
           <AlertCircle className="w-5 h-5 shrink-0" />
           <p className="text-sm font-medium leading-relaxed">
-            {data.data_vintage} Distribution records reflect knowledge as of that date.
+            BONAP distribution data was last updated December 15, 2014. Distribution records reflect knowledge as of that date.
           </p>
         </div>
       )}

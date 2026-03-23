@@ -60,7 +60,7 @@ export interface ColorKeyEntry {
   layer: ColorKeyEntryLayer;
 }
 
-export interface BonnapAttribution {
+export interface BonapAttribution {
   source_name: string;
   maintainer: string;
   organization: string;
@@ -71,10 +71,10 @@ export interface BonnapAttribution {
   copyright_notice: string;
 }
 
-export type BonnapMapDataMapTypeServed =
-  (typeof BonnapMapDataMapTypeServed)[keyof typeof BonnapMapDataMapTypeServed];
+export type BonapMapDataMapTypeServed =
+  (typeof BonapMapDataMapTypeServed)[keyof typeof BonapMapDataMapTypeServed];
 
-export const BonnapMapDataMapTypeServed = {
+export const BonapMapDataMapTypeServed = {
   county_species: "county_species",
   state_species: "state_species",
   genus_county: "genus_county",
@@ -84,29 +84,29 @@ export const BonnapMapDataMapTypeServed = {
  * found — URL returned a valid image during cache population. not_found — BONAP returned a non-image response for this binomial. unverified — URL was returned from cache without re-verification.
 
  */
-export type BonnapMapDataStatus =
-  (typeof BonnapMapDataStatus)[keyof typeof BonnapMapDataStatus];
+export type BonapMapDataStatus =
+  (typeof BonapMapDataStatus)[keyof typeof BonapMapDataStatus];
 
-export const BonnapMapDataStatus = {
+export const BonapMapDataStatus = {
   found: "found",
   not_found: "not_found",
   unverified: "unverified",
 } as const;
 
-export type BonnapMapDataCacheStatus =
-  (typeof BonnapMapDataCacheStatus)[keyof typeof BonnapMapDataCacheStatus];
+export type BonapMapDataCacheStatus =
+  (typeof BonapMapDataCacheStatus)[keyof typeof BonapMapDataCacheStatus];
 
-export const BonnapMapDataCacheStatus = {
+export const BonapMapDataCacheStatus = {
   hit: "hit",
   miss: "miss",
   bypassed: "bypassed",
 } as const;
 
-export interface BonnapMapData {
+export interface BonapMapData {
   /** Direct URL to the PNG image on BONAP's server. Present when status is found. Null when not found. Applications display this via an img tag — do not proxy.
    */
   map_url?: string | null;
-  map_type_served: BonnapMapDataMapTypeServed;
+  map_type_served: BonapMapDataMapTypeServed;
   /** Normalized genus name as used in URL construction */
   genus: string;
   /** Normalized species epithet. Null for genus-level requests. */
@@ -115,7 +115,7 @@ export interface BonnapMapData {
   species_stripped: boolean;
   /** found — URL returned a valid image during cache population. not_found — BONAP returned a non-image response for this binomial. unverified — URL was returned from cache without re-verification.
    */
-  status: BonnapMapDataStatus;
+  status: BonapMapDataStatus;
   /** BONAP internal taxon ID if known. Enables future TDC-based lookups. */
   tdc_taxon_id?: number | null;
   /** Always 'http://www.bonap.org/MapKey.html' */
@@ -130,8 +130,8 @@ export interface BonnapMapData {
   /** Human-readable permission status string. Matches the value from the metadata endpoint. Applications should display this when permission_granted is false.
    */
   permission_status: string;
-  attribution: BonnapAttribution;
-  cache_status: BonnapMapDataCacheStatus;
+  attribution: BonapAttribution;
+  cache_status: BonapMapDataCacheStatus;
   queried_at: string;
   /** Human-readable note attached to this response. Present when FERNS cannot fully verify the map URL — for example, genus_county map type returns a source browsing URL but the PNG URL is unconfirmed. Null for standard county_species responses.
    */
@@ -141,23 +141,23 @@ export interface BonnapMapData {
 /**
  * Standard FERNS response envelope for BONAP map lookups
  */
-export interface BonnapMapResponse {
+export interface BonapMapResponse {
   /** Canonical BONAP page URL for this species or genus. Always constructed when possible and returned regardless of whether a map was found. Enables 'View on BONAP' links in applications.
    */
   source_url: string | null;
   /** Whether a BONAP map was found for this query */
   found: boolean;
-  data?: BonnapMapData | null;
+  data?: BonapMapData | null;
   provenance: FernsProvenance;
 }
 
-export interface BonnapMetadataResponse {
+export interface BonapMetadataResponse {
   service_id: string;
   service_name: string;
   data_vintage: string;
   permission_granted: boolean;
   permission_status: string;
-  attribution: BonnapAttribution;
+  attribution: BonapAttribution;
   color_key: ColorKeyEntry[];
   color_key_url: string;
   queried_at: string;
@@ -184,7 +184,7 @@ export interface RegistryListResponse {
   provenance: FernsProvenance;
 }
 
-export type GetBonnapMapParams = {
+export type GetBonapMapParams = {
   /**
  * Genus name. First letter capitalized, remainder lowercase (e.g. Asclepias). The service normalizes to title case before URL construction.
 
@@ -199,17 +199,17 @@ export type GetBonnapMapParams = {
  * Map type to retrieve. county_species is the default and most useful. state_species returns 501 Not Implemented — URL pattern is unverified. genus_county returns the genus browsing page URL only — PNG URL unconfirmed.
 
  */
-  map_type?: GetBonnapMapMapType;
+  map_type?: GetBonapMapMapType;
   /**
    * If true, bypasses cache and fetches fresh from BONAP.
    */
   refresh?: boolean;
 };
 
-export type GetBonnapMapMapType =
-  (typeof GetBonnapMapMapType)[keyof typeof GetBonnapMapMapType];
+export type GetBonapMapMapType =
+  (typeof GetBonapMapMapType)[keyof typeof GetBonapMapMapType];
 
-export const GetBonnapMapMapType = {
+export const GetBonapMapMapType = {
   county_species: "county_species",
   state_species: "state_species",
   genus_county: "genus_county",

@@ -31,7 +31,7 @@ paths:
 
   /bonap/map:
     get:
-      operationId: getBonnapMap
+      operationId: getBonapMap
       tags: [bonap]
       summary: Get BONAP distribution map
       description: >
@@ -80,7 +80,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BonnapMapResponse"
+                $ref: "#/components/schemas/BonapMapResponse"
         "400":
           description: Invalid input (missing genus, invalid map_type)
           content:
@@ -96,7 +96,7 @@ paths:
 
   /bonap/metadata:
     get:
-      operationId: getBonnapMetadata
+      operationId: getBonapMetadata
       tags: [bonap]
       summary: BONAP service metadata
       description: >
@@ -109,7 +109,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BonnapMetadataResponse"
+                $ref: "#/components/schemas/BonapMetadataResponse"
 
   /registry:
     get:
@@ -215,7 +215,7 @@ components:
           enum: [state_background, county_fill]
           description: Whether this color applies to state backgrounds or county fills
 
-    BonnapAttribution:
+    BonapAttribution:
       type: object
       required:
         - source_name
@@ -244,7 +244,7 @@ components:
         copyright_notice:
           type: string
 
-    BonnapMapData:
+    BonapMapData:
       type: object
       required:
         - map_type_served
@@ -312,7 +312,7 @@ components:
             Human-readable permission status string. Matches the value from the metadata endpoint.
             Applications should display this when permission_granted is false.
         attribution:
-          $ref: "#/components/schemas/BonnapAttribution"
+          $ref: "#/components/schemas/BonapAttribution"
         cache_status:
           type: string
           enum: [hit, miss, bypassed]
@@ -328,7 +328,7 @@ components:
             source browsing URL but the PNG URL is unconfirmed. Null for standard
             county_species responses.
 
-    BonnapMapResponse:
+    BonapMapResponse:
       type: object
       description: Standard FERNS response envelope for BONAP map lookups
       required:
@@ -349,11 +349,11 @@ components:
         data:
           nullable: true
           allOf:
-            - $ref: "#/components/schemas/BonnapMapData"
+            - $ref: "#/components/schemas/BonapMapData"
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
 
-    BonnapMetadataResponse:
+    BonapMetadataResponse:
       type: object
       required:
         - service_id
@@ -377,7 +377,7 @@ components:
         permission_status:
           type: string
         attribution:
-          $ref: "#/components/schemas/BonnapAttribution"
+          $ref: "#/components/schemas/BonapAttribution"
         color_key:
           type: array
           items:

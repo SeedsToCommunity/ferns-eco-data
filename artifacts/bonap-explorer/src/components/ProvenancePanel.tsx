@@ -1,7 +1,7 @@
-import type { BonnapMapResponse } from "@workspace/api-client-react";
+import type { BonapMapResponse } from "@workspace/api-client-react";
 import { Database, Clock, Fingerprint, Shield, Link as LinkIcon, Info } from "lucide-react";
 
-export function ProvenancePanel({ response }: { response: BonnapMapResponse }) {
+export function ProvenancePanel({ response }: { response: BonapMapResponse }) {
   const prov = response.provenance;
   const meta = response.data;
   

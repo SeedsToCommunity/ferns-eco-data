@@ -14,10 +14,10 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
-  BonnapMapResponse,
-  BonnapMetadataResponse,
+  BonapMapResponse,
+  BonapMetadataResponse,
   ErrorResponse,
-  GetBonnapMapParams,
+  GetBonapMapParams,
   HealthStatus,
   RegistryListResponse,
 } from "./api.schemas";
@@ -112,7 +112,7 @@ export function useHealthCheck<
 
  * @summary Get BONAP distribution map
  */
-export const getGetBonnapMapUrl = (params: GetBonnapMapParams) => {
+export const getGetBonapMapUrl = (params: GetBonapMapParams) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -128,28 +128,28 @@ export const getGetBonnapMapUrl = (params: GetBonnapMapParams) => {
     : `/api/bonap/map`;
 };
 
-export const getBonnapMap = async (
-  params: GetBonnapMapParams,
+export const getBonapMap = async (
+  params: GetBonapMapParams,
   options?: RequestInit,
-): Promise<BonnapMapResponse> => {
-  return customFetch<BonnapMapResponse>(getGetBonnapMapUrl(params), {
+): Promise<BonapMapResponse> => {
+  return customFetch<BonapMapResponse>(getGetBonapMapUrl(params), {
     ...options,
     method: "GET",
   });
 };
 
-export const getGetBonnapMapQueryKey = (params?: GetBonnapMapParams) => {
+export const getGetBonapMapQueryKey = (params?: GetBonapMapParams) => {
   return [`/api/bonap/map`, ...(params ? [params] : [])] as const;
 };
 
-export const getGetBonnapMapQueryOptions = <
-  TData = Awaited<ReturnType<typeof getBonnapMap>>,
+export const getGetBonapMapQueryOptions = <
+  TData = Awaited<ReturnType<typeof getBonapMap>>,
   TError = ErrorType<ErrorResponse>,
 >(
-  params: GetBonnapMapParams,
+  params: GetBonapMapParams,
   options?: {
     query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getBonnapMap>>,
+      Awaited<ReturnType<typeof getBonapMap>>,
       TError,
       TData
     >;
@@ -158,43 +158,43 @@ export const getGetBonnapMapQueryOptions = <
 ) => {
   const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getGetBonnapMapQueryKey(params);
+  const queryKey = queryOptions?.queryKey ?? getGetBonapMapQueryKey(params);
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getBonnapMap>>> = ({
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getBonapMap>>> = ({
     signal,
-  }) => getBonnapMap(params, { signal, ...requestOptions });
+  }) => getBonapMap(params, { signal, ...requestOptions });
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getBonnapMap>>,
+    Awaited<ReturnType<typeof getBonapMap>>,
     TError,
     TData
   > & { queryKey: QueryKey };
 };
 
-export type GetBonnapMapQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getBonnapMap>>
+export type GetBonapMapQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getBonapMap>>
 >;
-export type GetBonnapMapQueryError = ErrorType<ErrorResponse>;
+export type GetBonapMapQueryError = ErrorType<ErrorResponse>;
 
 /**
  * @summary Get BONAP distribution map
  */
 
-export function useGetBonnapMap<
-  TData = Awaited<ReturnType<typeof getBonnapMap>>,
+export function useGetBonapMap<
+  TData = Awaited<ReturnType<typeof getBonapMap>>,
   TError = ErrorType<ErrorResponse>,
 >(
-  params: GetBonnapMapParams,
+  params: GetBonapMapParams,
   options?: {
     query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getBonnapMap>>,
+      Awaited<ReturnType<typeof getBonapMap>>,
       TError,
       TData
     >;
     request?: SecondParameter<typeof customFetch>;
   },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getGetBonnapMapQueryOptions(params, options);
+  const queryOptions = getGetBonapMapQueryOptions(params, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;
@@ -208,29 +208,29 @@ export function useGetBonnapMap<
 
  * @summary BONAP service metadata
  */
-export const getGetBonnapMetadataUrl = () => {
+export const getGetBonapMetadataUrl = () => {
   return `/api/bonap/metadata`;
 };
 
-export const getBonnapMetadata = async (
+export const getBonapMetadata = async (
   options?: RequestInit,
-): Promise<BonnapMetadataResponse> => {
-  return customFetch<BonnapMetadataResponse>(getGetBonnapMetadataUrl(), {
+): Promise<BonapMetadataResponse> => {
+  return customFetch<BonapMetadataResponse>(getGetBonapMetadataUrl(), {
     ...options,
     method: "GET",
   });
 };
 
-export const getGetBonnapMetadataQueryKey = () => {
+export const getGetBonapMetadataQueryKey = () => {
   return [`/api/bonap/metadata`] as const;
 };
 
-export const getGetBonnapMetadataQueryOptions = <
-  TData = Awaited<ReturnType<typeof getBonnapMetadata>>,
+export const getGetBonapMetadataQueryOptions = <
+  TData = Awaited<ReturnType<typeof getBonapMetadata>>,
   TError = ErrorType<unknown>,
 >(options?: {
   query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getBonnapMetadata>>,
+    Awaited<ReturnType<typeof getBonapMetadata>>,
     TError,
     TData
   >;
@@ -238,40 +238,40 @@ export const getGetBonnapMetadataQueryOptions = <
 }) => {
   const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getGetBonnapMetadataQueryKey();
+  const queryKey = queryOptions?.queryKey ?? getGetBonapMetadataQueryKey();
 
   const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getBonnapMetadata>>
-  > = ({ signal }) => getBonnapMetadata({ signal, ...requestOptions });
+    Awaited<ReturnType<typeof getBonapMetadata>>
+  > = ({ signal }) => getBonapMetadata({ signal, ...requestOptions });
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getBonnapMetadata>>,
+    Awaited<ReturnType<typeof getBonapMetadata>>,
     TError,
     TData
   > & { queryKey: QueryKey };
 };
 
-export type GetBonnapMetadataQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getBonnapMetadata>>
+export type GetBonapMetadataQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getBonapMetadata>>
 >;
-export type GetBonnapMetadataQueryError = ErrorType<unknown>;
+export type GetBonapMetadataQueryError = ErrorType<unknown>;
 
 /**
  * @summary BONAP service metadata
  */
 
-export function useGetBonnapMetadata<
-  TData = Awaited<ReturnType<typeof getBonnapMetadata>>,
+export function useGetBonapMetadata<
+  TData = Awaited<ReturnType<typeof getBonapMetadata>>,
   TError = ErrorType<unknown>,
 >(options?: {
   query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getBonnapMetadata>>,
+    Awaited<ReturnType<typeof getBonapMetadata>>,
     TError,
     TData
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getGetBonnapMetadataQueryOptions(options);
+  const queryOptions = getGetBonapMetadataQueryOptions(options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

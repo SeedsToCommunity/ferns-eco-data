@@ -20,10 +20,10 @@ export const HealthCheckResponse = zod.object({
 
  * @summary Get BONAP distribution map
  */
-export const getBonnapMapQueryMapTypeDefault = `county_species`;
-export const getBonnapMapQueryRefreshDefault = false;
+export const getBonapMapQueryMapTypeDefault = `county_species`;
+export const getBonapMapQueryRefreshDefault = false;
 
-export const GetBonnapMapQueryParams = zod.object({
+export const GetBonapMapQueryParams = zod.object({
   genus: zod.coerce
     .string()
     .describe(
@@ -37,17 +37,17 @@ export const GetBonnapMapQueryParams = zod.object({
     ),
   map_type: zod
     .enum(["county_species", "state_species", "genus_county"])
-    .default(getBonnapMapQueryMapTypeDefault)
+    .default(getBonapMapQueryMapTypeDefault)
     .describe(
       "Map type to retrieve. county_species is the default and most useful. state_species returns 501 Not Implemented — URL pattern is unverified. genus_county returns the genus browsing page URL only — PNG URL unconfirmed.\n",
     ),
   refresh: zod.coerce
     .boolean()
-    .default(getBonnapMapQueryRefreshDefault)
+    .default(getBonapMapQueryRefreshDefault)
     .describe("If true, bypasses cache and fetches fresh from BONAP."),
 });
 
-export const GetBonnapMapResponse = zod
+export const GetBonapMapResponse = zod
   .object({
     source_url: zod
       .string()
@@ -204,7 +204,7 @@ export const GetBonnapMapResponse = zod
 
  * @summary BONAP service metadata
  */
-export const GetBonnapMetadataResponse = zod.object({
+export const GetBonapMetadataResponse = zod.object({
   service_id: zod.string(),
   service_name: zod.string(),
   data_vintage: zod.string(),

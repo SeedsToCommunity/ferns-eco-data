@@ -5,18 +5,18 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { BonnapMapData } from "./bonnapMapData";
+import type { BonapMapData } from "./bonapMapData";
 import type { FernsProvenance } from "./fernsProvenance";
 
 /**
  * Standard FERNS response envelope for BONAP map lookups
  */
-export interface BonnapMapResponse {
+export interface BonapMapResponse {
   /** Canonical BONAP page URL for this species or genus. Always constructed when possible and returned regardless of whether a map was found. Enables 'View on BONAP' links in applications.
    */
   source_url: string | null;
   /** Whether a BONAP map was found for this query */
   found: boolean;
-  data?: BonnapMapData | null;
+  data?: BonapMapData | null;
   provenance: FernsProvenance;
 }

@@ -5,16 +5,16 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { BonnapAttribution } from "./bonnapAttribution";
+import type { BonapAttribution } from "./bonapAttribution";
 import type { ColorKeyEntry } from "./colorKeyEntry";
 
-export interface BonnapMetadataResponse {
+export interface BonapMetadataResponse {
   service_id: string;
   service_name: string;
   data_vintage: string;
   permission_granted: boolean;
   permission_status: string;
-  attribution: BonnapAttribution;
+  attribution: BonapAttribution;
   color_key: ColorKeyEntry[];
   color_key_url: string;
   queried_at: Date;

@@ -6,10 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type BonnapMapDataMapTypeServed =
-  (typeof BonnapMapDataMapTypeServed)[keyof typeof BonnapMapDataMapTypeServed];
+export type BonapMapDataMapTypeServed =
+  (typeof BonapMapDataMapTypeServed)[keyof typeof BonapMapDataMapTypeServed];
 
-export const BonnapMapDataMapTypeServed = {
+export const BonapMapDataMapTypeServed = {
   county_species: "county_species",
   state_species: "state_species",
   genus_county: "genus_county",

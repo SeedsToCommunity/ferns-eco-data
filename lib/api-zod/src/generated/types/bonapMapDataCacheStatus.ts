@@ -6,10 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type BonnapMapDataCacheStatus =
-  (typeof BonnapMapDataCacheStatus)[keyof typeof BonnapMapDataCacheStatus];
+export type BonapMapDataCacheStatus =
+  (typeof BonapMapDataCacheStatus)[keyof typeof BonapMapDataCacheStatus];
 
-export const BonnapMapDataCacheStatus = {
+export const BonapMapDataCacheStatus = {
   hit: "hit",
   miss: "miss",
   bypassed: "bypassed",

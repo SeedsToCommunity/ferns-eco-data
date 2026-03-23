@@ -1,36 +1,36 @@
 import { useState } from "react";
 import { 
-  useGetBonnapMap, 
-  useGetBonnapMetadata,
-  getGetBonnapMapQueryKey,
-  getGetBonnapMetadataQueryKey,
-  type GetBonnapMapParams
+  useGetBonapMap, 
+  useGetBonapMetadata,
+  getGetBonapMapQueryKey,
+  getGetBonapMetadataQueryKey,
+  type GetBonapMapParams
 } from "@workspace/api-client-react";
 
 export function useBonapExplorer() {
-  const [searchParams, setSearchParams] = useState<GetBonnapMapParams | null>(null);
+  const [searchParams, setSearchParams] = useState<GetBonapMapParams | null>(null);
 
-  const effectiveParams: GetBonnapMapParams = searchParams ?? { genus: "" };
+  const effectiveParams: GetBonapMapParams = searchParams ?? { genus: "" };
   
-  const mapQuery = useGetBonnapMap(
+  const mapQuery = useGetBonapMap(
     effectiveParams,
     {
       query: {
-        queryKey: getGetBonnapMapQueryKey(effectiveParams),
+        queryKey: getGetBonapMapQueryKey(effectiveParams),
         enabled: !!searchParams?.genus,
         retry: false,
       }
     }
   );
 
-  const metadataQuery = useGetBonnapMetadata({
+  const metadataQuery = useGetBonapMetadata({
     query: {
-      queryKey: getGetBonnapMetadataQueryKey(),
+      queryKey: getGetBonapMetadataQueryKey(),
       staleTime: Infinity,
     }
   });
 
-  const handleSearch = (params: GetBonnapMapParams) => {
+  const handleSearch = (params: GetBonapMapParams) => {
     setSearchParams(params);
   };
 

@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { GetBonnapMapQueryParams, GetBonnapMapResponse, GetBonnapMetadataResponse } from "@workspace/api-zod";
+import { GetBonapMapQueryParams, GetBonapMapResponse, GetBonapMetadataResponse } from "@workspace/api-zod";
 import { normalizeInput, verifyMapExists, buildCacheKey, buildProvenance } from "../services/bonap/connector.js";
 import { lookupCache, storeCache } from "../services/bonap/cache.js";
 import {
@@ -26,7 +26,7 @@ router.get("/bonap/map", async (req, res) => {
     ...req.query,
     refresh: req.query.refresh === "true" || req.query.refresh === "1" ? true : undefined,
   };
-  const parsed = GetBonnapMapQueryParams.safeParse(rawQuery);
+  const parsed = GetBonapMapQueryParams.safeParse(rawQuery);
   if (!parsed.success) {
     res.status(400).json({
       error: "invalid_input",
@@ -52,7 +52,7 @@ router.get("/bonap/map", async (req, res) => {
   if (!refresh) {
     const cached = await lookupCache(cacheKey);
     if (cached) {
-      const response = GetBonnapMapResponse.parse(buildMapResponse(cached, "hit"));
+      const response = GetBonapMapResponse.parse(buildMapResponse(cached, "hit"));
       res.json(response);
       return;
     }
@@ -61,7 +61,7 @@ router.get("/bonap/map", async (req, res) => {
   const result = await verifyMapExists(normalized);
   const provenance = buildProvenance(result);
   const stored = await storeCache(cacheKey, result, provenance);
-  const response = GetBonnapMapResponse.parse(buildMapResponse(stored, refresh ? "bypassed" : "miss"));
+  const response = GetBonapMapResponse.parse(buildMapResponse(stored, refresh ? "bypassed" : "miss"));
   res.json(response);
 });
 
@@ -122,7 +122,7 @@ function buildMapResponse(
 router.get("/bonap/metadata", async (_req, res) => {
   await ensureBonappRegistryEntry();
 
-  const payload = GetBonnapMetadataResponse.parse({
+  const payload = GetBonapMetadataResponse.parse({
     service_id: BONAP_SOURCE_ID,
     service_name: "BONAP North American Plant Atlas — Distribution Maps",
     data_vintage: BONAP_DATA_VINTAGE,
