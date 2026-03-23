@@ -229,6 +229,16 @@ export async function fetchNameMatch(name: string): Promise<GbifMatchResult> {
   };
 }
 
+export async function resolveToAcceptedUsageKey(usageKey: number): Promise<{ resolvedKey: number; wasSynonym: boolean }> {
+  const url = `${GBIF_API_BASE}/species/${usageKey}`;
+  const raw = (await gbifFetch(url)) as Record<string, unknown>;
+  const status = raw.taxonomicStatus as string || raw.status as string || "";
+  if ((status === "SYNONYM" || status.includes("SYNONYM")) && raw.acceptedKey) {
+    return { resolvedKey: raw.acceptedKey as number, wasSynonym: true };
+  }
+  return { resolvedKey: usageKey, wasSynonym: false };
+}
+
 export async function fetchReconcile(usageKey: number): Promise<GbifReconcileResult> {
   const synonymsUrl = `${GBIF_API_BASE}/species/${usageKey}/synonyms?limit=100`;
   const vernacularUrl = `${GBIF_API_BASE}/species/${usageKey}/vernacularNames?limit=500`;

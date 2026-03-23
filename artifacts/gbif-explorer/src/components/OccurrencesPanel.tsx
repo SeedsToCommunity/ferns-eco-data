@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { useGetGbifOccurrences } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -9,25 +9,54 @@ import { formatNumber, cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { RawJsonPanel } from "./RawJsonPanel";
 
+const BboxMapPicker = lazy(() =>
+  import("./BboxMapPicker").then((m) => ({ default: m.BboxMapPicker })),
+);
+
 interface OccurrencesPanelProps {
   usageKey: number;
 }
 
 type GeoMode = "countries" | "continent" | "bbox";
 
+interface BboxValues {
+  minLat: string;
+  minLon: string;
+  maxLat: string;
+  maxLon: string;
+}
+
+type CountriesState = { US: boolean; CA: boolean; MX: boolean };
+
+interface OccurrencesParams {
+  usageKey: number;
+  countries?: string;
+  continent?: string;
+  bbox?: string;
+  refresh?: boolean;
+}
+
 export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
   const [geoMode, setGeoMode] = useState<GeoMode>("countries");
-  const [countries, setCountries] = useState({ US: true, CA: true, MX: true });
+  const [countries, setCountries] = useState<CountriesState>({ US: true, CA: true, MX: true });
   const [continent, setContinent] = useState("NORTH_AMERICA");
-  const [bbox, setBbox] = useState({ minLat: "24.4", minLon: "-125.0", maxLat: "49.4", maxLon: "-66.9" });
-  
+  const [bbox, setBbox] = useState<BboxValues>({
+    minLat: "24.4",
+    minLon: "-125.0",
+    maxLat: "49.4",
+    maxLon: "-66.9",
+  });
+
   const [hasTriggered, setHasTriggered] = useState(false);
   const [refreshToggle, setRefreshToggle] = useState(false);
 
-  // Build params
-  let queryParams: any = { usageKey };
+  const queryParams: OccurrencesParams = { usageKey };
+
   if (geoMode === "countries") {
-    const selected = Object.entries(countries).filter(([_, v]) => v).map(([k]) => k).join(",");
+    const selected = (Object.entries(countries) as [keyof CountriesState, boolean][])
+      .filter(([, v]) => v)
+      .map(([k]) => k)
+      .join(",");
     if (selected) queryParams.countries = selected;
   } else if (geoMode === "continent") {
     queryParams.continent = continent;
@@ -35,13 +64,12 @@ export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
     queryParams.bbox = `${bbox.minLat},${bbox.minLon},${bbox.maxLat},${bbox.maxLon}`;
   }
 
-  // Force refresh bypass cache
   if (refreshToggle) {
     queryParams.refresh = true;
   }
 
   const occQuery = useGetGbifOccurrences(queryParams, {
-    query: { enabled: hasTriggered }
+    query: { enabled: hasTriggered },
   });
 
   const handleFetch = () => {
@@ -65,44 +93,48 @@ export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
           Occurrence Data
         </CardTitle>
         <p className="text-sm text-muted-foreground mt-1">
-          Configure geographic bounds and fetch recent georeferenced records. 
-          Records are filtered for valid coordinates and exclude known geospatial issues.
+          Configure geographic bounds and fetch recent georeferenced records. Records are filtered for
+          valid coordinates and exclude known geospatial issues.
         </p>
       </CardHeader>
-      
+
       <CardContent className="pt-6">
-        
         {/* Geography Configurator */}
         <div className="bg-card border border-border rounded-xl p-5 mb-6 shadow-sm">
           <h4 className="text-sm font-bold uppercase tracking-wide text-foreground mb-4 flex items-center gap-2">
             <Globe2 className="w-4 h-4 text-primary" />
             Geography Filter
           </h4>
-          
+
           <div className="flex flex-wrap gap-4 mb-6">
             {(["countries", "continent", "bbox"] as GeoMode[]).map((mode) => (
               <label key={mode} className="flex items-center gap-2 cursor-pointer">
-                <input 
-                  type="radio" 
-                  name="geoMode" 
-                  checked={geoMode === mode} 
+                <input
+                  type="radio"
+                  name="geoMode"
+                  checked={geoMode === mode}
                   onChange={() => setGeoMode(mode)}
                   className="w-4 h-4 text-primary accent-primary"
                 />
-                <span className="text-sm font-medium capitalize">{mode.replace('bbox', 'Bounding Box')}</span>
+                <span className="text-sm font-medium capitalize">
+                  {mode === "bbox" ? "Bounding Box" : mode}
+                </span>
               </label>
             ))}
           </div>
 
-          <div className="pl-6 border-l-2 border-border/50 min-h-[80px]">
+          <div className="pl-6 border-l-2 border-border/50">
             {geoMode === "countries" && (
               <div className="flex gap-4">
-                {["US", "CA", "MX"].map((code) => (
-                  <label key={code} className="flex items-center gap-2 cursor-pointer bg-muted/50 px-4 py-2 rounded-lg hover:bg-muted transition-colors">
-                    <input 
-                      type="checkbox" 
-                      checked={countries[code as keyof typeof countries]}
-                      onChange={(e) => setCountries({...countries, [code]: e.target.checked})}
+                {(["US", "CA", "MX"] as (keyof CountriesState)[]).map((code) => (
+                  <label
+                    key={code}
+                    className="flex items-center gap-2 cursor-pointer bg-muted/50 px-4 py-2 rounded-lg hover:bg-muted transition-colors"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={countries[code]}
+                      onChange={(e) => setCountries({ ...countries, [code]: e.target.checked })}
                       className="w-4 h-4 rounded text-primary accent-primary"
                     />
                     <span className="font-medium">{code}</span>
@@ -112,47 +144,86 @@ export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
             )}
 
             {geoMode === "continent" && (
-              <select 
+              <select
                 className="h-11 w-full max-w-xs rounded-xl border-2 border-border bg-background px-3 py-2 text-sm focus:outline-none focus:border-primary"
                 value={continent}
                 onChange={(e) => setContinent(e.target.value)}
               >
-                {["AFRICA", "ANTARCTICA", "ASIA", "EUROPE", "NORTH_AMERICA", "OCEANIA", "SOUTH_AMERICA"].map(c => (
-                  <option key={c} value={c}>{c.replace('_', ' ')}</option>
+                {[
+                  "AFRICA",
+                  "ANTARCTICA",
+                  "ASIA",
+                  "EUROPE",
+                  "NORTH_AMERICA",
+                  "OCEANIA",
+                  "SOUTH_AMERICA",
+                ].map((c) => (
+                  <option key={c} value={c}>
+                    {c.replace(/_/g, " ")}
+                  </option>
                 ))}
               </select>
             )}
 
             {geoMode === "bbox" && (
-              <div className="space-y-3">
+              <div className="space-y-4">
+                {/* Numeric inputs */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div>
                     <label className="text-xs text-muted-foreground block mb-1">Min Lat</label>
-                    <Input value={bbox.minLat} onChange={e => setBbox({...bbox, minLat: e.target.value})} placeholder="e.g. 24.4" />
+                    <Input
+                      value={bbox.minLat}
+                      onChange={(e) => setBbox({ ...bbox, minLat: e.target.value })}
+                      placeholder="e.g. 24.4"
+                    />
                   </div>
                   <div>
                     <label className="text-xs text-muted-foreground block mb-1">Min Lon</label>
-                    <Input value={bbox.minLon} onChange={e => setBbox({...bbox, minLon: e.target.value})} placeholder="e.g. -125.0" />
+                    <Input
+                      value={bbox.minLon}
+                      onChange={(e) => setBbox({ ...bbox, minLon: e.target.value })}
+                      placeholder="e.g. -125.0"
+                    />
                   </div>
                   <div>
                     <label className="text-xs text-muted-foreground block mb-1">Max Lat</label>
-                    <Input value={bbox.maxLat} onChange={e => setBbox({...bbox, maxLat: e.target.value})} placeholder="e.g. 49.4" />
+                    <Input
+                      value={bbox.maxLat}
+                      onChange={(e) => setBbox({ ...bbox, maxLat: e.target.value })}
+                      placeholder="e.g. 49.4"
+                    />
                   </div>
                   <div>
                     <label className="text-xs text-muted-foreground block mb-1">Max Lon</label>
-                    <Input value={bbox.maxLon} onChange={e => setBbox({...bbox, maxLon: e.target.value})} placeholder="e.g. -66.9" />
+                    <Input
+                      value={bbox.maxLon}
+                      onChange={(e) => setBbox({ ...bbox, maxLon: e.target.value })}
+                      placeholder="e.g. -66.9"
+                    />
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground italic flex items-center gap-1">
-                  <MapPin className="w-3 h-3" /> Map tile picker coming in a future version. Values above default to Continental US.
-                </p>
+
+                {/* Leaflet Map */}
+                <Suspense
+                  fallback={
+                    <div className="h-[280px] rounded-xl border border-border bg-muted/30 flex items-center justify-center text-sm text-muted-foreground">
+                      Loading map…
+                    </div>
+                  }
+                >
+                  <BboxMapPicker bbox={bbox} onChange={setBbox} />
+                </Suspense>
               </div>
             )}
           </div>
 
           <div className="mt-6 pt-4 border-t border-border/50 flex items-center justify-between">
             <Button onClick={handleFetch} disabled={occQuery.isFetching} className="gap-2">
-              {occQuery.isFetching ? <RefreshCw className="w-4 h-4 animate-spin" /> : <MapPin className="w-4 h-4" />}
+              {occQuery.isFetching ? (
+                <RefreshCw className="w-4 h-4 animate-spin" />
+              ) : (
+                <MapPin className="w-4 h-4" />
+              )}
               {hasTriggered ? "Update Occurrences" : "Fetch Occurrences"}
             </Button>
           </div>
@@ -173,17 +244,30 @@ export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
                   {formatNumber(occQuery.data.data.occurrence_count)}
                 </h3>
                 <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
-                  Total occurrences for <Badge variant="outline" className="font-mono bg-background">{occQuery.data.data.geography_params}</Badge>
+                  Total occurrences for{" "}
+                  <Badge variant="outline" className="font-mono bg-background">
+                    {occQuery.data.data.geography_params}
+                  </Badge>
                 </p>
               </div>
               <div className="flex flex-col items-end gap-2 text-right">
                 <div className="flex items-center gap-2">
                   <Badge variant="outline">{occQuery.data.data.cache_status}</Badge>
                   <span className="text-xs text-muted-foreground">
-                    As of {format(new Date(occQuery.data.data.occurrence_last_fetched), "MMM d, yyyy HH:mm")}
+                    As of{" "}
+                    {format(
+                      new Date(occQuery.data.data.occurrence_last_fetched),
+                      "MMM d, yyyy HH:mm",
+                    )}
                   </span>
                 </div>
-                <Button variant="outline" size="sm" onClick={handleRefresh} disabled={occQuery.isFetching} className="h-8 text-xs">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRefresh}
+                  disabled={occQuery.isFetching}
+                  className="h-8 text-xs"
+                >
                   <RefreshCw className={cn("w-3 h-3 mr-1.5", occQuery.isFetching && "animate-spin")} />
                   Bypass Cache
                 </Button>
@@ -206,7 +290,10 @@ export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
                   <tbody className="divide-y divide-border">
                     {occQuery.data.data.recent_occurrences.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground italic">
+                        <td
+                          colSpan={6}
+                          className="px-4 py-8 text-center text-muted-foreground italic"
+                        >
                           No recent records found matching criteria.
                         </td>
                       </tr>
@@ -214,25 +301,40 @@ export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
                       occQuery.data.data.recent_occurrences.slice(0, 50).map((occ, i) => (
                         <tr key={i} className="hover:bg-muted/30 transition-colors">
                           <td className="px-4 py-3 whitespace-nowrap">
-                            {occ.eventDate ? format(new Date(occ.eventDate), "yyyy-MM-dd") : occ.year || "Unknown"}
+                            {occ.eventDate
+                              ? format(new Date(occ.eventDate), "yyyy-MM-dd")
+                              : occ.year || "Unknown"}
                           </td>
                           <td className="px-4 py-3">
                             <div className="font-medium">{occ.country}</div>
-                            <div className="text-xs text-muted-foreground">{[occ.stateProvince, occ.county].filter(Boolean).join(", ")}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {[occ.stateProvince, occ.county].filter(Boolean).join(", ")}
+                            </div>
                           </td>
                           <td className="px-4 py-3">
-                            <Badge variant="secondary" className="text-[10px] whitespace-nowrap">
-                              {occ.basisOfRecord.replace(/_/g, ' ')}
+                            <Badge
+                              variant="secondary"
+                              className="text-[10px] whitespace-nowrap"
+                            >
+                              {occ.basisOfRecord.replace(/_/g, " ")}
                             </Badge>
                           </td>
-                          <td className="px-4 py-3 text-xs max-w-[150px] truncate" title={occ.institutionCode || occ.datasetName || "Unknown"}>
+                          <td
+                            className="px-4 py-3 text-xs max-w-[150px] truncate"
+                            title={occ.institutionCode || occ.datasetName || "Unknown"}
+                          >
                             {occ.institutionCode || occ.datasetName || "Unknown"}
                           </td>
                           <td className="px-4 py-3 font-mono text-xs text-muted-foreground whitespace-nowrap">
                             {occ.decimalLatitude.toFixed(4)}, {occ.decimalLongitude.toFixed(4)}
                           </td>
                           <td className="px-4 py-3 text-right">
-                            <a href={occ.gbifOccurrenceUrl} target="_blank" rel="noopener noreferrer" className="inline-flex p-1.5 hover:bg-muted rounded text-primary transition-colors">
+                            <a
+                              href={occ.gbifOccurrenceUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex p-1.5 hover:bg-muted rounded text-primary transition-colors"
+                            >
                               <ExternalLink className="w-4 h-4" />
                             </a>
                           </td>
@@ -244,7 +346,8 @@ export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
               </div>
               {occQuery.data.data.recent_occurrences.length > 50 && (
                 <div className="px-4 py-3 text-center border-t border-border bg-muted/20 text-xs text-muted-foreground">
-                  Showing top 50 recent records out of {occQuery.data.data.recent_occurrences.length} fetched.
+                  Showing top 50 recent records out of {occQuery.data.data.recent_occurrences.length}{" "}
+                  fetched.
                 </div>
               )}
             </div>
@@ -252,7 +355,6 @@ export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
             <RawJsonPanel title="Occurrences Response" data={occQuery.data} />
           </div>
         )}
-
       </CardContent>
     </Card>
   );

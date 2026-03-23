@@ -10,6 +10,7 @@ import {
   fetchVernacularSearch,
   parseGeography,
   buildProvenance,
+  resolveToAcceptedUsageKey,
 } from "../services/gbif/connector.js";
 import {
   lookupNameMatch,
@@ -29,6 +30,7 @@ import {
   GBIF_VOCABULARIES,
   GBIF_DERIVATION_SUMMARY,
   GBIF_DERIVATION_SCIENTIFIC,
+  GBIF_REGISTRY_ENTRY,
 } from "../services/gbif/metadata.js";
 import { ensureGbifRegistryEntry } from "../services/gbif/seed.js";
 
@@ -139,30 +141,33 @@ router.get("/gbif/reconcile", async (req, res) => {
 
   const refresh = req.query.refresh === "true" || req.query.refresh === "1";
 
-  const synKey = buildSynonymsCacheKey(usageKey);
-  const vernKey = buildVernacularCacheKey(usageKey);
-
-  if (!refresh) {
-    const [cachedSyn, cachedVern] = await Promise.all([
-      lookupSynonyms(synKey),
-      lookupVernacular(vernKey),
-    ]);
-
-    if (cachedSyn && cachedVern) {
-      res.json(buildReconcileResponse(usageKey, cachedSyn, cachedVern));
-      return;
-    }
-  }
-
   try {
-    const result = await fetchReconcile(usageKey);
+    // Auto-resolve: if caller passed a synonym usageKey, resolve to accepted key first
+    const { resolvedKey, wasSynonym } = await resolveToAcceptedUsageKey(usageKey);
+
+    const synKey = buildSynonymsCacheKey(resolvedKey);
+    const vernKey = buildVernacularCacheKey(resolvedKey);
+
+    if (!refresh) {
+      const [cachedSyn, cachedVern] = await Promise.all([
+        lookupSynonyms(synKey),
+        lookupVernacular(vernKey),
+      ]);
+
+      if (cachedSyn && cachedVern) {
+        res.json(buildReconcileResponse(resolvedKey, cachedSyn, cachedVern, wasSynonym ? usageKey : null));
+        return;
+      }
+    }
+
+    const result = await fetchReconcile(resolvedKey);
 
     const [storedSyn, storedVern] = await Promise.all([
-      storeSynonyms(synKey, usageKey, result),
-      storeVernacular(vernKey, usageKey, result),
+      storeSynonyms(synKey, resolvedKey, result),
+      storeVernacular(vernKey, resolvedKey, result),
     ]);
 
-    res.json(buildReconcileResponse(usageKey, storedSyn, storedVern));
+    res.json(buildReconcileResponse(resolvedKey, storedSyn, storedVern, wasSynonym ? usageKey : null));
   } catch (err) {
     req.log.error({ err }, "GBIF reconcile fetch failed");
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from GBIF API" });
@@ -188,12 +193,14 @@ function buildReconcileResponse(
     fetched_at: Date;
     upstream_url: string;
   },
+  resolvedFromSynonymKey: number | null = null,
 ) {
   return {
     source_url: `https://www.gbif.org/species/${usageKey}`,
     found: true,
     data: {
       usage_key: usageKey,
+      resolved_from_synonym_key: resolvedFromSynonymKey ?? null,
       synonyms: syn.synonyms,
       synonym_count: syn.synonym_count,
       vernacular_names: vern.vernacular_names,
@@ -226,6 +233,12 @@ router.get("/gbif/occurrences", async (req, res) => {
   const rawCountries = typeof req.query.countries === "string" ? req.query.countries : undefined;
   const rawContinent = typeof req.query.continent === "string" ? req.query.continent : undefined;
   const rawBbox = typeof req.query.bbox === "string" ? req.query.bbox : undefined;
+
+  const geoModesProvided = [rawCountries, rawContinent, rawBbox].filter(Boolean).length;
+  if (geoModesProvided > 1) {
+    res.status(400).json({ error: "invalid_input", message: "countries, continent, and bbox are mutually exclusive — provide at most one" });
+    return;
+  }
 
   if (rawContinent && !VALID_CONTINENTS.has(rawContinent)) {
     res.status(400).json({ error: "invalid_input", message: `continent must be one of: ${[...VALID_CONTINENTS].join(", ")}` });
@@ -360,6 +373,9 @@ router.get("/gbif/metadata", async (_req, res) => {
     permission_status: GBIF_PERMISSION_STATUS,
     attribution: GBIF_ATTRIBUTION,
     vocabularies: GBIF_VOCABULARIES,
+    registry_entry: {
+      ...GBIF_REGISTRY_ENTRY,
+    },
     queried_at: new Date(),
   });
 });
