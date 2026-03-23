@@ -255,6 +255,7 @@ components:
         - color_key
         - data_vintage
         - permission_granted
+        - permission_status
         - attribution
         - cache_status
         - queried_at
@@ -305,6 +306,11 @@ components:
           description: >
             Whether FERNS has received written permission from BONAP to reproduce
             and display map materials. Currently false. Applications must surface this field.
+        permission_status:
+          type: string
+          description: >
+            Human-readable permission status string. Matches the value from the metadata endpoint.
+            Applications should display this when permission_granted is false.
         attribution:
           $ref: "#/components/schemas/BonnapAttribution"
         cache_status:

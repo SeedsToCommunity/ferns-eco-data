@@ -139,6 +139,11 @@ export const GetBonnapMapResponse = zod
           .describe(
             "Whether FERNS has received written permission from BONAP to reproduce and display map materials. Currently false. Applications must surface this field.\n",
           ),
+        permission_status: zod
+          .string()
+          .describe(
+            "Human-readable permission status string. Matches the value from the metadata endpoint. Applications should display this when permission_granted is false.\n",
+          ),
         attribution: zod.object({
           source_name: zod.string(),
           maintainer: zod.string(),

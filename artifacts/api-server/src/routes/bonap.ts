@@ -16,7 +16,11 @@ import { ensureBonappRegistryEntry } from "../services/bonap/seed.js";
 const router: IRouter = Router();
 
 router.get("/bonap/map", async (req, res) => {
-  const parsed = GetBonnapMapQueryParams.safeParse(req.query);
+  const rawQuery = {
+    ...req.query,
+    refresh: req.query.refresh === "true" || req.query.refresh === "1" ? true : undefined,
+  };
+  const parsed = GetBonnapMapQueryParams.safeParse(rawQuery);
   if (!parsed.success) {
     res.status(400).json({
       error: "invalid_input",
@@ -94,6 +98,7 @@ function buildMapResponse(
       color_key: BONAP_COLOR_KEY,
       data_vintage: BONAP_DATA_VINTAGE,
       permission_granted: BONAP_PERMISSION_GRANTED,
+      permission_status: BONAP_PERMISSION_STATUS,
       attribution: BONAP_ATTRIBUTION,
       cache_status,
       queried_at: new Date(),

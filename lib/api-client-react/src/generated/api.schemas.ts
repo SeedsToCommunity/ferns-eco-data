@@ -127,6 +127,9 @@ export interface BonnapMapData {
   /** Whether FERNS has received written permission from BONAP to reproduce and display map materials. Currently false. Applications must surface this field.
    */
   permission_granted: boolean;
+  /** Human-readable permission status string. Matches the value from the metadata endpoint. Applications should display this when permission_granted is false.
+   */
+  permission_status: string;
   attribution: BonnapAttribution;
   cache_status: BonnapMapDataCacheStatus;
   queried_at: string;
