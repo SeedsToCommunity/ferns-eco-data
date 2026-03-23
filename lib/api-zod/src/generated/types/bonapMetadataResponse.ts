@@ -16,6 +16,10 @@ export interface BonapMetadataResponse {
   permission_status: string;
   attribution: BonapAttribution;
   color_key: ColorKeyEntry[];
+  /** URL of the BONAP map key reference page */
   color_key_url: string;
+  /** Direct URL to BONAP's authoritative composite color key GIF image. Display this image to show users the complete, pixel-perfect color key.
+   */
+  color_key_image_url: string;
   queried_at: Date;
 }

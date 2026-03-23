@@ -5,6 +5,8 @@ export const BONAP_DATA_VINTAGE =
 
 export const BONAP_COLOR_KEY_URL = "http://www.bonap.org/MapKey.html";
 
+export const BONAP_COLOR_KEY_IMAGE_URL = "http://www.bonap.org/Help/elements/Color%20Key.gif";
+
 export const BONAP_PERMISSION_GRANTED = false;
 
 export const BONAP_PERMISSION_STATUS =
@@ -133,6 +135,15 @@ export const BONAP_COLOR_KEY = [
       "County record exists but presence is uncertain. Displayed with cross-hatching rather than a solid fill.",
     layer: "county_fill" as const,
   },
+  {
+    code: "not_present",
+    hex_approx: "#ffffff",
+    hex_is_approximate: true,
+    name: "Species not present in state",
+    description:
+      "Species has no recorded occurrence in this state. County or state has no specimen record in the BONAP database.",
+    layer: "county_fill" as const,
+  },
 ];
 
 export const BONAP_DERIVATION_SUMMARY =
@@ -161,9 +172,9 @@ export const BONAP_REGISTRY_ENTRY = {
   service_name: "BONAP North American Plant Atlas — Distribution Maps",
   knowledge_type: "Source wrapper — direct access to an external authoritative dataset",
   input_summary:
-    "Genus name (required) + species epithet (optional) + map type (county_species, state_species, or genus_county)",
+    "Genus name (required) + species epithet (required) + map type (county_species or state_species)",
   output_summary:
-    "Map URL pointing to BONAP's PNG image on their server, color key metadata, data vintage, full attribution and copyright notice",
+    "Map URL pointing to BONAP's PNG image on their server, color key metadata, color key image URL, data vintage, full attribution and copyright notice",
   data_lineage:
     "Root source in the US plant taxonomy lineage. USDA PLANTS and GBIF US plant data are substantially derived from BONAP. Do not use BONAP alongside USDA PLANTS county distribution as independent confirming sources.",
   update_frequency:
@@ -174,5 +185,5 @@ export const BONAP_REGISTRY_ENTRY = {
     "Vascular plants only (ferns and allies, conifers, flowering plants). Does not cover bryophytes, lichens, algae, or fungi.",
   permission_status: BONAP_PERMISSION_STATUS,
   known_limitations:
-    "Data vintage 2014. No subspecies-level maps available publicly. State-level map URL pattern unverified. Genus-level map PNG URL unconfirmed. Color key hex codes are approximate.",
+    "Data vintage 2014. No subspecies-level maps available publicly. Family-level maps exist at bonap.net/MapGallery/State/Family/ but are not implemented. Color key hex codes are approximate; use color_key_image_url for the authoritative key.",
 };

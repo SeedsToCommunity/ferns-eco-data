@@ -18,7 +18,7 @@ export interface BonapMapData {
   map_type_served: BonapMapDataMapTypeServed;
   /** Normalized genus name as used in URL construction */
   genus: string;
-  /** Normalized species epithet. Null for genus-level requests. */
+  /** Normalized species epithet. */
   species?: string | null;
   /** True if the caller provided a subspecific epithet that was stripped */
   species_stripped: boolean;
@@ -42,7 +42,7 @@ export interface BonapMapData {
   attribution: BonapAttribution;
   cache_status: BonapMapDataCacheStatus;
   queried_at: Date;
-  /** Human-readable note attached to this response. Present when FERNS cannot fully verify the map URL — for example, genus_county map type returns a source browsing URL but the PNG URL is unconfirmed. Null for standard county_species responses.
+  /** Human-readable note attached to this response. Present when FERNS cannot fully verify the map URL. Null for standard county_species or state_species responses.
    */
   note?: string | null;
 }

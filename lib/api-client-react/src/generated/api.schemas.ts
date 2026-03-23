@@ -77,7 +77,6 @@ export type BonapMapDataMapTypeServed =
 export const BonapMapDataMapTypeServed = {
   county_species: "county_species",
   state_species: "state_species",
-  genus_county: "genus_county",
 } as const;
 
 /**
@@ -109,7 +108,7 @@ export interface BonapMapData {
   map_type_served: BonapMapDataMapTypeServed;
   /** Normalized genus name as used in URL construction */
   genus: string;
-  /** Normalized species epithet. Null for genus-level requests. */
+  /** Normalized species epithet. */
   species?: string | null;
   /** True if the caller provided a subspecific epithet that was stripped */
   species_stripped: boolean;
@@ -133,7 +132,7 @@ export interface BonapMapData {
   attribution: BonapAttribution;
   cache_status: BonapMapDataCacheStatus;
   queried_at: string;
-  /** Human-readable note attached to this response. Present when FERNS cannot fully verify the map URL — for example, genus_county map type returns a source browsing URL but the PNG URL is unconfirmed. Null for standard county_species responses.
+  /** Human-readable note attached to this response. Present when FERNS cannot fully verify the map URL. Null for standard county_species or state_species responses.
    */
   note?: string | null;
 }
@@ -159,7 +158,11 @@ export interface BonapMetadataResponse {
   permission_status: string;
   attribution: BonapAttribution;
   color_key: ColorKeyEntry[];
+  /** URL of the BONAP map key reference page */
   color_key_url: string;
+  /** Direct URL to BONAP's authoritative composite color key GIF image. Display this image to show users the complete, pixel-perfect color key.
+   */
+  color_key_image_url: string;
   queried_at: string;
 }
 
@@ -191,12 +194,12 @@ export type GetBonapMapParams = {
  */
   genus: string;
   /**
- * Species epithet, all lowercase (e.g. tuberosa). Leave blank for genus-level map. Subspecies/variety designations are stripped automatically; species_stripped is set true.
+ * Species epithet, all lowercase (e.g. tuberosa). Required when map_type=county_species or map_type=state_species — omitting species returns 400. Subspecies/variety designations are stripped automatically; species_stripped is set true.
 
  */
   species?: string;
   /**
- * Map type to retrieve. county_species is the default and most useful. state_species returns 501 Not Implemented — URL pattern is unverified. genus_county returns the genus browsing page URL only — PNG URL unconfirmed.
+ * Map type to retrieve. county_species (default) returns a county-level distribution map. state_species returns a state/continental-level distribution map. Both types require a genus+species pair.
 
  */
   map_type?: GetBonapMapMapType;
@@ -212,5 +215,4 @@ export type GetBonapMapMapType =
 export const GetBonapMapMapType = {
   county_species: "county_species",
   state_species: "state_species",
-  genus_county: "genus_county",
 } as const;

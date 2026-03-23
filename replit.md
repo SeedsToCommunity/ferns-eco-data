@@ -223,13 +223,15 @@ Both `derivation_summary` and `derivation_scientific` are non-negotiable — eve
 ### IN / OUT Rules (BONAP source)
 
 **IN scope:**
-- `county_species` map type: county-level PNG maps from `bonap.net/MapGallery/County/`
-- `genus_county` map type: genus-level PNG maps (returns `source_url` only — no map stored)
-- `/bonap/metadata` — static service identity, color key, attribution
+- `county_species` map type: county-level PNG maps from `bonap.net/MapGallery/County/{Genus}%20{species}.png`
+- `state_species` map type: state/continental PNG maps from `bonap.net/MapGallery/State/{Genus}%20{species}.png`
+- Both map types require genus + species — species is mandatory for all requests
+- `/bonap/metadata` — static service identity, color key, color key GIF (`http://www.bonap.org/Help/elements/Color%20Key.gif`), attribution
 - `/registry` — list of all registered FERNS knowledge services
 
 **OUT of scope:**
-- `state_species` map type: returns HTTP 501 (no BONAP URL pattern available)
+- Genus-level maps (`genus_county` was never a real BONAP resource — removed from API)
+- Family-level maps (`bonap.net/MapGallery/State/Family/`) — not implemented
 - Image proxying or storing: FERNS returns URLs only, never stores or serves image bytes
 - Subspecies handling: subspecies tokens are stripped from species names (`species_stripped: true` flag)
 

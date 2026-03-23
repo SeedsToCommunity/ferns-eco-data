@@ -4,7 +4,7 @@ import {
   BONAP_SOURCE_ID,
 } from "./metadata.js";
 
-export type MapType = "county_species" | "state_species" | "genus_county";
+export type MapType = "county_species" | "state_species";
 
 export interface NormalizedInput {
   genus: string;
@@ -46,28 +46,25 @@ export function normalizeInput(
 
   return {
     genus: normalizedGenus,
-    species: map_type === "genus_county" ? null : normalizedSpecies,
+    species: normalizedSpecies,
     map_type,
     species_stripped,
   };
 }
 
 export function buildMapUrl(input: NormalizedInput): string | null {
+  if (!input.species) return null;
+  const encoded = encodeURIComponent(`${input.genus} ${input.species}`);
   if (input.map_type === "county_species") {
-    if (!input.species) return null;
-    const encoded = encodeURIComponent(`${input.genus} ${input.species}`);
     return `https://bonap.net/MapGallery/County/${encoded}.png`;
   }
-  if (input.map_type === "genus_county") {
-    return null;
+  if (input.map_type === "state_species") {
+    return `https://bonap.net/MapGallery/State/${encoded}.png`;
   }
   return null;
 }
 
 export function buildSourceUrl(input: NormalizedInput): string | null {
-  if (input.map_type === "genus_county") {
-    return `https://bonap.net/Napa/TaxonMaps/Genus/County/${encodeURIComponent(input.genus)}`;
-  }
   if (input.species) {
     return `https://bonap.net/TDC/Image/Map?taxonType=Species&taxonId=&locationType=County&mapType=Normal&genus=${encodeURIComponent(input.genus)}&species=${encodeURIComponent(input.species)}`;
   }
@@ -76,9 +73,6 @@ export function buildSourceUrl(input: NormalizedInput): string | null {
 
 export function buildCacheKey(input: NormalizedInput): string {
   const genus = input.genus.toLowerCase();
-  if (input.map_type === "genus_county") {
-    return `bonap:genus:${genus}`;
-  }
   if (input.map_type === "state_species") {
     return `bonap:state:${genus}:${input.species ?? ""}`;
   }
@@ -129,34 +123,14 @@ export async function verifyMapExists(
   const mapUrl = buildMapUrl(input);
   const sourceUrl = buildSourceUrl(input);
 
-  if (input.map_type === "state_species") {
-    return {
-      status: "not_found",
-      map_url: null,
-      source_url: sourceUrl,
-      upstream_url: "https://bonap.net/FieldMaps/ (state-level URL pattern unverified)",
-      normalized: input,
-    };
-  }
-
-  if (input.map_type === "genus_county") {
-    return {
-      status: "unverified" as const,
-      map_url: null,
-      source_url: sourceUrl,
-      upstream_url:
-        sourceUrl ??
-        `https://bonap.net/Napa/TaxonMaps/Genus/County/${input.genus}`,
-      normalized: input,
-    };
-  }
-
   if (!mapUrl) {
     return {
       status: "not_found",
       map_url: null,
       source_url: sourceUrl,
-      upstream_url: `https://bonap.net/MapGallery/County/`,
+      upstream_url: input.map_type === "state_species"
+        ? `https://bonap.net/MapGallery/State/`
+        : `https://bonap.net/MapGallery/County/`,
       normalized: input,
     };
   }

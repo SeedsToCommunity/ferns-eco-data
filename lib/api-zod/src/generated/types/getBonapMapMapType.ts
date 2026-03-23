@@ -12,5 +12,4 @@ export type GetBonapMapMapType =
 export const GetBonapMapMapType = {
   county_species: "county_species",
   state_species: "state_species",
-  genus_county: "genus_county",
 } as const;

@@ -14,12 +14,12 @@ export type GetBonapMapParams = {
  */
   genus: string;
   /**
- * Species epithet, all lowercase (e.g. tuberosa). Leave blank for genus-level map. Subspecies/variety designations are stripped automatically; species_stripped is set true.
+ * Species epithet, all lowercase (e.g. tuberosa). Required when map_type=county_species or map_type=state_species — omitting species returns 400. Subspecies/variety designations are stripped automatically; species_stripped is set true.
 
  */
   species?: string;
   /**
- * Map type to retrieve. county_species is the default and most useful. state_species returns 501 Not Implemented — URL pattern is unverified. genus_county returns the genus browsing page URL only — PNG URL unconfirmed.
+ * Map type to retrieve. county_species (default) returns a county-level distribution map. state_species returns a state/continental-level distribution map. Both types require a genus+species pair.
 
  */
   map_type?: GetBonapMapMapType;

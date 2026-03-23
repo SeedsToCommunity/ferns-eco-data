@@ -33,13 +33,13 @@ export const GetBonapMapQueryParams = zod.object({
     .string()
     .optional()
     .describe(
-      "Species epithet, all lowercase (e.g. tuberosa). Leave blank for genus-level map. Subspecies\/variety designations are stripped automatically; species_stripped is set true.\n",
+      "Species epithet, all lowercase (e.g. tuberosa). Required when map_type=county_species or map_type=state_species — omitting species returns 400. Subspecies\/variety designations are stripped automatically; species_stripped is set true.\n",
     ),
   map_type: zod
-    .enum(["county_species", "state_species", "genus_county"])
+    .enum(["county_species", "state_species"])
     .default(getBonapMapQueryMapTypeDefault)
     .describe(
-      "Map type to retrieve. county_species is the default and most useful. state_species returns 501 Not Implemented — URL pattern is unverified. genus_county returns the genus browsing page URL only — PNG URL unconfirmed.\n",
+      "Map type to retrieve. county_species (default) returns a county-level distribution map. state_species returns a state\/continental-level distribution map. Both types require a genus+species pair.\n",
     ),
   refresh: zod.coerce
     .boolean()
@@ -66,20 +66,11 @@ export const GetBonapMapResponse = zod
           .describe(
             "Direct URL to the PNG image on BONAP's server. Present when status is found. Null when not found. Applications display this via an img tag — do not proxy.\n",
           ),
-        map_type_served: zod.enum([
-          "county_species",
-          "state_species",
-          "genus_county",
-        ]),
+        map_type_served: zod.enum(["county_species", "state_species"]),
         genus: zod
           .string()
           .describe("Normalized genus name as used in URL construction"),
-        species: zod
-          .string()
-          .nullish()
-          .describe(
-            "Normalized species epithet. Null for genus-level requests.",
-          ),
+        species: zod.string().nullish().describe("Normalized species epithet."),
         species_stripped: zod
           .boolean()
           .describe(
@@ -160,7 +151,7 @@ export const GetBonapMapResponse = zod
           .string()
           .nullish()
           .describe(
-            "Human-readable note attached to this response. Present when FERNS cannot fully verify the map URL — for example, genus_county map type returns a source browsing URL but the PNG URL is unconfirmed. Null for standard county_species responses.\n",
+            "Human-readable note attached to this response. Present when FERNS cannot fully verify the map URL. Null for standard county_species or state_species responses.\n",
           ),
       })
       .nullish(),
@@ -244,7 +235,14 @@ export const GetBonapMetadataResponse = zod.object({
         ),
     }),
   ),
-  color_key_url: zod.string(),
+  color_key_url: zod
+    .string()
+    .describe("URL of the BONAP map key reference page"),
+  color_key_image_url: zod
+    .string()
+    .describe(
+      "Direct URL to BONAP's authoritative composite color key GIF image. Display this image to show users the complete, pixel-perfect color key.\n",
+    ),
   queried_at: zod.date(),
 });
 

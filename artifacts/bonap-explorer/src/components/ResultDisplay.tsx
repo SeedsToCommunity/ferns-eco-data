@@ -103,11 +103,9 @@ export function ResultDisplay({ isLoading, error, response }: ResultDisplayProps
         )}
 
         {/* Color Key */}
-        {data?.color_key && data.color_key.length > 0 && (
-          <div className="p-6 md:p-8 border-t bg-background">
-            <ColorKey items={data.color_key} />
-          </div>
-        )}
+        <div className="p-6 md:p-8 border-t bg-background">
+          <ColorKey />
+        </div>
       </div>
 
       {/* Provenance */}

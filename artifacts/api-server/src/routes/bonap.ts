@@ -5,6 +5,7 @@ import { lookupCache, storeCache } from "../services/bonap/cache.js";
 import {
   BONAP_ATTRIBUTION,
   BONAP_COLOR_KEY,
+  BONAP_COLOR_KEY_IMAGE_URL,
   BONAP_COLOR_KEY_URL,
   BONAP_DATA_VINTAGE,
   BONAP_PERMISSION_GRANTED,
@@ -43,17 +44,8 @@ router.get("/bonap/map", async (req, res) => {
 
   const { genus, species, map_type, refresh } = parsed.data;
 
-  if (map_type === "county_species" && (!species || species.trim() === "")) {
-    res.status(400).json({ error: "invalid_input", message: "species is required for county_species map type; use genus_county for genus-level maps" });
-    return;
-  }
-
-  if (map_type === "state_species") {
-    res.status(501).json({
-      error: "not_implemented",
-      message:
-        "State/continental species maps are not yet implemented — the URL pattern could not be verified. Use county_species or genus_county.",
-    });
+  if (!species || species.trim() === "") {
+    res.status(400).json({ error: "invalid_input", message: "species is required for all map types" });
     return;
   }
 
@@ -100,7 +92,7 @@ function buildMapResponse(
     found: row.status === "found",
     data: {
       map_url: row.map_url ?? null,
-      map_type_served: row.map_type as "county_species" | "state_species" | "genus_county",
+      map_type_served: row.map_type as "county_species" | "state_species",
       genus: row.genus,
       species: row.species ?? null,
       species_stripped: row.species_stripped,
@@ -114,10 +106,7 @@ function buildMapResponse(
       attribution: BONAP_ATTRIBUTION,
       cache_status,
       queried_at: new Date(),
-      note:
-        row.map_type === "genus_county"
-          ? "Genus-county map type: FERNS returns the BONAP genus browsing page URL (source_url) only. The county-level genus PNG URL is unconfirmed — BONAP does not publish a stable direct-PNG URL pattern for genus-level county maps. No map image is available for this query."
-          : null,
+      note: null,
     },
     provenance: {
       source_id: row.source_id,
@@ -142,6 +131,7 @@ router.get("/bonap/metadata", async (_req, res) => {
     attribution: BONAP_ATTRIBUTION,
     color_key: BONAP_COLOR_KEY,
     color_key_url: BONAP_COLOR_KEY_URL,
+    color_key_image_url: BONAP_COLOR_KEY_IMAGE_URL,
     queried_at: new Date(),
   });
   res.json(payload);

@@ -1,8 +1,7 @@
 import { z } from "zod";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
-import { Search, Map } from "lucide-react";
+import { Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -28,7 +27,6 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
     handleSubmit,
     setValue,
     watch,
-    control,
     formState: { errors },
   } = useForm<SearchFormValues>({
     resolver: zodResolver(searchSchema),
@@ -40,19 +38,6 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
   });
 
   const selectedMapType = watch("map_type");
-  const speciesValue = useWatch({ control, name: "species", defaultValue: "" });
-
-  // Auto-switch map type: blank species → genus_county; filled species → county_species
-  useEffect(() => {
-    const species = watch("species");
-    const mapType = watch("map_type");
-    const isBlank = !species || species.trim() === "";
-    if (isBlank && mapType === "county_species") {
-      setValue("map_type", "genus_county");
-    } else if (!isBlank && mapType === "genus_county") {
-      setValue("map_type", "county_species");
-    }
-  }, [speciesValue, watch, setValue]);
 
   return (
     <form onSubmit={handleSubmit(onSearch)} className="bg-card border rounded-2xl shadow-sm overflow-hidden">
@@ -72,8 +57,8 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="species" className="text-foreground font-medium">
-              Species Epithet
+            <Label htmlFor="species" className="text-foreground font-medium flex items-center gap-1.5">
+              Species Epithet <span className="text-destructive">*</span>
             </Label>
             <Input
               id="species"
@@ -81,21 +66,20 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
               {...register("species")}
               className="h-12 text-lg bg-background"
             />
-            <p className="text-xs text-muted-foreground mt-1">Leave blank for genus map</p>
+            <p className="text-xs text-muted-foreground mt-1">Required — e.g. tuberosa, purpurea, canadensis</p>
           </div>
         </div>
 
         <div className="pt-4 border-t">
           <Label className="text-foreground font-medium mb-4 block">Map Type</Label>
-          <RadioGroup 
-            value={selectedMapType} 
+          <RadioGroup
+            value={selectedMapType}
             onValueChange={(v) => setValue("map_type", v as GetBonapMapMapType)}
-            className="grid grid-cols-1 md:grid-cols-3 gap-4"
+            className="grid grid-cols-1 md:grid-cols-2 gap-4"
           >
             {[
               { value: "county_species", label: "County-level species map" },
               { value: "state_species", label: "State/continental species map" },
-              { value: "genus_county", label: "Genus-level county map" }
             ].map((option) => (
               <div key={option.value} className="flex items-center space-x-2">
                 <RadioGroupItem value={option.value} id={`map_type_${option.value}`} />
@@ -109,9 +93,9 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
       </div>
 
       <div className="bg-secondary/30 px-6 py-4 md:px-8 border-t flex justify-end">
-        <Button 
-          type="submit" 
-          disabled={isLoading} 
+        <Button
+          type="submit"
+          disabled={isLoading}
           size="lg"
           className="w-full md:w-auto font-semibold gap-2 transition-all"
         >

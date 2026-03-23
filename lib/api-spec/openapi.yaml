@@ -53,8 +53,7 @@ paths:
           required: false
           description: >
             Species epithet, all lowercase (e.g. tuberosa).
-            Required when map_type=county_species — omitting species with county_species returns 400.
-            Leave blank only when using map_type=genus_county for a genus-level map.
+            Required when map_type=county_species or map_type=state_species — omitting species returns 400.
             Subspecies/variety designations are stripped automatically; species_stripped is set true.
           schema:
             type: string
@@ -62,12 +61,12 @@ paths:
           in: query
           required: false
           description: >
-            Map type to retrieve. county_species is the default and most useful.
-            state_species returns 501 Not Implemented — URL pattern is unverified.
-            genus_county returns the genus browsing page URL only — PNG URL unconfirmed.
+            Map type to retrieve. county_species (default) returns a county-level distribution map.
+            state_species returns a state/continental-level distribution map.
+            Both types require a genus+species pair.
           schema:
             type: string
-            enum: [county_species, state_species, genus_county]
+            enum: [county_species, state_species]
             default: county_species
         - name: refresh
           in: query
@@ -84,13 +83,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/BonapMapResponse"
         "400":
-          description: Invalid input (missing genus, invalid map_type)
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "501":
-          description: Not implemented (state_species map_type — URL pattern unverified)
+          description: Invalid input (missing genus, missing species, invalid map_type)
           content:
             application/json:
               schema:
@@ -270,14 +263,14 @@ components:
             Null when not found. Applications display this via an img tag — do not proxy.
         map_type_served:
           type: string
-          enum: [county_species, state_species, genus_county]
+          enum: [county_species, state_species]
         genus:
           type: string
           description: Normalized genus name as used in URL construction
         species:
           type: string
           nullable: true
-          description: Normalized species epithet. Null for genus-level requests.
+          description: Normalized species epithet.
         species_stripped:
           type: boolean
           description: True if the caller provided a subspecific epithet that was stripped
@@ -326,9 +319,7 @@ components:
           nullable: true
           description: >
             Human-readable note attached to this response. Present when FERNS cannot
-            fully verify the map URL — for example, genus_county map type returns a
-            source browsing URL but the PNG URL is unconfirmed. Null for standard
-            county_species responses.
+            fully verify the map URL. Null for standard county_species or state_species responses.
 
     BonapMapResponse:
       type: object
@@ -366,6 +357,7 @@ components:
         - attribution
         - color_key
         - color_key_url
+        - color_key_image_url
         - queried_at
       properties:
         service_id:
@@ -386,6 +378,12 @@ components:
             $ref: "#/components/schemas/ColorKeyEntry"
         color_key_url:
           type: string
+          description: URL of the BONAP map key reference page
+        color_key_image_url:
+          type: string
+          description: >
+            Direct URL to BONAP's authoritative composite color key GIF image.
+            Display this image to show users the complete, pixel-perfect color key.
         queried_at:
           type: string
           format: date-time
