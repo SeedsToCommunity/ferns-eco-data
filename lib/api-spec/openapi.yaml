@@ -52,7 +52,9 @@ paths:
           in: query
           required: false
           description: >
-            Species epithet, all lowercase (e.g. tuberosa). Leave blank for genus-level map.
+            Species epithet, all lowercase (e.g. tuberosa).
+            Required when map_type=county_species — omitting species with county_species returns 400.
+            Leave blank only when using map_type=genus_county for a genus-level map.
             Subspecies/variety designations are stripped automatically; species_stripped is set true.
           schema:
             type: string
