@@ -112,6 +112,14 @@ export function ResultDisplay({ isLoading, error, response }: ResultDisplayProps
 
       {/* Provenance */}
       <ProvenancePanel response={response} />
+
+      {/* Raw API Response */}
+      <div className="space-y-3">
+        <h3 className="font-serif text-lg font-semibold text-foreground">Raw API Response</h3>
+        <pre className="bg-secondary/30 border rounded-2xl p-6 text-xs font-mono leading-relaxed overflow-x-auto whitespace-pre-wrap break-all text-foreground/80">
+          {JSON.stringify(response, null, 2)}
+        </pre>
+      </div>
       
     </motion.div>
   );
