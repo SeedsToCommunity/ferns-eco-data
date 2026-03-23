@@ -3,13 +3,17 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: FERNS — Federated Ecological Resource Network System API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: bonap
+    description: BONAP North American Plant Atlas — Distribution Maps
+  - name: registry
+    description: FERNS Service Registry
 paths:
   /healthz:
     get:
@@ -24,6 +28,106 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /bonap/map:
+    get:
+      operationId: getBonnapMap
+      tags: [bonap]
+      summary: Get BONAP distribution map
+      description: >
+        Returns the BONAP distribution map URL for a given species or genus.
+        The map image is served directly from BONAP's server — FERNS returns
+        the URL only and never proxies or stores the image.
+        Results are cached permanently for found species; 30 days for not-found.
+      parameters:
+        - name: genus
+          in: query
+          required: true
+          description: >
+            Genus name. First letter capitalized, remainder lowercase (e.g. Asclepias).
+            The service normalizes to title case before URL construction.
+          schema:
+            type: string
+        - name: species
+          in: query
+          required: false
+          description: >
+            Species epithet, all lowercase (e.g. tuberosa). Leave blank for genus-level map.
+            Subspecies/variety designations are stripped automatically; species_stripped is set true.
+          schema:
+            type: string
+        - name: map_type
+          in: query
+          required: false
+          description: >
+            Map type to retrieve. county_species is the default and most useful.
+            state_species returns 501 Not Implemented — URL pattern is unverified.
+            genus_county returns the genus browsing page URL only — PNG URL unconfirmed.
+          schema:
+            type: string
+            enum: [county_species, state_species, genus_county]
+            default: county_species
+        - name: refresh
+          in: query
+          required: false
+          description: If true, bypasses cache and fetches fresh from BONAP.
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Map lookup complete (found or not found — check the found field)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BonnapMapResponse"
+        "400":
+          description: Invalid input (missing genus, invalid map_type)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "501":
+          description: Not implemented (state_species map_type — URL pattern unverified)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /bonap/metadata:
+    get:
+      operationId: getBonnapMetadata
+      tags: [bonap]
+      summary: BONAP service metadata
+      description: >
+        Returns static service identity, data vintage, attribution, permission status,
+        and the full color key array. Use this to populate 'About this data' panels
+        in any application displaying BONAP maps.
+      responses:
+        "200":
+          description: Service metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BonnapMetadataResponse"
+
+  /registry:
+    get:
+      operationId: getRegistry
+      tags: [registry]
+      summary: List all registered FERNS services
+      description: >
+        Returns all registered Knowledge Services in this FERNS instance.
+        Each entry describes what a service exposes, its data lineage,
+        geographic scope, and permission status.
+      responses:
+        "200":
+          description: Registry entries
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegistryListResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +138,296 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
+    FernsProvenance:
+      type: object
+      description: >
+        Provenance block present on every FERNS API response.
+        Both derivation fields are required — derivation_summary for general audiences,
+        derivation_scientific for researchers who need to evaluate and reproduce the data.
+      required:
+        - source_id
+        - fetched_at
+        - method
+        - upstream_url
+        - derivation_summary
+        - derivation_scientific
+      properties:
+        source_id:
+          type: string
+          description: Stable identifier for this data source (e.g. bonap-napa)
+        fetched_at:
+          type: string
+          format: date-time
+          description: When this record was obtained from the source
+        method:
+          type: string
+          description: "How the data was obtained: api_fetch | blob_import | llm_synthesis"
+        upstream_url:
+          type: string
+          description: Where this data came from (API endpoint, file path, or registry entry)
+        derivation_summary:
+          type: string
+          description: Plain language description readable by a homeowner or community member
+        derivation_scientific:
+          type: string
+          description: >
+            Research-grade description: methods, measurement protocols, algorithms,
+            citations, and transformations — sufficient for a scientist to evaluate and reproduce
+
+    ColorKeyEntry:
+      type: object
+      required:
+        - code
+        - hex_approx
+        - hex_is_approximate
+        - name
+        - description
+        - layer
+      properties:
+        code:
+          type: string
+          description: Short string identifier for this color entry
+        hex_approx:
+          type: string
+          description: Approximate hex color value derived from visual inspection of BONAP maps
+        hex_is_approximate:
+          type: boolean
+          description: Always true — BONAP does not publish official hex values
+        name:
+          type: string
+          description: BONAP's official status name for this color
+        description:
+          type: string
+          description: Ecological meaning of this color
+        layer:
+          type: string
+          enum: [state_background, county_fill]
+          description: Whether this color applies to state backgrounds or county fills
+
+    BonnapAttribution:
+      type: object
+      required:
+        - source_name
+        - maintainer
+        - organization
+        - website
+        - napa_url
+        - citation_napa
+        - citation_tdc
+        - copyright_notice
+      properties:
+        source_name:
+          type: string
+        maintainer:
+          type: string
+        organization:
+          type: string
+        website:
+          type: string
+        napa_url:
+          type: string
+        citation_napa:
+          type: string
+        citation_tdc:
+          type: string
+        copyright_notice:
+          type: string
+
+    BonnapMapData:
+      type: object
+      required:
+        - map_type_served
+        - genus
+        - species_stripped
+        - status
+        - color_key_url
+        - color_key
+        - data_vintage
+        - permission_granted
+        - attribution
+        - cache_status
+        - queried_at
+      properties:
+        map_url:
+          type: string
+          nullable: true
+          description: >
+            Direct URL to the PNG image on BONAP's server. Present when status is found.
+            Null when not found. Applications display this via an img tag — do not proxy.
+        map_type_served:
+          type: string
+          enum: [county_species, state_species, genus_county]
+        genus:
+          type: string
+          description: Normalized genus name as used in URL construction
+        species:
+          type: string
+          nullable: true
+          description: Normalized species epithet. Null for genus-level requests.
+        species_stripped:
+          type: boolean
+          description: True if the caller provided a subspecific epithet that was stripped
+        status:
+          type: string
+          enum: [found, not_found, unverified]
+          description: >
+            found — URL returned a valid image during cache population.
+            not_found — BONAP returned a non-image response for this binomial.
+            unverified — URL was returned from cache without re-verification.
+        tdc_taxon_id:
+          type: integer
+          nullable: true
+          description: BONAP internal taxon ID if known. Enables future TDC-based lookups.
+        color_key_url:
+          type: string
+          description: Always 'http://www.bonap.org/MapKey.html'
+        color_key:
+          type: array
+          items:
+            $ref: "#/components/schemas/ColorKeyEntry"
+          description: Complete color key for interpreting BONAP maps
+        data_vintage:
+          type: string
+          description: "NAPA maps: December 15, 2014. Color key documentation: February 8, 2024."
+        permission_granted:
+          type: boolean
+          description: >
+            Whether FERNS has received written permission from BONAP to reproduce
+            and display map materials. Currently false. Applications must surface this field.
+        attribution:
+          $ref: "#/components/schemas/BonnapAttribution"
+        cache_status:
+          type: string
+          enum: [hit, miss, bypassed]
+        queried_at:
+          type: string
+          format: date-time
+
+    BonnapMapResponse:
+      type: object
+      description: Standard FERNS response envelope for BONAP map lookups
+      required:
+        - source_url
+        - found
+        - provenance
+      properties:
+        source_url:
+          type: string
+          nullable: true
+          description: >
+            Canonical BONAP page URL for this species or genus.
+            Always constructed when possible and returned regardless of whether
+            a map was found. Enables 'View on BONAP' links in applications.
+        found:
+          type: boolean
+          description: Whether a BONAP map was found for this query
+        data:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/BonnapMapData"
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    BonnapMetadataResponse:
+      type: object
+      required:
+        - service_id
+        - service_name
+        - data_vintage
+        - permission_granted
+        - permission_status
+        - attribution
+        - color_key
+        - color_key_url
+        - queried_at
+      properties:
+        service_id:
+          type: string
+        service_name:
+          type: string
+        data_vintage:
+          type: string
+        permission_granted:
+          type: boolean
+        permission_status:
+          type: string
+        attribution:
+          $ref: "#/components/schemas/BonnapAttribution"
+        color_key:
+          type: array
+          items:
+            $ref: "#/components/schemas/ColorKeyEntry"
+        color_key_url:
+          type: string
+        queried_at:
+          type: string
+          format: date-time
+
+    RegistryEntryData:
+      type: object
+      required:
+        - service_id
+        - service_name
+        - knowledge_type
+      properties:
+        service_id:
+          type: string
+        service_name:
+          type: string
+        knowledge_type:
+          type: string
+        input_summary:
+          type: string
+          nullable: true
+        output_summary:
+          type: string
+          nullable: true
+        data_lineage:
+          type: string
+          nullable: true
+        update_frequency:
+          type: string
+          nullable: true
+        geographic_scope:
+          type: string
+          nullable: true
+        taxonomic_scope:
+          type: string
+          nullable: true
+        permission_status:
+          type: string
+          nullable: true
+        known_limitations:
+          type: string
+          nullable: true
+
+    RegistryListResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+          nullable: true
+        found:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/RegistryEntryData"
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"

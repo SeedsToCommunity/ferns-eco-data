@@ -1,0 +1,14 @@
+packages:
+  "framer-motion": "For premium, smooth page transitions and micro-interactions"
+  "react-hook-form": "For robust search form state management"
+  "@hookform/resolvers": "For zod validation integration"
+  "zod": "For search form validation"
+
+images:
+  - path: "artifacts/bonap-explorer/public/images/botanical-bg.png"
+    description: "A very subtle, muted, minimalist abstract botanical leaf and stem line art pattern, light sage green on an off-white background, extremely low contrast, highly elegant, suitable for a premium web background"
+    aspect_ratio: "16:9"
+
+notes:
+  - "The app relies heavily on the @workspace/api-client-react generated hooks."
+  - "The Permission Modal strictly blocks access until acknowledged."
