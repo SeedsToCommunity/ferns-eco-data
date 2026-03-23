@@ -1,5 +1,6 @@
 import app from "./app";
 import { logger } from "./lib/logger";
+import { ensureBonapRegistryEntry } from "./services/bonap/seed.js";
 
 const rawPort = process.env["PORT"];
 
@@ -22,4 +23,8 @@ app.listen(port, (err) => {
   }
 
   logger.info({ port }, "Server listening");
+
+  ensureBonapRegistryEntry().catch((seedErr) => {
+    logger.error({ err: seedErr }, "Failed to seed BONAP registry entry at startup");
+  });
 });

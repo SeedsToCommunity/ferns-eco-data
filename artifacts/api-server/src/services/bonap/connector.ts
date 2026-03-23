@@ -154,7 +154,7 @@ export async function verifyMapExists(
   return {
     status: result,
     map_url: result === "found" ? mapUrl : null,
-    source_url: result === "found" ? mapUrl : sourceUrl,
+    source_url: sourceUrl,
     upstream_url: mapUrl,
     normalized: input,
   };
