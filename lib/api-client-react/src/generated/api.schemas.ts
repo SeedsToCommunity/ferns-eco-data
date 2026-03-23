@@ -404,6 +404,7 @@ export interface GbifMetadataResponse {
   /** Full registry entry for this GBIF service source */
   registry_entry?: GbifMetadataResponseRegistryEntry;
   queried_at: string;
+  provenance: FernsProvenance;
 }
 
 export interface RegistryListResponse {

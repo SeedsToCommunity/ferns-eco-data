@@ -679,6 +679,38 @@ export const GetGbifMetadataResponse = zod.object({
     .optional()
     .describe("Full registry entry for this GBIF service source"),
   queried_at: zod.date(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
 });
 
 /**

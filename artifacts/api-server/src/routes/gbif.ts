@@ -365,6 +365,7 @@ router.get("/gbif/search", async (req, res) => {
 
 router.get("/gbif/metadata", async (_req, res) => {
   await ensureGbifRegistryEntry();
+  const queriedAt = new Date();
 
   res.json({
     service_id: GBIF_SOURCE_ID,
@@ -376,7 +377,15 @@ router.get("/gbif/metadata", async (_req, res) => {
     registry_entry: {
       ...GBIF_REGISTRY_ENTRY,
     },
-    queried_at: new Date(),
+    queried_at: queriedAt,
+    provenance: {
+      source_id: GBIF_SOURCE_ID,
+      fetched_at: queriedAt,
+      method: "static_metadata",
+      upstream_url: "/api/gbif/metadata",
+      derivation_summary: GBIF_DERIVATION_SUMMARY,
+      derivation_scientific: GBIF_DERIVATION_SCIENTIFIC,
+    },
   });
 });
 

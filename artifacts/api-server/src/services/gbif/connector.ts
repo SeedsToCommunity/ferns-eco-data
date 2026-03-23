@@ -317,7 +317,7 @@ export async function fetchReconcile(usageKey: number): Promise<GbifReconcileRes
 }
 
 function buildOccurrenceQueryParams(usageKey: number, geo: GeographyParams, limit: number): string {
-  const base = `taxonKey=${usageKey}&hasCoordinate=true&hasGeospatialIssue=false&limit=${limit}`;
+  const base = `taxonKey=${usageKey}&hasCoordinate=true&hasGeospatialIssue=false&limit=${limit}&sort=LAST_INTERPRETED&sortOrder=DESC`;
 
   if (geo.mode === "countries" && geo.countries) {
     const countryParams = geo.countries.map((c) => `country=${c}`).join("&");

@@ -1004,6 +1004,7 @@ components:
         - attribution
         - vocabularies
         - queried_at
+        - provenance
       properties:
         service_id:
           type: string
@@ -1074,6 +1075,8 @@ components:
         queried_at:
           type: string
           format: date-time
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
 
     RegistryListResponse:
       type: object
