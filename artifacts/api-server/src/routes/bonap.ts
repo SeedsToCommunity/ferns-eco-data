@@ -16,6 +16,12 @@ import { ensureBonappRegistryEntry } from "../services/bonap/seed.js";
 const router: IRouter = Router();
 
 router.get("/bonap/map", async (req, res) => {
+  const rawGenus = req.query.genus;
+  if (!rawGenus || typeof rawGenus !== "string" || rawGenus.trim() === "") {
+    res.status(400).json({ error: "invalid_input", message: "genus is required and must be a non-empty string" });
+    return;
+  }
+
   const rawQuery = {
     ...req.query,
     refresh: req.query.refresh === "true" || req.query.refresh === "1" ? true : undefined,
@@ -30,11 +36,6 @@ router.get("/bonap/map", async (req, res) => {
   }
 
   const { genus, species, map_type, refresh } = parsed.data;
-
-  if (!genus || genus.trim() === "") {
-    res.status(400).json({ error: "invalid_input", message: "genus is required" });
-    return;
-  }
 
   if (map_type === "state_species") {
     res.status(501).json({
