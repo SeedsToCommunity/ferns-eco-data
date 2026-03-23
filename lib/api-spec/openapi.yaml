@@ -12,6 +12,8 @@ tags:
     description: Health operations
   - name: bonap
     description: BONAP North American Plant Atlas — Distribution Maps
+  - name: gbif
+    description: GBIF Taxonomic Backbone, Name Reconciliation, and Occurrence Records
   - name: registry
     description: FERNS Service Registry
 paths:
@@ -105,6 +107,192 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BonapMetadataResponse"
+
+  /gbif/match:
+    get:
+      operationId: getGbifMatch
+      tags: [gbif]
+      summary: Match a scientific name against the GBIF backbone taxonomy
+      description: >
+        Matches a plant scientific name against the GBIF Backbone Taxonomy.
+        Returns the matched taxon's key, canonical name, taxonomic status, match type,
+        confidence, full classification, and provenance. Results are cached 30 days for
+        hits; 7 days for no-match. A no-match is signaled by matchType=NONE in the
+        response data — GBIF always returns HTTP 200. DOUBTFUL status means the name
+        exists but taxonomic standing is uncertain; treat as unusable.
+      parameters:
+        - name: name
+          in: query
+          required: true
+          description: Scientific name to match (e.g. Asclepias tuberosa)
+          schema:
+            type: string
+        - name: refresh
+          in: query
+          required: false
+          description: If true, bypasses cache and fetches fresh from GBIF
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Match result (check matchType — NONE means no match found)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GbifMatchResponse"
+        "400":
+          description: Missing or invalid name parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /gbif/reconcile:
+    get:
+      operationId: getGbifReconcile
+      tags: [gbif]
+      summary: Fetch synonyms and common names for a GBIF taxon
+      description: >
+        Given a GBIF usageKey, returns all synonyms (all ranks, unfiltered) and
+        vernacular names. Synonyms cached 30 days; vernacular names 90 days.
+        For synonym inputs, pass the acceptedUsageKey from the match response
+        to get synonyms of the accepted taxon. Passing a synonym's own usageKey
+        returns an empty list.
+      parameters:
+        - name: usageKey
+          in: query
+          required: true
+          description: GBIF backbone usageKey for the accepted taxon
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Synonyms and vernacular names for this taxon
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GbifReconcileResponse"
+        "400":
+          description: Missing or invalid usageKey
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /gbif/occurrences:
+    get:
+      operationId: getGbifOccurrences
+      tags: [gbif]
+      summary: Fetch occurrence records for a GBIF taxon with configurable geography
+      description: >
+        Returns occurrence count and up to 300 recent georeferenced records from GBIF
+        for the given taxon. Geography is configurable via three mutually exclusive modes:
+        countries (comma-separated ISO codes, OR'd), continent (single GBIF continent
+        value), or bbox (minLat,minLon,maxLat,maxLon). All records include
+        hasCoordinate=true and hasGeospatialIssue=false filters. Cached 7 days per
+        geography combination. Fetch on demand only.
+      parameters:
+        - name: usageKey
+          in: query
+          required: true
+          description: GBIF backbone usageKey
+          schema:
+            type: integer
+        - name: countries
+          in: query
+          required: false
+          description: >
+            Comma-separated ISO 3166-1 alpha-2 country codes (e.g. US,CA,MX).
+            Mutually exclusive with continent and bbox.
+          schema:
+            type: string
+        - name: continent
+          in: query
+          required: false
+          description: >
+            GBIF continent value. One of AFRICA, ANTARCTICA, ASIA, EUROPE,
+            NORTH_AMERICA, OCEANIA, SOUTH_AMERICA. Mutually exclusive with countries and bbox.
+          schema:
+            type: string
+            enum: [AFRICA, ANTARCTICA, ASIA, EUROPE, NORTH_AMERICA, OCEANIA, SOUTH_AMERICA]
+        - name: bbox
+          in: query
+          required: false
+          description: >
+            Bounding box as minLat,minLon,maxLat,maxLon (decimal degrees, WGS84).
+            e.g. 24.396,-125.0,49.384,-66.93 for continental US.
+            Mutually exclusive with countries and continent.
+          schema:
+            type: string
+        - name: refresh
+          in: query
+          required: false
+          description: If true, bypasses cache and fetches fresh from GBIF
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Occurrence count and recent records
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GbifOccurrencesResponse"
+        "400":
+          description: Missing usageKey or invalid geography parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /gbif/search:
+    get:
+      operationId: getGbifSearch
+      tags: [gbif]
+      summary: Search GBIF species by common (vernacular) name
+      description: >
+        Searches GBIF for species whose vernacular names match the query string.
+        Returns a ranked list of candidate species. Not cached — query space is
+        too wide for meaningful caching. Applications are responsible for
+        disambiguation when multiple candidates are returned.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Common name search string (e.g. butterfly milkweed)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of candidate species matching the common name query
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GbifSearchResponse"
+        "400":
+          description: Missing query parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /gbif/metadata:
+    get:
+      operationId: getGbifMetadata
+      tags: [gbif]
+      summary: GBIF service metadata and controlled vocabularies
+      description: >
+        Returns service identity, attribution, permission status, controlled
+        vocabulary definitions (basisOfRecord, matchType, taxonomicStatus,
+        occurrenceStatus), and the registry entry for the GBIF service.
+      responses:
+        "200":
+          description: Service metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GbifMetadataResponse"
 
   /registry:
     get:
@@ -431,6 +619,431 @@ components:
         known_limitations:
           type: string
           nullable: true
+
+    GbifSynonymRecord:
+      type: object
+      required:
+        - key
+        - canonicalName
+        - scientificName
+        - rank
+        - taxonomicStatus
+        - nameType
+      properties:
+        key:
+          type: integer
+        canonicalName:
+          type: string
+        scientificName:
+          type: string
+        rank:
+          type: string
+        taxonomicStatus:
+          type: string
+        nameType:
+          type: string
+        publishedIn:
+          type: string
+          nullable: true
+
+    GbifVernacularRecord:
+      type: object
+      required:
+        - vernacularName
+        - language
+      properties:
+        vernacularName:
+          type: string
+        language:
+          type: string
+        country:
+          type: string
+          nullable: true
+        source:
+          type: string
+          nullable: true
+
+    GbifOccurrenceRecord:
+      type: object
+      required:
+        - gbifID
+        - decimalLatitude
+        - decimalLongitude
+        - country
+        - basisOfRecord
+        - occurrenceStatus
+        - gbifOccurrenceUrl
+      properties:
+        gbifID:
+          type: string
+        decimalLatitude:
+          type: number
+        decimalLongitude:
+          type: number
+        country:
+          type: string
+        stateProvince:
+          type: string
+          nullable: true
+        county:
+          type: string
+          nullable: true
+        eventDate:
+          type: string
+          nullable: true
+        year:
+          type: integer
+          nullable: true
+        basisOfRecord:
+          type: string
+        institutionCode:
+          type: string
+          nullable: true
+        datasetName:
+          type: string
+          nullable: true
+        coordinateUncertaintyInMeters:
+          type: number
+          nullable: true
+        occurrenceStatus:
+          type: string
+        gbifOccurrenceUrl:
+          type: string
+
+    GbifMatchData:
+      type: object
+      required:
+        - match_type
+        - matched_input
+        - source_url
+      properties:
+        usage_key:
+          type: integer
+          nullable: true
+          description: GBIF backbone usageKey. Null when matchType is NONE.
+        canonical_name:
+          type: string
+          nullable: true
+        scientific_name:
+          type: string
+          nullable: true
+        rank:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true
+          description: ACCEPTED, SYNONYM, or DOUBTFUL
+        accepted_usage_key:
+          type: integer
+          nullable: true
+          description: Present when status is SYNONYM
+        accepted_canonical_name:
+          type: string
+          nullable: true
+          description: Present when status is SYNONYM
+        confidence:
+          type: integer
+          nullable: true
+        match_type:
+          type: string
+          enum: [EXACT, FUZZY, HIGHERRANK, NONE]
+        kingdom:
+          type: string
+          nullable: true
+        phylum:
+          type: string
+          nullable: true
+        class_:
+          type: string
+          nullable: true
+        order_:
+          type: string
+          nullable: true
+        family:
+          type: string
+          nullable: true
+        genus:
+          type: string
+          nullable: true
+        species:
+          type: string
+          nullable: true
+        source_url:
+          type: string
+          nullable: true
+          description: https://www.gbif.org/species/{usageKey} when usageKey is known
+        matched_input:
+          type: string
+        matched_at:
+          type: string
+          format: date-time
+          nullable: true
+        cache_status:
+          type: string
+          enum: [hit, miss, bypassed]
+          nullable: true
+
+    GbifMatchResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+          nullable: true
+        found:
+          type: boolean
+        data:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/GbifMatchData"
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    GbifReconcileData:
+      type: object
+      required:
+        - usage_key
+        - synonyms
+        - synonym_count
+        - vernacular_names
+        - vernacular_name_count
+        - synonyms_fetched_at
+        - vernacular_fetched_at
+      properties:
+        usage_key:
+          type: integer
+        synonyms:
+          type: array
+          items:
+            $ref: "#/components/schemas/GbifSynonymRecord"
+        synonym_count:
+          type: integer
+        vernacular_names:
+          type: array
+          items:
+            $ref: "#/components/schemas/GbifVernacularRecord"
+        vernacular_name_primary:
+          type: string
+          nullable: true
+        vernacular_name_count:
+          type: integer
+
+        synonyms_fetched_at:
+          type: string
+          format: date-time
+        vernacular_fetched_at:
+          type: string
+          format: date-time
+
+    GbifReconcileResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+          nullable: true
+        found:
+          type: boolean
+        data:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/GbifReconcileData"
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    GbifOccurrencesData:
+      type: object
+      required:
+        - usage_key
+        - geography_mode
+        - geography_params
+        - occurrence_count
+        - recent_occurrences
+        - occurrence_last_fetched
+        - source_url
+      properties:
+        usage_key:
+          type: integer
+        geography_mode:
+          type: string
+          enum: [countries, continent, bbox]
+        geography_params:
+          type: string
+          description: Serialized geography parameters for display
+        occurrence_count:
+          type: integer
+        occurrence_count_us:
+          type: integer
+          nullable: true
+        recent_occurrences:
+          type: array
+          items:
+            $ref: "#/components/schemas/GbifOccurrenceRecord"
+        occurrence_last_fetched:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+          nullable: true
+          description: GBIF occurrence search URL for this taxon and geography
+        cache_status:
+          type: string
+          enum: [hit, miss, bypassed]
+          nullable: true
+
+    GbifOccurrencesResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+          nullable: true
+        found:
+          type: boolean
+        data:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/GbifOccurrencesData"
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    GbifSearchCandidate:
+      type: object
+      required:
+        - usageKey
+        - canonicalName
+        - scientificName
+        - rank
+        - status
+      properties:
+        usageKey:
+          type: integer
+        canonicalName:
+          type: string
+        scientificName:
+          type: string
+        rank:
+          type: string
+        status:
+          type: string
+        family:
+          type: string
+          nullable: true
+        vernacularName:
+          type: string
+          nullable: true
+        source_url:
+          type: string
+
+    GbifSearchResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+          nullable: true
+        found:
+          type: boolean
+        data:
+          type: object
+          nullable: true
+          properties:
+            query:
+              type: string
+            candidates:
+              type: array
+              items:
+                $ref: "#/components/schemas/GbifSearchCandidate"
+            count:
+              type: integer
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    GbifVocabularyEntry:
+      type: object
+      required:
+        - code
+        - label
+        - description
+      properties:
+        code:
+          type: string
+        label:
+          type: string
+        description:
+          type: string
+
+    GbifMetadataResponse:
+      type: object
+      required:
+        - service_id
+        - service_name
+        - permission_granted
+        - permission_status
+        - attribution
+        - vocabularies
+        - queried_at
+      properties:
+        service_id:
+          type: string
+        service_name:
+          type: string
+        permission_granted:
+          type: boolean
+        permission_status:
+          type: string
+        attribution:
+          type: object
+          properties:
+            source_name:
+              type: string
+            website:
+              type: string
+            license:
+              type: string
+            citation:
+              type: string
+            api_base_url:
+              type: string
+        vocabularies:
+          type: object
+          properties:
+            basisOfRecord:
+              type: array
+              items:
+                $ref: "#/components/schemas/GbifVocabularyEntry"
+            matchType:
+              type: array
+              items:
+                $ref: "#/components/schemas/GbifVocabularyEntry"
+            taxonomicStatus:
+              type: array
+              items:
+                $ref: "#/components/schemas/GbifVocabularyEntry"
+            occurrenceStatus:
+              type: array
+              items:
+                $ref: "#/components/schemas/GbifVocabularyEntry"
+        queried_at:
+          type: string
+          format: date-time
 
     RegistryListResponse:
       type: object

@@ -183,6 +183,208 @@ export interface RegistryEntryData {
   known_limitations?: string | null;
 }
 
+export interface GbifSynonymRecord {
+  key: number;
+  canonicalName: string;
+  scientificName: string;
+  rank: string;
+  taxonomicStatus: string;
+  nameType: string;
+  publishedIn?: string | null;
+}
+
+export interface GbifVernacularRecord {
+  vernacularName: string;
+  language: string;
+  country?: string | null;
+  source?: string | null;
+}
+
+export interface GbifOccurrenceRecord {
+  gbifID: string;
+  decimalLatitude: number;
+  decimalLongitude: number;
+  country: string;
+  stateProvince?: string | null;
+  county?: string | null;
+  eventDate?: string | null;
+  year?: number | null;
+  basisOfRecord: string;
+  institutionCode?: string | null;
+  datasetName?: string | null;
+  coordinateUncertaintyInMeters?: number | null;
+  occurrenceStatus: string;
+  gbifOccurrenceUrl: string;
+}
+
+export type GbifMatchDataMatchType =
+  (typeof GbifMatchDataMatchType)[keyof typeof GbifMatchDataMatchType];
+
+export const GbifMatchDataMatchType = {
+  EXACT: "EXACT",
+  FUZZY: "FUZZY",
+  HIGHERRANK: "HIGHERRANK",
+  NONE: "NONE",
+} as const;
+
+export type GbifMatchDataCacheStatus =
+  | (typeof GbifMatchDataCacheStatus)[keyof typeof GbifMatchDataCacheStatus]
+  | null;
+
+export const GbifMatchDataCacheStatus = {
+  hit: "hit",
+  miss: "miss",
+  bypassed: "bypassed",
+} as const;
+
+export interface GbifMatchData {
+  /** GBIF backbone usageKey. Null when matchType is NONE. */
+  usage_key?: number | null;
+  canonical_name?: string | null;
+  scientific_name?: string | null;
+  rank?: string | null;
+  /** ACCEPTED, SYNONYM, or DOUBTFUL */
+  status?: string | null;
+  /** Present when status is SYNONYM */
+  accepted_usage_key?: number | null;
+  /** Present when status is SYNONYM */
+  accepted_canonical_name?: string | null;
+  confidence?: number | null;
+  match_type: GbifMatchDataMatchType;
+  kingdom?: string | null;
+  phylum?: string | null;
+  class_?: string | null;
+  order_?: string | null;
+  family?: string | null;
+  genus?: string | null;
+  species?: string | null;
+  /** https://www.gbif.org/species/{usageKey} when usageKey is known */
+  source_url: string | null;
+  matched_input: string;
+  matched_at?: string | null;
+  cache_status?: GbifMatchDataCacheStatus;
+}
+
+export interface GbifMatchResponse {
+  source_url: string | null;
+  found: boolean;
+  data: GbifMatchData | null;
+  provenance: FernsProvenance;
+}
+
+export interface GbifReconcileData {
+  usage_key: number;
+  synonyms: GbifSynonymRecord[];
+  synonym_count: number;
+  vernacular_names: GbifVernacularRecord[];
+  vernacular_name_primary?: string | null;
+  vernacular_name_count: number;
+  synonyms_fetched_at: string;
+  vernacular_fetched_at: string;
+}
+
+export interface GbifReconcileResponse {
+  source_url: string | null;
+  found: boolean;
+  data: GbifReconcileData | null;
+  provenance: FernsProvenance;
+}
+
+export type GbifOccurrencesDataGeographyMode =
+  (typeof GbifOccurrencesDataGeographyMode)[keyof typeof GbifOccurrencesDataGeographyMode];
+
+export const GbifOccurrencesDataGeographyMode = {
+  countries: "countries",
+  continent: "continent",
+  bbox: "bbox",
+} as const;
+
+export type GbifOccurrencesDataCacheStatus =
+  | (typeof GbifOccurrencesDataCacheStatus)[keyof typeof GbifOccurrencesDataCacheStatus]
+  | null;
+
+export const GbifOccurrencesDataCacheStatus = {
+  hit: "hit",
+  miss: "miss",
+  bypassed: "bypassed",
+} as const;
+
+export interface GbifOccurrencesData {
+  usage_key: number;
+  geography_mode: GbifOccurrencesDataGeographyMode;
+  /** Serialized geography parameters for display */
+  geography_params: string;
+  occurrence_count: number;
+  occurrence_count_us?: number | null;
+  recent_occurrences: GbifOccurrenceRecord[];
+  occurrence_last_fetched: string;
+  /** GBIF occurrence search URL for this taxon and geography */
+  source_url: string | null;
+  cache_status?: GbifOccurrencesDataCacheStatus;
+}
+
+export interface GbifOccurrencesResponse {
+  source_url: string | null;
+  found: boolean;
+  data: GbifOccurrencesData | null;
+  provenance: FernsProvenance;
+}
+
+export interface GbifSearchCandidate {
+  usageKey: number;
+  canonicalName: string;
+  scientificName: string;
+  rank: string;
+  status: string;
+  family?: string | null;
+  vernacularName?: string | null;
+  source_url?: string;
+}
+
+export type GbifSearchResponseData = {
+  query?: string;
+  candidates?: GbifSearchCandidate[];
+  count?: number;
+} | null;
+
+export interface GbifSearchResponse {
+  source_url: string | null;
+  found: boolean;
+  data: GbifSearchResponseData;
+  provenance: FernsProvenance;
+}
+
+export interface GbifVocabularyEntry {
+  code: string;
+  label: string;
+  description: string;
+}
+
+export type GbifMetadataResponseAttribution = {
+  source_name?: string;
+  website?: string;
+  license?: string;
+  citation?: string;
+  api_base_url?: string;
+};
+
+export type GbifMetadataResponseVocabularies = {
+  basisOfRecord?: GbifVocabularyEntry[];
+  matchType?: GbifVocabularyEntry[];
+  taxonomicStatus?: GbifVocabularyEntry[];
+  occurrenceStatus?: GbifVocabularyEntry[];
+};
+
+export interface GbifMetadataResponse {
+  service_id: string;
+  service_name: string;
+  permission_granted: boolean;
+  permission_status: string;
+  attribution: GbifMetadataResponseAttribution;
+  vocabularies: GbifMetadataResponseVocabularies;
+  queried_at: string;
+}
+
 export interface RegistryListResponse {
   source_url: string | null;
   found: boolean;
@@ -219,3 +421,67 @@ export const GetBonapMapMapType = {
   county_species: "county_species",
   state_species: "state_species",
 } as const;
+
+export type GetGbifMatchParams = {
+  /**
+   * Scientific name to match (e.g. Asclepias tuberosa)
+   */
+  name: string;
+  /**
+   * If true, bypasses cache and fetches fresh from GBIF
+   */
+  refresh?: boolean;
+};
+
+export type GetGbifReconcileParams = {
+  /**
+   * GBIF backbone usageKey for the accepted taxon
+   */
+  usageKey: number;
+};
+
+export type GetGbifOccurrencesParams = {
+  /**
+   * GBIF backbone usageKey
+   */
+  usageKey: number;
+  /**
+ * Comma-separated ISO 3166-1 alpha-2 country codes (e.g. US,CA,MX). Mutually exclusive with continent and bbox.
+
+ */
+  countries?: string;
+  /**
+ * GBIF continent value. One of AFRICA, ANTARCTICA, ASIA, EUROPE, NORTH_AMERICA, OCEANIA, SOUTH_AMERICA. Mutually exclusive with countries and bbox.
+
+ */
+  continent?: GetGbifOccurrencesContinent;
+  /**
+ * Bounding box as minLat,minLon,maxLat,maxLon (decimal degrees, WGS84). e.g. 24.396,-125.0,49.384,-66.93 for continental US. Mutually exclusive with countries and continent.
+
+ */
+  bbox?: string;
+  /**
+   * If true, bypasses cache and fetches fresh from GBIF
+   */
+  refresh?: boolean;
+};
+
+export type GetGbifOccurrencesContinent =
+  (typeof GetGbifOccurrencesContinent)[keyof typeof GetGbifOccurrencesContinent];
+
+export const GetGbifOccurrencesContinent = {
+  AFRICA: "AFRICA",
+  ANTARCTICA: "ANTARCTICA",
+  ASIA: "ASIA",
+  EUROPE: "EUROPE",
+  NORTH_AMERICA: "NORTH_AMERICA",
+  OCEANIA: "OCEANIA",
+  SOUTH_AMERICA: "SOUTH_AMERICA",
+} as const;
+
+export type GetGbifSearchParams = {
+  /**
+   * Common name search string (e.g. butterfly milkweed)
+   */
+  q: string;
+};

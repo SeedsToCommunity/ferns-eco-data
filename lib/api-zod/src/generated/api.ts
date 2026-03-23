@@ -252,6 +252,414 @@ export const GetBonapMetadataResponse = zod.object({
 });
 
 /**
+ * Matches a plant scientific name against the GBIF Backbone Taxonomy. Returns the matched taxon's key, canonical name, taxonomic status, match type, confidence, full classification, and provenance. Results are cached 30 days for hits; 7 days for no-match. A no-match is signaled by matchType=NONE in the response data — GBIF always returns HTTP 200. DOUBTFUL status means the name exists but taxonomic standing is uncertain; treat as unusable.
+
+ * @summary Match a scientific name against the GBIF backbone taxonomy
+ */
+export const getGbifMatchQueryRefreshDefault = false;
+
+export const GetGbifMatchQueryParams = zod.object({
+  name: zod.coerce
+    .string()
+    .describe("Scientific name to match (e.g. Asclepias tuberosa)"),
+  refresh: zod.coerce
+    .boolean()
+    .default(getGbifMatchQueryRefreshDefault)
+    .describe("If true, bypasses cache and fetches fresh from GBIF"),
+});
+
+export const GetGbifMatchResponse = zod.object({
+  source_url: zod.string().nullable(),
+  found: zod.boolean(),
+  data: zod
+    .object({
+      usage_key: zod
+        .number()
+        .nullish()
+        .describe("GBIF backbone usageKey. Null when matchType is NONE."),
+      canonical_name: zod.string().nullish(),
+      scientific_name: zod.string().nullish(),
+      rank: zod.string().nullish(),
+      status: zod.string().nullish().describe("ACCEPTED, SYNONYM, or DOUBTFUL"),
+      accepted_usage_key: zod
+        .number()
+        .nullish()
+        .describe("Present when status is SYNONYM"),
+      accepted_canonical_name: zod
+        .string()
+        .nullish()
+        .describe("Present when status is SYNONYM"),
+      confidence: zod.number().nullish(),
+      match_type: zod.enum(["EXACT", "FUZZY", "HIGHERRANK", "NONE"]),
+      kingdom: zod.string().nullish(),
+      phylum: zod.string().nullish(),
+      class_: zod.string().nullish(),
+      order_: zod.string().nullish(),
+      family: zod.string().nullish(),
+      genus: zod.string().nullish(),
+      species: zod.string().nullish(),
+      source_url: zod
+        .string()
+        .nullable()
+        .describe(
+          "https:\/\/www.gbif.org\/species\/{usageKey} when usageKey is known",
+        ),
+      matched_input: zod.string(),
+      matched_at: zod.date().nullish(),
+      cache_status: zod.enum(["hit", "miss", "bypassed"]).nullish(),
+    })
+    .nullable(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+});
+
+/**
+ * Given a GBIF usageKey, returns all synonyms (all ranks, unfiltered) and vernacular names. Synonyms cached 30 days; vernacular names 90 days. For synonym inputs, pass the acceptedUsageKey from the match response to get synonyms of the accepted taxon. Passing a synonym's own usageKey returns an empty list.
+
+ * @summary Fetch synonyms and common names for a GBIF taxon
+ */
+export const GetGbifReconcileQueryParams = zod.object({
+  usageKey: zod.coerce
+    .number()
+    .describe("GBIF backbone usageKey for the accepted taxon"),
+});
+
+export const GetGbifReconcileResponse = zod.object({
+  source_url: zod.string().nullable(),
+  found: zod.boolean(),
+  data: zod
+    .object({
+      usage_key: zod.number(),
+      synonyms: zod.array(
+        zod.object({
+          key: zod.number(),
+          canonicalName: zod.string(),
+          scientificName: zod.string(),
+          rank: zod.string(),
+          taxonomicStatus: zod.string(),
+          nameType: zod.string(),
+          publishedIn: zod.string().nullish(),
+        }),
+      ),
+      synonym_count: zod.number(),
+      vernacular_names: zod.array(
+        zod.object({
+          vernacularName: zod.string(),
+          language: zod.string(),
+          country: zod.string().nullish(),
+          source: zod.string().nullish(),
+        }),
+      ),
+      vernacular_name_primary: zod.string().nullish(),
+      vernacular_name_count: zod.number(),
+      synonyms_fetched_at: zod.date(),
+      vernacular_fetched_at: zod.date(),
+    })
+    .nullable(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+});
+
+/**
+ * Returns occurrence count and up to 300 recent georeferenced records from GBIF for the given taxon. Geography is configurable via three mutually exclusive modes: countries (comma-separated ISO codes, OR'd), continent (single GBIF continent value), or bbox (minLat,minLon,maxLat,maxLon). All records include hasCoordinate=true and hasGeospatialIssue=false filters. Cached 7 days per geography combination. Fetch on demand only.
+
+ * @summary Fetch occurrence records for a GBIF taxon with configurable geography
+ */
+export const getGbifOccurrencesQueryRefreshDefault = false;
+
+export const GetGbifOccurrencesQueryParams = zod.object({
+  usageKey: zod.coerce.number().describe("GBIF backbone usageKey"),
+  countries: zod.coerce
+    .string()
+    .optional()
+    .describe(
+      "Comma-separated ISO 3166-1 alpha-2 country codes (e.g. US,CA,MX). Mutually exclusive with continent and bbox.\n",
+    ),
+  continent: zod
+    .enum([
+      "AFRICA",
+      "ANTARCTICA",
+      "ASIA",
+      "EUROPE",
+      "NORTH_AMERICA",
+      "OCEANIA",
+      "SOUTH_AMERICA",
+    ])
+    .optional()
+    .describe(
+      "GBIF continent value. One of AFRICA, ANTARCTICA, ASIA, EUROPE, NORTH_AMERICA, OCEANIA, SOUTH_AMERICA. Mutually exclusive with countries and bbox.\n",
+    ),
+  bbox: zod.coerce
+    .string()
+    .optional()
+    .describe(
+      "Bounding box as minLat,minLon,maxLat,maxLon (decimal degrees, WGS84). e.g. 24.396,-125.0,49.384,-66.93 for continental US. Mutually exclusive with countries and continent.\n",
+    ),
+  refresh: zod.coerce
+    .boolean()
+    .default(getGbifOccurrencesQueryRefreshDefault)
+    .describe("If true, bypasses cache and fetches fresh from GBIF"),
+});
+
+export const GetGbifOccurrencesResponse = zod.object({
+  source_url: zod.string().nullable(),
+  found: zod.boolean(),
+  data: zod
+    .object({
+      usage_key: zod.number(),
+      geography_mode: zod.enum(["countries", "continent", "bbox"]),
+      geography_params: zod
+        .string()
+        .describe("Serialized geography parameters for display"),
+      occurrence_count: zod.number(),
+      occurrence_count_us: zod.number().nullish(),
+      recent_occurrences: zod.array(
+        zod.object({
+          gbifID: zod.string(),
+          decimalLatitude: zod.number(),
+          decimalLongitude: zod.number(),
+          country: zod.string(),
+          stateProvince: zod.string().nullish(),
+          county: zod.string().nullish(),
+          eventDate: zod.string().nullish(),
+          year: zod.number().nullish(),
+          basisOfRecord: zod.string(),
+          institutionCode: zod.string().nullish(),
+          datasetName: zod.string().nullish(),
+          coordinateUncertaintyInMeters: zod.number().nullish(),
+          occurrenceStatus: zod.string(),
+          gbifOccurrenceUrl: zod.string(),
+        }),
+      ),
+      occurrence_last_fetched: zod.date(),
+      source_url: zod
+        .string()
+        .nullable()
+        .describe("GBIF occurrence search URL for this taxon and geography"),
+      cache_status: zod.enum(["hit", "miss", "bypassed"]).nullish(),
+    })
+    .nullable(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+});
+
+/**
+ * Searches GBIF for species whose vernacular names match the query string. Returns a ranked list of candidate species. Not cached — query space is too wide for meaningful caching. Applications are responsible for disambiguation when multiple candidates are returned.
+
+ * @summary Search GBIF species by common (vernacular) name
+ */
+export const GetGbifSearchQueryParams = zod.object({
+  q: zod.coerce
+    .string()
+    .describe("Common name search string (e.g. butterfly milkweed)"),
+});
+
+export const GetGbifSearchResponse = zod.object({
+  source_url: zod.string().nullable(),
+  found: zod.boolean(),
+  data: zod
+    .object({
+      query: zod.string().optional(),
+      candidates: zod
+        .array(
+          zod.object({
+            usageKey: zod.number(),
+            canonicalName: zod.string(),
+            scientificName: zod.string(),
+            rank: zod.string(),
+            status: zod.string(),
+            family: zod.string().nullish(),
+            vernacularName: zod.string().nullish(),
+            source_url: zod.string().optional(),
+          }),
+        )
+        .optional(),
+      count: zod.number().optional(),
+    })
+    .nullable(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+});
+
+/**
+ * Returns service identity, attribution, permission status, controlled vocabulary definitions (basisOfRecord, matchType, taxonomicStatus, occurrenceStatus), and the registry entry for the GBIF service.
+
+ * @summary GBIF service metadata and controlled vocabularies
+ */
+export const GetGbifMetadataResponse = zod.object({
+  service_id: zod.string(),
+  service_name: zod.string(),
+  permission_granted: zod.boolean(),
+  permission_status: zod.string(),
+  attribution: zod.object({
+    source_name: zod.string().optional(),
+    website: zod.string().optional(),
+    license: zod.string().optional(),
+    citation: zod.string().optional(),
+    api_base_url: zod.string().optional(),
+  }),
+  vocabularies: zod.object({
+    basisOfRecord: zod
+      .array(
+        zod.object({
+          code: zod.string(),
+          label: zod.string(),
+          description: zod.string(),
+        }),
+      )
+      .optional(),
+    matchType: zod
+      .array(
+        zod.object({
+          code: zod.string(),
+          label: zod.string(),
+          description: zod.string(),
+        }),
+      )
+      .optional(),
+    taxonomicStatus: zod
+      .array(
+        zod.object({
+          code: zod.string(),
+          label: zod.string(),
+          description: zod.string(),
+        }),
+      )
+      .optional(),
+    occurrenceStatus: zod
+      .array(
+        zod.object({
+          code: zod.string(),
+          label: zod.string(),
+          description: zod.string(),
+        }),
+      )
+      .optional(),
+  }),
+  queried_at: zod.date(),
+});
+
+/**
  * Returns all registered Knowledge Services in this FERNS instance. Each entry describes what a service exposes, its data lineage, geographic scope, and permission status.
 
  * @summary List all registered FERNS services

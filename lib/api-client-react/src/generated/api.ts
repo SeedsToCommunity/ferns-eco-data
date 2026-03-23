@@ -17,7 +17,16 @@ import type {
   BonapMapResponse,
   BonapMetadataResponse,
   ErrorResponse,
+  GbifMatchResponse,
+  GbifMetadataResponse,
+  GbifOccurrencesResponse,
+  GbifReconcileResponse,
+  GbifSearchResponse,
   GetBonapMapParams,
+  GetGbifMatchParams,
+  GetGbifOccurrencesParams,
+  GetGbifReconcileParams,
+  GetGbifSearchParams,
   HealthStatus,
   RegistryListResponse,
 } from "./api.schemas";
@@ -272,6 +281,476 @@ export function useGetBonapMetadata<
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetBonapMetadataQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Matches a plant scientific name against the GBIF Backbone Taxonomy. Returns the matched taxon's key, canonical name, taxonomic status, match type, confidence, full classification, and provenance. Results are cached 30 days for hits; 7 days for no-match. A no-match is signaled by matchType=NONE in the response data — GBIF always returns HTTP 200. DOUBTFUL status means the name exists but taxonomic standing is uncertain; treat as unusable.
+
+ * @summary Match a scientific name against the GBIF backbone taxonomy
+ */
+export const getGetGbifMatchUrl = (params: GetGbifMatchParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/gbif/match?${stringifiedParams}`
+    : `/api/gbif/match`;
+};
+
+export const getGbifMatch = async (
+  params: GetGbifMatchParams,
+  options?: RequestInit,
+): Promise<GbifMatchResponse> => {
+  return customFetch<GbifMatchResponse>(getGetGbifMatchUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetGbifMatchQueryKey = (params?: GetGbifMatchParams) => {
+  return [`/api/gbif/match`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetGbifMatchQueryOptions = <
+  TData = Awaited<ReturnType<typeof getGbifMatch>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetGbifMatchParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getGbifMatch>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetGbifMatchQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getGbifMatch>>> = ({
+    signal,
+  }) => getGbifMatch(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getGbifMatch>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetGbifMatchQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getGbifMatch>>
+>;
+export type GetGbifMatchQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Match a scientific name against the GBIF backbone taxonomy
+ */
+
+export function useGetGbifMatch<
+  TData = Awaited<ReturnType<typeof getGbifMatch>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetGbifMatchParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getGbifMatch>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetGbifMatchQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Given a GBIF usageKey, returns all synonyms (all ranks, unfiltered) and vernacular names. Synonyms cached 30 days; vernacular names 90 days. For synonym inputs, pass the acceptedUsageKey from the match response to get synonyms of the accepted taxon. Passing a synonym's own usageKey returns an empty list.
+
+ * @summary Fetch synonyms and common names for a GBIF taxon
+ */
+export const getGetGbifReconcileUrl = (params: GetGbifReconcileParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/gbif/reconcile?${stringifiedParams}`
+    : `/api/gbif/reconcile`;
+};
+
+export const getGbifReconcile = async (
+  params: GetGbifReconcileParams,
+  options?: RequestInit,
+): Promise<GbifReconcileResponse> => {
+  return customFetch<GbifReconcileResponse>(getGetGbifReconcileUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetGbifReconcileQueryKey = (
+  params?: GetGbifReconcileParams,
+) => {
+  return [`/api/gbif/reconcile`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetGbifReconcileQueryOptions = <
+  TData = Awaited<ReturnType<typeof getGbifReconcile>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetGbifReconcileParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getGbifReconcile>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetGbifReconcileQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getGbifReconcile>>
+  > = ({ signal }) => getGbifReconcile(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getGbifReconcile>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetGbifReconcileQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getGbifReconcile>>
+>;
+export type GetGbifReconcileQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Fetch synonyms and common names for a GBIF taxon
+ */
+
+export function useGetGbifReconcile<
+  TData = Awaited<ReturnType<typeof getGbifReconcile>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetGbifReconcileParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getGbifReconcile>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetGbifReconcileQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns occurrence count and up to 300 recent georeferenced records from GBIF for the given taxon. Geography is configurable via three mutually exclusive modes: countries (comma-separated ISO codes, OR'd), continent (single GBIF continent value), or bbox (minLat,minLon,maxLat,maxLon). All records include hasCoordinate=true and hasGeospatialIssue=false filters. Cached 7 days per geography combination. Fetch on demand only.
+
+ * @summary Fetch occurrence records for a GBIF taxon with configurable geography
+ */
+export const getGetGbifOccurrencesUrl = (params: GetGbifOccurrencesParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/gbif/occurrences?${stringifiedParams}`
+    : `/api/gbif/occurrences`;
+};
+
+export const getGbifOccurrences = async (
+  params: GetGbifOccurrencesParams,
+  options?: RequestInit,
+): Promise<GbifOccurrencesResponse> => {
+  return customFetch<GbifOccurrencesResponse>(
+    getGetGbifOccurrencesUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetGbifOccurrencesQueryKey = (
+  params?: GetGbifOccurrencesParams,
+) => {
+  return [`/api/gbif/occurrences`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetGbifOccurrencesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getGbifOccurrences>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetGbifOccurrencesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getGbifOccurrences>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetGbifOccurrencesQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getGbifOccurrences>>
+  > = ({ signal }) => getGbifOccurrences(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getGbifOccurrences>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetGbifOccurrencesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getGbifOccurrences>>
+>;
+export type GetGbifOccurrencesQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Fetch occurrence records for a GBIF taxon with configurable geography
+ */
+
+export function useGetGbifOccurrences<
+  TData = Awaited<ReturnType<typeof getGbifOccurrences>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetGbifOccurrencesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getGbifOccurrences>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetGbifOccurrencesQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Searches GBIF for species whose vernacular names match the query string. Returns a ranked list of candidate species. Not cached — query space is too wide for meaningful caching. Applications are responsible for disambiguation when multiple candidates are returned.
+
+ * @summary Search GBIF species by common (vernacular) name
+ */
+export const getGetGbifSearchUrl = (params: GetGbifSearchParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/gbif/search?${stringifiedParams}`
+    : `/api/gbif/search`;
+};
+
+export const getGbifSearch = async (
+  params: GetGbifSearchParams,
+  options?: RequestInit,
+): Promise<GbifSearchResponse> => {
+  return customFetch<GbifSearchResponse>(getGetGbifSearchUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetGbifSearchQueryKey = (params?: GetGbifSearchParams) => {
+  return [`/api/gbif/search`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetGbifSearchQueryOptions = <
+  TData = Awaited<ReturnType<typeof getGbifSearch>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetGbifSearchParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getGbifSearch>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetGbifSearchQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getGbifSearch>>> = ({
+    signal,
+  }) => getGbifSearch(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getGbifSearch>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetGbifSearchQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getGbifSearch>>
+>;
+export type GetGbifSearchQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Search GBIF species by common (vernacular) name
+ */
+
+export function useGetGbifSearch<
+  TData = Awaited<ReturnType<typeof getGbifSearch>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetGbifSearchParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getGbifSearch>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetGbifSearchQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns service identity, attribution, permission status, controlled vocabulary definitions (basisOfRecord, matchType, taxonomicStatus, occurrenceStatus), and the registry entry for the GBIF service.
+
+ * @summary GBIF service metadata and controlled vocabularies
+ */
+export const getGetGbifMetadataUrl = () => {
+  return `/api/gbif/metadata`;
+};
+
+export const getGbifMetadata = async (
+  options?: RequestInit,
+): Promise<GbifMetadataResponse> => {
+  return customFetch<GbifMetadataResponse>(getGetGbifMetadataUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetGbifMetadataQueryKey = () => {
+  return [`/api/gbif/metadata`] as const;
+};
+
+export const getGetGbifMetadataQueryOptions = <
+  TData = Awaited<ReturnType<typeof getGbifMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getGbifMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetGbifMetadataQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getGbifMetadata>>> = ({
+    signal,
+  }) => getGbifMetadata({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getGbifMetadata>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetGbifMetadataQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getGbifMetadata>>
+>;
+export type GetGbifMetadataQueryError = ErrorType<unknown>;
+
+/**
+ * @summary GBIF service metadata and controlled vocabularies
+ */
+
+export function useGetGbifMetadata<
+  TData = Awaited<ReturnType<typeof getGbifMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getGbifMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetGbifMetadataQueryOptions(options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;
