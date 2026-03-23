@@ -86,27 +86,38 @@ export function buildCacheKey(input: NormalizedInput): string {
 }
 
 async function checkImageUrl(url: string): Promise<"found" | "not_found" | "unverified"> {
+  let headStatus: number | null = null;
   try {
     const headResponse = await fetch(url, {
       method: "HEAD",
       signal: AbortSignal.timeout(10000),
     });
+    headStatus = headResponse.status;
     const headContentType = headResponse.headers.get("content-type") ?? "";
     if (headResponse.ok && headContentType.includes("image/png")) {
       return "found";
     }
-    const shouldFallbackToGet = !headResponse.ok || !headContentType;
-    if (shouldFallbackToGet) {
-      const getResponse = await fetch(url, {
-        signal: AbortSignal.timeout(10000),
-      });
-      const getContentType = getResponse.headers.get("content-type") ?? "";
-      if (getResponse.ok && getContentType.includes("image/png")) {
-        return "found";
-      }
-      return getResponse.ok ? "not_found" : "unverified";
+    // Fall through to GET for definitive classification in all other cases
+  } catch {
+    return "unverified";
+  }
+
+  try {
+    const getResponse = await fetch(url, {
+      signal: AbortSignal.timeout(10000),
+    });
+    const getContentType = getResponse.headers.get("content-type") ?? "";
+    if (getResponse.ok && getContentType.includes("image/png")) {
+      return "found";
     }
-    return "not_found";
+    if (getResponse.ok) {
+      return "not_found";
+    }
+    const status = getResponse.status;
+    if (status === 404 || status === 410 || (headStatus !== null && (headStatus === 404 || headStatus === 410))) {
+      return "not_found";
+    }
+    return "unverified";
   } catch {
     return "unverified";
   }
