@@ -156,9 +156,10 @@ paths:
       description: >
         Given a GBIF usageKey, returns all synonyms (all ranks, unfiltered) and
         vernacular names. Synonyms cached 30 days; vernacular names 90 days.
-        For synonym inputs, pass the acceptedUsageKey from the match response
-        to get synonyms of the accepted taxon. Passing a synonym's own usageKey
-        returns an empty list.
+        If a synonym usageKey is passed, the server automatically resolves it to
+        the accepted taxon's usageKey before fetching; the resolved_from_synonym_key
+        field in the response indicates when this occurred. The resolved accepted
+        taxon's synonyms and vernacular names are always returned.
       parameters:
         - name: usageKey
           in: query
