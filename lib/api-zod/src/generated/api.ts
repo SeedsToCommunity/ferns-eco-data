@@ -89,7 +89,12 @@ export const GetBonapMapResponse = zod
           ),
         color_key_url: zod
           .string()
-          .describe("Always 'http:\/\/www.bonap.org\/MapKey.html'"),
+          .describe("URL of the BONAP map key reference page"),
+        color_key_image_url: zod
+          .string()
+          .describe(
+            "Direct URL to BONAP's authoritative composite color key GIF image. Display this image to show users the complete, pixel-perfect color key.\n",
+          ),
         color_key: zod
           .array(
             zod.object({

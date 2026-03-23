@@ -247,6 +247,7 @@ components:
         - species_stripped
         - status
         - color_key_url
+        - color_key_image_url
         - color_key
         - data_vintage
         - permission_granted
@@ -287,7 +288,12 @@ components:
           description: BONAP internal taxon ID if known. Enables future TDC-based lookups.
         color_key_url:
           type: string
-          description: Always 'http://www.bonap.org/MapKey.html'
+          description: URL of the BONAP map key reference page
+        color_key_image_url:
+          type: string
+          description: >
+            Direct URL to BONAP's authoritative composite color key GIF image.
+            Display this image to show users the complete, pixel-perfect color key.
         color_key:
           type: array
           items:

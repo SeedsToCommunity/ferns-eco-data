@@ -99,6 +99,7 @@ function buildMapResponse(
       status: row.status as "found" | "not_found" | "unverified",
       tdc_taxon_id: row.tdc_taxon_id ?? null,
       color_key_url: BONAP_COLOR_KEY_URL,
+      color_key_image_url: BONAP_COLOR_KEY_IMAGE_URL,
       color_key: BONAP_COLOR_KEY,
       data_vintage: BONAP_DATA_VINTAGE,
       permission_granted: BONAP_PERMISSION_GRANTED,

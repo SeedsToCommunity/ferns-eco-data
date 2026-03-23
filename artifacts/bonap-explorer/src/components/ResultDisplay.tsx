@@ -103,9 +103,11 @@ export function ResultDisplay({ isLoading, error, response }: ResultDisplayProps
         )}
 
         {/* Color Key */}
-        <div className="p-6 md:p-8 border-t bg-background">
-          <ColorKey />
-        </div>
+        {data?.color_key_image_url && data?.color_key_url && (
+          <div className="p-6 md:p-8 border-t bg-background">
+            <ColorKey imageUrl={data.color_key_image_url} pageUrl={data.color_key_url} />
+          </div>
+        )}
       </div>
 
       {/* Provenance */}

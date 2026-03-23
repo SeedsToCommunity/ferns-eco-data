@@ -53,7 +53,7 @@ export function Home() {
             North American Plant Atlas
           </h2>
           <p className="text-lg text-muted-foreground leading-relaxed">
-            Search county-level vascular plant distribution maps compiled from nearly four million vouchered herbarium specimens.
+            Search county-level and state/continental vascular plant distribution maps compiled from nearly four million vouchered herbarium specimens.
           </p>
         </motion.div>
 

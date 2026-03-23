@@ -27,8 +27,11 @@ export interface BonapMapData {
   status: BonapMapDataStatus;
   /** BONAP internal taxon ID if known. Enables future TDC-based lookups. */
   tdc_taxon_id?: number | null;
-  /** Always 'http://www.bonap.org/MapKey.html' */
+  /** URL of the BONAP map key reference page */
   color_key_url: string;
+  /** Direct URL to BONAP's authoritative composite color key GIF image. Display this image to show users the complete, pixel-perfect color key.
+   */
+  color_key_image_url: string;
   /** Complete color key for interpreting BONAP maps */
   color_key: ColorKeyEntry[];
   /** NAPA maps: December 15, 2014. Color key documentation: February 8, 2024. */

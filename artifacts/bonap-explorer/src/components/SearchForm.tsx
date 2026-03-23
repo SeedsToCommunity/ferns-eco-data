@@ -10,7 +10,7 @@ import { GetBonapMapMapType } from "@workspace/api-client-react";
 
 const searchSchema = z.object({
   genus: z.string().min(1, "Genus is required").trim(),
-  species: z.string().trim().optional(),
+  species: z.string().min(1, "Species is required").trim(),
   map_type: z.nativeEnum(GetBonapMapMapType),
 });
 
@@ -33,7 +33,7 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
     defaultValues: {
       genus: "",
       species: "",
-      map_type: "county_species",
+      map_type: GetBonapMapMapType.county_species,
     },
   });
 
@@ -64,9 +64,13 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
               id="species"
               placeholder="e.g., tuberosa"
               {...register("species")}
-              className="h-12 text-lg bg-background"
+              className={`h-12 text-lg bg-background ${errors.species ? "border-destructive focus-visible:ring-destructive" : ""}`}
             />
-            <p className="text-xs text-muted-foreground mt-1">Required — e.g. tuberosa, purpurea, canadensis</p>
+            {errors.species ? (
+              <p className="text-sm text-destructive mt-1">{errors.species.message}</p>
+            ) : (
+              <p className="text-xs text-muted-foreground mt-1">Required — e.g. tuberosa, purpurea, canadensis</p>
+            )}
           </div>
         </div>
 
