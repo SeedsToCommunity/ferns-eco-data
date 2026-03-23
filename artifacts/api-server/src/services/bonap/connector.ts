@@ -46,7 +46,7 @@ export function normalizeInput(
 
   return {
     genus: normalizedGenus,
-    species: normalizedSpecies,
+    species: map_type === "genus_county" ? null : normalizedSpecies,
     map_type,
     species_stripped,
   };
@@ -85,7 +85,7 @@ export function buildCacheKey(input: NormalizedInput): string {
   return `bonap:county:${genus}:${input.species ?? ""}`;
 }
 
-async function checkImageUrl(url: string): Promise<boolean> {
+async function checkImageUrl(url: string): Promise<"found" | "not_found" | "unverified"> {
   try {
     const headResponse = await fetch(url, {
       method: "HEAD",
@@ -93,20 +93,22 @@ async function checkImageUrl(url: string): Promise<boolean> {
     });
     const headContentType = headResponse.headers.get("content-type") ?? "";
     if (headResponse.ok && headContentType.includes("image/png")) {
-      return true;
+      return "found";
     }
-    const shouldFallbackToGet =
-      !headResponse.ok || !headContentType;
+    const shouldFallbackToGet = !headResponse.ok || !headContentType;
     if (shouldFallbackToGet) {
       const getResponse = await fetch(url, {
         signal: AbortSignal.timeout(10000),
       });
       const getContentType = getResponse.headers.get("content-type") ?? "";
-      return getResponse.ok && getContentType.includes("image/png");
+      if (getResponse.ok && getContentType.includes("image/png")) {
+        return "found";
+      }
+      return getResponse.ok ? "not_found" : "unverified";
     }
-    return false;
+    return "not_found";
   } catch {
-    return false;
+    return "unverified";
   }
 }
 
@@ -148,11 +150,11 @@ export async function verifyMapExists(
     };
   }
 
-  const exists = await checkImageUrl(mapUrl);
+  const result = await checkImageUrl(mapUrl);
   return {
-    status: exists ? "found" : "not_found",
-    map_url: exists ? mapUrl : null,
-    source_url: sourceUrl,
+    status: result,
+    map_url: result === "found" ? mapUrl : null,
+    source_url: result === "found" ? mapUrl : sourceUrl,
     upstream_url: mapUrl,
     normalized: input,
   };
