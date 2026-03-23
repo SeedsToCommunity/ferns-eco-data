@@ -142,7 +142,7 @@ If no spec has been provided, stop and ask for one. Do not attempt to research o
 
 | # | Source ID | Name | Type | Status | Permission |
 |---|-----------|------|------|--------|------------|
-| 1 | `bonap-napa` | BONAP North American Plant Atlas | Live API | ✅ Complete | ❌ Not yet requested |
+| 1 | `bonap-napa` | BONAP North American Plant Atlas | Live API | ✅ Complete and User Tested | ❌ Not yet requested |
 | 2 | `gbif` | GBIF Taxonomic Backbone | Live API | 🔲 Not started | — |
 | 3 | `michigan-flora-api` | Michigan Flora API | Live API | 🔲 Not started | — |
 | 4 | `inaturalist` | iNaturalist | Live API | 🔲 Not started | — |
