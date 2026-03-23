@@ -58,7 +58,7 @@ FERNS operates on a three-layer architecture:
 | # | Source | Status | Capabilities | Geography | Notes |
 |---|--------|--------|--------------|-----------|-------|
 | 1 | BONAP | COMPLETE | Distribution maps by county | US + Canada | Pixel-color scraping; CC BY-NC |
-| 2 | GBIF | COMPLETE | Name match, synonyms/vernacular reconciliation, occurrence records | Configurable: countries, continent, or bbox | Open access, CC BY 4.0; occurrence records sorted by recency |
+| 2 | GBIF | OPEN | Name match, synonyms/vernacular reconciliation, occurrence records | Configurable: countries, continent, or bbox | Open access, CC BY 4.0; occurrence records sorted by recency |
 
 ## External Dependencies
 
