@@ -39,4 +39,7 @@ export interface BonnapMapData {
   attribution: BonnapAttribution;
   cache_status: BonnapMapDataCacheStatus;
   queried_at: Date;
+  /** Human-readable note attached to this response. Present when FERNS cannot fully verify the map URL — for example, genus_county map type returns a source browsing URL but the PNG URL is unconfirmed. Null for standard county_species responses.
+   */
+  note?: string | null;
 }

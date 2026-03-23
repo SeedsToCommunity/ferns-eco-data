@@ -313,6 +313,14 @@ components:
         queried_at:
           type: string
           format: date-time
+        note:
+          type: string
+          nullable: true
+          description: >
+            Human-readable note attached to this response. Present when FERNS cannot
+            fully verify the map URL — for example, genus_county map type returns a
+            source browsing URL but the PNG URL is unconfirmed. Null for standard
+            county_species responses.
 
     BonnapMapResponse:
       type: object

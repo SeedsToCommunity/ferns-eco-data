@@ -151,6 +151,12 @@ export const GetBonnapMapResponse = zod
         }),
         cache_status: zod.enum(["hit", "miss", "bypassed"]),
         queried_at: zod.date(),
+        note: zod
+          .string()
+          .nullish()
+          .describe(
+            "Human-readable note attached to this response. Present when FERNS cannot fully verify the map URL — for example, genus_county map type returns a source browsing URL but the PNG URL is unconfirmed. Null for standard county_species responses.\n",
+          ),
       })
       .nullish(),
     provenance: zod

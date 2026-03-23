@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { GetBonnapMapQueryParams, GetBonnapMapResponse } from "@workspace/api-zod";
+import { GetBonnapMapQueryParams, GetBonnapMapResponse, GetBonnapMetadataResponse } from "@workspace/api-zod";
 import { normalizeInput, verifyMapExists, buildCacheKey, buildProvenance } from "../services/bonap/connector.js";
 import { lookupCache, storeCache } from "../services/bonap/cache.js";
 import {
@@ -97,6 +97,10 @@ function buildMapResponse(
       attribution: BONAP_ATTRIBUTION,
       cache_status,
       queried_at: new Date(),
+      note:
+        row.map_type === "genus_county"
+          ? "Genus-county map type: FERNS returns the BONAP genus browsing page URL (source_url) only. The county-level genus PNG URL is unconfirmed — BONAP does not publish a stable direct-PNG URL pattern for genus-level county maps. No map image is available for this query."
+          : null,
     },
     provenance: {
       source_id: row.source_id,
@@ -112,7 +116,7 @@ function buildMapResponse(
 router.get("/bonap/metadata", async (_req, res) => {
   await ensureBonappRegistryEntry();
 
-  res.json({
+  const payload = GetBonnapMetadataResponse.parse({
     service_id: BONAP_SOURCE_ID,
     service_name: "BONAP North American Plant Atlas — Distribution Maps",
     data_vintage: BONAP_DATA_VINTAGE,
@@ -121,8 +125,9 @@ router.get("/bonap/metadata", async (_req, res) => {
     attribution: BONAP_ATTRIBUTION,
     color_key: BONAP_COLOR_KEY,
     color_key_url: BONAP_COLOR_KEY_URL,
-    queried_at: new Date().toISOString(),
+    queried_at: new Date(),
   });
+  res.json(payload);
 });
 
 export default router;

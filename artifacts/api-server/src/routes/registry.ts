@@ -1,5 +1,6 @@
 import { Router, type IRouter } from "express";
 import { db, registryEntriesTable } from "@workspace/db";
+import { GetRegistryResponse } from "@workspace/api-zod";
 import { ensureBonappRegistryEntry } from "../services/bonap/seed.js";
 
 const router: IRouter = Router();
@@ -9,7 +10,7 @@ router.get("/registry", async (_req, res) => {
 
   const entries = await db.select().from(registryEntriesTable).orderBy(registryEntriesTable.service_id);
 
-  res.json({
+  const payload = GetRegistryResponse.parse({
     source_url: null,
     found: true,
     data: entries.map((e) => ({
@@ -27,7 +28,7 @@ router.get("/registry", async (_req, res) => {
     })),
     provenance: {
       source_id: "ferns-registry",
-      fetched_at: new Date().toISOString(),
+      fetched_at: new Date(),
       method: "api_fetch",
       upstream_url: "/api/registry",
       derivation_summary:
@@ -36,6 +37,7 @@ router.get("/registry", async (_req, res) => {
         "FERNS Knowledge Registry. Registry entries are populated at service startup and updated when new sources are integrated. Each entry conforms to the FERNS Knowledge Service Specification and includes input/output contracts, data lineage, permission status, and known limitations.",
     },
   });
+  res.json(payload);
 });
 
 export default router;
