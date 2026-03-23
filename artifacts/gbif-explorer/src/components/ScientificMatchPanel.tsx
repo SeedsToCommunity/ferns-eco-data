@@ -1,6 +1,6 @@
-import { useGetGbifMatch, useGetGbifReconcile } from "@workspace/api-client-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
+import { useGetGbifMatch, useGetGbifReconcile, getGetGbifMatchQueryKey, getGetGbifReconcileQueryKey, type GbifVernacularRecord, type GbifSynonymRecord } from "@workspace/api-client-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, CheckCircle, Info, ExternalLink, Leaf } from "lucide-react";
 import { RawJsonPanel } from "./RawJsonPanel";
 import { OccurrencesPanel } from "./OccurrencesPanel";
@@ -11,14 +11,14 @@ interface ScientificMatchPanelProps {
 
 export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelProps) {
   const matchQuery = useGetGbifMatch({ name: scientificName }, {
-    query: { enabled: !!scientificName }
+    query: { queryKey: getGetGbifMatchQueryKey({ name: scientificName }), enabled: !!scientificName }
   });
 
   const matchData = matchQuery.data?.data;
   const reconcileKey = matchData?.status === 'SYNONYM' ? matchData.accepted_usage_key : matchData?.usage_key;
   
   const reconcileQuery = useGetGbifReconcile({ usageKey: reconcileKey || 0 }, {
-    query: { enabled: !!reconcileKey }
+    query: { queryKey: getGetGbifReconcileQueryKey({ usageKey: reconcileKey || 0 }), enabled: !!reconcileKey }
   });
 
   if (matchQuery.isLoading) {
@@ -175,7 +175,7 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
                     <p className="text-sm text-muted-foreground italic">No common names recorded.</p>
                   ) : (
                     <ul className="space-y-3">
-                      {reconcileQuery.data.data.vernacular_names.map((vn, i) => (
+                      {reconcileQuery.data.data.vernacular_names.map((vn: GbifVernacularRecord, i: number) => (
                         <li key={i} className="flex justify-between items-start border-b border-border/50 pb-2 last:border-0 last:pb-0">
                           <span className="font-medium">{vn.vernacularName}</span>
                           <div className="flex gap-2">
@@ -204,7 +204,7 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
                     <p className="text-sm text-muted-foreground italic">No synonyms recorded.</p>
                   ) : (
                     <ul className="space-y-3">
-                      {reconcileQuery.data.data.synonyms.map((syn, i) => (
+                      {reconcileQuery.data.data.synonyms.map((syn: GbifSynonymRecord, i: number) => (
                         <li key={i} className="text-sm border-b border-border/50 pb-2 last:border-0 last:pb-0">
                           <div className="font-medium italic">{syn.canonicalName || syn.scientificName}</div>
                           <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">

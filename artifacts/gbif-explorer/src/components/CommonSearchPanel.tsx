@@ -1,7 +1,7 @@
-import { useGetGbifSearch } from "@workspace/api-client-react";
-import { Card, CardContent } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
+import { useGetGbifSearch, getGetGbifSearchQueryKey, type GbifSearchCandidate } from "@workspace/api-client-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Search, ChevronRight, AlertCircle } from "lucide-react";
 import { RawJsonPanel } from "./RawJsonPanel";
 
@@ -12,7 +12,7 @@ interface CommonSearchPanelProps {
 
 export function CommonSearchPanel({ query, onSelectCanonical }: CommonSearchPanelProps) {
   const searchQuery = useGetGbifSearch({ q: query }, {
-    query: { enabled: !!query, retry: false }
+    query: { queryKey: getGetGbifSearchQueryKey({ q: query }), enabled: !!query, retry: false }
   });
 
   if (searchQuery.isLoading) {
@@ -52,7 +52,7 @@ export function CommonSearchPanel({ query, onSelectCanonical }: CommonSearchPane
         </Card>
       ) : (
         <div className="grid gap-3">
-          {results.map((candidate, i) => (
+          {results.map((candidate: GbifSearchCandidate, i: number) => (
             <Card key={`${candidate.usageKey}-${i}`} className="overflow-hidden hover:border-primary/40 transition-colors group">
               <CardContent className="p-0 flex flex-col sm:flex-row">
                 <div className="flex-1 p-5 flex flex-col justify-center">

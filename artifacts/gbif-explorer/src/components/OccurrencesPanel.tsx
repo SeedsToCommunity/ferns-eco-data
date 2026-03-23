@@ -1,9 +1,15 @@
 import { useState, lazy, Suspense } from "react";
-import { useGetGbifOccurrences } from "@workspace/api-client-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
-import { Input } from "@/components/ui/Input";
+import {
+  useGetGbifOccurrences,
+  getGetGbifOccurrencesQueryKey,
+  type GbifOccurrenceRecord,
+  type GetGbifOccurrencesParams,
+  GetGbifOccurrencesContinent,
+} from "@workspace/api-client-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Map, MapPin, RefreshCw, ExternalLink, Globe2 } from "lucide-react";
 import { formatNumber, cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -28,18 +34,12 @@ interface BboxValues {
 
 type CountriesState = { US: boolean; CA: boolean; MX: boolean };
 
-interface OccurrencesParams {
-  usageKey: number;
-  countries?: string;
-  continent?: string;
-  bbox?: string;
-  refresh?: boolean;
-}
+const CONTINENT_VALUES = Object.values(GetGbifOccurrencesContinent);
 
 export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
   const [geoMode, setGeoMode] = useState<GeoMode>("countries");
   const [countries, setCountries] = useState<CountriesState>({ US: true, CA: true, MX: true });
-  const [continent, setContinent] = useState("NORTH_AMERICA");
+  const [continent, setContinent] = useState<GetGbifOccurrencesContinent>(GetGbifOccurrencesContinent.NORTH_AMERICA);
   const [bbox, setBbox] = useState<BboxValues>({
     minLat: "24.4",
     minLon: "-125.0",
@@ -50,7 +50,7 @@ export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
   const [hasTriggered, setHasTriggered] = useState(false);
   const [refreshToggle, setRefreshToggle] = useState(false);
 
-  const queryParams: OccurrencesParams = { usageKey };
+  const queryParams: GetGbifOccurrencesParams = { usageKey };
 
   if (geoMode === "countries") {
     const selected = (Object.entries(countries) as [keyof CountriesState, boolean][])
@@ -69,7 +69,7 @@ export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
   }
 
   const occQuery = useGetGbifOccurrences(queryParams, {
-    query: { enabled: hasTriggered },
+    query: { queryKey: getGetGbifOccurrencesQueryKey(queryParams), enabled: hasTriggered },
   });
 
   const handleFetch = () => {
@@ -147,17 +147,9 @@ export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
               <select
                 className="h-11 w-full max-w-xs rounded-xl border-2 border-border bg-background px-3 py-2 text-sm focus:outline-none focus:border-primary"
                 value={continent}
-                onChange={(e) => setContinent(e.target.value)}
+                onChange={(e) => setContinent(e.target.value as GetGbifOccurrencesContinent)}
               >
-                {[
-                  "AFRICA",
-                  "ANTARCTICA",
-                  "ASIA",
-                  "EUROPE",
-                  "NORTH_AMERICA",
-                  "OCEANIA",
-                  "SOUTH_AMERICA",
-                ].map((c) => (
+                {CONTINENT_VALUES.map((c) => (
                   <option key={c} value={c}>
                     {c.replace(/_/g, " ")}
                   </option>
@@ -298,7 +290,7 @@ export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
                         </td>
                       </tr>
                     ) : (
-                      occQuery.data.data.recent_occurrences.slice(0, 50).map((occ, i) => (
+                      occQuery.data.data.recent_occurrences.slice(0, 50).map((occ: GbifOccurrenceRecord, i: number) => (
                         <tr key={i} className="hover:bg-muted/30 transition-colors">
                           <td className="px-4 py-3 whitespace-nowrap">
                             {occ.eventDate
