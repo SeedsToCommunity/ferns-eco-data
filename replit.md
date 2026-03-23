@@ -150,7 +150,6 @@ If no spec has been provided, stop and ask for one. Do not attempt to research o
 | 8 | `central-region-seedling-guide` | Central Region Seedling ID Guide PDF | Blob | 🔲 Not started | — |
 
 ---
----
 
 # Workspace
 
