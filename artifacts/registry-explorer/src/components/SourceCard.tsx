@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Map, Plug, Database, Activity, AlertCircle, Calendar, Braces, Copy, Check } from "lucide-react";
+import { Map, Plug, Database, Activity, AlertCircle, Calendar, Braces, Copy, Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import type { SourceSummary } from "@workspace/api-client-react";
@@ -10,30 +10,39 @@ interface SourceCardProps {
   index: number;
 }
 
+type CopyState = "idle" | "copied" | "error";
+
 function CopyableUrl({ url, label, icon }: { url: string; label: string; icon: React.ReactNode }) {
-  const [copied, setCopied] = useState(false);
+  const [copyState, setCopyState] = useState<CopyState>("idle");
 
   function handleCopy() {
     navigator.clipboard.writeText(url).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      setCopyState("copied");
+      setTimeout(() => setCopyState("idle"), 1500);
+    }).catch(() => {
+      setCopyState("error");
+      setTimeout(() => setCopyState("idle"), 1500);
     });
   }
 
   return (
-    <div className="flex items-center gap-2 group/row">
+    <div className="flex items-center gap-2">
       <span className="text-muted-foreground shrink-0">{icon}</span>
       <span className="text-xs text-muted-foreground w-20 shrink-0">{label}</span>
-      <span className="text-xs font-mono text-foreground/80 truncate flex-1 min-w-0">{url}</span>
+      <span
+        className="text-xs font-mono text-foreground/80 truncate flex-1 min-w-0"
+        title={url}
+      >
+        {url}
+      </span>
       <button
         onClick={handleCopy}
-        title="Copy URL"
+        title={copyState === "error" ? "Copy failed — check browser permissions" : "Copy URL"}
         className="shrink-0 p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
       >
-        {copied
-          ? <Check className="w-3 h-3 text-green-600" />
-          : <Copy className="w-3 h-3" />
-        }
+        {copyState === "copied" && <Check className="w-3 h-3 text-green-600" />}
+        {copyState === "error" && <X className="w-3 h-3 text-red-500" />}
+        {copyState === "idle" && <Copy className="w-3 h-3" />}
       </button>
     </div>
   );
