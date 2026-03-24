@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { ExternalLink, Database, Activity, AlertCircle, Calendar, Braces } from "lucide-react";
+import { Map, Plug, Database, Activity, AlertCircle, Calendar, Braces, Copy, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import type { SourceSummary } from "@workspace/api-client-react";
@@ -10,9 +10,40 @@ interface SourceCardProps {
   index: number;
 }
 
+function CopyableUrl({ url, label, icon }: { url: string; label: string; icon: React.ReactNode }) {
+  const [copied, setCopied] = useState(false);
+
+  function handleCopy() {
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    });
+  }
+
+  return (
+    <div className="flex items-center gap-2 group/row">
+      <span className="text-muted-foreground shrink-0">{icon}</span>
+      <span className="text-xs text-muted-foreground w-20 shrink-0">{label}</span>
+      <span className="text-xs font-mono text-foreground/80 truncate flex-1 min-w-0">{url}</span>
+      <button
+        onClick={handleCopy}
+        title="Copy URL"
+        className="shrink-0 p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+      >
+        {copied
+          ? <Check className="w-3 h-3 text-green-600" />
+          : <Copy className="w-3 h-3" />
+        }
+      </button>
+    </div>
+  );
+}
+
 export function SourceCard({ source, index }: SourceCardProps) {
   const isLive = source.status === "live";
   const isPartial = source.status === "partial";
+
+  const hasEndpoints = source.explorer_url || source.metadata_url;
 
   return (
     <motion.div
@@ -69,7 +100,7 @@ export function SourceCard({ source, index }: SourceCardProps) {
               </div>
             </div>
           )}
-          
+
           {source.update_frequency && (
             <div className="flex gap-3">
               <Calendar className="w-4 h-4 text-primary shrink-0 mt-0.5" />
@@ -106,6 +137,27 @@ export function SourceCard({ source, index }: SourceCardProps) {
           </div>
         )}
 
+        {/* Endpoints */}
+        {hasEndpoints && (
+          <div className="mb-5 bg-muted/20 rounded-xl px-4 py-3 border border-border/40 space-y-2">
+            <span className="text-xs font-semibold text-foreground uppercase tracking-wider block mb-1">Endpoints</span>
+            {source.explorer_url && (
+              <CopyableUrl
+                url={source.explorer_url}
+                label="Explorer"
+                icon={<Map className="w-3.5 h-3.5" />}
+              />
+            )}
+            {source.metadata_url && (
+              <CopyableUrl
+                url={source.metadata_url}
+                label="API Metadata"
+                icon={<Plug className="w-3.5 h-3.5" />}
+              />
+            )}
+          </div>
+        )}
+
         {/* Actions */}
         <div className="mt-auto pt-4 border-t border-border flex flex-wrap gap-3">
           <a
@@ -119,10 +171,10 @@ export function SourceCard({ source, index }: SourceCardProps) {
             target={source.explorer_url?.startsWith('http') ? "_blank" : "_self"}
             rel={source.explorer_url?.startsWith('http') ? "noopener noreferrer" : undefined}
           >
+            <Map className="w-4 h-4" />
             Explorer
-            <ExternalLink className="w-4 h-4" />
           </a>
-          
+
           <a
             href={source.metadata_url || "#"}
             className={cn(
@@ -134,8 +186,8 @@ export function SourceCard({ source, index }: SourceCardProps) {
             target="_blank"
             rel="noopener noreferrer"
           >
+            <Plug className="w-4 h-4" />
             API Metadata
-            <ExternalLink className="w-4 h-4" />
           </a>
         </div>
       </div>
