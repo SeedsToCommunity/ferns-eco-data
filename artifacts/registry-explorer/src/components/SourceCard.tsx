@@ -18,13 +18,39 @@ function CopyableUrl({ url, label, icon }: { url: string; label: string; icon: R
 
   function handleCopy() {
     const absolute = url.startsWith("/") ? window.location.origin + url : url;
-    navigator.clipboard.writeText(absolute).then(() => {
+
+    function onSuccess() {
       setCopyState("copied");
       setTimeout(() => setCopyState("idle"), 1500);
-    }).catch(() => {
+    }
+
+    function onFailure() {
       setCopyState("error");
       setTimeout(() => setCopyState("idle"), 1500);
-    });
+    }
+
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(absolute).then(onSuccess).catch(() => {
+        legacyCopy(absolute) ? onSuccess() : onFailure();
+      });
+    } else {
+      legacyCopy(absolute) ? onSuccess() : onFailure();
+    }
+  }
+
+  function legacyCopy(text: string): boolean {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.top = "0";
+    ta.style.left = "0";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    const ok = document.execCommand("copy");
+    document.body.removeChild(ta);
+    return ok;
   }
 
   return (
