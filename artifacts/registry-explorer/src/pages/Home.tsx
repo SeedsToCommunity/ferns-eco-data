@@ -44,9 +44,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-4xl md:text-5xl font-bold text-foreground mb-4 tracking-tight"
-        >
-          Explore the Network
-        </motion.h2>
+        >Explore FERNS Sources</motion.h2>
         <motion.p 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -56,14 +54,12 @@ export default function Home() {
           Discover registered knowledge services, datasets, and synthesis endpoints available within the Federated Ecological Resource Network System.
         </motion.p>
       </div>
-
       {isLoading && (
         <div className="flex flex-col items-center justify-center py-24 text-primary">
           <Loader2 className="w-12 h-12 animate-spin mb-4" />
           <p className="text-muted-foreground font-medium animate-pulse">Scanning registry...</p>
         </div>
       )}
-
       {isError && (
         <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-8 flex flex-col items-center justify-center text-center max-w-2xl mx-auto">
           <div className="bg-destructive/10 p-4 rounded-full mb-4">
@@ -81,7 +77,6 @@ export default function Home() {
           </button>
         </div>
       )}
-
       {!isLoading && !isError && groupedSources && Object.keys(groupedSources).length === 0 && (
         <div className="bg-card border border-border rounded-3xl p-12 flex flex-col items-center justify-center text-center shadow-sm">
           <div className="bg-muted p-5 rounded-2xl mb-6">
@@ -93,7 +88,6 @@ export default function Home() {
           </p>
         </div>
       )}
-
       {!isLoading && !isError && groupedSources && (
         <div className="space-y-16">
           {GROUP_ORDER.map((groupType) => {
