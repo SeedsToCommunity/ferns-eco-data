@@ -17,7 +17,8 @@ function CopyableUrl({ url, label, icon }: { url: string; label: string; icon: R
   const [copyState, setCopyState] = useState<CopyState>("idle");
 
   function handleCopy() {
-    navigator.clipboard.writeText(url).then(() => {
+    const absolute = url.startsWith("/") ? window.location.origin + url : url;
+    navigator.clipboard.writeText(absolute).then(() => {
       setCopyState("copied");
       setTimeout(() => setCopyState("idle"), 1500);
     }).catch(() => {
