@@ -1,6 +1,7 @@
 import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Home from "@/pages/Home";
+import MetadataPage from "@/pages/MetadataPage";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -17,6 +18,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/source/:sourceId/metadata" component={MetadataPage} />
       <Route component={NotFound} />
     </Switch>
   );

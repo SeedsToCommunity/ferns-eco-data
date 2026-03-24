@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { Link } from "wouter";
 import { Map, Plug, Database, Activity, AlertCircle, Calendar, Braces, Copy, Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -184,20 +185,20 @@ export function SourceCard({ source, index }: SourceCardProps) {
             Explorer
           </a>
 
-          <a
-            href={source.metadata_url || "#"}
-            className={cn(
-              "flex-1 inline-flex justify-center items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border transition-all duration-200",
-              source.metadata_url
-                ? "border-primary/20 text-primary hover:bg-primary/5 hover:border-primary/30"
-                : "border-border text-muted-foreground opacity-50 cursor-not-allowed pointer-events-none"
-            )}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Plug className="w-4 h-4" />
-            API Metadata
-          </a>
+          {source.metadata_url ? (
+            <Link
+              href={`/source/${source.source_id}/metadata`}
+              className="flex-1 inline-flex justify-center items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border transition-all duration-200 border-primary/20 text-primary hover:bg-primary/5 hover:border-primary/30"
+            >
+              <Plug className="w-4 h-4" />
+              API Metadata
+            </Link>
+          ) : (
+            <span className="flex-1 inline-flex justify-center items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border border-border text-muted-foreground opacity-50 cursor-not-allowed">
+              <Plug className="w-4 h-4" />
+              API Metadata
+            </span>
+          )}
         </div>
       </div>
     </motion.div>
