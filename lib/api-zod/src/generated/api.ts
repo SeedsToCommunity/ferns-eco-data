@@ -150,7 +150,7 @@ export const GetBonapMapResponse = zod
           .string()
           .nullish()
           .describe(
-            "Human-readable note attached to this response. Present when FERNS cannot fully verify the map URL. Null for standard county_species or state_species responses.\n",
+            "Human-readable diagnostic note. Non-null only when status is unverified — explains that BONAP's server did not return a definitive response during cache population and instructs the caller to retry with ?refresh=true. Null when status is found or not_found.\n",
           ),
       })
       .nullish(),

@@ -105,7 +105,9 @@ function buildMapResponse(
       attribution: BONAP_ATTRIBUTION,
       cache_status,
       queried_at: new Date(),
-      note: null,
+      note: row.status === "unverified"
+        ? "Map URL could not be verified during cache population — BONAP's server did not return a definitive response. The map may or may not exist. Retry with ?refresh=true to attempt re-verification."
+        : null,
     },
     provenance: {
       source_id: row.source_id,

@@ -43,7 +43,7 @@ export interface BonapMapData {
   attribution: BonapAttribution;
   cache_status: BonapMapDataCacheStatus;
   queried_at: Date;
-  /** Human-readable note attached to this response. Present when FERNS cannot fully verify the map URL. Null for standard county_species or state_species responses.
+  /** Human-readable diagnostic note. Non-null only when status is unverified — explains that BONAP's server did not return a definitive response during cache population and instructs the caller to retry with ?refresh=true. Null when status is found or not_found.
    */
   note?: string | null;
 }
