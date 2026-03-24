@@ -1,4 +1,4 @@
-import { pgTable, serial, text, boolean, timestamp, integer } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, boolean, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -12,7 +12,6 @@ export const bonapMapsTable = pgTable("bonap_maps", {
   map_url: text("map_url"),
   source_url: text("source_url"),
   status: text("status").notNull(),
-  tdc_taxon_id: integer("tdc_taxon_id"),
   expires_at: timestamp("expires_at", { withTimezone: true }),
   source_id: text("source_id").notNull().default("bonap-napa"),
   fetched_at: timestamp("fetched_at", { withTimezone: true }).notNull(),

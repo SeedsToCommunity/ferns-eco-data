@@ -49,7 +49,6 @@ export async function storeCache(
     map_url: result.map_url,
     source_url: result.source_url,
     status: result.status,
-    tdc_taxon_id: null,
     expires_at: expiresAt,
     source_id: provenance.source_id,
     fetched_at: provenance.fetched_at,

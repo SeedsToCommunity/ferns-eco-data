@@ -489,10 +489,6 @@ components:
             found — URL returned a valid image during cache population.
             not_found — BONAP returned a non-image response for this binomial.
             unverified — URL was returned from cache without re-verification.
-        tdc_taxon_id:
-          type: integer
-          nullable: true
-          description: BONAP internal taxon ID if known. Enables future TDC-based lookups.
         color_key_url:
           type: string
           description: URL of the BONAP map key reference page

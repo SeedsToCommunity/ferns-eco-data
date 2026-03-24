@@ -25,8 +25,6 @@ export interface BonapMapData {
   /** found — URL returned a valid image during cache population. not_found — BONAP returned a non-image response for this binomial. unverified — URL was returned from cache without re-verification.
    */
   status: BonapMapDataStatus;
-  /** BONAP internal taxon ID if known. Enables future TDC-based lookups. */
-  tdc_taxon_id?: number | null;
   /** URL of the BONAP map key reference page */
   color_key_url: string;
   /** Direct URL to BONAP's authoritative composite color key GIF image. Display this image to show users the complete, pixel-perfect color key.

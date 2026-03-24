@@ -81,12 +81,6 @@ export const GetBonapMapResponse = zod
           .describe(
             "found — URL returned a valid image during cache population. not_found — BONAP returned a non-image response for this binomial. unverified — URL was returned from cache without re-verification.\n",
           ),
-        tdc_taxon_id: zod
-          .number()
-          .nullish()
-          .describe(
-            "BONAP internal taxon ID if known. Enables future TDC-based lookups.",
-          ),
         color_key_url: zod
           .string()
           .describe("URL of the BONAP map key reference page"),

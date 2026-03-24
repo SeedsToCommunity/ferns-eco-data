@@ -77,7 +77,6 @@ function buildMapResponse(
     species: string | null;
     species_stripped: boolean;
     status: string;
-    tdc_taxon_id: number | null;
     source_id: string;
     fetched_at: Date;
     method: string;
@@ -97,7 +96,6 @@ function buildMapResponse(
       species: row.species ?? null,
       species_stripped: row.species_stripped,
       status: row.status as "found" | "not_found" | "unverified",
-      tdc_taxon_id: row.tdc_taxon_id ?? null,
       color_key_url: BONAP_COLOR_KEY_URL,
       color_key_image_url: BONAP_COLOR_KEY_IMAGE_URL,
       color_key: BONAP_COLOR_KEY,
