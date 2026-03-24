@@ -25,6 +25,7 @@ app.use(
     },
   }),
 );
+app.options(/(.*)/, cors({ origin: "*" }));
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
