@@ -31,16 +31,21 @@ export function SourceCard({ source, index }: SourceCardProps) {
             <h3 className="text-xl font-bold text-foreground leading-tight group-hover:text-primary transition-colors">
               {source.name}
             </h3>
-            <div className="flex items-center gap-2 mt-2">
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
               <span className="text-xs font-mono text-muted-foreground bg-muted px-2 py-1 rounded-md">
                 {source.source_id}
               </span>
-              <Badge
-                variant={isLive ? "success" : isPartial ? "warning" : "secondary"}
-                className="capitalize"
-              >
-                {source.status}
+              <Badge variant="outline" className="text-xs capitalize">
+                {source.knowledge_type.replace(/_/g, " ")}
               </Badge>
+              {!isLive && (
+                <Badge
+                  variant={isPartial ? "warning" : "secondary"}
+                  className="capitalize"
+                >
+                  {source.status}
+                </Badge>
+              )}
             </div>
           </div>
           <div className="p-2 bg-primary/5 rounded-xl text-primary shrink-0">
