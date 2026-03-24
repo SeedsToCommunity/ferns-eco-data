@@ -29,11 +29,11 @@ export const BONAP_ATTRIBUTION = {
 export const BONAP_COLOR_KEY = [
   {
     code: "native_na",
-    hex_approx: "#2d5016",
+    hex_approx: "#1a3a0f",
     hex_is_approximate: true,
     name: "Native to North America",
     description:
-      "Species is indigenous to North America north of Mexico. State background is dark green.",
+      "Species is indigenous to North America north of Mexico. State background is very dark green.",
     layer: "state_background" as const,
   },
   {
@@ -44,6 +44,24 @@ export const BONAP_COLOR_KEY = [
     description:
       "Species originates outside North America. State background is dark navy blue.",
     layer: "state_background" as const,
+  },
+  {
+    code: "not_present",
+    hex_approx: "#ffffff",
+    hex_is_approximate: true,
+    name: "Species not present in state",
+    description:
+      "Species has no recorded occurrence in this state. The entire state appears without the native/exotic background color.",
+    layer: "state_background" as const,
+  },
+  {
+    code: "native_indigenous_state",
+    hex_approx: "#5c9e3a",
+    hex_is_approximate: true,
+    name: "Native and indigenous to this state",
+    description:
+      "Species is native to North America and indigenous to this specific state. Distinct from the state background color and from counties where the species is merely adventive or incidentally present.",
+    layer: "county_fill" as const,
   },
   {
     code: "present_not_rare",
@@ -133,15 +151,6 @@ export const BONAP_COLOR_KEY = [
     name: "Questionable presence (cross-hatched)",
     description:
       "County record exists but presence is uncertain. Displayed with cross-hatching rather than a solid fill.",
-    layer: "county_fill" as const,
-  },
-  {
-    code: "not_present",
-    hex_approx: "#ffffff",
-    hex_is_approximate: true,
-    name: "Species not present in state",
-    description:
-      "Species has no recorded occurrence in this state. County or state has no specimen record in the BONAP database.",
     layer: "county_fill" as const,
   },
 ];
