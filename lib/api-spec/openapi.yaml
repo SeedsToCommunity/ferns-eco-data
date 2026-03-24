@@ -295,22 +295,40 @@ paths:
               schema:
                 $ref: "#/components/schemas/GbifMetadataResponse"
 
-  /registry:
+  /v1/sources:
     get:
-      operationId: getRegistry
+      operationId: getSourcesIndex
       tags: [registry]
-      summary: List all registered FERNS services
+      summary: List all registered FERNS Knowledge Services
       description: >
-        Returns all registered Knowledge Services in this FERNS instance.
-        Each entry describes what a service exposes, its data lineage,
-        geographic scope, and permission status.
+        Returns a summary entry for every registered FERNS Knowledge Service.
+        This is the primary discovery endpoint. Each entry contains enough
+        information to make a routing decision without a follow-up call to
+        individual /metadata endpoints.
       responses:
         "200":
-          description: Registry entries
+          description: Registry index
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RegistryListResponse"
+                $ref: "#/components/schemas/SourcesIndexResponse"
+
+  /v1/sources/metadata:
+    get:
+      operationId: getSourcesMetadata
+      tags: [registry]
+      summary: Metadata for the FERNS Source Registry service itself
+      description: >
+        Returns metadata about the registry service itself — its identity,
+        descriptions, and its own registry entry. Follows the same envelope
+        pattern as all other FERNS /metadata endpoints.
+      responses:
+        "200":
+          description: Registry service metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SourcesMetadataResponse"
 
 components:
   schemas:
@@ -582,44 +600,6 @@ components:
         queried_at:
           type: string
           format: date-time
-
-    RegistryEntryData:
-      type: object
-      required:
-        - service_id
-        - service_name
-        - knowledge_type
-      properties:
-        service_id:
-          type: string
-        service_name:
-          type: string
-        knowledge_type:
-          type: string
-        input_summary:
-          type: string
-          nullable: true
-        output_summary:
-          type: string
-          nullable: true
-        data_lineage:
-          type: string
-          nullable: true
-        update_frequency:
-          type: string
-          nullable: true
-        geographic_scope:
-          type: string
-          nullable: true
-        taxonomic_scope:
-          type: string
-          nullable: true
-        permission_status:
-          type: string
-          nullable: true
-        known_limitations:
-          type: string
-          nullable: true
 
     GbifSynonymRecord:
       type: object
@@ -1051,27 +1031,31 @@ components:
           type: object
           description: Full registry entry for this GBIF service source
           properties:
-            service_id:
+            source_id:
               type: string
-            service_name:
+            name:
               type: string
             knowledge_type:
+              type: string
+            status:
+              type: string
+            description:
               type: string
             input_summary:
               type: string
             output_summary:
               type: string
-            data_lineage:
-              type: string
+            dependencies:
+              type: array
+              items:
+                type: string
             update_frequency:
               type: string
-            geographic_scope:
-              type: string
-            taxonomic_scope:
-              type: string
-            permission_status:
-              type: string
             known_limitations:
+              type: string
+            metadata_url:
+              type: string
+            explorer_url:
               type: string
         queried_at:
           type: string
@@ -1079,7 +1063,62 @@ components:
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
 
-    RegistryListResponse:
+    SourceSummary:
+      type: object
+      required:
+        - source_id
+        - name
+        - knowledge_type
+        - status
+        - description
+        - input_summary
+        - output_summary
+        - dependencies
+        - update_frequency
+        - known_limitations
+        - metadata_url
+        - explorer_url
+      properties:
+        source_id:
+          type: string
+          description: Stable identifier for this service (e.g. bonap-napa, gbif)
+        name:
+          type: string
+          description: Human-readable service name
+        knowledge_type:
+          type: string
+          description: "source_wrapper | derived_synthesis | aggregation | system"
+        status:
+          type: string
+          description: "live | draft | deprecated"
+        description:
+          type: string
+          description: Plain-English description readable by a homeowner or community member
+        input_summary:
+          type: string
+          description: What you send to query this service
+        output_summary:
+          type: string
+          description: What you get back
+        dependencies:
+          type: array
+          items:
+            type: string
+          description: source_ids this service depends on
+        update_frequency:
+          type: string
+          description: How often the underlying data changes (e.g. live, annual, static)
+        known_limitations:
+          type: string
+          description: Brief honest statement of gaps and caveats
+        metadata_url:
+          type: string
+          description: Link to this service's full /metadata endpoint
+        explorer_url:
+          type: string
+          description: Link to this service's Source Explorer UI
+
+    SourcesIndexResponse:
       type: object
       required:
         - source_url
@@ -1089,12 +1128,33 @@ components:
       properties:
         source_url:
           type: string
-          nullable: true
         found:
           type: boolean
         data:
-          type: array
-          items:
-            $ref: "#/components/schemas/RegistryEntryData"
+          type: object
+          required:
+            - sources
+          properties:
+            sources:
+              type: array
+              items:
+                $ref: "#/components/schemas/SourceSummary"
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    SourcesMetadataResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+        found:
+          type: boolean
+        data:
+          $ref: "#/components/schemas/SourceSummary"
         provenance:
           $ref: "#/components/schemas/FernsProvenance"

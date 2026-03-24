@@ -28,7 +28,8 @@ import type {
   GetGbifReconcileParams,
   GetGbifSearchParams,
   HealthStatus,
-  RegistryListResponse,
+  SourcesIndexResponse,
+  SourcesMetadataResponse,
 } from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
@@ -386,7 +387,7 @@ export function useGetGbifMatch<
 }
 
 /**
- * Given a GBIF usageKey, returns all synonyms (all ranks, unfiltered) and vernacular names. Synonyms cached 30 days; vernacular names 90 days. For synonym inputs, pass the acceptedUsageKey from the match response to get synonyms of the accepted taxon. Passing a synonym's own usageKey returns an empty list.
+ * Given a GBIF usageKey, returns all synonyms (all ranks, unfiltered) and vernacular names. Synonyms cached 30 days; vernacular names 90 days. If a synonym usageKey is passed, the server automatically resolves it to the accepted taxon's usageKey before fetching; the resolved_from_synonym_key field in the response indicates when this occurred. The resolved accepted taxon's synonyms and vernacular names are always returned.
 
  * @summary Fetch synonyms and common names for a GBIF taxon
  */
@@ -760,33 +761,33 @@ export function useGetGbifMetadata<
 }
 
 /**
- * Returns all registered Knowledge Services in this FERNS instance. Each entry describes what a service exposes, its data lineage, geographic scope, and permission status.
+ * Returns a summary entry for every registered FERNS Knowledge Service. This is the primary discovery endpoint. Each entry contains enough information to make a routing decision without a follow-up call to individual /metadata endpoints.
 
- * @summary List all registered FERNS services
+ * @summary List all registered FERNS Knowledge Services
  */
-export const getGetRegistryUrl = () => {
-  return `/api/registry`;
+export const getGetSourcesIndexUrl = () => {
+  return `/api/v1/sources`;
 };
 
-export const getRegistry = async (
+export const getSourcesIndex = async (
   options?: RequestInit,
-): Promise<RegistryListResponse> => {
-  return customFetch<RegistryListResponse>(getGetRegistryUrl(), {
+): Promise<SourcesIndexResponse> => {
+  return customFetch<SourcesIndexResponse>(getGetSourcesIndexUrl(), {
     ...options,
     method: "GET",
   });
 };
 
-export const getGetRegistryQueryKey = () => {
-  return [`/api/registry`] as const;
+export const getGetSourcesIndexQueryKey = () => {
+  return [`/api/v1/sources`] as const;
 };
 
-export const getGetRegistryQueryOptions = <
-  TData = Awaited<ReturnType<typeof getRegistry>>,
+export const getGetSourcesIndexQueryOptions = <
+  TData = Awaited<ReturnType<typeof getSourcesIndex>>,
   TError = ErrorType<unknown>,
 >(options?: {
   query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getRegistry>>,
+    Awaited<ReturnType<typeof getSourcesIndex>>,
     TError,
     TData
   >;
@@ -794,40 +795,117 @@ export const getGetRegistryQueryOptions = <
 }) => {
   const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getGetRegistryQueryKey();
+  const queryKey = queryOptions?.queryKey ?? getGetSourcesIndexQueryKey();
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getRegistry>>> = ({
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getSourcesIndex>>> = ({
     signal,
-  }) => getRegistry({ signal, ...requestOptions });
+  }) => getSourcesIndex({ signal, ...requestOptions });
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getRegistry>>,
+    Awaited<ReturnType<typeof getSourcesIndex>>,
     TError,
     TData
   > & { queryKey: QueryKey };
 };
 
-export type GetRegistryQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getRegistry>>
+export type GetSourcesIndexQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getSourcesIndex>>
 >;
-export type GetRegistryQueryError = ErrorType<unknown>;
+export type GetSourcesIndexQueryError = ErrorType<unknown>;
 
 /**
- * @summary List all registered FERNS services
+ * @summary List all registered FERNS Knowledge Services
  */
 
-export function useGetRegistry<
-  TData = Awaited<ReturnType<typeof getRegistry>>,
+export function useGetSourcesIndex<
+  TData = Awaited<ReturnType<typeof getSourcesIndex>>,
   TError = ErrorType<unknown>,
 >(options?: {
   query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getRegistry>>,
+    Awaited<ReturnType<typeof getSourcesIndex>>,
     TError,
     TData
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getGetRegistryQueryOptions(options);
+  const queryOptions = getGetSourcesIndexQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns metadata about the registry service itself — its identity, descriptions, and its own registry entry. Follows the same envelope pattern as all other FERNS /metadata endpoints.
+
+ * @summary Metadata for the FERNS Source Registry service itself
+ */
+export const getGetSourcesMetadataUrl = () => {
+  return `/api/v1/sources/metadata`;
+};
+
+export const getSourcesMetadata = async (
+  options?: RequestInit,
+): Promise<SourcesMetadataResponse> => {
+  return customFetch<SourcesMetadataResponse>(getGetSourcesMetadataUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetSourcesMetadataQueryKey = () => {
+  return [`/api/v1/sources/metadata`] as const;
+};
+
+export const getGetSourcesMetadataQueryOptions = <
+  TData = Awaited<ReturnType<typeof getSourcesMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getSourcesMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetSourcesMetadataQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getSourcesMetadata>>
+  > = ({ signal }) => getSourcesMetadata({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getSourcesMetadata>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetSourcesMetadataQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getSourcesMetadata>>
+>;
+export type GetSourcesMetadataQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Metadata for the FERNS Source Registry service itself
+ */
+
+export function useGetSourcesMetadata<
+  TData = Awaited<ReturnType<typeof getSourcesMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getSourcesMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetSourcesMetadataQueryOptions(options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

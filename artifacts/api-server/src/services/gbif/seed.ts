@@ -1,4 +1,4 @@
-import { db, registryEntriesTable } from "@workspace/db";
+import { db, fernsSourcesTable } from "@workspace/db";
 import { GBIF_REGISTRY_ENTRY } from "./metadata.js";
 import { logger } from "../../lib/logger.js";
 
@@ -9,9 +9,9 @@ export async function ensureGbifRegistryEntry(): Promise<void> {
 
   try {
     await db
-      .insert(registryEntriesTable)
+      .insert(fernsSourcesTable)
       .values(GBIF_REGISTRY_ENTRY)
-      .onConflictDoNothing({ target: registryEntriesTable.service_id });
+      .onConflictDoNothing({ target: fernsSourcesTable.source_id });
 
     seeded = true;
   } catch (err) {

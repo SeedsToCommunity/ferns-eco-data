@@ -6,11 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { FernsProvenance } from "./fernsProvenance";
-import type { RegistryEntryData } from "./registryEntryData";
+import type { SourceSummary } from "./sourceSummary";
 
-export interface RegistryListResponse {
-  source_url: string | null;
+export interface SourcesMetadataResponse {
+  source_url: string;
   found: boolean;
-  data: RegistryEntryData[];
+  data: SourceSummary;
   provenance: FernsProvenance;
 }

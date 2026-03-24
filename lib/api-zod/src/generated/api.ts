@@ -344,7 +344,7 @@ export const GetGbifMatchResponse = zod.object({
 });
 
 /**
- * Given a GBIF usageKey, returns all synonyms (all ranks, unfiltered) and vernacular names. Synonyms cached 30 days; vernacular names 90 days. For synonym inputs, pass the acceptedUsageKey from the match response to get synonyms of the accepted taxon. Passing a synonym's own usageKey returns an empty list.
+ * Given a GBIF usageKey, returns all synonyms (all ranks, unfiltered) and vernacular names. Synonyms cached 30 days; vernacular names 90 days. If a synonym usageKey is passed, the server automatically resolves it to the accepted taxon's usageKey before fetching; the resolved_from_synonym_key field in the response indicates when this occurred. The resolved accepted taxon's synonyms and vernacular names are always returned.
 
  * @summary Fetch synonyms and common names for a GBIF taxon
  */
@@ -664,17 +664,18 @@ export const GetGbifMetadataResponse = zod.object({
   }),
   registry_entry: zod
     .object({
-      service_id: zod.string().optional(),
-      service_name: zod.string().optional(),
+      source_id: zod.string().optional(),
+      name: zod.string().optional(),
       knowledge_type: zod.string().optional(),
+      status: zod.string().optional(),
+      description: zod.string().optional(),
       input_summary: zod.string().optional(),
       output_summary: zod.string().optional(),
-      data_lineage: zod.string().optional(),
+      dependencies: zod.array(zod.string()).optional(),
       update_frequency: zod.string().optional(),
-      geographic_scope: zod.string().optional(),
-      taxonomic_scope: zod.string().optional(),
-      permission_status: zod.string().optional(),
       known_limitations: zod.string().optional(),
+      metadata_url: zod.string().optional(),
+      explorer_url: zod.string().optional(),
     })
     .optional()
     .describe("Full registry entry for this GBIF service source"),
@@ -714,28 +715,133 @@ export const GetGbifMetadataResponse = zod.object({
 });
 
 /**
- * Returns all registered Knowledge Services in this FERNS instance. Each entry describes what a service exposes, its data lineage, geographic scope, and permission status.
+ * Returns a summary entry for every registered FERNS Knowledge Service. This is the primary discovery endpoint. Each entry contains enough information to make a routing decision without a follow-up call to individual /metadata endpoints.
 
- * @summary List all registered FERNS services
+ * @summary List all registered FERNS Knowledge Services
  */
-export const GetRegistryResponse = zod.object({
-  source_url: zod.string().nullable(),
+export const GetSourcesIndexResponse = zod.object({
+  source_url: zod.string(),
   found: zod.boolean(),
-  data: zod.array(
-    zod.object({
-      service_id: zod.string(),
-      service_name: zod.string(),
-      knowledge_type: zod.string(),
-      input_summary: zod.string().nullish(),
-      output_summary: zod.string().nullish(),
-      data_lineage: zod.string().nullish(),
-      update_frequency: zod.string().nullish(),
-      geographic_scope: zod.string().nullish(),
-      taxonomic_scope: zod.string().nullish(),
-      permission_status: zod.string().nullish(),
-      known_limitations: zod.string().nullish(),
-    }),
-  ),
+  data: zod.object({
+    sources: zod.array(
+      zod.object({
+        source_id: zod
+          .string()
+          .describe(
+            "Stable identifier for this service (e.g. bonap-napa, gbif)",
+          ),
+        name: zod.string().describe("Human-readable service name"),
+        knowledge_type: zod
+          .string()
+          .describe(
+            "source_wrapper | derived_synthesis | aggregation | system",
+          ),
+        status: zod.string().describe("live | draft | deprecated"),
+        description: zod
+          .string()
+          .describe(
+            "Plain-English description readable by a homeowner or community member",
+          ),
+        input_summary: zod
+          .string()
+          .describe("What you send to query this service"),
+        output_summary: zod.string().describe("What you get back"),
+        dependencies: zod
+          .array(zod.string())
+          .describe("source_ids this service depends on"),
+        update_frequency: zod
+          .string()
+          .describe(
+            "How often the underlying data changes (e.g. live, annual, static)",
+          ),
+        known_limitations: zod
+          .string()
+          .describe("Brief honest statement of gaps and caveats"),
+        metadata_url: zod
+          .string()
+          .describe("Link to this service's full \/metadata endpoint"),
+        explorer_url: zod
+          .string()
+          .describe("Link to this service's Source Explorer UI"),
+      }),
+    ),
+  }),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+});
+
+/**
+ * Returns metadata about the registry service itself — its identity, descriptions, and its own registry entry. Follows the same envelope pattern as all other FERNS /metadata endpoints.
+
+ * @summary Metadata for the FERNS Source Registry service itself
+ */
+export const GetSourcesMetadataResponse = zod.object({
+  source_url: zod.string(),
+  found: zod.boolean(),
+  data: zod.object({
+    source_id: zod
+      .string()
+      .describe("Stable identifier for this service (e.g. bonap-napa, gbif)"),
+    name: zod.string().describe("Human-readable service name"),
+    knowledge_type: zod
+      .string()
+      .describe("source_wrapper | derived_synthesis | aggregation | system"),
+    status: zod.string().describe("live | draft | deprecated"),
+    description: zod
+      .string()
+      .describe(
+        "Plain-English description readable by a homeowner or community member",
+      ),
+    input_summary: zod.string().describe("What you send to query this service"),
+    output_summary: zod.string().describe("What you get back"),
+    dependencies: zod
+      .array(zod.string())
+      .describe("source_ids this service depends on"),
+    update_frequency: zod
+      .string()
+      .describe(
+        "How often the underlying data changes (e.g. live, annual, static)",
+      ),
+    known_limitations: zod
+      .string()
+      .describe("Brief honest statement of gaps and caveats"),
+    metadata_url: zod
+      .string()
+      .describe("Link to this service's full \/metadata endpoint"),
+    explorer_url: zod
+      .string()
+      .describe("Link to this service's Source Explorer UI"),
+  }),
   provenance: zod
     .object({
       source_id: zod

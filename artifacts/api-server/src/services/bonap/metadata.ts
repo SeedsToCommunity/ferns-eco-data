@@ -168,22 +168,21 @@ export const BONAP_DERIVATION_SCIENTIFIC =
   "written permission required for reproduction. Permission not yet granted.";
 
 export const BONAP_REGISTRY_ENTRY = {
-  service_id: BONAP_SOURCE_ID,
-  service_name: "BONAP North American Plant Atlas — Distribution Maps",
-  knowledge_type: "Source wrapper — direct access to an external authoritative dataset",
+  source_id: BONAP_SOURCE_ID,
+  name: "BONAP North American Plant Atlas — Distribution Maps",
+  knowledge_type: "source_wrapper",
+  status: "live",
+  description:
+    "Plant distribution maps from the Biota of North America Program (BONAP). Shows which U.S. counties a vascular plant species has been recorded in, based on vouchered herbarium specimens. Colors show whether the species is native, rare, adventive, or exotic in each county. Data covers roughly 28,000 plant taxa across the continental US and Canada.",
   input_summary:
     "Genus name (required) + species epithet (required) + map type (county_species or state_species)",
   output_summary:
     "Map URL pointing to BONAP's PNG image on their server, color key metadata, color key image URL, data vintage, full attribution and copyright notice",
-  data_lineage:
-    "Root source in the US plant taxonomy lineage. USDA PLANTS and GBIF US plant data are substantially derived from BONAP. Do not use BONAP alongside USDA PLANTS county distribution as independent confirming sources.",
+  dependencies: [] as string[],
   update_frequency:
-    "NAPA maps: not updated since December 2014. TDC taxonomy: updated annually. No update notification mechanism exists.",
-  geographic_scope:
-    "North America north of Mexico (US and Canada). US county-level coverage is most complete; Canadian coverage varies.",
-  taxonomic_scope:
-    "Vascular plants only (ferns and allies, conifers, flowering plants). Does not cover bryophytes, lichens, algae, or fungi.",
-  permission_status: BONAP_PERMISSION_STATUS,
+    "Static. NAPA maps last updated December 2014. Not updated since. No update notification mechanism exists.",
   known_limitations:
-    "Data vintage 2014. No subspecies-level maps available publicly. Family-level maps exist at bonap.net/MapGallery/State/Family/ but are not implemented. Color key hex codes are approximate; use color_key_image_url for the authoritative key.",
+    "Data vintage 2014. No subspecies-level maps. Family-level maps exist at bonap.net but are not implemented. Color key hex codes are approximate. Written permission from BONAP is required before public deployment — not yet obtained.",
+  metadata_url: "/api/bonap/metadata",
+  explorer_url: "/bonap/",
 };

@@ -10,15 +10,16 @@
  * Full registry entry for this GBIF service source
  */
 export type GbifMetadataResponseRegistryEntry = {
-  service_id?: string;
-  service_name?: string;
+  source_id?: string;
+  name?: string;
   knowledge_type?: string;
+  status?: string;
+  description?: string;
   input_summary?: string;
   output_summary?: string;
-  data_lineage?: string;
+  dependencies?: string[];
   update_frequency?: string;
-  geographic_scope?: string;
-  taxonomic_scope?: string;
-  permission_status?: string;
   known_limitations?: string;
+  metadata_url?: string;
+  explorer_url?: string;
 };

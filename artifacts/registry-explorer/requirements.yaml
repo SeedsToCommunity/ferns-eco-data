@@ -1,0 +1,13 @@
+packages:
+  "framer-motion": "For page transitions, smooth card reveals, and polished micro-interactions"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility to safely merge Tailwind CSS classes without style conflicts"
+
+images:
+  - path: "artifacts/registry-explorer/public/images/hero-pattern.png"
+    description: "Subtle topographic map pattern or organic cellular structure in very light sage green, suitable for a scientific data background, low contrast, elegant and minimal."
+    aspect_ratio: "16:9"
+
+notes:
+  - Assumes `@workspace/api-client-react` exports generated hooks and schemas.
+  - Using standard `<a>` tags for `explorer_url` and `metadata_url` as they point to external artifacts or raw API endpoints outside this specific React app's routing context.

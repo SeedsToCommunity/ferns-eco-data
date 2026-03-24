@@ -161,22 +161,21 @@ export const GBIF_VOCABULARIES = {
 };
 
 export const GBIF_REGISTRY_ENTRY = {
-  service_id: GBIF_SOURCE_ID,
-  service_name: "GBIF — Taxonomic Backbone, Name Reconciliation, and Occurrence Records",
-  knowledge_type: "Source wrapper — direct access to an external authoritative dataset (aggregated primary data)",
+  source_id: GBIF_SOURCE_ID,
+  name: "GBIF — Taxonomic Backbone, Name Reconciliation, and Occurrence Records",
+  knowledge_type: "source_wrapper",
+  status: "live",
+  description:
+    "Taxonomic name matching, synonym lookup, common name search, and occurrence records from the Global Biodiversity Information Facility (GBIF). GBIF is a free international database run by governments worldwide, aggregating records from nearly 2,000 institutions. Used here to check whether a plant name is current or an old synonym, to find common names, and to retrieve sighting records across North America. All data is CC BY 4.0.",
   input_summary:
-    "Scientific name (for matching and reconciliation) or GBIF usageKey (for synonyms, vernacular names, and occurrences) or common name string (for vernacular lookup)",
+    "Scientific name (for matching and reconciliation), GBIF usageKey (for synonyms, vernacular names, and occurrences), or common name string (for vernacular search)",
   output_summary:
     "Taxonomic name match with GBIF backbone key and classification; synonym list; vernacular (common) names; occurrence count and recent georeferenced records with configurable geography",
-  data_lineage:
-    "Aggregator. Primary data originates from ~2,000 contributing institutions. Backbone taxonomy is GBIF's synthetic standard, partially derived from BONAP lineage sources for North American plants — name agreement between GBIF and BONAP is NOT independent corroboration. iNaturalist observations appear in both GBIF and the FERNS iNaturalist service — do not count both as independent.",
+  dependencies: [] as string[],
   update_frequency:
     "Live API. Backbone updated approximately annually. Occurrence index updated continuously. FERNS cache TTLs: name match 30 days, synonyms 30 days, vernacular names 90 days, occurrence data 7 days, no-match 7 days.",
-  geographic_scope:
-    "Global. FERNS occurrence queries use configurable geography: countries (multi-select), continent, or bounding box. Name matching is global.",
-  taxonomic_scope:
-    "All organisms. FERNS queries with kingdom=Plantae filter for name matching to reduce ambiguity.",
-  permission_status: GBIF_PERMISSION_STATUS,
   known_limitations:
-    "Backbone may diverge from BONAP taxonomy for contested North American plant names. Vernacular names are uncontrolled and of variable quality. iNaturalist double-counting risk when used alongside FERNS iNaturalist service. Occurrence counts change continuously — always display cached timestamp. usageKeys may change across annual backbone rebuilds.",
+    "Backbone may diverge from BONAP taxonomy for contested North American plant names. Vernacular names are uncontrolled and of variable quality. iNaturalist records appear in GBIF occurrence counts — do not count both as independent. usageKeys may change across annual backbone rebuilds.",
+  metadata_url: "/api/gbif/metadata",
+  explorer_url: "/gbif/",
 };

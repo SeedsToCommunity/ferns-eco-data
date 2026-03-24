@@ -169,20 +169,6 @@ export interface BonapMetadataResponse {
   queried_at: string;
 }
 
-export interface RegistryEntryData {
-  service_id: string;
-  service_name: string;
-  knowledge_type: string;
-  input_summary?: string | null;
-  output_summary?: string | null;
-  data_lineage?: string | null;
-  update_frequency?: string | null;
-  geographic_scope?: string | null;
-  taxonomic_scope?: string | null;
-  permission_status?: string | null;
-  known_limitations?: string | null;
-}
-
 export interface GbifSynonymRecord {
   key: number;
   canonicalName: string;
@@ -381,17 +367,18 @@ export type GbifMetadataResponseVocabularies = {
  * Full registry entry for this GBIF service source
  */
 export type GbifMetadataResponseRegistryEntry = {
-  service_id?: string;
-  service_name?: string;
+  source_id?: string;
+  name?: string;
   knowledge_type?: string;
+  status?: string;
+  description?: string;
   input_summary?: string;
   output_summary?: string;
-  data_lineage?: string;
+  dependencies?: string[];
   update_frequency?: string;
-  geographic_scope?: string;
-  taxonomic_scope?: string;
-  permission_status?: string;
   known_limitations?: string;
+  metadata_url?: string;
+  explorer_url?: string;
 };
 
 export interface GbifMetadataResponse {
@@ -407,10 +394,48 @@ export interface GbifMetadataResponse {
   provenance: FernsProvenance;
 }
 
-export interface RegistryListResponse {
-  source_url: string | null;
+export interface SourceSummary {
+  /** Stable identifier for this service (e.g. bonap-napa, gbif) */
+  source_id: string;
+  /** Human-readable service name */
+  name: string;
+  /** source_wrapper | derived_synthesis | aggregation | system */
+  knowledge_type: string;
+  /** live | draft | deprecated */
+  status: string;
+  /** Plain-English description readable by a homeowner or community member */
+  description: string;
+  /** What you send to query this service */
+  input_summary: string;
+  /** What you get back */
+  output_summary: string;
+  /** source_ids this service depends on */
+  dependencies: string[];
+  /** How often the underlying data changes (e.g. live, annual, static) */
+  update_frequency: string;
+  /** Brief honest statement of gaps and caveats */
+  known_limitations: string;
+  /** Link to this service's full /metadata endpoint */
+  metadata_url: string;
+  /** Link to this service's Source Explorer UI */
+  explorer_url: string;
+}
+
+export type SourcesIndexResponseData = {
+  sources: SourceSummary[];
+};
+
+export interface SourcesIndexResponse {
+  source_url: string;
   found: boolean;
-  data: RegistryEntryData[];
+  data: SourcesIndexResponseData;
+  provenance: FernsProvenance;
+}
+
+export interface SourcesMetadataResponse {
+  source_url: string;
+  found: boolean;
+  data: SourceSummary;
   provenance: FernsProvenance;
 }
 
