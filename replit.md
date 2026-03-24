@@ -232,7 +232,12 @@ Both `derivation_summary` and `derivation_scientific` are non-negotiable — eve
 
 ### IN / OUT Rules (BONAP source)
 
-**IN scope:**
+**IN scope (system-wide):**
+- `GET /api/openapi.json` — OpenAPI 3.1 spec as JSON (parsed from `lib/api-spec/openapi.yaml` at startup)
+- `GET /api/openapi.yaml` — OpenAPI 3.1 spec as raw YAML text; `Content-Type: application/yaml`
+- Both endpoints are unauthenticated, CORS-open, and served from memory (no caching headers needed — spec is baked in at build time)
+
+**IN scope (BONAP):**
 - `county_species` map type: county-level PNG maps from `bonap.net/MapGallery/County/{Genus}%20{species}.png`
 - `state_species` map type: state/continental PNG maps from `bonap.net/MapGallery/State/{Genus}%20{species}.png`
 - Both map types require genus + species — species is mandatory for all requests
@@ -286,7 +291,7 @@ Never begin a new source without a completed spec provided by the user.
 
 The central Express 5 API. All FERNS knowledge service routes are mounted here under `/api/`.
 
-- Routes: `src/routes/bonap.ts`, `src/routes/gbif.ts`, `src/routes/registry.ts`, `src/routes/health.ts`
+- Routes: `src/routes/bonap.ts`, `src/routes/gbif.ts`, `src/routes/registry.ts`, `src/routes/health.ts`, `src/routes/spec.ts`
 - Services: `src/services/bonap/` (connector, cache, metadata, seed), `src/services/gbif/` (connector, cache, metadata, seed)
 - Depends on: `@workspace/db`, `@workspace/api-zod`
 
