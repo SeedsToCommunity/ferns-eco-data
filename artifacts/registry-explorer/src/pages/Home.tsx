@@ -50,9 +50,7 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className="text-lg text-muted-foreground leading-relaxed"
-        >
-          Discover registered knowledge services, datasets, and synthesis endpoints available within the Federated Ecological Resource Network System.
-        </motion.p>
+        >Discover registered knowledge services, datasets, and synthesis endpoints available within FERNS.</motion.p>
       </div>
       {isLoading && (
         <div className="flex flex-col items-center justify-center py-24 text-primary">
