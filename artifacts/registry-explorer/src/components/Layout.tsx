@@ -41,9 +41,16 @@ export function Layout({ children }: LayoutProps) {
               <a href="/api/v1/sources" target="_blank" rel="noreferrer" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
                 Raw API
               </a>
-              <a href="https://github.com" target="_blank" rel="noreferrer" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-                Documentation
-              </a>
+              <div className="flex items-center gap-1 text-sm font-medium text-muted-foreground">
+                <span className="hidden sm:inline">OpenAPI</span>
+                <a href="/api/openapi.json" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors px-1">
+                  JSON
+                </a>
+                <span className="text-border">·</span>
+                <a href="/api/openapi.yaml" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors px-1">
+                  YAML
+                </a>
+              </div>
             </nav>
           </div>
         </div>
