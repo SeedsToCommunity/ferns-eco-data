@@ -27,6 +27,7 @@ import {
   INAT_REGISTRY_ENTRY,
 } from "../services/inat/metadata.js";
 import { ensureInatRegistryEntry } from "../services/inat/seed.js";
+import { resolveUrl } from "../lib/resolve-url.js";
 import {
   GetInatPlaceQueryParams,
   GetInatPlaceResponse,
@@ -340,7 +341,7 @@ router.get("/inat/observations", (req, res) => {
   }));
 });
 
-router.get("/inat/metadata", async (_req, res) => {
+router.get("/inat/metadata", async (req, res) => {
   await ensureInatRegistryEntry();
   const queriedAt = new Date();
 
@@ -352,13 +353,15 @@ router.get("/inat/metadata", async (_req, res) => {
     attribution: INAT_ATTRIBUTION,
     registry_entry: {
       ...INAT_REGISTRY_ENTRY,
+      metadata_url: resolveUrl(req, INAT_REGISTRY_ENTRY.metadata_url),
+      explorer_url: resolveUrl(req, INAT_REGISTRY_ENTRY.explorer_url),
     },
     queried_at: queriedAt,
     provenance: {
       source_id: INAT_SOURCE_ID,
       fetched_at: queriedAt,
       method: "static_metadata",
-      upstream_url: "/api/inat/metadata",
+      upstream_url: resolveUrl(req, "/api/inat/metadata"),
       derivation_summary: INAT_DERIVATION_SUMMARY,
       derivation_scientific: INAT_DERIVATION_SCIENTIFIC,
     },

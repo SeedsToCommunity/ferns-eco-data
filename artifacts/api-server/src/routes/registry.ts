@@ -4,6 +4,7 @@ import { asc } from "drizzle-orm";
 import { ensureBonapRegistryEntry } from "../services/bonap/seed.js";
 import { ensureGbifRegistryEntry } from "../services/gbif/seed.js";
 import { ensureRegistryEntry } from "../services/registry/seed.js";
+import { resolveUrl } from "../lib/resolve-url.js";
 
 const router: IRouter = Router();
 
@@ -44,7 +45,7 @@ function sortSources(
   return a.name.localeCompare(b.name);
 }
 
-router.get("/v1/sources", async (_req, res) => {
+router.get("/v1/sources", async (req, res) => {
   await seedAll();
 
   const rows = await db
@@ -64,13 +65,13 @@ router.get("/v1/sources", async (_req, res) => {
       dependencies: r.dependencies ?? [],
       update_frequency: r.update_frequency ?? "",
       known_limitations: r.known_limitations ?? "",
-      metadata_url: r.metadata_url ?? "",
-      explorer_url: r.explorer_url ?? "",
+      metadata_url: resolveUrl(req, r.metadata_url ?? ""),
+      explorer_url: resolveUrl(req, r.explorer_url ?? ""),
     }))
     .sort(sortSources);
 
   res.json({
-    source_url: "/api/v1/sources",
+    source_url: resolveUrl(req, "/api/v1/sources"),
     found: true,
     data: { sources },
     provenance: {
@@ -84,11 +85,11 @@ router.get("/v1/sources", async (_req, res) => {
   });
 });
 
-router.get("/v1/sources/metadata", async (_req, res) => {
+router.get("/v1/sources/metadata", async (req, res) => {
   const queriedAt = new Date();
 
   res.json({
-    source_url: "/api/v1/sources/metadata",
+    source_url: resolveUrl(req, "/api/v1/sources/metadata"),
     found: true,
     data: {
       source_id: "ferns-registry",
@@ -104,8 +105,8 @@ router.get("/v1/sources/metadata", async (_req, res) => {
       update_frequency: "Live — reflects registered services at time of request",
       known_limitations:
         "Reports what is registered; does not evaluate data quality, trust tier, or methodological soundness of registered services.",
-      metadata_url: "/api/v1/sources/metadata",
-      explorer_url: "/",
+      metadata_url: resolveUrl(req, "/api/v1/sources/metadata"),
+      explorer_url: resolveUrl(req, "/"),
     },
     provenance: {
       source_id: "ferns-registry",

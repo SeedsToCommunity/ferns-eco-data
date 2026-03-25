@@ -33,6 +33,7 @@ import {
   GBIF_REGISTRY_ENTRY,
 } from "../services/gbif/metadata.js";
 import { ensureGbifRegistryEntry } from "../services/gbif/seed.js";
+import { resolveUrl } from "../lib/resolve-url.js";
 
 const router: IRouter = Router();
 
@@ -363,7 +364,7 @@ router.get("/gbif/search", async (req, res) => {
   }
 });
 
-router.get("/gbif/metadata", async (_req, res) => {
+router.get("/gbif/metadata", async (req, res) => {
   await ensureGbifRegistryEntry();
   const queriedAt = new Date();
 
@@ -376,13 +377,15 @@ router.get("/gbif/metadata", async (_req, res) => {
     vocabularies: GBIF_VOCABULARIES,
     registry_entry: {
       ...GBIF_REGISTRY_ENTRY,
+      metadata_url: resolveUrl(req, GBIF_REGISTRY_ENTRY.metadata_url),
+      explorer_url: resolveUrl(req, GBIF_REGISTRY_ENTRY.explorer_url),
     },
     queried_at: queriedAt,
     provenance: {
       source_id: GBIF_SOURCE_ID,
       fetched_at: queriedAt,
       method: "static_metadata",
-      upstream_url: "/api/gbif/metadata",
+      upstream_url: resolveUrl(req, "/api/gbif/metadata"),
       derivation_summary: GBIF_DERIVATION_SUMMARY,
       derivation_scientific: GBIF_DERIVATION_SCIENTIFIC,
     },
