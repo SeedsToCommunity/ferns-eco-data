@@ -229,6 +229,19 @@ export function SpeciesTab({ onTaxonIdSelected }: SpeciesTabProps) {
             )}
           </div>
 
+          {(species.fetched_at || species.cache_status) && (
+            <p className="text-xs text-muted-foreground px-1">
+              {species.fetched_at && (
+                <>Cached: {new Date(species.fetched_at as string).toLocaleString()}</>
+              )}
+              {species.cache_status && (
+                <span className="ml-2 capitalize px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border">
+                  {species.cache_status as string}
+                </span>
+              )}
+            </p>
+          )}
+
           <RawJsonPanel title="iNat Species" data={response} />
         </div>
       )}
