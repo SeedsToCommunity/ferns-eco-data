@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useGetInatPlace } from "@workspace/api-client-react";
-import { MapPin, Search, Loader2, AlertCircle, ExternalLink } from "lucide-react";
+import { MapPin, Search, Loader2, AlertCircle, ExternalLink, CheckCircle } from "lucide-react";
 import { RawJsonPanel } from "@/components/RawJsonPanel";
 
 interface PlaceResult {
@@ -11,9 +11,14 @@ interface PlaceResult {
   inat_url: string;
 }
 
-export function PlaceLookupTab() {
+interface PlaceLookupTabProps {
+  onPlaceSelected?: (placeId: number, placeName: string) => void;
+}
+
+export function PlaceLookupTab({ onPlaceSelected }: PlaceLookupTabProps) {
   const [searchInput, setSearchInput] = useState<string>("");
   const [query, setQuery] = useState<string>("");
+  const [selectedId, setSelectedId] = useState<number | null>(null);
 
   const enabled = !!query;
   const { data: response, isLoading, isError, error } = useGetInatPlace(
@@ -23,12 +28,19 @@ export function PlaceLookupTab() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setSelectedId(null);
     setQuery(searchInput.trim());
   }
 
   function runSearch(q: string) {
     setSearchInput(q);
+    setSelectedId(null);
     setQuery(q);
+  }
+
+  function handleSelect(place: PlaceResult) {
+    setSelectedId(place.id);
+    onPlaceSelected?.(place.id, place.display_name);
   }
 
   const placeData = response?.data as { query: string; results: PlaceResult[] } | undefined;
@@ -43,7 +55,7 @@ export function PlaceLookupTab() {
           </div>
           <div>
             <h2 className="font-semibold text-foreground">Place Lookup</h2>
-            <p className="text-xs text-muted-foreground">Search for iNaturalist places by name</p>
+            <p className="text-xs text-muted-foreground">Search for iNaturalist places by name to get their numeric ID</p>
           </div>
         </div>
 
@@ -84,38 +96,73 @@ export function PlaceLookupTab() {
 
       {response && (
         <div className="bg-card border border-border rounded-xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-border bg-muted/30">
+          <div className="px-6 py-4 border-b border-border bg-muted/30 flex items-center justify-between gap-4">
             <h3 className="font-semibold text-sm">
-              {results.length > 0 ? `${results.length} result${results.length !== 1 ? "s" : ""} for "${placeData?.query}"` : `No results for "${placeData?.query}"`}
+              {results.length > 0
+                ? `${results.length} result${results.length !== 1 ? "s" : ""} for "${placeData?.query}"`
+                : `No results for "${placeData?.query}"`}
             </h3>
+            {onPlaceSelected && results.length > 0 && (
+              <p className="text-xs text-muted-foreground">Select a place to use in Phenology</p>
+            )}
           </div>
 
           {results.length > 0 ? (
             <div className="divide-y divide-border">
-              {results.map((place) => (
-                <div key={place.id} className="flex items-center justify-between gap-4 px-6 py-4 hover:bg-muted/30 transition-colors">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground">{place.display_name}</p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-xs text-muted-foreground">ID: {place.id}</span>
-                      {place.place_type_name && (
-                        <>
-                          <span className="text-muted-foreground">•</span>
-                          <span className="text-xs text-muted-foreground capitalize">{place.place_type_name}</span>
-                        </>
+              {results.map((place) => {
+                const isSelected = selectedId === place.id;
+                return (
+                  <div
+                    key={place.id}
+                    className={`flex items-center gap-4 px-6 py-4 transition-colors ${
+                      isSelected ? "bg-primary/5" : "hover:bg-muted/30"
+                    }`}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground">{place.display_name}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-xs text-muted-foreground font-mono">ID: {place.id}</span>
+                        {place.place_type_name && (
+                          <>
+                            <span className="text-muted-foreground">•</span>
+                            <span className="text-xs text-muted-foreground capitalize">{place.place_type_name}</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {onPlaceSelected && (
+                        <button
+                          onClick={() => handleSelect(place)}
+                          className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors border ${
+                            isSelected
+                              ? "bg-primary text-primary-foreground border-primary"
+                              : "bg-primary/10 text-primary border-primary/20 hover:bg-primary/20"
+                          } flex items-center gap-1.5`}
+                        >
+                          {isSelected ? (
+                            <>
+                              <CheckCircle className="w-3 h-3" />
+                              Selected
+                            </>
+                          ) : (
+                            "Select"
+                          )}
+                        </button>
                       )}
+                      <a
+                        href={place.inat_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-primary"
+                        title="View on iNaturalist"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
                     </div>
                   </div>
-                  <a
-                    href={place.inat_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="shrink-0 p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-primary"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="p-8 text-center text-muted-foreground text-sm">

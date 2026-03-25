@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useGetInatPhenology } from "@workspace/api-client-react";
-import { CalendarDays, Search, Loader2, AlertCircle, Plus, X } from "lucide-react";
+import { CalendarDays, Search, Loader2, AlertCircle, Plus, X, ExternalLink } from "lucide-react";
 import { monthName, formatNumber } from "@/lib/utils";
 import {
   BarChart,
@@ -27,11 +27,35 @@ const STAGE_COLORS: Record<string, string> = {
   "Breaking Leaf Buds": "#84cc16",
 };
 
-export function PhenologyTab() {
-  const [taxonId, setTaxonId] = useState("");
-  const [placeIds, setPlaceIds] = useState<string[]>([""]);
+interface PhenologyTabProps {
+  preloadedTaxonId?: number | null;
+  preloadedTaxonName?: string;
+  preloadedPlaceId?: string;
+  preloadedPlaceName?: string;
+}
+
+export function PhenologyTab({
+  preloadedTaxonId,
+  preloadedTaxonName,
+  preloadedPlaceId,
+  preloadedPlaceName,
+}: PhenologyTabProps) {
+  const [taxonId, setTaxonId] = useState(preloadedTaxonId ? String(preloadedTaxonId) : "");
+  const [placeIds, setPlaceIds] = useState<string[]>(preloadedPlaceId ? [preloadedPlaceId] : [""]);
   const [submittedTaxon, setSubmittedTaxon] = useState("");
   const [submittedPlaceId, setSubmittedPlaceId] = useState("");
+
+  useEffect(() => {
+    if (preloadedTaxonId) {
+      setTaxonId(String(preloadedTaxonId));
+    }
+  }, [preloadedTaxonId]);
+
+  useEffect(() => {
+    if (preloadedPlaceId) {
+      setPlaceIds([preloadedPlaceId]);
+    }
+  }, [preloadedPlaceId]);
 
   const enabled = !!submittedTaxon && !!submittedPlaceId;
   const { data: response, isLoading, isError, error } = useGetInatPhenology(
@@ -73,10 +97,13 @@ export function PhenologyTab() {
 
   const obsByMonth = phenData?.observations_by_month as Record<string, number> | undefined;
   const monthlyData = obsByMonth
-    ? Object.entries(obsByMonth).map(([month, count]) => ({
-        month: monthName(Number(month)),
-        observations: count,
-      }))
+    ? Object.entries(obsByMonth)
+        .map(([month, count]) => ({
+          month: monthName(Number(month)),
+          monthNum: Number(month),
+          observations: count,
+        }))
+        .sort((a, b) => a.monthNum - b.monthNum)
     : [];
 
   const phenByMonth = phenData?.phenology_by_month as Record<string, Record<string, number>> | undefined;
@@ -91,6 +118,7 @@ export function PhenologyTab() {
   }
 
   const annotationsAvailable = phenData?.annotations_available as boolean | undefined;
+  const peakMonth = phenData?.peak_observation_month as number | null | undefined;
 
   return (
     <div className="space-y-6">
@@ -104,6 +132,21 @@ export function PhenologyTab() {
             <p className="text-xs text-muted-foreground">Monthly observation counts and phenological stage breakdown</p>
           </div>
         </div>
+
+        {(preloadedTaxonId || preloadedPlaceId) && (
+          <div className="mb-4 flex flex-wrap gap-2 text-xs">
+            {preloadedTaxonId && (
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-primary/10 text-primary border border-primary/20">
+                Taxon from Species tab: {preloadedTaxonName || preloadedTaxonId}
+              </span>
+            )}
+            {preloadedPlaceId && (
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-primary/10 text-primary border border-primary/20">
+                Place from Lookup tab: {preloadedPlaceName || preloadedPlaceId}
+              </span>
+            )}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
@@ -191,12 +234,25 @@ export function PhenologyTab() {
       {response && phenData && (
         <div className="space-y-4">
           <div className="bg-card border border-border rounded-xl overflow-hidden">
-            <div className="px-6 py-4 border-b border-border bg-muted/30">
-              <h3 className="font-semibold text-sm">Monthly Observations</h3>
-              {phenData.peak_observation_month !== null && (
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Peak month: {monthName(phenData.peak_observation_month as number)}
-                </p>
+            <div className="px-6 py-4 border-b border-border bg-muted/30 flex items-start justify-between gap-4">
+              <div>
+                <h3 className="font-semibold text-sm">Monthly Observations</h3>
+                {peakMonth !== null && peakMonth !== undefined && (
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Peak month: {monthName(peakMonth)}
+                  </p>
+                )}
+              </div>
+              {response.source_url && (
+                <a
+                  href={response.source_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline shrink-0"
+                >
+                  <ExternalLink className="w-3 h-3" />
+                  View observations on iNaturalist
+                </a>
               )}
             </div>
             <div className="p-6">
@@ -218,7 +274,7 @@ export function PhenologyTab() {
                   </BarChart>
                 </ResponsiveContainer>
               ) : (
-                <p className="text-sm text-muted-foreground text-center py-8">No monthly data available</p>
+                <p className="text-sm text-muted-foreground text-center py-8">No monthly observation data available</p>
               )}
             </div>
           </div>
@@ -236,10 +292,21 @@ export function PhenologyTab() {
             </div>
           )}
 
-          {!annotationsAvailable && (
+          {annotationsAvailable === false && (
             <div className="bg-muted/30 border border-border rounded-xl p-4 text-sm text-muted-foreground">
-              Phenological stage annotations are not available for this taxon and place combination.
+              No phenological annotations recorded for this species in the selected places. Observation timing data is shown above.
             </div>
+          )}
+
+          {phenData.fetched_at && (
+            <p className="text-xs text-muted-foreground px-1">
+              Cached: {new Date(phenData.fetched_at as string).toLocaleString()}
+              {phenData.cache_status && (
+                <span className="ml-2 capitalize px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border">
+                  {phenData.cache_status as string}
+                </span>
+              )}
+            </p>
           )}
 
           <RawJsonPanel title="iNat Phenology" data={response} />

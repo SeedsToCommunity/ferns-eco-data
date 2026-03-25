@@ -17,6 +17,23 @@ type TabId = (typeof TABS)[number]["id"];
 export default function Home() {
   const [activeTab, setActiveTab] = useState<TabId>("species");
 
+  const [selectedPlaceId, setSelectedPlaceId] = useState<string>("");
+  const [selectedPlaceName, setSelectedPlaceName] = useState<string>("");
+  const [selectedTaxonId, setSelectedTaxonId] = useState<number | null>(null);
+  const [selectedTaxonName, setSelectedTaxonName] = useState<string>("");
+
+  function handlePlaceSelected(placeId: number, placeName: string) {
+    setSelectedPlaceId(String(placeId));
+    setSelectedPlaceName(placeName);
+    setActiveTab("phenology");
+  }
+
+  function handleTaxonSelected(taxonId: number, taxonName: string) {
+    setSelectedTaxonId(taxonId);
+    setSelectedTaxonName(taxonName);
+    setActiveTab("phenology");
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-10">
@@ -36,6 +53,34 @@ export default function Home() {
       </header>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-6">
+        {(selectedPlaceId || selectedTaxonId) && (
+          <div className="mb-4 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+            <span className="font-medium text-foreground/60">Pinned for Phenology:</span>
+            {selectedTaxonId && (
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-primary/10 text-primary border border-primary/20">
+                Taxon: {selectedTaxonName || selectedTaxonId}
+                <button
+                  onClick={() => { setSelectedTaxonId(null); setSelectedTaxonName(""); }}
+                  className="ml-1 hover:text-destructive transition-colors"
+                >
+                  ×
+                </button>
+              </span>
+            )}
+            {selectedPlaceId && (
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-primary/10 text-primary border border-primary/20">
+                Place: {selectedPlaceName || selectedPlaceId}
+                <button
+                  onClick={() => { setSelectedPlaceId(""); setSelectedPlaceName(""); }}
+                  className="ml-1 hover:text-destructive transition-colors"
+                >
+                  ×
+                </button>
+              </span>
+            )}
+          </div>
+        )}
+
         <div className="flex gap-1 bg-muted/50 p-1 rounded-xl border border-border">
           {TABS.map((tab) => {
             const Icon = tab.icon;
@@ -58,9 +103,20 @@ export default function Home() {
         </div>
 
         <div className="py-6">
-          {activeTab === "place" && <PlaceLookupTab />}
-          {activeTab === "species" && <SpeciesTab />}
-          {activeTab === "phenology" && <PhenologyTab />}
+          {activeTab === "place" && (
+            <PlaceLookupTab onPlaceSelected={handlePlaceSelected} />
+          )}
+          {activeTab === "species" && (
+            <SpeciesTab onTaxonIdSelected={handleTaxonSelected} />
+          )}
+          {activeTab === "phenology" && (
+            <PhenologyTab
+              preloadedTaxonId={selectedTaxonId}
+              preloadedTaxonName={selectedTaxonName}
+              preloadedPlaceId={selectedPlaceId}
+              preloadedPlaceName={selectedPlaceName}
+            />
+          )}
           {activeTab === "observations" && <ObservationsTab />}
         </div>
       </div>
