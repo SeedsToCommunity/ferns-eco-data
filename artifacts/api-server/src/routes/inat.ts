@@ -306,10 +306,13 @@ router.get("/inat/observations", (req, res) => {
   const queriedAt = new Date();
   const prov = buildProvenance("/api/inat/observations", "url_construction");
 
+  const combined_url = taxonId && placeId
+    ? `https://www.inaturalist.org/observations?taxon_id=${taxonId}&place_id=${placeId}`
+    : null;
+  const source_url = combined_url ?? (placeId ? observations_by_place_url : observations_by_species_url);
+
   res.json(GetInatObservationsResponse.parse({
-    source_url: taxonId && placeId
-      ? `https://www.inaturalist.org/observations?taxon_id=${taxonId}&place_id=${placeId}`
-      : observations_by_species_url,
+    source_url,
     found: true,
     data: {
       taxon_id: taxonId,
