@@ -1,6 +1,7 @@
 import app from "./app";
 import { logger } from "./lib/logger";
 import { ensureBonapRegistryEntry } from "./services/bonap/seed.js";
+import { ensureInatRegistryEntry } from "./services/inat/seed.js";
 
 const rawPort = process.env["PORT"];
 
@@ -26,5 +27,9 @@ app.listen(port, (err) => {
 
   ensureBonapRegistryEntry().catch((seedErr) => {
     logger.error({ err: seedErr }, "Failed to seed BONAP registry entry at startup");
+  });
+
+  ensureInatRegistryEntry().catch((seedErr) => {
+    logger.error({ err: seedErr }, "Failed to seed iNaturalist registry entry at startup");
   });
 });
