@@ -489,7 +489,7 @@ export interface InatSpeciesData {
   match_type: InatSpeciesDataMatchType;
   /** Primary English common name designated by iNaturalist */
   preferred_common_name?: string | null;
-  /** All common names across all languages, unfiltered */
+  /** Common names list. Populated from iNaturalist's preferred common name when available; empty when no common name is recorded. */
   common_names: InatCommonName[];
   /** Wikipedia excerpt returned as raw HTML. Strip tags before displaying as plain text. Attribute to Wikipedia, not iNaturalist. Null if no Wikipedia article is linked.
    */
@@ -501,8 +501,6 @@ export interface InatSpeciesData {
   default_photo_url?: string | null;
   /** IUCN Red List status when available. Null means unassessed, not safe. */
   conservation_status?: InatConservationStatus | null;
-  /** Native/introduced/endemic status by place. Can be long for widespread species. Filter to relevant places. */
-  native_status: InatNativeStatusEntry[];
   /** Total iNaturalist observations globally, all quality grades */
   observations_count?: number | null;
   /** https://www.inaturalist.org/taxa/{inat_taxon_id} */
@@ -590,6 +588,14 @@ export interface InatObservationsResponse {
   provenance: FernsProvenance;
 }
 
+export interface InatAttribution {
+  source_name: string;
+  website: string;
+  license: string;
+  citation: string;
+  api_base_url?: string;
+}
+
 /**
  * Full registry entry for this iNaturalist service source
  */
@@ -611,9 +617,10 @@ export type InatMetadataResponseRegistryEntry = {
 export interface InatMetadataResponse {
   service_id: string;
   service_name: string;
+  /** True if FERNS has permission to use and expose this data. iNaturalist is open access — no permission request required. */
+  permission_granted: boolean;
   permission_status: string;
-  /** Attribution string required for display */
-  attribution: string;
+  attribution: InatAttribution;
   /** Full registry entry for this iNaturalist service source */
   registry_entry?: InatMetadataResponseRegistryEntry;
   queried_at: string;
@@ -787,10 +794,10 @@ export type GetInatPhenologyParams = {
    */
   taxon_id: number;
   /**
- * One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). Place IDs from the place lookup endpoint. Sorted ascending when building cache key.
+ * One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). Place IDs from the place lookup endpoint. Sorted ascending when building cache key. When omitted, returns global (worldwide) observation and phenology data.
 
  */
-  place_id: string;
+  place_id?: string;
   /**
    * If true, bypasses cache and fetches fresh from iNaturalist
    */

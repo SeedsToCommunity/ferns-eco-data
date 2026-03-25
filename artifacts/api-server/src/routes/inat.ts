@@ -20,6 +20,7 @@ import {
 import {
   INAT_SOURCE_ID,
   INAT_ATTRIBUTION,
+  INAT_PERMISSION_GRANTED,
   INAT_PERMISSION_STATUS,
   INAT_DERIVATION_SUMMARY,
   INAT_DERIVATION_SCIENTIFIC,
@@ -158,7 +159,6 @@ function buildSpeciesResponse(
     wikipedia_url: string | null;
     default_photo_url: string | null;
     conservation_status: unknown;
-    native_status: unknown;
     observations_count: number | null;
     source_url: string | null;
     fetched_at: Date;
@@ -170,6 +170,14 @@ function buildSpeciesResponse(
   },
   cache_status: "hit" | "miss" | "bypassed",
 ) {
+  const storedNames = (row.common_names as Array<{ name: string; locale: string }> | null) ?? [];
+  const common_names =
+    storedNames.length > 0
+      ? storedNames
+      : row.preferred_common_name
+        ? [{ name: row.preferred_common_name, locale: "en" }]
+        : [];
+
   return {
     source_url: row.source_url ?? null,
     found: row.found,
@@ -178,12 +186,11 @@ function buildSpeciesResponse(
       inat_name: row.inat_name ?? null,
       match_type: row.match_type ?? null,
       preferred_common_name: row.preferred_common_name ?? null,
-      common_names: row.common_names ?? [],
+      common_names,
       wikipedia_summary: row.wikipedia_summary ?? null,
       wikipedia_url: row.wikipedia_url ?? null,
       default_photo_url: row.default_photo_url ?? null,
       conservation_status: row.conservation_status ?? null,
-      native_status: row.native_status ?? [],
       observations_count: row.observations_count ?? null,
       source_url: row.source_url ?? null,
       fetched_at: row.fetched_at,
@@ -208,7 +215,7 @@ router.get("/inat/phenology", async (req, res) => {
   }
 
   const taxonId = parsed.data.taxon_id;
-  const rawPlaceId = parsed.data.place_id;
+  const rawPlaceId = parsed.data.place_id ?? "";
   const placeIdParts = rawPlaceId.split(",").map((s) => s.trim()).filter(Boolean);
   const placeIds = placeIdParts.map(Number);
   if (placeIds.some((n) => isNaN(n) || n <= 0)) {
@@ -340,6 +347,7 @@ router.get("/inat/metadata", async (_req, res) => {
   res.json(GetInatMetadataResponse.parse({
     service_id: INAT_SOURCE_ID,
     service_name: "iNaturalist — Observations, Phenology, and Species Appearance",
+    permission_granted: INAT_PERMISSION_GRANTED,
     permission_status: INAT_PERMISSION_STATUS,
     attribution: INAT_ATTRIBUTION,
     registry_entry: {

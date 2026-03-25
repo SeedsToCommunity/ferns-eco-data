@@ -12,10 +12,10 @@ export type GetInatPhenologyParams = {
    */
   taxon_id: number;
   /**
- * One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). Place IDs from the place lookup endpoint. Sorted ascending when building cache key.
+ * One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). Place IDs from the place lookup endpoint. Sorted ascending when building cache key. When omitted, returns global (worldwide) observation and phenology data.
 
  */
-  place_id: string;
+  place_id?: string;
   /**
    * If true, bypasses cache and fetches fresh from iNaturalist
    */

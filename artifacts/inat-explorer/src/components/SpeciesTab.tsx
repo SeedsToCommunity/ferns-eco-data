@@ -31,7 +31,6 @@ export function SpeciesTab({ onTaxonIdSelected }: SpeciesTabProps) {
 
   const inatTaxonId = species?.inat_taxon_id as number | null | undefined;
   const inatName = species?.inat_name as string | null | undefined;
-  const nativeStatus = (species?.native_status ?? []) as Array<{ status: string; place_name: string }>;
 
   return (
     <div className="space-y-6">
@@ -199,34 +198,6 @@ export function SpeciesTab({ onTaxonIdSelected }: SpeciesTabProps) {
               </div>
             )}
 
-            {nativeStatus.length > 0 && (
-              <div className="px-6 pb-6 border-t border-border pt-4">
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                  Native Status by Place
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {nativeStatus.slice(0, 20).map((entry, i) => (
-                    <span
-                      key={i}
-                      className={`text-xs px-2 py-0.5 rounded-full border ${
-                        entry.status === "native" || entry.status === "endemic"
-                          ? "bg-primary/10 border-primary/20 text-primary"
-                          : entry.status === "introduced"
-                          ? "bg-warning/10 border-warning/30 text-warning-foreground"
-                          : "bg-muted border-border text-muted-foreground"
-                      }`}
-                    >
-                      {entry.status} · {entry.place_name}
-                    </span>
-                  ))}
-                  {nativeStatus.length > 20 && (
-                    <span className="text-xs text-muted-foreground px-2 py-0.5">
-                      +{nativeStatus.length - 20} more
-                    </span>
-                  )}
-                </div>
-              </div>
-            )}
           </div>
 
           {(species.fetched_at || species.cache_status) && (

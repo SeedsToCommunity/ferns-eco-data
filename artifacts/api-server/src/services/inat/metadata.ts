@@ -6,10 +6,18 @@ export const INAT_USER_AGENT = "FERNS/1.0";
 
 export const INAT_REQUEST_TIMEOUT_MS = 30000;
 
+export const INAT_PERMISSION_GRANTED = true;
+
 export const INAT_PERMISSION_STATUS = "OPEN — No authentication required for read operations. Attribution required.";
 
-export const INAT_ATTRIBUTION =
-  "Observations from iNaturalist (inaturalist.org). Species descriptions from Wikipedia.";
+export const INAT_ATTRIBUTION = {
+  source_name: "iNaturalist",
+  website: "https://www.inaturalist.org",
+  license: "Varies by observation. Most research-grade observations: CC BY-NC or CC BY. See individual records for per-observation licensing.",
+  citation:
+    "iNaturalist contributors, iNaturalist (https://www.inaturalist.org). Accessed via iNaturalist API v1. Species descriptions from Wikipedia, retrieved through iNaturalist.",
+  api_base_url: INAT_API_BASE,
+};
 
 export const INAT_DERIVATION_SUMMARY =
   "Observation and species data from iNaturalist (inaturalist.org), a citizen science platform " +

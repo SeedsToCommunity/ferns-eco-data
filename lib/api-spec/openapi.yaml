@@ -414,10 +414,11 @@ paths:
             type: integer
         - name: place_id
           in: query
-          required: true
+          required: false
           description: >
             One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986).
             Place IDs from the place lookup endpoint. Sorted ascending when building cache key.
+            When omitted, returns global (worldwide) observation and phenology data.
           schema:
             type: string
         - name: refresh
@@ -1391,7 +1392,6 @@ components:
         - inat_name
         - match_type
         - common_names
-        - native_status
         - fetched_at
         - cache_status
       properties:
@@ -1421,7 +1421,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/InatCommonName"
-          description: All common names across all languages, unfiltered
+          description: Common names list. Populated from iNaturalist's preferred common name when available; empty when no common name is recorded.
         wikipedia_summary:
           type: string
           nullable: true
@@ -1443,11 +1443,6 @@ components:
           allOf:
             - $ref: "#/components/schemas/InatConservationStatus"
           description: IUCN Red List status when available. Null means unassessed, not safe.
-        native_status:
-          type: array
-          items:
-            $ref: "#/components/schemas/InatNativeStatusEntry"
-          description: Native/introduced/endemic status by place. Can be long for widespread species. Filter to relevant places.
         observations_count:
           type: integer
           nullable: true
@@ -1608,11 +1603,31 @@ components:
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
 
+    InatAttribution:
+      type: object
+      required:
+        - source_name
+        - website
+        - license
+        - citation
+      properties:
+        source_name:
+          type: string
+        website:
+          type: string
+        license:
+          type: string
+        citation:
+          type: string
+        api_base_url:
+          type: string
+
     InatMetadataResponse:
       type: object
       required:
         - service_id
         - service_name
+        - permission_granted
         - permission_status
         - attribution
         - queried_at
@@ -1622,11 +1637,13 @@ components:
           type: string
         service_name:
           type: string
+        permission_granted:
+          type: boolean
+          description: True if FERNS has permission to use and expose this data. iNaturalist is open access — no permission request required.
         permission_status:
           type: string
         attribution:
-          type: string
-          description: Attribution string required for display
+          $ref: "#/components/schemas/InatAttribution"
         registry_entry:
           type: object
           description: Full registry entry for this iNaturalist service source

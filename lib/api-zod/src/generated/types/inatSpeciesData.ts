@@ -7,7 +7,6 @@
  */
 import type { InatCommonName } from "./inatCommonName";
 import type { InatConservationStatus } from "./inatConservationStatus";
-import type { InatNativeStatusEntry } from "./inatNativeStatusEntry";
 import type { InatSpeciesDataCacheStatus } from "./inatSpeciesDataCacheStatus";
 import type { InatSpeciesDataMatchType } from "./inatSpeciesDataMatchType";
 
@@ -22,7 +21,7 @@ export interface InatSpeciesData {
   match_type: InatSpeciesDataMatchType;
   /** Primary English common name designated by iNaturalist */
   preferred_common_name?: string | null;
-  /** All common names across all languages, unfiltered */
+  /** Common names list. Populated from iNaturalist's preferred common name when available; empty when no common name is recorded. */
   common_names: InatCommonName[];
   /** Wikipedia excerpt returned as raw HTML. Strip tags before displaying as plain text. Attribute to Wikipedia, not iNaturalist. Null if no Wikipedia article is linked.
    */
@@ -34,8 +33,6 @@ export interface InatSpeciesData {
   default_photo_url?: string | null;
   /** IUCN Red List status when available. Null means unassessed, not safe. */
   conservation_status?: InatConservationStatus | null;
-  /** Native/introduced/endemic status by place. Can be long for widespread species. Filter to relevant places. */
-  native_status: InatNativeStatusEntry[];
   /** Total iNaturalist observations globally, all quality grades */
   observations_count?: number | null;
   /** https://www.inaturalist.org/taxa/{inat_taxon_id} */

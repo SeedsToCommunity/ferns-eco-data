@@ -50,6 +50,7 @@ export * from "./getInatPhenologyParams";
 export * from "./getInatPlaceParams";
 export * from "./getInatSpeciesParams";
 export * from "./healthStatus";
+export * from "./inatAttribution";
 export * from "./inatCommonName";
 export * from "./inatConservationStatus";
 export * from "./inatMetadataResponse";

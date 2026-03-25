@@ -1,0 +1,22 @@
+iNaturalist source — active issues
+
+Phenology endpoint returns 400 — /api/inat/phenology rejects both ?name= and ?taxon_id= calls. The correct call signature is undocumented and undiscoverable without the OpenAPI spec or asking the agent.
+permission_granted boolean missing — BONAP and GBIF both have permission_granted: true/false as a boolean field. iNaturalist metadata only has permission_status as a string. An application checking permission_granted across all sources gets undefined for iNaturalist. Breaks envelope consistency.
+attribution is a plain string, not a structured object — BONAP has a rich attribution object with maintainer, organization, website, citations. iNaturalist just has a single string. Inconsistent across sources and loses structured information.
+common_names: [] is empty — the species response has preferred_common_name: "large white trillium" correctly, but common_names array is empty. Redundant field that doesn't deliver on its promise.
+native_status: [] is always empty — field exists, never populated. Either populate it or remove it.
+place_type_name always empty — place lookup results have this field but it's never populated. Same problem — populate it or remove it.
+Place lookup fails with state name appended — "Washtenaw County Michigan" returns no results but "Washtenaw County" works. The endpoint is sensitive to query string format in a way that isn't documented anywhere.
+
+
+BONAP source — active issues
+
+Color key not yet fixed — the cached Trillium response still has the old color key. We confirmed the new color key is correct on the Asclepias response, but the cached entries will serve wrong data until they expire in 7 days.
+note: null still present — still in BONAP map responses, purpose undecided.
+
+
+System-wide issues
+
+OpenAPI spec not publicly exposed — /openapi.json returns the frontend shell on both deployments. The spec exists internally and drives code generation but isn't discoverable externally. Directly caused the phenology debugging problem just now.
+CDN caching masks deployments — Cache-Control: no-store fix may be in place in code but Replit's CDN is still serving stale responses on the primary domain. Required a full redeployment at a new URL to get fresh responses today. Needs verification that the header is actually being honored end-to-end.
+Cache busting requires new URLs — as a consequence of the above, testing fresh deployments requires either a new domain or URL parameters, neither of which is a clean workflow for ongoing development and validation.

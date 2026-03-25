@@ -6,14 +6,16 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { FernsProvenance } from "./fernsProvenance";
+import type { InatAttribution } from "./inatAttribution";
 import type { InatMetadataResponseRegistryEntry } from "./inatMetadataResponseRegistryEntry";
 
 export interface InatMetadataResponse {
   service_id: string;
   service_name: string;
+  /** True if FERNS has permission to use and expose this data. iNaturalist is open access — no permission request required. */
+  permission_granted: boolean;
   permission_status: string;
-  /** Attribution string required for display */
-  attribution: string;
+  attribution: InatAttribution;
   /** Full registry entry for this iNaturalist service source */
   registry_entry?: InatMetadataResponseRegistryEntry;
   queried_at: Date;

@@ -856,7 +856,9 @@ export const GetInatSpeciesResponse = zod.object({
               .describe("BCP 47 locale code (e.g. en, fr, de)"),
           }),
         )
-        .describe("All common names across all languages, unfiltered"),
+        .describe(
+          "Common names list. Populated from iNaturalist's preferred common name when available; empty when no common name is recorded.",
+        ),
       wikipedia_summary: zod
         .string()
         .nullish()
@@ -886,22 +888,6 @@ export const GetInatSpeciesResponse = zod.object({
         .nullish()
         .describe(
           "IUCN Red List status when available. Null means unassessed, not safe.",
-        ),
-      native_status: zod
-        .array(
-          zod.object({
-            status: zod
-              .string()
-              .describe(
-                "native, introduced, endemic, or similar values as recorded by iNaturalist community members for this place\n",
-              ),
-            place_name: zod
-              .string()
-              .describe("Name of the place where this status applies"),
-          }),
-        )
-        .describe(
-          "Native\/introduced\/endemic status by place. Can be long for widespread species. Filter to relevant places.",
         ),
       observations_count: zod
         .number()
@@ -964,8 +950,9 @@ export const GetInatPhenologyQueryParams = zod.object({
     .describe("iNaturalist numeric taxon ID (from the species endpoint)"),
   place_id: zod.coerce
     .string()
+    .optional()
     .describe(
-      "One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). Place IDs from the place lookup endpoint. Sorted ascending when building cache key.\n",
+      "One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). Place IDs from the place lookup endpoint. Sorted ascending when building cache key. When omitted, returns global (worldwide) observation and phenology data.\n",
     ),
   refresh: zod.coerce
     .boolean()
@@ -1127,8 +1114,19 @@ export const GetInatObservationsResponse = zod.object({
 export const GetInatMetadataResponse = zod.object({
   service_id: zod.string(),
   service_name: zod.string(),
+  permission_granted: zod
+    .boolean()
+    .describe(
+      "True if FERNS has permission to use and expose this data. iNaturalist is open access — no permission request required.",
+    ),
   permission_status: zod.string(),
-  attribution: zod.string().describe("Attribution string required for display"),
+  attribution: zod.object({
+    source_name: zod.string(),
+    website: zod.string(),
+    license: zod.string(),
+    citation: zod.string(),
+    api_base_url: zod.string().optional(),
+  }),
   registry_entry: zod
     .object({
       source_id: zod.string().optional(),
