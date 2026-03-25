@@ -26,24 +26,35 @@ import {
   INAT_REGISTRY_ENTRY,
 } from "../services/inat/metadata.js";
 import { ensureInatRegistryEntry } from "../services/inat/seed.js";
+import {
+  GetInatPlaceQueryParams,
+  GetInatPlaceResponse,
+  GetInatSpeciesQueryParams,
+  GetInatSpeciesResponse,
+  GetInatPhenologyQueryParams,
+  GetInatPhenologyResponse,
+  GetInatObservationsQueryParams,
+  GetInatObservationsResponse,
+  GetInatMetadataResponse,
+} from "@workspace/api-zod";
 
 const router: IRouter = Router();
 
 router.get("/inat/place", async (req, res) => {
-  const rawQ = req.query.q;
-  if (!rawQ || typeof rawQ !== "string" || rawQ.trim() === "") {
-    res.status(400).json({ error: "invalid_input", message: "q is required and must be a non-empty string" });
+  const parsed = GetInatPlaceQueryParams.safeParse(req.query);
+  if (!parsed.success) {
+    res.status(400).json({ error: "invalid_input", message: parsed.error.errors[0]?.message ?? "Invalid query parameters" });
     return;
   }
 
-  const q = rawQ.trim();
-  const refresh = req.query.refresh === "true" || req.query.refresh === "1";
+  const q = parsed.data.q;
+  const refresh = parsed.data.refresh ?? false;
   const cacheKey = buildPlaceCacheKey(q);
 
   if (!refresh) {
     const cached = await lookupPlace(cacheKey);
     if (cached) {
-      res.json(buildPlaceResponse(cached, "hit"));
+      res.json(GetInatPlaceResponse.parse(buildPlaceResponse(cached, "hit")));
       return;
     }
   }
@@ -51,7 +62,7 @@ router.get("/inat/place", async (req, res) => {
   try {
     const result = await fetchPlaces(q);
     const stored = await storePlace(cacheKey, result);
-    res.json(buildPlaceResponse(stored, refresh ? "bypassed" : "miss"));
+    res.json(GetInatPlaceResponse.parse(buildPlaceResponse(stored, refresh ? "bypassed" : "miss")));
   } catch (err) {
     req.log.error({ err }, "iNat place lookup failed");
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from iNaturalist API" });
@@ -109,20 +120,20 @@ function buildPlaceResponse(
 }
 
 router.get("/inat/species", async (req, res) => {
-  const rawName = req.query.name;
-  if (!rawName || typeof rawName !== "string" || rawName.trim() === "") {
-    res.status(400).json({ error: "invalid_input", message: "name is required and must be a non-empty string" });
+  const parsed = GetInatSpeciesQueryParams.safeParse(req.query);
+  if (!parsed.success) {
+    res.status(400).json({ error: "invalid_input", message: parsed.error.errors[0]?.message ?? "Invalid query parameters" });
     return;
   }
 
-  const name = rawName.trim();
-  const refresh = req.query.refresh === "true" || req.query.refresh === "1";
+  const name = parsed.data.name;
+  const refresh = parsed.data.refresh ?? false;
   const cacheKey = buildSpeciesCacheKey(name);
 
   if (!refresh) {
     const cached = await lookupSpecies(cacheKey);
     if (cached) {
-      res.json(buildSpeciesResponse(cached, "hit"));
+      res.json(GetInatSpeciesResponse.parse(buildSpeciesResponse(cached, "hit")));
       return;
     }
   }
@@ -130,7 +141,7 @@ router.get("/inat/species", async (req, res) => {
   try {
     const result = await fetchSpecies(name);
     const stored = await storeSpecies(cacheKey, result);
-    res.json(buildSpeciesResponse(stored, refresh ? "bypassed" : "miss"));
+    res.json(GetInatSpeciesResponse.parse(buildSpeciesResponse(stored, refresh ? "bypassed" : "miss")));
   } catch (err) {
     req.log.error({ err }, "iNat species lookup failed");
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from iNaturalist API" });
@@ -192,19 +203,14 @@ function buildSpeciesResponse(
 }
 
 router.get("/inat/phenology", async (req, res) => {
-  const rawTaxonId = req.query.taxon_id;
-  const taxonId = Number(rawTaxonId);
-  if (!rawTaxonId || isNaN(taxonId) || taxonId <= 0) {
-    res.status(400).json({ error: "invalid_input", message: "taxon_id is required and must be a positive integer" });
+  const parsed = GetInatPhenologyQueryParams.safeParse(req.query);
+  if (!parsed.success) {
+    res.status(400).json({ error: "invalid_input", message: parsed.error.errors[0]?.message ?? "Invalid query parameters" });
     return;
   }
 
-  const rawPlaceId = req.query.place_id;
-  if (!rawPlaceId || typeof rawPlaceId !== "string" || rawPlaceId.trim() === "") {
-    res.status(400).json({ error: "invalid_input", message: "place_id is required (one or more comma-separated iNaturalist place IDs)" });
-    return;
-  }
-
+  const taxonId = parsed.data.taxon_id;
+  const rawPlaceId = parsed.data.place_id;
   const placeIdParts = rawPlaceId.split(",").map((s) => s.trim()).filter(Boolean);
   const placeIds = placeIdParts.map(Number);
   if (placeIds.some((n) => isNaN(n) || n <= 0)) {
@@ -213,13 +219,13 @@ router.get("/inat/phenology", async (req, res) => {
   }
 
   const sortedPlaceIds = sortPlaceIds(placeIds);
-  const refresh = req.query.refresh === "true" || req.query.refresh === "1";
+  const refresh = parsed.data.refresh ?? false;
   const cacheKey = buildPhenologyCacheKey(taxonId, sortedPlaceIds);
 
   if (!refresh) {
     const cached = await lookupPhenology(cacheKey);
     if (cached) {
-      res.json(buildPhenologyResponse(cached, "hit"));
+      res.json(GetInatPhenologyResponse.parse(buildPhenologyResponse(cached, "hit")));
       return;
     }
   }
@@ -227,7 +233,7 @@ router.get("/inat/phenology", async (req, res) => {
   try {
     const result = await fetchPhenology(taxonId, sortedPlaceIds);
     const stored = await storePhenology(cacheKey, result);
-    res.json(buildPhenologyResponse(stored, refresh ? "bypassed" : "miss"));
+    res.json(GetInatPhenologyResponse.parse(buildPhenologyResponse(stored, refresh ? "bypassed" : "miss")));
   } catch (err) {
     req.log.error({ err }, "iNat phenology fetch failed");
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from iNaturalist API" });
@@ -280,20 +286,14 @@ function buildPhenologyResponse(
 }
 
 router.get("/inat/observations", (req, res) => {
-  const rawTaxonId = req.query.taxon_id;
-  const rawPlaceId = req.query.place_id;
-
-  const taxonId = rawTaxonId ? Number(rawTaxonId) : null;
-  const placeId = rawPlaceId ? Number(rawPlaceId) : null;
-
-  if (rawTaxonId && (isNaN(taxonId!) || taxonId! <= 0)) {
-    res.status(400).json({ error: "invalid_input", message: "taxon_id must be a positive integer when provided" });
+  const parsed = GetInatObservationsQueryParams.safeParse(req.query);
+  if (!parsed.success) {
+    res.status(400).json({ error: "invalid_input", message: parsed.error.errors[0]?.message ?? "Invalid query parameters" });
     return;
   }
-  if (rawPlaceId && (isNaN(placeId!) || placeId! <= 0)) {
-    res.status(400).json({ error: "invalid_input", message: "place_id must be a positive integer when provided" });
-    return;
-  }
+
+  const taxonId = parsed.data.taxon_id ?? null;
+  const placeId = parsed.data.place_id ?? null;
 
   const observations_by_species_url = taxonId
     ? `https://www.inaturalist.org/observations?taxon_id=${taxonId}`
@@ -308,14 +308,14 @@ router.get("/inat/observations", (req, res) => {
   const queriedAt = new Date();
   const prov = buildProvenance("/api/inat/observations", "url_construction");
 
-  res.json({
+  res.json(GetInatObservationsResponse.parse({
     source_url: taxonId && placeId
       ? `https://www.inaturalist.org/observations?taxon_id=${taxonId}&place_id=${placeId}`
       : observations_by_species_url,
     found: true,
     data: {
-      taxon_id: taxonId ?? null,
-      place_id: placeId ?? null,
+      taxon_id: taxonId,
+      place_id: placeId,
       observations_by_species_url,
       observations_by_place_url,
       api_observations_endpoint,
@@ -329,14 +329,14 @@ router.get("/inat/observations", (req, res) => {
       derivation_summary: prov.derivation_summary,
       derivation_scientific: prov.derivation_scientific,
     },
-  });
+  }));
 });
 
 router.get("/inat/metadata", async (_req, res) => {
   await ensureInatRegistryEntry();
   const queriedAt = new Date();
 
-  res.json({
+  res.json(GetInatMetadataResponse.parse({
     service_id: INAT_SOURCE_ID,
     service_name: "iNaturalist — Observations, Phenology, and Species Appearance",
     permission_status: INAT_PERMISSION_STATUS,
@@ -353,7 +353,7 @@ router.get("/inat/metadata", async (_req, res) => {
       derivation_summary: INAT_DERIVATION_SUMMARY,
       derivation_scientific: INAT_DERIVATION_SCIENTIFIC,
     },
-  });
+  }));
 });
 
 export default router;
