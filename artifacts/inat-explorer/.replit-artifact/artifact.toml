@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/inat-explorer/"
+title = "iNaturalist Source Explorer"
+version = "1.0.0"
+id = "artifacts/inat-explorer"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/inat-explorer/" ]
+localPort = 18499
+
+[services.development]
+run = "pnpm --filter @workspace/inat-explorer run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/inat-explorer", "run", "build" ]
+publicDir = "artifacts/inat-explorer/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18499"
+BASE_PATH = "/inat-explorer/"

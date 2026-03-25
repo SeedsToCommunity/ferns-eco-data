@@ -709,6 +709,479 @@ export const GetGbifMetadataResponse = zod.object({
 });
 
 /**
+ * Searches iNaturalist for places matching the query string and returns up to 5 candidates. The iNaturalist place ID from this response is required to filter phenology and observation queries geographically. Place lookups are cached permanently — place IDs are stable once assigned. Applications select the correct place when multiple candidates are returned.
+
+ * @summary Look up an iNaturalist place by name
+ */
+export const getInatPlaceQueryRefreshDefault = false;
+
+export const GetInatPlaceQueryParams = zod.object({
+  q: zod.coerce
+    .string()
+    .describe(
+      "Place name to search (e.g. Washtenaw County, Michigan, Sleeping Bear Dunes)",
+    ),
+  refresh: zod.coerce
+    .boolean()
+    .default(getInatPlaceQueryRefreshDefault)
+    .describe("If true, bypasses cache and fetches fresh from iNaturalist"),
+});
+
+export const GetInatPlaceResponse = zod.object({
+  source_url: zod
+    .string()
+    .nullable()
+    .describe(
+      "https:\/\/www.inaturalist.org\/places\/{firstResultId}. Null if no results.",
+    ),
+  found: zod.boolean().describe("false if no places matched the query"),
+  data: zod
+    .object({
+      query: zod.string().describe("The place name that was searched"),
+      results: zod
+        .array(
+          zod.object({
+            id: zod
+              .number()
+              .describe(
+                "iNaturalist numeric place ID. Use this in taxon_id + place_id queries.",
+              ),
+            display_name: zod
+              .string()
+              .describe("Human-readable place name as returned by iNaturalist"),
+            place_type: zod
+              .number()
+              .describe("iNaturalist numeric place type code"),
+            place_type_name: zod
+              .string()
+              .describe(
+                "Human-readable place type (e.g. County, State, Nation)",
+              ),
+            inat_url: zod
+              .string()
+              .describe("https:\/\/www.inaturalist.org\/places\/{id}"),
+          }),
+        )
+        .describe(
+          "Up to 5 matching places. Applications select the correct one.",
+        ),
+      resolved_at: zod.date().describe("When this lookup was cached"),
+      cache_status: zod.enum(["hit", "miss", "bypassed"]),
+    })
+    .nullable(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+});
+
+/**
+ * Given a scientific name, returns what iNaturalist knows about that species: a representative photo, a Wikipedia description (raw HTML — strip tags before display), common names in all languages, native/introduced status by place, global observation count, IUCN conservation status, and the iNaturalist taxon ID needed for phenology queries. Two API calls are always required. Results cached 30 days for found species; 7 days for not-found. match_type indicates whether the name matched exactly (exact) or whether the first result was used as a fallback (fallback — applications should flag this to users).
+
+ * @summary Look up species appearance data from iNaturalist
+ */
+export const getInatSpeciesQueryRefreshDefault = false;
+
+export const GetInatSpeciesQueryParams = zod.object({
+  name: zod.coerce
+    .string()
+    .describe("Scientific name to look up (e.g. Asclepias tuberosa)"),
+  refresh: zod.coerce
+    .boolean()
+    .default(getInatSpeciesQueryRefreshDefault)
+    .describe("If true, bypasses cache and fetches fresh from iNaturalist"),
+});
+
+export const GetInatSpeciesResponse = zod.object({
+  source_url: zod.string().nullable(),
+  found: zod.boolean(),
+  data: zod
+    .object({
+      inat_taxon_id: zod
+        .number()
+        .nullable()
+        .describe(
+          "iNaturalist numeric taxon ID. Use in phenology and observation queries.",
+        ),
+      inat_name: zod
+        .string()
+        .nullable()
+        .describe(
+          "Scientific name as iNaturalist records it. May differ from GBIF, BONAP, or Michigan Flora — iNaturalist maintains its own taxonomic backbone.\n",
+        ),
+      match_type: zod
+        .enum(["exact", "fallback"])
+        .nullable()
+        .describe(
+          "exact — inat_name matches the queried name exactly (case-insensitive). fallback — no exact match found; first search result was used. Applications should flag fallback matches to users.\n",
+        ),
+      preferred_common_name: zod
+        .string()
+        .nullish()
+        .describe("Primary English common name designated by iNaturalist"),
+      common_names: zod
+        .array(
+          zod.object({
+            name: zod.string(),
+            locale: zod
+              .string()
+              .describe("BCP 47 locale code (e.g. en, fr, de)"),
+          }),
+        )
+        .describe("All common names across all languages, unfiltered"),
+      wikipedia_summary: zod
+        .string()
+        .nullish()
+        .describe(
+          "Wikipedia excerpt returned as raw HTML. Strip tags before displaying as plain text. Attribute to Wikipedia, not iNaturalist. Null if no Wikipedia article is linked.\n",
+        ),
+      wikipedia_url: zod
+        .string()
+        .nullish()
+        .describe(
+          "URL to the Wikipedia article. iNaturalist may return this with a literal unencoded space — apply encodeURI() if strict URL encoding is required.\n",
+        ),
+      default_photo_url: zod
+        .string()
+        .nullish()
+        .describe(
+          "Representative photo URL hosted on iNaturalist's servers. Display directly; FERNS does not store images.",
+        ),
+      conservation_status: zod
+        .object({
+          authority: zod.string().describe("Assessing authority (e.g. IUCN)"),
+          status: zod.string().describe("Status code (e.g. LC, VU, EN)"),
+          status_name: zod
+            .string()
+            .describe("Full status name (e.g. Least Concern)"),
+        })
+        .nullish()
+        .describe(
+          "IUCN Red List status when available. Null means unassessed, not safe.",
+        ),
+      native_status: zod
+        .array(
+          zod.object({
+            status: zod
+              .string()
+              .describe(
+                "native, introduced, endemic, or similar values as recorded by iNaturalist community members for this place\n",
+              ),
+            place_name: zod
+              .string()
+              .describe("Name of the place where this status applies"),
+          }),
+        )
+        .describe(
+          "Native\/introduced\/endemic status by place. Can be long for widespread species. Filter to relevant places.",
+        ),
+      observations_count: zod
+        .number()
+        .nullish()
+        .describe(
+          "Total iNaturalist observations globally, all quality grades",
+        ),
+      source_url: zod
+        .string()
+        .nullish()
+        .describe("https:\/\/www.inaturalist.org\/taxa\/{inat_taxon_id}"),
+      fetched_at: zod.date(),
+      cache_status: zod.enum(["hit", "miss", "bypassed"]),
+    })
+    .nullable(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+});
+
+/**
+ * Given an iNaturalist taxon ID and one or more place IDs, returns two monthly breakdowns: total observation counts by calendar month (from the histogram endpoint), and observation counts stratified by phenological stage per month (from popular_field_values). Stage labels for plants are Flowers, Flower Buds, Fruits or Seeds, No Flowers or Fruits. Leaf phenology stages also returned: Green Leaves, Colored Leaves, No Live Leaves, Breaking Leaf Buds. Phenological annotations are community-contributed and coverage is uneven — annotations_available will be false when no annotations exist. Cached 7 days keyed by taxon_id and sorted set of place_ids.
+
+ * @summary Fetch monthly observation counts and phenological stage breakdown
+ */
+export const getInatPhenologyQueryRefreshDefault = false;
+
+export const GetInatPhenologyQueryParams = zod.object({
+  taxon_id: zod.coerce
+    .number()
+    .describe("iNaturalist numeric taxon ID (from the species endpoint)"),
+  place_id: zod.coerce
+    .string()
+    .describe(
+      "One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). Place IDs from the place lookup endpoint. Sorted ascending when building cache key.\n",
+    ),
+  refresh: zod.coerce
+    .boolean()
+    .default(getInatPhenologyQueryRefreshDefault)
+    .describe("If true, bypasses cache and fetches fresh from iNaturalist"),
+});
+
+export const GetInatPhenologyResponse = zod.object({
+  source_url: zod
+    .string()
+    .describe(
+      "https:\/\/www.inaturalist.org\/observations?taxon_id={id}&place_id={ids}",
+    ),
+  found: zod.boolean(),
+  data: zod
+    .object({
+      taxon_id: zod
+        .number()
+        .describe("The iNaturalist taxon ID used in this query"),
+      place_ids: zod
+        .array(zod.number())
+        .describe("The place IDs used, sorted ascending"),
+      observations_by_month: zod
+        .record(zod.string(), zod.number())
+        .describe(
+          "Total observation counts by calendar month. Keys are month numbers as strings ('1' through '12'). Only months with at least one observation are present. Cumulative across all years in iNaturalist.\n",
+        ),
+      phenology_by_month: zod
+        .record(zod.string(), zod.record(zod.string(), zod.number()))
+        .describe(
+          "Observation counts by phenological stage per month. Structure: { '6': { 'Flowers': 42, 'Fruits or Seeds': 8 }, ... }. Only months and stages with at least one annotation are present. Empty object when no annotations exist.\n",
+        ),
+      phenology_stages_available: zod
+        .array(zod.string())
+        .describe(
+          "Distinct stage names present in phenology_by_month. Examples: Flowers, Flower Buds, Fruits or Seeds, No Flowers or Fruits, Green Leaves. Empty when no annotations exist.\n",
+        ),
+      peak_observation_month: zod
+        .number()
+        .nullish()
+        .describe(
+          "Month number (1-12) with highest total observation count. Null if no observations.",
+        ),
+      annotations_available: zod
+        .boolean()
+        .describe("true if phenology_by_month contains any data"),
+      fetched_at: zod.date(),
+      cache_status: zod.enum(["hit", "miss", "bypassed"]),
+    })
+    .nullable(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+});
+
+/**
+ * This endpoint does not return or cache observation records. It constructs and returns direct URLs that applications use to link to iNaturalist or to query the API directly. Individual observation records are live event data that changes constantly — FERNS provides URL patterns for applications to fetch them fresh. Both taxon_id and place_id are optional. When provided, they are validated and incorporated into the returned URLs.
+
+ * @summary Get iNaturalist observation URL construction for a species or place
+ */
+export const GetInatObservationsQueryParams = zod.object({
+  taxon_id: zod.coerce
+    .number()
+    .optional()
+    .describe("iNaturalist taxon ID to incorporate into URLs"),
+  place_id: zod.coerce
+    .number()
+    .optional()
+    .describe("iNaturalist place ID to incorporate into URLs"),
+});
+
+export const GetInatObservationsResponse = zod.object({
+  source_url: zod.string(),
+  found: zod.boolean(),
+  data: zod.object({
+    taxon_id: zod.number().nullish(),
+    place_id: zod.number().nullish(),
+    observations_by_species_url: zod
+      .string()
+      .describe("iNaturalist website URL for sightings of a species"),
+    observations_by_place_url: zod
+      .string()
+      .describe("iNaturalist website URL for everything observed in a place"),
+    api_observations_endpoint: zod
+      .string()
+      .describe(
+        "Base API endpoint for programmatic queries. Full docs at iNaturalist API docs.",
+      ),
+    queried_at: zod.date(),
+  }),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+});
+
+/**
+ * Returns service identity, attribution, permission status, and the full registry entry for the iNaturalist service. Use this to populate 'About this data' panels in any application displaying iNaturalist data. Also seeds the iNaturalist entry in the FERNS source registry.
+
+ * @summary iNaturalist service metadata
+ */
+export const GetInatMetadataResponse = zod.object({
+  service_id: zod.string(),
+  service_name: zod.string(),
+  permission_status: zod.string(),
+  attribution: zod.string().describe("Attribution string required for display"),
+  registry_entry: zod
+    .object({
+      source_id: zod.string().optional(),
+      name: zod.string().optional(),
+      knowledge_type: zod.string().optional(),
+      status: zod.string().optional(),
+      description: zod.string().optional(),
+      input_summary: zod.string().optional(),
+      output_summary: zod.string().optional(),
+      dependencies: zod.array(zod.string()).optional(),
+      update_frequency: zod.string().optional(),
+      known_limitations: zod.string().optional(),
+      metadata_url: zod.string().optional(),
+      explorer_url: zod.string().optional(),
+    })
+    .optional()
+    .describe("Full registry entry for this iNaturalist service source"),
+  queried_at: zod.date(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+});
+
+/**
  * Returns a summary entry for every registered FERNS Knowledge Service. This is the primary discovery endpoint. Each entry contains enough information to make a routing decision without a follow-up call to individual /metadata endpoints.
 
  * @summary List all registered FERNS Knowledge Services

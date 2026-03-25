@@ -14,6 +14,8 @@ tags:
     description: BONAP North American Plant Atlas — Distribution Maps
   - name: gbif
     description: GBIF Taxonomic Backbone, Name Reconciliation, and Occurrence Records
+  - name: inat
+    description: iNaturalist — Observations, Phenology, and Species Appearance
   - name: registry
     description: FERNS Service Registry
 paths:
@@ -294,6 +296,213 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GbifMetadataResponse"
+
+  /inat/place:
+    get:
+      operationId: getInatPlace
+      tags: [inat]
+      summary: Look up an iNaturalist place by name
+      description: >
+        Searches iNaturalist for places matching the query string and returns up to 5
+        candidates. The iNaturalist place ID from this response is required to filter
+        phenology and observation queries geographically. Place lookups are cached
+        permanently — place IDs are stable once assigned. Applications select the correct
+        place when multiple candidates are returned.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Place name to search (e.g. Washtenaw County, Michigan, Sleeping Bear Dunes)
+          schema:
+            type: string
+        - name: refresh
+          in: query
+          required: false
+          description: If true, bypasses cache and fetches fresh from iNaturalist
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Place lookup complete (found or not found — check the found field)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InatPlaceResponse"
+        "400":
+          description: Missing or empty query parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: iNaturalist API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /inat/species:
+    get:
+      operationId: getInatSpecies
+      tags: [inat]
+      summary: Look up species appearance data from iNaturalist
+      description: >
+        Given a scientific name, returns what iNaturalist knows about that species:
+        a representative photo, a Wikipedia description (raw HTML — strip tags before
+        display), common names in all languages, native/introduced status by place,
+        global observation count, IUCN conservation status, and the iNaturalist taxon ID
+        needed for phenology queries. Two API calls are always required. Results cached
+        30 days for found species; 7 days for not-found. match_type indicates whether
+        the name matched exactly (exact) or whether the first result was used as a
+        fallback (fallback — applications should flag this to users).
+      parameters:
+        - name: name
+          in: query
+          required: true
+          description: Scientific name to look up (e.g. Asclepias tuberosa)
+          schema:
+            type: string
+        - name: refresh
+          in: query
+          required: false
+          description: If true, bypasses cache and fetches fresh from iNaturalist
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Species lookup complete (found or not found — check the found field)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InatSpeciesResponse"
+        "400":
+          description: Missing or empty name parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: iNaturalist API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /inat/phenology:
+    get:
+      operationId: getInatPhenology
+      tags: [inat]
+      summary: Fetch monthly observation counts and phenological stage breakdown
+      description: >
+        Given an iNaturalist taxon ID and one or more place IDs, returns two monthly
+        breakdowns: total observation counts by calendar month (from the histogram
+        endpoint), and observation counts stratified by phenological stage per month
+        (from popular_field_values). Stage labels for plants are Flowers, Flower Buds,
+        Fruits or Seeds, No Flowers or Fruits. Leaf phenology stages also returned:
+        Green Leaves, Colored Leaves, No Live Leaves, Breaking Leaf Buds.
+        Phenological annotations are community-contributed and coverage is uneven —
+        annotations_available will be false when no annotations exist. Cached 7 days
+        keyed by taxon_id and sorted set of place_ids.
+      parameters:
+        - name: taxon_id
+          in: query
+          required: true
+          description: iNaturalist numeric taxon ID (from the species endpoint)
+          schema:
+            type: integer
+        - name: place_id
+          in: query
+          required: true
+          description: >
+            One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986).
+            Place IDs from the place lookup endpoint. Sorted ascending when building cache key.
+          schema:
+            type: string
+        - name: refresh
+          in: query
+          required: false
+          description: If true, bypasses cache and fetches fresh from iNaturalist
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Phenology data for this species and place set
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InatPhenologyResponse"
+        "400":
+          description: Missing or invalid taxon_id or place_id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: iNaturalist API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /inat/observations:
+    get:
+      operationId: getInatObservations
+      tags: [inat]
+      summary: Get iNaturalist observation URL construction for a species or place
+      description: >
+        This endpoint does not return or cache observation records. It constructs and
+        returns direct URLs that applications use to link to iNaturalist or to query
+        the API directly. Individual observation records are live event data that changes
+        constantly — FERNS provides URL patterns for applications to fetch them fresh.
+        Both taxon_id and place_id are optional. When provided, they are validated and
+        incorporated into the returned URLs.
+      parameters:
+        - name: taxon_id
+          in: query
+          required: false
+          description: iNaturalist taxon ID to incorporate into URLs
+          schema:
+            type: integer
+        - name: place_id
+          in: query
+          required: false
+          description: iNaturalist place ID to incorporate into URLs
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Constructed observation URLs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InatObservationsResponse"
+        "400":
+          description: Invalid taxon_id or place_id (must be positive integers when provided)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /inat/metadata:
+    get:
+      operationId: getInatMetadata
+      tags: [inat]
+      summary: iNaturalist service metadata
+      description: >
+        Returns service identity, attribution, permission status, and the full
+        registry entry for the iNaturalist service. Use this to populate
+        'About this data' panels in any application displaying iNaturalist data.
+        Also seeds the iNaturalist entry in the FERNS source registry.
+      responses:
+        "200":
+          description: Service metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InatMetadataResponse"
 
   /v1/sources:
     get:
@@ -1027,6 +1236,400 @@ components:
         registry_entry:
           type: object
           description: Full registry entry for this GBIF service source
+          properties:
+            source_id:
+              type: string
+            name:
+              type: string
+            knowledge_type:
+              type: string
+            status:
+              type: string
+            description:
+              type: string
+            input_summary:
+              type: string
+            output_summary:
+              type: string
+            dependencies:
+              type: array
+              items:
+                type: string
+            update_frequency:
+              type: string
+            known_limitations:
+              type: string
+            metadata_url:
+              type: string
+            explorer_url:
+              type: string
+        queried_at:
+          type: string
+          format: date-time
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    InatPlaceResult:
+      type: object
+      required:
+        - id
+        - display_name
+        - place_type
+        - place_type_name
+        - inat_url
+      properties:
+        id:
+          type: integer
+          description: iNaturalist numeric place ID. Use this in taxon_id + place_id queries.
+        display_name:
+          type: string
+          description: Human-readable place name as returned by iNaturalist
+        place_type:
+          type: integer
+          description: iNaturalist numeric place type code
+        place_type_name:
+          type: string
+          description: Human-readable place type (e.g. County, State, Nation)
+        inat_url:
+          type: string
+          description: https://www.inaturalist.org/places/{id}
+
+    InatPlaceData:
+      type: object
+      required:
+        - query
+        - results
+        - resolved_at
+        - cache_status
+      properties:
+        query:
+          type: string
+          description: The place name that was searched
+        results:
+          type: array
+          description: Up to 5 matching places. Applications select the correct one.
+          items:
+            $ref: "#/components/schemas/InatPlaceResult"
+        resolved_at:
+          type: string
+          format: date-time
+          description: When this lookup was cached
+        cache_status:
+          type: string
+          enum: [hit, miss, bypassed]
+
+    InatPlaceResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+          nullable: true
+          description: https://www.inaturalist.org/places/{firstResultId}. Null if no results.
+        found:
+          type: boolean
+          description: false if no places matched the query
+        data:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/InatPlaceData"
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    InatConservationStatus:
+      type: object
+      required:
+        - authority
+        - status
+        - status_name
+      properties:
+        authority:
+          type: string
+          description: Assessing authority (e.g. IUCN)
+        status:
+          type: string
+          description: Status code (e.g. LC, VU, EN)
+        status_name:
+          type: string
+          description: Full status name (e.g. Least Concern)
+
+    InatCommonName:
+      type: object
+      required:
+        - name
+        - locale
+      properties:
+        name:
+          type: string
+        locale:
+          type: string
+          description: BCP 47 locale code (e.g. en, fr, de)
+
+    InatNativeStatusEntry:
+      type: object
+      required:
+        - status
+        - place_name
+      properties:
+        status:
+          type: string
+          description: >
+            native, introduced, endemic, or similar values as recorded
+            by iNaturalist community members for this place
+        place_name:
+          type: string
+          description: Name of the place where this status applies
+
+    InatSpeciesData:
+      type: object
+      required:
+        - inat_taxon_id
+        - inat_name
+        - match_type
+        - common_names
+        - native_status
+        - fetched_at
+        - cache_status
+      properties:
+        inat_taxon_id:
+          type: integer
+          nullable: true
+          description: iNaturalist numeric taxon ID. Use in phenology and observation queries.
+        inat_name:
+          type: string
+          nullable: true
+          description: >
+            Scientific name as iNaturalist records it. May differ from GBIF, BONAP, or
+            Michigan Flora — iNaturalist maintains its own taxonomic backbone.
+        match_type:
+          type: string
+          nullable: true
+          enum: [exact, fallback]
+          description: >
+            exact — inat_name matches the queried name exactly (case-insensitive).
+            fallback — no exact match found; first search result was used. Applications
+            should flag fallback matches to users.
+        preferred_common_name:
+          type: string
+          nullable: true
+          description: Primary English common name designated by iNaturalist
+        common_names:
+          type: array
+          items:
+            $ref: "#/components/schemas/InatCommonName"
+          description: All common names across all languages, unfiltered
+        wikipedia_summary:
+          type: string
+          nullable: true
+          description: >
+            Wikipedia excerpt returned as raw HTML. Strip tags before displaying as plain text.
+            Attribute to Wikipedia, not iNaturalist. Null if no Wikipedia article is linked.
+        wikipedia_url:
+          type: string
+          nullable: true
+          description: >
+            URL to the Wikipedia article. iNaturalist may return this with a literal unencoded
+            space — apply encodeURI() if strict URL encoding is required.
+        default_photo_url:
+          type: string
+          nullable: true
+          description: Representative photo URL hosted on iNaturalist's servers. Display directly; FERNS does not store images.
+        conservation_status:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/InatConservationStatus"
+          description: IUCN Red List status when available. Null means unassessed, not safe.
+        native_status:
+          type: array
+          items:
+            $ref: "#/components/schemas/InatNativeStatusEntry"
+          description: Native/introduced/endemic status by place. Can be long for widespread species. Filter to relevant places.
+        observations_count:
+          type: integer
+          nullable: true
+          description: Total iNaturalist observations globally, all quality grades
+        source_url:
+          type: string
+          nullable: true
+          description: https://www.inaturalist.org/taxa/{inat_taxon_id}
+        fetched_at:
+          type: string
+          format: date-time
+        cache_status:
+          type: string
+          enum: [hit, miss, bypassed]
+
+    InatSpeciesResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+          nullable: true
+        found:
+          type: boolean
+        data:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/InatSpeciesData"
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    InatPhenologyData:
+      type: object
+      required:
+        - taxon_id
+        - place_ids
+        - observations_by_month
+        - phenology_by_month
+        - phenology_stages_available
+        - annotations_available
+        - fetched_at
+        - cache_status
+      properties:
+        taxon_id:
+          type: integer
+          description: The iNaturalist taxon ID used in this query
+        place_ids:
+          type: array
+          items:
+            type: integer
+          description: The place IDs used, sorted ascending
+        observations_by_month:
+          type: object
+          description: >
+            Total observation counts by calendar month. Keys are month numbers as strings
+            ('1' through '12'). Only months with at least one observation are present.
+            Cumulative across all years in iNaturalist.
+          additionalProperties:
+            type: integer
+        phenology_by_month:
+          type: object
+          description: >
+            Observation counts by phenological stage per month.
+            Structure: { '6': { 'Flowers': 42, 'Fruits or Seeds': 8 }, ... }.
+            Only months and stages with at least one annotation are present.
+            Empty object when no annotations exist.
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: integer
+        phenology_stages_available:
+          type: array
+          items:
+            type: string
+          description: >
+            Distinct stage names present in phenology_by_month. Examples: Flowers,
+            Flower Buds, Fruits or Seeds, No Flowers or Fruits, Green Leaves.
+            Empty when no annotations exist.
+        peak_observation_month:
+          type: integer
+          nullable: true
+          description: Month number (1-12) with highest total observation count. Null if no observations.
+        annotations_available:
+          type: boolean
+          description: true if phenology_by_month contains any data
+        fetched_at:
+          type: string
+          format: date-time
+        cache_status:
+          type: string
+          enum: [hit, miss, bypassed]
+
+    InatPhenologyResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+          description: https://www.inaturalist.org/observations?taxon_id={id}&place_id={ids}
+        found:
+          type: boolean
+        data:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/InatPhenologyData"
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    InatObservationsData:
+      type: object
+      required:
+        - observations_by_species_url
+        - observations_by_place_url
+        - api_observations_endpoint
+        - queried_at
+      properties:
+        taxon_id:
+          type: integer
+          nullable: true
+        place_id:
+          type: integer
+          nullable: true
+        observations_by_species_url:
+          type: string
+          description: iNaturalist website URL for sightings of a species
+        observations_by_place_url:
+          type: string
+          description: iNaturalist website URL for everything observed in a place
+        api_observations_endpoint:
+          type: string
+          description: Base API endpoint for programmatic queries. Full docs at iNaturalist API docs.
+        queried_at:
+          type: string
+          format: date-time
+
+    InatObservationsResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+        found:
+          type: boolean
+        data:
+          $ref: "#/components/schemas/InatObservationsData"
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    InatMetadataResponse:
+      type: object
+      required:
+        - service_id
+        - service_name
+        - permission_status
+        - attribution
+        - queried_at
+        - provenance
+      properties:
+        service_id:
+          type: string
+        service_name:
+          type: string
+        permission_status:
+          type: string
+        attribution:
+          type: string
+          description: Attribution string required for display
+        registry_entry:
+          type: object
+          description: Full registry entry for this iNaturalist service source
           properties:
             source_id:
               type: string

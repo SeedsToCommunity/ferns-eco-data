@@ -392,6 +392,234 @@ export interface GbifMetadataResponse {
   provenance: FernsProvenance;
 }
 
+export interface InatPlaceResult {
+  /** iNaturalist numeric place ID. Use this in taxon_id + place_id queries. */
+  id: number;
+  /** Human-readable place name as returned by iNaturalist */
+  display_name: string;
+  /** iNaturalist numeric place type code */
+  place_type: number;
+  /** Human-readable place type (e.g. County, State, Nation) */
+  place_type_name: string;
+  /** https://www.inaturalist.org/places/{id} */
+  inat_url: string;
+}
+
+export type InatPlaceDataCacheStatus =
+  (typeof InatPlaceDataCacheStatus)[keyof typeof InatPlaceDataCacheStatus];
+
+export const InatPlaceDataCacheStatus = {
+  hit: "hit",
+  miss: "miss",
+  bypassed: "bypassed",
+} as const;
+
+export interface InatPlaceData {
+  /** The place name that was searched */
+  query: string;
+  /** Up to 5 matching places. Applications select the correct one. */
+  results: InatPlaceResult[];
+  /** When this lookup was cached */
+  resolved_at: string;
+  cache_status: InatPlaceDataCacheStatus;
+}
+
+export interface InatPlaceResponse {
+  /** https://www.inaturalist.org/places/{firstResultId}. Null if no results. */
+  source_url: string | null;
+  /** false if no places matched the query */
+  found: boolean;
+  data: InatPlaceData | null;
+  provenance: FernsProvenance;
+}
+
+export interface InatConservationStatus {
+  /** Assessing authority (e.g. IUCN) */
+  authority: string;
+  /** Status code (e.g. LC, VU, EN) */
+  status: string;
+  /** Full status name (e.g. Least Concern) */
+  status_name: string;
+}
+
+export interface InatCommonName {
+  name: string;
+  /** BCP 47 locale code (e.g. en, fr, de) */
+  locale: string;
+}
+
+export interface InatNativeStatusEntry {
+  /** native, introduced, endemic, or similar values as recorded by iNaturalist community members for this place
+   */
+  status: string;
+  /** Name of the place where this status applies */
+  place_name: string;
+}
+
+/**
+ * exact — inat_name matches the queried name exactly (case-insensitive). fallback — no exact match found; first search result was used. Applications should flag fallback matches to users.
+
+ */
+export type InatSpeciesDataMatchType =
+  | (typeof InatSpeciesDataMatchType)[keyof typeof InatSpeciesDataMatchType]
+  | null;
+
+export const InatSpeciesDataMatchType = {
+  exact: "exact",
+  fallback: "fallback",
+} as const;
+
+export type InatSpeciesDataCacheStatus =
+  (typeof InatSpeciesDataCacheStatus)[keyof typeof InatSpeciesDataCacheStatus];
+
+export const InatSpeciesDataCacheStatus = {
+  hit: "hit",
+  miss: "miss",
+  bypassed: "bypassed",
+} as const;
+
+export interface InatSpeciesData {
+  /** iNaturalist numeric taxon ID. Use in phenology and observation queries. */
+  inat_taxon_id: number | null;
+  /** Scientific name as iNaturalist records it. May differ from GBIF, BONAP, or Michigan Flora — iNaturalist maintains its own taxonomic backbone.
+   */
+  inat_name: string | null;
+  /** exact — inat_name matches the queried name exactly (case-insensitive). fallback — no exact match found; first search result was used. Applications should flag fallback matches to users.
+   */
+  match_type: InatSpeciesDataMatchType;
+  /** Primary English common name designated by iNaturalist */
+  preferred_common_name?: string | null;
+  /** All common names across all languages, unfiltered */
+  common_names: InatCommonName[];
+  /** Wikipedia excerpt returned as raw HTML. Strip tags before displaying as plain text. Attribute to Wikipedia, not iNaturalist. Null if no Wikipedia article is linked.
+   */
+  wikipedia_summary?: string | null;
+  /** URL to the Wikipedia article. iNaturalist may return this with a literal unencoded space — apply encodeURI() if strict URL encoding is required.
+   */
+  wikipedia_url?: string | null;
+  /** Representative photo URL hosted on iNaturalist's servers. Display directly; FERNS does not store images. */
+  default_photo_url?: string | null;
+  /** IUCN Red List status when available. Null means unassessed, not safe. */
+  conservation_status?: InatConservationStatus | null;
+  /** Native/introduced/endemic status by place. Can be long for widespread species. Filter to relevant places. */
+  native_status: InatNativeStatusEntry[];
+  /** Total iNaturalist observations globally, all quality grades */
+  observations_count?: number | null;
+  /** https://www.inaturalist.org/taxa/{inat_taxon_id} */
+  source_url?: string | null;
+  fetched_at: string;
+  cache_status: InatSpeciesDataCacheStatus;
+}
+
+export interface InatSpeciesResponse {
+  source_url: string | null;
+  found: boolean;
+  data: InatSpeciesData | null;
+  provenance: FernsProvenance;
+}
+
+/**
+ * Total observation counts by calendar month. Keys are month numbers as strings ('1' through '12'). Only months with at least one observation are present. Cumulative across all years in iNaturalist.
+
+ */
+export type InatPhenologyDataObservationsByMonth = { [key: string]: number };
+
+/**
+ * Observation counts by phenological stage per month. Structure: { '6': { 'Flowers': 42, 'Fruits or Seeds': 8 }, ... }. Only months and stages with at least one annotation are present. Empty object when no annotations exist.
+
+ */
+export type InatPhenologyDataPhenologyByMonth = {
+  [key: string]: { [key: string]: number };
+};
+
+export type InatPhenologyDataCacheStatus =
+  (typeof InatPhenologyDataCacheStatus)[keyof typeof InatPhenologyDataCacheStatus];
+
+export const InatPhenologyDataCacheStatus = {
+  hit: "hit",
+  miss: "miss",
+  bypassed: "bypassed",
+} as const;
+
+export interface InatPhenologyData {
+  /** The iNaturalist taxon ID used in this query */
+  taxon_id: number;
+  /** The place IDs used, sorted ascending */
+  place_ids: number[];
+  /** Total observation counts by calendar month. Keys are month numbers as strings ('1' through '12'). Only months with at least one observation are present. Cumulative across all years in iNaturalist.
+   */
+  observations_by_month: InatPhenologyDataObservationsByMonth;
+  /** Observation counts by phenological stage per month. Structure: { '6': { 'Flowers': 42, 'Fruits or Seeds': 8 }, ... }. Only months and stages with at least one annotation are present. Empty object when no annotations exist.
+   */
+  phenology_by_month: InatPhenologyDataPhenologyByMonth;
+  /** Distinct stage names present in phenology_by_month. Examples: Flowers, Flower Buds, Fruits or Seeds, No Flowers or Fruits, Green Leaves. Empty when no annotations exist.
+   */
+  phenology_stages_available: string[];
+  /** Month number (1-12) with highest total observation count. Null if no observations. */
+  peak_observation_month?: number | null;
+  /** true if phenology_by_month contains any data */
+  annotations_available: boolean;
+  fetched_at: string;
+  cache_status: InatPhenologyDataCacheStatus;
+}
+
+export interface InatPhenologyResponse {
+  /** https://www.inaturalist.org/observations?taxon_id={id}&place_id={ids} */
+  source_url: string;
+  found: boolean;
+  data: InatPhenologyData | null;
+  provenance: FernsProvenance;
+}
+
+export interface InatObservationsData {
+  taxon_id?: number | null;
+  place_id?: number | null;
+  /** iNaturalist website URL for sightings of a species */
+  observations_by_species_url: string;
+  /** iNaturalist website URL for everything observed in a place */
+  observations_by_place_url: string;
+  /** Base API endpoint for programmatic queries. Full docs at iNaturalist API docs. */
+  api_observations_endpoint: string;
+  queried_at: string;
+}
+
+export interface InatObservationsResponse {
+  source_url: string;
+  found: boolean;
+  data: InatObservationsData;
+  provenance: FernsProvenance;
+}
+
+/**
+ * Full registry entry for this iNaturalist service source
+ */
+export type InatMetadataResponseRegistryEntry = {
+  source_id?: string;
+  name?: string;
+  knowledge_type?: string;
+  status?: string;
+  description?: string;
+  input_summary?: string;
+  output_summary?: string;
+  dependencies?: string[];
+  update_frequency?: string;
+  known_limitations?: string;
+  metadata_url?: string;
+  explorer_url?: string;
+};
+
+export interface InatMetadataResponse {
+  service_id: string;
+  service_name: string;
+  permission_status: string;
+  /** Attribution string required for display */
+  attribution: string;
+  /** Full registry entry for this iNaturalist service source */
+  registry_entry?: InatMetadataResponseRegistryEntry;
+  queried_at: string;
+  provenance: FernsProvenance;
+}
+
 export interface SourceSummary {
   /** Stable identifier for this service (e.g. bonap-napa, gbif) */
   source_id: string;
@@ -529,4 +757,53 @@ export type GetGbifSearchParams = {
    * Common name search string (e.g. butterfly milkweed)
    */
   q: string;
+};
+
+export type GetInatPlaceParams = {
+  /**
+   * Place name to search (e.g. Washtenaw County, Michigan, Sleeping Bear Dunes)
+   */
+  q: string;
+  /**
+   * If true, bypasses cache and fetches fresh from iNaturalist
+   */
+  refresh?: boolean;
+};
+
+export type GetInatSpeciesParams = {
+  /**
+   * Scientific name to look up (e.g. Asclepias tuberosa)
+   */
+  name: string;
+  /**
+   * If true, bypasses cache and fetches fresh from iNaturalist
+   */
+  refresh?: boolean;
+};
+
+export type GetInatPhenologyParams = {
+  /**
+   * iNaturalist numeric taxon ID (from the species endpoint)
+   */
+  taxon_id: number;
+  /**
+ * One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). Place IDs from the place lookup endpoint. Sorted ascending when building cache key.
+
+ */
+  place_id: string;
+  /**
+   * If true, bypasses cache and fetches fresh from iNaturalist
+   */
+  refresh?: boolean;
+};
+
+export type GetInatObservationsParams = {
+  /**
+   * iNaturalist taxon ID to incorporate into URLs
+   */
+  taxon_id?: number;
+  /**
+   * iNaturalist place ID to incorporate into URLs
+   */
+  place_id?: number;
 };

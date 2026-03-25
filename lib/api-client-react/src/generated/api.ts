@@ -27,7 +27,16 @@ import type {
   GetGbifOccurrencesParams,
   GetGbifReconcileParams,
   GetGbifSearchParams,
+  GetInatObservationsParams,
+  GetInatPhenologyParams,
+  GetInatPlaceParams,
+  GetInatSpeciesParams,
   HealthStatus,
+  InatMetadataResponse,
+  InatObservationsResponse,
+  InatPhenologyResponse,
+  InatPlaceResponse,
+  InatSpeciesResponse,
   SourcesIndexResponse,
   SourcesMetadataResponse,
 } from "./api.schemas";
@@ -752,6 +761,479 @@ export function useGetGbifMetadata<
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetGbifMetadataQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Searches iNaturalist for places matching the query string and returns up to 5 candidates. The iNaturalist place ID from this response is required to filter phenology and observation queries geographically. Place lookups are cached permanently — place IDs are stable once assigned. Applications select the correct place when multiple candidates are returned.
+
+ * @summary Look up an iNaturalist place by name
+ */
+export const getGetInatPlaceUrl = (params: GetInatPlaceParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/inat/place?${stringifiedParams}`
+    : `/api/inat/place`;
+};
+
+export const getInatPlace = async (
+  params: GetInatPlaceParams,
+  options?: RequestInit,
+): Promise<InatPlaceResponse> => {
+  return customFetch<InatPlaceResponse>(getGetInatPlaceUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetInatPlaceQueryKey = (params?: GetInatPlaceParams) => {
+  return [`/api/inat/place`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetInatPlaceQueryOptions = <
+  TData = Awaited<ReturnType<typeof getInatPlace>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetInatPlaceParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatPlace>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetInatPlaceQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getInatPlace>>> = ({
+    signal,
+  }) => getInatPlace(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getInatPlace>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetInatPlaceQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getInatPlace>>
+>;
+export type GetInatPlaceQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Look up an iNaturalist place by name
+ */
+
+export function useGetInatPlace<
+  TData = Awaited<ReturnType<typeof getInatPlace>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetInatPlaceParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatPlace>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetInatPlaceQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Given a scientific name, returns what iNaturalist knows about that species: a representative photo, a Wikipedia description (raw HTML — strip tags before display), common names in all languages, native/introduced status by place, global observation count, IUCN conservation status, and the iNaturalist taxon ID needed for phenology queries. Two API calls are always required. Results cached 30 days for found species; 7 days for not-found. match_type indicates whether the name matched exactly (exact) or whether the first result was used as a fallback (fallback — applications should flag this to users).
+
+ * @summary Look up species appearance data from iNaturalist
+ */
+export const getGetInatSpeciesUrl = (params: GetInatSpeciesParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/inat/species?${stringifiedParams}`
+    : `/api/inat/species`;
+};
+
+export const getInatSpecies = async (
+  params: GetInatSpeciesParams,
+  options?: RequestInit,
+): Promise<InatSpeciesResponse> => {
+  return customFetch<InatSpeciesResponse>(getGetInatSpeciesUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetInatSpeciesQueryKey = (params?: GetInatSpeciesParams) => {
+  return [`/api/inat/species`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetInatSpeciesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getInatSpecies>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetInatSpeciesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatSpecies>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetInatSpeciesQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getInatSpecies>>> = ({
+    signal,
+  }) => getInatSpecies(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getInatSpecies>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetInatSpeciesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getInatSpecies>>
+>;
+export type GetInatSpeciesQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Look up species appearance data from iNaturalist
+ */
+
+export function useGetInatSpecies<
+  TData = Awaited<ReturnType<typeof getInatSpecies>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetInatSpeciesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatSpecies>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetInatSpeciesQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Given an iNaturalist taxon ID and one or more place IDs, returns two monthly breakdowns: total observation counts by calendar month (from the histogram endpoint), and observation counts stratified by phenological stage per month (from popular_field_values). Stage labels for plants are Flowers, Flower Buds, Fruits or Seeds, No Flowers or Fruits. Leaf phenology stages also returned: Green Leaves, Colored Leaves, No Live Leaves, Breaking Leaf Buds. Phenological annotations are community-contributed and coverage is uneven — annotations_available will be false when no annotations exist. Cached 7 days keyed by taxon_id and sorted set of place_ids.
+
+ * @summary Fetch monthly observation counts and phenological stage breakdown
+ */
+export const getGetInatPhenologyUrl = (params: GetInatPhenologyParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/inat/phenology?${stringifiedParams}`
+    : `/api/inat/phenology`;
+};
+
+export const getInatPhenology = async (
+  params: GetInatPhenologyParams,
+  options?: RequestInit,
+): Promise<InatPhenologyResponse> => {
+  return customFetch<InatPhenologyResponse>(getGetInatPhenologyUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetInatPhenologyQueryKey = (
+  params?: GetInatPhenologyParams,
+) => {
+  return [`/api/inat/phenology`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetInatPhenologyQueryOptions = <
+  TData = Awaited<ReturnType<typeof getInatPhenology>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetInatPhenologyParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatPhenology>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetInatPhenologyQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getInatPhenology>>
+  > = ({ signal }) => getInatPhenology(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getInatPhenology>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetInatPhenologyQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getInatPhenology>>
+>;
+export type GetInatPhenologyQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Fetch monthly observation counts and phenological stage breakdown
+ */
+
+export function useGetInatPhenology<
+  TData = Awaited<ReturnType<typeof getInatPhenology>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetInatPhenologyParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatPhenology>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetInatPhenologyQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * This endpoint does not return or cache observation records. It constructs and returns direct URLs that applications use to link to iNaturalist or to query the API directly. Individual observation records are live event data that changes constantly — FERNS provides URL patterns for applications to fetch them fresh. Both taxon_id and place_id are optional. When provided, they are validated and incorporated into the returned URLs.
+
+ * @summary Get iNaturalist observation URL construction for a species or place
+ */
+export const getGetInatObservationsUrl = (
+  params?: GetInatObservationsParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/inat/observations?${stringifiedParams}`
+    : `/api/inat/observations`;
+};
+
+export const getInatObservations = async (
+  params?: GetInatObservationsParams,
+  options?: RequestInit,
+): Promise<InatObservationsResponse> => {
+  return customFetch<InatObservationsResponse>(
+    getGetInatObservationsUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetInatObservationsQueryKey = (
+  params?: GetInatObservationsParams,
+) => {
+  return [`/api/inat/observations`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetInatObservationsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getInatObservations>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params?: GetInatObservationsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatObservations>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetInatObservationsQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getInatObservations>>
+  > = ({ signal }) =>
+    getInatObservations(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getInatObservations>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetInatObservationsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getInatObservations>>
+>;
+export type GetInatObservationsQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get iNaturalist observation URL construction for a species or place
+ */
+
+export function useGetInatObservations<
+  TData = Awaited<ReturnType<typeof getInatObservations>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params?: GetInatObservationsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatObservations>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetInatObservationsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns service identity, attribution, permission status, and the full registry entry for the iNaturalist service. Use this to populate 'About this data' panels in any application displaying iNaturalist data. Also seeds the iNaturalist entry in the FERNS source registry.
+
+ * @summary iNaturalist service metadata
+ */
+export const getGetInatMetadataUrl = () => {
+  return `/api/inat/metadata`;
+};
+
+export const getInatMetadata = async (
+  options?: RequestInit,
+): Promise<InatMetadataResponse> => {
+  return customFetch<InatMetadataResponse>(getGetInatMetadataUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetInatMetadataQueryKey = () => {
+  return [`/api/inat/metadata`] as const;
+};
+
+export const getGetInatMetadataQueryOptions = <
+  TData = Awaited<ReturnType<typeof getInatMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getInatMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetInatMetadataQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getInatMetadata>>> = ({
+    signal,
+  }) => getInatMetadata({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getInatMetadata>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetInatMetadataQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getInatMetadata>>
+>;
+export type GetInatMetadataQueryError = ErrorType<unknown>;
+
+/**
+ * @summary iNaturalist service metadata
+ */
+
+export function useGetInatMetadata<
+  TData = Awaited<ReturnType<typeof getInatMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getInatMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetInatMetadataQueryOptions(options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;
