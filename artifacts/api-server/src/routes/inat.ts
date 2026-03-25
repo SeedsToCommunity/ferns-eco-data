@@ -90,9 +90,7 @@ function buildPlaceResponse(
     place_type_name: string;
   }>) || [];
 
-  const source_url = results.length > 0
-    ? `https://www.inaturalist.org/places/${results[0].id}`
-    : null;
+  const source_url = row.upstream_url ?? null;
 
   const resultsWithUrl = results.map((r) => ({
     ...r,

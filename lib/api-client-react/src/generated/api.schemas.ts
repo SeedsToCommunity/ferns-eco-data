@@ -425,7 +425,7 @@ export interface InatPlaceData {
 }
 
 export interface InatPlaceResponse {
-  /** https://www.inaturalist.org/places/{firstResultId}. Null if no results. */
+  /** The iNaturalist autocomplete API URL that was called to resolve this query. Null if unavailable. */
   source_url: string | null;
   /** false if no places matched the query */
   found: boolean;

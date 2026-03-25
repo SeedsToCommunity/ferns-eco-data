@@ -732,7 +732,7 @@ export const GetInatPlaceResponse = zod.object({
     .string()
     .nullable()
     .describe(
-      "https:\/\/www.inaturalist.org\/places\/{firstResultId}. Null if no results.",
+      "The iNaturalist autocomplete API URL that was called to resolve this query. Null if unavailable.",
     ),
   found: zod.boolean().describe("false if no places matched the query"),
   data: zod

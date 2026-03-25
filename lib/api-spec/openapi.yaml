@@ -1329,7 +1329,7 @@ components:
         source_url:
           type: string
           nullable: true
-          description: https://www.inaturalist.org/places/{firstResultId}. Null if no results.
+          description: The iNaturalist autocomplete API URL that was called to resolve this query. Null if unavailable.
         found:
           type: boolean
           description: false if no places matched the query
