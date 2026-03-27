@@ -57,7 +57,7 @@ function computeSourceStats(
     envelopeAdditions: allFindings.filter(
       (f) => f.type === "addition" && f.note && f.note.includes("Permitted"),
     ).length,
-    deadUrls: myUrls.filter((u) => !u.ok).length,
+    deadUrls: myUrls.filter((u) => !u.ok && !u.skipped).length,
   };
 }
 
@@ -200,22 +200,49 @@ export function printReport(report: AuditReport): void {
   lines.push(DIV);
   lines.push("URL AUDIT");
   lines.push(DIV);
-  const failures = report.urlChecks.filter((u) => !u.ok);
-  const passes = report.urlChecks.filter((u) => u.ok);
-  lines.push(`  Total URLs: ${report.urlChecks.length}  ✓ ${passes.length} pass  ✗ ${failures.length} fail`);
-  if (failures.length > 0) {
+  const externalVerified = report.urlChecks.filter((u) => u.skipped && u.ok);
+  const relativeViolations = report.urlChecks.filter((u) => !u.ok && !u.isAbsolute);
+  const fernsDeadUrls = report.urlChecks.filter((u) => !u.ok && u.isAbsolute && !u.skipped);
+  const totalFails = relativeViolations.length + fernsDeadUrls.length;
+  lines.push(
+    `  Total URLs checked: ${report.urlChecks.length}` +
+    `  (${externalVerified.length} external-verified, ${report.urlChecks.length - externalVerified.length} FERNS-domain reachability)` +
+    `  ✗ ${totalFails} fail`,
+  );
+
+  if (relativeViolations.length > 0) {
     lines.push("");
-    lines.push("  FAILURES:");
-    for (const f of failures) {
+    lines.push(`  RELATIVE URL VIOLATIONS — passthrough rule violations (${relativeViolations.length}):`);
+    for (const f of relativeViolations) {
       lines.push(`    ✗ [${f.context}] ${f.field}: ${truncate(f.url, 60)}`);
       if (f.allContexts && f.allContexts.length > 1) {
         lines.push(`        → Also appears in: ${f.allContexts.slice(1).join(", ")}`);
       }
-      if (!f.isAbsolute) lines.push(`        → Not absolute (relative URL — passthrough violation)`);
+      lines.push(`        → Not absolute (relative URL — passthrough violation)`);
+    }
+  }
+
+  if (fernsDeadUrls.length > 0) {
+    lines.push("");
+    lines.push(`  FERNS-DOMAIN REACHABILITY FAILURES (${fernsDeadUrls.length}):`);
+    for (const f of fernsDeadUrls) {
+      lines.push(`    ✗ [${f.context}] ${f.field}: ${truncate(f.url, 60)}`);
+      if (f.allContexts && f.allContexts.length > 1) {
+        lines.push(`        → Also appears in: ${f.allContexts.slice(1).join(", ")}`);
+      }
       if (f.status !== undefined) lines.push(`        → HTTP ${f.status}`);
       if (f.error) lines.push(`        → ${f.error}`);
     }
   }
+
+  if (externalVerified.length > 0) {
+    lines.push("");
+    lines.push(`  EXTERNAL URLS — verified absolute, reachability not checked (${externalVerified.length}):`);
+    for (const e of externalVerified) {
+      lines.push(`    ✓ [${e.context}] ${e.field}: ${truncate(e.url, 60)}`);
+    }
+  }
+
   lines.push("");
 
   lines.push(DIV);
@@ -240,7 +267,7 @@ function groupBySource(comparisons: EndpointComparison[]): Record<string, Endpoi
 
 function printSummary(lines: string[], report: AuditReport): void {
   const docFails = report.docChecks.filter((d) => !d.ok).length;
-  const urlFails = report.urlChecks.filter((u) => !u.ok).length;
+  const urlFails = report.urlChecks.filter((u) => !u.ok && !u.skipped).length;
 
   const allFindings = report.comparisons.flatMap((c) => c.findings);
   const gapCount = allFindings.filter((f) => f.type === "gap").length;

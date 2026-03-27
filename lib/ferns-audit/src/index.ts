@@ -40,7 +40,7 @@ async function main(): Promise<void> {
   const allUrls: UrlEntry[] = allComparisons.flatMap((c) => c.urlsCollected);
 
   process.stderr.write(`Checking ${allUrls.length} collected URLs...\n`);
-  const urlChecks = await checkUrls(allUrls);
+  const urlChecks = await checkUrls(allUrls, fernsBase);
 
   const report: AuditReport = {
     generatedAt: new Date().toISOString(),

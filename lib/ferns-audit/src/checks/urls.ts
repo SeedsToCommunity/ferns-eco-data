@@ -1,13 +1,26 @@
 import { headUrl, isAbsoluteUrl } from "../http.js";
 import type { UrlEntry, UrlCheckResult } from "../types.js";
 
-export async function checkUrls(entries: UrlEntry[]): Promise<UrlCheckResult[]> {
+function isFernsDomainUrl(url: string, fernsBaseUrl: string): boolean {
+  try {
+    const urlHost = new URL(url).hostname;
+    const fernsHost = new URL(fernsBaseUrl).hostname;
+    return urlHost === fernsHost;
+  } catch {
+    return false;
+  }
+}
+
+export async function checkUrls(
+  entries: UrlEntry[],
+  fernsBaseUrl: string,
+): Promise<UrlCheckResult[]> {
   const { unique, contextMap } = deduplicateEntries(entries);
   const results: UrlCheckResult[] = [];
 
   for (const entry of unique) {
     const allContexts = contextMap.get(entry.url) ?? [`${entry.context}:${entry.field}`];
-    const result = await checkUrl(entry);
+    const result = await checkUrl(entry, fernsBaseUrl);
     results.push({ ...result, allContexts });
   }
 
@@ -35,7 +48,7 @@ function deduplicateEntries(entries: UrlEntry[]): {
   return { unique, contextMap: seen };
 }
 
-async function checkUrl(entry: UrlEntry): Promise<UrlCheckResult> {
+async function checkUrl(entry: UrlEntry, fernsBaseUrl: string): Promise<UrlCheckResult> {
   const { url, field, context } = entry;
 
   if (!isAbsoluteUrl(url)) {
@@ -46,6 +59,18 @@ async function checkUrl(entry: UrlEntry): Promise<UrlCheckResult> {
       isAbsolute: false,
       ok: false,
       error: "Relative URL — passthrough URL rule violation",
+    };
+  }
+
+  if (!isFernsDomainUrl(url, fernsBaseUrl)) {
+    return {
+      url,
+      field,
+      context,
+      isAbsolute: true,
+      ok: true,
+      skipped: true,
+      skipReason: "External domain — absolute URL verified, reachability not checked",
     };
   }
 
