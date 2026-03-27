@@ -938,13 +938,13 @@ export const GetInatSpeciesResponse = zod.object({
 });
 
 /**
- * Given an iNaturalist taxon ID and one or more place IDs, returns two monthly breakdowns: total observation counts by calendar month (from the histogram endpoint), and observation counts stratified by phenological stage per month (from popular_field_values). Stage labels for plants are Flowers, Flower Buds, Fruits or Seeds, No Flowers or Fruits. Leaf phenology stages also returned: Green Leaves, Colored Leaves, No Live Leaves, Breaking Leaf Buds. Phenological annotations are community-contributed and coverage is uneven — annotations_available will be false when no annotations exist. Cached 7 days keyed by taxon_id and sorted set of place_ids.
+ * Passthrough for iNaturalist's GET /observations/histogram endpoint. Returns the raw iNaturalist response containing observation counts by calendar month (month_of_year key in results). Cached 7 days keyed by taxon_id and sorted set of place_ids.
 
- * @summary Fetch monthly observation counts and phenological stage breakdown
+ * @summary Passthrough for iNaturalist observations/histogram
  */
-export const getInatPhenologyQueryRefreshDefault = false;
+export const getInatHistogramQueryRefreshDefault = false;
 
-export const GetInatPhenologyQueryParams = zod.object({
+export const GetInatHistogramQueryParams = zod.object({
   taxon_id: zod.coerce
     .number()
     .describe("iNaturalist numeric taxon ID (from the species endpoint)"),
@@ -952,57 +952,104 @@ export const GetInatPhenologyQueryParams = zod.object({
     .string()
     .optional()
     .describe(
-      "One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). Place IDs from the place lookup endpoint. Sorted ascending when building cache key. When omitted, returns global (worldwide) observation and phenology data.\n",
+      "One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). Place IDs from the place lookup endpoint. Sorted ascending when building cache key. When omitted, returns global (worldwide) data.\n",
     ),
   refresh: zod.coerce
     .boolean()
-    .default(getInatPhenologyQueryRefreshDefault)
+    .default(getInatHistogramQueryRefreshDefault)
     .describe("If true, bypasses cache and fetches fresh from iNaturalist"),
 });
 
-export const GetInatPhenologyResponse = zod.object({
+export const GetInatHistogramResponse = zod.object({
   source_url: zod
     .string()
     .describe(
       "https:\/\/www.inaturalist.org\/observations?taxon_id={id}&place_id={ids}",
     ),
   found: zod.boolean(),
+  cache_status: zod.enum(["hit", "miss", "bypassed"]),
   data: zod
+    .record(zod.string(), zod.unknown())
+    .describe(
+      "Raw iNaturalist observations\/histogram response. The month_of_year object inside results contains observation counts keyed by month number string ('1' through '12').\n",
+    ),
+  provenance: zod
     .object({
-      taxon_id: zod
-        .number()
-        .describe("The iNaturalist taxon ID used in this query"),
-      place_ids: zod
-        .array(zod.number())
-        .describe("The place IDs used, sorted ascending"),
-      observations_by_month: zod
-        .record(zod.string(), zod.number())
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
         .describe(
-          "Total observation counts by calendar month. Keys are month numbers as strings ('1' through '12'). Only months with at least one observation are present. Cumulative across all years in iNaturalist.\n",
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
         ),
-      phenology_by_month: zod
-        .record(zod.string(), zod.record(zod.string(), zod.number()))
+      upstream_url: zod
+        .string()
         .describe(
-          "Observation counts by phenological stage per month. Structure: { '6': { 'Flowers': 42, 'Fruits or Seeds': 8 }, ... }. Only months and stages with at least one annotation are present. Empty object when no annotations exist.\n",
+          "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      phenology_stages_available: zod
-        .array(zod.string())
+      derivation_summary: zod
+        .string()
         .describe(
-          "Distinct stage names present in phenology_by_month. Examples: Flowers, Flower Buds, Fruits or Seeds, No Flowers or Fruits, Green Leaves. Empty when no annotations exist.\n",
+          "Plain language description readable by a homeowner or community member",
         ),
-      peak_observation_month: zod
-        .number()
-        .nullish()
+      derivation_scientific: zod
+        .string()
         .describe(
-          "Month number (1-12) with highest total observation count. Null if no observations.",
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
-      annotations_available: zod
-        .boolean()
-        .describe("true if phenology_by_month contains any data"),
-      fetched_at: zod.date(),
-      cache_status: zod.enum(["hit", "miss", "bypassed"]),
     })
-    .nullable(),
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+});
+
+/**
+ * Passthrough for iNaturalist's GET /observations/popular_field_values endpoint. Returns the raw iNaturalist response containing controlled annotation field values with per-month counts. Stage labels include Flowers, Flower Buds, Fruits or Seeds, No Flowers or Fruits, Green Leaves, Colored Leaves, No Live Leaves, Breaking Leaf Buds. Cached 7 days keyed by taxon_id, sorted place_ids, and verifiable flag.
+
+ * @summary Passthrough for iNaturalist observations/popular_field_values
+ */
+export const getInatFieldValuesQueryVerifiableDefault = true;
+export const getInatFieldValuesQueryRefreshDefault = false;
+
+export const GetInatFieldValuesQueryParams = zod.object({
+  taxon_id: zod.coerce
+    .number()
+    .describe("iNaturalist numeric taxon ID (from the species endpoint)"),
+  place_id: zod.coerce
+    .string()
+    .optional()
+    .describe(
+      "One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). When omitted, returns global data.\n",
+    ),
+  verifiable: zod.coerce
+    .boolean()
+    .default(getInatFieldValuesQueryVerifiableDefault)
+    .describe(
+      "If true (default), restricts to verifiable observations. Pass false to include all quality grades.\n",
+    ),
+  refresh: zod.coerce
+    .boolean()
+    .default(getInatFieldValuesQueryRefreshDefault)
+    .describe("If true, bypasses cache and fetches fresh from iNaturalist"),
+});
+
+export const GetInatFieldValuesResponse = zod.object({
+  source_url: zod
+    .string()
+    .describe(
+      "https:\/\/www.inaturalist.org\/observations?taxon_id={id}&place_id={ids}",
+    ),
+  found: zod.boolean(),
+  cache_status: zod.enum(["hit", "miss", "bypassed"]),
+  data: zod
+    .record(zod.string(), zod.unknown())
+    .describe(
+      "Raw iNaturalist observations\/popular_field_values response. The results array contains entries with controlled_attribute, controlled_value, and month_of_year fields. Stage labels include Flowers, Flower Buds, Fruits or Seeds, No Flowers or Fruits, Green Leaves, Colored Leaves, No Live Leaves, Breaking Leaf Buds.\n",
+    ),
   provenance: zod
     .object({
       source_id: zod

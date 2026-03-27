@@ -6,10 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type InatPhenologyDataCacheStatus =
-  (typeof InatPhenologyDataCacheStatus)[keyof typeof InatPhenologyDataCacheStatus];
+export type InatHistogramResponseCacheStatus =
+  (typeof InatHistogramResponseCacheStatus)[keyof typeof InatHistogramResponseCacheStatus];
 
-export const InatPhenologyDataCacheStatus = {
+export const InatHistogramResponseCacheStatus = {
   hit: "hit",
   miss: "miss",
   bypassed: "bypassed",

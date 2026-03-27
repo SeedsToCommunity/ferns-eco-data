@@ -6,16 +6,21 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetInatPhenologyParams = {
+export type GetInatFieldValuesParams = {
   /**
    * iNaturalist numeric taxon ID (from the species endpoint)
    */
   taxon_id: number;
   /**
- * One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). Place IDs from the place lookup endpoint. Sorted ascending when building cache key. When omitted, returns global (worldwide) observation and phenology data.
+ * One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). When omitted, returns global data.
 
  */
   place_id?: string;
+  /**
+ * If true (default), restricts to verifiable observations. Pass false to include all quality grades.
+
+ */
+  verifiable?: boolean;
   /**
    * If true, bypasses cache and fetches fresh from iNaturalist
    */

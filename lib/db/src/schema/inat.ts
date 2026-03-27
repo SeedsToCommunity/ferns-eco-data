@@ -44,18 +44,33 @@ export const inatSpeciesTable = pgTable("inat_species", {
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
-export const inatPhenologyTable = pgTable("inat_phenology", {
+export const inatHistogramTable = pgTable("inat_histogram", {
   id: serial("id").primaryKey(),
   cache_key: text("cache_key").notNull().unique(),
   taxon_id: integer("taxon_id").notNull(),
   place_ids: integer("place_ids").array().notNull().default([]),
-  observations_by_month: jsonb("observations_by_month").notNull().default({}),
-  phenology_by_month: jsonb("phenology_by_month").notNull().default({}),
-  phenology_stages_available: text("phenology_stages_available").array().notNull().default([]),
-  peak_observation_month: integer("peak_observation_month"),
-  annotations_available: boolean("annotations_available").notNull().default(false),
+  raw_response: jsonb("raw_response").notNull().default({}),
   source_url: text("source_url").notNull(),
-  found: boolean("found").notNull().default(false),
+  found: boolean("found").notNull().default(true),
+  expires_at: timestamp("expires_at", { withTimezone: true }),
+  source_id: text("source_id").notNull().default("inaturalist"),
+  fetched_at: timestamp("fetched_at", { withTimezone: true }).notNull(),
+  method: text("method").notNull().default("api_fetch"),
+  upstream_url: text("upstream_url").notNull(),
+  derivation_summary: text("derivation_summary").notNull(),
+  derivation_scientific: text("derivation_scientific").notNull(),
+  created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const inatFieldValuesTable = pgTable("inat_field_values", {
+  id: serial("id").primaryKey(),
+  cache_key: text("cache_key").notNull().unique(),
+  taxon_id: integer("taxon_id").notNull(),
+  place_ids: integer("place_ids").array().notNull().default([]),
+  verifiable: boolean("verifiable").notNull().default(true),
+  raw_response: jsonb("raw_response").notNull().default({}),
+  source_url: text("source_url").notNull(),
+  found: boolean("found").notNull().default(true),
   expires_at: timestamp("expires_at", { withTimezone: true }),
   source_id: text("source_id").notNull().default("inaturalist"),
   fetched_at: timestamp("fetched_at", { withTimezone: true }).notNull(),
@@ -70,12 +85,16 @@ export const insertInatPlaceSchema = createInsertSchema(inatPlacesTable).omit({ 
 export const selectInatPlaceSchema = createSelectSchema(inatPlacesTable);
 export const insertInatSpeciesSchema = createInsertSchema(inatSpeciesTable).omit({ id: true });
 export const selectInatSpeciesSchema = createSelectSchema(inatSpeciesTable);
-export const insertInatPhenologySchema = createInsertSchema(inatPhenologyTable).omit({ id: true });
-export const selectInatPhenologySchema = createSelectSchema(inatPhenologyTable);
+export const insertInatHistogramSchema = createInsertSchema(inatHistogramTable).omit({ id: true });
+export const selectInatHistogramSchema = createSelectSchema(inatHistogramTable);
+export const insertInatFieldValuesSchema = createInsertSchema(inatFieldValuesTable).omit({ id: true });
+export const selectInatFieldValuesSchema = createSelectSchema(inatFieldValuesTable);
 
 export type InsertInatPlace = z.infer<typeof insertInatPlaceSchema>;
 export type InatPlace = typeof inatPlacesTable.$inferSelect;
 export type InsertInatSpecies = z.infer<typeof insertInatSpeciesSchema>;
 export type InatSpecies = typeof inatSpeciesTable.$inferSelect;
-export type InsertInatPhenology = z.infer<typeof insertInatPhenologySchema>;
-export type InatPhenology = typeof inatPhenologyTable.$inferSelect;
+export type InsertInatHistogram = z.infer<typeof insertInatHistogramSchema>;
+export type InatHistogram = typeof inatHistogramTable.$inferSelect;
+export type InsertInatFieldValues = z.infer<typeof insertInatFieldValuesSchema>;
+export type InatFieldValues = typeof inatFieldValuesTable.$inferSelect;

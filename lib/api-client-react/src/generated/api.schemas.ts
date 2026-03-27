@@ -516,56 +516,55 @@ export interface InatSpeciesResponse {
   provenance: FernsProvenance;
 }
 
-/**
- * Total observation counts by calendar month. Keys are month numbers as strings ('1' through '12'). Only months with at least one observation are present. Cumulative across all years in iNaturalist.
+export type InatHistogramResponseCacheStatus =
+  (typeof InatHistogramResponseCacheStatus)[keyof typeof InatHistogramResponseCacheStatus];
 
- */
-export type InatPhenologyDataObservationsByMonth = { [key: string]: number };
-
-/**
- * Observation counts by phenological stage per month. Structure: { '6': { 'Flowers': 42, 'Fruits or Seeds': 8 }, ... }. Only months and stages with at least one annotation are present. Empty object when no annotations exist.
-
- */
-export type InatPhenologyDataPhenologyByMonth = {
-  [key: string]: { [key: string]: number };
-};
-
-export type InatPhenologyDataCacheStatus =
-  (typeof InatPhenologyDataCacheStatus)[keyof typeof InatPhenologyDataCacheStatus];
-
-export const InatPhenologyDataCacheStatus = {
+export const InatHistogramResponseCacheStatus = {
   hit: "hit",
   miss: "miss",
   bypassed: "bypassed",
 } as const;
 
-export interface InatPhenologyData {
-  /** The iNaturalist taxon ID used in this query */
-  taxon_id: number;
-  /** The place IDs used, sorted ascending */
-  place_ids: number[];
-  /** Total observation counts by calendar month. Keys are month numbers as strings ('1' through '12'). Only months with at least one observation are present. Cumulative across all years in iNaturalist.
-   */
-  observations_by_month: InatPhenologyDataObservationsByMonth;
-  /** Observation counts by phenological stage per month. Structure: { '6': { 'Flowers': 42, 'Fruits or Seeds': 8 }, ... }. Only months and stages with at least one annotation are present. Empty object when no annotations exist.
-   */
-  phenology_by_month: InatPhenologyDataPhenologyByMonth;
-  /** Distinct stage names present in phenology_by_month. Examples: Flowers, Flower Buds, Fruits or Seeds, No Flowers or Fruits, Green Leaves. Empty when no annotations exist.
-   */
-  phenology_stages_available: string[];
-  /** Month number (1-12) with highest total observation count. Null if no observations. */
-  peak_observation_month?: number | null;
-  /** true if phenology_by_month contains any data */
-  annotations_available: boolean;
-  fetched_at: string;
-  cache_status: InatPhenologyDataCacheStatus;
-}
+/**
+ * Raw iNaturalist observations/histogram response. The month_of_year object inside results contains observation counts keyed by month number string ('1' through '12').
 
-export interface InatPhenologyResponse {
+ */
+export type InatHistogramResponseData = { [key: string]: unknown };
+
+export interface InatHistogramResponse {
   /** https://www.inaturalist.org/observations?taxon_id={id}&place_id={ids} */
   source_url: string;
   found: boolean;
-  data: InatPhenologyData | null;
+  cache_status: InatHistogramResponseCacheStatus;
+  /** Raw iNaturalist observations/histogram response. The month_of_year object inside results contains observation counts keyed by month number string ('1' through '12').
+   */
+  data: InatHistogramResponseData;
+  provenance: FernsProvenance;
+}
+
+export type InatFieldValuesResponseCacheStatus =
+  (typeof InatFieldValuesResponseCacheStatus)[keyof typeof InatFieldValuesResponseCacheStatus];
+
+export const InatFieldValuesResponseCacheStatus = {
+  hit: "hit",
+  miss: "miss",
+  bypassed: "bypassed",
+} as const;
+
+/**
+ * Raw iNaturalist observations/popular_field_values response. The results array contains entries with controlled_attribute, controlled_value, and month_of_year fields. Stage labels include Flowers, Flower Buds, Fruits or Seeds, No Flowers or Fruits, Green Leaves, Colored Leaves, No Live Leaves, Breaking Leaf Buds.
+
+ */
+export type InatFieldValuesResponseData = { [key: string]: unknown };
+
+export interface InatFieldValuesResponse {
+  /** https://www.inaturalist.org/observations?taxon_id={id}&place_id={ids} */
+  source_url: string;
+  found: boolean;
+  cache_status: InatFieldValuesResponseCacheStatus;
+  /** Raw iNaturalist observations/popular_field_values response. The results array contains entries with controlled_attribute, controlled_value, and month_of_year fields. Stage labels include Flowers, Flower Buds, Fruits or Seeds, No Flowers or Fruits, Green Leaves, Colored Leaves, No Live Leaves, Breaking Leaf Buds.
+   */
+  data: InatFieldValuesResponseData;
   provenance: FernsProvenance;
 }
 
@@ -788,16 +787,37 @@ export type GetInatSpeciesParams = {
   refresh?: boolean;
 };
 
-export type GetInatPhenologyParams = {
+export type GetInatHistogramParams = {
   /**
    * iNaturalist numeric taxon ID (from the species endpoint)
    */
   taxon_id: number;
   /**
- * One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). Place IDs from the place lookup endpoint. Sorted ascending when building cache key. When omitted, returns global (worldwide) observation and phenology data.
+ * One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). Place IDs from the place lookup endpoint. Sorted ascending when building cache key. When omitted, returns global (worldwide) data.
 
  */
   place_id?: string;
+  /**
+   * If true, bypasses cache and fetches fresh from iNaturalist
+   */
+  refresh?: boolean;
+};
+
+export type GetInatFieldValuesParams = {
+  /**
+   * iNaturalist numeric taxon ID (from the species endpoint)
+   */
+  taxon_id: number;
+  /**
+ * One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). When omitted, returns global data.
+
+ */
+  place_id?: string;
+  /**
+ * If true (default), restricts to verifiable observations. Pass false to include all quality grades.
+
+ */
+  verifiable?: boolean;
   /**
    * If true, bypasses cache and fetches fresh from iNaturalist
    */

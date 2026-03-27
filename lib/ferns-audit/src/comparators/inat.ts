@@ -22,7 +22,8 @@ export async function runInatComparators(
 
     if (inatTaxonId) {
       for (const place of places) {
-        results.push(await compareInatPhenology(fernsBase, sp, inatTaxonId, place));
+        results.push(await compareInatHistogram(fernsBase, sp, inatTaxonId, place));
+        results.push(await compareInatFieldValues(fernsBase, sp, inatTaxonId, place));
       }
     }
   }
@@ -100,63 +101,36 @@ async function compareInatSpecies(fernsBase: string, sp: TestSpecies): Promise<E
   }
 }
 
-async function compareInatPhenology(
+async function compareInatHistogram(
   fernsBase: string,
   sp: TestSpecies,
   taxonId: number,
   place: TestPlace,
 ): Promise<EndpointComparison> {
-  const fernsEndpoint = `/api/inat/phenology`;
+  const fernsEndpoint = `/api/inat/histogram`;
   const fernsUrl = `${fernsBase}${fernsEndpoint}?taxon_id=${taxonId}&place_id=${place.id}&refresh=true`;
-
-  const placeParam = `&place_id=${place.id}`;
-  const inatHistUrl = `${INAT_API}/observations/histogram?taxon_id=${taxonId}${placeParam}&interval=month_of_year`;
-  const inatPfvUrl = `${INAT_API}/observations/popular_field_values?taxon_id=${taxonId}${placeParam}&verifiable=true`;
-  const label = `${sp.label} in ${place.name} — phenology`;
+  const inatUrl = `${INAT_API}/observations/histogram?taxon_id=${taxonId}&place_id=${place.id}&interval=month_of_year`;
+  const label = `${sp.label} in ${place.name} — histogram (passthrough)`;
 
   try {
-    const [inatHistRaw, inatPfvRaw, fernsRaw] = await Promise.all([
-      fetchJson(inatHistUrl),
-      fetchJson(inatPfvUrl),
+    const [inatRaw, fernsRaw] = await Promise.all([
+      fetchJson(inatUrl),
       fetchJson(fernsUrl),
     ]);
 
     const fernsEnvelope = fernsRaw as Record<string, unknown>;
     const fernsData = (fernsEnvelope.data ?? {}) as Record<string, unknown>;
-    const inatHist = inatHistRaw as Record<string, unknown>;
-    const inatPfv = inatPfvRaw as Record<string, unknown>;
+    const inatResponse = inatRaw as Record<string, unknown>;
 
-    const findings: EndpointComparison["findings"] = [];
-
-    findings.push({
-      type: "ok",
-      sourceField: "(phenology)",
-      note: "Phenology aggregates two iNat calls: histogram + popular_field_values. Diffing each full response against FERNS phenology data.",
-    });
-
-    const histFindings = diffObjects(inatHist as Record<string, unknown>, fernsData, "iNat histogram");
-    for (const f of histFindings) {
-      findings.push({ ...f, note: `[histogram] ${f.note ?? ""}` });
-    }
-
-    const pfvFindings = diffObjects(inatPfv as Record<string, unknown>, fernsData, "iNat field values");
-    for (const f of pfvFindings) {
-      const alreadyCovered = findings.some(
-        (ex) => ex.sourceField === f.sourceField && ex.type === f.type,
-      );
-      if (!alreadyCovered) {
-        findings.push({ ...f, note: `[popular_field_values] ${f.note ?? ""}` });
-      }
-    }
-
-    const urlsCollected = collectUrls(fernsEnvelope, `inat/phenology:${sp.name}@${place.name}`);
+    const findings = diffObjects(inatResponse, fernsData, "iNat histogram");
+    const urlsCollected = collectUrls(fernsEnvelope, `inat/histogram:${sp.name}@${place.name}`);
 
     return {
       source: "inat",
       endpoint: `${fernsEndpoint}?taxon_id=${taxonId}&place_id=${place.id}`,
       label,
       ok: true,
-      rawSource: { histogram: inatHistRaw, pfv: inatPfvRaw } as unknown as Record<string, unknown>,
+      rawSource: inatResponse,
       rawFerns: fernsData,
       findings,
       urlsCollected,
@@ -165,6 +139,53 @@ async function compareInatPhenology(
     return {
       source: "inat",
       endpoint: `${fernsEndpoint}?taxon_id=${taxonId}&place_id=${place.id}`,
+      label,
+      ok: false,
+      error: String(err),
+      findings: [],
+      urlsCollected: [],
+    };
+  }
+}
+
+async function compareInatFieldValues(
+  fernsBase: string,
+  sp: TestSpecies,
+  taxonId: number,
+  place: TestPlace,
+): Promise<EndpointComparison> {
+  const fernsEndpoint = `/api/inat/field-values`;
+  const fernsUrl = `${fernsBase}${fernsEndpoint}?taxon_id=${taxonId}&place_id=${place.id}&verifiable=true&refresh=true`;
+  const inatUrl = `${INAT_API}/observations/popular_field_values?taxon_id=${taxonId}&place_id=${place.id}&verifiable=true`;
+  const label = `${sp.label} in ${place.name} — field-values (passthrough)`;
+
+  try {
+    const [inatRaw, fernsRaw] = await Promise.all([
+      fetchJson(inatUrl),
+      fetchJson(fernsUrl),
+    ]);
+
+    const fernsEnvelope = fernsRaw as Record<string, unknown>;
+    const fernsData = (fernsEnvelope.data ?? {}) as Record<string, unknown>;
+    const inatResponse = inatRaw as Record<string, unknown>;
+
+    const findings = diffObjects(inatResponse, fernsData, "iNat field values");
+    const urlsCollected = collectUrls(fernsEnvelope, `inat/field-values:${sp.name}@${place.name}`);
+
+    return {
+      source: "inat",
+      endpoint: `${fernsEndpoint}?taxon_id=${taxonId}&place_id=${place.id}&verifiable=true`,
+      label,
+      ok: true,
+      rawSource: inatResponse,
+      rawFerns: fernsData,
+      findings,
+      urlsCollected,
+    };
+  } catch (err) {
+    return {
+      source: "inat",
+      endpoint: `${fernsEndpoint}?taxon_id=${taxonId}&place_id=${place.id}&verifiable=true`,
       label,
       ok: false,
       error: String(err),

@@ -390,21 +390,16 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/phenology:
+  /inat/histogram:
     get:
-      operationId: getInatPhenology
+      operationId: getInatHistogram
       tags: [inat]
-      summary: Fetch monthly observation counts and phenological stage breakdown
+      summary: Passthrough for iNaturalist observations/histogram
       description: >
-        Given an iNaturalist taxon ID and one or more place IDs, returns two monthly
-        breakdowns: total observation counts by calendar month (from the histogram
-        endpoint), and observation counts stratified by phenological stage per month
-        (from popular_field_values). Stage labels for plants are Flowers, Flower Buds,
-        Fruits or Seeds, No Flowers or Fruits. Leaf phenology stages also returned:
-        Green Leaves, Colored Leaves, No Live Leaves, Breaking Leaf Buds.
-        Phenological annotations are community-contributed and coverage is uneven —
-        annotations_available will be false when no annotations exist. Cached 7 days
-        keyed by taxon_id and sorted set of place_ids.
+        Passthrough for iNaturalist's GET /observations/histogram endpoint.
+        Returns the raw iNaturalist response containing observation counts by
+        calendar month (month_of_year key in results). Cached 7 days keyed by
+        taxon_id and sorted set of place_ids.
       parameters:
         - name: taxon_id
           in: query
@@ -418,7 +413,7 @@ paths:
           description: >
             One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986).
             Place IDs from the place lookup endpoint. Sorted ascending when building cache key.
-            When omitted, returns global (worldwide) observation and phenology data.
+            When omitted, returns global (worldwide) data.
           schema:
             type: string
         - name: refresh
@@ -430,11 +425,74 @@ paths:
             default: false
       responses:
         "200":
-          description: Phenology data for this species and place set
+          description: Raw iNaturalist histogram response in FERNS envelope
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/InatPhenologyResponse"
+                $ref: "#/components/schemas/InatHistogramResponse"
+        "400":
+          description: Missing or invalid taxon_id or place_id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: iNaturalist API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /inat/field-values:
+    get:
+      operationId: getInatFieldValues
+      tags: [inat]
+      summary: Passthrough for iNaturalist observations/popular_field_values
+      description: >
+        Passthrough for iNaturalist's GET /observations/popular_field_values endpoint.
+        Returns the raw iNaturalist response containing controlled annotation field
+        values with per-month counts. Stage labels include Flowers, Flower Buds,
+        Fruits or Seeds, No Flowers or Fruits, Green Leaves, Colored Leaves, No Live
+        Leaves, Breaking Leaf Buds. Cached 7 days keyed by taxon_id, sorted place_ids,
+        and verifiable flag.
+      parameters:
+        - name: taxon_id
+          in: query
+          required: true
+          description: iNaturalist numeric taxon ID (from the species endpoint)
+          schema:
+            type: integer
+        - name: place_id
+          in: query
+          required: false
+          description: >
+            One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986).
+            When omitted, returns global data.
+          schema:
+            type: string
+        - name: verifiable
+          in: query
+          required: false
+          description: >
+            If true (default), restricts to verifiable observations. Pass false to
+            include all quality grades.
+          schema:
+            type: boolean
+            default: true
+        - name: refresh
+          in: query
+          required: false
+          description: If true, bypasses cache and fetches fresh from iNaturalist
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Raw iNaturalist popular_field_values response in FERNS envelope
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InatFieldValuesResponse"
         "400":
           description: Missing or invalid taxon_id or place_id
           content:
@@ -1478,72 +1536,12 @@ components:
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
 
-    InatPhenologyData:
-      type: object
-      required:
-        - taxon_id
-        - place_ids
-        - observations_by_month
-        - phenology_by_month
-        - phenology_stages_available
-        - annotations_available
-        - fetched_at
-        - cache_status
-      properties:
-        taxon_id:
-          type: integer
-          description: The iNaturalist taxon ID used in this query
-        place_ids:
-          type: array
-          items:
-            type: integer
-          description: The place IDs used, sorted ascending
-        observations_by_month:
-          type: object
-          description: >
-            Total observation counts by calendar month. Keys are month numbers as strings
-            ('1' through '12'). Only months with at least one observation are present.
-            Cumulative across all years in iNaturalist.
-          additionalProperties:
-            type: integer
-        phenology_by_month:
-          type: object
-          description: >
-            Observation counts by phenological stage per month.
-            Structure: { '6': { 'Flowers': 42, 'Fruits or Seeds': 8 }, ... }.
-            Only months and stages with at least one annotation are present.
-            Empty object when no annotations exist.
-          additionalProperties:
-            type: object
-            additionalProperties:
-              type: integer
-        phenology_stages_available:
-          type: array
-          items:
-            type: string
-          description: >
-            Distinct stage names present in phenology_by_month. Examples: Flowers,
-            Flower Buds, Fruits or Seeds, No Flowers or Fruits, Green Leaves.
-            Empty when no annotations exist.
-        peak_observation_month:
-          type: integer
-          nullable: true
-          description: Month number (1-12) with highest total observation count. Null if no observations.
-        annotations_available:
-          type: boolean
-          description: true if phenology_by_month contains any data
-        fetched_at:
-          type: string
-          format: date-time
-        cache_status:
-          type: string
-          enum: [hit, miss, bypassed]
-
-    InatPhenologyResponse:
+    InatHistogramResponse:
       type: object
       required:
         - source_url
         - found
+        - cache_status
         - data
         - provenance
       properties:
@@ -1552,10 +1550,45 @@ components:
           description: https://www.inaturalist.org/observations?taxon_id={id}&place_id={ids}
         found:
           type: boolean
+        cache_status:
+          type: string
+          enum: [hit, miss, bypassed]
         data:
-          nullable: true
-          allOf:
-            - $ref: "#/components/schemas/InatPhenologyData"
+          type: object
+          description: >
+            Raw iNaturalist observations/histogram response. The month_of_year object
+            inside results contains observation counts keyed by month number string
+            ('1' through '12').
+          additionalProperties: true
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    InatFieldValuesResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - cache_status
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+          description: https://www.inaturalist.org/observations?taxon_id={id}&place_id={ids}
+        found:
+          type: boolean
+        cache_status:
+          type: string
+          enum: [hit, miss, bypassed]
+        data:
+          type: object
+          description: >
+            Raw iNaturalist observations/popular_field_values response. The results array
+            contains entries with controlled_attribute, controlled_value, and month_of_year
+            fields. Stage labels include Flowers, Flower Buds, Fruits or Seeds,
+            No Flowers or Fruits, Green Leaves, Colored Leaves, No Live Leaves,
+            Breaking Leaf Buds.
+          additionalProperties: true
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
 

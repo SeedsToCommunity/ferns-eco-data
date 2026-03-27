@@ -27,14 +27,16 @@ import type {
   GetGbifOccurrencesParams,
   GetGbifReconcileParams,
   GetGbifSearchParams,
+  GetInatFieldValuesParams,
+  GetInatHistogramParams,
   GetInatObservationsParams,
-  GetInatPhenologyParams,
   GetInatPlaceParams,
   GetInatSpeciesParams,
   HealthStatus,
+  InatFieldValuesResponse,
+  InatHistogramResponse,
   InatMetadataResponse,
   InatObservationsResponse,
-  InatPhenologyResponse,
   InatPlaceResponse,
   InatSpeciesResponse,
   SourcesIndexResponse,
@@ -962,11 +964,11 @@ export function useGetInatSpecies<
 }
 
 /**
- * Given an iNaturalist taxon ID and one or more place IDs, returns two monthly breakdowns: total observation counts by calendar month (from the histogram endpoint), and observation counts stratified by phenological stage per month (from popular_field_values). Stage labels for plants are Flowers, Flower Buds, Fruits or Seeds, No Flowers or Fruits. Leaf phenology stages also returned: Green Leaves, Colored Leaves, No Live Leaves, Breaking Leaf Buds. Phenological annotations are community-contributed and coverage is uneven — annotations_available will be false when no annotations exist. Cached 7 days keyed by taxon_id and sorted set of place_ids.
+ * Passthrough for iNaturalist's GET /observations/histogram endpoint. Returns the raw iNaturalist response containing observation counts by calendar month (month_of_year key in results). Cached 7 days keyed by taxon_id and sorted set of place_ids.
 
- * @summary Fetch monthly observation counts and phenological stage breakdown
+ * @summary Passthrough for iNaturalist observations/histogram
  */
-export const getGetInatPhenologyUrl = (params: GetInatPhenologyParams) => {
+export const getGetInatHistogramUrl = (params: GetInatHistogramParams) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -978,34 +980,34 @@ export const getGetInatPhenologyUrl = (params: GetInatPhenologyParams) => {
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/inat/phenology?${stringifiedParams}`
-    : `/api/inat/phenology`;
+    ? `/api/inat/histogram?${stringifiedParams}`
+    : `/api/inat/histogram`;
 };
 
-export const getInatPhenology = async (
-  params: GetInatPhenologyParams,
+export const getInatHistogram = async (
+  params: GetInatHistogramParams,
   options?: RequestInit,
-): Promise<InatPhenologyResponse> => {
-  return customFetch<InatPhenologyResponse>(getGetInatPhenologyUrl(params), {
+): Promise<InatHistogramResponse> => {
+  return customFetch<InatHistogramResponse>(getGetInatHistogramUrl(params), {
     ...options,
     method: "GET",
   });
 };
 
-export const getGetInatPhenologyQueryKey = (
-  params?: GetInatPhenologyParams,
+export const getGetInatHistogramQueryKey = (
+  params?: GetInatHistogramParams,
 ) => {
-  return [`/api/inat/phenology`, ...(params ? [params] : [])] as const;
+  return [`/api/inat/histogram`, ...(params ? [params] : [])] as const;
 };
 
-export const getGetInatPhenologyQueryOptions = <
-  TData = Awaited<ReturnType<typeof getInatPhenology>>,
+export const getGetInatHistogramQueryOptions = <
+  TData = Awaited<ReturnType<typeof getInatHistogram>>,
   TError = ErrorType<ErrorResponse>,
 >(
-  params: GetInatPhenologyParams,
+  params: GetInatHistogramParams,
   options?: {
     query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getInatPhenology>>,
+      Awaited<ReturnType<typeof getInatHistogram>>,
       TError,
       TData
     >;
@@ -1015,43 +1017,145 @@ export const getGetInatPhenologyQueryOptions = <
   const { query: queryOptions, request: requestOptions } = options ?? {};
 
   const queryKey =
-    queryOptions?.queryKey ?? getGetInatPhenologyQueryKey(params);
+    queryOptions?.queryKey ?? getGetInatHistogramQueryKey(params);
 
   const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getInatPhenology>>
-  > = ({ signal }) => getInatPhenology(params, { signal, ...requestOptions });
+    Awaited<ReturnType<typeof getInatHistogram>>
+  > = ({ signal }) => getInatHistogram(params, { signal, ...requestOptions });
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getInatPhenology>>,
+    Awaited<ReturnType<typeof getInatHistogram>>,
     TError,
     TData
   > & { queryKey: QueryKey };
 };
 
-export type GetInatPhenologyQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getInatPhenology>>
+export type GetInatHistogramQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getInatHistogram>>
 >;
-export type GetInatPhenologyQueryError = ErrorType<ErrorResponse>;
+export type GetInatHistogramQueryError = ErrorType<ErrorResponse>;
 
 /**
- * @summary Fetch monthly observation counts and phenological stage breakdown
+ * @summary Passthrough for iNaturalist observations/histogram
  */
 
-export function useGetInatPhenology<
-  TData = Awaited<ReturnType<typeof getInatPhenology>>,
+export function useGetInatHistogram<
+  TData = Awaited<ReturnType<typeof getInatHistogram>>,
   TError = ErrorType<ErrorResponse>,
 >(
-  params: GetInatPhenologyParams,
+  params: GetInatHistogramParams,
   options?: {
     query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getInatPhenology>>,
+      Awaited<ReturnType<typeof getInatHistogram>>,
       TError,
       TData
     >;
     request?: SecondParameter<typeof customFetch>;
   },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getGetInatPhenologyQueryOptions(params, options);
+  const queryOptions = getGetInatHistogramQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Passthrough for iNaturalist's GET /observations/popular_field_values endpoint. Returns the raw iNaturalist response containing controlled annotation field values with per-month counts. Stage labels include Flowers, Flower Buds, Fruits or Seeds, No Flowers or Fruits, Green Leaves, Colored Leaves, No Live Leaves, Breaking Leaf Buds. Cached 7 days keyed by taxon_id, sorted place_ids, and verifiable flag.
+
+ * @summary Passthrough for iNaturalist observations/popular_field_values
+ */
+export const getGetInatFieldValuesUrl = (params: GetInatFieldValuesParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/inat/field-values?${stringifiedParams}`
+    : `/api/inat/field-values`;
+};
+
+export const getInatFieldValues = async (
+  params: GetInatFieldValuesParams,
+  options?: RequestInit,
+): Promise<InatFieldValuesResponse> => {
+  return customFetch<InatFieldValuesResponse>(
+    getGetInatFieldValuesUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetInatFieldValuesQueryKey = (
+  params?: GetInatFieldValuesParams,
+) => {
+  return [`/api/inat/field-values`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetInatFieldValuesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getInatFieldValues>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetInatFieldValuesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatFieldValues>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetInatFieldValuesQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getInatFieldValues>>
+  > = ({ signal }) => getInatFieldValues(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getInatFieldValues>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetInatFieldValuesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getInatFieldValues>>
+>;
+export type GetInatFieldValuesQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Passthrough for iNaturalist observations/popular_field_values
+ */
+
+export function useGetInatFieldValues<
+  TData = Awaited<ReturnType<typeof getInatFieldValues>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetInatFieldValuesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatFieldValues>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetInatFieldValuesQueryOptions(params, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

@@ -56,17 +56,21 @@ export interface InatSpeciesResult {
   record_upstream_url: string | null;
 }
 
-export interface InatPhenologyResult {
+export interface InatHistogramResult {
   taxon_id: number;
   place_ids: number[];
-  observations_by_month: Record<string, number>;
-  phenology_by_month: Record<string, Record<string, number>>;
-  phenology_stages_available: string[];
-  peak_observation_month: number | null;
-  annotations_available: boolean;
+  raw_response: Record<string, unknown>;
   source_url: string;
-  histogram_upstream_url: string;
-  pfv_upstream_url: string;
+  upstream_url: string;
+}
+
+export interface InatFieldValuesResult {
+  taxon_id: number;
+  place_ids: number[];
+  verifiable: boolean;
+  raw_response: Record<string, unknown>;
+  source_url: string;
+  upstream_url: string;
 }
 
 export function buildPlaceCacheKey(query: string): string {
@@ -79,9 +83,14 @@ export function buildSpeciesCacheKey(name: string): string {
   return `inat:species:${normalized}`;
 }
 
-export function buildPhenologyCacheKey(taxonId: number, placeIds: number[]): string {
+export function buildHistogramCacheKey(taxonId: number, placeIds: number[]): string {
   const sortedIds = [...placeIds].sort((a, b) => a - b).join(",");
-  return `inat:phenology:${taxonId}:${sortedIds}`;
+  return `inat:histogram:${taxonId}:${sortedIds}`;
+}
+
+export function buildFieldValuesCacheKey(taxonId: number, placeIds: number[], verifiable: boolean): string {
+  const sortedIds = [...placeIds].sort((a, b) => a - b).join(",");
+  return `inat:fv:${taxonId}:${sortedIds}:${verifiable ? "v" : "nv"}`;
 }
 
 export function sortPlaceIds(placeIds: number[]): number[] {
@@ -262,64 +271,13 @@ export async function fetchSpecies(name: string): Promise<InatSpeciesResult> {
   };
 }
 
-export async function fetchPhenology(taxonId: number, placeIds: number[]): Promise<InatPhenologyResult> {
+export async function fetchHistogram(taxonId: number, placeIds: number[]): Promise<InatHistogramResult> {
   const sorted = sortPlaceIds(placeIds);
   const placeIdStr = sorted.join(",");
   const placeParam = placeIdStr ? `&place_id=${placeIdStr}` : "";
 
-  const histUrl =
-    `${INAT_API_BASE}/observations/histogram?taxon_id=${taxonId}${placeParam}&interval=month_of_year`;
-  const pfvUrl =
-    `${INAT_API_BASE}/observations/popular_field_values?taxon_id=${taxonId}${placeParam}&verifiable=true`;
-
-  const [histRaw, pfvRaw] = await Promise.all([
-    inatFetch(histUrl) as Promise<Record<string, unknown>>,
-    inatFetch(pfvUrl) as Promise<Record<string, unknown>>,
-  ]);
-
-  const histResults = histRaw.results as Record<string, unknown> | null;
-  const rawObsByMonth = (histResults?.month_of_year as Record<string, number>) || {};
-  const observations_by_month: Record<string, number> = {};
-  for (const [k, v] of Object.entries(rawObsByMonth)) {
-    if (typeof v === "number" && v > 0) {
-      observations_by_month[k] = v;
-    }
-  }
-
-  const pfvResults = (pfvRaw.results as Record<string, unknown>[]) || [];
-  const phenology_by_month: Record<string, Record<string, number>> = {};
-  const stagesSet = new Set<string>();
-
-  for (const result of pfvResults) {
-    const controlledValue = result.controlled_value as Record<string, unknown> | null;
-    if (!controlledValue) continue;
-    const stage = (controlledValue.label as string) || "";
-    if (!stage) continue;
-    stagesSet.add(stage);
-
-    const monthOfYear = result.month_of_year as Record<string, number> | null;
-    if (!monthOfYear) continue;
-
-    for (const [monthStr, count] of Object.entries(monthOfYear)) {
-      if (typeof count !== "number" || count === 0) continue;
-      if (!phenology_by_month[monthStr]) {
-        phenology_by_month[monthStr] = {};
-      }
-      phenology_by_month[monthStr][stage] = (phenology_by_month[monthStr][stage] ?? 0) + count;
-    }
-  }
-
-  const phenology_stages_available = Array.from(stagesSet);
-  const annotations_available = stagesSet.size > 0;
-
-  let peak_observation_month: number | null = null;
-  let peakCount = -1;
-  for (const [monthStr, count] of Object.entries(observations_by_month)) {
-    if (count > peakCount) {
-      peakCount = count;
-      peak_observation_month = parseInt(monthStr, 10);
-    }
-  }
+  const url = `${INAT_API_BASE}/observations/histogram?taxon_id=${taxonId}${placeParam}&interval=month_of_year`;
+  const raw = await inatFetch(url) as Record<string, unknown>;
 
   const source_url = placeIdStr
     ? `https://www.inaturalist.org/observations?taxon_id=${taxonId}&place_id=${placeIdStr}`
@@ -328,14 +286,32 @@ export async function fetchPhenology(taxonId: number, placeIds: number[]): Promi
   return {
     taxon_id: taxonId,
     place_ids: sorted,
-    observations_by_month,
-    phenology_by_month,
-    phenology_stages_available,
-    peak_observation_month,
-    annotations_available,
+    raw_response: raw,
     source_url,
-    histogram_upstream_url: histUrl,
-    pfv_upstream_url: pfvUrl,
+    upstream_url: url,
+  };
+}
+
+export async function fetchFieldValues(taxonId: number, placeIds: number[], verifiable: boolean): Promise<InatFieldValuesResult> {
+  const sorted = sortPlaceIds(placeIds);
+  const placeIdStr = sorted.join(",");
+  const placeParam = placeIdStr ? `&place_id=${placeIdStr}` : "";
+  const verifiableParam = verifiable ? "&verifiable=true" : "";
+
+  const url = `${INAT_API_BASE}/observations/popular_field_values?taxon_id=${taxonId}${placeParam}${verifiableParam}`;
+  const raw = await inatFetch(url) as Record<string, unknown>;
+
+  const source_url = placeIdStr
+    ? `https://www.inaturalist.org/observations?taxon_id=${taxonId}&place_id=${placeIdStr}`
+    : `https://www.inaturalist.org/observations?taxon_id=${taxonId}`;
+
+  return {
+    taxon_id: taxonId,
+    place_ids: sorted,
+    verifiable,
+    raw_response: raw,
+    source_url,
+    upstream_url: url,
   };
 }
 

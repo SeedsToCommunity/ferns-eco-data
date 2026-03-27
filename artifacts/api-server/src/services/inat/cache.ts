@@ -2,18 +2,21 @@ import {
   db,
   inatPlacesTable,
   inatSpeciesTable,
-  inatPhenologyTable,
+  inatHistogramTable,
+  inatFieldValuesTable,
   type InatPlace,
   type InatSpecies,
-  type InatPhenology,
+  type InatHistogram,
+  type InatFieldValues,
 } from "@workspace/db";
 import { eq } from "drizzle-orm";
-import type { InatPlaceLookupResult, InatSpeciesResult, InatPhenologyResult } from "./connector.js";
+import type { InatPlaceLookupResult, InatSpeciesResult, InatHistogramResult, InatFieldValuesResult } from "./connector.js";
 import { INAT_SOURCE_ID, INAT_DERIVATION_SUMMARY, INAT_DERIVATION_SCIENTIFIC } from "./metadata.js";
 
 const SPECIES_HIT_TTL_DAYS = 30;
 const SPECIES_NOMATCH_TTL_DAYS = 7;
-const PHENOLOGY_TTL_DAYS = 7;
+const HISTOGRAM_TTL_DAYS = 7;
+const FIELD_VALUES_TTL_DAYS = 7;
 
 function daysFromNow(days: number): Date {
   return new Date(Date.now() + days * 24 * 60 * 60 * 1000);
@@ -145,57 +148,103 @@ export async function storeSpecies(
   return rows[0];
 }
 
-export async function lookupPhenology(cacheKey: string): Promise<InatPhenology | null> {
+export async function lookupHistogram(cacheKey: string): Promise<InatHistogram | null> {
   const rows = await db
     .select()
-    .from(inatPhenologyTable)
-    .where(eq(inatPhenologyTable.cache_key, cacheKey))
+    .from(inatHistogramTable)
+    .where(eq(inatHistogramTable.cache_key, cacheKey))
     .limit(1);
   if (!rows.length) return null;
   const row = rows[0];
   if (row.expires_at && row.expires_at < new Date()) {
-    await db.delete(inatPhenologyTable).where(eq(inatPhenologyTable.cache_key, cacheKey));
+    await db.delete(inatHistogramTable).where(eq(inatHistogramTable.cache_key, cacheKey));
     return null;
   }
   return row;
 }
 
-export async function storePhenology(
+export async function storeHistogram(
   cacheKey: string,
-  result: InatPhenologyResult,
-): Promise<InatPhenology> {
+  result: InatHistogramResult,
+): Promise<InatHistogram> {
   const now = new Date();
   const insert = {
     cache_key: cacheKey,
     taxon_id: result.taxon_id,
     place_ids: result.place_ids,
-    observations_by_month: result.observations_by_month,
-    phenology_by_month: result.phenology_by_month,
-    phenology_stages_available: result.phenology_stages_available,
-    peak_observation_month: result.peak_observation_month,
-    annotations_available: result.annotations_available,
+    raw_response: result.raw_response,
     source_url: result.source_url,
     found: true,
-    expires_at: daysFromNow(PHENOLOGY_TTL_DAYS),
+    expires_at: daysFromNow(HISTOGRAM_TTL_DAYS),
     source_id: INAT_SOURCE_ID,
     fetched_at: now,
     method: "api_fetch",
-    upstream_url: result.histogram_upstream_url,
+    upstream_url: result.upstream_url,
     derivation_summary: INAT_DERIVATION_SUMMARY,
     derivation_scientific: INAT_DERIVATION_SCIENTIFIC,
   };
 
   const rows = await db
-    .insert(inatPhenologyTable)
+    .insert(inatHistogramTable)
     .values(insert)
     .onConflictDoUpdate({
-      target: inatPhenologyTable.cache_key,
+      target: inatHistogramTable.cache_key,
       set: {
-        observations_by_month: insert.observations_by_month,
-        phenology_by_month: insert.phenology_by_month,
-        phenology_stages_available: insert.phenology_stages_available,
-        peak_observation_month: insert.peak_observation_month,
-        annotations_available: insert.annotations_available,
+        raw_response: insert.raw_response,
+        source_url: insert.source_url,
+        fetched_at: insert.fetched_at,
+        upstream_url: insert.upstream_url,
+        expires_at: insert.expires_at,
+      },
+    })
+    .returning();
+  return rows[0];
+}
+
+export async function lookupFieldValues(cacheKey: string): Promise<InatFieldValues | null> {
+  const rows = await db
+    .select()
+    .from(inatFieldValuesTable)
+    .where(eq(inatFieldValuesTable.cache_key, cacheKey))
+    .limit(1);
+  if (!rows.length) return null;
+  const row = rows[0];
+  if (row.expires_at && row.expires_at < new Date()) {
+    await db.delete(inatFieldValuesTable).where(eq(inatFieldValuesTable.cache_key, cacheKey));
+    return null;
+  }
+  return row;
+}
+
+export async function storeFieldValues(
+  cacheKey: string,
+  result: InatFieldValuesResult,
+): Promise<InatFieldValues> {
+  const now = new Date();
+  const insert = {
+    cache_key: cacheKey,
+    taxon_id: result.taxon_id,
+    place_ids: result.place_ids,
+    verifiable: result.verifiable,
+    raw_response: result.raw_response,
+    source_url: result.source_url,
+    found: true,
+    expires_at: daysFromNow(FIELD_VALUES_TTL_DAYS),
+    source_id: INAT_SOURCE_ID,
+    fetched_at: now,
+    method: "api_fetch",
+    upstream_url: result.upstream_url,
+    derivation_summary: INAT_DERIVATION_SUMMARY,
+    derivation_scientific: INAT_DERIVATION_SCIENTIFIC,
+  };
+
+  const rows = await db
+    .insert(inatFieldValuesTable)
+    .values(insert)
+    .onConflictDoUpdate({
+      target: inatFieldValuesTable.cache_key,
+      set: {
+        raw_response: insert.raw_response,
         source_url: insert.source_url,
         fetched_at: insert.fetched_at,
         upstream_url: insert.upstream_url,

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useGetInatPhenology } from "@workspace/api-client-react";
+import { useGetInatHistogram, useGetInatFieldValues } from "@workspace/api-client-react";
 import { CalendarDays, Search, Loader2, AlertCircle, Plus, X, ExternalLink } from "lucide-react";
 import { monthName, formatNumber } from "@/lib/utils";
 import {
@@ -58,13 +58,27 @@ export function PhenologyTab({
   }, [preloadedPlaceId]);
 
   const enabled = !!submittedTaxon && !!submittedPlaceId;
-  const { data: response, isLoading, isError, error } = useGetInatPhenology(
+
+  const { data: histResponse, isLoading: histLoading, isError: histError, error: histErr } = useGetInatHistogram(
     {
       taxon_id: Number(submittedTaxon),
       place_id: submittedPlaceId,
     },
     { query: { enabled } }
   );
+
+  const { data: fvResponse, isLoading: fvLoading, isError: fvError, error: fvErr } = useGetInatFieldValues(
+    {
+      taxon_id: Number(submittedTaxon),
+      place_id: submittedPlaceId,
+      verifiable: true,
+    },
+    { query: { enabled } }
+  );
+
+  const isLoading = histLoading || fvLoading;
+  const isError = histError || fvError;
+  const error = histErr ?? fvErr;
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -93,32 +107,61 @@ export function PhenologyTab({
     setSubmittedPlaceId(place);
   }
 
-  const phenData = response?.data as Record<string, unknown> | undefined;
+  const histData = histResponse?.data as Record<string, unknown> | undefined;
+  const fvData = fvResponse?.data as Record<string, unknown> | undefined;
 
-  const obsByMonth = phenData?.observations_by_month as Record<string, number> | undefined;
-  const monthlyData = obsByMonth
-    ? Object.entries(obsByMonth)
-        .map(([month, count]) => ({
-          month: monthName(Number(month)),
-          monthNum: Number(month),
-          observations: count,
-        }))
-        .sort((a, b) => a.monthNum - b.monthNum)
-    : [];
+  const histResults = histData?.results as Record<string, unknown> | undefined;
+  const rawObsByMonth = (histResults?.month_of_year as Record<string, number>) ?? {};
+  const obsByMonth: Record<string, number> = {};
+  for (const [k, v] of Object.entries(rawObsByMonth)) {
+    if (typeof v === "number" && v > 0) obsByMonth[k] = v;
+  }
 
-  const phenByMonth = phenData?.phenology_by_month as Record<string, Record<string, number>> | undefined;
+  const monthlyData = Object.entries(obsByMonth)
+    .map(([month, count]) => ({
+      month: monthName(Number(month)),
+      monthNum: Number(month),
+      observations: count,
+    }))
+    .sort((a, b) => a.monthNum - b.monthNum);
 
-  const stageTotals: Record<string, number> = {};
-  if (phenByMonth) {
-    for (const monthData of Object.values(phenByMonth)) {
-      for (const [stage, count] of Object.entries(monthData)) {
-        stageTotals[stage] = (stageTotals[stage] ?? 0) + count;
-      }
+  let peakMonth: number | null = null;
+  let peakCount = -1;
+  for (const [monthStr, count] of Object.entries(obsByMonth)) {
+    if (count > peakCount) {
+      peakCount = count;
+      peakMonth = parseInt(monthStr, 10);
     }
   }
 
-  const annotationsAvailable = phenData?.annotations_available as boolean | undefined;
-  const peakMonth = phenData?.peak_observation_month as number | null | undefined;
+  const fvResults = (fvData?.results as Record<string, unknown>[]) ?? [];
+  const phenByMonth: Record<string, Record<string, number>> = {};
+  const stagesSet = new Set<string>();
+  for (const result of fvResults) {
+    const controlledValue = result.controlled_value as Record<string, unknown> | null;
+    if (!controlledValue) continue;
+    const stage = (controlledValue.label as string) || "";
+    if (!stage) continue;
+    stagesSet.add(stage);
+    const monthOfYear = result.month_of_year as Record<string, number> | null;
+    if (!monthOfYear) continue;
+    for (const [monthStr, count] of Object.entries(monthOfYear)) {
+      if (typeof count !== "number" || count === 0) continue;
+      if (!phenByMonth[monthStr]) phenByMonth[monthStr] = {};
+      phenByMonth[monthStr][stage] = (phenByMonth[monthStr][stage] ?? 0) + count;
+    }
+  }
+
+  const stageTotals: Record<string, number> = {};
+  for (const monthData of Object.values(phenByMonth)) {
+    for (const [stage, count] of Object.entries(monthData)) {
+      stageTotals[stage] = (stageTotals[stage] ?? 0) + count;
+    }
+  }
+
+  const annotationsAvailable = stagesSet.size > 0;
+  const hasResponse = !!(histResponse && fvResponse);
+  const sourceUrl = histResponse?.source_url ?? fvResponse?.source_url;
 
   return (
     <div className="space-y-6">
@@ -231,21 +274,21 @@ export function PhenologyTab({
         </div>
       )}
 
-      {response && phenData && (
+      {hasResponse && (
         <div className="space-y-4">
           <div className="bg-card border border-border rounded-xl overflow-hidden">
             <div className="px-6 py-4 border-b border-border bg-muted/30 flex items-start justify-between gap-4">
               <div>
                 <h3 className="font-semibold text-sm">Monthly Observations</h3>
-                {peakMonth !== null && peakMonth !== undefined && (
+                {peakMonth !== null && (
                   <p className="text-xs text-muted-foreground mt-0.5">
                     Peak month: {monthName(peakMonth)}
                   </p>
                 )}
               </div>
-              {response.source_url && (
+              {sourceUrl && (
                 <a
-                  href={response.source_url}
+                  href={sourceUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline shrink-0"
@@ -292,24 +335,33 @@ export function PhenologyTab({
             </div>
           )}
 
-          {annotationsAvailable === false && (
+          {!annotationsAvailable && (
             <div className="bg-muted/30 border border-border rounded-xl p-4 text-sm text-muted-foreground">
               No phenological annotations recorded for this species in the selected places. Observation timing data is shown above.
             </div>
           )}
 
-          {phenData.fetched_at && (
-            <p className="text-xs text-muted-foreground px-1">
-              Cached: {new Date(phenData.fetched_at as string).toLocaleString()}
-              {phenData.cache_status && (
-                <span className="ml-2 capitalize px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border">
-                  {phenData.cache_status as string}
+          <div className="flex gap-4 text-xs text-muted-foreground px-1">
+            {histResponse?.cache_status && (
+              <span>
+                Histogram:{" "}
+                <span className="capitalize px-1.5 py-0.5 rounded bg-muted border border-border">
+                  {histResponse.cache_status}
                 </span>
-              )}
-            </p>
-          )}
+              </span>
+            )}
+            {fvResponse?.cache_status && (
+              <span>
+                Field values:{" "}
+                <span className="capitalize px-1.5 py-0.5 rounded bg-muted border border-border">
+                  {fvResponse.cache_status}
+                </span>
+              </span>
+            )}
+          </div>
 
-          <RawJsonPanel title="iNat Phenology" data={response} />
+          <RawJsonPanel title="iNat Histogram" data={histResponse} />
+          <RawJsonPanel title="iNat Field Values" data={fvResponse} />
         </div>
       )}
     </div>
