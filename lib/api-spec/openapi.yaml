@@ -1542,6 +1542,7 @@ components:
         - source_url
         - found
         - cache_status
+        - queried_at
         - data
         - provenance
       properties:
@@ -1553,6 +1554,10 @@ components:
         cache_status:
           type: string
           enum: [hit, miss, bypassed]
+        queried_at:
+          type: string
+          format: date-time
+          description: When this FERNS request was processed
         data:
           type: object
           description: >
@@ -1569,6 +1574,7 @@ components:
         - source_url
         - found
         - cache_status
+        - queried_at
         - data
         - provenance
       properties:
@@ -1580,6 +1586,10 @@ components:
         cache_status:
           type: string
           enum: [hit, miss, bypassed]
+        queried_at:
+          type: string
+          format: date-time
+          description: When this FERNS request was processed
         data:
           type: object
           description: >

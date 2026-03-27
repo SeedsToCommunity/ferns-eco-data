@@ -968,6 +968,7 @@ export const GetInatHistogramResponse = zod.object({
     ),
   found: zod.boolean(),
   cache_status: zod.enum(["hit", "miss", "bypassed"]),
+  queried_at: zod.date().describe("When this FERNS request was processed"),
   data: zod
     .record(zod.string(), zod.unknown())
     .describe(
@@ -1045,6 +1046,7 @@ export const GetInatFieldValuesResponse = zod.object({
     ),
   found: zod.boolean(),
   cache_status: zod.enum(["hit", "miss", "bypassed"]),
+  queried_at: zod.date().describe("When this FERNS request was processed"),
   data: zod
     .record(zod.string(), zod.unknown())
     .describe(

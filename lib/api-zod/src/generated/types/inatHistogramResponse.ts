@@ -14,6 +14,8 @@ export interface InatHistogramResponse {
   source_url: string;
   found: boolean;
   cache_status: InatHistogramResponseCacheStatus;
+  /** When this FERNS request was processed */
+  queried_at: Date;
   /** Raw iNaturalist observations/histogram response. The month_of_year object inside results contains observation counts keyed by month number string ('1' through '12').
    */
   data: InatHistogramResponseData;

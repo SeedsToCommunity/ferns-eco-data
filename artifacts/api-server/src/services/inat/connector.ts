@@ -296,7 +296,7 @@ export async function fetchFieldValues(taxonId: number, placeIds: number[], veri
   const sorted = sortPlaceIds(placeIds);
   const placeIdStr = sorted.join(",");
   const placeParam = placeIdStr ? `&place_id=${placeIdStr}` : "";
-  const verifiableParam = verifiable ? "&verifiable=true" : "";
+  const verifiableParam = `&verifiable=${verifiable}`;
 
   const url = `${INAT_API_BASE}/observations/popular_field_values?taxon_id=${taxonId}${placeParam}${verifiableParam}`;
   const raw = await inatFetch(url) as Record<string, unknown>;

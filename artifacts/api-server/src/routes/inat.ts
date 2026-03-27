@@ -253,7 +253,12 @@ router.get("/inat/histogram", async (req, res) => {
 });
 
 router.get("/inat/field-values", async (req, res) => {
-  const parsed = GetInatFieldValuesQueryParams.safeParse(req.query);
+  const rawVerifiable = req.query.verifiable;
+  const preprocessed = {
+    ...req.query,
+    verifiable: rawVerifiable === "false" ? false : rawVerifiable === "true" ? true : rawVerifiable,
+  };
+  const parsed = GetInatFieldValuesQueryParams.safeParse(preprocessed);
   if (!parsed.success) {
     res.status(400).json({ error: "invalid_input", message: parsed.error.errors[0]?.message ?? "Invalid query parameters" });
     return;
@@ -309,6 +314,7 @@ function buildPassthroughResponse(
     source_url: row.source_url,
     found: row.found,
     cache_status,
+    queried_at: new Date(),
     data: row.raw_response,
     provenance: {
       source_id: row.source_id,

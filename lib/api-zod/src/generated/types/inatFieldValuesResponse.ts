@@ -14,6 +14,8 @@ export interface InatFieldValuesResponse {
   source_url: string;
   found: boolean;
   cache_status: InatFieldValuesResponseCacheStatus;
+  /** When this FERNS request was processed */
+  queried_at: Date;
   /** Raw iNaturalist observations/popular_field_values response. The results array contains entries with controlled_attribute, controlled_value, and month_of_year fields. Stage labels include Flowers, Flower Buds, Fruits or Seeds, No Flowers or Fruits, Green Leaves, Colored Leaves, No Live Leaves, Breaking Leaf Buds.
    */
   data: InatFieldValuesResponseData;
