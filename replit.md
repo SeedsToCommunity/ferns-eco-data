@@ -4,7 +4,7 @@
 
 FERNS (Federated Ecological Resource Network System) is a data infrastructure layer providing a federated ecological data API. It exposes native plant and ecological data from various independent sources through a consistent REST API, per-source Explorer web interfaces, and a central Registry. This system is designed to be the foundation for other applications.
 
-The primary users are the general public, including homeowners, community members, restoration practitioners, and students, who are interested in understanding and restoring native habitats. The initial deployment focuses on Seeds to Community, a native plant restoration program in Washtenaw County, Michigan.
+The primary users are intended to be the general public (homeowners, community members, restoration practitioners, and students) who are interested in understanding and stewarding natural communities.
 
 The project aims to fetch and cache botanical data from authoritative sources, wrap every response with a FERNS envelope including provenance metadata, expose a unified REST API, and enforce permission statuses per source. It provides research-focused UIs for exploring this data.
 
