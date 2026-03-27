@@ -1,4 +1,4 @@
-export type FindingType = "gap" | "addition" | "mismatch" | "name_diff" | "ok";
+export type FindingType = "gap" | "addition" | "mismatch" | "ok";
 
 export interface FieldFinding {
   type: FindingType;
@@ -34,6 +34,8 @@ export interface UrlCheckResult {
   isAbsolute: boolean;
   status?: number;
   ok: boolean;
+  skipped?: boolean;
+  skipReason?: string;
   error?: string;
 }
 

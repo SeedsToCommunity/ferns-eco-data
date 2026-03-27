@@ -7,7 +7,9 @@ import { checkUrls } from "./checks/urls.js";
 import { printReport, printReportJson } from "./report.js";
 import type { AuditReport, UrlEntry } from "./types.js";
 
-const DEFAULT_FERNS_BASE = `https://${process.env["REPLIT_DEV_DOMAIN"] ?? "localhost:3000"}`;
+const DEFAULT_FERNS_BASE = process.env["REPLIT_DEV_DOMAIN"]
+  ? `https://${process.env["REPLIT_DEV_DOMAIN"]}`
+  : "http://localhost:3000";
 
 async function main(): Promise<void> {
   const fernsBase = (process.env["FERNS_BASE_URL"] ?? DEFAULT_FERNS_BASE).replace(/\/$/, "");

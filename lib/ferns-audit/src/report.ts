@@ -52,11 +52,15 @@ export function printReport(report: AuditReport): void {
     for (const src of report.registryCheck.sources) {
       const mCheck = src.metadata_url_check;
       const eCheck = src.explorer_url_check;
-      const mStr = mCheck ? `metadata_url: ${ok(mCheck.isAbsolute)} abs  ${ok(mCheck.ok)} ${mCheck.status ?? "err"}` : "metadata_url: n/a";
-      const eStr = eCheck ? `explorer_url: ${ok(eCheck.isAbsolute)} abs  ${ok(eCheck.ok)} ${eCheck.status ?? "err"}` : "explorer_url: n/a";
+      const mStr = mCheck
+        ? `metadata_url: ${ok(mCheck.isAbsolute)} abs  ${mCheck.skipped ? "~ skip" : ok(mCheck.ok) + " " + (mCheck.status ?? "err")}`
+        : "metadata_url: n/a";
+      const eStr = eCheck
+        ? `explorer_url: ${ok(eCheck.isAbsolute)} abs  ${eCheck.skipped ? "~ skip" : ok(eCheck.ok) + " " + (eCheck.status ?? "err")}`
+        : "explorer_url: n/a";
       lines.push(`  ${pad(src.source_id, 18)}  ${mStr}    ${eStr}`);
-      if (mCheck?.error) lines.push(`                      metadata error: ${mCheck.error}`);
-      if (eCheck?.error) lines.push(`                      explorer error: ${eCheck.error}`);
+      if (mCheck?.error && !mCheck.skipped) lines.push(`                      metadata error: ${mCheck.error}`);
+      if (eCheck?.error && !eCheck.skipped) lines.push(`                      explorer error: ${eCheck.error}`);
     }
   }
   lines.push("");
@@ -73,28 +77,34 @@ export function printReport(report: AuditReport): void {
       lines.push(`  ${comp.label}`);
       lines.push(`  Endpoint: ${comp.endpoint}`);
 
-      if (!comp.ok || comp.error) {
+      if (!comp.ok || (comp.error && comp.findings.length === 0)) {
         lines.push(`  ✗  ERROR: ${comp.error ?? "unknown"}`);
         continue;
       }
 
       const gaps = comp.findings.filter((f) => f.type === "gap");
       const additions = comp.findings.filter((f) => f.type === "addition");
-      const nameDiffs = comp.findings.filter((f) => f.type === "name_diff");
       const mismatches = comp.findings.filter((f) => f.type === "mismatch");
       const oks = comp.findings.filter((f) => f.type === "ok");
 
+      const violations = additions.filter(
+        (a) => a.note && !a.note.includes("Permitted"),
+      );
+      const envelopeAdditions = additions.filter(
+        (a) => a.note && a.note.includes("Permitted"),
+      );
+
       if (gaps.length > 0) {
         lines.push("");
-        lines.push(`  GAPS — fields in source absent from FERNS data (${gaps.length})`);
+        lines.push(`  GAPS [PASSTHROUGH VIOLATION] — fields in source absent from FERNS data (${gaps.length})`);
         for (const g of gaps) {
-          lines.push(`    - ${g.sourceField}: ${formatValue(g.sourceValue)}`);
+          lines.push(`    ✗ ${g.sourceField}: ${formatValue(g.sourceValue)}`);
         }
       }
 
       if (mismatches.length > 0) {
         lines.push("");
-        lines.push(`  MISMATCHES — same field name, different values (${mismatches.length})`);
+        lines.push(`  VALUE MISMATCHES — same field name, different values (${mismatches.length})`);
         for (const m of mismatches) {
           lines.push(`    ~ ${m.sourceField}`);
           lines.push(`        source : ${formatValue(m.sourceValue)}`);
@@ -103,43 +113,20 @@ export function printReport(report: AuditReport): void {
         }
       }
 
-      if (nameDiffs.length > 0) {
+      if (violations.length > 0) {
         lines.push("");
-        lines.push(`  FIELD NAME DIFFERENCES — same data, different names (${nameDiffs.length})`);
-        for (const n of nameDiffs) {
-          const valMatch = JSON.stringify(n.sourceValue) === JSON.stringify(n.fernsValue);
-          const marker = valMatch ? "~" : "≠";
-          lines.push(`    ${marker} ${n.sourceField} → ${n.fernsField}${valMatch ? "" : " (VALUES DIFFER)"}`);
-          if (!valMatch) {
-            lines.push(`        source : ${formatValue(n.sourceValue)}`);
-            lines.push(`        ferns  : ${formatValue(n.fernsValue)}`);
-          }
+        lines.push(`  ADDITIONS [PASSTHROUGH VIOLATION] — in FERNS data but not in source (${violations.length})`);
+        for (const v of violations) {
+          lines.push(`    ✗ ${v.sourceField}: ${formatValue(v.fernsValue)}`);
+          if (v.note) lines.push(`        note: ${v.note}`);
         }
       }
 
-      if (additions.length > 0) {
-        const unexpected = additions.filter(
-          (a) => a.note && !a.note.includes("expected"),
-        );
-        const expected = additions.filter(
-          (a) => !a.note || a.note.includes("expected"),
-        );
-
-        if (unexpected.length > 0) {
-          lines.push("");
-          lines.push(`  UNEXPECTED ADDITIONS — in FERNS data but not in source (${unexpected.length})`);
-          for (const u of unexpected) {
-            lines.push(`    + ${u.sourceField}: ${formatValue(u.fernsValue)}`);
-            if (u.note) lines.push(`        note: ${u.note}`);
-          }
-        }
-
-        if (expected.length > 0) {
-          lines.push("");
-          lines.push(`  FERNS ADDITIONS — expected provenance/cache fields (${expected.length})`);
-          for (const e of expected) {
-            lines.push(`    + ${e.sourceField} (${e.note})`);
-          }
+      if (envelopeAdditions.length > 0) {
+        lines.push("");
+        lines.push(`  FERNS ENVELOPE ADDITIONS — permitted provenance/cache fields (${envelopeAdditions.length})`);
+        for (const e of envelopeAdditions) {
+          lines.push(`    + ${e.sourceField}`);
         }
       }
 
@@ -158,17 +145,26 @@ export function printReport(report: AuditReport): void {
   lines.push(DIV);
   lines.push("URL AUDIT");
   lines.push(DIV);
-  const failures = report.urlChecks.filter((u) => !u.ok);
-  const passes = report.urlChecks.filter((u) => u.ok);
-  lines.push(`  Total URLs checked: ${report.urlChecks.length}  ✓ ${passes.length}  ✗ ${failures.length}`);
+  const skipped = report.urlChecks.filter((u) => u.skipped);
+  const failures = report.urlChecks.filter((u) => !u.ok && !u.skipped);
+  const passes = report.urlChecks.filter((u) => u.ok && !u.skipped);
+  lines.push(`  Total URLs: ${report.urlChecks.length}  ✓ ${passes.length} pass  ✗ ${failures.length} fail  ~ ${skipped.length} skipped (external domains)`);
   if (failures.length > 0) {
     lines.push("");
     lines.push("  FAILURES:");
     for (const f of failures) {
       lines.push(`    ✗ [${f.context}] ${f.field}: ${truncate(f.url, 60)}`);
-      if (!f.isAbsolute) lines.push(`        → Not absolute (relative URL)`);
+      if (!f.isAbsolute) lines.push(`        → Not absolute (relative URL — passthrough violation)`);
       if (f.status !== undefined) lines.push(`        → HTTP ${f.status}`);
       if (f.error) lines.push(`        → ${f.error}`);
+    }
+  }
+  if (skipped.length > 0) {
+    lines.push("");
+    lines.push("  SKIPPED (external source website domains — HEAD requests blocked by bot protection):");
+    for (const s of skipped) {
+      lines.push(`    ~ [${s.context}] ${s.field}: ${truncate(s.url, 60)}`);
+      lines.push(`        → URL is absolute. Manual verification required.`);
     }
   }
   lines.push("");
@@ -195,34 +191,27 @@ function groupBySource(comparisons: EndpointComparison[]): Record<string, Endpoi
 
 function printSummary(lines: string[], report: AuditReport): void {
   const docFails = report.docChecks.filter((d) => !d.ok).length;
-  const urlFails = report.urlChecks.filter((u) => !u.ok).length;
+  const urlFails = report.urlChecks.filter((u) => !u.ok && !u.skipped).length;
+  const urlSkipped = report.urlChecks.filter((u) => u.skipped).length;
 
   const allFindings = report.comparisons.flatMap((c) => c.findings);
   const gapCount = allFindings.filter((f) => f.type === "gap").length;
   const mismatchCount = allFindings.filter((f) => f.type === "mismatch").length;
-  const nameDiffCount = allFindings.filter((f) => f.type === "name_diff").length;
-  const unexpectedAdditionCount = allFindings.filter(
-    (f) => f.type === "addition" && f.note && !f.note.includes("expected"),
+  const additionViolations = allFindings.filter(
+    (f) => f.type === "addition" && f.note && !f.note.includes("Permitted"),
   ).length;
-  const endpointErrors = report.comparisons.filter((c) => !c.ok || c.error).length;
+  const endpointErrors = report.comparisons.filter((c) => !c.ok || (c.error && c.findings.length === 0)).length;
 
-  lines.push(`  API docs failing         : ${docFails}`);
-  lines.push(`  Registry/URL failures    : ${urlFails}`);
-  lines.push(`  Endpoint errors          : ${endpointErrors}`);
-  lines.push(`  Passthrough gaps         : ${gapCount}  (fields dropped by FERNS)`);
-  lines.push(`  Field name differences   : ${nameDiffCount}  (camelCase → snake_case renames)`);
-  lines.push(`  Value mismatches         : ${mismatchCount}  (same field, different value)`);
-  lines.push(`  Unexpected additions     : ${unexpectedAdditionCount}  (FERNS added undocumented fields)`);
+  lines.push(`  API docs failing             : ${docFails}`);
+  lines.push(`  URL failures                 : ${urlFails}${urlSkipped > 0 ? ` (+ ${urlSkipped} external domains skipped — absolute URL verified only)` : ""}`);
+  lines.push(`  Endpoint errors              : ${endpointErrors}`);
+  lines.push(`  Passthrough gaps             : ${gapCount}  [VIOLATIONS — fields dropped by FERNS]`);
+  lines.push(`  Value mismatches             : ${mismatchCount}  [same field name, different value]`);
+  lines.push(`  Addition violations          : ${additionViolations}  [FERNS added fields not from source or envelope]`);
   lines.push("");
-  lines.push("  This report does not pass or fail. Review findings above and decide what matters.");
+  lines.push("  This report does not pass or fail. Review violations above and decide what to fix.");
 }
 
 export function printReportJson(report: AuditReport): void {
   process.stdout.write(JSON.stringify(report, null, 2) + "\n");
 }
-
-function formatUrl(check: UrlCheckResult): string {
-  return `${ok(check.ok)} ${check.url}`;
-}
-
-void formatUrl;

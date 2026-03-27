@@ -1,7 +1,7 @@
 import { headUrl, isAbsoluteUrl } from "../http.js";
 import type { UrlEntry, UrlCheckResult } from "../types.js";
 
-const EXTERNAL_DOMAINS_LIKELY_BLOCKING_HEAD = [
+const EXTERNAL_DOMAINS_SKIP_HEAD = [
   "www.gbif.org",
   "gbif.org",
   "www.inaturalist.org",
@@ -13,10 +13,10 @@ const EXTERNAL_DOMAINS_LIKELY_BLOCKING_HEAD = [
   "en.wikipedia.org",
 ];
 
-function isExternalBotBlockingDomain(url: string): boolean {
+function isExternalSkipDomain(url: string): boolean {
   try {
     const u = new URL(url);
-    return EXTERNAL_DOMAINS_LIKELY_BLOCKING_HEAD.some(
+    return EXTERNAL_DOMAINS_SKIP_HEAD.some(
       (d) => u.hostname === d || u.hostname.endsWith("." + d),
     );
   } catch {
@@ -48,17 +48,25 @@ async function checkUrl(entry: UrlEntry): Promise<UrlCheckResult> {
   const { url, field, context } = entry;
 
   if (!isAbsoluteUrl(url)) {
-    return { url, field, context, isAbsolute: false, ok: false, error: "Relative URL — passthrough URL rule violation" };
+    return {
+      url,
+      field,
+      context,
+      isAbsolute: false,
+      ok: false,
+      error: "Relative URL — passthrough URL rule violation",
+    };
   }
 
-  if (isExternalBotBlockingDomain(url)) {
+  if (isExternalSkipDomain(url)) {
     return {
       url,
       field,
       context,
       isAbsolute: true,
-      ok: true,
-      error: "Skipped HEAD check — external source website (may block automated requests). URL is absolute and well-formed.",
+      ok: false,
+      skipped: true,
+      skipReason: "External source website domain — HEAD requests blocked by bot protection. URL is absolute; manual verification required.",
     };
   }
 
