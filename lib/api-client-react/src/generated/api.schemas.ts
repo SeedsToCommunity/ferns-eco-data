@@ -466,62 +466,46 @@ export interface InatNativeStatusEntry {
 }
 
 /**
- * exact — inat_name matches the queried name exactly (case-insensitive). fallback — no exact match found; first search result was used. Applications should flag fallback matches to users.
+ * exact — the taxon name matched the query exactly (case-insensitive). fallback — no exact match found; first search result was used. Applications should flag fallback matches to users.
 
  */
-export type InatSpeciesDataMatchType =
-  | (typeof InatSpeciesDataMatchType)[keyof typeof InatSpeciesDataMatchType]
+export type InatSpeciesResponseMatchType =
+  | (typeof InatSpeciesResponseMatchType)[keyof typeof InatSpeciesResponseMatchType]
   | null;
 
-export const InatSpeciesDataMatchType = {
+export const InatSpeciesResponseMatchType = {
   exact: "exact",
   fallback: "fallback",
 } as const;
 
-export type InatSpeciesDataCacheStatus =
-  (typeof InatSpeciesDataCacheStatus)[keyof typeof InatSpeciesDataCacheStatus];
+export type InatSpeciesResponseCacheStatus =
+  (typeof InatSpeciesResponseCacheStatus)[keyof typeof InatSpeciesResponseCacheStatus];
 
-export const InatSpeciesDataCacheStatus = {
+export const InatSpeciesResponseCacheStatus = {
   hit: "hit",
   miss: "miss",
   bypassed: "bypassed",
 } as const;
 
-export interface InatSpeciesData {
-  /** iNaturalist numeric taxon ID. Use in phenology and observation queries. */
-  inat_taxon_id: number | null;
-  /** Scientific name as iNaturalist records it. May differ from GBIF, BONAP, or Michigan Flora — iNaturalist maintains its own taxonomic backbone.
-   */
-  inat_name: string | null;
-  /** exact — inat_name matches the queried name exactly (case-insensitive). fallback — no exact match found; first search result was used. Applications should flag fallback matches to users.
-   */
-  match_type: InatSpeciesDataMatchType;
-  /** Primary English common name designated by iNaturalist */
-  preferred_common_name?: string | null;
-  /** Common names list. Populated from iNaturalist's preferred common name when available; empty when no common name is recorded. */
-  common_names: InatCommonName[];
-  /** Wikipedia excerpt returned as raw HTML. Strip tags before displaying as plain text. Attribute to Wikipedia, not iNaturalist. Null if no Wikipedia article is linked.
-   */
-  wikipedia_summary?: string | null;
-  /** URL to the Wikipedia article. iNaturalist may return this with a literal unencoded space — apply encodeURI() if strict URL encoding is required.
-   */
-  wikipedia_url?: string | null;
-  /** Representative photo URL hosted on iNaturalist's servers. Display directly; FERNS does not store images. */
-  default_photo_url?: string | null;
-  /** IUCN Red List status when available. Null means unassessed, not safe. */
-  conservation_status?: InatConservationStatus | null;
-  /** Total iNaturalist observations globally, all quality grades */
-  observations_count?: number | null;
-  /** https://www.inaturalist.org/taxa/{inat_taxon_id} */
-  source_url?: string | null;
-  fetched_at: string;
-  cache_status: InatSpeciesDataCacheStatus;
-}
+/**
+ * Complete iNaturalist taxon record from GET /taxa/{id}, passed through with all original field names intact. Key fields include: id (taxon ID), name (scientific name), preferred_common_name, observations_count, default_photo (object with medium_url), wikipedia_url, wikipedia_summary, conservation_status, and taxon_names.
+
+ */
+export type InatSpeciesResponseData = { [key: string]: unknown } | null;
 
 export interface InatSpeciesResponse {
+  /** https://www.inaturalist.org/taxa/{id} */
   source_url: string | null;
   found: boolean;
-  data: InatSpeciesData | null;
+  /** exact — the taxon name matched the query exactly (case-insensitive). fallback — no exact match found; first search result was used. Applications should flag fallback matches to users.
+   */
+  match_type: InatSpeciesResponseMatchType;
+  cache_status: InatSpeciesResponseCacheStatus;
+  /** When this FERNS request was processed */
+  queried_at: string;
+  /** Complete iNaturalist taxon record from GET /taxa/{id}, passed through with all original field names intact. Key fields include: id (taxon ID), name (scientific name), preferred_common_name, observations_count, default_photo (object with medium_url), wikipedia_url, wikipedia_summary, conservation_status, and taxon_names.
+   */
+  data: InatSpeciesResponseData;
   provenance: FernsProvenance;
 }
 

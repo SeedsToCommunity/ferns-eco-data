@@ -6,11 +6,22 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { FernsProvenance } from "./fernsProvenance";
-import type { InatSpeciesData } from "./inatSpeciesData";
+import type { InatSpeciesResponseCacheStatus } from "./inatSpeciesResponseCacheStatus";
+import type { InatSpeciesResponseData } from "./inatSpeciesResponseData";
+import type { InatSpeciesResponseMatchType } from "./inatSpeciesResponseMatchType";
 
 export interface InatSpeciesResponse {
+  /** https://www.inaturalist.org/taxa/{id} */
   source_url: string | null;
   found: boolean;
-  data: InatSpeciesData | null;
+  /** exact — the taxon name matched the query exactly (case-insensitive). fallback — no exact match found; first search result was used. Applications should flag fallback matches to users.
+   */
+  match_type: InatSpeciesResponseMatchType;
+  cache_status: InatSpeciesResponseCacheStatus;
+  /** When this FERNS request was processed */
+  queried_at: Date;
+  /** Complete iNaturalist taxon record from GET /taxa/{id}, passed through with all original field names intact. Key fields include: id (taxon ID), name (scientific name), preferred_common_name, observations_count, default_photo (object with medium_url), wikipedia_url, wikipedia_summary, conservation_status, and taxon_names.
+   */
+  data: InatSpeciesResponseData;
   provenance: FernsProvenance;
 }

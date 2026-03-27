@@ -29,8 +29,11 @@ export function SpeciesTab({ onTaxonIdSelected }: SpeciesTabProps) {
 
   const species = response?.data as Record<string, unknown> | null | undefined;
 
-  const inatTaxonId = species?.inat_taxon_id as number | null | undefined;
-  const inatName = species?.inat_name as string | null | undefined;
+  const inatTaxonId = species?.id as number | null | undefined;
+  const inatName = species?.name as string | null | undefined;
+  const defaultPhotoUrl = (species?.default_photo as Record<string, unknown> | null)?.medium_url as string | null | undefined;
+  const matchType = response?.match_type as string | null | undefined;
+  const cacheStatus = response?.cache_status as string | null | undefined;
 
   return (
     <div className="space-y-6">
@@ -95,7 +98,7 @@ export function SpeciesTab({ onTaxonIdSelected }: SpeciesTabProps) {
 
       {response && response.found && species && (
         <div className="space-y-4">
-          {species.match_type === "fallback" && (
+          {matchType === "fallback" && (
             <div className="flex items-start gap-3 p-4 bg-warning/10 rounded-xl border border-warning/30 text-sm">
               <AlertTriangle className="w-4 h-4 shrink-0 text-warning-foreground mt-0.5" />
               <span className="text-warning-foreground">
@@ -106,10 +109,10 @@ export function SpeciesTab({ onTaxonIdSelected }: SpeciesTabProps) {
 
           <div className="bg-card border border-border rounded-xl overflow-hidden">
             <div className="flex flex-col sm:flex-row">
-              {species.default_photo_url && (
+              {defaultPhotoUrl && (
                 <div className="sm:w-64 shrink-0">
                   <img
-                    src={species.default_photo_url as string}
+                    src={defaultPhotoUrl}
                     alt={(species.preferred_common_name as string) ?? (inatName as string)}
                     className="w-full h-52 sm:h-full object-cover"
                   />
@@ -121,13 +124,13 @@ export function SpeciesTab({ onTaxonIdSelected }: SpeciesTabProps) {
                     {(species.preferred_common_name as string) ?? inatName}
                   </h2>
                   <p className="text-sm italic text-muted-foreground">{inatName}</p>
-                  {species.match_type && (
+                  {matchType && (
                     <span className={`inline-block mt-1 px-2 py-0.5 rounded-md text-xs font-medium capitalize ${
-                      species.match_type === "exact"
+                      matchType === "exact"
                         ? "bg-primary/10 text-primary"
                         : "bg-warning/10 text-warning-foreground"
                     }`}>
-                      {species.match_type as string} match
+                      {matchType} match
                     </span>
                   )}
                 </div>
@@ -148,9 +151,9 @@ export function SpeciesTab({ onTaxonIdSelected }: SpeciesTabProps) {
                 </div>
 
                 <div className="flex items-center gap-3 flex-wrap">
-                  {species.source_url && (
+                  {response?.source_url && (
                     <a
-                      href={species.source_url as string}
+                      href={response.source_url as string}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
@@ -200,14 +203,14 @@ export function SpeciesTab({ onTaxonIdSelected }: SpeciesTabProps) {
 
           </div>
 
-          {(species.fetched_at || species.cache_status) && (
+          {(response?.provenance?.fetched_at || cacheStatus) && (
             <p className="text-xs text-muted-foreground px-1">
-              {species.fetched_at && (
-                <>Cached: {new Date(species.fetched_at as string).toLocaleString()}</>
+              {response?.provenance?.fetched_at && (
+                <>Cached: {new Date(response.provenance.fetched_at as string).toLocaleString()}</>
               )}
-              {species.cache_status && (
+              {cacheStatus && (
                 <span className="ml-2 capitalize px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border">
-                  {species.cache_status as string}
+                  {cacheStatus}
                 </span>
               )}
             </p>

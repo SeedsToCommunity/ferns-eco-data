@@ -834,88 +834,25 @@ export const GetInatSpeciesQueryParams = zod.object({
 });
 
 export const GetInatSpeciesResponse = zod.object({
-  source_url: zod.string().nullable(),
+  source_url: zod
+    .string()
+    .nullable()
+    .describe("https:\/\/www.inaturalist.org\/taxa\/{id}"),
   found: zod.boolean(),
+  match_type: zod
+    .enum(["exact", "fallback"])
+    .nullable()
+    .describe(
+      "exact — the taxon name matched the query exactly (case-insensitive). fallback — no exact match found; first search result was used. Applications should flag fallback matches to users.\n",
+    ),
+  cache_status: zod.enum(["hit", "miss", "bypassed"]),
+  queried_at: zod.date().describe("When this FERNS request was processed"),
   data: zod
-    .object({
-      inat_taxon_id: zod
-        .number()
-        .nullable()
-        .describe(
-          "iNaturalist numeric taxon ID. Use in phenology and observation queries.",
-        ),
-      inat_name: zod
-        .string()
-        .nullable()
-        .describe(
-          "Scientific name as iNaturalist records it. May differ from GBIF, BONAP, or Michigan Flora — iNaturalist maintains its own taxonomic backbone.\n",
-        ),
-      match_type: zod
-        .enum(["exact", "fallback"])
-        .nullable()
-        .describe(
-          "exact — inat_name matches the queried name exactly (case-insensitive). fallback — no exact match found; first search result was used. Applications should flag fallback matches to users.\n",
-        ),
-      preferred_common_name: zod
-        .string()
-        .nullish()
-        .describe("Primary English common name designated by iNaturalist"),
-      common_names: zod
-        .array(
-          zod.object({
-            name: zod.string(),
-            locale: zod
-              .string()
-              .describe("BCP 47 locale code (e.g. en, fr, de)"),
-          }),
-        )
-        .describe(
-          "Common names list. Populated from iNaturalist's preferred common name when available; empty when no common name is recorded.",
-        ),
-      wikipedia_summary: zod
-        .string()
-        .nullish()
-        .describe(
-          "Wikipedia excerpt returned as raw HTML. Strip tags before displaying as plain text. Attribute to Wikipedia, not iNaturalist. Null if no Wikipedia article is linked.\n",
-        ),
-      wikipedia_url: zod
-        .string()
-        .nullish()
-        .describe(
-          "URL to the Wikipedia article. iNaturalist may return this with a literal unencoded space — apply encodeURI() if strict URL encoding is required.\n",
-        ),
-      default_photo_url: zod
-        .string()
-        .nullish()
-        .describe(
-          "Representative photo URL hosted on iNaturalist's servers. Display directly; FERNS does not store images.",
-        ),
-      conservation_status: zod
-        .object({
-          authority: zod.string().describe("Assessing authority (e.g. IUCN)"),
-          status: zod.string().describe("Status code (e.g. LC, VU, EN)"),
-          status_name: zod
-            .string()
-            .describe("Full status name (e.g. Least Concern)"),
-        })
-        .nullish()
-        .describe(
-          "IUCN Red List status when available. Null means unassessed, not safe.",
-        ),
-      observations_count: zod
-        .number()
-        .nullish()
-        .describe(
-          "Total iNaturalist observations globally, all quality grades",
-        ),
-      source_url: zod
-        .string()
-        .nullish()
-        .describe("https:\/\/www.inaturalist.org\/taxa\/{inat_taxon_id}"),
-      fetched_at: zod.date(),
-      cache_status: zod.enum(["hit", "miss", "bypassed"]),
-    })
-    .nullable(),
+    .record(zod.string(), zod.unknown())
+    .nullable()
+    .describe(
+      "Complete iNaturalist taxon record from GET \/taxa\/{id}, passed through with all original field names intact. Key fields include: id (taxon ID), name (scientific name), preferred_common_name, observations_count, default_photo (object with medium_url), wikipedia_url, wikipedia_summary, conservation_status, and taxon_names.\n",
+    ),
   provenance: zod
     .object({
       source_id: zod

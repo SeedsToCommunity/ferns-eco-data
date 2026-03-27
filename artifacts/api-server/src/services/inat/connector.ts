@@ -52,6 +52,7 @@ export interface InatSpeciesResult {
   native_status: InatNativeStatusEntry[];
   observations_count: number | null;
   source_url: string | null;
+  raw_taxon_record: Record<string, unknown>;
   search_upstream_url: string;
   record_upstream_url: string | null;
 }
@@ -190,6 +191,7 @@ export async function fetchSpecies(name: string): Promise<InatSpeciesResult> {
       native_status: [],
       observations_count: null,
       source_url: null,
+      raw_taxon_record: {},
       search_upstream_url: searchUrl,
       record_upstream_url: null,
     };
@@ -266,6 +268,7 @@ export async function fetchSpecies(name: string): Promise<InatSpeciesResult> {
     native_status,
     observations_count,
     source_url,
+    raw_taxon_record: fullRecord,
     search_upstream_url: searchUrl,
     record_upstream_url: recordUrl,
   };

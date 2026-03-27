@@ -1466,96 +1466,48 @@ components:
           type: string
           description: Name of the place where this status applies
 
-    InatSpeciesData:
-      type: object
-      required:
-        - inat_taxon_id
-        - inat_name
-        - match_type
-        - common_names
-        - fetched_at
-        - cache_status
-      properties:
-        inat_taxon_id:
-          type: integer
-          nullable: true
-          description: iNaturalist numeric taxon ID. Use in phenology and observation queries.
-        inat_name:
-          type: string
-          nullable: true
-          description: >
-            Scientific name as iNaturalist records it. May differ from GBIF, BONAP, or
-            Michigan Flora — iNaturalist maintains its own taxonomic backbone.
-        match_type:
-          type: string
-          nullable: true
-          enum: [exact, fallback]
-          description: >
-            exact — inat_name matches the queried name exactly (case-insensitive).
-            fallback — no exact match found; first search result was used. Applications
-            should flag fallback matches to users.
-        preferred_common_name:
-          type: string
-          nullable: true
-          description: Primary English common name designated by iNaturalist
-        common_names:
-          type: array
-          items:
-            $ref: "#/components/schemas/InatCommonName"
-          description: Common names list. Populated from iNaturalist's preferred common name when available; empty when no common name is recorded.
-        wikipedia_summary:
-          type: string
-          nullable: true
-          description: >
-            Wikipedia excerpt returned as raw HTML. Strip tags before displaying as plain text.
-            Attribute to Wikipedia, not iNaturalist. Null if no Wikipedia article is linked.
-        wikipedia_url:
-          type: string
-          nullable: true
-          description: >
-            URL to the Wikipedia article. iNaturalist may return this with a literal unencoded
-            space — apply encodeURI() if strict URL encoding is required.
-        default_photo_url:
-          type: string
-          nullable: true
-          description: Representative photo URL hosted on iNaturalist's servers. Display directly; FERNS does not store images.
-        conservation_status:
-          nullable: true
-          allOf:
-            - $ref: "#/components/schemas/InatConservationStatus"
-          description: IUCN Red List status when available. Null means unassessed, not safe.
-        observations_count:
-          type: integer
-          nullable: true
-          description: Total iNaturalist observations globally, all quality grades
-        source_url:
-          type: string
-          nullable: true
-          description: https://www.inaturalist.org/taxa/{inat_taxon_id}
-        fetched_at:
-          type: string
-          format: date-time
-        cache_status:
-          type: string
-          enum: [hit, miss, bypassed]
-
     InatSpeciesResponse:
       type: object
       required:
         - source_url
         - found
+        - match_type
+        - cache_status
+        - queried_at
         - data
         - provenance
       properties:
         source_url:
           type: string
           nullable: true
+          description: https://www.inaturalist.org/taxa/{id}
         found:
           type: boolean
-        data:
+        match_type:
+          type: string
           nullable: true
-          allOf:
-            - $ref: "#/components/schemas/InatSpeciesData"
+          enum: [exact, fallback]
+          description: >
+            exact — the taxon name matched the query exactly (case-insensitive).
+            fallback — no exact match found; first search result was used.
+            Applications should flag fallback matches to users.
+        cache_status:
+          type: string
+          enum: [hit, miss, bypassed]
+        queried_at:
+          type: string
+          format: date-time
+          description: When this FERNS request was processed
+        data:
+          type: object
+          nullable: true
+          additionalProperties: true
+          description: >
+            Complete iNaturalist taxon record from GET /taxa/{id}, passed through
+            with all original field names intact. Key fields include: id (taxon ID),
+            name (scientific name), preferred_common_name, observations_count,
+            default_photo (object with medium_url), wikipedia_url, wikipedia_summary,
+            conservation_status, and taxon_names.
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
 

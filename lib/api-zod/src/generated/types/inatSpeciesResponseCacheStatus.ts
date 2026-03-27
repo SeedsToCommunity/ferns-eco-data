@@ -6,10 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type InatSpeciesDataCacheStatus =
-  (typeof InatSpeciesDataCacheStatus)[keyof typeof InatSpeciesDataCacheStatus];
+export type InatSpeciesResponseCacheStatus =
+  (typeof InatSpeciesResponseCacheStatus)[keyof typeof InatSpeciesResponseCacheStatus];
 
-export const InatSpeciesDataCacheStatus = {
+export const InatSpeciesResponseCacheStatus = {
   hit: "hit",
   miss: "miss",
   bypassed: "bypassed",

@@ -157,17 +157,9 @@ router.get("/inat/species", async (req, res) => {
 function buildSpeciesResponse(
   row: {
     found: boolean;
-    inat_taxon_id: number | null;
-    inat_name: string | null;
     match_type: string | null;
-    preferred_common_name: string | null;
-    common_names: unknown;
-    wikipedia_summary: string | null;
-    wikipedia_url: string | null;
-    default_photo_url: string | null;
-    conservation_status: unknown;
-    observations_count: number | null;
     source_url: string | null;
+    raw_response: unknown;
     fetched_at: Date;
     upstream_url: string;
     source_id: string;
@@ -177,32 +169,13 @@ function buildSpeciesResponse(
   },
   cache_status: "hit" | "miss" | "bypassed",
 ) {
-  const storedNames = (row.common_names as Array<{ name: string; locale: string }> | null) ?? [];
-  const common_names =
-    storedNames.length > 0
-      ? storedNames
-      : row.preferred_common_name
-        ? [{ name: row.preferred_common_name, locale: "en" }]
-        : [];
-
   return {
     source_url: row.source_url ?? null,
     found: row.found,
-    data: {
-      inat_taxon_id: row.inat_taxon_id ?? null,
-      inat_name: row.inat_name ?? null,
-      match_type: row.match_type ?? null,
-      preferred_common_name: row.preferred_common_name ?? null,
-      common_names,
-      wikipedia_summary: row.wikipedia_summary ?? null,
-      wikipedia_url: row.wikipedia_url ?? null,
-      default_photo_url: row.default_photo_url ?? null,
-      conservation_status: row.conservation_status ?? null,
-      observations_count: row.observations_count ?? null,
-      source_url: row.source_url ?? null,
-      fetched_at: row.fetched_at,
-      cache_status,
-    },
+    match_type: row.match_type ?? null,
+    cache_status,
+    queried_at: new Date(),
+    data: row.raw_response ?? null,
     provenance: {
       source_id: row.source_id,
       fetched_at: row.fetched_at,

@@ -86,6 +86,10 @@ export async function lookupSpecies(cacheKey: string): Promise<InatSpecies | nul
     await db.delete(inatSpeciesTable).where(eq(inatSpeciesTable.cache_key, cacheKey));
     return null;
   }
+  if (row.raw_response == null) {
+    await db.delete(inatSpeciesTable).where(eq(inatSpeciesTable.cache_key, cacheKey));
+    return null;
+  }
   return row;
 }
 
@@ -110,6 +114,7 @@ export async function storeSpecies(
     native_status: result.native_status,
     observations_count: result.observations_count,
     source_url: result.source_url,
+    raw_response: result.raw_taxon_record,
     found: result.found,
     expires_at: daysFromNow(ttlDays),
     source_id: INAT_SOURCE_ID,
@@ -138,6 +143,7 @@ export async function storeSpecies(
         native_status: insert.native_status,
         observations_count: insert.observations_count,
         source_url: insert.source_url,
+        raw_response: insert.raw_response,
         found: insert.found,
         fetched_at: insert.fetched_at,
         upstream_url: insert.upstream_url,

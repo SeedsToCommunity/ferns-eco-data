@@ -33,6 +33,7 @@ export const inatSpeciesTable = pgTable("inat_species", {
   native_status: jsonb("native_status").notNull().default([]),
   observations_count: integer("observations_count"),
   source_url: text("source_url"),
+  raw_response: jsonb("raw_response"),
   found: boolean("found").notNull().default(false),
   expires_at: timestamp("expires_at", { withTimezone: true }),
   source_id: text("source_id").notNull().default("inaturalist"),
