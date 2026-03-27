@@ -2,14 +2,15 @@
 
 ## Overview
 
-FERNS (Federated Ecological Resource Network System) is a data infrastructure layer providing a federated ecological data API. It exposes native plant and ecological data from various independent sources through a consistent REST API, per-source Explorer web interfaces, and a central Registry. This system is designed to be the foundation for other applications.
+FERNS (Federated Ecological Resource Network System) is a data infrastructure layer providing a federated REST ecological data API and an OpenAPI description. It exposes native species, natural communities, and ecological data from various independent sources through a consistent REST API, per-source Explorer web interfaces, and a central Registry. This system is designed to be the foundation for other applications.
 
-The primary users are intended to be the general public (homeowners, community members, restoration practitioners, and students) who are interested in understanding and stewarding natural communities.
+The primary user of this API is to enable informed design and development of applicatins for the general public (homeowners, community members, restoration practitioners, and students). Secondary users include anyone making applications to assist with their ecological missions, businesses, or research.
 
-The project aims to fetch and cache botanical data from authoritative sources, wrap every response with a FERNS envelope including provenance metadata, expose a unified REST API, and enforce permission statuses per source. It provides research-focused UIs for exploring this data.
+The project aims to fetch and cache botanical data from authoritative sources, wrap every response with a FERNS envelope including provenance metadata, expose a unified REST API, and enforce permission statuses per source. 
 
 ## User Preferences
 
+- **Application Guidance**: Does not belong in this project.
 - **Communication**: Provide detailed explanations.
 - **Interaction**: Do not start a new source without a completed spec document provided by the human. If no spec has been provided, stop and ask for one. Do not attempt to research or define a source yourself.
 - **Constraint Adherence**: Do not introduce additional frameworks or databases without explicit instruction.
@@ -35,9 +36,9 @@ FERNS follows a three-layered architecture: External Sources, the FERNS Data Lay
 
 **Core Architectural Pattern (Per Source):**
 Every external data source integrated into FERNS follows a consistent five-component pattern:
-1.  **Connector**: Ingests data from the source (fetch, import, or file parsing script).
+1.  **Connector**: Ingests data from the source (fetch, import, or file parsing script). 
 2.  **Database**: Stores source data in dedicated tables, each record including provenance fields.
-3.  **Knowledge API**: Provides programmatic access to the data and its full derivation chain.
+3.  **Knowledge API**: Provides programmatic access to the data and its full derivation chain (data lineage, known overlaps with other globaly recognized datasets, and data integrity warnings - all stated as facts about the data, not guidance about how to use it. This FERNS API mirrors the source interface as closely as possible. Devitions are explicit and documented, not made for convenience. Know quirks or unexpected behaviors in the source interface are documented within the source description, so agents and humans know what to expect.  
 4.  **Source Explorer**: A basic web page for browsing data specific to that source, built exclusively on the Knowledge API.
 5.  **Registry Entry**: Declares the service's exposed data and dependencies within the FERNS Registry.
 
