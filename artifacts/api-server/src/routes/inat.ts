@@ -173,7 +173,7 @@ function buildSpeciesResponse(
     found: row.found,
     cache_status,
     queried_at: new Date(),
-    data: row.raw_response ?? null,
+    data: row.found ? (row.raw_response ?? null) : null,
     provenance: {
       source_id: row.source_id,
       fetched_at: row.fetched_at,
