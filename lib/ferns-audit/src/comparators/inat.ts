@@ -33,7 +33,9 @@ export async function runInatComparators(
 async function compareInatSpecies(fernsBase: string, sp: TestSpecies): Promise<EndpointComparison> {
   const fernsEndpoint = `/api/inat/species`;
   const fernsUrl = `${fernsBase}${fernsEndpoint}?name=${encodeURIComponent(sp.name)}&refresh=true`;
-  const inatSearchUrl = `${INAT_API}/taxa?q=${encodeURIComponent(sp.name)}&rank=species&per_page=1`;
+
+  const encoded = encodeURIComponent(sp.name.trim());
+  const inatSearchUrl = `${INAT_API}/taxa?q=${encoded}&rank=species`;
   const label = `${sp.label} (${sp.name}) — species appearance`;
 
   try {
@@ -44,9 +46,8 @@ async function compareInatSpecies(fernsBase: string, sp: TestSpecies): Promise<E
 
     const inatSearch = inatSearchRaw as Record<string, unknown>;
     const inatResults = (inatSearch.results as Record<string, unknown>[] | undefined) ?? [];
-    const topResult = inatResults[0] as Record<string, unknown> | undefined;
 
-    if (!topResult) {
+    if (inatResults.length === 0) {
       return {
         source: "inat",
         endpoint: `${fernsEndpoint}?name=${encodeURIComponent(sp.name)}`,
@@ -58,11 +59,17 @@ async function compareInatSpecies(fernsBase: string, sp: TestSpecies): Promise<E
       };
     }
 
-    const taxonId = topResult.id as number;
+    const lowerName = sp.name.trim().toLowerCase();
+    const exactMatch = inatResults.find(
+      (r) => typeof r.name === "string" && r.name.toLowerCase() === lowerName && r.rank === "species",
+    );
+    const chosen = exactMatch ?? inatResults[0];
+    const taxonId = chosen.id as number;
+
     const inatFullUrl = `${INAT_API}/taxa/${taxonId}`;
     const inatFullRaw = await fetchJson(inatFullUrl) as Record<string, unknown>;
     const inatFullResults = (inatFullRaw.results as Record<string, unknown>[] | undefined) ?? [];
-    const inatTaxon = (inatFullResults[0] as Record<string, unknown> | undefined) ?? topResult;
+    const inatTaxon = (inatFullResults[0] as Record<string, unknown> | undefined) ?? chosen;
 
     const fernsEnvelope = fernsRaw as Record<string, unknown>;
     const fernsData = (fernsEnvelope.data ?? {}) as Record<string, unknown>;
@@ -101,50 +108,44 @@ async function compareInatPhenology(
 ): Promise<EndpointComparison> {
   const fernsEndpoint = `/api/inat/phenology`;
   const fernsUrl = `${fernsBase}${fernsEndpoint}?taxon_id=${taxonId}&place_id=${place.id}&refresh=true`;
-  const inatHistUrl = `${INAT_API}/observations/histogram?taxon_id=${taxonId}&place_id=${place.id}&interval=month_of_year&verifiable=true`;
-  const inatStagesUrl = `${INAT_API}/observations/popular_field_values?taxon_id=${taxonId}&place_id=${place.id}&verifiable=true`;
+
+  const placeParam = `&place_id=${place.id}`;
+  const inatHistUrl = `${INAT_API}/observations/histogram?taxon_id=${taxonId}${placeParam}&interval=month_of_year`;
+  const inatPfvUrl = `${INAT_API}/observations/popular_field_values?taxon_id=${taxonId}${placeParam}&verifiable=true`;
   const label = `${sp.label} in ${place.name} — phenology`;
 
   try {
-    const [inatHistRaw, inatStagesRaw, fernsRaw] = await Promise.all([
+    const [inatHistRaw, inatPfvRaw, fernsRaw] = await Promise.all([
       fetchJson(inatHistUrl),
-      fetchJson(inatStagesUrl),
+      fetchJson(inatPfvUrl),
       fetchJson(fernsUrl),
     ]);
 
     const fernsEnvelope = fernsRaw as Record<string, unknown>;
     const fernsData = (fernsEnvelope.data ?? {}) as Record<string, unknown>;
     const inatHist = inatHistRaw as Record<string, unknown>;
-    const inatStages = inatStagesRaw as Record<string, unknown>;
+    const inatPfv = inatPfvRaw as Record<string, unknown>;
 
     const findings: EndpointComparison["findings"] = [];
 
     findings.push({
       type: "ok",
       sourceField: "(phenology)",
-      note: "Phenology is a multi-call aggregate endpoint. Field-level diff runs against each upstream iNat source call individually.",
+      note: "Phenology aggregates two iNat calls: histogram + popular_field_values. Diffing each full response against FERNS phenology data.",
     });
 
-    const histSource: Record<string, unknown> = {
-      results: inatHist.results,
-      total_results: inatHist.total_results,
-    };
-    const histFindings = diffObjects(histSource, fernsData, "iNat histogram");
+    const histFindings = diffObjects(inatHist as Record<string, unknown>, fernsData, "iNat histogram");
     for (const f of histFindings) {
-      findings.push({ ...f, note: `[histogram vs phenology] ${f.note ?? ""}` });
+      findings.push({ ...f, note: `[histogram] ${f.note ?? ""}` });
     }
 
-    const fieldValuesSource: Record<string, unknown> = {
-      results: inatStages.results,
-      total_results: inatStages.total_results,
-    };
-    const fieldValuesFindings = diffObjects(fieldValuesSource, fernsData, "iNat field values");
-    for (const f of fieldValuesFindings) {
+    const pfvFindings = diffObjects(inatPfv as Record<string, unknown>, fernsData, "iNat field values");
+    for (const f of pfvFindings) {
       const alreadyCovered = findings.some(
-        (existing) => existing.sourceField === f.sourceField && existing.type === f.type,
+        (ex) => ex.sourceField === f.sourceField && ex.type === f.type,
       );
       if (!alreadyCovered) {
-        findings.push({ ...f, note: `[field_values vs phenology] ${f.note ?? ""}` });
+        findings.push({ ...f, note: `[popular_field_values] ${f.note ?? ""}` });
       }
     }
 
@@ -155,7 +156,7 @@ async function compareInatPhenology(
       endpoint: `${fernsEndpoint}?taxon_id=${taxonId}&place_id=${place.id}`,
       label,
       ok: true,
-      rawSource: { histogram: inatHistRaw, stages: inatStagesRaw } as unknown as Record<string, unknown>,
+      rawSource: { histogram: inatHistRaw, pfv: inatPfvRaw } as unknown as Record<string, unknown>,
       rawFerns: fernsData,
       findings,
       urlsCollected,
