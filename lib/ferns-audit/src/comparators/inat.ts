@@ -122,40 +122,31 @@ async function compareInatPhenology(
     findings.push({
       type: "ok",
       sourceField: "(phenology)",
-      note: "Phenology is a multi-call aggregate endpoint — structural comparison only (not field-level diff)",
+      note: "Phenology is a multi-call aggregate endpoint. Field-level diff runs against each upstream iNat source call individually.",
     });
 
-    const fernsObsByMonth = fernsData.observations_by_month as Record<string, number> | undefined;
-    const inatHistResults = inatHist.results as Record<string, number> | undefined;
-
-    if (fernsObsByMonth && inatHistResults) {
-      const fernsTotal = Object.values(fernsObsByMonth).reduce((a, b) => a + b, 0);
-      const inatTotal = Object.values(inatHistResults).reduce((a, b) => a + b, 0);
-      if (fernsTotal !== inatTotal) {
-        findings.push({
-          type: "mismatch",
-          sourceField: "histogram_total",
-          fernsField: "observations_by_month (sum)",
-          sourceValue: inatTotal,
-          fernsValue: fernsTotal,
-          note: "Total observation count differs between iNat histogram and FERNS phenology. Acceptable if cache is slightly stale.",
-        });
-      } else {
-        findings.push({
-          type: "ok",
-          sourceField: "histogram_total",
-          note: `Observation totals match: ${fernsTotal} observations`,
-        });
-      }
+    const histSource: Record<string, unknown> = {
+      results: inatHist.results,
+      total_results: inatHist.total_results,
+    };
+    const histFindings = diffObjects(histSource, fernsData, "iNat histogram");
+    for (const f of histFindings) {
+      findings.push({ ...f, note: `[histogram vs phenology] ${f.note ?? ""}` });
     }
 
-    const inatFieldCount = (inatStages.results as unknown[] | undefined)?.length ?? 0;
-    const fernsAnnotationsAvailable = fernsData.annotations_available as boolean | undefined;
-    findings.push({
-      type: "ok",
-      sourceField: "annotations",
-      note: `iNat returned ${inatFieldCount} field value entries. FERNS annotations_available=${fernsAnnotationsAvailable}`,
-    });
+    const fieldValuesSource: Record<string, unknown> = {
+      results: inatStages.results,
+      total_results: inatStages.total_results,
+    };
+    const fieldValuesFindings = diffObjects(fieldValuesSource, fernsData, "iNat field values");
+    for (const f of fieldValuesFindings) {
+      const alreadyCovered = findings.some(
+        (existing) => existing.sourceField === f.sourceField && existing.type === f.type,
+      );
+      if (!alreadyCovered) {
+        findings.push({ ...f, note: `[field_values vs phenology] ${f.note ?? ""}` });
+      }
+    }
 
     const urlsCollected = collectUrls(fernsEnvelope, `inat/phenology:${sp.name}@${place.name}`);
 

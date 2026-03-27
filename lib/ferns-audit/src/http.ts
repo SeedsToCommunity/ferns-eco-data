@@ -56,9 +56,9 @@ export function isAbsoluteUrl(url: unknown): boolean {
   return url.startsWith("http://") || url.startsWith("https://");
 }
 
-export function isUrlLike(value: unknown): boolean {
-  if (typeof value !== "string") return false;
-  return value.startsWith("http://") || value.startsWith("https://");
+function isUrlFieldName(key: string): boolean {
+  const lower = key.toLowerCase();
+  return lower === "url" || lower.endsWith("_url") || lower.endsWith("url");
 }
 
 export function collectUrls(obj: unknown, context: string): Array<{ url: string; field: string; context: string }> {
@@ -81,8 +81,8 @@ function collectUrlsInner(
 
   if (typeof obj === "object") {
     for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
-      if (isUrlLike(value)) {
-        results.push({ url: value as string, field: key, context });
+      if (typeof value === "string" && isUrlFieldName(key) && value.length > 0) {
+        results.push({ url: value, field: key, context });
       } else if (typeof value === "object" && value !== null) {
         collectUrlsInner(value, `${context}.${key}`, results);
       }
