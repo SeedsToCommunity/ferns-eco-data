@@ -202,11 +202,12 @@ export function printReport(report: AuditReport): void {
   lines.push(DIV);
   const externalVerified = report.urlChecks.filter((u) => u.skipped && u.ok);
   const relativeViolations = report.urlChecks.filter((u) => !u.ok && !u.isAbsolute);
-  const fernsDeadUrls = report.urlChecks.filter((u) => !u.ok && u.isAbsolute && !u.skipped);
+  const fernsReachability = report.urlChecks.filter((u) => u.isAbsolute && !u.skipped);
+  const fernsDeadUrls = fernsReachability.filter((u) => !u.ok);
   const totalFails = relativeViolations.length + fernsDeadUrls.length;
   lines.push(
-    `  Total URLs checked: ${report.urlChecks.length}` +
-    `  (${externalVerified.length} external-verified, ${report.urlChecks.length - externalVerified.length} FERNS-domain reachability)` +
+    `  Total URLs: ${report.urlChecks.length}` +
+    `  (${externalVerified.length} external-verified, ${fernsReachability.length} FERNS-domain reachability, ${relativeViolations.length} relative)` +
     `  ✗ ${totalFails} fail`,
   );
 
