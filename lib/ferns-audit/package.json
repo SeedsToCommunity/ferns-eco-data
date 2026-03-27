@@ -1,0 +1,13 @@
+{
+  "name": "@workspace/ferns-audit",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "audit": "tsx src/index.ts"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "tsx": "catalog:"
+  }
+}
