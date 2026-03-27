@@ -959,18 +959,18 @@ components:
     GbifMatchData:
       type: object
       required:
-        - match_type
+        - matchType
         - matched_input
         - source_url
       properties:
-        usage_key:
+        usageKey:
           type: integer
           nullable: true
           description: GBIF backbone usageKey. Null when matchType is NONE.
-        canonical_name:
+        canonicalName:
           type: string
           nullable: true
-        scientific_name:
+        scientificName:
           type: string
           nullable: true
         rank:
@@ -983,15 +983,15 @@ components:
         accepted_usage_key:
           type: integer
           nullable: true
-          description: Present when status is SYNONYM
+          description: Present when status is SYNONYM. FERNS addition.
         accepted_canonical_name:
           type: string
           nullable: true
-          description: Present when status is SYNONYM
+          description: Present when status is SYNONYM. FERNS addition.
         confidence:
           type: integer
           nullable: true
-        match_type:
+        matchType:
           type: string
           enum: [EXACT, FUZZY, HIGHERRANK, NONE]
         kingdom:
@@ -1003,9 +1003,11 @@ components:
         class_:
           type: string
           nullable: true
+          description: GBIF 'class' field (JS reserved word renamed to class_)
         order_:
           type: string
           nullable: true
+          description: GBIF 'order' field (JS reserved word renamed to order_)
         family:
           type: string
           nullable: true
@@ -1014,6 +1016,27 @@ components:
           nullable: true
         species:
           type: string
+          nullable: true
+        kingdomKey:
+          type: integer
+          nullable: true
+        phylumKey:
+          type: integer
+          nullable: true
+        classKey:
+          type: integer
+          nullable: true
+        orderKey:
+          type: integer
+          nullable: true
+        familyKey:
+          type: integer
+          nullable: true
+        genusKey:
+          type: integer
+          nullable: true
+        speciesKey:
+          type: integer
           nullable: true
         source_url:
           type: string

@@ -223,25 +223,34 @@ export const GbifMatchDataCacheStatus = {
 
 export interface GbifMatchData {
   /** GBIF backbone usageKey. Null when matchType is NONE. */
-  usage_key?: number | null;
-  canonical_name?: string | null;
-  scientific_name?: string | null;
+  usageKey?: number | null;
+  canonicalName?: string | null;
+  scientificName?: string | null;
   rank?: string | null;
   /** ACCEPTED, SYNONYM, or DOUBTFUL */
   status?: string | null;
-  /** Present when status is SYNONYM */
+  /** Present when status is SYNONYM. FERNS addition. */
   accepted_usage_key?: number | null;
-  /** Present when status is SYNONYM */
+  /** Present when status is SYNONYM. FERNS addition. */
   accepted_canonical_name?: string | null;
   confidence?: number | null;
-  match_type: GbifMatchDataMatchType;
+  matchType: GbifMatchDataMatchType;
   kingdom?: string | null;
   phylum?: string | null;
+  /** GBIF 'class' field (JS reserved word renamed to class_) */
   class_?: string | null;
+  /** GBIF 'order' field (JS reserved word renamed to order_) */
   order_?: string | null;
   family?: string | null;
   genus?: string | null;
   species?: string | null;
+  kingdomKey?: number | null;
+  phylumKey?: number | null;
+  classKey?: number | null;
+  orderKey?: number | null;
+  familyKey?: number | null;
+  genusKey?: number | null;
+  speciesKey?: number | null;
   /** https://www.gbif.org/species/{usageKey} when usageKey is known */
   source_url: string | null;
   matched_input: string;

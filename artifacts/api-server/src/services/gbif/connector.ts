@@ -27,6 +27,13 @@ export interface GbifMatchResult {
   family: string | null;
   genus: string | null;
   species: string | null;
+  kingdom_key: number | null;
+  phylum_key: number | null;
+  class_key: number | null;
+  order_key: number | null;
+  family_key: number | null;
+  genus_key: number | null;
+  species_key: number | null;
   source_url: string | null;
   matched_input: string;
   upstream_url: string;
@@ -197,6 +204,13 @@ export async function fetchNameMatch(name: string): Promise<GbifMatchResult> {
       family: null,
       genus: null,
       species: null,
+      kingdom_key: null,
+      phylum_key: null,
+      class_key: null,
+      order_key: null,
+      family_key: null,
+      genus_key: null,
+      species_key: null,
       source_url: null,
       matched_input: name.trim(),
       upstream_url: url,
@@ -235,6 +249,13 @@ export async function fetchNameMatch(name: string): Promise<GbifMatchResult> {
     family: (raw.family as string) || null,
     genus: (raw.genus as string) || null,
     species: (raw.species as string) || null,
+    kingdom_key: typeof raw.kingdomKey === "number" ? raw.kingdomKey : null,
+    phylum_key: typeof raw.phylumKey === "number" ? raw.phylumKey : null,
+    class_key: typeof raw.classKey === "number" ? raw.classKey : null,
+    order_key: typeof raw.orderKey === "number" ? raw.orderKey : null,
+    family_key: typeof raw.familyKey === "number" ? raw.familyKey : null,
+    genus_key: typeof raw.genusKey === "number" ? raw.genusKey : null,
+    species_key: typeof raw.speciesKey === "number" ? raw.speciesKey : null,
     source_url: `https://www.gbif.org/species/${usageKey}`,
     matched_input: name.trim(),
     upstream_url: url,

@@ -85,6 +85,13 @@ function buildMatchResponse(
     family: string | null;
     genus: string | null;
     species: string | null;
+    kingdom_key: number | null;
+    phylum_key: number | null;
+    class_key: number | null;
+    order_key: number | null;
+    family_key: number | null;
+    genus_key: number | null;
+    species_key: number | null;
     source_url: string | null;
     matched_input: string;
     fetched_at: Date;
@@ -100,15 +107,15 @@ function buildMatchResponse(
     source_url: row.source_url ?? null,
     found: row.match_type !== "NONE",
     data: {
-      usage_key: row.usage_key ?? null,
-      canonical_name: row.canonical_name ?? null,
-      scientific_name: row.scientific_name ?? null,
+      usageKey: row.usage_key ?? null,
+      canonicalName: row.canonical_name ?? null,
+      scientificName: row.scientific_name ?? null,
       rank: row.rank ?? null,
       status: row.status ?? null,
       accepted_usage_key: row.accepted_usage_key ?? null,
       accepted_canonical_name: row.accepted_canonical_name ?? null,
       confidence: row.confidence ?? null,
-      match_type: row.match_type,
+      matchType: row.match_type,
       kingdom: row.kingdom ?? null,
       phylum: row.phylum ?? null,
       class_: row.class_ ?? null,
@@ -116,6 +123,13 @@ function buildMatchResponse(
       family: row.family ?? null,
       genus: row.genus ?? null,
       species: row.species ?? null,
+      kingdomKey: row.kingdom_key ?? null,
+      phylumKey: row.phylum_key ?? null,
+      classKey: row.class_key ?? null,
+      orderKey: row.order_key ?? null,
+      familyKey: row.family_key ?? null,
+      genusKey: row.genus_key ?? null,
+      speciesKey: row.species_key ?? null,
       source_url: row.source_url ?? null,
       matched_input: row.matched_input,
       matched_at: row.fetched_at,

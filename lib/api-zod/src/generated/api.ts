@@ -267,31 +267,44 @@ export const GetGbifMatchResponse = zod.object({
   found: zod.boolean(),
   data: zod
     .object({
-      usage_key: zod
+      usageKey: zod
         .number()
         .nullish()
         .describe("GBIF backbone usageKey. Null when matchType is NONE."),
-      canonical_name: zod.string().nullish(),
-      scientific_name: zod.string().nullish(),
+      canonicalName: zod.string().nullish(),
+      scientificName: zod.string().nullish(),
       rank: zod.string().nullish(),
       status: zod.string().nullish().describe("ACCEPTED, SYNONYM, or DOUBTFUL"),
       accepted_usage_key: zod
         .number()
         .nullish()
-        .describe("Present when status is SYNONYM"),
+        .describe("Present when status is SYNONYM. FERNS addition."),
       accepted_canonical_name: zod
         .string()
         .nullish()
-        .describe("Present when status is SYNONYM"),
+        .describe("Present when status is SYNONYM. FERNS addition."),
       confidence: zod.number().nullish(),
-      match_type: zod.enum(["EXACT", "FUZZY", "HIGHERRANK", "NONE"]),
+      matchType: zod.enum(["EXACT", "FUZZY", "HIGHERRANK", "NONE"]),
       kingdom: zod.string().nullish(),
       phylum: zod.string().nullish(),
-      class_: zod.string().nullish(),
-      order_: zod.string().nullish(),
+      class_: zod
+        .string()
+        .nullish()
+        .describe("GBIF 'class' field (JS reserved word renamed to class_)"),
+      order_: zod
+        .string()
+        .nullish()
+        .describe("GBIF 'order' field (JS reserved word renamed to order_)"),
       family: zod.string().nullish(),
       genus: zod.string().nullish(),
       species: zod.string().nullish(),
+      kingdomKey: zod.number().nullish(),
+      phylumKey: zod.number().nullish(),
+      classKey: zod.number().nullish(),
+      orderKey: zod.number().nullish(),
+      familyKey: zod.number().nullish(),
+      genusKey: zod.number().nullish(),
+      speciesKey: zod.number().nullish(),
       source_url: zod
         .string()
         .nullable()

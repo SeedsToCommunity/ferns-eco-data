@@ -119,7 +119,7 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
   });
 
   const matchData = matchQuery.data?.data;
-  const reconcileKey = matchData?.status === 'SYNONYM' ? matchData.accepted_usage_key : matchData?.usage_key;
+  const reconcileKey = matchData?.status === 'SYNONYM' ? matchData.accepted_usage_key : matchData?.usageKey;
   
   const reconcileQuery = useGetGbifReconcile({ usageKey: reconcileKey || 0 }, {
     query: { queryKey: getGetGbifReconcileQueryKey({ usageKey: reconcileKey || 0 }), enabled: !!reconcileKey }
@@ -143,7 +143,7 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
 
   if (!matchQuery.data) return null;
 
-  const isNotFound = !matchQuery.data.found || !matchData || matchData.match_type === "NONE";
+  const isNotFound = !matchQuery.data.found || !matchData || matchData.matchType === "NONE";
 
   return (
     <div className="space-y-6">
@@ -163,8 +163,8 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <Badge variant={matchData.match_type === 'EXACT' ? 'success' : 'warning'}>
-                      {matchData.match_type} MATCH
+                    <Badge variant={matchData.matchType === 'EXACT' ? 'success' : 'warning'}>
+                      {matchData.matchType} MATCH
                     </Badge>
                     {matchData.confidence && (
                       <span className="text-xs font-medium text-muted-foreground">
@@ -176,7 +176,7 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
                     </Badge>
                   </div>
                   <CardTitle className="text-3xl italic text-primary mt-2">
-                    {matchData.canonical_name || matchData.scientific_name}
+                    {matchData.canonicalName || matchData.scientificName}
                   </CardTitle>
                 </div>
                 {matchData.source_url && (
@@ -233,7 +233,7 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Usage Key</p>
-                  <p className="font-mono text-sm text-foreground bg-muted px-2 py-1 rounded inline-block">{matchData.usage_key}</p>
+                  <p className="font-mono text-sm text-foreground bg-muted px-2 py-1 rounded inline-block">{matchData.usageKey}</p>
                 </div>
               </div>
 
