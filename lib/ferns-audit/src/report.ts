@@ -1,4 +1,4 @@
-import type { AuditReport, EndpointComparison, UrlCheckResult, DocCheckResult } from "./types.js";
+import type { AuditReport, EndpointComparison, UrlCheckResult } from "./types.js";
 
 const W = 72;
 const DIV = "─".repeat(W);
@@ -22,6 +22,43 @@ function formatValue(v: unknown): string {
   if (typeof v === "string") return truncate(v, 80);
   if (typeof v === "object") return truncate(JSON.stringify(v), 80);
   return String(v);
+}
+
+interface SourceStats {
+  source: string;
+  endpoints: number;
+  endpointErrors: number;
+  gaps: number;
+  mismatches: number;
+  additionViolations: number;
+  envelopeAdditions: number;
+  deadUrls: number;
+}
+
+function computeSourceStats(
+  source: string,
+  comparisons: EndpointComparison[],
+  urlChecks: UrlCheckResult[],
+): SourceStats {
+  const mine = comparisons.filter((c) => c.source === source);
+  const allFindings = mine.flatMap((c) => c.findings);
+  const contextPrefix = source === "gbif" ? "gbif/" : source === "inat" ? "inat/" : "bonap/";
+  const myUrls = urlChecks.filter((u) => u.context.startsWith(contextPrefix));
+
+  return {
+    source,
+    endpoints: mine.length,
+    endpointErrors: mine.filter((c) => !c.ok || (c.error && c.findings.length === 0)).length,
+    gaps: allFindings.filter((f) => f.type === "gap").length,
+    mismatches: allFindings.filter((f) => f.type === "mismatch").length,
+    additionViolations: allFindings.filter(
+      (f) => f.type === "addition" && f.note && !f.note.includes("Permitted"),
+    ).length,
+    envelopeAdditions: allFindings.filter(
+      (f) => f.type === "addition" && f.note && f.note.includes("Permitted"),
+    ).length,
+    deadUrls: myUrls.filter((u) => !u.ok).length,
+  };
 }
 
 export function printReport(report: AuditReport): void {
@@ -53,15 +90,33 @@ export function printReport(report: AuditReport): void {
       const mCheck = src.metadata_url_check;
       const eCheck = src.explorer_url_check;
       const mStr = mCheck
-        ? `metadata_url: ${ok(mCheck.isAbsolute)} abs  ${mCheck.skipped ? "~ skip" : ok(mCheck.ok) + " " + (mCheck.status ?? "err")}`
+        ? `metadata_url: ${ok(mCheck.isAbsolute)} abs  ${ok(mCheck.ok)} ${mCheck.status ?? (mCheck.error ? "err" : "?")}`
         : "metadata_url: n/a";
       const eStr = eCheck
-        ? `explorer_url: ${ok(eCheck.isAbsolute)} abs  ${eCheck.skipped ? "~ skip" : ok(eCheck.ok) + " " + (eCheck.status ?? "err")}`
+        ? `explorer_url: ${ok(eCheck.isAbsolute)} abs  ${ok(eCheck.ok)} ${eCheck.status ?? (eCheck.error ? "err" : "?")}`
         : "explorer_url: n/a";
       lines.push(`  ${pad(src.source_id, 18)}  ${mStr}    ${eStr}`);
-      if (mCheck?.error && !mCheck.skipped) lines.push(`                      metadata error: ${mCheck.error}`);
-      if (eCheck?.error && !eCheck.skipped) lines.push(`                      explorer error: ${eCheck.error}`);
+      if (mCheck?.error) lines.push(`                      metadata error: ${mCheck.error}`);
+      if (eCheck?.error) lines.push(`                      explorer error: ${eCheck.error}`);
     }
+  }
+  lines.push("");
+
+  lines.push(DIV);
+  lines.push("PER-SOURCE SUMMARY TABLE");
+  lines.push(DIV);
+  const sources = [...new Set(report.comparisons.map((c) => c.source))];
+  const allSourceStats = sources.map((s) =>
+    computeSourceStats(s, report.comparisons, report.urlChecks),
+  );
+
+  const header = `  ${pad("Source", 10)} ${pad("Endpoints", 10)} ${pad("Gaps", 8)} ${pad("Mismatches", 12)} ${pad("Additions", 12)} ${pad("Dead URLs", 10)}`;
+  lines.push(header);
+  lines.push("  " + "─".repeat(W - 2));
+  for (const s of allSourceStats) {
+    lines.push(
+      `  ${pad(s.source, 10)} ${pad(String(s.endpoints), 10)} ${pad(String(s.gaps), 8)} ${pad(String(s.mismatches), 12)} ${pad(String(s.additionViolations), 12)} ${pad(String(s.deadUrls), 10)}`,
+    );
   }
   lines.push("");
 
@@ -69,7 +124,7 @@ export function printReport(report: AuditReport): void {
 
   for (const [source, comparisons] of Object.entries(bySource)) {
     lines.push(DIV);
-    lines.push(`${source.toUpperCase()} COMPARATOR`);
+    lines.push(`${source.toUpperCase()} COMPARATOR — DETAIL`);
     lines.push(DIV);
 
     for (const comp of comparisons) {
@@ -145,10 +200,9 @@ export function printReport(report: AuditReport): void {
   lines.push(DIV);
   lines.push("URL AUDIT");
   lines.push(DIV);
-  const skipped = report.urlChecks.filter((u) => u.skipped);
-  const failures = report.urlChecks.filter((u) => !u.ok && !u.skipped);
-  const passes = report.urlChecks.filter((u) => u.ok && !u.skipped);
-  lines.push(`  Total URLs: ${report.urlChecks.length}  ✓ ${passes.length} pass  ✗ ${failures.length} fail  ~ ${skipped.length} skipped (external domains)`);
+  const failures = report.urlChecks.filter((u) => !u.ok);
+  const passes = report.urlChecks.filter((u) => u.ok);
+  lines.push(`  Total URLs: ${report.urlChecks.length}  ✓ ${passes.length} pass  ✗ ${failures.length} fail`);
   if (failures.length > 0) {
     lines.push("");
     lines.push("  FAILURES:");
@@ -159,18 +213,10 @@ export function printReport(report: AuditReport): void {
       if (f.error) lines.push(`        → ${f.error}`);
     }
   }
-  if (skipped.length > 0) {
-    lines.push("");
-    lines.push("  SKIPPED (external source website domains — HEAD requests blocked by bot protection):");
-    for (const s of skipped) {
-      lines.push(`    ~ [${s.context}] ${s.field}: ${truncate(s.url, 60)}`);
-      lines.push(`        → URL is absolute. Manual verification required.`);
-    }
-  }
   lines.push("");
 
   lines.push(DIV);
-  lines.push("SUMMARY");
+  lines.push("OVERALL SUMMARY");
   lines.push(DIV);
   printSummary(lines, report);
   lines.push(HEAVY);
@@ -191,8 +237,7 @@ function groupBySource(comparisons: EndpointComparison[]): Record<string, Endpoi
 
 function printSummary(lines: string[], report: AuditReport): void {
   const docFails = report.docChecks.filter((d) => !d.ok).length;
-  const urlFails = report.urlChecks.filter((u) => !u.ok && !u.skipped).length;
-  const urlSkipped = report.urlChecks.filter((u) => u.skipped).length;
+  const urlFails = report.urlChecks.filter((u) => !u.ok).length;
 
   const allFindings = report.comparisons.flatMap((c) => c.findings);
   const gapCount = allFindings.filter((f) => f.type === "gap").length;
@@ -203,7 +248,7 @@ function printSummary(lines: string[], report: AuditReport): void {
   const endpointErrors = report.comparisons.filter((c) => !c.ok || (c.error && c.findings.length === 0)).length;
 
   lines.push(`  API docs failing             : ${docFails}`);
-  lines.push(`  URL failures                 : ${urlFails}${urlSkipped > 0 ? ` (+ ${urlSkipped} external domains skipped — absolute URL verified only)` : ""}`);
+  lines.push(`  URL failures                 : ${urlFails}`);
   lines.push(`  Endpoint errors              : ${endpointErrors}`);
   lines.push(`  Passthrough gaps             : ${gapCount}  [VIOLATIONS — fields dropped by FERNS]`);
   lines.push(`  Value mismatches             : ${mismatchCount}  [same field name, different value]`);

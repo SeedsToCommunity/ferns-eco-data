@@ -13,22 +13,16 @@ export async function runInatComparators(
   const results: EndpointComparison[] = [];
 
   for (const sp of species) {
-    results.push(await compareInatSpecies(fernsBase, sp));
-  }
+    const speciesResult = await compareInatSpecies(fernsBase, sp);
+    results.push(speciesResult);
 
-  for (const sp of species) {
-    const fernsSpeciesUrl = `${fernsBase}/api/inat/species?name=${encodeURIComponent(sp.name)}`;
-    let taxonId: number | null = null;
-    try {
-      const resp = await fetchJson(fernsSpeciesUrl) as Record<string, unknown>;
-      const data = resp.data as Record<string, unknown> | undefined;
-      if (data?.inat_taxon_id) taxonId = data.inat_taxon_id as number;
-    } catch {
-    }
+    const inatTaxonId = speciesResult.rawSource
+      ? (speciesResult.rawSource["id"] as number | undefined)
+      : undefined;
 
-    if (taxonId) {
+    if (inatTaxonId) {
       for (const place of places) {
-        results.push(await compareInatPhenology(fernsBase, sp, taxonId, place));
+        results.push(await compareInatPhenology(fernsBase, sp, inatTaxonId, place));
       }
     }
   }
@@ -68,7 +62,7 @@ async function compareInatSpecies(fernsBase: string, sp: TestSpecies): Promise<E
     const inatFullUrl = `${INAT_API}/taxa/${taxonId}`;
     const inatFullRaw = await fetchJson(inatFullUrl) as Record<string, unknown>;
     const inatFullResults = (inatFullRaw.results as Record<string, unknown>[] | undefined) ?? [];
-    const inatTaxon = inatFullResults[0] as Record<string, unknown> | undefined ?? topResult;
+    const inatTaxon = (inatFullResults[0] as Record<string, unknown> | undefined) ?? topResult;
 
     const fernsEnvelope = fernsRaw as Record<string, unknown>;
     const fernsData = (fernsEnvelope.data ?? {}) as Record<string, unknown>;
@@ -120,7 +114,6 @@ async function compareInatPhenology(
 
     const fernsEnvelope = fernsRaw as Record<string, unknown>;
     const fernsData = (fernsEnvelope.data ?? {}) as Record<string, unknown>;
-
     const inatHist = inatHistRaw as Record<string, unknown>;
     const inatStages = inatStagesRaw as Record<string, unknown>;
 
@@ -171,7 +164,7 @@ async function compareInatPhenology(
       endpoint: `${fernsEndpoint}?taxon_id=${taxonId}&place_id=${place.id}`,
       label,
       ok: true,
-      rawSource: { histogram: inatHistRaw, stages: inatStagesRaw },
+      rawSource: { histogram: inatHistRaw, stages: inatStagesRaw } as unknown as Record<string, unknown>,
       rawFerns: fernsData,
       findings,
       urlsCollected,

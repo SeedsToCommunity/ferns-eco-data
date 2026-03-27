@@ -1,29 +1,6 @@
 import { headUrl, isAbsoluteUrl } from "../http.js";
 import type { UrlEntry, UrlCheckResult } from "../types.js";
 
-const EXTERNAL_DOMAINS_SKIP_HEAD = [
-  "www.gbif.org",
-  "gbif.org",
-  "www.inaturalist.org",
-  "inaturalist.org",
-  "www.bonap.org",
-  "bonap.org",
-  "bonap.net",
-  "www.bonap.net",
-  "en.wikipedia.org",
-];
-
-function isExternalSkipDomain(url: string): boolean {
-  try {
-    const u = new URL(url);
-    return EXTERNAL_DOMAINS_SKIP_HEAD.some(
-      (d) => u.hostname === d || u.hostname.endsWith("." + d),
-    );
-  } catch {
-    return false;
-  }
-}
-
 export async function checkUrls(entries: UrlEntry[]): Promise<UrlCheckResult[]> {
   const unique = deduplicateEntries(entries);
   const results: UrlCheckResult[] = [];
@@ -55,18 +32,6 @@ async function checkUrl(entry: UrlEntry): Promise<UrlCheckResult> {
       isAbsolute: false,
       ok: false,
       error: "Relative URL — passthrough URL rule violation",
-    };
-  }
-
-  if (isExternalSkipDomain(url)) {
-    return {
-      url,
-      field,
-      context,
-      isAbsolute: true,
-      ok: false,
-      skipped: true,
-      skipReason: "External source website domain — HEAD requests blocked by bot protection. URL is absolute; manual verification required.",
     };
   }
 
