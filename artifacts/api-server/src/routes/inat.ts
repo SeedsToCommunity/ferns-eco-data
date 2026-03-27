@@ -157,7 +157,6 @@ router.get("/inat/species", async (req, res) => {
 function buildSpeciesResponse(
   row: {
     found: boolean;
-    match_type: string | null;
     source_url: string | null;
     raw_response: unknown;
     fetched_at: Date;
@@ -172,7 +171,6 @@ function buildSpeciesResponse(
   return {
     source_url: row.source_url ?? null,
     found: row.found,
-    match_type: row.match_type ?? null,
     cache_status,
     queried_at: new Date(),
     data: row.raw_response ?? null,

@@ -8,15 +8,11 @@
 import type { FernsProvenance } from "./fernsProvenance";
 import type { InatSpeciesResponseCacheStatus } from "./inatSpeciesResponseCacheStatus";
 import type { InatSpeciesResponseData } from "./inatSpeciesResponseData";
-import type { InatSpeciesResponseMatchType } from "./inatSpeciesResponseMatchType";
 
 export interface InatSpeciesResponse {
   /** https://www.inaturalist.org/taxa/{id} */
   source_url: string | null;
   found: boolean;
-  /** exact — the taxon name matched the query exactly (case-insensitive). fallback — no exact match found; first search result was used. Applications should flag fallback matches to users.
-   */
-  match_type: InatSpeciesResponseMatchType;
   cache_status: InatSpeciesResponseCacheStatus;
   /** When this FERNS request was processed */
   queried_at: Date;

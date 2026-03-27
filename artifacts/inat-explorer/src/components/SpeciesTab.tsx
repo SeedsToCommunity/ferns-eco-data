@@ -32,7 +32,7 @@ export function SpeciesTab({ onTaxonIdSelected }: SpeciesTabProps) {
   const inatTaxonId = species?.id as number | null | undefined;
   const inatName = species?.name as string | null | undefined;
   const defaultPhotoUrl = (species?.default_photo as Record<string, unknown> | null)?.medium_url as string | null | undefined;
-  const matchType = response?.match_type as string | null | undefined;
+  const isFallback = !!inatName && !!query && inatName.toLowerCase() !== query.toLowerCase();
   const cacheStatus = response?.cache_status as string | null | undefined;
 
   return (
@@ -98,7 +98,7 @@ export function SpeciesTab({ onTaxonIdSelected }: SpeciesTabProps) {
 
       {response && response.found && species && (
         <div className="space-y-4">
-          {matchType === "fallback" && (
+          {isFallback && (
             <div className="flex items-start gap-3 p-4 bg-warning/10 rounded-xl border border-warning/30 text-sm">
               <AlertTriangle className="w-4 h-4 shrink-0 text-warning-foreground mt-0.5" />
               <span className="text-warning-foreground">
@@ -124,15 +124,13 @@ export function SpeciesTab({ onTaxonIdSelected }: SpeciesTabProps) {
                     {(species.preferred_common_name as string) ?? inatName}
                   </h2>
                   <p className="text-sm italic text-muted-foreground">{inatName}</p>
-                  {matchType && (
-                    <span className={`inline-block mt-1 px-2 py-0.5 rounded-md text-xs font-medium capitalize ${
-                      matchType === "exact"
-                        ? "bg-primary/10 text-primary"
-                        : "bg-warning/10 text-warning-foreground"
-                    }`}>
-                      {matchType} match
-                    </span>
-                  )}
+                  <span className={`inline-block mt-1 px-2 py-0.5 rounded-md text-xs font-medium capitalize ${
+                    isFallback
+                      ? "bg-warning/10 text-warning-foreground"
+                      : "bg-primary/10 text-primary"
+                  }`}>
+                    {isFallback ? "fallback" : "exact"} match
+                  </span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">

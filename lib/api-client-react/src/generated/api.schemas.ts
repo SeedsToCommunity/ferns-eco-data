@@ -465,19 +465,6 @@ export interface InatNativeStatusEntry {
   place_name: string;
 }
 
-/**
- * exact — the taxon name matched the query exactly (case-insensitive). fallback — no exact match found; first search result was used. Applications should flag fallback matches to users.
-
- */
-export type InatSpeciesResponseMatchType =
-  | (typeof InatSpeciesResponseMatchType)[keyof typeof InatSpeciesResponseMatchType]
-  | null;
-
-export const InatSpeciesResponseMatchType = {
-  exact: "exact",
-  fallback: "fallback",
-} as const;
-
 export type InatSpeciesResponseCacheStatus =
   (typeof InatSpeciesResponseCacheStatus)[keyof typeof InatSpeciesResponseCacheStatus];
 
@@ -497,9 +484,6 @@ export interface InatSpeciesResponse {
   /** https://www.inaturalist.org/taxa/{id} */
   source_url: string | null;
   found: boolean;
-  /** exact — the taxon name matched the query exactly (case-insensitive). fallback — no exact match found; first search result was used. Applications should flag fallback matches to users.
-   */
-  match_type: InatSpeciesResponseMatchType;
   cache_status: InatSpeciesResponseCacheStatus;
   /** When this FERNS request was processed */
   queried_at: string;

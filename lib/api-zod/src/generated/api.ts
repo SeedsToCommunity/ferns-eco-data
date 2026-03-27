@@ -839,12 +839,6 @@ export const GetInatSpeciesResponse = zod.object({
     .nullable()
     .describe("https:\/\/www.inaturalist.org\/taxa\/{id}"),
   found: zod.boolean(),
-  match_type: zod
-    .enum(["exact", "fallback"])
-    .nullable()
-    .describe(
-      "exact — the taxon name matched the query exactly (case-insensitive). fallback — no exact match found; first search result was used. Applications should flag fallback matches to users.\n",
-    ),
   cache_status: zod.enum(["hit", "miss", "bypassed"]),
   queried_at: zod.date().describe("When this FERNS request was processed"),
   data: zod

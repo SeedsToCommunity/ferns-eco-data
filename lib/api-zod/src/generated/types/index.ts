@@ -72,7 +72,6 @@ export * from "./inatPlaceResult";
 export * from "./inatSpeciesResponse";
 export * from "./inatSpeciesResponseCacheStatus";
 export * from "./inatSpeciesResponseData";
-export * from "./inatSpeciesResponseMatchType";
 export * from "./sourcesIndexResponse";
 export * from "./sourcesIndexResponseData";
 export * from "./sourcesMetadataResponse";
