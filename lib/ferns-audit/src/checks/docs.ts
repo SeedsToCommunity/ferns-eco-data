@@ -19,7 +19,7 @@ export async function checkApiDocs(fernsBase: string): Promise<DocCheckResult[]>
         url,
         status: res.status,
         contentType,
-        ok: res.ok,
+        ok: res.status === 200,
       });
     } catch (err) {
       results.push({

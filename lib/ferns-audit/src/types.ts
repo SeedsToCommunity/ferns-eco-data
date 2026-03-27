@@ -31,6 +31,7 @@ export interface UrlCheckResult {
   url: string;
   field: string;
   context: string;
+  allContexts?: string[];
   isAbsolute: boolean;
   status?: number;
   ok: boolean;

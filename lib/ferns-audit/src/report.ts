@@ -208,6 +208,9 @@ export function printReport(report: AuditReport): void {
     lines.push("  FAILURES:");
     for (const f of failures) {
       lines.push(`    ✗ [${f.context}] ${f.field}: ${truncate(f.url, 60)}`);
+      if (f.allContexts && f.allContexts.length > 1) {
+        lines.push(`        → Also appears in: ${f.allContexts.slice(1).join(", ")}`);
+      }
       if (!f.isAbsolute) lines.push(`        → Not absolute (relative URL — passthrough violation)`);
       if (f.status !== undefined) lines.push(`        → HTTP ${f.status}`);
       if (f.error) lines.push(`        → ${f.error}`);

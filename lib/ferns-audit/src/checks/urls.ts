@@ -2,23 +2,37 @@ import { headUrl, isAbsoluteUrl } from "../http.js";
 import type { UrlEntry, UrlCheckResult } from "../types.js";
 
 export async function checkUrls(entries: UrlEntry[]): Promise<UrlCheckResult[]> {
-  const unique = deduplicateEntries(entries);
+  const { unique, contextMap } = deduplicateEntries(entries);
   const results: UrlCheckResult[] = [];
 
   for (const entry of unique) {
-    results.push(await checkUrl(entry));
+    const allContexts = contextMap.get(entry.url) ?? [`${entry.context}:${entry.field}`];
+    const result = await checkUrl(entry);
+    results.push({ ...result, allContexts });
   }
 
   return results;
 }
 
-function deduplicateEntries(entries: UrlEntry[]): UrlEntry[] {
-  const seen = new Set<string>();
-  return entries.filter((e) => {
-    if (seen.has(e.url)) return false;
-    seen.add(e.url);
-    return true;
-  });
+function deduplicateEntries(entries: UrlEntry[]): {
+  unique: UrlEntry[];
+  contextMap: Map<string, string[]>;
+} {
+  const seen = new Map<string, string[]>();
+  const unique: UrlEntry[] = [];
+
+  for (const e of entries) {
+    const key = e.url;
+    const ctx = `${e.context}:${e.field}`;
+    if (!seen.has(key)) {
+      seen.set(key, [ctx]);
+      unique.push(e);
+    } else {
+      seen.get(key)!.push(ctx);
+    }
+  }
+
+  return { unique, contextMap: seen };
 }
 
 async function checkUrl(entry: UrlEntry): Promise<UrlCheckResult> {

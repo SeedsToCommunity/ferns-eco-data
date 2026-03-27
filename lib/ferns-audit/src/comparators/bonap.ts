@@ -54,13 +54,13 @@ async function compareBonapMap(fernsBase: string, sp: TestSpecies): Promise<Endp
           const headResult = await headUrl(mapUrl);
           const contentType = headResult.contentType ?? "";
           const isPng = contentType.includes("image/png");
-          if (!headResult.ok || !isPng) {
+          if (headResult.status !== 200 || !isPng) {
             findings.push({
               type: "mismatch",
               sourceField: "map_url",
               fernsField: "map_url",
               fernsValue: mapUrl,
-              note: `BONAP server returned HTTP ${headResult.status}, Content-Type: ${contentType}. Expected HTTP 200 image/png.`,
+              note: `BONAP server returned HTTP ${headResult.status}, Content-Type: ${contentType}. Expected exactly HTTP 200 image/png.`,
             });
           } else {
             findings.push({
@@ -68,7 +68,7 @@ async function compareBonapMap(fernsBase: string, sp: TestSpecies): Promise<Endp
               sourceField: "map_url",
               fernsField: "map_url",
               fernsValue: mapUrl,
-              note: `BONAP server: HTTP ${headResult.status}, Content-Type: ${contentType} ✓`,
+              note: `BONAP server: HTTP 200, Content-Type: ${contentType} ✓`,
             });
           }
         } catch (err) {
