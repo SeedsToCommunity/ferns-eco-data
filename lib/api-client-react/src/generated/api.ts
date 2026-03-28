@@ -1451,9 +1451,9 @@ export function useGetMifloraSpecies<
 }
 
 /**
- * Returns county-level occurrence records for all 83 Michigan counties for the given Michigan Flora plant_id. Results are the raw passthrough response from the Michigan Flora county API endpoint. Each record includes the county name, FIPS code, and occurrence status. The plant_id is obtained from the species endpoint (search_records[0].plant_id). Cached 30 days per plant_id.
+ * Returns county-level occurrence records for all 83 Michigan counties for the given species name. Two-step lookup: first calls flora_search_sp?scientific_name={name} to resolve the plant_id, then calls locs_sp?id={plant_id} for county data. Results are the raw passthrough response from the Michigan Flora county API endpoint. Cached 30 days per normalized species name.
 
- * @summary Get county-level occurrence records for a Michigan Flora species
+ * @summary Get county-level occurrence records for a Michigan Flora species by name
  */
 export const getGetMifloraCountiesUrl = (params: GetMifloraCountiesParams) => {
   const normalizedParams = new URLSearchParams();
@@ -1526,7 +1526,7 @@ export type GetMifloraCountiesQueryResult = NonNullable<
 export type GetMifloraCountiesQueryError = ErrorType<ErrorResponse>;
 
 /**
- * @summary Get county-level occurrence records for a Michigan Flora species
+ * @summary Get county-level occurrence records for a Michigan Flora species by name
  */
 
 export function useGetMifloraCounties<

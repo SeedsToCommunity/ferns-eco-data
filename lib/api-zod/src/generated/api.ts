@@ -1197,12 +1197,12 @@ export const GetMifloraSpeciesResponse = zod
       .string()
       .nullable()
       .describe(
-        "Michigan Flora species page URL (https:\/\/michiganflora.net\/species.aspx?id={plant_id}). Null when species not found.\n",
+        "Michigan Flora species page URL (https:\/\/michiganflora.net\/species\/{plant_id}). Null when species not found.\n",
       ),
     found: zod
       .boolean()
       .describe("Whether the species was found in Michigan Flora"),
-    cache_status: zod.enum(["hit", "miss", "bypassed"]),
+    cache_status: zod.enum(["hit", "miss", "error"]),
     queried_at: zod.date(),
     data: zod
       .record(zod.string(), zod.unknown())
@@ -1248,17 +1248,17 @@ export const GetMifloraSpeciesResponse = zod
   );
 
 /**
- * Returns county-level occurrence records for all 83 Michigan counties for the given Michigan Flora plant_id. Results are the raw passthrough response from the Michigan Flora county API endpoint. Each record includes the county name, FIPS code, and occurrence status. The plant_id is obtained from the species endpoint (search_records[0].plant_id). Cached 30 days per plant_id.
+ * Returns county-level occurrence records for all 83 Michigan counties for the given species name. Two-step lookup: first calls flora_search_sp?scientific_name={name} to resolve the plant_id, then calls locs_sp?id={plant_id} for county data. Results are the raw passthrough response from the Michigan Flora county API endpoint. Cached 30 days per normalized species name.
 
- * @summary Get county-level occurrence records for a Michigan Flora species
+ * @summary Get county-level occurrence records for a Michigan Flora species by name
  */
 export const getMifloraCountiesQueryRefreshDefault = false;
 
 export const GetMifloraCountiesQueryParams = zod.object({
-  plant_id: zod.coerce
-    .number()
+  name: zod.coerce
+    .string()
     .describe(
-      "Michigan Flora plant ID (from the species endpoint, search_records[0].plant_id)",
+      "Scientific name to look up county records for (e.g. Asclepias tuberosa)",
     ),
   refresh: zod.coerce
     .boolean()
@@ -1273,11 +1273,11 @@ export const GetMifloraCountiesResponse = zod
     source_url: zod
       .string()
       .nullable()
-      .describe("Michigan Flora species page URL for this plant_id."),
+      .describe("Michigan Flora species page URL for this species."),
     found: zod
       .boolean()
-      .describe("Whether county records were found for this plant_id"),
-    cache_status: zod.enum(["hit", "miss", "bypassed"]),
+      .describe("Whether county records were found for this species"),
+    cache_status: zod.enum(["hit", "miss", "error"]),
     queried_at: zod.date(),
     data: zod
       .unknown()

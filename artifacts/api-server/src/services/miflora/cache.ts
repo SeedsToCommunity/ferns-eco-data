@@ -96,13 +96,14 @@ export async function lookupCounties(cacheKey: string): Promise<MifloraCounties 
 
 export async function storeCounties(
   cacheKey: string,
+  queriedName: string,
   result: MifloraCountiesResult,
 ): Promise<MifloraCounties> {
   const now = new Date();
 
   const insert = {
     cache_key: cacheKey,
-    plant_id: result.plant_id,
+    queried_name: queriedName,
     raw_response: result.raw_response as Record<string, unknown>,
     found: result.found,
     expires_at: daysFromNow(COUNTIES_TTL_DAYS),
@@ -121,6 +122,7 @@ export async function storeCounties(
     .onConflictDoUpdate({
       target: mifloraCountiesCacheTable.cache_key,
       set: {
+        queried_name: insert.queried_name,
         raw_response: insert.raw_response,
         found: insert.found,
         fetched_at: insert.fetched_at,

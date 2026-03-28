@@ -14,7 +14,7 @@ import type { MifloraSpeciesResponseData } from "./mifloraSpeciesResponseData";
 
  */
 export interface MifloraSpeciesResponse {
-  /** Michigan Flora species page URL (https://michiganflora.net/species.aspx?id={plant_id}). Null when species not found.
+  /** Michigan Flora species page URL (https://michiganflora.net/species/{plant_id}). Null when species not found.
    */
   source_url: string | null;
   /** Whether the species was found in Michigan Flora */

@@ -4,10 +4,10 @@ import { Leaf, Search, Loader2, AlertCircle, ExternalLink, MapPin, FileJson } fr
 import { RawJsonPanel } from "@/components/RawJsonPanel";
 
 interface SpeciesTabProps {
-  onPlantIdSelected?: (plantId: number, name: string) => void;
+  onSpeciesFound?: (name: string) => void;
 }
 
-export function SpeciesTab({ onPlantIdSelected }: SpeciesTabProps) {
+export function SpeciesTab({ onSpeciesFound }: SpeciesTabProps) {
   const [nameInput, setNameInput] = useState("");
   const [query, setQuery] = useState("");
 
@@ -182,9 +182,9 @@ export function SpeciesTab({ onPlantIdSelected }: SpeciesTabProps) {
                 )}
               </div>
 
-              {plantId && onPlantIdSelected && (
+              {onSpeciesFound && query && (
                 <button
-                  onClick={() => onPlantIdSelected(plantId, String(primaryRecord.scientific_name ?? query))}
+                  onClick={() => onSpeciesFound(query)}
                   className="mt-4 flex items-center gap-2 text-sm text-primary hover:underline font-medium"
                 >
                   <MapPin className="w-4 h-4" />

@@ -12,5 +12,5 @@ export type MifloraSpeciesResponseCacheStatus =
 export const MifloraSpeciesResponseCacheStatus = {
   hit: "hit",
   miss: "miss",
-  bypassed: "bypassed",
+  error: "error",
 } as const;

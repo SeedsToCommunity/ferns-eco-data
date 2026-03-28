@@ -4,24 +4,27 @@ import { MapPin, Search, Loader2, AlertCircle } from "lucide-react";
 import { RawJsonPanel } from "@/components/RawJsonPanel";
 
 interface CountiesTabProps {
-  initialPlantId?: number;
-  initialPlantName?: string;
+  initialName?: string;
 }
 
-export function CountiesTab({ initialPlantId, initialPlantName }: CountiesTabProps) {
-  const [plantIdInput, setPlantIdInput] = useState(initialPlantId ? String(initialPlantId) : "");
-  const [query, setQuery] = useState<number | null>(initialPlantId ?? null);
+export function CountiesTab({ initialName }: CountiesTabProps) {
+  const [nameInput, setNameInput] = useState(initialName ?? "");
+  const [query, setQuery] = useState<string>(initialName ?? "");
 
-  const enabled = query !== null && query > 0;
+  const enabled = !!query;
   const { data: response, isLoading, isError, error } = useGetMifloraCounties(
-    { plant_id: query! },
+    { name: query },
     { query: { enabled } }
   );
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const id = parseInt(plantIdInput.trim(), 10);
-    if (!isNaN(id) && id > 0) setQuery(id);
+    setQuery(nameInput.trim());
+  }
+
+  function runSearch(name: string) {
+    setNameInput(name);
+    setQuery(name);
   }
 
   const countyData = response?.data as Record<string, unknown> | null | undefined;
@@ -37,29 +40,21 @@ export function CountiesTab({ initialPlantId, initialPlantName }: CountiesTabPro
           </div>
           <div>
             <h2 className="font-semibold text-foreground">County Occurrence Records</h2>
-            <p className="text-xs text-muted-foreground">Michigan county presence for a species (by plant_id)</p>
+            <p className="text-xs text-muted-foreground">Michigan county presence by scientific name</p>
           </div>
         </div>
 
-        {initialPlantName && query === initialPlantId && (
-          <div className="mb-3 text-sm text-muted-foreground">
-            Showing county data for:{" "}
-            <span className="font-medium text-foreground italic">{initialPlantName}</span>
-          </div>
-        )}
-
         <form onSubmit={handleSubmit} className="flex gap-2">
           <input
-            type="number"
-            value={plantIdInput}
-            onChange={(e) => setPlantIdInput(e.target.value)}
-            placeholder="e.g. 163 (Asclepias tuberosa)"
+            type="text"
+            value={nameInput}
+            onChange={(e) => setNameInput(e.target.value)}
+            placeholder="e.g. Asclepias tuberosa, Quercus rubra"
             className="flex-1 px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-            min="1"
           />
           <button
             type="submit"
-            disabled={!plantIdInput.trim() || isLoading}
+            disabled={!nameInput.trim() || isLoading}
             className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
           >
             {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
@@ -68,19 +63,15 @@ export function CountiesTab({ initialPlantId, initialPlantName }: CountiesTabPro
         </form>
 
         <p className="text-xs text-muted-foreground mt-2">
-          Use the plant_id from the Species tab. Try:{" "}
-          {[
-            { id: 163, name: "Asclepias tuberosa" },
-            { id: 1024, name: "Quercus rubra" },
-            { id: 1437, name: "Trillium grandiflorum" },
-          ].map((item, i) => (
-            <span key={item.id}>
+          Try:{" "}
+          {["Asclepias tuberosa", "Quercus rubra", "Trillium grandiflorum"].map((name, i) => (
+            <span key={name}>
               {i > 0 && " • "}
               <button
-                onClick={() => { setPlantIdInput(String(item.id)); setQuery(item.id); }}
+                onClick={() => runSearch(name)}
                 className="underline text-primary hover:no-underline"
               >
-                {item.id} ({item.name})
+                {name}
               </button>
             </span>
           ))}
@@ -97,7 +88,7 @@ export function CountiesTab({ initialPlantId, initialPlantName }: CountiesTabPro
       {response && !response.found && (
         <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-xl border border-border text-muted-foreground text-sm">
           <AlertCircle className="w-4 h-4 shrink-0" />
-          <span>No county records found for plant_id {query}</span>
+          <span>No county records found for "{query}"</span>
         </div>
       )}
 
@@ -108,12 +99,12 @@ export function CountiesTab({ initialPlantId, initialPlantName }: CountiesTabPro
               <h3 className="font-semibold text-foreground">
                 {locations.length} {locations.length === 1 ? "county" : "counties"} with confirmed occurrence
               </h3>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                plant_id: {query}
+              <p className="text-xs text-muted-foreground mt-0.5 italic">
+                {query}
                 {response.source_url && (
                   <>
                     {" "}·{" "}
-                    <a href={response.source_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                    <a href={response.source_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline not-italic">
                       View on Michigan Flora
                     </a>
                   </>

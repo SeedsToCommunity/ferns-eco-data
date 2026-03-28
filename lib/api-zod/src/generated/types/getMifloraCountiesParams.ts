@@ -8,9 +8,9 @@
 
 export type GetMifloraCountiesParams = {
   /**
-   * Michigan Flora plant ID (from the species endpoint, search_records[0].plant_id)
+   * Scientific name to look up county records for (e.g. Asclepias tuberosa)
    */
-  plant_id: number;
+  name: string;
   /**
    * If true, bypasses cache and fetches fresh from Michigan Flora API
    */

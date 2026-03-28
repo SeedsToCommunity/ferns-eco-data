@@ -8,12 +8,10 @@ type Tab = "species" | "counties" | "metadata";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>("species");
-  const [selectedPlantId, setSelectedPlantId] = useState<number | null>(null);
-  const [selectedPlantName, setSelectedPlantName] = useState<string>("");
+  const [selectedName, setSelectedName] = useState<string>("");
 
-  function handlePlantIdSelected(plantId: number, name: string) {
-    setSelectedPlantId(plantId);
-    setSelectedPlantName(name);
+  function handleSpeciesFound(name: string) {
+    setSelectedName(name);
     setActiveTab("counties");
   }
 
@@ -62,13 +60,10 @@ export default function Home() {
         </div>
 
         {activeTab === "species" && (
-          <SpeciesTab onPlantIdSelected={handlePlantIdSelected} />
+          <SpeciesTab onSpeciesFound={handleSpeciesFound} />
         )}
         {activeTab === "counties" && (
-          <CountiesTab
-            initialPlantId={selectedPlantId ?? undefined}
-            initialPlantName={selectedPlantName || undefined}
-          />
+          <CountiesTab initialName={selectedName || undefined} />
         )}
         {activeTab === "metadata" && <MetadataTab />}
       </div>

@@ -2,6 +2,7 @@ import app from "./app";
 import { logger } from "./lib/logger";
 import { ensureBonapRegistryEntry } from "./services/bonap/seed.js";
 import { ensureInatRegistryEntry } from "./services/inat/seed.js";
+import { ensureMifloraRegistryEntry } from "./services/miflora/seed.js";
 
 const rawPort = process.env["PORT"];
 
@@ -31,5 +32,9 @@ app.listen(port, (err) => {
 
   ensureInatRegistryEntry().catch((seedErr) => {
     logger.error({ err: seedErr }, "Failed to seed iNaturalist registry entry at startup");
+  });
+
+  ensureMifloraRegistryEntry().catch((seedErr) => {
+    logger.error({ err: seedErr }, "Failed to seed Michigan Flora registry entry at startup");
   });
 });

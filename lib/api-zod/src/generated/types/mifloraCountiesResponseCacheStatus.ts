@@ -12,5 +12,5 @@ export type MifloraCountiesResponseCacheStatus =
 export const MifloraCountiesResponseCacheStatus = {
   hit: "hit",
   miss: "miss",
-  bypassed: "bypassed",
+  error: "error",
 } as const;

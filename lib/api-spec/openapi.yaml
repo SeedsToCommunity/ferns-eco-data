@@ -618,20 +618,20 @@ paths:
     get:
       operationId: getMifloraCounties
       tags: [miflora]
-      summary: Get county-level occurrence records for a Michigan Flora species
+      summary: Get county-level occurrence records for a Michigan Flora species by name
       description: >
         Returns county-level occurrence records for all 83 Michigan counties for
-        the given Michigan Flora plant_id. Results are the raw passthrough response
-        from the Michigan Flora county API endpoint. Each record includes the county
-        name, FIPS code, and occurrence status. The plant_id is obtained from the
-        species endpoint (search_records[0].plant_id). Cached 30 days per plant_id.
+        the given species name. Two-step lookup: first calls flora_search_sp?scientific_name={name}
+        to resolve the plant_id, then calls locs_sp?id={plant_id} for county data.
+        Results are the raw passthrough response from the Michigan Flora county API endpoint.
+        Cached 30 days per normalized species name.
       parameters:
-        - name: plant_id
+        - name: name
           in: query
           required: true
-          description: Michigan Flora plant ID (from the species endpoint, search_records[0].plant_id)
+          description: Scientific name to look up county records for (e.g. Asclepias tuberosa)
           schema:
-            type: integer
+            type: string
         - name: refresh
           in: query
           required: false
@@ -647,7 +647,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/MifloraCountiesResponse"
         "400":
-          description: Missing or invalid plant_id
+          description: Missing or empty name parameter
           content:
             application/json:
               schema:
@@ -1916,14 +1916,14 @@ components:
           type: string
           nullable: true
           description: >
-            Michigan Flora species page URL (https://michiganflora.net/species.aspx?id={plant_id}).
+            Michigan Flora species page URL (https://michiganflora.net/species/{plant_id}).
             Null when species not found.
         found:
           type: boolean
           description: Whether the species was found in Michigan Flora
         cache_status:
           type: string
-          enum: [hit, miss, bypassed]
+          enum: [hit, miss, error]
         queried_at:
           type: string
           format: date-time
@@ -1957,13 +1957,13 @@ components:
         source_url:
           type: string
           nullable: true
-          description: Michigan Flora species page URL for this plant_id.
+          description: Michigan Flora species page URL for this species.
         found:
           type: boolean
-          description: Whether county records were found for this plant_id
+          description: Whether county records were found for this species
         cache_status:
           type: string
-          enum: [hit, miss, bypassed]
+          enum: [hit, miss, error]
         queried_at:
           type: string
           format: date-time

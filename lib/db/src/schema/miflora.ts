@@ -23,7 +23,8 @@ export const mifloraSpeciesCacheTable = pgTable("miflora_species_cache", {
 export const mifloraCountiesCacheTable = pgTable("miflora_counties_cache", {
   id: serial("id").primaryKey(),
   cache_key: text("cache_key").notNull().unique(),
-  plant_id: integer("plant_id").notNull(),
+  queried_name: text("queried_name").notNull().default(""),
+  plant_id: integer("plant_id"),
   raw_response: jsonb("raw_response"),
   found: boolean("found").notNull().default(false),
   expires_at: timestamp("expires_at", { withTimezone: true }),

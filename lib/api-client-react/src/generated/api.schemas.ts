@@ -658,7 +658,7 @@ export type MifloraSpeciesResponseCacheStatus =
 export const MifloraSpeciesResponseCacheStatus = {
   hit: "hit",
   miss: "miss",
-  bypassed: "bypassed",
+  error: "error",
 } as const;
 
 /**
@@ -672,7 +672,7 @@ export type MifloraSpeciesResponseData = { [key: string]: unknown } | null;
 
  */
 export interface MifloraSpeciesResponse {
-  /** Michigan Flora species page URL (https://michiganflora.net/species.aspx?id={plant_id}). Null when species not found.
+  /** Michigan Flora species page URL (https://michiganflora.net/species/{plant_id}). Null when species not found.
    */
   source_url: string | null;
   /** Whether the species was found in Michigan Flora */
@@ -691,7 +691,7 @@ export type MifloraCountiesResponseCacheStatus =
 export const MifloraCountiesResponseCacheStatus = {
   hit: "hit",
   miss: "miss",
-  bypassed: "bypassed",
+  error: "error",
 } as const;
 
 /**
@@ -699,9 +699,9 @@ export const MifloraCountiesResponseCacheStatus = {
 
  */
 export interface MifloraCountiesResponse {
-  /** Michigan Flora species page URL for this plant_id. */
+  /** Michigan Flora species page URL for this species. */
   source_url: string | null;
-  /** Whether county records were found for this plant_id */
+  /** Whether county records were found for this species */
   found: boolean;
   cache_status: MifloraCountiesResponseCacheStatus;
   queried_at: string;
@@ -926,9 +926,9 @@ export type GetMifloraSpeciesParams = {
 
 export type GetMifloraCountiesParams = {
   /**
-   * Michigan Flora plant ID (from the species endpoint, search_records[0].plant_id)
+   * Scientific name to look up county records for (e.g. Asclepias tuberosa)
    */
-  plant_id: number;
+  name: string;
   /**
    * If true, bypasses cache and fetches fresh from Michigan Flora API
    */

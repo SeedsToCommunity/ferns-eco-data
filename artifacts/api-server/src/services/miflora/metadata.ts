@@ -32,22 +32,22 @@ export const MIFLORA_DERIVATION_SUMMARY =
 
 export const MIFLORA_DERIVATION_SCIENTIFIC =
   "Source: Michigan Flora REST API v1.0 (https://michiganflora.net/api/v1.0). " +
-  "Species lookup: input name is split into genus and species epithet; " +
-  "GET /flora_search_sp?genus={genus}&n_results=0&exact_match_genus=1 returns all species in genus; " +
-  "case-insensitive match on scientific_name for species epithet gives plant_id; " +
-  "then parallel fetches: GET /spec_text?id={id} (taxonomic details and description text), " +
+  "Species lookup: GET /flora_search_sp?scientific_name={name} returns array of matching records; " +
+  "first record gives plant_id; then parallel fetches: GET /spec_text?id={id} (taxonomic details and description text), " +
   "GET /synonyms?id={id} (synonym records), GET /pimage_info?id={id} (primary image). " +
-  "County presence: GET /locs_sp?id={id} returns {locations:[...county names...]} for confirmed counties. " +
+  "County presence (name-based, two-step): GET /flora_search_sp?scientific_name={name} to resolve plant_id, " +
+  "then GET /locs_sp?id={id} returns {locations:[...county names...]} for confirmed counties. " +
+  "Cache keys for both endpoints are normalized lowercase scientific name. " +
   "Field quirks: st field uses literal string 'NULL' (not JSON null) for species absent from Michigan or with unknown status. " +
   "c field is always a string; '*' indicates non-native (adventive) species — do not parseInt. " +
   "Scientific names are inconsistently cased: adventive species names are returned ALL-CAPS by the API. " +
   "synonyms endpoint returns {synonyms:[...]} when synonyms exist, or {message:'No synonyms found'} when none — both shapes are passed through. " +
-  "flora_search_sp may return multiple records (subspecies, varieties) for a given genus — all records are included in search_records. " +
+  "flora_search_sp may return multiple records (subspecies, varieties) for one query — all records included in search_records. " +
   "Method: api_fetch. FERNS cache TTLs: species 30 days (hit), 7 days (no-match); counties 30 days.";
 
 export const MIFLORA_REGISTRY_ENTRY = {
   source_id: MIFLORA_SOURCE_ID,
-  name: "Michigan Flora — Vascular Plants of Michigan",
+  name: "Michigan Flora — Species Records, Botanical Descriptions, and County Occurrences",
   knowledge_type: "source_wrapper",
   status: "live",
   description:
@@ -57,7 +57,7 @@ export const MIFLORA_REGISTRY_ENTRY = {
     "status; representative plant images; synonyms; and county-level occurrence records for all 83 " +
     "Michigan counties. Based on Michigan Flora Online by Reznicek, Voss, and Walters (2011).",
   input_summary:
-    "Species name (for species lookup); Michigan Flora plant_id (for county data)",
+    "Scientific name (for both species lookup and county occurrence lookup)",
   output_summary:
     "Taxonomic details (genus, species, family, common name, native status, adventive indicator); " +
     "descriptive text; plant images; synonyms; county-level occurrence records for all 83 Michigan counties",

@@ -21,20 +21,20 @@ export interface MifloraSpeciesResult {
 }
 
 export interface MifloraCountiesResult {
-  plant_id: number;
   found: boolean;
-  source_url: string;
+  source_url: string | null;
   upstream_url: string;
   raw_response: unknown;
 }
 
 export function buildSpeciesCacheKey(name: string): string {
-  const normalized = name.trim().toLowerCase().replace(/\s+/g, ":");
+  const normalized = name.trim().toLowerCase().replace(/\s+/g, " ");
   return `miflora:species:${normalized}`;
 }
 
-export function buildCountiesCacheKey(plantId: number): string {
-  return `miflora:counties:${plantId}`;
+export function buildCountiesCacheKey(name: string): string {
+  const normalized = name.trim().toLowerCase().replace(/\s+/g, " ");
+  return `miflora:counties:${normalized}`;
 }
 
 async function mifloraFetch(url: string): Promise<unknown> {
@@ -53,11 +53,7 @@ async function mifloraFetch(url: string): Promise<unknown> {
 
 export async function fetchSpecies(name: string): Promise<MifloraSpeciesResult> {
   const trimmed = name.trim();
-  const parts = trimmed.split(/\s+/);
-  const genus = parts[0];
-  const speciesEpithet = parts.slice(1).join(" ").toLowerCase();
-
-  const searchUrl = `${MIFLORA_API_BASE}/flora_search_sp?genus=${encodeURIComponent(genus)}&n_results=0&exact_match_genus=1`;
+  const searchUrl = `${MIFLORA_API_BASE}/flora_search_sp?scientific_name=${encodeURIComponent(trimmed)}`;
 
   const searchRaw = await mifloraFetch(searchUrl);
   const searchRecords: unknown[] = Array.isArray(searchRaw) ? searchRaw : [];
@@ -77,35 +73,7 @@ export async function fetchSpecies(name: string): Promise<MifloraSpeciesResult> 
     };
   }
 
-  let matchedRecord: Record<string, unknown> | null = null;
-  if (speciesEpithet) {
-    for (const rec of searchRecords) {
-      const r = rec as Record<string, unknown>;
-      const sciName = String(r.scientific_name ?? "").toLowerCase();
-      if (sciName.includes(speciesEpithet)) {
-        matchedRecord = r;
-        break;
-      }
-    }
-  } else {
-    matchedRecord = searchRecords[0] as Record<string, unknown>;
-  }
-
-  if (!matchedRecord) {
-    return {
-      found: false,
-      plant_id: null,
-      source_url: null,
-      upstream_url: searchUrl,
-      raw_response: {
-        search_records: searchRecords,
-        spec_text: null,
-        synonyms: null,
-        pimage_info: null,
-      },
-    };
-  }
-
+  const matchedRecord = searchRecords[0] as Record<string, unknown>;
   const plantId = Number(matchedRecord.plant_id);
 
   const [specTextRaw, synonymsRaw, pimageRaw] = await Promise.all([
@@ -128,19 +96,35 @@ export async function fetchSpecies(name: string): Promise<MifloraSpeciesResult> 
   };
 }
 
-export async function fetchCounties(plantId: number): Promise<MifloraCountiesResult> {
-  const url = `${MIFLORA_API_BASE}/locs_sp?id=${plantId}`;
-  const raw = await mifloraFetch(url);
+export async function fetchCounties(name: string): Promise<MifloraCountiesResult> {
+  const trimmed = name.trim();
+  const searchUrl = `${MIFLORA_API_BASE}/flora_search_sp?scientific_name=${encodeURIComponent(trimmed)}`;
+
+  const searchRaw = await mifloraFetch(searchUrl);
+  const searchRecords: unknown[] = Array.isArray(searchRaw) ? searchRaw : [];
+
+  if (searchRecords.length === 0) {
+    return {
+      found: false,
+      source_url: null,
+      upstream_url: searchUrl,
+      raw_response: { locations: [] },
+    };
+  }
+
+  const matchedRecord = searchRecords[0] as Record<string, unknown>;
+  const plantId = Number(matchedRecord.plant_id);
+  const locsUrl = `${MIFLORA_API_BASE}/locs_sp?id=${plantId}`;
+  const raw = await mifloraFetch(locsUrl);
 
   const rawObj = raw as Record<string, unknown>;
   const locations = rawObj.locations as unknown[] | undefined;
   const found = Array.isArray(locations) && locations.length > 0;
 
   return {
-    plant_id: plantId,
     found,
     source_url: `https://michiganflora.net/species/${plantId}`,
-    upstream_url: url,
+    upstream_url: locsUrl,
     raw_response: raw,
   };
 }

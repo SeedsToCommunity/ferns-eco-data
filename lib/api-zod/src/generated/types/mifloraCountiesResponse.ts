@@ -13,9 +13,9 @@ import type { MifloraCountiesResponseCacheStatus } from "./mifloraCountiesRespon
 
  */
 export interface MifloraCountiesResponse {
-  /** Michigan Flora species page URL for this plant_id. */
+  /** Michigan Flora species page URL for this species. */
   source_url: string | null;
-  /** Whether county records were found for this plant_id */
+  /** Whether county records were found for this species */
   found: boolean;
   cache_status: MifloraCountiesResponseCacheStatus;
   queried_at: Date;

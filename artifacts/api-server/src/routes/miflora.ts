@@ -54,7 +54,7 @@ router.get("/miflora/species", async (req, res) => {
   try {
     const result = await fetchSpecies(name);
     const stored = await storeSpecies(cacheKey, name, result);
-    res.json(GetMifloraSpeciesResponse.parse(buildSpeciesResponse(stored, refresh ? "bypassed" : "miss")));
+    res.json(GetMifloraSpeciesResponse.parse(buildSpeciesResponse(stored, "miss")));
   } catch (err) {
     req.log.error({ err }, "Michigan Flora species lookup failed");
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from Michigan Flora API" });
@@ -73,7 +73,7 @@ function buildSpeciesResponse(
     derivation_summary: string;
     derivation_scientific: string;
   },
-  cache_status: "hit" | "miss" | "bypassed",
+  cache_status: "hit" | "miss" | "error",
 ) {
   return {
     source_url: row.source_url ?? null,
@@ -99,9 +99,9 @@ router.get("/miflora/counties", async (req, res) => {
     return;
   }
 
-  const plantId = parsed.data.plant_id;
+  const name = parsed.data.name;
   const refresh = parsed.data.refresh ?? false;
-  const cacheKey = buildCountiesCacheKey(plantId);
+  const cacheKey = buildCountiesCacheKey(name);
 
   if (!refresh) {
     const cached = await lookupCounties(cacheKey);
@@ -112,9 +112,9 @@ router.get("/miflora/counties", async (req, res) => {
   }
 
   try {
-    const result = await fetchCounties(plantId);
-    const stored = await storeCounties(cacheKey, result);
-    res.json(GetMifloraCountiesResponse.parse(buildCountiesResponse(stored, refresh ? "bypassed" : "miss")));
+    const result = await fetchCounties(name);
+    const stored = await storeCounties(cacheKey, name, result);
+    res.json(GetMifloraCountiesResponse.parse(buildCountiesResponse(stored, "miss")));
   } catch (err) {
     req.log.error({ err }, "Michigan Flora counties lookup failed");
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from Michigan Flora API" });
@@ -133,7 +133,7 @@ function buildCountiesResponse(
     derivation_summary: string;
     derivation_scientific: string;
   },
-  cache_status: "hit" | "miss" | "bypassed",
+  cache_status: "hit" | "miss" | "error",
 ) {
   return {
     source_url: row.source_url ?? null,
@@ -158,7 +158,7 @@ router.get("/miflora/metadata", async (req, res) => {
 
   res.json(GetMifloraMetadataResponse.parse({
     service_id: MIFLORA_SOURCE_ID,
-    service_name: "Michigan Flora — Vascular Plants of Michigan",
+    service_name: MIFLORA_REGISTRY_ENTRY.name,
     permission_granted: MIFLORA_PERMISSION_GRANTED,
     permission_status: MIFLORA_PERMISSION_STATUS,
     attribution: MIFLORA_ATTRIBUTION,
