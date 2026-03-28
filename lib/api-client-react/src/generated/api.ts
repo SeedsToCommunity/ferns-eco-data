@@ -32,6 +32,8 @@ import type {
   GetInatObservationsParams,
   GetInatPlaceParams,
   GetInatSpeciesParams,
+  GetMifloraCountiesParams,
+  GetMifloraSpeciesParams,
   HealthStatus,
   InatFieldValuesResponse,
   InatHistogramResponse,
@@ -39,6 +41,9 @@ import type {
   InatObservationsResponse,
   InatPlaceResponse,
   InatSpeciesResponse,
+  MifloraCountiesResponse,
+  MifloraMetadataResponse,
+  MifloraSpeciesResponse,
   SourcesIndexResponse,
   SourcesMetadataResponse,
 } from "./api.schemas";
@@ -1338,6 +1343,284 @@ export function useGetInatMetadata<
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetInatMetadataQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Looks up a vascular plant species in the Michigan Flora REST API. Returns the complete passthrough response from Michigan Flora: all search records from flora_search_sp, spec_text (taxonomic details and description), synonyms, and plant images. Two to four API calls are required per lookup. Results are cached 30 days for found species; 7 days for not-found. The st field in source records uses the literal string 'NULL' (not JSON null) for unknown or absent status — this is a quirk of the Michigan Flora API. The c field is always a string; '*' indicates an adventive (non-native) species. Scientific names for adventive species are returned ALL-CAPS by the source API.
+
+ * @summary Look up a species in Michigan Flora
+ */
+export const getGetMifloraSpeciesUrl = (params: GetMifloraSpeciesParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/miflora/species?${stringifiedParams}`
+    : `/api/miflora/species`;
+};
+
+export const getMifloraSpecies = async (
+  params: GetMifloraSpeciesParams,
+  options?: RequestInit,
+): Promise<MifloraSpeciesResponse> => {
+  return customFetch<MifloraSpeciesResponse>(getGetMifloraSpeciesUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetMifloraSpeciesQueryKey = (
+  params?: GetMifloraSpeciesParams,
+) => {
+  return [`/api/miflora/species`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetMifloraSpeciesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMifloraSpecies>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetMifloraSpeciesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMifloraSpecies>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetMifloraSpeciesQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getMifloraSpecies>>
+  > = ({ signal }) => getMifloraSpecies(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMifloraSpecies>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMifloraSpeciesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMifloraSpecies>>
+>;
+export type GetMifloraSpeciesQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Look up a species in Michigan Flora
+ */
+
+export function useGetMifloraSpecies<
+  TData = Awaited<ReturnType<typeof getMifloraSpecies>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetMifloraSpeciesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMifloraSpecies>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMifloraSpeciesQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns county-level occurrence records for all 83 Michigan counties for the given Michigan Flora plant_id. Results are the raw passthrough response from the Michigan Flora county API endpoint. Each record includes the county name, FIPS code, and occurrence status. The plant_id is obtained from the species endpoint (search_records[0].plant_id). Cached 30 days per plant_id.
+
+ * @summary Get county-level occurrence records for a Michigan Flora species
+ */
+export const getGetMifloraCountiesUrl = (params: GetMifloraCountiesParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/miflora/counties?${stringifiedParams}`
+    : `/api/miflora/counties`;
+};
+
+export const getMifloraCounties = async (
+  params: GetMifloraCountiesParams,
+  options?: RequestInit,
+): Promise<MifloraCountiesResponse> => {
+  return customFetch<MifloraCountiesResponse>(
+    getGetMifloraCountiesUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetMifloraCountiesQueryKey = (
+  params?: GetMifloraCountiesParams,
+) => {
+  return [`/api/miflora/counties`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetMifloraCountiesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMifloraCounties>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetMifloraCountiesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMifloraCounties>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetMifloraCountiesQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getMifloraCounties>>
+  > = ({ signal }) => getMifloraCounties(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMifloraCounties>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMifloraCountiesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMifloraCounties>>
+>;
+export type GetMifloraCountiesQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get county-level occurrence records for a Michigan Flora species
+ */
+
+export function useGetMifloraCounties<
+  TData = Awaited<ReturnType<typeof getMifloraCounties>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetMifloraCountiesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMifloraCounties>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMifloraCountiesQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns service identity, attribution, permission status, and the full registry entry for the Michigan Flora service. Use this to populate 'About this data' panels in any application displaying Michigan Flora data. Also seeds the Michigan Flora entry in the FERNS source registry.
+
+ * @summary Michigan Flora service metadata
+ */
+export const getGetMifloraMetadataUrl = () => {
+  return `/api/miflora/metadata`;
+};
+
+export const getMifloraMetadata = async (
+  options?: RequestInit,
+): Promise<MifloraMetadataResponse> => {
+  return customFetch<MifloraMetadataResponse>(getGetMifloraMetadataUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetMifloraMetadataQueryKey = () => {
+  return [`/api/miflora/metadata`] as const;
+};
+
+export const getGetMifloraMetadataQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMifloraMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getMifloraMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetMifloraMetadataQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getMifloraMetadata>>
+  > = ({ signal }) => getMifloraMetadata({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMifloraMetadata>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMifloraMetadataQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMifloraMetadata>>
+>;
+export type GetMifloraMetadataQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Michigan Flora service metadata
+ */
+
+export function useGetMifloraMetadata<
+  TData = Awaited<ReturnType<typeof getMifloraMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getMifloraMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMifloraMetadataQueryOptions(options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

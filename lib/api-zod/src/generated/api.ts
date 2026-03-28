@@ -1173,6 +1173,225 @@ export const GetInatMetadataResponse = zod.object({
 });
 
 /**
+ * Looks up a vascular plant species in the Michigan Flora REST API. Returns the complete passthrough response from Michigan Flora: all search records from flora_search_sp, spec_text (taxonomic details and description), synonyms, and plant images. Two to four API calls are required per lookup. Results are cached 30 days for found species; 7 days for not-found. The st field in source records uses the literal string 'NULL' (not JSON null) for unknown or absent status — this is a quirk of the Michigan Flora API. The c field is always a string; '*' indicates an adventive (non-native) species. Scientific names for adventive species are returned ALL-CAPS by the source API.
+
+ * @summary Look up a species in Michigan Flora
+ */
+export const getMifloraSpeciesQueryRefreshDefault = false;
+
+export const GetMifloraSpeciesQueryParams = zod.object({
+  name: zod.coerce
+    .string()
+    .describe("Scientific name to look up (e.g. Asclepias tuberosa)"),
+  refresh: zod.coerce
+    .boolean()
+    .default(getMifloraSpeciesQueryRefreshDefault)
+    .describe(
+      "If true, bypasses cache and fetches fresh from Michigan Flora API",
+    ),
+});
+
+export const GetMifloraSpeciesResponse = zod
+  .object({
+    source_url: zod
+      .string()
+      .nullable()
+      .describe(
+        "Michigan Flora species page URL (https:\/\/michiganflora.net\/species.aspx?id={plant_id}). Null when species not found.\n",
+      ),
+    found: zod
+      .boolean()
+      .describe("Whether the species was found in Michigan Flora"),
+    cache_status: zod.enum(["hit", "miss", "bypassed"]),
+    queried_at: zod.date(),
+    data: zod
+      .record(zod.string(), zod.unknown())
+      .nullish()
+      .describe(
+        "Raw passthrough response from Michigan Flora. Contains search_records (array from flora_search_sp — may include subspecies and varieties), spec_text (taxonomic details and description), synonyms (raw response — either {synonyms:[...]} or {message:'No synonyms found'}), and pimage_info (image metadata). All source fields are returned unchanged. The st field uses the literal string 'NULL' for unknown\/absent status. The c field is always a string; '\*' means adventive (non-native). Null when found is false.\n",
+      ),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+        fetched_at: zod
+          .date()
+          .describe("When this record was obtained from the source"),
+        method: zod
+          .string()
+          .describe(
+            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+          ),
+        upstream_url: zod
+          .string()
+          .describe(
+            "Where this data came from (API endpoint, file path, or registry entry)",
+          ),
+        derivation_summary: zod
+          .string()
+          .describe(
+            "Plain language description readable by a homeowner or community member",
+          ),
+        derivation_scientific: zod
+          .string()
+          .describe(
+            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+          ),
+      })
+      .describe(
+        "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      ),
+  })
+  .describe(
+    "FERNS envelope for Michigan Flora species lookup. data contains the raw passthrough response from Michigan Flora — all source fields are returned unchanged with original field names.\n",
+  );
+
+/**
+ * Returns county-level occurrence records for all 83 Michigan counties for the given Michigan Flora plant_id. Results are the raw passthrough response from the Michigan Flora county API endpoint. Each record includes the county name, FIPS code, and occurrence status. The plant_id is obtained from the species endpoint (search_records[0].plant_id). Cached 30 days per plant_id.
+
+ * @summary Get county-level occurrence records for a Michigan Flora species
+ */
+export const getMifloraCountiesQueryRefreshDefault = false;
+
+export const GetMifloraCountiesQueryParams = zod.object({
+  plant_id: zod.coerce
+    .number()
+    .describe(
+      "Michigan Flora plant ID (from the species endpoint, search_records[0].plant_id)",
+    ),
+  refresh: zod.coerce
+    .boolean()
+    .default(getMifloraCountiesQueryRefreshDefault)
+    .describe(
+      "If true, bypasses cache and fetches fresh from Michigan Flora API",
+    ),
+});
+
+export const GetMifloraCountiesResponse = zod
+  .object({
+    source_url: zod
+      .string()
+      .nullable()
+      .describe("Michigan Flora species page URL for this plant_id."),
+    found: zod
+      .boolean()
+      .describe("Whether county records were found for this plant_id"),
+    cache_status: zod.enum(["hit", "miss", "bypassed"]),
+    queried_at: zod.date(),
+    data: zod
+      .unknown()
+      .nullish()
+      .describe(
+        "Raw passthrough response from the Michigan Flora county API endpoint. Array of county records for all 83 Michigan counties. Each record includes county name, FIPS code, and occurrence status. All source fields unchanged.\n",
+      ),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+        fetched_at: zod
+          .date()
+          .describe("When this record was obtained from the source"),
+        method: zod
+          .string()
+          .describe(
+            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+          ),
+        upstream_url: zod
+          .string()
+          .describe(
+            "Where this data came from (API endpoint, file path, or registry entry)",
+          ),
+        derivation_summary: zod
+          .string()
+          .describe(
+            "Plain language description readable by a homeowner or community member",
+          ),
+        derivation_scientific: zod
+          .string()
+          .describe(
+            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+          ),
+      })
+      .describe(
+        "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      ),
+  })
+  .describe(
+    "FERNS envelope for Michigan Flora county occurrence data. data is the raw passthrough response from the Michigan Flora county endpoint.\n",
+  );
+
+/**
+ * Returns service identity, attribution, permission status, and the full registry entry for the Michigan Flora service. Use this to populate 'About this data' panels in any application displaying Michigan Flora data. Also seeds the Michigan Flora entry in the FERNS source registry.
+
+ * @summary Michigan Flora service metadata
+ */
+export const GetMifloraMetadataResponse = zod.object({
+  service_id: zod.string(),
+  service_name: zod.string(),
+  permission_granted: zod.boolean(),
+  permission_status: zod.string(),
+  attribution: zod.object({
+    source_name: zod.string(),
+    website: zod.string(),
+    license: zod.string(),
+    citation: zod.string(),
+    api_base_url: zod.string(),
+  }),
+  registry_entry: zod
+    .object({
+      source_id: zod.string().optional(),
+      name: zod.string().optional(),
+      knowledge_type: zod.string().optional(),
+      status: zod.string().optional(),
+      description: zod.string().optional(),
+      input_summary: zod.string().optional(),
+      output_summary: zod.string().optional(),
+      dependencies: zod.array(zod.string()).optional(),
+      update_frequency: zod.string().optional(),
+      known_limitations: zod.string().optional(),
+      metadata_url: zod.string().optional(),
+      explorer_url: zod.string().optional(),
+    })
+    .optional()
+    .describe("Full registry entry for the Michigan Flora service"),
+  queried_at: zod.date(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+});
+
+/**
  * Returns a summary entry for every registered FERNS Knowledge Service. This is the primary discovery endpoint. Each entry contains enough information to make a routing decision without a follow-up call to individual /metadata endpoints.
 
  * @summary List all registered FERNS Knowledge Services

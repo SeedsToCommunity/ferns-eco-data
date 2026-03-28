@@ -3,6 +3,7 @@ import healthRouter from "./health.js";
 import bonapRouter from "./bonap.js";
 import gbifRouter from "./gbif.js";
 import inatRouter from "./inat.js";
+import mifloraRouter from "./miflora.js";
 import registryRouter from "./registry.js";
 import specRouter from "./spec.js";
 
@@ -12,6 +13,7 @@ router.use(healthRouter);
 router.use(bonapRouter);
 router.use(gbifRouter);
 router.use(inatRouter);
+router.use(mifloraRouter);
 router.use(registryRouter);
 router.use(specRouter);
 

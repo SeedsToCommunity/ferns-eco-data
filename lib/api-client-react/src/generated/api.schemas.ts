@@ -652,6 +652,103 @@ export interface SourcesMetadataResponse {
   provenance: FernsProvenance;
 }
 
+export type MifloraSpeciesResponseCacheStatus =
+  (typeof MifloraSpeciesResponseCacheStatus)[keyof typeof MifloraSpeciesResponseCacheStatus];
+
+export const MifloraSpeciesResponseCacheStatus = {
+  hit: "hit",
+  miss: "miss",
+  bypassed: "bypassed",
+} as const;
+
+/**
+ * Raw passthrough response from Michigan Flora. Contains search_records (array from flora_search_sp — may include subspecies and varieties), spec_text (taxonomic details and description), synonyms (raw response — either {synonyms:[...]} or {message:'No synonyms found'}), and pimage_info (image metadata). All source fields are returned unchanged. The st field uses the literal string 'NULL' for unknown/absent status. The c field is always a string; '*' means adventive (non-native). Null when found is false.
+
+ */
+export type MifloraSpeciesResponseData = { [key: string]: unknown } | null;
+
+/**
+ * FERNS envelope for Michigan Flora species lookup. data contains the raw passthrough response from Michigan Flora — all source fields are returned unchanged with original field names.
+
+ */
+export interface MifloraSpeciesResponse {
+  /** Michigan Flora species page URL (https://michiganflora.net/species.aspx?id={plant_id}). Null when species not found.
+   */
+  source_url: string | null;
+  /** Whether the species was found in Michigan Flora */
+  found: boolean;
+  cache_status: MifloraSpeciesResponseCacheStatus;
+  queried_at: string;
+  /** Raw passthrough response from Michigan Flora. Contains search_records (array from flora_search_sp — may include subspecies and varieties), spec_text (taxonomic details and description), synonyms (raw response — either {synonyms:[...]} or {message:'No synonyms found'}), and pimage_info (image metadata). All source fields are returned unchanged. The st field uses the literal string 'NULL' for unknown/absent status. The c field is always a string; '*' means adventive (non-native). Null when found is false.
+   */
+  data?: MifloraSpeciesResponseData;
+  provenance: FernsProvenance;
+}
+
+export type MifloraCountiesResponseCacheStatus =
+  (typeof MifloraCountiesResponseCacheStatus)[keyof typeof MifloraCountiesResponseCacheStatus];
+
+export const MifloraCountiesResponseCacheStatus = {
+  hit: "hit",
+  miss: "miss",
+  bypassed: "bypassed",
+} as const;
+
+/**
+ * FERNS envelope for Michigan Flora county occurrence data. data is the raw passthrough response from the Michigan Flora county endpoint.
+
+ */
+export interface MifloraCountiesResponse {
+  /** Michigan Flora species page URL for this plant_id. */
+  source_url: string | null;
+  /** Whether county records were found for this plant_id */
+  found: boolean;
+  cache_status: MifloraCountiesResponseCacheStatus;
+  queried_at: string;
+  /** Raw passthrough response from the Michigan Flora county API endpoint. Array of county records for all 83 Michigan counties. Each record includes county name, FIPS code, and occurrence status. All source fields unchanged.
+   */
+  data?: unknown | null;
+  provenance: FernsProvenance;
+}
+
+export interface MifloraAttribution {
+  source_name: string;
+  website: string;
+  license: string;
+  citation: string;
+  api_base_url: string;
+}
+
+/**
+ * Full registry entry for the Michigan Flora service
+ */
+export type MifloraMetadataResponseRegistryEntry = {
+  source_id?: string;
+  name?: string;
+  knowledge_type?: string;
+  status?: string;
+  description?: string;
+  input_summary?: string;
+  output_summary?: string;
+  dependencies?: string[];
+  update_frequency?: string;
+  known_limitations?: string;
+  metadata_url?: string;
+  explorer_url?: string;
+};
+
+export interface MifloraMetadataResponse {
+  service_id: string;
+  service_name: string;
+  permission_granted: boolean;
+  permission_status: string;
+  attribution: MifloraAttribution;
+  /** Full registry entry for the Michigan Flora service */
+  registry_entry?: MifloraMetadataResponseRegistryEntry;
+  queried_at: string;
+  provenance: FernsProvenance;
+}
+
 export type GetBonapMapParams = {
   /**
  * Genus name. First letter capitalized, remainder lowercase (e.g. Asclepias). The service normalizes to title case before URL construction.
@@ -814,4 +911,26 @@ export type GetInatObservationsParams = {
    * iNaturalist place ID to incorporate into URLs
    */
   place_id?: number;
+};
+
+export type GetMifloraSpeciesParams = {
+  /**
+   * Scientific name to look up (e.g. Asclepias tuberosa)
+   */
+  name: string;
+  /**
+   * If true, bypasses cache and fetches fresh from Michigan Flora API
+   */
+  refresh?: boolean;
+};
+
+export type GetMifloraCountiesParams = {
+  /**
+   * Michigan Flora plant ID (from the species endpoint, search_records[0].plant_id)
+   */
+  plant_id: number;
+  /**
+   * If true, bypasses cache and fetches fresh from Michigan Flora API
+   */
+  refresh?: boolean;
 };
