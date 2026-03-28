@@ -83,51 +83,28 @@ function AttributionSection({ attribution }: { attribution: Record<string, strin
   );
 }
 
-function ColorKeySection({ colorKey }: { colorKey: Array<{ code: string; hex_approx: string; hex_is_approximate: boolean; name: string; description: string; layer: string }> }) {
-  const byLayer = colorKey.reduce((acc, entry) => {
-    if (!acc[entry.layer]) acc[entry.layer] = [];
-    acc[entry.layer].push(entry);
-    return acc;
-  }, {} as Record<string, typeof colorKey>);
-
-  const layerLabels: Record<string, string> = {
-    state_background: "State Background",
-    county_fill: "County Fill",
-  };
+function BonapColorKeySection({ pageUrl }: { pageUrl?: string }) {
+  const imgSrc = `${import.meta.env.BASE_URL}bonap-color-key.gif`;
+  const sourceUrl = pageUrl ?? "http://www.bonap.org/MapKey.html";
 
   return (
     <Section title="Map Color Key" icon={<Layers className="w-4 h-4" />}>
-      <div className="space-y-8">
-        {Object.entries(byLayer).map(([layer, entries]) => (
-          <div key={layer}>
-            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">
-              {layerLabels[layer] ?? layer.replace(/_/g, " ")}
-            </h3>
-            <div className="space-y-3">
-              {entries.map((entry) => (
-                <div key={entry.code} className="flex gap-4 items-start">
-                  <div
-                    className="w-8 h-8 rounded-lg border border-border shrink-0 shadow-sm"
-                    style={{ backgroundColor: entry.hex_approx }}
-                    title={`${entry.hex_approx}${entry.hex_is_approximate ? " (approximate)" : ""}`}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                      <span className="text-sm font-semibold text-foreground">{entry.name}</span>
-                      <span className="text-xs font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                        {entry.hex_approx}{entry.hex_is_approximate ? "*" : ""}
-                      </span>
-                    </div>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{entry.description}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            {layer === "county_fill" && (
-              <p className="text-xs text-muted-foreground mt-4 italic">* Hex values are approximate; refer to the official BONAP color key image for precise colors.</p>
-            )}
-          </div>
-        ))}
+      <div className="space-y-4">
+        <div className="overflow-x-auto">
+          <img
+            src={imgSrc}
+            alt="BONAP map color key showing all status categories: native, exotic, present, rare, adventive, waif, noxious, eradicated, extirpated, questionable, and not present"
+            className="max-w-full rounded border border-border shadow-sm"
+          />
+        </div>
+        <p className="text-xs text-muted-foreground/80">
+          Source:{" "}
+          <a href={sourceUrl} target="_blank" rel="noreferrer" className="text-primary hover:underline">
+            {sourceUrl}
+          </a>{" "}
+          — BONAP's authoritative color key.{" "}
+          <span>(Image cached locally — BONAP origin is HTTP-only.)</span>
+        </p>
       </div>
     </Section>
   );
@@ -258,7 +235,8 @@ export default function MetadataPage() {
   const permissionGranted = root.permission_granted as boolean | undefined;
   const permissionStatus = root.permission_status as string | undefined;
   const attribution = root.attribution as Record<string, string> | undefined;
-  const colorKey = root.color_key as Array<{ code: string; hex_approx: string; hex_is_approximate: boolean; name: string; description: string; layer: string }> | undefined;
+  const colorKey = root.color_key as Array<unknown> | undefined;
+  const colorKeyUrl = root.color_key_url as string | undefined;
   const vocabularies = root.vocabularies as Record<string, Array<{ code: string; label: string; description: string }>> | undefined;
 
   return (
@@ -352,7 +330,7 @@ export default function MetadataPage() {
 
             {/* Color key (BONAP) */}
             {colorKey && colorKey.length > 0 && (
-              <ColorKeySection colorKey={colorKey} />
+              <BonapColorKeySection pageUrl={colorKeyUrl} />
             )}
 
             {/* Vocabularies (GBIF) */}
