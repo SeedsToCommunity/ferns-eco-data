@@ -72,6 +72,7 @@ function buildSpeciesResponse(
     method: string;
     derivation_summary: string;
     derivation_scientific: string;
+    queried_name?: string;
   },
   cache_status: "hit" | "miss" | "error",
 ) {
@@ -88,6 +89,7 @@ function buildSpeciesResponse(
       upstream_url: row.upstream_url,
       derivation_summary: row.derivation_summary,
       derivation_scientific: row.derivation_scientific,
+      ...(row.queried_name ? { matched_input: row.queried_name } : {}),
     },
   };
 }
@@ -132,6 +134,7 @@ function buildCountiesResponse(
     method: string;
     derivation_summary: string;
     derivation_scientific: string;
+    queried_name?: string;
   },
   cache_status: "hit" | "miss" | "error",
 ) {
@@ -148,6 +151,7 @@ function buildCountiesResponse(
       upstream_url: row.upstream_url,
       derivation_summary: row.derivation_summary,
       derivation_scientific: row.derivation_scientific,
+      ...(row.queried_name ? { matched_input: row.queried_name } : {}),
     },
   };
 }

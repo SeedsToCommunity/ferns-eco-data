@@ -768,6 +768,11 @@ components:
           description: >
             Research-grade description: methods, measurement protocols, algorithms,
             citations, and transformations — sufficient for a scientist to evaluate and reproduce
+        matched_input:
+          type: string
+          description: >
+            The normalized input that was actually used for this lookup (e.g., the name
+            as queried). Present on endpoints that accept a name parameter.
 
     ColorKeyEntry:
       type: object

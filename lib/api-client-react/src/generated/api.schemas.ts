@@ -32,6 +32,9 @@ export interface FernsProvenance {
   /** Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce
    */
   derivation_scientific: string;
+  /** The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.
+   */
+  matched_input?: string;
 }
 
 /**
