@@ -91,7 +91,7 @@ function DrawHandler({ onDraw, onDragStart, onDragMove, onDragEnd }: DrawHandler
         const c2 = e.latlng;
         const sw = L.latLng(Math.min(c1.lat, c2.lat), Math.min(c1.lng, c2.lng));
         const ne = L.latLng(Math.max(c1.lat, c2.lat), Math.max(c1.lng, c2.lng));
-        if (Math.abs(sw.lat - ne.lat) > 0.01 && Math.abs(sw.lng - ne.lng) > 0.01) {
+        if (Math.abs(sw.lat - ne.lat) > 0.001 && Math.abs(sw.lng - ne.lng) > 0.001) {
           onDraw(sw, ne);
         }
         corner1.current = null;

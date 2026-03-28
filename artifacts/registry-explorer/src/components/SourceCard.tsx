@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
-import { Map, Plug, Database, Activity, AlertCircle, Calendar, Braces, Copy, Check, X } from "lucide-react";
+import { Map, Plug, Database, Activity, AlertCircle, Calendar, Braces, Copy, Check, X, FileCode2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import type { SourceSummary } from "@workspace/api-client-react";
@@ -79,8 +79,6 @@ function CopyableUrl({ url, label, icon }: { url: string; label: string; icon: R
 export function SourceCard({ source, index }: SourceCardProps) {
   const isLive = source.status === "live";
   const isPartial = source.status === "partial";
-
-  const hasEndpoints = source.explorer_url || source.metadata_url;
 
   return (
     <motion.div
@@ -175,25 +173,28 @@ export function SourceCard({ source, index }: SourceCardProps) {
         )}
 
         {/* Endpoints */}
-        {hasEndpoints && (
-          <div className="mb-5 bg-muted/20 rounded-xl px-4 py-3 border border-border/40 space-y-2">
-            <span className="text-xs font-semibold text-foreground uppercase tracking-wider block mb-1">Endpoints</span>
-            {source.explorer_url && (
-              <CopyableUrl
-                url={source.explorer_url}
-                label="Explorer"
-                icon={<Map className="w-3.5 h-3.5" />}
-              />
-            )}
-            {source.metadata_url && (
-              <CopyableUrl
-                url={source.metadata_url}
-                label="API Metadata"
-                icon={<Plug className="w-3.5 h-3.5" />}
-              />
-            )}
-          </div>
-        )}
+        <div className="mb-5 bg-muted/20 rounded-xl px-4 py-3 border border-border/40 space-y-2">
+          <span className="text-xs font-semibold text-foreground uppercase tracking-wider block mb-1">Endpoints</span>
+          {source.explorer_url && (
+            <CopyableUrl
+              url={source.explorer_url}
+              label="Explorer"
+              icon={<Map className="w-3.5 h-3.5" />}
+            />
+          )}
+          {source.metadata_url && (
+            <CopyableUrl
+              url={source.metadata_url}
+              label="API Metadata"
+              icon={<Plug className="w-3.5 h-3.5" />}
+            />
+          )}
+          <CopyableUrl
+            url="/api/openapi.json"
+            label="OpenAPI Spec"
+            icon={<FileCode2 className="w-3.5 h-3.5" />}
+          />
+        </div>
 
         {/* Actions */}
         <div className="mt-auto pt-4 border-t border-border flex flex-wrap gap-3">
