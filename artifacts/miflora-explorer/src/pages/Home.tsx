@@ -247,15 +247,26 @@ export default function Home() {
                     </div>
                   )}
 
-                  {synonyms && Array.isArray((synonyms as Record<string,unknown>).synonyms) && (synonyms as Record<string,unknown>).synonyms && (
+                  {synonyms && Array.isArray((synonyms as Record<string,unknown>).synonyms) && (
                     <div>
                       <p className="text-xs font-medium text-muted-foreground mb-1">Synonyms</p>
                       <div className="flex flex-wrap gap-1.5">
-                        {((synonyms as Record<string,unknown>).synonyms as Record<string,unknown>[]).map((s, i) => (
-                          <span key={i} className="text-xs px-2 py-0.5 rounded-md bg-muted text-muted-foreground italic">
-                            {String(s.syn_genus ?? "")} {String(s.syn_species ?? "")}
-                          </span>
-                        ))}
+                        {((synonyms as Record<string,unknown>).synonyms as unknown[]).map((s, i) => {
+                          let label: string;
+                          if (typeof s === "string") {
+                            label = s;
+                          } else if (s && typeof s === "object") {
+                            const obj = s as Record<string, unknown>;
+                            label = [obj.syn_genus, obj.syn_species].filter(Boolean).join(" ") || String(s);
+                          } else {
+                            label = String(s);
+                          }
+                          return (
+                            <span key={i} className="text-xs px-2 py-0.5 rounded-md bg-muted text-muted-foreground italic">
+                              {label}
+                            </span>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
