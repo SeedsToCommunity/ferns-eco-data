@@ -57,7 +57,18 @@ router.get("/miflora/species", async (req, res) => {
     res.json(GetMifloraSpeciesResponse.parse(buildSpeciesResponse(stored, "miss")));
   } catch (err) {
     req.log.error({ err }, "Michigan Flora species lookup failed");
-    res.status(502).json({ error: "upstream_error", message: "Failed to fetch from Michigan Flora API" });
+    res.status(502).json(buildSpeciesResponse({
+      found: false,
+      source_url: null,
+      raw_response: null,
+      fetched_at: new Date(),
+      upstream_url: `https://michiganflora.net/api/v1.0/flora_search_sp?scientific_name=${encodeURIComponent(name)}`,
+      source_id: MIFLORA_SOURCE_ID,
+      method: "api_fetch",
+      derivation_summary: MIFLORA_DERIVATION_SUMMARY,
+      derivation_scientific: MIFLORA_DERIVATION_SCIENTIFIC,
+      queried_name: name,
+    }, "error"));
   }
 });
 
@@ -119,7 +130,18 @@ router.get("/miflora/counties", async (req, res) => {
     res.json(GetMifloraCountiesResponse.parse(buildCountiesResponse(stored, "miss")));
   } catch (err) {
     req.log.error({ err }, "Michigan Flora counties lookup failed");
-    res.status(502).json({ error: "upstream_error", message: "Failed to fetch from Michigan Flora API" });
+    res.status(502).json(buildCountiesResponse({
+      found: false,
+      source_url: null,
+      raw_response: null,
+      fetched_at: new Date(),
+      upstream_url: `https://michiganflora.net/api/v1.0/flora_search_sp?scientific_name=${encodeURIComponent(name)}`,
+      source_id: MIFLORA_SOURCE_ID,
+      method: "api_fetch",
+      derivation_summary: MIFLORA_DERIVATION_SUMMARY,
+      derivation_scientific: MIFLORA_DERIVATION_SCIENTIFIC,
+      queried_name: name,
+    }, "error"));
   }
 });
 
