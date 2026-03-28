@@ -119,7 +119,7 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
   });
 
   const matchData = matchQuery.data?.data;
-  const reconcileKey = matchData?.status === 'SYNONYM' ? matchData.accepted_usage_key : matchData?.usageKey;
+  const reconcileKey = matchData?.status === 'SYNONYM' ? matchData.acceptedUsageKey : matchData?.usageKey;
   
   const reconcileQuery = useGetGbifReconcile({ usageKey: reconcileKey || 0 }, {
     query: { queryKey: getGetGbifReconcileQueryKey({ usageKey: reconcileKey || 0 }), enabled: !!reconcileKey }
@@ -200,7 +200,7 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
                   <div>
                     <p className="font-semibold text-secondary-foreground">This is a synonym.</p>
                     <p className="text-sm text-secondary-foreground/80 mt-1">
-                      The currently accepted name is <span className="italic font-medium">{matchData.accepted_canonical_name}</span>. 
+                      The currently accepted name is <span className="italic font-medium">{matchData.acceptedCanonicalName}</span>. 
                       Subsequent data below is retrieved for the accepted taxon.
                     </p>
                   </div>
@@ -240,7 +240,7 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
               <div className="mt-8 pt-6 border-t border-border">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Classification hierarchy</p>
                 <div className="flex flex-wrap gap-2 text-sm">
-                  {['kingdom', 'phylum', 'class_', 'order_', 'family', 'genus'].map((rank, i) => {
+                  {['kingdom', 'phylum', 'class', 'order', 'family', 'genus'].map((rank, i) => {
                     const val = matchData[rank as keyof typeof matchData];
                     if (!val) return null;
                     return (

@@ -1,5 +1,16 @@
 import type { FieldFinding } from "./types.js";
 
+function canonicalize(val: unknown): string {
+  if (val === null || typeof val !== "object") return JSON.stringify(val);
+  if (Array.isArray(val)) return `[${val.map(canonicalize).join(",")}]`;
+  const obj = val as Record<string, unknown>;
+  const sorted = Object.keys(obj)
+    .sort()
+    .map((k) => `${JSON.stringify(k)}:${canonicalize(obj[k])}`)
+    .join(",");
+  return `{${sorted}}`;
+}
+
 const ENVELOPE_FIELDS = new Set([
   "found",
   "provenance",
@@ -22,7 +33,7 @@ export function diffObjects(
 
     if (fernsKeys.has(sKey)) {
       const fernsVal = fernsData[sKey];
-      if (JSON.stringify(sourceVal) !== JSON.stringify(fernsVal)) {
+      if (canonicalize(sourceVal) !== canonicalize(fernsVal)) {
         findings.push({
           type: "mismatch",
           sourceField: sKey,
