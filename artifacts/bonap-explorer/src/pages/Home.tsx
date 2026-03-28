@@ -4,7 +4,7 @@ import { PermissionModal } from "@/components/PermissionModal";
 import { SearchForm } from "@/components/SearchForm";
 import { ResultDisplay } from "@/components/ResultDisplay";
 import { motion } from "framer-motion";
-import { Leaf } from "lucide-react";
+import { Leaf, FileJson } from "lucide-react";
 
 export function Home() {
   const [acknowledged, setAcknowledged] = useState(false);
@@ -40,6 +40,15 @@ export function Home() {
               FERNS <span className="text-muted-foreground font-normal mx-2">|</span> BONAP Explorer
             </h1>
           </div>
+          <a
+            href="/api/bonap/metadata"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden sm:inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors border border-border rounded-md px-2.5 py-1.5 bg-muted/50 hover:bg-muted"
+          >
+            <FileJson className="w-3 h-3" />
+            API Metadata
+          </a>
         </div>
       </header>
 

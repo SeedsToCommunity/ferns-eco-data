@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MapPin, Leaf, CalendarDays, Eye, Binoculars } from "lucide-react";
+import { MapPin, Leaf, CalendarDays, Eye, Binoculars, FileJson } from "lucide-react";
 import { PlaceLookupTab } from "@/components/PlaceLookupTab";
 import { SpeciesTab } from "@/components/SpeciesTab";
 import { PhenologyTab } from "@/components/PhenologyTab";
@@ -42,12 +42,21 @@ export default function Home() {
             <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
               <Binoculars className="w-5 h-5 text-primary" />
             </div>
-            <div>
+            <div className="flex-1">
               <h1 className="font-display font-bold text-lg text-foreground leading-tight">
                 iNaturalist Source Explorer
               </h1>
               <p className="text-xs text-muted-foreground">FERNS Data Layer • Source #3</p>
             </div>
+            <a
+              href="/api/inat/metadata"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors border border-border rounded-md px-2.5 py-1.5 bg-muted/50 hover:bg-muted"
+            >
+              <FileJson className="w-3 h-3" />
+              API Metadata
+            </a>
           </div>
         </div>
       </header>

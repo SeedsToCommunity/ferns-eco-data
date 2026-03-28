@@ -10,6 +10,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
+  Legend,
 } from "recharts";
 import { RawJsonPanel } from "@/components/RawJsonPanel";
 
@@ -26,6 +27,30 @@ const STAGE_COLORS: Record<string, string> = {
   "No Live Leaves": "#9ca3af",
   "Breaking Leaf Buds": "#84cc16",
 };
+
+function buildStageChartData(
+  stages: readonly string[],
+  phenByMonth: Record<string, Record<string, number>>,
+): Array<{ month: string; monthNum: number } & Record<string, number>> {
+  const allMonths = new Set<number>();
+  for (const monthStr of Object.keys(phenByMonth)) {
+    allMonths.add(Number(monthStr));
+  }
+  return Array.from(allMonths)
+    .sort((a, b) => a - b)
+    .map((monthNum) => {
+      const monthData = phenByMonth[String(monthNum)] ?? {};
+      const entry: { month: string; monthNum: number } & Record<string, number> = {
+        month: monthName(monthNum),
+        monthNum,
+      };
+      for (const stage of stages) {
+        entry[stage] = monthData[stage] ?? 0;
+      }
+      return entry;
+    })
+    .filter((d) => stages.some((s) => (d[s] ?? 0) > 0));
+}
 
 interface PhenologyTabProps {
   preloadedTaxonId?: number | null;
@@ -323,16 +348,29 @@ export function PhenologyTab({
           </div>
 
           {annotationsAvailable && Object.keys(stageTotals).length > 0 && (
-            <div className="bg-card border border-border rounded-xl overflow-hidden">
-              <div className="px-6 py-4 border-b border-border bg-muted/30">
-                <h3 className="font-semibold text-sm">Phenological Stages</h3>
-                <p className="text-xs text-muted-foreground mt-0.5">Aggregated totals across all months</p>
+            <>
+              <div className="bg-card border border-border rounded-xl overflow-hidden">
+                <div className="px-6 py-4 border-b border-border bg-muted/30">
+                  <h3 className="font-semibold text-sm">Phenological Stages by Month</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">Stage breakdown per month</p>
+                </div>
+                <div className="p-6 space-y-6">
+                  <StageChart title="Flowering" stages={FLOWER_STAGES} phenByMonth={phenByMonth} />
+                  <StageChart title="Leafing" stages={LEAF_STAGES} phenByMonth={phenByMonth} />
+                </div>
               </div>
-              <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <StageGroup title="Flowering" stages={FLOWER_STAGES} stageTotals={stageTotals} />
-                <StageGroup title="Leafing" stages={LEAF_STAGES} stageTotals={stageTotals} />
+
+              <div className="bg-card border border-border rounded-xl overflow-hidden">
+                <div className="px-6 py-4 border-b border-border bg-muted/30">
+                  <h3 className="font-semibold text-sm">Phenological Stage Totals</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">Aggregated across all months</p>
+                </div>
+                <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <StageGroup title="Flowering" stages={FLOWER_STAGES} stageTotals={stageTotals} />
+                  <StageGroup title="Leafing" stages={LEAF_STAGES} stageTotals={stageTotals} />
+                </div>
               </div>
-            </div>
+            </>
           )}
 
           {!annotationsAvailable && (
@@ -405,6 +443,50 @@ function StageGroup({
           );
         })}
       </div>
+    </div>
+  );
+}
+
+function StageChart({
+  title,
+  stages,
+  phenByMonth,
+}: {
+  title: string;
+  stages: readonly string[];
+  phenByMonth: Record<string, Record<string, number>>;
+}) {
+  const chartData = buildStageChartData(stages, phenByMonth);
+  if (chartData.length === 0) return null;
+
+  return (
+    <div>
+      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">{title}</h4>
+      <ResponsiveContainer width="100%" height={160}>
+        <BarChart data={chartData} margin={{ top: 4, right: 8, left: -16, bottom: 4 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+          <XAxis dataKey="month" tick={{ fontSize: 10 }} />
+          <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
+          <Tooltip
+            contentStyle={{
+              background: "hsl(var(--card))",
+              border: "1px solid hsl(var(--border))",
+              borderRadius: "0.5rem",
+              fontSize: "11px",
+            }}
+          />
+          <Legend wrapperStyle={{ fontSize: "11px" }} />
+          {stages.map((stage, i) => (
+            <Bar
+              key={stage}
+              dataKey={stage}
+              stackId="a"
+              fill={STAGE_COLORS[stage] ?? "hsl(var(--primary))"}
+              radius={i === stages.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
+            />
+          ))}
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   );
 }

@@ -51,7 +51,24 @@ function parseBbox(bbox: BboxValues): [[number, number], [number, number]] | nul
   ];
 }
 
-function DrawHandler({ onDraw }: { onDraw: (sw: L.LatLng, ne: L.LatLng) => void }) {
+function rubberBandBounds(
+  c1: L.LatLng,
+  c2: L.LatLng,
+): [[number, number], [number, number]] {
+  return [
+    [Math.min(c1.lat, c2.lat), Math.min(c1.lng, c2.lng)],
+    [Math.max(c1.lat, c2.lat), Math.max(c1.lng, c2.lng)],
+  ];
+}
+
+interface DrawHandlerProps {
+  onDraw: (sw: L.LatLng, ne: L.LatLng) => void;
+  onDragStart: (latlng: L.LatLng) => void;
+  onDragMove: (latlng: L.LatLng) => void;
+  onDragEnd: () => void;
+}
+
+function DrawHandler({ onDraw, onDragStart, onDragMove, onDragEnd }: DrawHandlerProps) {
   const corner1 = useRef<L.LatLng | null>(null);
 
   useMapEvents({
@@ -59,9 +76,16 @@ function DrawHandler({ onDraw }: { onDraw: (sw: L.LatLng, ne: L.LatLng) => void 
       e.originalEvent.preventDefault();
       e.target.dragging.disable();
       corner1.current = e.latlng;
+      onDragStart(e.latlng);
+    },
+    mousemove(e) {
+      if (corner1.current) {
+        onDragMove(e.latlng);
+      }
     },
     mouseup(e) {
       e.target.dragging.enable();
+      onDragEnd();
       if (corner1.current) {
         const c1 = corner1.current;
         const c2 = e.latlng;
@@ -80,6 +104,8 @@ function DrawHandler({ onDraw }: { onDraw: (sw: L.LatLng, ne: L.LatLng) => void 
 
 export function BboxMapPicker({ bbox, onChange }: BboxMapPickerProps) {
   const [activeLayer, setActiveLayer] = useState<LayerId>("osm");
+  const [rubber, setRubber] = useState<{ c1: L.LatLng; c2: L.LatLng } | null>(null);
+
   const layer = LAYERS.find((l) => l.id === activeLayer)!;
   const bounds = parseBbox(bbox);
 
@@ -95,13 +121,26 @@ export function BboxMapPicker({ bbox, onChange }: BboxMapPickerProps) {
     [onChange],
   );
 
+  const handleDragStart = useCallback((latlng: L.LatLng) => {
+    setRubber({ c1: latlng, c2: latlng });
+  }, []);
+
+  const handleDragMove = useCallback((latlng: L.LatLng) => {
+    setRubber((prev) => (prev ? { c1: prev.c1, c2: latlng } : null));
+  }, []);
+
+  const handleDragEnd = useCallback(() => {
+    setRubber(null);
+  }, []);
+
   const center: [number, number] = bounds
     ? [(bounds[0][0] + bounds[1][0]) / 2, (bounds[0][1] + bounds[1][1]) / 2]
     : [38.5, -96.0];
 
+  const rubberRect = rubber ? rubberBandBounds(rubber.c1, rubber.c2) : null;
+
   return (
     <div className="space-y-2">
-      {/* Layer Toggle */}
       <div className="flex items-center gap-1 flex-wrap">
         <span className="text-xs text-muted-foreground mr-1">Base layer:</span>
         {LAYERS.map((l) => (
@@ -119,12 +158,14 @@ export function BboxMapPicker({ bbox, onChange }: BboxMapPickerProps) {
           </button>
         ))}
         <span className="text-[10px] text-muted-foreground ml-2 italic">
-          Click and drag on the map to draw a bounding box
+          {rubber ? "Drawing…" : "Click and drag to draw a bounding box"}
         </span>
       </div>
 
-      {/* Map */}
-      <div className="rounded-xl overflow-hidden border border-border" style={{ height: 280 }}>
+      <div
+        className="rounded-xl overflow-hidden border border-border"
+        style={{ height: 280, cursor: "crosshair" }}
+      >
         <MapContainer
           center={center}
           zoom={3}
@@ -132,13 +173,32 @@ export function BboxMapPicker({ bbox, onChange }: BboxMapPickerProps) {
           scrollWheelZoom
         >
           <TileLayer url={layer.url} attribution={layer.attribution} key={layer.id} />
-          {bounds && (
+
+          {bounds && !rubber && (
             <Rectangle
               bounds={bounds}
               pathOptions={{ color: "hsl(var(--primary, 200 100% 40%))", weight: 2, fillOpacity: 0.15 }}
             />
           )}
-          <DrawHandler onDraw={handleDraw} />
+
+          {rubberRect && (
+            <Rectangle
+              bounds={rubberRect}
+              pathOptions={{
+                color: "hsl(var(--primary, 200 100% 40%))",
+                weight: 2,
+                fillOpacity: 0.1,
+                dashArray: "6 4",
+              }}
+            />
+          )}
+
+          <DrawHandler
+            onDraw={handleDraw}
+            onDragStart={handleDragStart}
+            onDragMove={handleDragMove}
+            onDragEnd={handleDragEnd}
+          />
         </MapContainer>
       </div>
     </div>

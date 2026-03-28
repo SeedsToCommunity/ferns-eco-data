@@ -1,5 +1,5 @@
 import { useState, FormEvent } from "react";
-import { Search, Leaf, Beaker } from "lucide-react";
+import { Search, Leaf, Beaker, FileJson } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -40,16 +40,27 @@ export default function Home() {
       {/* Hero Header */}
       <header className="bg-gradient-to-b from-primary/10 to-background pt-16 pb-12 px-4 sm:px-6 lg:px-8 border-b border-border">
         <div className="max-w-5xl mx-auto">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-3 bg-primary text-primary-foreground rounded-2xl shadow-lg shadow-primary/20">
-              <Leaf className="w-8 h-8" />
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary text-primary-foreground rounded-2xl shadow-lg shadow-primary/20">
+                <Leaf className="w-8 h-8" />
+              </div>
+              <div>
+                <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground">GBIF Source Explorer</h1>
+                <p className="text-primary font-medium flex items-center gap-2 mt-1">
+                  <Beaker className="w-4 h-4" /> Federated Ecological Resource Network System
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground">GBIF Source Explorer</h1>
-              <p className="text-primary font-medium flex items-center gap-2 mt-1">
-                <Beaker className="w-4 h-4" /> Federated Ecological Resource Network System
-              </p>
-            </div>
+            <a
+              href="/api/gbif/metadata"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors border border-border rounded-md px-2.5 py-1.5 bg-card/80 hover:bg-muted mt-2 shrink-0"
+            >
+              <FileJson className="w-3 h-3" />
+              API Metadata
+            </a>
           </div>
           <p className="text-muted-foreground text-lg max-w-2xl leading-relaxed mt-4">
             Directly query the Global Biodiversity Information Facility backbone taxonomy and occurrence records. 
