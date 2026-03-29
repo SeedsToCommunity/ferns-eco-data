@@ -54,7 +54,7 @@ Every external data source integrated into FERNS follows a consistent five-compo
 -   **Cache Policy**: Data is cached with specific TTLs. Positive results are often permanently cached; negative results have shorter TTLs (e.g., 30 days).
 -   **Permission Enforcement**: Source metadata includes a `permission_granted` flag, and Explorer UIs display blocking modals when permission is not granted.
 -   **Monorepo Structure**: Uses a pnpm workspace monorepo with `artifacts` (deployable applications) and `lib` (shared libraries).
--   **UI/UX Decisions**: Explorer UIs are React + Vite single-page applications, consuming only the API. They include components for permission modals, search forms, result displays, and provenance panels.
+-   **UI/UX Decisions**: All Source Explorer UIs live as routed pages within the single `registry-explorer` React + Vite application. Routes follow the pattern `/source/:sourceId` for data sources and `/vocabulary/:vocabulary` for reference sources. Every source page includes a "← All Sources" back-navigation header. Do NOT create a new standalone web app per source — all explorers belong in `registry-explorer` as additional pages. Explorer UIs consume only the FERNS API and include components for permission modals, search forms, result displays, and provenance panels.
 -   **Database Schema**: Dedicated Drizzle ORM schemas exist for each source's cache tables and a central `ferns_sources` table for the registry.
 -   **OpenAPI Specification**: An OpenAPI 3.1 spec (`openapi.yaml`) drives API codegen for consistency.
 -   **Source Fidelity**: FERNS API mirrors each source's own interface as closely as possible, preserving all fields and known quirks.

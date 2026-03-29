@@ -64,5 +64,5 @@ export const WETLAND_INDICATOR_REGISTRY_ENTRY = {
     "Regional wetland indicator variations exist — some species have different ratings by region (e.g., 'FACU/UPL'); " +
     "this source defines the national standard only.",
   metadata_url: "/api/wetland-indicator/metadata",
-  explorer_url: "/wetland-indicator-explorer/",
+  explorer_url: "/registry-explorer/vocabulary/wetland-indicator",
 };
