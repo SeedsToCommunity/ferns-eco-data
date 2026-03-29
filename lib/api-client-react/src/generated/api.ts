@@ -37,6 +37,7 @@ import type {
   GetInatSpeciesParams,
   GetMifloraCountiesParams,
   GetMifloraSpeciesParams,
+  GetS2CSpeciesByYearParams,
   GetWetlandIndicatorByCodeParams,
   GetWetlandIndicatorByWParams,
   GetWucolsByCodeParams,
@@ -50,6 +51,8 @@ import type {
   MifloraCountiesResponse,
   MifloraMetadataResponse,
   MifloraSpeciesResponse,
+  S2CSpeciesResponse,
+  S2CYearsResponse,
   SourcesIndexResponse,
   SourcesMetadataResponse,
   VocabularyMetadataResponse,
@@ -2519,6 +2522,262 @@ export function useGetWucolsMetadata<
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetWucolsMetadataQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns the list of botanical names offered by Seeds to Community Washtenaw for the specified program year. Program years are labeled by the calendar year in which the January–March growing workshops occur. Available years: 2023, 2024, 2025, 2026. Where tracked, includes neat_and_tidy and sweet_and_simple metadata flags.
+
+ * @summary Get species list for a given Seeds to Community Washtenaw program year
+ */
+export const getGetS2CSpeciesByYearUrl = (
+  params: GetS2CSpeciesByYearParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/s2c?${stringifiedParams}`
+    : `/api/s2c`;
+};
+
+export const getS2CSpeciesByYear = async (
+  params: GetS2CSpeciesByYearParams,
+  options?: RequestInit,
+): Promise<S2CSpeciesResponse> => {
+  return customFetch<S2CSpeciesResponse>(getGetS2CSpeciesByYearUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetS2CSpeciesByYearQueryKey = (
+  params?: GetS2CSpeciesByYearParams,
+) => {
+  return [`/api/s2c`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetS2CSpeciesByYearQueryOptions = <
+  TData = Awaited<ReturnType<typeof getS2CSpeciesByYear>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetS2CSpeciesByYearParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getS2CSpeciesByYear>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetS2CSpeciesByYearQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getS2CSpeciesByYear>>
+  > = ({ signal }) =>
+    getS2CSpeciesByYear(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getS2CSpeciesByYear>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetS2CSpeciesByYearQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getS2CSpeciesByYear>>
+>;
+export type GetS2CSpeciesByYearQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get species list for a given Seeds to Community Washtenaw program year
+ */
+
+export function useGetS2CSpeciesByYear<
+  TData = Awaited<ReturnType<typeof getS2CSpeciesByYear>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetS2CSpeciesByYearParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getS2CSpeciesByYear>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetS2CSpeciesByYearQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns all available program years with species counts and source notes. Use this to discover what data is available before querying /s2c?year=.
+
+ * @summary List available Seeds to Community Washtenaw program years
+ */
+export const getGetS2CYearsUrl = () => {
+  return `/api/s2c/years`;
+};
+
+export const getS2CYears = async (
+  options?: RequestInit,
+): Promise<S2CYearsResponse> => {
+  return customFetch<S2CYearsResponse>(getGetS2CYearsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetS2CYearsQueryKey = () => {
+  return [`/api/s2c/years`] as const;
+};
+
+export const getGetS2CYearsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getS2CYears>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getS2CYears>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetS2CYearsQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getS2CYears>>> = ({
+    signal,
+  }) => getS2CYears({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getS2CYears>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetS2CYearsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getS2CYears>>
+>;
+export type GetS2CYearsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List available Seeds to Community Washtenaw program years
+ */
+
+export function useGetS2CYears<
+  TData = Awaited<ReturnType<typeof getS2CYears>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getS2CYears>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetS2CYearsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns service identity, permission status, and the full registry entry for the Seeds to Community Washtenaw source. Also seeds the registry entry on first call.
+
+ * @summary Seeds to Community Washtenaw service metadata
+ */
+export const getGetS2CMetadataUrl = () => {
+  return `/api/s2c/metadata`;
+};
+
+export const getS2CMetadata = async (
+  options?: RequestInit,
+): Promise<VocabularyMetadataResponse> => {
+  return customFetch<VocabularyMetadataResponse>(getGetS2CMetadataUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetS2CMetadataQueryKey = () => {
+  return [`/api/s2c/metadata`] as const;
+};
+
+export const getGetS2CMetadataQueryOptions = <
+  TData = Awaited<ReturnType<typeof getS2CMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getS2CMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetS2CMetadataQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getS2CMetadata>>> = ({
+    signal,
+  }) => getS2CMetadata({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getS2CMetadata>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetS2CMetadataQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getS2CMetadata>>
+>;
+export type GetS2CMetadataQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Seeds to Community Washtenaw service metadata
+ */
+
+export function useGetS2CMetadata<
+  TData = Awaited<ReturnType<typeof getS2CMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getS2CMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetS2CMetadataQueryOptions(options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

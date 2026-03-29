@@ -961,6 +961,57 @@ export interface VocabularyMetadataResponse {
   provenance: FernsProvenance;
 }
 
+export interface S2CSpecies {
+  /** Botanical (scientific) name of the species as used in the S2C program */
+  botanical_name: string;
+  /** True if this species is designated for 'Neat & Tidy' formal or managed garden settings. Only tracked for 2024 onward.
+   */
+  neat_and_tidy?: boolean;
+  /** True if this species is designated as 'Sweet & Simple' for beginner growers. Only tracked from 2026 onward.
+   */
+  sweet_and_simple?: boolean;
+}
+
+export interface S2CYearSummary {
+  /** Program year (January–March workshops) */
+  year: number;
+  /** Number of species offered this program year */
+  species_count: number;
+  /** Description of the data source and any caveats for this year */
+  source_note: string;
+}
+
+export interface S2CYearsData {
+  /** List of available program years */
+  available_years: number[];
+  years: S2CYearSummary[];
+}
+
+export interface S2CYearsResponse {
+  found: boolean;
+  cache_status: string | null;
+  queried_at: string;
+  source_url: string;
+  provenance: FernsProvenance;
+  data: S2CYearsData;
+}
+
+export interface S2CSpeciesListData {
+  year: number;
+  species_count: number;
+  source_note: string;
+  species: S2CSpecies[];
+}
+
+export interface S2CSpeciesResponse {
+  found: boolean;
+  cache_status: string | null;
+  queried_at: string;
+  source_url: string;
+  provenance: FernsProvenance;
+  data?: S2CSpeciesListData | null;
+}
+
 export type GetBonapMapParams = {
   /**
  * Genus name. First letter capitalized, remainder lowercase (e.g. Asclepias). The service normalizes to title case before URL construction.
@@ -1206,4 +1257,21 @@ export const GetWucolsByCodeCode = {
   L: "L",
   M: "M",
   H: "H",
+} as const;
+
+export type GetS2CSpeciesByYearParams = {
+  /**
+   * Program year (2023–2026).
+   */
+  year: GetS2CSpeciesByYearYear;
+};
+
+export type GetS2CSpeciesByYearYear =
+  (typeof GetS2CSpeciesByYearYear)[keyof typeof GetS2CSpeciesByYearYear];
+
+export const GetS2CSpeciesByYearYear = {
+  NUMBER_2023: 2023,
+  NUMBER_2024: 2024,
+  NUMBER_2025: 2025,
+  NUMBER_2026: 2026,
 } as const;

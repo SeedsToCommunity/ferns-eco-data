@@ -7,6 +7,7 @@ import BonapPage from "@/pages/BonapPage";
 import GbifPage from "@/pages/GbifPage";
 import InatPage from "@/pages/InatPage";
 import MifloraPage from "@/pages/MifloraPage";
+import S2CPage from "@/pages/S2CPage";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -27,6 +28,7 @@ function Router() {
       <Route path="/source/gbif" component={GbifPage} />
       <Route path="/source/inaturalist" component={InatPage} />
       <Route path="/source/michigan-flora" component={MifloraPage} />
+      <Route path="/source/seeds-to-community-washtenaw" component={S2CPage} />
       <Route path="/source/:sourceId/metadata" component={MetadataPage} />
       <Route path="/vocabulary/:vocabulary" component={VocabularyPage} />
       <Route component={NotFound} />

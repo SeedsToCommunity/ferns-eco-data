@@ -2232,6 +2232,234 @@ export const GetWucolsMetadataResponse = zod.object({
 });
 
 /**
+ * Returns the list of botanical names offered by Seeds to Community Washtenaw for the specified program year. Program years are labeled by the calendar year in which the January–March growing workshops occur. Available years: 2023, 2024, 2025, 2026. Where tracked, includes neat_and_tidy and sweet_and_simple metadata flags.
+
+ * @summary Get species list for a given Seeds to Community Washtenaw program year
+ */
+export const GetS2CSpeciesByYearQueryParams = zod.object({
+  year: zod
+    .union([
+      zod.literal(2023),
+      zod.literal(2024),
+      zod.literal(2025),
+      zod.literal(2026),
+    ])
+    .describe("Program year (2023–2026)."),
+});
+
+export const GetS2CSpeciesByYearResponse = zod.object({
+  found: zod.boolean(),
+  cache_status: zod.string().nullable(),
+  queried_at: zod.date(),
+  source_url: zod.string(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+  data: zod
+    .union([
+      zod.object({
+        year: zod.number(),
+        species_count: zod.number(),
+        source_note: zod.string(),
+        species: zod.array(
+          zod.object({
+            botanical_name: zod
+              .string()
+              .describe(
+                "Botanical (scientific) name of the species as used in the S2C program",
+              ),
+            neat_and_tidy: zod
+              .boolean()
+              .optional()
+              .describe(
+                "True if this species is designated for 'Neat & Tidy' formal or managed garden settings. Only tracked for 2024 onward.\n",
+              ),
+            sweet_and_simple: zod
+              .boolean()
+              .optional()
+              .describe(
+                "True if this species is designated as 'Sweet & Simple' for beginner growers. Only tracked from 2026 onward.\n",
+              ),
+          }),
+        ),
+      }),
+      zod.null(),
+    ])
+    .nullish(),
+});
+
+/**
+ * Returns all available program years with species counts and source notes. Use this to discover what data is available before querying /s2c?year=.
+
+ * @summary List available Seeds to Community Washtenaw program years
+ */
+export const GetS2CYearsResponse = zod.object({
+  found: zod.boolean(),
+  cache_status: zod.string().nullable(),
+  queried_at: zod.date(),
+  source_url: zod.string(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+  data: zod.object({
+    available_years: zod
+      .array(zod.number())
+      .describe("List of available program years"),
+    years: zod.array(
+      zod.object({
+        year: zod.number().describe("Program year (January–March workshops)"),
+        species_count: zod
+          .number()
+          .describe("Number of species offered this program year"),
+        source_note: zod
+          .string()
+          .describe(
+            "Description of the data source and any caveats for this year",
+          ),
+      }),
+    ),
+  }),
+});
+
+/**
+ * Returns service identity, permission status, and the full registry entry for the Seeds to Community Washtenaw source. Also seeds the registry entry on first call.
+
+ * @summary Seeds to Community Washtenaw service metadata
+ */
+export const GetS2CMetadataResponse = zod.object({
+  service_id: zod.string(),
+  service_name: zod.string(),
+  permission_granted: zod.boolean(),
+  permission_status: zod.string(),
+  registry_entry: zod
+    .object({
+      source_id: zod.string().optional(),
+      name: zod.string().optional(),
+      knowledge_type: zod.string().optional(),
+      status: zod.string().optional(),
+      description: zod.string().optional(),
+      input_summary: zod.string().optional(),
+      output_summary: zod.string().optional(),
+      dependencies: zod.array(zod.string()).optional(),
+      update_frequency: zod.string().optional(),
+      known_limitations: zod.string().optional(),
+      metadata_url: zod.string().optional(),
+      explorer_url: zod.string().optional(),
+    })
+    .optional()
+    .describe("Full registry entry for this vocabulary source"),
+  queried_at: zod.date(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+});
+
+/**
  * Returns a summary entry for every registered FERNS Knowledge Service. This is the primary discovery endpoint. Each entry contains enough information to make a routing decision without a follow-up call to individual /metadata endpoints.
 
  * @summary List all registered FERNS Knowledge Services

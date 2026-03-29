@@ -24,6 +24,8 @@ tags:
     description: Wetland Indicator Status & Coefficient of Wetness — USDA NRCS NWPL Reference
   - name: wucols
     description: WUCOLS — Water Use Classifications of Landscape Species
+  - name: s2c
+    description: Seeds to Community Washtenaw — Annual Native Plant Species Availability
   - name: registry
     description: FERNS Service Registry
 paths:
@@ -898,6 +900,71 @@ paths:
       description: >
         Returns service identity, permission status, and the full registry entry for the
         WUCOLS source. Also seeds the registry entry on first call.
+      responses:
+        "200":
+          description: Service metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VocabularyMetadataResponse"
+
+  /s2c:
+    get:
+      operationId: getS2CSpeciesByYear
+      tags: [s2c]
+      summary: Get species list for a given Seeds to Community Washtenaw program year
+      description: >
+        Returns the list of botanical names offered by Seeds to Community Washtenaw
+        for the specified program year. Program years are labeled by the calendar year
+        in which the January–March growing workshops occur.
+        Available years: 2023, 2024, 2025, 2026.
+        Where tracked, includes neat_and_tidy and sweet_and_simple metadata flags.
+      parameters:
+        - name: year
+          in: query
+          required: true
+          description: Program year (2023–2026).
+          schema:
+            type: integer
+            enum: [2023, 2024, 2025, 2026]
+      responses:
+        "200":
+          description: Species list for the given year, or not-found response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/S2CSpeciesResponse"
+        "400":
+          description: Missing or invalid year parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /s2c/years:
+    get:
+      operationId: getS2CYears
+      tags: [s2c]
+      summary: List available Seeds to Community Washtenaw program years
+      description: >
+        Returns all available program years with species counts and source notes.
+        Use this to discover what data is available before querying /s2c?year=.
+      responses:
+        "200":
+          description: Available program years
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/S2CYearsResponse"
+
+  /s2c/metadata:
+    get:
+      operationId: getS2CMetadata
+      tags: [s2c]
+      summary: Seeds to Community Washtenaw service metadata
+      description: >
+        Returns service identity, permission status, and the full registry entry for the
+        Seeds to Community Washtenaw source. Also seeds the registry entry on first call.
       responses:
         "200":
           description: Service metadata
@@ -2588,3 +2655,126 @@ components:
           format: date-time
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
+
+    S2CSpecies:
+      type: object
+      required:
+        - botanical_name
+      properties:
+        botanical_name:
+          type: string
+          description: Botanical (scientific) name of the species as used in the S2C program
+        neat_and_tidy:
+          type: boolean
+          description: >
+            True if this species is designated for 'Neat & Tidy' formal or managed garden settings.
+            Only tracked for 2024 onward.
+        sweet_and_simple:
+          type: boolean
+          description: >
+            True if this species is designated as 'Sweet & Simple' for beginner growers.
+            Only tracked from 2026 onward.
+
+    S2CYearSummary:
+      type: object
+      required:
+        - year
+        - species_count
+        - source_note
+      properties:
+        year:
+          type: integer
+          description: Program year (January–March workshops)
+        species_count:
+          type: integer
+          description: Number of species offered this program year
+        source_note:
+          type: string
+          description: Description of the data source and any caveats for this year
+
+    S2CYearsData:
+      type: object
+      required:
+        - available_years
+        - years
+      properties:
+        available_years:
+          type: array
+          items:
+            type: integer
+          description: List of available program years
+        years:
+          type: array
+          items:
+            $ref: "#/components/schemas/S2CYearSummary"
+
+    S2CYearsResponse:
+      type: object
+      required:
+        - found
+        - cache_status
+        - queried_at
+        - source_url
+        - provenance
+        - data
+      properties:
+        found:
+          type: boolean
+        cache_status:
+          type: string
+          nullable: true
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          $ref: "#/components/schemas/S2CYearsData"
+
+    S2CSpeciesListData:
+      type: object
+      required:
+        - year
+        - species_count
+        - source_note
+        - species
+      properties:
+        year:
+          type: integer
+        species_count:
+          type: integer
+        source_note:
+          type: string
+        species:
+          type: array
+          items:
+            $ref: "#/components/schemas/S2CSpecies"
+
+    S2CSpeciesResponse:
+      type: object
+      required:
+        - found
+        - cache_status
+        - queried_at
+        - source_url
+        - provenance
+      properties:
+        found:
+          type: boolean
+        cache_status:
+          type: string
+          nullable: true
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          nullable: true
+          oneOf:
+            - $ref: "#/components/schemas/S2CSpeciesListData"
+            - type: "null"
