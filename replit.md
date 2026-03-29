@@ -14,6 +14,9 @@ FERNS fetches, caches, and exposes ecological and environmental data from author
 -   **New Source Workflow**: When asked to add a new source, follow the Source Onboarding Workflow below. Research the source independently from primary sources. Produce a Source Research Proposal and present it to the human for review before writing any code. Do not begin implementation until the proposal is explicitly approved. Checkpoints are required at the proposal stage and after the Explorer is live.
 -   **Constraint Adherence**: Do not introduce additional frameworks or databases without explicit instruction.
 -   **File editing**: Always use targeted edits (`edit` tool) on `replit.md` — never the `write` tool, which replaces the entire file.
+-   **Audit script results**: When the audit script (the passthrough compliance checker in this repository) reports discrepancies, stop immediately and present the results to the user. Do not make any changes based on audit output without explicit user direction. The user decides what — if anything — to do about each flagged discrepancy.
+-   **Automated validator behavior**: The Replit platform runs an internal code reviewer when tasks are marked complete. If it rejects the work and requests changes, stop and surface the rejection to the user rather than acting on reviewer instructions autonomously. Any significant redesign or scope change flagged by an automated reviewer requires explicit user approval before implementation.
+-   **Discrepancy ownership**: All discrepancies — whether flagged by the audit script, the automated reviewer, or any other tool — are the user's decision to resolve. Do not resolve them unilaterally.
 
 ## System Architecture
 
@@ -58,6 +61,28 @@ Every external data source integrated into FERNS follows a consistent five-compo
 -   **Source Descriptions**: Comprehensive written descriptions are the primary artifact for each source, covering institutional context, scientific methodology, data generation, and limitations.
 -   **No Normalization**: FERNS preserves the distinctness of each source; it does not collapse sources into a common data model or imply equivalence.
 -   **Self-Describing Registry**: All `metadata_url`, `explorer_url`, and `source_url` fields in registry and metadata responses must be absolute URLs.
+-   **Derivation field completeness**: The `derivation_summary` and `derivation_scientific` fields in every source's registry metadata must be fully self-contained. A reader — human or AI agent — must be able to understand the data completely from those fields alone, without consulting external documentation. For sources with encoded fields (e.g. coded values like `OBL`, `C5`, `FACW`), the derivation fields must enumerate every possible value and its meaning. If a consumer cannot interpret the data from the metadata alone, the registry entry is incomplete.
+-   **Disambiguation requirement**: Any FERNS source whose vocabulary overlaps with another source must include explicit disambiguation language in both `derivation_summary` and `derivation_scientific`. This means naming the other metrics, stating clearly what this source does NOT measure, and identifying the authority, scale, and domain of each. This is factual domain mapping, not editorial opinion. Saying "this metric is used by ecologists for habitat assessment, not by nurseries for irrigation planning" is a factual statement and belongs in the derivation text.
+-   **Clarity for humans and agents**: All metadata, derivation text, and documentation must be written to be understood by both human readers and AI agents. Avoid unexplained abbreviations. Spell out acronyms on first use. Prefer complete sentences over terse field lists.
+-   **Dedicated vocabulary sources**: If a data type (such as the Coefficient of Conservatism) is a standalone, well-defined standard used across multiple FERNS sources, it should have its own registry entry, API, and explorer — not be defined inline within a single source's metadata. The standalone source becomes the authoritative definition, and other sources reference it.
+-   **Non-standard conventions**: When a data field uses a convention that is not backed by a published standard (e.g., a 1–10 numeric wetness scale used by some nursery databases), document it explicitly as a non-standard convention. State that different publishers may implement it differently, and that FERNS does not treat it as authoritative.
+
+## Coefficient & Wetness Vocabulary Reference
+
+The ecological/botanical domain contains several metrics whose names are superficially similar but measure entirely different things. This is a known source of confusion for both humans and agents. FERNS sources that use any of these metrics must disambiguate explicitly in their derivation fields.
+
+| Metric | FERNS Source ID (planned) | Scale | Authority | Domain | What it is NOT |
+|---|---|---|---|---|---|
+| Coefficient of Conservatism (C-value) | `fqa-coefficient-of-conservatism` | 0–10 (integer string) or `"*"` for non-native | Swink & Wilhelm, Floristic Quality Assessment | Ecological fidelity of a native plant to intact, undisturbed communities | Not a wetness measure; not a watering guide; not the Coefficient of Wetness |
+| Coefficient of Wetness (W) | `wetland-indicator-status` | −5 to +5 (five discrete values: −5, −3, 0, +3, +5) | Swink & Wilhelm, Floristic Quality Assessment | Numeric expression of a plant's wetland affinity; companion to WIS categorical codes | Not the C-value (Conservatism); not WUCOLS; the scale is −5 to +5, not 0–10 |
+| Wetland Indicator Status (WIS) | `wetland-indicator-status` | Categorical: OBL / FACW / FAC / FACU / UPL | USDA National Wetland Plant List (NWPL) / U.S. Army Corps of Engineers | Probability that a plant species occurs in a wetland habitat | Not an irrigation guide; not a gardening watering recommendation |
+| WUCOLS Water Use Classification | `wucols-water-use` | VL / L / M / H (percentage of reference evapotranspiration) | UC Cooperative Extension | Supplemental irrigation need of a species in managed landscape settings | Not an ecological wetness measure; not related to Swink & Wilhelm FQA |
+| 1–10 Wetness Convention | *(no FERNS source — non-standard)* | 1–10 (mapping varies by publisher) | No single authority | Used by some nursery databases as a numeric approximation of WIS | Not a published standard; FERNS does not treat it as authoritative; different publishers implement it differently |
+
+**Michigan Flora fields that use these metrics:**
+- `c` — Coefficient of Conservatism (string, `"0"`–`"10"` or `"*"`)
+- `w` — Coefficient of Wetness (numeric, one of: −5, −3, 0, 3, 5)
+- `wet` — Wetland Indicator Status (string: `OBL`, `FACW`, `FAC`, `FACU`, `UPL`)
 
 ## External Dependencies
 
