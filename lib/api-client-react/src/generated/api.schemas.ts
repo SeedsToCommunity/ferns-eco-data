@@ -752,6 +752,215 @@ export interface MifloraMetadataResponse {
   provenance: FernsProvenance;
 }
 
+export interface CoefficientEntry {
+  /** C-value: '0'–'10' for native species, or '*' for non-native/adventive */
+  value: string;
+  /** Short human-readable label for this C-value level */
+  short_label: string;
+  /** Plain-language ecological meaning for this C-value */
+  ecological_meaning: string;
+  /** Scientific description of this C-value level */
+  scientific_description: string;
+  /** false for '*' (non-native); true for 0–10 */
+  is_native: boolean;
+}
+
+export type CoefficientResponseCacheStatus =
+  (typeof CoefficientResponseCacheStatus)[keyof typeof CoefficientResponseCacheStatus];
+
+export const CoefficientResponseCacheStatus = {
+  miss: "miss",
+  hit: "hit",
+  error: "error",
+} as const;
+
+export interface CoefficientResponse {
+  found: boolean;
+  cache_status: CoefficientResponseCacheStatus;
+  queried_at: string;
+  source_url?: string | null;
+  provenance: FernsProvenance;
+  data?: CoefficientEntry | null;
+}
+
+export type CoefficientAllResponseCacheStatus =
+  (typeof CoefficientAllResponseCacheStatus)[keyof typeof CoefficientAllResponseCacheStatus];
+
+export const CoefficientAllResponseCacheStatus = {
+  miss: "miss",
+  hit: "hit",
+  error: "error",
+} as const;
+
+export interface CoefficientAllResponse {
+  found: boolean;
+  cache_status: CoefficientAllResponseCacheStatus;
+  queried_at: string;
+  source_url?: string | null;
+  provenance: FernsProvenance;
+  data: CoefficientEntry[];
+}
+
+/**
+ * WIS code: OBL, FACW, FAC, FACU, or UPL
+ */
+export type WetlandIndicatorEntryCode =
+  (typeof WetlandIndicatorEntryCode)[keyof typeof WetlandIndicatorEntryCode];
+
+export const WetlandIndicatorEntryCode = {
+  OBL: "OBL",
+  FACW: "FACW",
+  FAC: "FAC",
+  FACU: "FACU",
+  UPL: "UPL",
+} as const;
+
+export interface WetlandIndicatorEntry {
+  /** WIS code: OBL, FACW, FAC, FACU, or UPL */
+  code: WetlandIndicatorEntryCode;
+  /** Coefficient of Wetness (W): -5, -3, 0, 3, or 5 */
+  w_value: number;
+  /** Full name of the WIS category */
+  full_name: string;
+  /** Wetland occurrence frequency range (e.g., '>99% in wetlands') */
+  occurrence_range: string;
+  /** Plain-language ecological meaning for this WIS code */
+  ecological_meaning: string;
+  /** Scientific description including W-value and authority */
+  scientific_description: string;
+}
+
+export type WetlandIndicatorResponseCacheStatus =
+  (typeof WetlandIndicatorResponseCacheStatus)[keyof typeof WetlandIndicatorResponseCacheStatus];
+
+export const WetlandIndicatorResponseCacheStatus = {
+  miss: "miss",
+  hit: "hit",
+  error: "error",
+} as const;
+
+export interface WetlandIndicatorResponse {
+  found: boolean;
+  cache_status: WetlandIndicatorResponseCacheStatus;
+  queried_at: string;
+  source_url?: string | null;
+  provenance: FernsProvenance;
+  data?: WetlandIndicatorEntry | null;
+}
+
+export type WetlandIndicatorAllResponseCacheStatus =
+  (typeof WetlandIndicatorAllResponseCacheStatus)[keyof typeof WetlandIndicatorAllResponseCacheStatus];
+
+export const WetlandIndicatorAllResponseCacheStatus = {
+  miss: "miss",
+  hit: "hit",
+  error: "error",
+} as const;
+
+export interface WetlandIndicatorAllResponse {
+  found: boolean;
+  cache_status: WetlandIndicatorAllResponseCacheStatus;
+  queried_at: string;
+  source_url?: string | null;
+  provenance: FernsProvenance;
+  data: WetlandIndicatorEntry[];
+}
+
+/**
+ * WUCOLS code: VL, L, M, or H
+ */
+export type WucolsEntryCode =
+  (typeof WucolsEntryCode)[keyof typeof WucolsEntryCode];
+
+export const WucolsEntryCode = {
+  VL: "VL",
+  L: "L",
+  M: "M",
+  H: "H",
+} as const;
+
+export interface WucolsEntry {
+  /** WUCOLS code: VL, L, M, or H */
+  code: WucolsEntryCode;
+  /** Full name of the WUCOLS category */
+  full_name: string;
+  /** ETo percentage range (e.g., '10–30% of ETo') */
+  eto_range: string;
+  /** Lower bound of ETo percentage (null for VL which is <10%) */
+  eto_percentage_low?: number | null;
+  /** Upper bound of ETo percentage */
+  eto_percentage_high: number;
+  /** Plain-language description of irrigation need */
+  irrigation_description: string;
+  /** Scientific description including ETo methodology and authority */
+  scientific_description: string;
+}
+
+export type WucolsResponseCacheStatus =
+  (typeof WucolsResponseCacheStatus)[keyof typeof WucolsResponseCacheStatus];
+
+export const WucolsResponseCacheStatus = {
+  miss: "miss",
+  hit: "hit",
+  error: "error",
+} as const;
+
+export interface WucolsResponse {
+  found: boolean;
+  cache_status: WucolsResponseCacheStatus;
+  queried_at: string;
+  source_url?: string | null;
+  provenance: FernsProvenance;
+  data?: WucolsEntry | null;
+}
+
+export type WucolsAllResponseCacheStatus =
+  (typeof WucolsAllResponseCacheStatus)[keyof typeof WucolsAllResponseCacheStatus];
+
+export const WucolsAllResponseCacheStatus = {
+  miss: "miss",
+  hit: "hit",
+  error: "error",
+} as const;
+
+export interface WucolsAllResponse {
+  found: boolean;
+  cache_status: WucolsAllResponseCacheStatus;
+  queried_at: string;
+  source_url?: string | null;
+  provenance: FernsProvenance;
+  data: WucolsEntry[];
+}
+
+/**
+ * Full registry entry for this vocabulary source
+ */
+export type VocabularyMetadataResponseRegistryEntry = {
+  source_id?: string;
+  name?: string;
+  knowledge_type?: string;
+  status?: string;
+  description?: string;
+  input_summary?: string;
+  output_summary?: string;
+  dependencies?: string[];
+  update_frequency?: string;
+  known_limitations?: string;
+  metadata_url?: string;
+  explorer_url?: string;
+};
+
+export interface VocabularyMetadataResponse {
+  service_id: string;
+  service_name: string;
+  permission_granted: boolean;
+  permission_status: string;
+  /** Full registry entry for this vocabulary source */
+  registry_entry?: VocabularyMetadataResponseRegistryEntry;
+  queried_at: string;
+  provenance: FernsProvenance;
+}
+
 export type GetBonapMapParams = {
   /**
  * Genus name. First letter capitalized, remainder lowercase (e.g. Asclepias). The service normalizes to title case before URL construction.
@@ -937,3 +1146,64 @@ export type GetMifloraCountiesParams = {
    */
   refresh?: boolean;
 };
+
+export type GetCoefficientByValueParams = {
+  /**
+ * C-value to look up. Must be a string: '0'–'10' for native species, or '*' for non-native/adventive species.
+
+ */
+  value: string;
+};
+
+export type GetWetlandIndicatorByCodeParams = {
+  /**
+   * Wetland Indicator Status code to look up (OBL, FACW, FAC, FACU, or UPL). Case-insensitive.
+   */
+  code: GetWetlandIndicatorByCodeCode;
+};
+
+export type GetWetlandIndicatorByCodeCode =
+  (typeof GetWetlandIndicatorByCodeCode)[keyof typeof GetWetlandIndicatorByCodeCode];
+
+export const GetWetlandIndicatorByCodeCode = {
+  OBL: "OBL",
+  FACW: "FACW",
+  FAC: "FAC",
+  FACU: "FACU",
+  UPL: "UPL",
+} as const;
+
+export type GetWetlandIndicatorByWParams = {
+  /**
+   * Numeric W-value to look up (-5, -3, 0, 3, or 5).
+   */
+  value: GetWetlandIndicatorByWValue;
+};
+
+export type GetWetlandIndicatorByWValue =
+  (typeof GetWetlandIndicatorByWValue)[keyof typeof GetWetlandIndicatorByWValue];
+
+export const GetWetlandIndicatorByWValue = {
+  NUMBER_MINUS_5: -5,
+  NUMBER_MINUS_3: -3,
+  NUMBER_0: 0,
+  NUMBER_3: 3,
+  NUMBER_5: 5,
+} as const;
+
+export type GetWucolsByCodeParams = {
+  /**
+   * WUCOLS water use code to look up (VL, L, M, or H). Case-insensitive.
+   */
+  code: GetWucolsByCodeCode;
+};
+
+export type GetWucolsByCodeCode =
+  (typeof GetWucolsByCodeCode)[keyof typeof GetWucolsByCodeCode];
+
+export const GetWucolsByCodeCode = {
+  VL: "VL",
+  L: "L",
+  M: "M",
+  H: "H",
+} as const;

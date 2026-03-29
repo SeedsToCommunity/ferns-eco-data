@@ -18,6 +18,12 @@ tags:
     description: iNaturalist — Observations, Phenology, and Species Appearance
   - name: miflora
     description: Michigan Flora — Vascular Plants of Michigan
+  - name: coefficient
+    description: Coefficient of Conservatism — Floristic Quality Assessment C-Value Reference
+  - name: wetland-indicator
+    description: Wetland Indicator Status & Coefficient of Wetness — USDA NRCS NWPL Reference
+  - name: wucols
+    description: WUCOLS — Water Use Classifications of Landscape Species
   - name: registry
     description: FERNS Service Registry
 paths:
@@ -676,6 +682,229 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/MifloraMetadataResponse"
+
+  /coefficient:
+    get:
+      operationId: getCoefficientByValue
+      tags: [coefficient]
+      summary: Look up a Coefficient of Conservatism value
+      description: >
+        Returns the full ecological definition for a given C-value (0–10) or '*' for non-native species.
+        The Coefficient of Conservatism (C-value) is a Floristic Quality Assessment metric developed by
+        Swink & Wilhelm (1994) to rate a plant species' fidelity to high-quality natural habitats.
+        This is NOT the Coefficient of Wetness (W, -5 to +5) and NOT a Wetland Indicator Status code (OBL/FACW/FAC/FACU/UPL).
+      parameters:
+        - name: value
+          in: query
+          required: true
+          description: >
+            C-value to look up. Must be a string: '0'–'10' for native species, or '*' for non-native/adventive species.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: C-value definition or not-found response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoefficientResponse"
+        "400":
+          description: Missing or invalid value parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /coefficient/all:
+    get:
+      operationId: getAllCoefficientValues
+      tags: [coefficient]
+      summary: Get all C-value definitions
+      description: >
+        Returns all 12 C-value definitions (0–10 and '*') in a single call.
+        Useful for populating reference tables or caching locally.
+      responses:
+        "200":
+          description: All C-value definitions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoefficientAllResponse"
+
+  /coefficient/metadata:
+    get:
+      operationId: getCoefficientMetadata
+      tags: [coefficient]
+      summary: Coefficient of Conservatism service metadata
+      description: >
+        Returns service identity, permission status, and the full registry entry for the
+        Coefficient of Conservatism source. Also seeds the registry entry on first call.
+      responses:
+        "200":
+          description: Service metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VocabularyMetadataResponse"
+
+  /wetland-indicator:
+    get:
+      operationId: getWetlandIndicatorByCode
+      tags: [wetland-indicator]
+      summary: Look up a Wetland Indicator Status code
+      description: >
+        Returns the full definition for a given WIS code (OBL, FACW, FAC, FACU, or UPL)
+        including its Coefficient of Wetness (W-value) and ecological description.
+        WIS codes are defined by the USDA NRCS National Wetland Plant List (NWPL) under USACE authority.
+        This is NOT WUCOLS (a nursery irrigation system using VL/L/M/H codes) and NOT the Coefficient of Conservatism (0–10).
+      parameters:
+        - name: code
+          in: query
+          required: true
+          description: Wetland Indicator Status code to look up (OBL, FACW, FAC, FACU, or UPL). Case-insensitive.
+          schema:
+            type: string
+            enum: [OBL, FACW, FAC, FACU, UPL]
+      responses:
+        "200":
+          description: WIS code definition or not-found response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WetlandIndicatorResponse"
+        "400":
+          description: Missing or invalid code parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /wetland-indicator/w:
+    get:
+      operationId: getWetlandIndicatorByW
+      tags: [wetland-indicator]
+      summary: Look up a Wetland Indicator Status by Coefficient of Wetness (W-value)
+      description: >
+        Returns the WIS code and full definition for a given numeric W-value (-5, -3, 0, 3, or 5).
+        W-values map directly to WIS codes: OBL=-5, FACW=-3, FAC=0, FACU=+3, UPL=+5.
+      parameters:
+        - name: value
+          in: query
+          required: true
+          description: Numeric W-value to look up (-5, -3, 0, 3, or 5).
+          schema:
+            type: integer
+            enum: [-5, -3, 0, 3, 5]
+      responses:
+        "200":
+          description: WIS definition for the given W-value, or not-found response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WetlandIndicatorResponse"
+        "400":
+          description: Missing or invalid value parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /wetland-indicator/all:
+    get:
+      operationId: getAllWetlandIndicators
+      tags: [wetland-indicator]
+      summary: Get all Wetland Indicator Status definitions
+      description: >
+        Returns all five WIS code definitions (OBL, FACW, FAC, FACU, UPL) with their
+        W-values and ecological descriptions in a single call.
+      responses:
+        "200":
+          description: All WIS definitions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WetlandIndicatorAllResponse"
+
+  /wetland-indicator/metadata:
+    get:
+      operationId: getWetlandIndicatorMetadata
+      tags: [wetland-indicator]
+      summary: Wetland Indicator Status service metadata
+      description: >
+        Returns service identity, permission status, and the full registry entry for the
+        Wetland Indicator Status source. Also seeds the registry entry on first call.
+      responses:
+        "200":
+          description: Service metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VocabularyMetadataResponse"
+
+  /wucols:
+    get:
+      operationId: getWucolsByCode
+      tags: [wucols]
+      summary: Look up a WUCOLS water use classification code
+      description: >
+        Returns the full definition for a given WUCOLS code (VL, L, M, or H)
+        including ETo percentage range and irrigation description.
+        WUCOLS is the UC Cooperative Extension system for rating supplemental irrigation needs
+        of landscape plants. This is NOT the Wetland Indicator Status (OBL/FACW/FAC/FACU/UPL),
+        which classifies natural wetland habitat occurrence, not irrigation needs.
+      parameters:
+        - name: code
+          in: query
+          required: true
+          description: WUCOLS water use code to look up (VL, L, M, or H). Case-insensitive.
+          schema:
+            type: string
+            enum: [VL, L, M, H]
+      responses:
+        "200":
+          description: WUCOLS code definition or not-found response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WucolsResponse"
+        "400":
+          description: Missing or invalid code parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /wucols/all:
+    get:
+      operationId: getAllWucols
+      tags: [wucols]
+      summary: Get all WUCOLS water use classification definitions
+      description: >
+        Returns all four WUCOLS classification levels (VL, L, M, H) with their
+        ETo ranges and descriptions in a single call.
+      responses:
+        "200":
+          description: All WUCOLS definitions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WucolsAllResponse"
+
+  /wucols/metadata:
+    get:
+      operationId: getWucolsMetadata
+      tags: [wucols]
+      summary: WUCOLS service metadata
+      description: >
+        Returns service identity, permission status, and the full registry entry for the
+        WUCOLS source. Also seeds the registry entry on first call.
+      responses:
+        "200":
+          description: Service metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VocabularyMetadataResponse"
 
   /v1/sources:
     get:
@@ -2025,6 +2254,308 @@ components:
         registry_entry:
           type: object
           description: Full registry entry for the Michigan Flora service
+          properties:
+            source_id:
+              type: string
+            name:
+              type: string
+            knowledge_type:
+              type: string
+            status:
+              type: string
+            description:
+              type: string
+            input_summary:
+              type: string
+            output_summary:
+              type: string
+            dependencies:
+              type: array
+              items:
+                type: string
+            update_frequency:
+              type: string
+            known_limitations:
+              type: string
+            metadata_url:
+              type: string
+            explorer_url:
+              type: string
+        queried_at:
+          type: string
+          format: date-time
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    CoefficientEntry:
+      type: object
+      required:
+        - value
+        - short_label
+        - ecological_meaning
+        - scientific_description
+        - is_native
+      properties:
+        value:
+          type: string
+          description: "C-value: '0'–'10' for native species, or '*' for non-native/adventive"
+        short_label:
+          type: string
+          description: Short human-readable label for this C-value level
+        ecological_meaning:
+          type: string
+          description: Plain-language ecological meaning for this C-value
+        scientific_description:
+          type: string
+          description: Scientific description of this C-value level
+        is_native:
+          type: boolean
+          description: "false for '*' (non-native); true for 0–10"
+
+    CoefficientResponse:
+      type: object
+      required:
+        - found
+        - cache_status
+        - queried_at
+        - provenance
+      properties:
+        found:
+          type: boolean
+        cache_status:
+          type: string
+          enum: [miss, hit, error]
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+          nullable: true
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          nullable: true
+          oneOf:
+            - $ref: "#/components/schemas/CoefficientEntry"
+
+    CoefficientAllResponse:
+      type: object
+      required:
+        - found
+        - cache_status
+        - queried_at
+        - provenance
+        - data
+      properties:
+        found:
+          type: boolean
+        cache_status:
+          type: string
+          enum: [miss, hit, error]
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+          nullable: true
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/CoefficientEntry"
+
+    WetlandIndicatorEntry:
+      type: object
+      required:
+        - code
+        - w_value
+        - full_name
+        - occurrence_range
+        - ecological_meaning
+        - scientific_description
+      properties:
+        code:
+          type: string
+          description: "WIS code: OBL, FACW, FAC, FACU, or UPL"
+          enum: [OBL, FACW, FAC, FACU, UPL]
+        w_value:
+          type: integer
+          description: "Coefficient of Wetness (W): -5, -3, 0, 3, or 5"
+        full_name:
+          type: string
+          description: Full name of the WIS category
+        occurrence_range:
+          type: string
+          description: Wetland occurrence frequency range (e.g., '>99% in wetlands')
+        ecological_meaning:
+          type: string
+          description: Plain-language ecological meaning for this WIS code
+        scientific_description:
+          type: string
+          description: Scientific description including W-value and authority
+
+    WetlandIndicatorResponse:
+      type: object
+      required:
+        - found
+        - cache_status
+        - queried_at
+        - provenance
+      properties:
+        found:
+          type: boolean
+        cache_status:
+          type: string
+          enum: [miss, hit, error]
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+          nullable: true
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          nullable: true
+          oneOf:
+            - $ref: "#/components/schemas/WetlandIndicatorEntry"
+
+    WetlandIndicatorAllResponse:
+      type: object
+      required:
+        - found
+        - cache_status
+        - queried_at
+        - provenance
+        - data
+      properties:
+        found:
+          type: boolean
+        cache_status:
+          type: string
+          enum: [miss, hit, error]
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+          nullable: true
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/WetlandIndicatorEntry"
+
+    WucolsEntry:
+      type: object
+      required:
+        - code
+        - full_name
+        - eto_range
+        - eto_percentage_high
+        - irrigation_description
+        - scientific_description
+      properties:
+        code:
+          type: string
+          description: "WUCOLS code: VL, L, M, or H"
+          enum: [VL, L, M, H]
+        full_name:
+          type: string
+          description: Full name of the WUCOLS category
+        eto_range:
+          type: string
+          description: "ETo percentage range (e.g., '10–30% of ETo')"
+        eto_percentage_low:
+          type: integer
+          nullable: true
+          description: "Lower bound of ETo percentage (null for VL which is <10%)"
+        eto_percentage_high:
+          type: integer
+          description: Upper bound of ETo percentage
+        irrigation_description:
+          type: string
+          description: Plain-language description of irrigation need
+        scientific_description:
+          type: string
+          description: Scientific description including ETo methodology and authority
+
+    WucolsResponse:
+      type: object
+      required:
+        - found
+        - cache_status
+        - queried_at
+        - provenance
+      properties:
+        found:
+          type: boolean
+        cache_status:
+          type: string
+          enum: [miss, hit, error]
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+          nullable: true
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          nullable: true
+          oneOf:
+            - $ref: "#/components/schemas/WucolsEntry"
+
+    WucolsAllResponse:
+      type: object
+      required:
+        - found
+        - cache_status
+        - queried_at
+        - provenance
+        - data
+      properties:
+        found:
+          type: boolean
+        cache_status:
+          type: string
+          enum: [miss, hit, error]
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+          nullable: true
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/WucolsEntry"
+
+    VocabularyMetadataResponse:
+      type: object
+      required:
+        - service_id
+        - service_name
+        - permission_granted
+        - permission_status
+        - queried_at
+        - provenance
+      properties:
+        service_id:
+          type: string
+        service_name:
+          type: string
+        permission_granted:
+          type: boolean
+        permission_status:
+          type: string
+        registry_entry:
+          type: object
+          description: Full registry entry for this vocabulary source
           properties:
             source_id:
               type: string

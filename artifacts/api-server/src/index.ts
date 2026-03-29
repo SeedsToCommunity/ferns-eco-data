@@ -3,6 +3,9 @@ import { logger } from "./lib/logger";
 import { ensureBonapRegistryEntry } from "./services/bonap/seed.js";
 import { ensureInatRegistryEntry } from "./services/inat/seed.js";
 import { ensureMifloraRegistryEntry } from "./services/miflora/seed.js";
+import { ensureCoefficientRegistryEntry } from "./services/coefficient/seed.js";
+import { ensureWetlandIndicatorRegistryEntry } from "./services/wetland-indicator/seed.js";
+import { ensureWucolsRegistryEntry } from "./services/wucols/seed.js";
 
 const rawPort = process.env["PORT"];
 
@@ -36,5 +39,17 @@ app.listen(port, (err) => {
 
   ensureMifloraRegistryEntry().catch((seedErr) => {
     logger.error({ err: seedErr }, "Failed to seed Michigan Flora registry entry at startup");
+  });
+
+  ensureCoefficientRegistryEntry().catch((seedErr) => {
+    logger.error({ err: seedErr }, "Failed to seed Coefficient of Conservatism registry entry at startup");
+  });
+
+  ensureWetlandIndicatorRegistryEntry().catch((seedErr) => {
+    logger.error({ err: seedErr }, "Failed to seed Wetland Indicator Status registry entry at startup");
+  });
+
+  ensureWucolsRegistryEntry().catch((seedErr) => {
+    logger.error({ err: seedErr }, "Failed to seed WUCOLS registry entry at startup");
   });
 });

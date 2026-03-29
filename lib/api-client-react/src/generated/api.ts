@@ -16,6 +16,8 @@ import type {
 import type {
   BonapMapResponse,
   BonapMetadataResponse,
+  CoefficientAllResponse,
+  CoefficientResponse,
   ErrorResponse,
   GbifMatchResponse,
   GbifMetadataResponse,
@@ -23,6 +25,7 @@ import type {
   GbifReconcileResponse,
   GbifSearchResponse,
   GetBonapMapParams,
+  GetCoefficientByValueParams,
   GetGbifMatchParams,
   GetGbifOccurrencesParams,
   GetGbifReconcileParams,
@@ -34,6 +37,9 @@ import type {
   GetInatSpeciesParams,
   GetMifloraCountiesParams,
   GetMifloraSpeciesParams,
+  GetWetlandIndicatorByCodeParams,
+  GetWetlandIndicatorByWParams,
+  GetWucolsByCodeParams,
   HealthStatus,
   InatFieldValuesResponse,
   InatHistogramResponse,
@@ -46,6 +52,11 @@ import type {
   MifloraSpeciesResponse,
   SourcesIndexResponse,
   SourcesMetadataResponse,
+  VocabularyMetadataResponse,
+  WetlandIndicatorAllResponse,
+  WetlandIndicatorResponse,
+  WucolsAllResponse,
+  WucolsResponse,
 } from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
@@ -1621,6 +1632,893 @@ export function useGetMifloraMetadata<
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetMifloraMetadataQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns the full ecological definition for a given C-value (0–10) or '*' for non-native species. The Coefficient of Conservatism (C-value) is a Floristic Quality Assessment metric developed by Swink & Wilhelm (1994) to rate a plant species' fidelity to high-quality natural habitats. This is NOT the Coefficient of Wetness (W, -5 to +5) and NOT a Wetland Indicator Status code (OBL/FACW/FAC/FACU/UPL).
+
+ * @summary Look up a Coefficient of Conservatism value
+ */
+export const getGetCoefficientByValueUrl = (
+  params: GetCoefficientByValueParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/coefficient?${stringifiedParams}`
+    : `/api/coefficient`;
+};
+
+export const getCoefficientByValue = async (
+  params: GetCoefficientByValueParams,
+  options?: RequestInit,
+): Promise<CoefficientResponse> => {
+  return customFetch<CoefficientResponse>(getGetCoefficientByValueUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetCoefficientByValueQueryKey = (
+  params?: GetCoefficientByValueParams,
+) => {
+  return [`/api/coefficient`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetCoefficientByValueQueryOptions = <
+  TData = Awaited<ReturnType<typeof getCoefficientByValue>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetCoefficientByValueParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getCoefficientByValue>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetCoefficientByValueQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getCoefficientByValue>>
+  > = ({ signal }) =>
+    getCoefficientByValue(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getCoefficientByValue>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetCoefficientByValueQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getCoefficientByValue>>
+>;
+export type GetCoefficientByValueQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Look up a Coefficient of Conservatism value
+ */
+
+export function useGetCoefficientByValue<
+  TData = Awaited<ReturnType<typeof getCoefficientByValue>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetCoefficientByValueParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getCoefficientByValue>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetCoefficientByValueQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns all 12 C-value definitions (0–10 and '*') in a single call. Useful for populating reference tables or caching locally.
+
+ * @summary Get all C-value definitions
+ */
+export const getGetAllCoefficientValuesUrl = () => {
+  return `/api/coefficient/all`;
+};
+
+export const getAllCoefficientValues = async (
+  options?: RequestInit,
+): Promise<CoefficientAllResponse> => {
+  return customFetch<CoefficientAllResponse>(getGetAllCoefficientValuesUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetAllCoefficientValuesQueryKey = () => {
+  return [`/api/coefficient/all`] as const;
+};
+
+export const getGetAllCoefficientValuesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAllCoefficientValues>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getAllCoefficientValues>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetAllCoefficientValuesQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getAllCoefficientValues>>
+  > = ({ signal }) => getAllCoefficientValues({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getAllCoefficientValues>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetAllCoefficientValuesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAllCoefficientValues>>
+>;
+export type GetAllCoefficientValuesQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get all C-value definitions
+ */
+
+export function useGetAllCoefficientValues<
+  TData = Awaited<ReturnType<typeof getAllCoefficientValues>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getAllCoefficientValues>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetAllCoefficientValuesQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns service identity, permission status, and the full registry entry for the Coefficient of Conservatism source. Also seeds the registry entry on first call.
+
+ * @summary Coefficient of Conservatism service metadata
+ */
+export const getGetCoefficientMetadataUrl = () => {
+  return `/api/coefficient/metadata`;
+};
+
+export const getCoefficientMetadata = async (
+  options?: RequestInit,
+): Promise<VocabularyMetadataResponse> => {
+  return customFetch<VocabularyMetadataResponse>(
+    getGetCoefficientMetadataUrl(),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetCoefficientMetadataQueryKey = () => {
+  return [`/api/coefficient/metadata`] as const;
+};
+
+export const getGetCoefficientMetadataQueryOptions = <
+  TData = Awaited<ReturnType<typeof getCoefficientMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getCoefficientMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetCoefficientMetadataQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getCoefficientMetadata>>
+  > = ({ signal }) => getCoefficientMetadata({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getCoefficientMetadata>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetCoefficientMetadataQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getCoefficientMetadata>>
+>;
+export type GetCoefficientMetadataQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Coefficient of Conservatism service metadata
+ */
+
+export function useGetCoefficientMetadata<
+  TData = Awaited<ReturnType<typeof getCoefficientMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getCoefficientMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetCoefficientMetadataQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns the full definition for a given WIS code (OBL, FACW, FAC, FACU, or UPL) including its Coefficient of Wetness (W-value) and ecological description. WIS codes are defined by the USDA NRCS National Wetland Plant List (NWPL) under USACE authority. This is NOT WUCOLS (a nursery irrigation system using VL/L/M/H codes) and NOT the Coefficient of Conservatism (0–10).
+
+ * @summary Look up a Wetland Indicator Status code
+ */
+export const getGetWetlandIndicatorByCodeUrl = (
+  params: GetWetlandIndicatorByCodeParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/wetland-indicator?${stringifiedParams}`
+    : `/api/wetland-indicator`;
+};
+
+export const getWetlandIndicatorByCode = async (
+  params: GetWetlandIndicatorByCodeParams,
+  options?: RequestInit,
+): Promise<WetlandIndicatorResponse> => {
+  return customFetch<WetlandIndicatorResponse>(
+    getGetWetlandIndicatorByCodeUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetWetlandIndicatorByCodeQueryKey = (
+  params?: GetWetlandIndicatorByCodeParams,
+) => {
+  return [`/api/wetland-indicator`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetWetlandIndicatorByCodeQueryOptions = <
+  TData = Awaited<ReturnType<typeof getWetlandIndicatorByCode>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetWetlandIndicatorByCodeParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getWetlandIndicatorByCode>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetWetlandIndicatorByCodeQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getWetlandIndicatorByCode>>
+  > = ({ signal }) =>
+    getWetlandIndicatorByCode(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getWetlandIndicatorByCode>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetWetlandIndicatorByCodeQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getWetlandIndicatorByCode>>
+>;
+export type GetWetlandIndicatorByCodeQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Look up a Wetland Indicator Status code
+ */
+
+export function useGetWetlandIndicatorByCode<
+  TData = Awaited<ReturnType<typeof getWetlandIndicatorByCode>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetWetlandIndicatorByCodeParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getWetlandIndicatorByCode>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetWetlandIndicatorByCodeQueryOptions(
+    params,
+    options,
+  );
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns the WIS code and full definition for a given numeric W-value (-5, -3, 0, 3, or 5). W-values map directly to WIS codes: OBL=-5, FACW=-3, FAC=0, FACU=+3, UPL=+5.
+
+ * @summary Look up a Wetland Indicator Status by Coefficient of Wetness (W-value)
+ */
+export const getGetWetlandIndicatorByWUrl = (
+  params: GetWetlandIndicatorByWParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/wetland-indicator/w?${stringifiedParams}`
+    : `/api/wetland-indicator/w`;
+};
+
+export const getWetlandIndicatorByW = async (
+  params: GetWetlandIndicatorByWParams,
+  options?: RequestInit,
+): Promise<WetlandIndicatorResponse> => {
+  return customFetch<WetlandIndicatorResponse>(
+    getGetWetlandIndicatorByWUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetWetlandIndicatorByWQueryKey = (
+  params?: GetWetlandIndicatorByWParams,
+) => {
+  return [`/api/wetland-indicator/w`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetWetlandIndicatorByWQueryOptions = <
+  TData = Awaited<ReturnType<typeof getWetlandIndicatorByW>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetWetlandIndicatorByWParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getWetlandIndicatorByW>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetWetlandIndicatorByWQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getWetlandIndicatorByW>>
+  > = ({ signal }) =>
+    getWetlandIndicatorByW(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getWetlandIndicatorByW>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetWetlandIndicatorByWQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getWetlandIndicatorByW>>
+>;
+export type GetWetlandIndicatorByWQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Look up a Wetland Indicator Status by Coefficient of Wetness (W-value)
+ */
+
+export function useGetWetlandIndicatorByW<
+  TData = Awaited<ReturnType<typeof getWetlandIndicatorByW>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetWetlandIndicatorByWParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getWetlandIndicatorByW>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetWetlandIndicatorByWQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns all five WIS code definitions (OBL, FACW, FAC, FACU, UPL) with their W-values and ecological descriptions in a single call.
+
+ * @summary Get all Wetland Indicator Status definitions
+ */
+export const getGetAllWetlandIndicatorsUrl = () => {
+  return `/api/wetland-indicator/all`;
+};
+
+export const getAllWetlandIndicators = async (
+  options?: RequestInit,
+): Promise<WetlandIndicatorAllResponse> => {
+  return customFetch<WetlandIndicatorAllResponse>(
+    getGetAllWetlandIndicatorsUrl(),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetAllWetlandIndicatorsQueryKey = () => {
+  return [`/api/wetland-indicator/all`] as const;
+};
+
+export const getGetAllWetlandIndicatorsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAllWetlandIndicators>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getAllWetlandIndicators>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetAllWetlandIndicatorsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getAllWetlandIndicators>>
+  > = ({ signal }) => getAllWetlandIndicators({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getAllWetlandIndicators>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetAllWetlandIndicatorsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAllWetlandIndicators>>
+>;
+export type GetAllWetlandIndicatorsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get all Wetland Indicator Status definitions
+ */
+
+export function useGetAllWetlandIndicators<
+  TData = Awaited<ReturnType<typeof getAllWetlandIndicators>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getAllWetlandIndicators>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetAllWetlandIndicatorsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns service identity, permission status, and the full registry entry for the Wetland Indicator Status source. Also seeds the registry entry on first call.
+
+ * @summary Wetland Indicator Status service metadata
+ */
+export const getGetWetlandIndicatorMetadataUrl = () => {
+  return `/api/wetland-indicator/metadata`;
+};
+
+export const getWetlandIndicatorMetadata = async (
+  options?: RequestInit,
+): Promise<VocabularyMetadataResponse> => {
+  return customFetch<VocabularyMetadataResponse>(
+    getGetWetlandIndicatorMetadataUrl(),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetWetlandIndicatorMetadataQueryKey = () => {
+  return [`/api/wetland-indicator/metadata`] as const;
+};
+
+export const getGetWetlandIndicatorMetadataQueryOptions = <
+  TData = Awaited<ReturnType<typeof getWetlandIndicatorMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getWetlandIndicatorMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetWetlandIndicatorMetadataQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getWetlandIndicatorMetadata>>
+  > = ({ signal }) =>
+    getWetlandIndicatorMetadata({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getWetlandIndicatorMetadata>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetWetlandIndicatorMetadataQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getWetlandIndicatorMetadata>>
+>;
+export type GetWetlandIndicatorMetadataQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Wetland Indicator Status service metadata
+ */
+
+export function useGetWetlandIndicatorMetadata<
+  TData = Awaited<ReturnType<typeof getWetlandIndicatorMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getWetlandIndicatorMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetWetlandIndicatorMetadataQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns the full definition for a given WUCOLS code (VL, L, M, or H) including ETo percentage range and irrigation description. WUCOLS is the UC Cooperative Extension system for rating supplemental irrigation needs of landscape plants. This is NOT the Wetland Indicator Status (OBL/FACW/FAC/FACU/UPL), which classifies natural wetland habitat occurrence, not irrigation needs.
+
+ * @summary Look up a WUCOLS water use classification code
+ */
+export const getGetWucolsByCodeUrl = (params: GetWucolsByCodeParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/wucols?${stringifiedParams}`
+    : `/api/wucols`;
+};
+
+export const getWucolsByCode = async (
+  params: GetWucolsByCodeParams,
+  options?: RequestInit,
+): Promise<WucolsResponse> => {
+  return customFetch<WucolsResponse>(getGetWucolsByCodeUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetWucolsByCodeQueryKey = (params?: GetWucolsByCodeParams) => {
+  return [`/api/wucols`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetWucolsByCodeQueryOptions = <
+  TData = Awaited<ReturnType<typeof getWucolsByCode>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetWucolsByCodeParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getWucolsByCode>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetWucolsByCodeQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getWucolsByCode>>> = ({
+    signal,
+  }) => getWucolsByCode(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getWucolsByCode>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetWucolsByCodeQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getWucolsByCode>>
+>;
+export type GetWucolsByCodeQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Look up a WUCOLS water use classification code
+ */
+
+export function useGetWucolsByCode<
+  TData = Awaited<ReturnType<typeof getWucolsByCode>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetWucolsByCodeParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getWucolsByCode>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetWucolsByCodeQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns all four WUCOLS classification levels (VL, L, M, H) with their ETo ranges and descriptions in a single call.
+
+ * @summary Get all WUCOLS water use classification definitions
+ */
+export const getGetAllWucolsUrl = () => {
+  return `/api/wucols/all`;
+};
+
+export const getAllWucols = async (
+  options?: RequestInit,
+): Promise<WucolsAllResponse> => {
+  return customFetch<WucolsAllResponse>(getGetAllWucolsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetAllWucolsQueryKey = () => {
+  return [`/api/wucols/all`] as const;
+};
+
+export const getGetAllWucolsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAllWucols>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getAllWucols>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetAllWucolsQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getAllWucols>>> = ({
+    signal,
+  }) => getAllWucols({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getAllWucols>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetAllWucolsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAllWucols>>
+>;
+export type GetAllWucolsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get all WUCOLS water use classification definitions
+ */
+
+export function useGetAllWucols<
+  TData = Awaited<ReturnType<typeof getAllWucols>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getAllWucols>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetAllWucolsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns service identity, permission status, and the full registry entry for the WUCOLS source. Also seeds the registry entry on first call.
+
+ * @summary WUCOLS service metadata
+ */
+export const getGetWucolsMetadataUrl = () => {
+  return `/api/wucols/metadata`;
+};
+
+export const getWucolsMetadata = async (
+  options?: RequestInit,
+): Promise<VocabularyMetadataResponse> => {
+  return customFetch<VocabularyMetadataResponse>(getGetWucolsMetadataUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetWucolsMetadataQueryKey = () => {
+  return [`/api/wucols/metadata`] as const;
+};
+
+export const getGetWucolsMetadataQueryOptions = <
+  TData = Awaited<ReturnType<typeof getWucolsMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getWucolsMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetWucolsMetadataQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getWucolsMetadata>>
+  > = ({ signal }) => getWucolsMetadata({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getWucolsMetadata>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetWucolsMetadataQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getWucolsMetadata>>
+>;
+export type GetWucolsMetadataQueryError = ErrorType<unknown>;
+
+/**
+ * @summary WUCOLS service metadata
+ */
+
+export function useGetWucolsMetadata<
+  TData = Awaited<ReturnType<typeof getWucolsMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getWucolsMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetWucolsMetadataQueryOptions(options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

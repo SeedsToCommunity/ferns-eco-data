@@ -17,7 +17,7 @@ export function PermissionModal({ permissionGranted, permissionStatus, onAcknowl
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-        className="relative w-full max-w-xl bg-card border-2 border-border rounded-2xl shadow-2xl overflow-hidden"
+        className="relative w-full max-w-xl bg-card border-2 border-border rounded-2xl shadow-2xl overflow-y-auto max-h-[90vh]"
       >
         <div className="h-2 w-full bg-destructive" />
         <div className="p-8">

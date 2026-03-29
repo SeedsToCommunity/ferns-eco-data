@@ -1482,6 +1482,756 @@ export const GetMifloraMetadataResponse = zod.object({
 });
 
 /**
+ * Returns the full ecological definition for a given C-value (0–10) or '*' for non-native species. The Coefficient of Conservatism (C-value) is a Floristic Quality Assessment metric developed by Swink & Wilhelm (1994) to rate a plant species' fidelity to high-quality natural habitats. This is NOT the Coefficient of Wetness (W, -5 to +5) and NOT a Wetland Indicator Status code (OBL/FACW/FAC/FACU/UPL).
+
+ * @summary Look up a Coefficient of Conservatism value
+ */
+export const GetCoefficientByValueQueryParams = zod.object({
+  value: zod.coerce
+    .string()
+    .describe(
+      "C-value to look up. Must be a string: '0'–'10' for native species, or '\*' for non-native\/adventive species.\n",
+    ),
+});
+
+export const GetCoefficientByValueResponse = zod.object({
+  found: zod.boolean(),
+  cache_status: zod.enum(["miss", "hit", "error"]),
+  queried_at: zod.date(),
+  source_url: zod.string().nullish(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+  data: zod
+    .object({
+      value: zod
+        .string()
+        .describe(
+          "C-value: '0'–'10' for native species, or '\*' for non-native\/adventive",
+        ),
+      short_label: zod
+        .string()
+        .describe("Short human-readable label for this C-value level"),
+      ecological_meaning: zod
+        .string()
+        .describe("Plain-language ecological meaning for this C-value"),
+      scientific_description: zod
+        .string()
+        .describe("Scientific description of this C-value level"),
+      is_native: zod
+        .boolean()
+        .describe("false for '\*' (non-native); true for 0–10"),
+    })
+    .nullish(),
+});
+
+/**
+ * Returns all 12 C-value definitions (0–10 and '*') in a single call. Useful for populating reference tables or caching locally.
+
+ * @summary Get all C-value definitions
+ */
+export const GetAllCoefficientValuesResponse = zod.object({
+  found: zod.boolean(),
+  cache_status: zod.enum(["miss", "hit", "error"]),
+  queried_at: zod.date(),
+  source_url: zod.string().nullish(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+  data: zod.array(
+    zod.object({
+      value: zod
+        .string()
+        .describe(
+          "C-value: '0'–'10' for native species, or '\*' for non-native\/adventive",
+        ),
+      short_label: zod
+        .string()
+        .describe("Short human-readable label for this C-value level"),
+      ecological_meaning: zod
+        .string()
+        .describe("Plain-language ecological meaning for this C-value"),
+      scientific_description: zod
+        .string()
+        .describe("Scientific description of this C-value level"),
+      is_native: zod
+        .boolean()
+        .describe("false for '\*' (non-native); true for 0–10"),
+    }),
+  ),
+});
+
+/**
+ * Returns service identity, permission status, and the full registry entry for the Coefficient of Conservatism source. Also seeds the registry entry on first call.
+
+ * @summary Coefficient of Conservatism service metadata
+ */
+export const GetCoefficientMetadataResponse = zod.object({
+  service_id: zod.string(),
+  service_name: zod.string(),
+  permission_granted: zod.boolean(),
+  permission_status: zod.string(),
+  registry_entry: zod
+    .object({
+      source_id: zod.string().optional(),
+      name: zod.string().optional(),
+      knowledge_type: zod.string().optional(),
+      status: zod.string().optional(),
+      description: zod.string().optional(),
+      input_summary: zod.string().optional(),
+      output_summary: zod.string().optional(),
+      dependencies: zod.array(zod.string()).optional(),
+      update_frequency: zod.string().optional(),
+      known_limitations: zod.string().optional(),
+      metadata_url: zod.string().optional(),
+      explorer_url: zod.string().optional(),
+    })
+    .optional()
+    .describe("Full registry entry for this vocabulary source"),
+  queried_at: zod.date(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+});
+
+/**
+ * Returns the full definition for a given WIS code (OBL, FACW, FAC, FACU, or UPL) including its Coefficient of Wetness (W-value) and ecological description. WIS codes are defined by the USDA NRCS National Wetland Plant List (NWPL) under USACE authority. This is NOT WUCOLS (a nursery irrigation system using VL/L/M/H codes) and NOT the Coefficient of Conservatism (0–10).
+
+ * @summary Look up a Wetland Indicator Status code
+ */
+export const GetWetlandIndicatorByCodeQueryParams = zod.object({
+  code: zod
+    .enum(["OBL", "FACW", "FAC", "FACU", "UPL"])
+    .describe(
+      "Wetland Indicator Status code to look up (OBL, FACW, FAC, FACU, or UPL). Case-insensitive.",
+    ),
+});
+
+export const GetWetlandIndicatorByCodeResponse = zod.object({
+  found: zod.boolean(),
+  cache_status: zod.enum(["miss", "hit", "error"]),
+  queried_at: zod.date(),
+  source_url: zod.string().nullish(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+  data: zod
+    .object({
+      code: zod
+        .enum(["OBL", "FACW", "FAC", "FACU", "UPL"])
+        .describe("WIS code: OBL, FACW, FAC, FACU, or UPL"),
+      w_value: zod
+        .number()
+        .describe("Coefficient of Wetness (W): -5, -3, 0, 3, or 5"),
+      full_name: zod.string().describe("Full name of the WIS category"),
+      occurrence_range: zod
+        .string()
+        .describe(
+          "Wetland occurrence frequency range (e.g., '>99% in wetlands')",
+        ),
+      ecological_meaning: zod
+        .string()
+        .describe("Plain-language ecological meaning for this WIS code"),
+      scientific_description: zod
+        .string()
+        .describe("Scientific description including W-value and authority"),
+    })
+    .nullish(),
+});
+
+/**
+ * Returns the WIS code and full definition for a given numeric W-value (-5, -3, 0, 3, or 5). W-values map directly to WIS codes: OBL=-5, FACW=-3, FAC=0, FACU=+3, UPL=+5.
+
+ * @summary Look up a Wetland Indicator Status by Coefficient of Wetness (W-value)
+ */
+export const GetWetlandIndicatorByWQueryParams = zod.object({
+  value: zod
+    .union([
+      zod.literal(-5),
+      zod.literal(-3),
+      zod.literal(0),
+      zod.literal(3),
+      zod.literal(5),
+    ])
+    .describe("Numeric W-value to look up (-5, -3, 0, 3, or 5)."),
+});
+
+export const GetWetlandIndicatorByWResponse = zod.object({
+  found: zod.boolean(),
+  cache_status: zod.enum(["miss", "hit", "error"]),
+  queried_at: zod.date(),
+  source_url: zod.string().nullish(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+  data: zod
+    .object({
+      code: zod
+        .enum(["OBL", "FACW", "FAC", "FACU", "UPL"])
+        .describe("WIS code: OBL, FACW, FAC, FACU, or UPL"),
+      w_value: zod
+        .number()
+        .describe("Coefficient of Wetness (W): -5, -3, 0, 3, or 5"),
+      full_name: zod.string().describe("Full name of the WIS category"),
+      occurrence_range: zod
+        .string()
+        .describe(
+          "Wetland occurrence frequency range (e.g., '>99% in wetlands')",
+        ),
+      ecological_meaning: zod
+        .string()
+        .describe("Plain-language ecological meaning for this WIS code"),
+      scientific_description: zod
+        .string()
+        .describe("Scientific description including W-value and authority"),
+    })
+    .nullish(),
+});
+
+/**
+ * Returns all five WIS code definitions (OBL, FACW, FAC, FACU, UPL) with their W-values and ecological descriptions in a single call.
+
+ * @summary Get all Wetland Indicator Status definitions
+ */
+export const GetAllWetlandIndicatorsResponse = zod.object({
+  found: zod.boolean(),
+  cache_status: zod.enum(["miss", "hit", "error"]),
+  queried_at: zod.date(),
+  source_url: zod.string().nullish(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+  data: zod.array(
+    zod.object({
+      code: zod
+        .enum(["OBL", "FACW", "FAC", "FACU", "UPL"])
+        .describe("WIS code: OBL, FACW, FAC, FACU, or UPL"),
+      w_value: zod
+        .number()
+        .describe("Coefficient of Wetness (W): -5, -3, 0, 3, or 5"),
+      full_name: zod.string().describe("Full name of the WIS category"),
+      occurrence_range: zod
+        .string()
+        .describe(
+          "Wetland occurrence frequency range (e.g., '>99% in wetlands')",
+        ),
+      ecological_meaning: zod
+        .string()
+        .describe("Plain-language ecological meaning for this WIS code"),
+      scientific_description: zod
+        .string()
+        .describe("Scientific description including W-value and authority"),
+    }),
+  ),
+});
+
+/**
+ * Returns service identity, permission status, and the full registry entry for the Wetland Indicator Status source. Also seeds the registry entry on first call.
+
+ * @summary Wetland Indicator Status service metadata
+ */
+export const GetWetlandIndicatorMetadataResponse = zod.object({
+  service_id: zod.string(),
+  service_name: zod.string(),
+  permission_granted: zod.boolean(),
+  permission_status: zod.string(),
+  registry_entry: zod
+    .object({
+      source_id: zod.string().optional(),
+      name: zod.string().optional(),
+      knowledge_type: zod.string().optional(),
+      status: zod.string().optional(),
+      description: zod.string().optional(),
+      input_summary: zod.string().optional(),
+      output_summary: zod.string().optional(),
+      dependencies: zod.array(zod.string()).optional(),
+      update_frequency: zod.string().optional(),
+      known_limitations: zod.string().optional(),
+      metadata_url: zod.string().optional(),
+      explorer_url: zod.string().optional(),
+    })
+    .optional()
+    .describe("Full registry entry for this vocabulary source"),
+  queried_at: zod.date(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+});
+
+/**
+ * Returns the full definition for a given WUCOLS code (VL, L, M, or H) including ETo percentage range and irrigation description. WUCOLS is the UC Cooperative Extension system for rating supplemental irrigation needs of landscape plants. This is NOT the Wetland Indicator Status (OBL/FACW/FAC/FACU/UPL), which classifies natural wetland habitat occurrence, not irrigation needs.
+
+ * @summary Look up a WUCOLS water use classification code
+ */
+export const GetWucolsByCodeQueryParams = zod.object({
+  code: zod
+    .enum(["VL", "L", "M", "H"])
+    .describe(
+      "WUCOLS water use code to look up (VL, L, M, or H). Case-insensitive.",
+    ),
+});
+
+export const GetWucolsByCodeResponse = zod.object({
+  found: zod.boolean(),
+  cache_status: zod.enum(["miss", "hit", "error"]),
+  queried_at: zod.date(),
+  source_url: zod.string().nullish(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+  data: zod
+    .object({
+      code: zod
+        .enum(["VL", "L", "M", "H"])
+        .describe("WUCOLS code: VL, L, M, or H"),
+      full_name: zod.string().describe("Full name of the WUCOLS category"),
+      eto_range: zod
+        .string()
+        .describe("ETo percentage range (e.g., '10–30% of ETo')"),
+      eto_percentage_low: zod
+        .number()
+        .nullish()
+        .describe("Lower bound of ETo percentage (null for VL which is <10%)"),
+      eto_percentage_high: zod
+        .number()
+        .describe("Upper bound of ETo percentage"),
+      irrigation_description: zod
+        .string()
+        .describe("Plain-language description of irrigation need"),
+      scientific_description: zod
+        .string()
+        .describe(
+          "Scientific description including ETo methodology and authority",
+        ),
+    })
+    .nullish(),
+});
+
+/**
+ * Returns all four WUCOLS classification levels (VL, L, M, H) with their ETo ranges and descriptions in a single call.
+
+ * @summary Get all WUCOLS water use classification definitions
+ */
+export const GetAllWucolsResponse = zod.object({
+  found: zod.boolean(),
+  cache_status: zod.enum(["miss", "hit", "error"]),
+  queried_at: zod.date(),
+  source_url: zod.string().nullish(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+  data: zod.array(
+    zod.object({
+      code: zod
+        .enum(["VL", "L", "M", "H"])
+        .describe("WUCOLS code: VL, L, M, or H"),
+      full_name: zod.string().describe("Full name of the WUCOLS category"),
+      eto_range: zod
+        .string()
+        .describe("ETo percentage range (e.g., '10–30% of ETo')"),
+      eto_percentage_low: zod
+        .number()
+        .nullish()
+        .describe("Lower bound of ETo percentage (null for VL which is <10%)"),
+      eto_percentage_high: zod
+        .number()
+        .describe("Upper bound of ETo percentage"),
+      irrigation_description: zod
+        .string()
+        .describe("Plain-language description of irrigation need"),
+      scientific_description: zod
+        .string()
+        .describe(
+          "Scientific description including ETo methodology and authority",
+        ),
+    }),
+  ),
+});
+
+/**
+ * Returns service identity, permission status, and the full registry entry for the WUCOLS source. Also seeds the registry entry on first call.
+
+ * @summary WUCOLS service metadata
+ */
+export const GetWucolsMetadataResponse = zod.object({
+  service_id: zod.string(),
+  service_name: zod.string(),
+  permission_granted: zod.boolean(),
+  permission_status: zod.string(),
+  registry_entry: zod
+    .object({
+      source_id: zod.string().optional(),
+      name: zod.string().optional(),
+      knowledge_type: zod.string().optional(),
+      status: zod.string().optional(),
+      description: zod.string().optional(),
+      input_summary: zod.string().optional(),
+      output_summary: zod.string().optional(),
+      dependencies: zod.array(zod.string()).optional(),
+      update_frequency: zod.string().optional(),
+      known_limitations: zod.string().optional(),
+      metadata_url: zod.string().optional(),
+      explorer_url: zod.string().optional(),
+    })
+    .optional()
+    .describe("Full registry entry for this vocabulary source"),
+  queried_at: zod.date(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+});
+
+/**
  * Returns a summary entry for every registered FERNS Knowledge Service. This is the primary discovery endpoint. Each entry contains enough information to make a routing decision without a follow-up call to individual /metadata endpoints.
 
  * @summary List all registered FERNS Knowledge Services
