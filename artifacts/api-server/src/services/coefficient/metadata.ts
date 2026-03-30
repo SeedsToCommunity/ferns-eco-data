@@ -66,5 +66,5 @@ export const COEFFICIENT_REGISTRY_ENTRY = {
     "Some states assign different C-values to the same species. Per-species C-value lookup is outside scope — " +
     "species-level values are provided by individual flora sources (e.g., Michigan Flora).",
   metadata_url: "/api/coefficient/metadata",
-  explorer_url: "/registry-explorer/vocabulary/coefficient",
+  explorer_url: "/vocabulary/coefficient",
 };

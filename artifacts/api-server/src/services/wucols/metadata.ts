@@ -65,5 +65,5 @@ export const WUCOLS_REGISTRY_ENTRY = {
     "WUCOLS is calibrated for California climate zones; applicability varies in other regions. " +
     "The UC WUCOLS database contains species-level ratings but is not integrated into this source.",
   metadata_url: "/api/wucols/metadata",
-  explorer_url: "/registry-explorer/vocabulary/wucols",
+  explorer_url: "/vocabulary/wucols",
 };

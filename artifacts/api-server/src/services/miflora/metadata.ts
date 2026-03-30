@@ -115,5 +115,5 @@ export const MIFLORA_REGISTRY_ENTRY = {
     "interpretation (see county endpoint). flora_search_sp may return multiple records (subspecies/varieties) " +
     "for one query. Two API calls minimum for any species query; four for full species data.",
   metadata_url: "/api/miflora/metadata",
-  explorer_url: "/registry-explorer/source/michigan-flora",
+  explorer_url: "/source/michigan-flora",
 };

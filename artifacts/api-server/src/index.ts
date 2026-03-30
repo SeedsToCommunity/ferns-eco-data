@@ -1,11 +1,13 @@
 import app from "./app";
 import { logger } from "./lib/logger";
 import { ensureBonapRegistryEntry } from "./services/bonap/seed.js";
+import { ensureGbifRegistryEntry } from "./services/gbif/seed.js";
 import { ensureInatRegistryEntry } from "./services/inat/seed.js";
 import { ensureMifloraRegistryEntry } from "./services/miflora/seed.js";
 import { ensureCoefficientRegistryEntry } from "./services/coefficient/seed.js";
 import { ensureWetlandIndicatorRegistryEntry } from "./services/wetland-indicator/seed.js";
 import { ensureWucolsRegistryEntry } from "./services/wucols/seed.js";
+import { ensureS2CRegistryEntry } from "./services/s2c/seed.js";
 
 const rawPort = process.env["PORT"];
 
@@ -51,5 +53,13 @@ app.listen(port, (err) => {
 
   ensureWucolsRegistryEntry().catch((seedErr) => {
     logger.error({ err: seedErr }, "Failed to seed WUCOLS registry entry at startup");
+  });
+
+  ensureGbifRegistryEntry().catch((seedErr) => {
+    logger.error({ err: seedErr }, "Failed to seed GBIF registry entry at startup");
+  });
+
+  ensureS2CRegistryEntry().catch((seedErr) => {
+    logger.error({ err: seedErr }, "Failed to seed Seeds to Community Washtenaw registry entry at startup");
   });
 });

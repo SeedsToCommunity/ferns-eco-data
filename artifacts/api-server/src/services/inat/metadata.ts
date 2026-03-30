@@ -73,5 +73,5 @@ export const INAT_REGISTRY_ENTRY = {
     "Research Grade iNaturalist observations appear in GBIF — do not double-count when using both FERNS services. " +
     "Observation timing data reflects observer effort and seasonal accessibility as much as actual species biology.",
   metadata_url: "/api/inat/metadata",
-  explorer_url: "/registry-explorer/source/inaturalist",
+  explorer_url: "/source/inaturalist",
 };
