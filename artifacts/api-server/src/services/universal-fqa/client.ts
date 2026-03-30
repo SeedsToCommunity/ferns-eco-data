@@ -1,6 +1,5 @@
 import http from "http";
 import https from "https";
-import { logger } from "../../lib/logger.js";
 
 const USER_AGENT = "FERNS/1.0 (universalfqa.org)";
 const TIMEOUT_MS = 30000;
@@ -392,40 +391,3 @@ export async function fetchAssessment(assessmentId: number): Promise<UniversalFq
   };
 }
 
-const dbSpeciesCache = new Map<number, Map<string, UniversalFqaSpeciesRecord>>();
-
-export async function lookupSpeciesInDatabase(
-  databaseId: number,
-  scientificName: string
-): Promise<{
-  found: boolean;
-  species: UniversalFqaSpeciesRecord | null;
-  cache_hit: boolean;
-  upstream_url: string;
-}> {
-  const upstreamUrl = `http://universalfqa.org/get/database/${databaseId}`;
-
-  let cache_hit = true;
-  if (!dbSpeciesCache.has(databaseId)) {
-    cache_hit = false;
-    logger.info({ databaseId }, "Universal FQA: loading database into cache");
-    const detail = await fetchDatabase(databaseId);
-    const speciesMap = new Map<string, UniversalFqaSpeciesRecord>();
-    for (const sp of detail.species) {
-      speciesMap.set(sp.scientific_name.toLowerCase(), sp);
-    }
-    dbSpeciesCache.set(databaseId, speciesMap);
-  }
-
-  const speciesMap = dbSpeciesCache.get(databaseId)!;
-  const normalizedQuery = scientificName.toLowerCase().trim();
-
-  const match = speciesMap.get(normalizedQuery) ?? null;
-
-  return {
-    found: match !== null,
-    species: match,
-    cache_hit,
-    upstream_url: upstreamUrl,
-  };
-}

@@ -2,6 +2,8 @@ import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import {
   useGetUniversalFqaDatabases,
+  useGetUniversalFqaDatabase,
+  getGetUniversalFqaDatabaseQueryKey,
   useGetUniversalFqaSpecies,
   getGetUniversalFqaSpeciesQueryKey,
   useGetUniversalFqaAssessments,
@@ -184,6 +186,9 @@ export function UniversalFqaPage() {
   const [assessmentFilter, setAssessmentFilter] = useState("");
   const [viewingAssessment, setViewingAssessment] = useState<number | null>(null);
 
+  const [browseDbLoaded, setBrowseDbLoaded] = useState<number | null>(null);
+  const [browseSpeciesFilter, setBrowseSpeciesFilter] = useState("");
+
   const { data: dbsRes, isLoading: dbsLoading } = useGetUniversalFqaDatabases();
   const databases = useMemo(() => dbsRes?.data?.databases ?? [], [dbsRes]);
 
@@ -251,6 +256,32 @@ export function UniversalFqaPage() {
     );
 
   const assessmentDetail = assessmentDetailRes?.data;
+
+  const browseDbId = browseDbLoaded ?? 0;
+  const { data: browseDbRes, isLoading: browseDbLoading } =
+    useGetUniversalFqaDatabase(
+      browseDbId,
+      {
+        query: {
+          queryKey: getGetUniversalFqaDatabaseQueryKey(browseDbId),
+          enabled: browseDbLoaded !== null,
+        },
+      }
+    );
+
+  const browseDbDetail = browseDbRes?.data;
+
+  const filteredBrowseSpecies = useMemo(() => {
+    const species = browseDbDetail?.species ?? [];
+    if (!browseSpeciesFilter.trim()) return species;
+    const q = browseSpeciesFilter.trim().toLowerCase();
+    return species.filter(
+      (sp) =>
+        sp.scientific_name.toLowerCase().includes(q) ||
+        (sp.common_name ?? "").toLowerCase().includes(q) ||
+        (sp.family ?? "").toLowerCase().includes(q)
+    );
+  }, [browseDbDetail, browseSpeciesFilter]);
 
   const apiBase = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -437,7 +468,7 @@ export function UniversalFqaPage() {
                         <p className="text-xs text-muted-foreground leading-relaxed">
                           {db.citation}
                         </p>
-                        <div className="flex gap-2 pt-1">
+                        <div className="flex flex-wrap gap-2 pt-1">
                           <button
                             onClick={() => setActiveTab("species")}
                             className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors"
@@ -455,6 +486,16 @@ export function UniversalFqaPage() {
                             <ClipboardList className="w-3 h-3" />
                             Browse assessments for DB {db.id}
                           </button>
+                          <button
+                            onClick={() => {
+                              setBrowseDbLoaded(db.id);
+                              setBrowseSpeciesFilter("");
+                            }}
+                            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-border bg-card text-foreground hover:border-emerald-400 transition-colors"
+                          >
+                            <Database className="w-3 h-3" />
+                            Browse all species in DB {db.id}
+                          </button>
                         </div>
                       </>
                     );
@@ -463,6 +504,124 @@ export function UniversalFqaPage() {
               )}
             </div>
             <RawPanel title="Raw API response — /api/universal-fqa/databases" data={dbsRes} />
+          </div>
+        )}
+
+        {activeTab === "databases" && browseDbLoaded !== null && (
+          <div className="space-y-4">
+            <div className="bg-card border border-border rounded-xl p-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Full Species List — DB {browseDbLoaded}
+                  {browseDbDetail && (
+                    <span className="ml-2 normal-case font-normal text-foreground">
+                      {browseDbDetail.region} ({browseDbDetail.year})
+                    </span>
+                  )}
+                </p>
+                <button
+                  onClick={() => { setBrowseDbLoaded(null); setBrowseSpeciesFilter(""); }}
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Dismiss
+                </button>
+              </div>
+
+              {browseDbLoading && (
+                <p className="text-xs text-muted-foreground animate-pulse">
+                  Loading database from universalfqa.org (first load may take ~5–10 s)…
+                </p>
+              )}
+
+              {!browseDbLoading && browseDbDetail && (
+                <>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <div className="bg-muted/40 rounded-lg p-3 space-y-0.5">
+                      <p className="text-[10px] uppercase text-muted-foreground tracking-wider">Total species</p>
+                      <p className="text-sm font-semibold">{browseDbDetail.total_species}</p>
+                    </div>
+                    <div className="bg-muted/40 rounded-lg p-3 space-y-0.5">
+                      <p className="text-[10px] uppercase text-muted-foreground tracking-wider">Native</p>
+                      <p className="text-sm font-semibold">{browseDbDetail.native_species}</p>
+                    </div>
+                    <div className="bg-muted/40 rounded-lg p-3 space-y-0.5">
+                      <p className="text-[10px] uppercase text-muted-foreground tracking-wider">Non-native</p>
+                      <p className="text-sm font-semibold">{browseDbDetail.non_native_species}</p>
+                    </div>
+                    <div className="bg-muted/40 rounded-lg p-3 space-y-0.5">
+                      <p className="text-[10px] uppercase text-muted-foreground tracking-wider">Mean C (native)</p>
+                      <p className="text-sm font-semibold">
+                        {browseDbDetail.native_mean_c != null ? browseDbDetail.native_mean_c.toFixed(2) : "—"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="relative">
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
+                    <input
+                      type="text"
+                      value={browseSpeciesFilter}
+                      onChange={(e) => setBrowseSpeciesFilter(e.target.value)}
+                      placeholder="Filter by scientific name, common name, or family…"
+                      className="w-full pl-7 pr-3 py-2 text-xs bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 placeholder:text-muted-foreground"
+                    />
+                  </div>
+
+                  <p className="text-[10px] text-muted-foreground">
+                    Showing {filteredBrowseSpecies.length.toLocaleString()} of {browseDbDetail.species.length.toLocaleString()} species
+                    {browseDbRes?.cache_status && (
+                      <span className="ml-2 px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                        cache: {browseDbRes.cache_status}
+                      </span>
+                    )}
+                  </p>
+
+                  <div className="overflow-x-auto rounded-lg border border-border/50">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="bg-muted/40 border-b border-border">
+                          <th className="text-left px-3 py-2 text-muted-foreground font-medium">Scientific name</th>
+                          <th className="text-left px-3 py-2 text-muted-foreground font-medium">Common name</th>
+                          <th className="text-left px-3 py-2 text-muted-foreground font-medium">Family</th>
+                          <th className="text-center px-3 py-2 text-muted-foreground font-medium">C</th>
+                          <th className="text-center px-3 py-2 text-muted-foreground font-medium">W</th>
+                          <th className="text-left px-3 py-2 text-muted-foreground font-medium">Native</th>
+                          <th className="text-left px-3 py-2 text-muted-foreground font-medium">Physiognomy</th>
+                          <th className="text-left px-3 py-2 text-muted-foreground font-medium">Duration</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredBrowseSpecies.slice(0, 500).map((sp, i) => (
+                          <tr
+                            key={`${sp.scientific_name}-${i}`}
+                            className="border-b border-border/40 last:border-0 hover:bg-muted/20 transition-colors"
+                          >
+                            <td className="px-3 py-1.5 italic">{sp.scientific_name}</td>
+                            <td className="px-3 py-1.5 text-muted-foreground">{sp.common_name ?? "—"}</td>
+                            <td className="px-3 py-1.5 text-muted-foreground">{sp.family ?? "—"}</td>
+                            <td className="px-3 py-1.5 text-center font-mono">
+                              {sp.c != null ? String(sp.c) : "—"}
+                            </td>
+                            <td className="px-3 py-1.5 text-center font-mono">
+                              {sp.w != null ? String(sp.w) : "—"}
+                            </td>
+                            <td className="px-3 py-1.5 text-muted-foreground">{sp.native ?? "—"}</td>
+                            <td className="px-3 py-1.5 text-muted-foreground">{sp.physiognomy ?? "—"}</td>
+                            <td className="px-3 py-1.5 text-muted-foreground">{sp.duration ?? "—"}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    {filteredBrowseSpecies.length > 500 && (
+                      <p className="text-[10px] text-muted-foreground text-center py-2 border-t border-border/40">
+                        Showing first 500 of {filteredBrowseSpecies.length.toLocaleString()} matching records. Use the filter to narrow results.
+                      </p>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+            <RawPanel title="Raw API response — /api/universal-fqa/databases/:id" data={browseDbRes} />
           </div>
         )}
 

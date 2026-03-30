@@ -13,8 +13,11 @@ import {
   fetchDatabaseList,
   fetchAssessmentList,
   fetchAssessment,
-  lookupSpeciesInDatabase,
 } from "../services/universal-fqa/client.js";
+import {
+  getOrFetchDatabase,
+  lookupSpeciesFromDb,
+} from "../services/universal-fqa/db-cache.js";
 import { ensureUniversalFqaRegistryEntry } from "../services/universal-fqa/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
 import { logger } from "../lib/logger.js";
@@ -78,6 +81,41 @@ router.get("/universal-fqa/databases", async (req, res) => {
   }
 });
 
+router.get("/universal-fqa/databases/:id", async (req, res) => {
+  const idParam = req.params.id;
+  const databaseId = parseInt(idParam, 10);
+
+  if (isNaN(databaseId)) {
+    res.status(400).json({
+      error: "invalid_input",
+      message: "database id must be a valid integer",
+    });
+    return;
+  }
+
+  const upstreamUrl = `${UNIVERSAL_FQA_API_BASE}/database/${databaseId}`;
+
+  try {
+    const { detail, cache_hit } = await getOrFetchDatabase(databaseId);
+
+    res.json({
+      found: true,
+      cache_status: cache_hit ? "hit" : "miss",
+      queried_at: new Date(),
+      source_url: upstreamUrl,
+      provenance: buildProvenance(req, upstreamUrl),
+      data: detail,
+    });
+  } catch (err) {
+    logger.error({ err, databaseId }, "Universal FQA: failed to fetch database");
+    res.status(502).json({
+      error: "upstream_error",
+      message: `Failed to load database ${databaseId} from universalfqa.org`,
+      upstream_url: upstreamUrl,
+    });
+  }
+});
+
 router.get("/universal-fqa/species", async (req, res) => {
   const nameParam = req.query["name"];
   const dbIdParam = req.query["database_id"];
@@ -111,15 +149,15 @@ router.get("/universal-fqa/species", async (req, res) => {
   const upstreamUrl = `${UNIVERSAL_FQA_API_BASE}/database/${databaseId}`;
 
   try {
-    const result = await lookupSpeciesInDatabase(databaseId, scientificName);
+    const result = await lookupSpeciesFromDb(databaseId, scientificName);
 
     res.json({
       found: result.found,
       cache_status: result.cache_hit ? "hit" : "miss",
       queried_at: new Date(),
-      source_url: result.upstream_url,
+      source_url: upstreamUrl,
       provenance: {
-        ...buildProvenance(req, result.upstream_url),
+        ...buildProvenance(req, upstreamUrl),
         matched_input: scientificName,
       },
       data: {

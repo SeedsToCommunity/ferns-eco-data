@@ -2562,11 +2562,46 @@ export const GetUniversalFqaMetadataResponse = zod.object({
   permission_granted: zod.boolean(),
   permission_status: zod.string(),
   attribution: zod.record(zod.string(), zod.unknown()),
-  derivation: zod.object({
-    summary: zod.string().optional(),
-    scientific: zod.string().optional(),
-  }),
   registry_entry: zod.record(zod.string(), zod.unknown()),
+  queried_at: zod.date().optional(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
 });
 
 /**
@@ -2645,7 +2680,138 @@ export const GetUniversalFqaDatabasesResponse = zod.object({
 });
 
 /**
- * Looks up a species by scientific name within the specified Universal FQA database. On the first request for a given database_id, downloads and caches the entire database in memory (~2800+ species). Subsequent lookups for the same database_id are served from memory. Matching is case-insensitive and supports partial prefix match. Returns all nine source fields: scientific_name, family, acronym, native, c, w, physiognomy, duration, common_name.
+ * Returns the complete parsed database for the given ID — all species records with named fields, plus the database-level summary metrics (total species, native/non-native counts, mean C values). On the first request for a given database ID, downloads the database from universalfqa.org and persists it to the FERNS PostgreSQL cache. Subsequent requests are served from the cache (cache_status: hit). Consumers may retrieve the full database and build their own in-memory structures without polling FERNS repeatedly.
+
+ * @summary Get a full Universal FQA database with all species records
+ */
+export const GetUniversalFqaDatabaseParams = zod.object({
+  id: zod.coerce
+    .number()
+    .describe("Universal FQA database ID (from the databases list)"),
+});
+
+export const GetUniversalFqaDatabaseResponse = zod.object({
+  found: zod.boolean(),
+  cache_status: zod.string().nullable(),
+  queried_at: zod.date(),
+  source_url: zod.string(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+  data: zod
+    .union([
+      zod.object({
+        id: zod.number().describe("Universal FQA database ID"),
+        region: zod
+          .string()
+          .describe("Region name as provided by universalfqa.org"),
+        year: zod
+          .string()
+          .describe("Publication year string as provided by universalfqa.org"),
+        citation: zod
+          .string()
+          .describe("Full citation string as provided by universalfqa.org"),
+        total_species: zod
+          .number()
+          .describe("Total number of species in this database"),
+        native_species: zod.number().describe("Number of native species"),
+        non_native_species: zod
+          .number()
+          .describe("Number of non-native species"),
+        total_mean_c: zod
+          .number()
+          .nullish()
+          .describe("Mean C-value across all species (native and non-native)"),
+        native_mean_c: zod
+          .number()
+          .nullish()
+          .describe("Mean C-value across native species only"),
+        species: zod
+          .array(
+            zod.object({
+              scientific_name: zod
+                .string()
+                .describe(
+                  "Scientific name of the species as listed in this database",
+                ),
+              family: zod.string().describe("Plant family"),
+              acronym: zod
+                .string()
+                .describe("Abbreviated acronym used in this database"),
+              native: zod
+                .string()
+                .describe(
+                  'Nativity string as provided by the source database. Typically \"native\" or \"non-native\" but exact values depend on the database.\n',
+                ),
+              c: zod
+                .unknown()
+                .nullable()
+                .describe(
+                  "Coefficient of Conservatism (C-value) for this species in this database. Integer 0–10 for native species; null for non-native or unassigned species. Some databases use string representations. Always check the source database citation for the methodology used to assign C-values.\n",
+                ),
+              w: zod
+                .unknown()
+                .nullable()
+                .describe(
+                  "Coefficient of Wetness (W-value). Numeric, -5 (obligate wetland) to +5 (obligate upland). Null if not assigned.\n",
+                ),
+              physiognomy: zod
+                .string()
+                .describe(
+                  "Plant physiognomic type (e.g. Forb, Shrub, Tree, Grass, Sedge, Rush, Fern, Bryophyte, Vine)",
+                ),
+              duration: zod
+                .string()
+                .describe("Life duration (e.g. Annual, Perennial, Biennial)"),
+              common_name: zod
+                .string()
+                .describe("Common name in the source database"),
+            }),
+          )
+          .describe("All species records in this database"),
+      }),
+      zod.null(),
+    ])
+    .nullish(),
+});
+
+/**
+ * Looks up a species by scientific name within the specified Universal FQA database. On the first request for a given database_id, downloads the full database from universalfqa.org and stores it in the FERNS PostgreSQL cache. Subsequent lookups for the same database_id are served from the cache. Matching is exact and case-insensitive. Returns all nine source fields: scientific_name, family, acronym, native, c, w, physiognomy, duration, common_name.
 
  * @summary Look up a species by scientific name in a Universal FQA database
  */

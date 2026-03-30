@@ -59,6 +59,7 @@ import type {
   SourcesMetadataResponse,
   UniversalFqaAssessmentResponse,
   UniversalFqaAssessmentsResponse,
+  UniversalFqaDatabaseDetailResponse,
   UniversalFqaDatabasesResponse,
   UniversalFqaMetadataResponse,
   UniversalFqaSpeciesResponse,
@@ -3033,7 +3034,101 @@ export function useGetUniversalFqaDatabases<
 }
 
 /**
- * Looks up a species by scientific name within the specified Universal FQA database. On the first request for a given database_id, downloads and caches the entire database in memory (~2800+ species). Subsequent lookups for the same database_id are served from memory. Matching is case-insensitive and supports partial prefix match. Returns all nine source fields: scientific_name, family, acronym, native, c, w, physiognomy, duration, common_name.
+ * Returns the complete parsed database for the given ID — all species records with named fields, plus the database-level summary metrics (total species, native/non-native counts, mean C values). On the first request for a given database ID, downloads the database from universalfqa.org and persists it to the FERNS PostgreSQL cache. Subsequent requests are served from the cache (cache_status: hit). Consumers may retrieve the full database and build their own in-memory structures without polling FERNS repeatedly.
+
+ * @summary Get a full Universal FQA database with all species records
+ */
+export const getGetUniversalFqaDatabaseUrl = (id: number) => {
+  return `/api/universal-fqa/databases/${id}`;
+};
+
+export const getUniversalFqaDatabase = async (
+  id: number,
+  options?: RequestInit,
+): Promise<UniversalFqaDatabaseDetailResponse> => {
+  return customFetch<UniversalFqaDatabaseDetailResponse>(
+    getGetUniversalFqaDatabaseUrl(id),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetUniversalFqaDatabaseQueryKey = (id: number) => {
+  return [`/api/universal-fqa/databases/${id}`] as const;
+};
+
+export const getGetUniversalFqaDatabaseQueryOptions = <
+  TData = Awaited<ReturnType<typeof getUniversalFqaDatabase>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getUniversalFqaDatabase>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetUniversalFqaDatabaseQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getUniversalFqaDatabase>>
+  > = ({ signal }) =>
+    getUniversalFqaDatabase(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getUniversalFqaDatabase>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetUniversalFqaDatabaseQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getUniversalFqaDatabase>>
+>;
+export type GetUniversalFqaDatabaseQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get a full Universal FQA database with all species records
+ */
+
+export function useGetUniversalFqaDatabase<
+  TData = Awaited<ReturnType<typeof getUniversalFqaDatabase>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getUniversalFqaDatabase>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetUniversalFqaDatabaseQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Looks up a species by scientific name within the specified Universal FQA database. On the first request for a given database_id, downloads the full database from universalfqa.org and stores it in the FERNS PostgreSQL cache. Subsequent lookups for the same database_id are served from the cache. Matching is exact and case-insensitive. Returns all nine source fields: scientific_name, family, acronym, native, c, w, physiognomy, duration, common_name.
 
  * @summary Look up a species by scientific name in a Universal FQA database
  */

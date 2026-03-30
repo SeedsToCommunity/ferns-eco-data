@@ -26,6 +26,8 @@ tags:
     description: WUCOLS — Water Use Classifications of Landscape Species
   - name: s2c
     description: Seeds to Community Washtenaw — Annual Native Plant Species Availability
+  - name: universal-fqa
+    description: Universal FQA — Federated Floristic Quality Assessment Databases
   - name: registry
     description: FERNS Service Registry
 paths:
@@ -1032,6 +1034,46 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /universal-fqa/databases/{id}:
+    get:
+      operationId: getUniversalFqaDatabase
+      tags: [universal-fqa]
+      summary: Get a full Universal FQA database with all species records
+      description: >
+        Returns the complete parsed database for the given ID — all species records
+        with named fields, plus the database-level summary metrics (total species,
+        native/non-native counts, mean C values). On the first request for a given
+        database ID, downloads the database from universalfqa.org and persists it to
+        the FERNS PostgreSQL cache. Subsequent requests are served from the cache
+        (cache_status: hit). Consumers may retrieve the full database and build their
+        own in-memory structures without polling FERNS repeatedly.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Universal FQA database ID (from the databases list)
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Full database with all species records
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UniversalFqaDatabaseDetailResponse"
+        "400":
+          description: Invalid database ID
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: universalfqa.org API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /universal-fqa/species:
     get:
       operationId: getUniversalFqaSpecies
@@ -1039,9 +1081,10 @@ paths:
       summary: Look up a species by scientific name in a Universal FQA database
       description: >
         Looks up a species by scientific name within the specified Universal FQA database.
-        On the first request for a given database_id, downloads and caches the entire
-        database in memory (~2800+ species). Subsequent lookups for the same database_id
-        are served from memory. Matching is case-insensitive and supports partial prefix match.
+        On the first request for a given database_id, downloads the full database from
+        universalfqa.org and stores it in the FERNS PostgreSQL cache. Subsequent lookups
+        for the same database_id are served from the cache. Matching is exact and
+        case-insensitive.
         Returns all nine source fields: scientific_name, family, acronym, native, c, w,
         physiognomy, duration, common_name.
       parameters:
@@ -2944,6 +2987,94 @@ components:
             - $ref: "#/components/schemas/S2CSpeciesListData"
             - type: "null"
 
+    UniversalFqaDatabaseDetail:
+      type: object
+      required:
+        - id
+        - region
+        - year
+        - citation
+        - total_species
+        - native_species
+        - non_native_species
+        - species
+      properties:
+        id:
+          type: integer
+          description: Universal FQA database ID
+        region:
+          type: string
+          description: Region name as provided by universalfqa.org
+        year:
+          type: string
+          description: Publication year string as provided by universalfqa.org
+        citation:
+          type: string
+          description: Full citation string as provided by universalfqa.org
+        total_species:
+          type: integer
+          description: Total number of species in this database
+        native_species:
+          type: integer
+          description: Number of native species
+        non_native_species:
+          type: integer
+          description: Number of non-native species
+        total_mean_c:
+          type: number
+          nullable: true
+          description: Mean C-value across all species (native and non-native)
+        native_mean_c:
+          type: number
+          nullable: true
+          description: Mean C-value across native species only
+        species:
+          type: array
+          description: All species records in this database
+          items:
+            $ref: "#/components/schemas/UniversalFqaSpeciesRecord"
+
+    UniversalFqaDatabaseDetailData:
+      type: object
+      required:
+        - id
+        - region
+        - year
+        - citation
+        - total_species
+        - native_species
+        - non_native_species
+        - species
+      allOf:
+        - $ref: "#/components/schemas/UniversalFqaDatabaseDetail"
+
+    UniversalFqaDatabaseDetailResponse:
+      type: object
+      required:
+        - found
+        - cache_status
+        - queried_at
+        - source_url
+        - provenance
+      properties:
+        found:
+          type: boolean
+        cache_status:
+          type: string
+          nullable: true
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          nullable: true
+          oneOf:
+            - $ref: "#/components/schemas/UniversalFqaDatabaseDetail"
+            - type: "null"
+
     UniversalFqaDatabaseEntry:
       type: object
       required:
@@ -3431,8 +3562,8 @@ components:
         - permission_granted
         - permission_status
         - attribution
-        - derivation
         - registry_entry
+        - provenance
       properties:
         source_id:
           type: string
@@ -3445,13 +3576,11 @@ components:
         attribution:
           type: object
           additionalProperties: true
-        derivation:
-          type: object
-          properties:
-            summary:
-              type: string
-            scientific:
-              type: string
         registry_entry:
           type: object
           additionalProperties: true
+        queried_at:
+          type: string
+          format: date-time
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"

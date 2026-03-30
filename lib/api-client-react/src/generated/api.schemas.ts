@@ -1012,18 +1012,6 @@ export interface S2CSpeciesResponse {
   data?: S2CSpeciesListData | null;
 }
 
-export interface UniversalFqaDatabaseEntry {
-  /** Universal FQA database ID */
-  id: number;
-  /** Region name as provided by universalfqa.org */
-  region: string;
-  /** Publication year string as provided by universalfqa.org */
-  year: string;
-  /** Full citation string as provided by universalfqa.org. Contains institutional author, year, database name, and sometimes methodology notes. Together with region, provides all information needed to select a database.
-   */
-  citation: string;
-}
-
 export interface UniversalFqaSpeciesRecord {
   /** Scientific name of the species as listed in this database */
   scientific_name: string;
@@ -1046,6 +1034,52 @@ export interface UniversalFqaSpeciesRecord {
   duration: string;
   /** Common name in the source database */
   common_name: string;
+}
+
+export interface UniversalFqaDatabaseDetail {
+  /** Universal FQA database ID */
+  id: number;
+  /** Region name as provided by universalfqa.org */
+  region: string;
+  /** Publication year string as provided by universalfqa.org */
+  year: string;
+  /** Full citation string as provided by universalfqa.org */
+  citation: string;
+  /** Total number of species in this database */
+  total_species: number;
+  /** Number of native species */
+  native_species: number;
+  /** Number of non-native species */
+  non_native_species: number;
+  /** Mean C-value across all species (native and non-native) */
+  total_mean_c?: number | null;
+  /** Mean C-value across native species only */
+  native_mean_c?: number | null;
+  /** All species records in this database */
+  species: UniversalFqaSpeciesRecord[];
+}
+
+export type UniversalFqaDatabaseDetailData = UniversalFqaDatabaseDetail;
+
+export interface UniversalFqaDatabaseDetailResponse {
+  found: boolean;
+  cache_status: string | null;
+  queried_at: string;
+  source_url: string;
+  provenance: FernsProvenance;
+  data?: UniversalFqaDatabaseDetail | null;
+}
+
+export interface UniversalFqaDatabaseEntry {
+  /** Universal FQA database ID */
+  id: number;
+  /** Region name as provided by universalfqa.org */
+  region: string;
+  /** Publication year string as provided by universalfqa.org */
+  year: string;
+  /** Full citation string as provided by universalfqa.org. Contains institutional author, year, database name, and sometimes methodology notes. Together with region, provides all information needed to select a database.
+   */
+  citation: string;
 }
 
 export interface UniversalFqaDatabasesData {
@@ -1200,11 +1234,6 @@ export type UniversalFqaMetadataResponseAttribution = {
   [key: string]: unknown;
 };
 
-export type UniversalFqaMetadataResponseDerivation = {
-  summary?: string;
-  scientific?: string;
-};
-
 export type UniversalFqaMetadataResponseRegistryEntry = {
   [key: string]: unknown;
 };
@@ -1215,8 +1244,9 @@ export interface UniversalFqaMetadataResponse {
   permission_granted: boolean;
   permission_status: string;
   attribution: UniversalFqaMetadataResponseAttribution;
-  derivation: UniversalFqaMetadataResponseDerivation;
   registry_entry: UniversalFqaMetadataResponseRegistryEntry;
+  queried_at?: string;
+  provenance: FernsProvenance;
 }
 
 export type GetBonapMapParams = {
