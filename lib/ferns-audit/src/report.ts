@@ -42,7 +42,7 @@ function computeSourceStats(
 ): SourceStats {
   const mine = comparisons.filter((c) => c.source === source);
   const allFindings = mine.flatMap((c) => c.findings);
-  const contextPrefix = source === "gbif" ? "gbif/" : source === "inat" ? "inat/" : "bonap/";
+  const contextPrefix = `${source}/`;
   const myUrls = urlChecks.filter((u) => u.context.startsWith(contextPrefix));
 
   return {
