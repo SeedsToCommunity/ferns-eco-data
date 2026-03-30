@@ -1012,6 +1012,213 @@ export interface S2CSpeciesResponse {
   data?: S2CSpeciesListData | null;
 }
 
+export interface UniversalFqaDatabaseEntry {
+  /** Universal FQA database ID */
+  id: number;
+  /** Region name as provided by universalfqa.org */
+  region: string;
+  /** Publication year string as provided by universalfqa.org */
+  year: string;
+  /** Full citation string as provided by universalfqa.org. Contains institutional author, year, database name, and sometimes methodology notes. Together with region, provides all information needed to select a database.
+   */
+  citation: string;
+}
+
+export interface UniversalFqaSpeciesRecord {
+  /** Scientific name of the species as listed in this database */
+  scientific_name: string;
+  /** Plant family */
+  family: string;
+  /** Abbreviated acronym used in this database */
+  acronym: string;
+  /** Nativity string as provided by the source database. Typically "native" or "non-native" but exact values depend on the database.
+   */
+  native: string;
+  /** Coefficient of Conservatism (C-value) for this species in this database. Integer 0–10 for native species; null for non-native or unassigned species. Some databases use string representations. Always check the source database citation for the methodology used to assign C-values.
+   */
+  c: unknown | null;
+  /** Coefficient of Wetness (W-value). Numeric, -5 (obligate wetland) to +5 (obligate upland). Null if not assigned.
+   */
+  w: unknown | null;
+  /** Plant physiognomic type (e.g. Forb, Shrub, Tree, Grass, Sedge, Rush, Fern, Bryophyte, Vine) */
+  physiognomy: string;
+  /** Life duration (e.g. Annual, Perennial, Biennial) */
+  duration: string;
+  /** Common name in the source database */
+  common_name: string;
+}
+
+export interface UniversalFqaDatabasesData {
+  databases: UniversalFqaDatabaseEntry[];
+}
+
+export interface UniversalFqaDatabasesResponse {
+  found: boolean;
+  cache_status: string | null;
+  queried_at: string;
+  source_url: string;
+  provenance: FernsProvenance;
+  data?: UniversalFqaDatabasesData | null;
+}
+
+export interface UniversalFqaSpeciesData {
+  database_id: number;
+  queried_name: string;
+  found: boolean;
+  species: UniversalFqaSpeciesRecord | null;
+}
+
+export interface UniversalFqaSpeciesResponse {
+  found: boolean;
+  cache_status: string | null;
+  queried_at: string;
+  source_url: string;
+  provenance: FernsProvenance;
+  data?: UniversalFqaSpeciesData | null;
+}
+
+export interface UniversalFqaAssessmentSummary {
+  /** Assessment ID */
+  id: number;
+  /** Assessment name as entered by the practitioner */
+  name: string;
+  /** Date of the assessment (string as provided by source) */
+  date: string;
+  /** Site name as entered by the practitioner */
+  site: string;
+  /** Name of the practitioner who conducted the assessment */
+  practitioner: string;
+}
+
+export interface UniversalFqaAssessmentsData {
+  database_id: number;
+  assessments: UniversalFqaAssessmentSummary[];
+}
+
+export interface UniversalFqaAssessmentsResponse {
+  found: boolean;
+  cache_status: string | null;
+  queried_at: string;
+  source_url: string;
+  provenance: FernsProvenance;
+  data?: UniversalFqaAssessmentsData | null;
+}
+
+export interface UniversalFqaDbInfo {
+  region?: string | null;
+  year?: string | null;
+  citation?: string | null;
+}
+
+/**
+ * Computed Floristic Quality Assessment metrics for this site assessment. All numeric values. Null means the source did not provide a value for this assessment.
+
+ */
+export interface UniversalFqaMetrics {
+  total_mean_c?: number | null;
+  native_mean_c?: number | null;
+  total_fqi?: number | null;
+  native_fqi?: number | null;
+  adjusted_fqi?: number | null;
+  pct_c0?: number | null;
+  pct_c1_3?: number | null;
+  pct_c4_6?: number | null;
+  pct_c7_10?: number | null;
+  native_tree_mean_c?: number | null;
+  native_shrub_mean_c?: number | null;
+  native_herbaceous_mean_c?: number | null;
+  total_species?: number | null;
+  native_species?: number | null;
+  native_species_pct?: number | null;
+  non_native_species?: number | null;
+  non_native_species_pct?: number | null;
+  mean_wetness?: number | null;
+  native_mean_wetness?: number | null;
+  tree_count?: number | null;
+  tree_pct?: number | null;
+  shrub_count?: number | null;
+  shrub_pct?: number | null;
+  vine_count?: number | null;
+  vine_pct?: number | null;
+  forb_count?: number | null;
+  forb_pct?: number | null;
+  grass_count?: number | null;
+  grass_pct?: number | null;
+  sedge_count?: number | null;
+  sedge_pct?: number | null;
+  rush_count?: number | null;
+  rush_pct?: number | null;
+  fern_count?: number | null;
+  fern_pct?: number | null;
+  bryophyte_count?: number | null;
+  bryophyte_pct?: number | null;
+  annual_count?: number | null;
+  annual_pct?: number | null;
+  perennial_count?: number | null;
+  perennial_pct?: number | null;
+  biennial_count?: number | null;
+  biennial_pct?: number | null;
+  native_annual_count?: number | null;
+  native_annual_pct?: number | null;
+  native_perennial_count?: number | null;
+  native_perennial_pct?: number | null;
+  native_biennial_count?: number | null;
+  native_biennial_pct?: number | null;
+}
+
+export interface UniversalFqaAssessmentData {
+  id: number;
+  site_name?: string | null;
+  date?: string | null;
+  city?: string | null;
+  county?: string | null;
+  state?: string | null;
+  country?: string | null;
+  fqa_db?: UniversalFqaDbInfo | null;
+  practitioner?: string | null;
+  latitude?: string | null;
+  longitude?: string | null;
+  weather_notes?: string | null;
+  duration_notes?: string | null;
+  community_type?: string | null;
+  other_notes?: string | null;
+  visibility?: string | null;
+  metrics: UniversalFqaMetrics;
+  species: UniversalFqaSpeciesRecord[];
+}
+
+export interface UniversalFqaAssessmentResponse {
+  found: boolean;
+  cache_status: string | null;
+  queried_at: string;
+  source_url: string;
+  provenance: FernsProvenance;
+  data?: UniversalFqaAssessmentData | null;
+}
+
+export type UniversalFqaMetadataResponseAttribution = {
+  [key: string]: unknown;
+};
+
+export type UniversalFqaMetadataResponseDerivation = {
+  summary?: string;
+  scientific?: string;
+};
+
+export type UniversalFqaMetadataResponseRegistryEntry = {
+  [key: string]: unknown;
+};
+
+export interface UniversalFqaMetadataResponse {
+  source_id: string;
+  name: string;
+  permission_granted: boolean;
+  permission_status: string;
+  attribution: UniversalFqaMetadataResponseAttribution;
+  derivation: UniversalFqaMetadataResponseDerivation;
+  registry_entry: UniversalFqaMetadataResponseRegistryEntry;
+}
+
 export type GetBonapMapParams = {
   /**
  * Genus name. First letter capitalized, remainder lowercase (e.g. Asclepias). The service normalizes to title case before URL construction.
@@ -1275,3 +1482,22 @@ export const GetS2CSpeciesByYearYear = {
   NUMBER_2025: 2025,
   NUMBER_2026: 2026,
 } as const;
+
+export type GetUniversalFqaSpeciesParams = {
+  /**
+   * Scientific name to look up (e.g. Lobelia cardinalis)
+   */
+  name: string;
+  /**
+ * Universal FQA database ID. Use /universal-fqa/databases to list all available databases with their region and citation strings.
+
+ */
+  database_id: number;
+};
+
+export type GetUniversalFqaAssessmentsParams = {
+  /**
+   * Universal FQA database ID
+   */
+  database_id: number;
+};

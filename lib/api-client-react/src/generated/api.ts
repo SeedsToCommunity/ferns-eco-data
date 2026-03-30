@@ -38,6 +38,8 @@ import type {
   GetMifloraCountiesParams,
   GetMifloraSpeciesParams,
   GetS2CSpeciesByYearParams,
+  GetUniversalFqaAssessmentsParams,
+  GetUniversalFqaSpeciesParams,
   GetWetlandIndicatorByCodeParams,
   GetWetlandIndicatorByWParams,
   GetWucolsByCodeParams,
@@ -55,6 +57,11 @@ import type {
   S2CYearsResponse,
   SourcesIndexResponse,
   SourcesMetadataResponse,
+  UniversalFqaAssessmentResponse,
+  UniversalFqaAssessmentsResponse,
+  UniversalFqaDatabasesResponse,
+  UniversalFqaMetadataResponse,
+  UniversalFqaSpeciesResponse,
   VocabularyMetadataResponse,
   WetlandIndicatorAllResponse,
   WetlandIndicatorResponse,
@@ -2855,6 +2862,478 @@ export function useGetSourcesIndex<
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetSourcesIndexQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns service identity, attribution, permission status, derivation descriptions, and the registry entry for the Universal FQA source.
+
+ * @summary Universal FQA service metadata
+ */
+export const getGetUniversalFqaMetadataUrl = () => {
+  return `/api/universal-fqa/metadata`;
+};
+
+export const getUniversalFqaMetadata = async (
+  options?: RequestInit,
+): Promise<UniversalFqaMetadataResponse> => {
+  return customFetch<UniversalFqaMetadataResponse>(
+    getGetUniversalFqaMetadataUrl(),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetUniversalFqaMetadataQueryKey = () => {
+  return [`/api/universal-fqa/metadata`] as const;
+};
+
+export const getGetUniversalFqaMetadataQueryOptions = <
+  TData = Awaited<ReturnType<typeof getUniversalFqaMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getUniversalFqaMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetUniversalFqaMetadataQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getUniversalFqaMetadata>>
+  > = ({ signal }) => getUniversalFqaMetadata({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getUniversalFqaMetadata>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetUniversalFqaMetadataQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getUniversalFqaMetadata>>
+>;
+export type GetUniversalFqaMetadataQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Universal FQA service metadata
+ */
+
+export function useGetUniversalFqaMetadata<
+  TData = Awaited<ReturnType<typeof getUniversalFqaMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getUniversalFqaMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetUniversalFqaMetadataQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns all 93 regional FQA databases available on universalfqa.org. Each entry contains an id, region name, year, and full citation string. The region and citation fields together describe geographic scope, ecoregion coverage, institutional source, and methodology — read both in full to determine relevance for a given project or location.
+
+ * @summary List all Universal FQA regional databases
+ */
+export const getGetUniversalFqaDatabasesUrl = () => {
+  return `/api/universal-fqa/databases`;
+};
+
+export const getUniversalFqaDatabases = async (
+  options?: RequestInit,
+): Promise<UniversalFqaDatabasesResponse> => {
+  return customFetch<UniversalFqaDatabasesResponse>(
+    getGetUniversalFqaDatabasesUrl(),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetUniversalFqaDatabasesQueryKey = () => {
+  return [`/api/universal-fqa/databases`] as const;
+};
+
+export const getGetUniversalFqaDatabasesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getUniversalFqaDatabases>>,
+  TError = ErrorType<ErrorResponse>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getUniversalFqaDatabases>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetUniversalFqaDatabasesQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getUniversalFqaDatabases>>
+  > = ({ signal }) => getUniversalFqaDatabases({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getUniversalFqaDatabases>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetUniversalFqaDatabasesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getUniversalFqaDatabases>>
+>;
+export type GetUniversalFqaDatabasesQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary List all Universal FQA regional databases
+ */
+
+export function useGetUniversalFqaDatabases<
+  TData = Awaited<ReturnType<typeof getUniversalFqaDatabases>>,
+  TError = ErrorType<ErrorResponse>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getUniversalFqaDatabases>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetUniversalFqaDatabasesQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Looks up a species by scientific name within the specified Universal FQA database. On the first request for a given database_id, downloads and caches the entire database in memory (~2800+ species). Subsequent lookups for the same database_id are served from memory. Matching is case-insensitive and supports partial prefix match. Returns all nine source fields: scientific_name, family, acronym, native, c, w, physiognomy, duration, common_name.
+
+ * @summary Look up a species by scientific name in a Universal FQA database
+ */
+export const getGetUniversalFqaSpeciesUrl = (
+  params: GetUniversalFqaSpeciesParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/universal-fqa/species?${stringifiedParams}`
+    : `/api/universal-fqa/species`;
+};
+
+export const getUniversalFqaSpecies = async (
+  params: GetUniversalFqaSpeciesParams,
+  options?: RequestInit,
+): Promise<UniversalFqaSpeciesResponse> => {
+  return customFetch<UniversalFqaSpeciesResponse>(
+    getGetUniversalFqaSpeciesUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetUniversalFqaSpeciesQueryKey = (
+  params?: GetUniversalFqaSpeciesParams,
+) => {
+  return [`/api/universal-fqa/species`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetUniversalFqaSpeciesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getUniversalFqaSpecies>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetUniversalFqaSpeciesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getUniversalFqaSpecies>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetUniversalFqaSpeciesQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getUniversalFqaSpecies>>
+  > = ({ signal }) =>
+    getUniversalFqaSpecies(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getUniversalFqaSpecies>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetUniversalFqaSpeciesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getUniversalFqaSpecies>>
+>;
+export type GetUniversalFqaSpeciesQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Look up a species by scientific name in a Universal FQA database
+ */
+
+export function useGetUniversalFqaSpecies<
+  TData = Awaited<ReturnType<typeof getUniversalFqaSpecies>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetUniversalFqaSpeciesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getUniversalFqaSpecies>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetUniversalFqaSpeciesQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns all publicly shared site assessments for the specified database. Each entry contains the assessment id, name, date, site, and practitioner. Assessment county and state are only available in the individual assessment detail endpoint — the list does not include location fields. Michigan 2014 (ID 50) has 4800+ assessments; Michigan 2024 (ID 267) has 400+.
+
+ * @summary List public site assessments for a Universal FQA database
+ */
+export const getGetUniversalFqaAssessmentsUrl = (
+  params: GetUniversalFqaAssessmentsParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/universal-fqa/assessments?${stringifiedParams}`
+    : `/api/universal-fqa/assessments`;
+};
+
+export const getUniversalFqaAssessments = async (
+  params: GetUniversalFqaAssessmentsParams,
+  options?: RequestInit,
+): Promise<UniversalFqaAssessmentsResponse> => {
+  return customFetch<UniversalFqaAssessmentsResponse>(
+    getGetUniversalFqaAssessmentsUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetUniversalFqaAssessmentsQueryKey = (
+  params?: GetUniversalFqaAssessmentsParams,
+) => {
+  return [
+    `/api/universal-fqa/assessments`,
+    ...(params ? [params] : []),
+  ] as const;
+};
+
+export const getGetUniversalFqaAssessmentsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getUniversalFqaAssessments>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetUniversalFqaAssessmentsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getUniversalFqaAssessments>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetUniversalFqaAssessmentsQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getUniversalFqaAssessments>>
+  > = ({ signal }) =>
+    getUniversalFqaAssessments(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getUniversalFqaAssessments>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetUniversalFqaAssessmentsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getUniversalFqaAssessments>>
+>;
+export type GetUniversalFqaAssessmentsQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary List public site assessments for a Universal FQA database
+ */
+
+export function useGetUniversalFqaAssessments<
+  TData = Awaited<ReturnType<typeof getUniversalFqaAssessments>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetUniversalFqaAssessmentsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getUniversalFqaAssessments>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetUniversalFqaAssessmentsQueryOptions(
+    params,
+    options,
+  );
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns the full detail for a public site assessment: site name, date, city/county/state/country, practitioner, which FQA database was used, all computed FQI metrics (Total/Native FQI, Adjusted FQI, Mean C, Mean Wetness, species richness, physiognomy breakdown, duration breakdown), and the complete observed species list with all nine per-species source fields. Returns 404 if the assessment does not exist or is not public.
+
+ * @summary Get a single Universal FQA site assessment in full detail
+ */
+export const getGetUniversalFqaAssessmentUrl = (id: number) => {
+  return `/api/universal-fqa/assessment/${id}`;
+};
+
+export const getUniversalFqaAssessment = async (
+  id: number,
+  options?: RequestInit,
+): Promise<UniversalFqaAssessmentResponse> => {
+  return customFetch<UniversalFqaAssessmentResponse>(
+    getGetUniversalFqaAssessmentUrl(id),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetUniversalFqaAssessmentQueryKey = (id: number) => {
+  return [`/api/universal-fqa/assessment/${id}`] as const;
+};
+
+export const getGetUniversalFqaAssessmentQueryOptions = <
+  TData = Awaited<ReturnType<typeof getUniversalFqaAssessment>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getUniversalFqaAssessment>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetUniversalFqaAssessmentQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getUniversalFqaAssessment>>
+  > = ({ signal }) =>
+    getUniversalFqaAssessment(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getUniversalFqaAssessment>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetUniversalFqaAssessmentQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getUniversalFqaAssessment>>
+>;
+export type GetUniversalFqaAssessmentQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get a single Universal FQA site assessment in full detail
+ */
+
+export function useGetUniversalFqaAssessment<
+  TData = Awaited<ReturnType<typeof getUniversalFqaAssessment>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getUniversalFqaAssessment>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetUniversalFqaAssessmentQueryOptions(id, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

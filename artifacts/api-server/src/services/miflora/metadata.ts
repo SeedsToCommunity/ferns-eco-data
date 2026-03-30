@@ -30,7 +30,11 @@ export const MIFLORA_DERIVATION_SUMMARY =
   "Attribution required: 'Reznicek, A.A., E.G. Voss, & B.S. Walters. Michigan Flora Online. University of Michigan. https://michiganflora.net.' " +
   "KEY CODED FIELDS — " +
   "c (Coefficient of Conservatism, C-value): string '0'–'10' for native species, or '*' for non-native/adventive species. " +
-  "C-value is an ecological fidelity score assigned to native Michigan plants by Swink & Wilhelm (1994). " +
+  "C-value is an ecological fidelity score assigned to native Michigan plants by the Swink & Wilhelm (1994) methodology. " +
+  "The per-species Michigan C-values come from the Reznicek et al. 2014 Michigan Floristic Quality Assessment Database " +
+  "(Reznicek, A.A., M.R. Penskar, B.S. Walters, and B.S. Slaughter. 2014. Michigan Floristic Quality Assessment Database. " +
+  "Herbarium, University of Michigan, Ann Arbor, MI and Michigan Natural Features Inventory. http://michiganflora.net). " +
+  "This is the same dataset available in Universal FQA (universalfqa.org) as database ID 50. " +
   "0 = cosmopolitan or highly disturbance-tolerant species; 10 = species restricted to pristine, high-quality habitats. " +
   "Non-natives are assigned '*' and do not receive a numeric C-value. " +
   "Do NOT parse c as an integer. " +
@@ -63,7 +67,10 @@ export const MIFLORA_DERIVATION_SCIENTIFIC =
   "then GET /locs_sp?id={id} returns {locations:[...county names...]} for confirmed counties. " +
   "Cache keys for both endpoints are normalized lowercase scientific name. " +
   "FIELD DEFINITIONS — " +
-  "c: Coefficient of Conservatism (C-value, Swink & Wilhelm 1994). Always a string. " +
+  "c: Coefficient of Conservatism (C-value, Swink & Wilhelm 1994 methodology). Always a string. " +
+  "Per-species Michigan C-values sourced from: Reznicek, A.A., M.R. Penskar, B.S. Walters, and B.S. Slaughter. 2014. " +
+  "Michigan Floristic Quality Assessment Database. University of Michigan Herbarium and Michigan Natural Features Inventory. " +
+  "Same dataset as Universal FQA (universalfqa.org) database ID 50. " +
   "Values: '0' (cosmopolitan, weedy, highly tolerant of disturbance) through '10' (restricted to pristine habitats). " +
   "'*' = non-native/adventive; no C-value assigned. Never parseInt. " +
   "Distinct from: w (Coefficient of Wetness, -5 to +5 scale), wet (WIS categorical code), WUCOLS (VL/L/M/H irrigation scale). " +

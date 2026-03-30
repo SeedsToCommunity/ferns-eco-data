@@ -991,6 +991,171 @@ paths:
               schema:
                 $ref: "#/components/schemas/SourcesIndexResponse"
 
+  /universal-fqa/metadata:
+    get:
+      operationId: getUniversalFqaMetadata
+      tags: [universal-fqa]
+      summary: Universal FQA service metadata
+      description: >
+        Returns service identity, attribution, permission status, derivation descriptions,
+        and the registry entry for the Universal FQA source.
+      responses:
+        "200":
+          description: Service metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UniversalFqaMetadataResponse"
+
+  /universal-fqa/databases:
+    get:
+      operationId: getUniversalFqaDatabases
+      tags: [universal-fqa]
+      summary: List all Universal FQA regional databases
+      description: >
+        Returns all 93 regional FQA databases available on universalfqa.org.
+        Each entry contains an id, region name, year, and full citation string.
+        The region and citation fields together describe geographic scope, ecoregion
+        coverage, institutional source, and methodology — read both in full to
+        determine relevance for a given project or location.
+      responses:
+        "200":
+          description: List of all regional databases
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UniversalFqaDatabasesResponse"
+        "502":
+          description: universalfqa.org API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /universal-fqa/species:
+    get:
+      operationId: getUniversalFqaSpecies
+      tags: [universal-fqa]
+      summary: Look up a species by scientific name in a Universal FQA database
+      description: >
+        Looks up a species by scientific name within the specified Universal FQA database.
+        On the first request for a given database_id, downloads and caches the entire
+        database in memory (~2800+ species). Subsequent lookups for the same database_id
+        are served from memory. Matching is case-insensitive and supports partial prefix match.
+        Returns all nine source fields: scientific_name, family, acronym, native, c, w,
+        physiognomy, duration, common_name.
+      parameters:
+        - name: name
+          in: query
+          required: true
+          description: Scientific name to look up (e.g. Lobelia cardinalis)
+          schema:
+            type: string
+        - name: database_id
+          in: query
+          required: true
+          description: >
+            Universal FQA database ID. Use /universal-fqa/databases to list all available
+            databases with their region and citation strings.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Species lookup result (check found field — false means not in this database)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UniversalFqaSpeciesResponse"
+        "400":
+          description: Missing or invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: universalfqa.org API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /universal-fqa/assessments:
+    get:
+      operationId: getUniversalFqaAssessments
+      tags: [universal-fqa]
+      summary: List public site assessments for a Universal FQA database
+      description: >
+        Returns all publicly shared site assessments for the specified database.
+        Each entry contains the assessment id, name, date, site, and practitioner.
+        Assessment county and state are only available in the individual assessment
+        detail endpoint — the list does not include location fields.
+        Michigan 2014 (ID 50) has 4800+ assessments; Michigan 2024 (ID 267) has 400+.
+      parameters:
+        - name: database_id
+          in: query
+          required: true
+          description: Universal FQA database ID
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of public assessments for this database
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UniversalFqaAssessmentsResponse"
+        "400":
+          description: Missing or invalid database_id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: universalfqa.org API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /universal-fqa/assessment/{id}:
+    get:
+      operationId: getUniversalFqaAssessment
+      tags: [universal-fqa]
+      summary: Get a single Universal FQA site assessment in full detail
+      description: >
+        Returns the full detail for a public site assessment: site name, date,
+        city/county/state/country, practitioner, which FQA database was used,
+        all computed FQI metrics (Total/Native FQI, Adjusted FQI, Mean C, Mean Wetness,
+        species richness, physiognomy breakdown, duration breakdown), and the complete
+        observed species list with all nine per-species source fields.
+        Returns 404 if the assessment does not exist or is not public.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Universal FQA assessment ID (from the assessments list)
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Full assessment detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UniversalFqaAssessmentResponse"
+        "404":
+          description: Assessment not found or not public
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: universalfqa.org API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /v1/sources/metadata:
     get:
       operationId: getSourcesMetadata
@@ -2778,3 +2943,515 @@ components:
           oneOf:
             - $ref: "#/components/schemas/S2CSpeciesListData"
             - type: "null"
+
+    UniversalFqaDatabaseEntry:
+      type: object
+      required:
+        - id
+        - region
+        - year
+        - citation
+      properties:
+        id:
+          type: integer
+          description: Universal FQA database ID
+        region:
+          type: string
+          description: Region name as provided by universalfqa.org
+        year:
+          type: string
+          description: Publication year string as provided by universalfqa.org
+        citation:
+          type: string
+          description: >
+            Full citation string as provided by universalfqa.org.
+            Contains institutional author, year, database name, and sometimes methodology notes.
+            Together with region, provides all information needed to select a database.
+
+    UniversalFqaSpeciesRecord:
+      type: object
+      required:
+        - scientific_name
+        - family
+        - acronym
+        - native
+        - c
+        - w
+        - physiognomy
+        - duration
+        - common_name
+      properties:
+        scientific_name:
+          type: string
+          description: Scientific name of the species as listed in this database
+        family:
+          type: string
+          description: Plant family
+        acronym:
+          type: string
+          description: Abbreviated acronym used in this database
+        native:
+          type: string
+          description: >
+            Nativity string as provided by the source database.
+            Typically "native" or "non-native" but exact values depend on the database.
+        c:
+          nullable: true
+          description: >
+            Coefficient of Conservatism (C-value) for this species in this database.
+            Integer 0–10 for native species; null for non-native or unassigned species.
+            Some databases use string representations. Always check the source database citation
+            for the methodology used to assign C-values.
+        w:
+          nullable: true
+          description: >
+            Coefficient of Wetness (W-value). Numeric, -5 (obligate wetland) to +5 (obligate upland).
+            Null if not assigned.
+        physiognomy:
+          type: string
+          description: Plant physiognomic type (e.g. Forb, Shrub, Tree, Grass, Sedge, Rush, Fern, Bryophyte, Vine)
+        duration:
+          type: string
+          description: Life duration (e.g. Annual, Perennial, Biennial)
+        common_name:
+          type: string
+          description: Common name in the source database
+
+    UniversalFqaDatabasesData:
+      type: object
+      required:
+        - databases
+      properties:
+        databases:
+          type: array
+          items:
+            $ref: "#/components/schemas/UniversalFqaDatabaseEntry"
+
+    UniversalFqaDatabasesResponse:
+      type: object
+      required:
+        - found
+        - cache_status
+        - queried_at
+        - source_url
+        - provenance
+      properties:
+        found:
+          type: boolean
+        cache_status:
+          type: string
+          nullable: true
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          nullable: true
+          oneOf:
+            - $ref: "#/components/schemas/UniversalFqaDatabasesData"
+            - type: "null"
+
+    UniversalFqaSpeciesData:
+      type: object
+      required:
+        - database_id
+        - queried_name
+        - found
+        - species
+      properties:
+        database_id:
+          type: integer
+        queried_name:
+          type: string
+        found:
+          type: boolean
+        species:
+          nullable: true
+          oneOf:
+            - $ref: "#/components/schemas/UniversalFqaSpeciesRecord"
+            - type: "null"
+
+    UniversalFqaSpeciesResponse:
+      type: object
+      required:
+        - found
+        - cache_status
+        - queried_at
+        - source_url
+        - provenance
+      properties:
+        found:
+          type: boolean
+        cache_status:
+          type: string
+          nullable: true
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          nullable: true
+          oneOf:
+            - $ref: "#/components/schemas/UniversalFqaSpeciesData"
+            - type: "null"
+
+    UniversalFqaAssessmentSummary:
+      type: object
+      required:
+        - id
+        - name
+        - date
+        - site
+        - practitioner
+      properties:
+        id:
+          type: integer
+          description: Assessment ID
+        name:
+          type: string
+          description: Assessment name as entered by the practitioner
+        date:
+          type: string
+          description: Date of the assessment (string as provided by source)
+        site:
+          type: string
+          description: Site name as entered by the practitioner
+        practitioner:
+          type: string
+          description: Name of the practitioner who conducted the assessment
+
+    UniversalFqaAssessmentsData:
+      type: object
+      required:
+        - database_id
+        - assessments
+      properties:
+        database_id:
+          type: integer
+        assessments:
+          type: array
+          items:
+            $ref: "#/components/schemas/UniversalFqaAssessmentSummary"
+
+    UniversalFqaAssessmentsResponse:
+      type: object
+      required:
+        - found
+        - cache_status
+        - queried_at
+        - source_url
+        - provenance
+      properties:
+        found:
+          type: boolean
+        cache_status:
+          type: string
+          nullable: true
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          nullable: true
+          oneOf:
+            - $ref: "#/components/schemas/UniversalFqaAssessmentsData"
+            - type: "null"
+
+    UniversalFqaDbInfo:
+      type: object
+      properties:
+        region:
+          type: string
+          nullable: true
+        year:
+          type: string
+          nullable: true
+        citation:
+          type: string
+          nullable: true
+
+    UniversalFqaMetrics:
+      type: object
+      description: >
+        Computed Floristic Quality Assessment metrics for this site assessment.
+        All numeric values. Null means the source did not provide a value for this assessment.
+      properties:
+        total_mean_c:
+          type: number
+          nullable: true
+        native_mean_c:
+          type: number
+          nullable: true
+        total_fqi:
+          type: number
+          nullable: true
+        native_fqi:
+          type: number
+          nullable: true
+        adjusted_fqi:
+          type: number
+          nullable: true
+        pct_c0:
+          type: number
+          nullable: true
+        pct_c1_3:
+          type: number
+          nullable: true
+        pct_c4_6:
+          type: number
+          nullable: true
+        pct_c7_10:
+          type: number
+          nullable: true
+        native_tree_mean_c:
+          type: number
+          nullable: true
+        native_shrub_mean_c:
+          type: number
+          nullable: true
+        native_herbaceous_mean_c:
+          type: number
+          nullable: true
+        total_species:
+          type: integer
+          nullable: true
+        native_species:
+          type: integer
+          nullable: true
+        native_species_pct:
+          type: number
+          nullable: true
+        non_native_species:
+          type: integer
+          nullable: true
+        non_native_species_pct:
+          type: number
+          nullable: true
+        mean_wetness:
+          type: number
+          nullable: true
+        native_mean_wetness:
+          type: number
+          nullable: true
+        tree_count:
+          type: integer
+          nullable: true
+        tree_pct:
+          type: number
+          nullable: true
+        shrub_count:
+          type: integer
+          nullable: true
+        shrub_pct:
+          type: number
+          nullable: true
+        vine_count:
+          type: integer
+          nullable: true
+        vine_pct:
+          type: number
+          nullable: true
+        forb_count:
+          type: integer
+          nullable: true
+        forb_pct:
+          type: number
+          nullable: true
+        grass_count:
+          type: integer
+          nullable: true
+        grass_pct:
+          type: number
+          nullable: true
+        sedge_count:
+          type: integer
+          nullable: true
+        sedge_pct:
+          type: number
+          nullable: true
+        rush_count:
+          type: integer
+          nullable: true
+        rush_pct:
+          type: number
+          nullable: true
+        fern_count:
+          type: integer
+          nullable: true
+        fern_pct:
+          type: number
+          nullable: true
+        bryophyte_count:
+          type: integer
+          nullable: true
+        bryophyte_pct:
+          type: number
+          nullable: true
+        annual_count:
+          type: integer
+          nullable: true
+        annual_pct:
+          type: number
+          nullable: true
+        perennial_count:
+          type: integer
+          nullable: true
+        perennial_pct:
+          type: number
+          nullable: true
+        biennial_count:
+          type: integer
+          nullable: true
+        biennial_pct:
+          type: number
+          nullable: true
+        native_annual_count:
+          type: integer
+          nullable: true
+        native_annual_pct:
+          type: number
+          nullable: true
+        native_perennial_count:
+          type: integer
+          nullable: true
+        native_perennial_pct:
+          type: number
+          nullable: true
+        native_biennial_count:
+          type: integer
+          nullable: true
+        native_biennial_pct:
+          type: number
+          nullable: true
+
+    UniversalFqaAssessmentData:
+      type: object
+      required:
+        - id
+        - metrics
+        - species
+      properties:
+        id:
+          type: integer
+        site_name:
+          type: string
+          nullable: true
+        date:
+          type: string
+          nullable: true
+        city:
+          type: string
+          nullable: true
+        county:
+          type: string
+          nullable: true
+        state:
+          type: string
+          nullable: true
+        country:
+          type: string
+          nullable: true
+        fqa_db:
+          nullable: true
+          oneOf:
+            - $ref: "#/components/schemas/UniversalFqaDbInfo"
+            - type: "null"
+        practitioner:
+          type: string
+          nullable: true
+        latitude:
+          type: string
+          nullable: true
+        longitude:
+          type: string
+          nullable: true
+        weather_notes:
+          type: string
+          nullable: true
+        duration_notes:
+          type: string
+          nullable: true
+        community_type:
+          type: string
+          nullable: true
+        other_notes:
+          type: string
+          nullable: true
+        visibility:
+          type: string
+          nullable: true
+        metrics:
+          $ref: "#/components/schemas/UniversalFqaMetrics"
+        species:
+          type: array
+          items:
+            $ref: "#/components/schemas/UniversalFqaSpeciesRecord"
+
+    UniversalFqaAssessmentResponse:
+      type: object
+      required:
+        - found
+        - cache_status
+        - queried_at
+        - source_url
+        - provenance
+      properties:
+        found:
+          type: boolean
+        cache_status:
+          type: string
+          nullable: true
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          nullable: true
+          oneOf:
+            - $ref: "#/components/schemas/UniversalFqaAssessmentData"
+            - type: "null"
+
+    UniversalFqaMetadataResponse:
+      type: object
+      required:
+        - source_id
+        - name
+        - permission_granted
+        - permission_status
+        - attribution
+        - derivation
+        - registry_entry
+      properties:
+        source_id:
+          type: string
+        name:
+          type: string
+        permission_granted:
+          type: boolean
+        permission_status:
+          type: string
+        attribution:
+          type: object
+          additionalProperties: true
+        derivation:
+          type: object
+          properties:
+            summary:
+              type: string
+            scientific:
+              type: string
+        registry_entry:
+          type: object
+          additionalProperties: true

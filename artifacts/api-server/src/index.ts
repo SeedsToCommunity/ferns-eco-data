@@ -8,6 +8,7 @@ import { ensureCoefficientRegistryEntry } from "./services/coefficient/seed.js";
 import { ensureWetlandIndicatorRegistryEntry } from "./services/wetland-indicator/seed.js";
 import { ensureWucolsRegistryEntry } from "./services/wucols/seed.js";
 import { ensureS2CRegistryEntry } from "./services/s2c/seed.js";
+import { ensureUniversalFqaRegistryEntry } from "./services/universal-fqa/seed.js";
 
 const rawPort = process.env["PORT"];
 
@@ -61,5 +62,9 @@ app.listen(port, (err) => {
 
   ensureS2CRegistryEntry().catch((seedErr) => {
     logger.error({ err: seedErr }, "Failed to seed Seeds to Community Washtenaw registry entry at startup");
+  });
+
+  ensureUniversalFqaRegistryEntry().catch((seedErr) => {
+    logger.error({ err: seedErr }, "Failed to seed Universal FQA registry entry at startup");
   });
 });

@@ -2552,6 +2552,481 @@ export const GetSourcesIndexResponse = zod.object({
 });
 
 /**
+ * Returns service identity, attribution, permission status, derivation descriptions, and the registry entry for the Universal FQA source.
+
+ * @summary Universal FQA service metadata
+ */
+export const GetUniversalFqaMetadataResponse = zod.object({
+  source_id: zod.string(),
+  name: zod.string(),
+  permission_granted: zod.boolean(),
+  permission_status: zod.string(),
+  attribution: zod.record(zod.string(), zod.unknown()),
+  derivation: zod.object({
+    summary: zod.string().optional(),
+    scientific: zod.string().optional(),
+  }),
+  registry_entry: zod.record(zod.string(), zod.unknown()),
+});
+
+/**
+ * Returns all 93 regional FQA databases available on universalfqa.org. Each entry contains an id, region name, year, and full citation string. The region and citation fields together describe geographic scope, ecoregion coverage, institutional source, and methodology — read both in full to determine relevance for a given project or location.
+
+ * @summary List all Universal FQA regional databases
+ */
+export const GetUniversalFqaDatabasesResponse = zod.object({
+  found: zod.boolean(),
+  cache_status: zod.string().nullable(),
+  queried_at: zod.date(),
+  source_url: zod.string(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+  data: zod
+    .union([
+      zod.object({
+        databases: zod.array(
+          zod.object({
+            id: zod.number().describe("Universal FQA database ID"),
+            region: zod
+              .string()
+              .describe("Region name as provided by universalfqa.org"),
+            year: zod
+              .string()
+              .describe(
+                "Publication year string as provided by universalfqa.org",
+              ),
+            citation: zod
+              .string()
+              .describe(
+                "Full citation string as provided by universalfqa.org. Contains institutional author, year, database name, and sometimes methodology notes. Together with region, provides all information needed to select a database.\n",
+              ),
+          }),
+        ),
+      }),
+      zod.null(),
+    ])
+    .nullish(),
+});
+
+/**
+ * Looks up a species by scientific name within the specified Universal FQA database. On the first request for a given database_id, downloads and caches the entire database in memory (~2800+ species). Subsequent lookups for the same database_id are served from memory. Matching is case-insensitive and supports partial prefix match. Returns all nine source fields: scientific_name, family, acronym, native, c, w, physiognomy, duration, common_name.
+
+ * @summary Look up a species by scientific name in a Universal FQA database
+ */
+export const GetUniversalFqaSpeciesQueryParams = zod.object({
+  name: zod.coerce
+    .string()
+    .describe("Scientific name to look up (e.g. Lobelia cardinalis)"),
+  database_id: zod.coerce
+    .number()
+    .describe(
+      "Universal FQA database ID. Use \/universal-fqa\/databases to list all available databases with their region and citation strings.\n",
+    ),
+});
+
+export const GetUniversalFqaSpeciesResponse = zod.object({
+  found: zod.boolean(),
+  cache_status: zod.string().nullable(),
+  queried_at: zod.date(),
+  source_url: zod.string(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+  data: zod
+    .union([
+      zod.object({
+        database_id: zod.number(),
+        queried_name: zod.string(),
+        found: zod.boolean(),
+        species: zod
+          .union([
+            zod.object({
+              scientific_name: zod
+                .string()
+                .describe(
+                  "Scientific name of the species as listed in this database",
+                ),
+              family: zod.string().describe("Plant family"),
+              acronym: zod
+                .string()
+                .describe("Abbreviated acronym used in this database"),
+              native: zod
+                .string()
+                .describe(
+                  'Nativity string as provided by the source database. Typically \"native\" or \"non-native\" but exact values depend on the database.\n',
+                ),
+              c: zod
+                .unknown()
+                .nullable()
+                .describe(
+                  "Coefficient of Conservatism (C-value) for this species in this database. Integer 0–10 for native species; null for non-native or unassigned species. Some databases use string representations. Always check the source database citation for the methodology used to assign C-values.\n",
+                ),
+              w: zod
+                .unknown()
+                .nullable()
+                .describe(
+                  "Coefficient of Wetness (W-value). Numeric, -5 (obligate wetland) to +5 (obligate upland). Null if not assigned.\n",
+                ),
+              physiognomy: zod
+                .string()
+                .describe(
+                  "Plant physiognomic type (e.g. Forb, Shrub, Tree, Grass, Sedge, Rush, Fern, Bryophyte, Vine)",
+                ),
+              duration: zod
+                .string()
+                .describe("Life duration (e.g. Annual, Perennial, Biennial)"),
+              common_name: zod
+                .string()
+                .describe("Common name in the source database"),
+            }),
+            zod.null(),
+          ])
+          .nullable(),
+      }),
+      zod.null(),
+    ])
+    .nullish(),
+});
+
+/**
+ * Returns all publicly shared site assessments for the specified database. Each entry contains the assessment id, name, date, site, and practitioner. Assessment county and state are only available in the individual assessment detail endpoint — the list does not include location fields. Michigan 2014 (ID 50) has 4800+ assessments; Michigan 2024 (ID 267) has 400+.
+
+ * @summary List public site assessments for a Universal FQA database
+ */
+export const GetUniversalFqaAssessmentsQueryParams = zod.object({
+  database_id: zod.coerce.number().describe("Universal FQA database ID"),
+});
+
+export const GetUniversalFqaAssessmentsResponse = zod.object({
+  found: zod.boolean(),
+  cache_status: zod.string().nullable(),
+  queried_at: zod.date(),
+  source_url: zod.string(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+  data: zod
+    .union([
+      zod.object({
+        database_id: zod.number(),
+        assessments: zod.array(
+          zod.object({
+            id: zod.number().describe("Assessment ID"),
+            name: zod
+              .string()
+              .describe("Assessment name as entered by the practitioner"),
+            date: zod
+              .string()
+              .describe(
+                "Date of the assessment (string as provided by source)",
+              ),
+            site: zod
+              .string()
+              .describe("Site name as entered by the practitioner"),
+            practitioner: zod
+              .string()
+              .describe(
+                "Name of the practitioner who conducted the assessment",
+              ),
+          }),
+        ),
+      }),
+      zod.null(),
+    ])
+    .nullish(),
+});
+
+/**
+ * Returns the full detail for a public site assessment: site name, date, city/county/state/country, practitioner, which FQA database was used, all computed FQI metrics (Total/Native FQI, Adjusted FQI, Mean C, Mean Wetness, species richness, physiognomy breakdown, duration breakdown), and the complete observed species list with all nine per-species source fields. Returns 404 if the assessment does not exist or is not public.
+
+ * @summary Get a single Universal FQA site assessment in full detail
+ */
+export const GetUniversalFqaAssessmentParams = zod.object({
+  id: zod.coerce
+    .number()
+    .describe("Universal FQA assessment ID (from the assessments list)"),
+});
+
+export const GetUniversalFqaAssessmentResponse = zod.object({
+  found: zod.boolean(),
+  cache_status: zod.string().nullable(),
+  queried_at: zod.date(),
+  source_url: zod.string(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+  data: zod
+    .union([
+      zod.object({
+        id: zod.number(),
+        site_name: zod.string().nullish(),
+        date: zod.string().nullish(),
+        city: zod.string().nullish(),
+        county: zod.string().nullish(),
+        state: zod.string().nullish(),
+        country: zod.string().nullish(),
+        fqa_db: zod
+          .union([
+            zod.object({
+              region: zod.string().nullish(),
+              year: zod.string().nullish(),
+              citation: zod.string().nullish(),
+            }),
+            zod.null(),
+          ])
+          .nullish(),
+        practitioner: zod.string().nullish(),
+        latitude: zod.string().nullish(),
+        longitude: zod.string().nullish(),
+        weather_notes: zod.string().nullish(),
+        duration_notes: zod.string().nullish(),
+        community_type: zod.string().nullish(),
+        other_notes: zod.string().nullish(),
+        visibility: zod.string().nullish(),
+        metrics: zod
+          .object({
+            total_mean_c: zod.number().nullish(),
+            native_mean_c: zod.number().nullish(),
+            total_fqi: zod.number().nullish(),
+            native_fqi: zod.number().nullish(),
+            adjusted_fqi: zod.number().nullish(),
+            pct_c0: zod.number().nullish(),
+            pct_c1_3: zod.number().nullish(),
+            pct_c4_6: zod.number().nullish(),
+            pct_c7_10: zod.number().nullish(),
+            native_tree_mean_c: zod.number().nullish(),
+            native_shrub_mean_c: zod.number().nullish(),
+            native_herbaceous_mean_c: zod.number().nullish(),
+            total_species: zod.number().nullish(),
+            native_species: zod.number().nullish(),
+            native_species_pct: zod.number().nullish(),
+            non_native_species: zod.number().nullish(),
+            non_native_species_pct: zod.number().nullish(),
+            mean_wetness: zod.number().nullish(),
+            native_mean_wetness: zod.number().nullish(),
+            tree_count: zod.number().nullish(),
+            tree_pct: zod.number().nullish(),
+            shrub_count: zod.number().nullish(),
+            shrub_pct: zod.number().nullish(),
+            vine_count: zod.number().nullish(),
+            vine_pct: zod.number().nullish(),
+            forb_count: zod.number().nullish(),
+            forb_pct: zod.number().nullish(),
+            grass_count: zod.number().nullish(),
+            grass_pct: zod.number().nullish(),
+            sedge_count: zod.number().nullish(),
+            sedge_pct: zod.number().nullish(),
+            rush_count: zod.number().nullish(),
+            rush_pct: zod.number().nullish(),
+            fern_count: zod.number().nullish(),
+            fern_pct: zod.number().nullish(),
+            bryophyte_count: zod.number().nullish(),
+            bryophyte_pct: zod.number().nullish(),
+            annual_count: zod.number().nullish(),
+            annual_pct: zod.number().nullish(),
+            perennial_count: zod.number().nullish(),
+            perennial_pct: zod.number().nullish(),
+            biennial_count: zod.number().nullish(),
+            biennial_pct: zod.number().nullish(),
+            native_annual_count: zod.number().nullish(),
+            native_annual_pct: zod.number().nullish(),
+            native_perennial_count: zod.number().nullish(),
+            native_perennial_pct: zod.number().nullish(),
+            native_biennial_count: zod.number().nullish(),
+            native_biennial_pct: zod.number().nullish(),
+          })
+          .describe(
+            "Computed Floristic Quality Assessment metrics for this site assessment. All numeric values. Null means the source did not provide a value for this assessment.\n",
+          ),
+        species: zod.array(
+          zod.object({
+            scientific_name: zod
+              .string()
+              .describe(
+                "Scientific name of the species as listed in this database",
+              ),
+            family: zod.string().describe("Plant family"),
+            acronym: zod
+              .string()
+              .describe("Abbreviated acronym used in this database"),
+            native: zod
+              .string()
+              .describe(
+                'Nativity string as provided by the source database. Typically \"native\" or \"non-native\" but exact values depend on the database.\n',
+              ),
+            c: zod
+              .unknown()
+              .nullable()
+              .describe(
+                "Coefficient of Conservatism (C-value) for this species in this database. Integer 0–10 for native species; null for non-native or unassigned species. Some databases use string representations. Always check the source database citation for the methodology used to assign C-values.\n",
+              ),
+            w: zod
+              .unknown()
+              .nullable()
+              .describe(
+                "Coefficient of Wetness (W-value). Numeric, -5 (obligate wetland) to +5 (obligate upland). Null if not assigned.\n",
+              ),
+            physiognomy: zod
+              .string()
+              .describe(
+                "Plant physiognomic type (e.g. Forb, Shrub, Tree, Grass, Sedge, Rush, Fern, Bryophyte, Vine)",
+              ),
+            duration: zod
+              .string()
+              .describe("Life duration (e.g. Annual, Perennial, Biennial)"),
+            common_name: zod
+              .string()
+              .describe("Common name in the source database"),
+          }),
+        ),
+      }),
+      zod.null(),
+    ])
+    .nullish(),
+});
+
+/**
  * Returns metadata about the registry service itself — its identity, descriptions, and its own registry entry. Follows the same envelope pattern as all other FERNS /metadata endpoints.
 
  * @summary Metadata for the FERNS Source Registry service itself
