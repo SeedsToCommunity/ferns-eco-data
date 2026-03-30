@@ -17,6 +17,7 @@ FERNS fetches, caches, and exposes ecological and environmental data from author
 -   **Audit script results**: When the audit script (the passthrough compliance checker in this repository) reports discrepancies, stop immediately and present the results to the user. Do not make any changes based on audit output without explicit user direction. The user decides what — if anything — to do about each flagged discrepancy.
 -   **Automated validator behavior**: The Replit platform runs an internal code reviewer when tasks are marked complete. If it rejects the work and requests changes, stop and surface the rejection to the user rather than acting on reviewer instructions autonomously. Any significant redesign or scope change flagged by an automated reviewer requires explicit user approval before implementation.
 -   **Discrepancy ownership**: All discrepancies — whether flagged by the audit script, the automated reviewer, or any other tool — are the user's decision to resolve. Do not resolve them unilaterally.
+-   **Post-session summary**: After completing any task that took more than a few exchanges or involved significant decisions, write a plain-language summary to the user covering: (1) what was done, (2) any non-obvious decisions made and why, (3) anything left unresolved or intentionally deferred, and (4) anything the user should be aware of going forward. Keep it short — a few sentences to a short paragraph. The goal is that the user can understand the full arc of the session without reading the transcript.
 
 ## System Architecture
 
