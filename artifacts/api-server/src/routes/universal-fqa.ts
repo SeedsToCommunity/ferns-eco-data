@@ -119,7 +119,7 @@ router.get("/universal-fqa/species", async (req, res) => {
 
     res.json({
       found: result.found,
-      cache_status: result.database_loaded ? "hit" : "miss",
+      cache_status: result.cache_hit ? "hit" : "miss",
       queried_at: new Date(),
       source_url: result.upstream_url,
       provenance: {

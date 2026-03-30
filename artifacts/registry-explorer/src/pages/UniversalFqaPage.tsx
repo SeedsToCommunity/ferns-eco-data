@@ -17,7 +17,6 @@ import {
   Leaf,
   ClipboardList,
   FileText,
-  X,
   ChevronRight,
 } from "lucide-react";
 
@@ -65,17 +64,125 @@ function MetricRow({ label, value }: { label: string; value: unknown }) {
 
 type TabId = "databases" | "species" | "assessments";
 
+interface DatabaseOption {
+  id: number;
+  region: string;
+  year: string;
+  citation: string;
+}
+
+function DatabaseDropdown({
+  databases,
+  value,
+  onChange,
+  placeholder,
+}: {
+  databases: DatabaseOption[];
+  value: number | null;
+  onChange: (id: number | null) => void;
+  placeholder?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [filter, setFilter] = useState("");
+
+  const filtered = useMemo(() => {
+    if (!filter.trim()) return databases;
+    const q = filter.trim().toLowerCase();
+    return databases.filter(
+      (d) =>
+        d.region.toLowerCase().includes(q) ||
+        d.citation.toLowerCase().includes(q) ||
+        String(d.id).includes(q)
+    );
+  }, [databases, filter]);
+
+  const selected = databases.find((d) => d.id === value) ?? null;
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center justify-between px-3 py-2 text-sm bg-background border border-border rounded-lg hover:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"
+      >
+        <span
+          className={
+            selected ? "text-foreground font-medium" : "text-muted-foreground"
+          }
+        >
+          {selected
+            ? `DB ${selected.id} — ${selected.region} (${selected.year})`
+            : (placeholder ?? "Select a database…")}
+        </span>
+        <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
+      </button>
+
+      {open && (
+        <div className="absolute z-50 mt-1 w-full bg-card border border-border rounded-xl shadow-lg overflow-hidden">
+          <div className="p-2 border-b border-border">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
+              <input
+                type="text"
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                placeholder="Filter databases…"
+                className="w-full pl-7 pr-2 py-1.5 text-xs bg-background border border-border rounded-lg focus:outline-none"
+                autoFocus
+              />
+            </div>
+          </div>
+          <div className="max-h-64 overflow-y-auto">
+            {filtered.length === 0 && (
+              <div className="px-3 py-4 text-xs text-muted-foreground text-center">
+                No databases match
+              </div>
+            )}
+            {filtered.map((db) => (
+              <button
+                key={db.id}
+                type="button"
+                onClick={() => {
+                  onChange(db.id);
+                  setOpen(false);
+                  setFilter("");
+                }}
+                className={`w-full text-left px-3 py-2.5 text-xs hover:bg-muted/50 transition-colors border-b border-border/30 last:border-0 ${
+                  db.id === value ? "bg-emerald-50 dark:bg-emerald-900/10" : ""
+                }`}
+              >
+                <span className="font-medium text-foreground">
+                  DB {db.id}
+                </span>
+                <span className="mx-1.5 text-muted-foreground">·</span>
+                <span className="text-foreground">{db.region}</span>
+                <span className="mx-1.5 text-muted-foreground">·</span>
+                <span className="text-muted-foreground">{db.year}</span>
+                <div className="text-muted-foreground mt-0.5 truncate">
+                  {db.citation.slice(0, 90)}
+                  {db.citation.length > 90 ? "…" : ""}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function UniversalFqaPage() {
   const [activeTab, setActiveTab] = useState<TabId>("databases");
   const [dbFilter, setDbFilter] = useState("");
+
   const [selectedDbId, setSelectedDbId] = useState<number | null>(null);
   const [speciesName, setSpeciesName] = useState("");
   const [speciesQuery, setSpeciesQuery] = useState("");
-  const [speciesDbId, setSpeciesDbId] = useState("");
-  const [assessmentsDbId, setAssessmentsDbId] = useState("");
-  const [assessmentsQuery, setAssessmentsQuery] = useState<number | null>(null);
+  const [speciesDbId, setSpeciesDbId] = useState<number | null>(null);
+
+  const [assessmentsDbId, setAssessmentsDbId] = useState<number | null>(null);
+  const [assessmentsLoaded, setAssessmentsLoaded] = useState<number | null>(null);
   const [assessmentFilter, setAssessmentFilter] = useState("");
-  const [selectedAssessmentId, setSelectedAssessmentId] = useState<number | null>(null);
   const [viewingAssessment, setViewingAssessment] = useState<number | null>(null);
 
   const { data: dbsRes, isLoading: dbsLoading } = useGetUniversalFqaDatabases();
@@ -94,14 +201,17 @@ export function UniversalFqaPage() {
 
   const { data: speciesRes, isLoading: speciesLoading, error: speciesError } =
     useGetUniversalFqaSpecies(
-      { name: speciesQuery, database_id: parseInt(speciesDbId, 10) },
-      { query: { enabled: !!speciesQuery && !!speciesDbId && !isNaN(parseInt(speciesDbId, 10)) } }
+      {
+        name: speciesQuery,
+        database_id: speciesDbId ?? 0,
+      },
+      { query: { enabled: !!speciesQuery && speciesDbId !== null } }
     );
 
   const { data: assessmentsRes, isLoading: assessmentsLoading } =
     useGetUniversalFqaAssessments(
-      { database_id: assessmentsQuery ?? 0 },
-      { query: { enabled: assessmentsQuery !== null } }
+      { database_id: assessmentsLoaded ?? 0 },
+      { query: { enabled: assessmentsLoaded !== null } }
     );
 
   const allAssessments = useMemo(
@@ -280,8 +390,8 @@ export function UniversalFqaPage() {
                               <button
                                 onClick={() => {
                                   setSelectedDbId(db.id);
-                                  setSpeciesDbId(String(db.id));
-                                  setAssessmentsDbId(String(db.id));
+                                  setSpeciesDbId(db.id);
+                                  setAssessmentsDbId(db.id);
                                 }}
                                 className={`text-xs px-2 py-1 rounded border transition-colors ${
                                   selectedDbId === db.id
@@ -307,17 +417,9 @@ export function UniversalFqaPage() {
                     if (!db) return null;
                     return (
                       <>
-                        <div className="flex items-center justify-between">
-                          <p className="text-xs font-semibold text-foreground">
-                            Selected: DB {db.id} — {db.region} ({db.year})
-                          </p>
-                          <button
-                            onClick={() => setSelectedDbId(null)}
-                            className="text-xs text-muted-foreground hover:text-foreground"
-                          >
-                            <X className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
+                        <p className="text-xs font-semibold text-foreground">
+                          Selected: DB {db.id} — {db.region} ({db.year})
+                        </p>
                         <p className="text-xs text-muted-foreground leading-relaxed">
                           {db.citation}
                         </p>
@@ -331,7 +433,7 @@ export function UniversalFqaPage() {
                           </button>
                           <button
                             onClick={() => {
-                              setAssessmentsQuery(db.id);
+                              setAssessmentsLoaded(db.id);
                               setActiveTab("assessments");
                             }}
                             className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-border bg-card text-foreground hover:border-emerald-400 transition-colors"
@@ -369,7 +471,7 @@ export function UniversalFqaPage() {
                     placeholder="e.g. Lobelia cardinalis"
                     className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 placeholder:text-muted-foreground"
                     onKeyDown={(e) => {
-                      if (e.key === "Enter" && speciesName.trim() && speciesDbId) {
+                      if (e.key === "Enter" && speciesName.trim() && speciesDbId !== null) {
                         setSpeciesQuery(speciesName.trim());
                       }
                     }}
@@ -377,35 +479,29 @@ export function UniversalFqaPage() {
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-muted-foreground">
-                    Database ID
-                    {selectedDbId !== null && (
+                    Database
+                    {selectedDbId !== null && speciesDbId === selectedDbId && (
                       <span className="ml-2 text-emerald-600 dark:text-emerald-400">
-                        (DB {selectedDbId} selected)
+                        (DB {selectedDbId} selected from Databases tab)
                       </span>
                     )}
                   </label>
-                  <input
-                    type="number"
+                  <DatabaseDropdown
+                    databases={databases}
                     value={speciesDbId}
-                    onChange={(e) => setSpeciesDbId(e.target.value)}
-                    placeholder="e.g. 50"
-                    className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 placeholder:text-muted-foreground"
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && speciesName.trim() && speciesDbId) {
-                        setSpeciesQuery(speciesName.trim());
-                      }
-                    }}
+                    onChange={setSpeciesDbId}
+                    placeholder="Select a database…"
                   />
                 </div>
               </div>
 
               <button
                 onClick={() => {
-                  if (speciesName.trim() && speciesDbId) {
+                  if (speciesName.trim() && speciesDbId !== null) {
                     setSpeciesQuery(speciesName.trim());
                   }
                 }}
-                disabled={!speciesName.trim() || !speciesDbId}
+                disabled={!speciesName.trim() || speciesDbId === null}
                 className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <Search className="w-3.5 h-3.5" />
@@ -438,16 +534,20 @@ export function UniversalFqaPage() {
                         ? `Found in database ${speciesRes.data?.database_id}`
                         : `"${speciesRes.data?.queried_name}" not found in database ${speciesRes.data?.database_id}`}
                     </p>
+                    <span className="text-xs text-muted-foreground ml-auto">
+                      cache: {speciesRes.cache_status}
+                    </span>
                   </div>
 
                   {speciesRes.found && speciesRes.data?.species && (
-                    <div className="border border-border rounded-xl overflow-hidden">
-                      <table className="w-full text-sm">
+                    <div className="border border-border rounded-xl overflow-hidden overflow-x-auto">
+                      <table className="w-full text-sm min-w-[700px]">
                         <thead>
                           <tr className="bg-muted/50 border-b border-border">
                             {[
                               "Scientific Name",
                               "Family",
+                              "Acronym",
                               "Native",
                               "C",
                               "W",
@@ -457,7 +557,7 @@ export function UniversalFqaPage() {
                             ].map((h) => (
                               <th
                                 key={h}
-                                className="text-left px-3 py-2 text-xs font-semibold text-foreground"
+                                className="text-left px-3 py-2 text-xs font-semibold text-foreground whitespace-nowrap"
                               >
                                 {h}
                               </th>
@@ -466,11 +566,16 @@ export function UniversalFqaPage() {
                         </thead>
                         <tbody>
                           <tr>
-                            {[
-                              <span className="italic">
-                                {speciesRes.data.species.scientific_name}
-                              </span>,
-                              speciesRes.data.species.family,
+                            <td className="px-3 py-2.5 text-xs font-medium italic text-foreground">
+                              {speciesRes.data.species.scientific_name}
+                            </td>
+                            <td className="px-3 py-2.5 text-xs text-foreground">
+                              {speciesRes.data.species.family}
+                            </td>
+                            <td className="px-3 py-2.5 text-xs font-mono text-muted-foreground">
+                              {speciesRes.data.species.acronym}
+                            </td>
+                            <td className="px-3 py-2.5 text-xs">
                               <span
                                 className={
                                   speciesRes.data.species.native === "native"
@@ -479,24 +584,23 @@ export function UniversalFqaPage() {
                                 }
                               >
                                 {speciesRes.data.species.native}
-                              </span>,
-                              <span className="font-bold tabular-nums">
-                                {speciesRes.data.species.c ?? "—"}
-                              </span>,
-                              <span className="tabular-nums">
-                                {speciesRes.data.species.w ?? "—"}
-                              </span>,
-                              speciesRes.data.species.physiognomy,
-                              speciesRes.data.species.duration,
-                              speciesRes.data.species.common_name,
-                            ].map((val, i) => (
-                              <td
-                                key={i}
-                                className="px-3 py-2.5 text-xs text-foreground"
-                              >
-                                {val}
-                              </td>
-                            ))}
+                              </span>
+                            </td>
+                            <td className="px-3 py-2.5 text-xs font-bold tabular-nums text-foreground">
+                              {speciesRes.data.species.c ?? "—"}
+                            </td>
+                            <td className="px-3 py-2.5 text-xs tabular-nums text-foreground">
+                              {speciesRes.data.species.w ?? "—"}
+                            </td>
+                            <td className="px-3 py-2.5 text-xs text-foreground">
+                              {speciesRes.data.species.physiognomy}
+                            </td>
+                            <td className="px-3 py-2.5 text-xs text-foreground">
+                              {speciesRes.data.species.duration}
+                            </td>
+                            <td className="px-3 py-2.5 text-xs text-muted-foreground">
+                              {speciesRes.data.species.common_name}
+                            </td>
                           </tr>
                         </tbody>
                       </table>
@@ -505,7 +609,7 @@ export function UniversalFqaPage() {
 
                   {!speciesRes.found && (
                     <p className="text-sm text-muted-foreground">
-                      This species is not in the selected database. Try a different database ID,
+                      This species is not in the selected database. Try a different database,
                       or check the name spelling.
                     </p>
                   )}
@@ -531,30 +635,28 @@ export function UniversalFqaPage() {
                   <div className="flex gap-3 items-end">
                     <div className="flex-1 space-y-1">
                       <label className="text-xs font-medium text-muted-foreground">
-                        Database ID
-                        {selectedDbId !== null && (
+                        Database
+                        {selectedDbId !== null && assessmentsDbId === selectedDbId && (
                           <span className="ml-2 text-emerald-600 dark:text-emerald-400">
-                            (DB {selectedDbId} selected)
+                            (DB {selectedDbId} selected from Databases tab)
                           </span>
                         )}
                       </label>
-                      <input
-                        type="number"
+                      <DatabaseDropdown
+                        databases={databases}
                         value={assessmentsDbId}
-                        onChange={(e) => setAssessmentsDbId(e.target.value)}
-                        placeholder="e.g. 267"
-                        className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 placeholder:text-muted-foreground"
+                        onChange={setAssessmentsDbId}
+                        placeholder="Select a database…"
                       />
                     </div>
                     <button
                       onClick={() => {
-                        const id = parseInt(assessmentsDbId, 10);
-                        if (!isNaN(id)) {
-                          setAssessmentsQuery(id);
+                        if (assessmentsDbId !== null) {
+                          setAssessmentsLoaded(assessmentsDbId);
                           setAssessmentFilter("");
                         }
                       }}
-                      disabled={!assessmentsDbId || isNaN(parseInt(assessmentsDbId, 10))}
+                      disabled={assessmentsDbId === null}
                       className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                       <Search className="w-3.5 h-3.5" />
@@ -596,6 +698,9 @@ export function UniversalFqaPage() {
                                   Name
                                 </th>
                                 <th className="text-left px-3 py-2.5 font-semibold text-foreground hidden sm:table-cell">
+                                  Site
+                                </th>
+                                <th className="text-left px-3 py-2.5 font-semibold text-foreground hidden sm:table-cell">
                                   Date
                                 </th>
                                 <th className="text-left px-3 py-2.5 font-semibold text-foreground hidden md:table-cell">
@@ -615,12 +720,10 @@ export function UniversalFqaPage() {
                                   }`}
                                 >
                                   <td className="px-3 py-2 text-xs font-medium text-foreground">
-                                    {a.name || a.site || `Assessment #${a.id}`}
-                                    {a.site && a.name !== a.site && (
-                                      <span className="block text-muted-foreground font-normal">
-                                        {a.site}
-                                      </span>
-                                    )}
+                                    {a.name || `Assessment #${a.id}`}
+                                  </td>
+                                  <td className="px-3 py-2 text-xs text-muted-foreground hidden sm:table-cell">
+                                    {a.site}
                                   </td>
                                   <td className="px-3 py-2 text-xs text-muted-foreground hidden sm:table-cell">
                                     {a.date}
@@ -630,10 +733,7 @@ export function UniversalFqaPage() {
                                   </td>
                                   <td className="px-3 py-2 text-right">
                                     <button
-                                      onClick={() => {
-                                        setSelectedAssessmentId(a.id);
-                                        setViewingAssessment(a.id);
-                                      }}
+                                      onClick={() => setViewingAssessment(a.id)}
                                       className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded border border-border bg-card hover:border-emerald-400 transition-colors"
                                     >
                                       View
@@ -657,10 +757,7 @@ export function UniversalFqaPage() {
             ) : (
               <div className="space-y-4">
                 <button
-                  onClick={() => {
-                    setViewingAssessment(null);
-                    setSelectedAssessmentId(null);
-                  }}
+                  onClick={() => setViewingAssessment(null)}
                   className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -829,28 +926,28 @@ export function UniversalFqaPage() {
                             Raw JSON
                           </a>
                         </div>
-                        <div className="max-h-[400px] overflow-y-auto">
-                          <table className="w-full text-sm">
+                        <div className="max-h-[500px] overflow-y-auto overflow-x-auto">
+                          <table className="w-full text-sm min-w-[750px]">
                             <thead className="sticky top-0 z-10 bg-muted/90 backdrop-blur-sm border-b border-border">
                               <tr>
-                                <th className="text-left px-3 py-2 text-xs font-semibold text-foreground">
-                                  Scientific Name
-                                </th>
-                                <th className="text-left px-3 py-2 text-xs font-semibold text-foreground hidden sm:table-cell">
-                                  Family
-                                </th>
-                                <th className="text-center px-3 py-2 text-xs font-semibold text-foreground">
-                                  Native
-                                </th>
-                                <th className="text-center px-3 py-2 text-xs font-semibold text-foreground">
-                                  C
-                                </th>
-                                <th className="text-center px-3 py-2 text-xs font-semibold text-foreground hidden sm:table-cell">
-                                  W
-                                </th>
-                                <th className="text-left px-3 py-2 text-xs font-semibold text-foreground hidden md:table-cell">
-                                  Physiognomy
-                                </th>
+                                {[
+                                  "Scientific Name",
+                                  "Family",
+                                  "Acronym",
+                                  "Native",
+                                  "C",
+                                  "W",
+                                  "Physiognomy",
+                                  "Duration",
+                                  "Common Name",
+                                ].map((h) => (
+                                  <th
+                                    key={h}
+                                    className="text-left px-3 py-2 text-xs font-semibold text-foreground whitespace-nowrap"
+                                  >
+                                    {h}
+                                  </th>
+                                ))}
                               </tr>
                             </thead>
                             <tbody>
@@ -861,31 +958,40 @@ export function UniversalFqaPage() {
                                     i % 2 === 0 ? "" : "bg-muted/20"
                                   }`}
                                 >
-                                  <td className="px-3 py-2 text-xs font-medium italic text-foreground">
+                                  <td className="px-3 py-2 text-xs font-medium italic text-foreground whitespace-nowrap">
                                     {sp.scientific_name}
                                   </td>
-                                  <td className="px-3 py-2 text-xs text-muted-foreground hidden sm:table-cell">
+                                  <td className="px-3 py-2 text-xs text-foreground whitespace-nowrap">
                                     {sp.family}
                                   </td>
-                                  <td className="px-3 py-2 text-center">
+                                  <td className="px-3 py-2 text-xs font-mono text-muted-foreground">
+                                    {sp.acronym}
+                                  </td>
+                                  <td className="px-3 py-2 text-xs text-center">
                                     <span
-                                      className={`text-xs ${
+                                      className={
                                         sp.native === "native"
                                           ? "text-emerald-700 dark:text-emerald-400 font-medium"
                                           : "text-amber-700 dark:text-amber-400"
-                                      }`}
+                                      }
                                     >
                                       {sp.native === "native" ? "N" : "NN"}
                                     </span>
                                   </td>
-                                  <td className="px-3 py-2 text-center text-xs font-bold tabular-nums text-foreground">
+                                  <td className="px-3 py-2 text-xs font-bold tabular-nums text-foreground text-center">
                                     {sp.c ?? "—"}
                                   </td>
-                                  <td className="px-3 py-2 text-center text-xs tabular-nums text-muted-foreground hidden sm:table-cell">
+                                  <td className="px-3 py-2 text-xs tabular-nums text-foreground text-center">
                                     {sp.w ?? "—"}
                                   </td>
-                                  <td className="px-3 py-2 text-xs text-muted-foreground hidden md:table-cell">
+                                  <td className="px-3 py-2 text-xs text-muted-foreground whitespace-nowrap">
                                     {sp.physiognomy}
+                                  </td>
+                                  <td className="px-3 py-2 text-xs text-muted-foreground">
+                                    {sp.duration}
+                                  </td>
+                                  <td className="px-3 py-2 text-xs text-muted-foreground whitespace-nowrap">
+                                    {sp.common_name}
                                   </td>
                                 </tr>
                               ))}
