@@ -3,8 +3,11 @@ import { Link } from "wouter";
 import {
   useGetUniversalFqaDatabases,
   useGetUniversalFqaSpecies,
+  getGetUniversalFqaSpeciesQueryKey,
   useGetUniversalFqaAssessments,
+  getGetUniversalFqaAssessmentsQueryKey,
   useGetUniversalFqaAssessment,
+  getGetUniversalFqaAssessmentQueryKey,
   type UniversalFqaDatabaseEntry,
   type UniversalFqaAssessmentSummary,
   type UniversalFqaSpeciesRecord,
@@ -195,21 +198,28 @@ export function UniversalFqaPage() {
     );
   }, [databases, dbFilter]);
 
+  const speciesParams = { name: speciesQuery, database_id: speciesDbId ?? 0 };
   const { data: speciesRes, isLoading: speciesLoading, error: speciesError } =
     useGetUniversalFqaSpecies(
+      speciesParams,
       {
-        name: speciesQuery,
-        database_id: speciesDbId ?? 0,
-      },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      { query: { enabled: !!speciesQuery && speciesDbId !== null } as any }
+        query: {
+          queryKey: getGetUniversalFqaSpeciesQueryKey(speciesParams),
+          enabled: !!speciesQuery && speciesDbId !== null,
+        },
+      }
     );
 
+  const assessmentsParams = { database_id: assessmentsLoaded ?? 0 };
   const { data: assessmentsRes, isLoading: assessmentsLoading } =
     useGetUniversalFqaAssessments(
-      { database_id: assessmentsLoaded ?? 0 },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      { query: { enabled: assessmentsLoaded !== null } as any }
+      assessmentsParams,
+      {
+        query: {
+          queryKey: getGetUniversalFqaAssessmentsQueryKey(assessmentsParams),
+          enabled: assessmentsLoaded !== null,
+        },
+      }
     );
 
   const allAssessments = useMemo(
@@ -228,11 +238,16 @@ export function UniversalFqaPage() {
     );
   }, [allAssessments, assessmentFilter]);
 
+  const assessmentId = viewingAssessment ?? 0;
   const { data: assessmentDetailRes, isLoading: detailLoading } =
     useGetUniversalFqaAssessment(
-      viewingAssessment ?? 0,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      { query: { enabled: viewingAssessment !== null } as any }
+      assessmentId,
+      {
+        query: {
+          queryKey: getGetUniversalFqaAssessmentQueryKey(assessmentId),
+          enabled: viewingAssessment !== null,
+        },
+      }
     );
 
   const assessmentDetail = assessmentDetailRes?.data;
