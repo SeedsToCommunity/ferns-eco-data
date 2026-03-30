@@ -172,6 +172,13 @@ function nullStr(val: unknown): string | null {
   return String(val);
 }
 
+function nullStrOrNum(val: unknown): string | number | null {
+  if (val === null || val === undefined || val === "") return null;
+  if (typeof val === "number") return val;
+  if (typeof val === "string") return val;
+  return null;
+}
+
 function nullNum(val: unknown): number | null {
   if (val === null || val === undefined || val === "") return null;
   const n = Number(val);
@@ -232,8 +239,8 @@ export async function fetchDatabase(id: number): Promise<UniversalFqaDatabaseDet
       family: nullStr(r[1]) ?? "",
       acronym: nullStr(r[2]) ?? "",
       native: nullStr(r[3]) ?? "",
-      c: r[4] !== null && r[4] !== undefined && r[4] !== "" ? r[4] : null,
-      w: r[5] !== null && r[5] !== undefined && r[5] !== "" ? r[5] : null,
+      c: nullStrOrNum(r[4]),
+      w: nullStrOrNum(r[5]),
       physiognomy: nullStr(r[6]) ?? "",
       duration: nullStr(r[7]) ?? "",
       common_name: nullStr(r[8]) ?? "",
@@ -302,8 +309,8 @@ export async function fetchAssessment(assessmentId: number): Promise<UniversalFq
       family: nullStr(r[1]) ?? "",
       acronym: nullStr(r[2]) ?? "",
       native: nullStr(r[3]) ?? "",
-      c: r[4] !== null && r[4] !== undefined && r[4] !== "" ? r[4] : null,
-      w: r[5] !== null && r[5] !== undefined && r[5] !== "" ? r[5] : null,
+      c: nullStrOrNum(r[4]),
+      w: nullStrOrNum(r[5]),
       physiognomy: nullStr(r[6]) ?? "",
       duration: nullStr(r[7]) ?? "",
       common_name: nullStr(r[8]) ?? "",
@@ -413,16 +420,7 @@ export async function lookupSpeciesInDatabase(
   const speciesMap = dbSpeciesCache.get(databaseId)!;
   const normalizedQuery = scientificName.toLowerCase().trim();
 
-  let match = speciesMap.get(normalizedQuery) ?? null;
-
-  if (!match) {
-    for (const [key, sp] of speciesMap) {
-      if (key.startsWith(normalizedQuery) || key.includes(normalizedQuery)) {
-        match = sp;
-        break;
-      }
-    }
-  }
+  const match = speciesMap.get(normalizedQuery) ?? null;
 
   return {
     found: match !== null,
