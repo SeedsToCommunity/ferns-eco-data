@@ -18,49 +18,74 @@ export const UNIVERSAL_FQA_ATTRIBUTION = {
 };
 
 export const UNIVERSAL_FQA_DERIVATION_SUMMARY =
-  "Universal FQA is a public platform hosting Floristic Quality Assessment (FQA) databases and tools. " +
-  "It serves two distinct types of data: " +
-  "(1) Regional FQA databases — collections of per-species C-values and W-values assembled by botanists for a given geographic region or ecoregion. " +
-  "As of 2025 the platform hosts 93 databases spanning 1993–2025, covering US states, EPA ecoregions, and Canadian provinces. " +
-  "Each database provides: scientific name, family, acronym, nativity (native/non-native), C-value (0–10), W-value (-5 to +5), physiognomy, duration, and common name. " +
-  "FERNS caches entire databases in memory per database_id on first request and serves subsequent species lookups from that cache. " +
-  "(2) Public site assessments — field inventories of named natural areas contributed by practitioners (ecologists, botanists, students, land managers). " +
-  "Each assessment records which species were observed at a site on a given date, plus computed FQI metrics: " +
-  "Total FQI, Native FQI, Adjusted FQI, Total/Native Mean C, Mean Wetness, species richness, physiognomy breakdown, and duration breakdown. " +
-  "Assessments are tied to a specific regional database. " +
-  "SELECTING A DATABASE: The region and citation fields together describe the geographic scope, ecoregion coverage, institutional source, and year for each database. " +
-  "Read both fields in full — they contain all information needed to determine relevance for a given place or project. " +
-  "Michigan databases: ID 50 (Reznicek et al. 2014, 2872 species) and ID 267 (Merjent 2024, 2873 species). " +
-  "Both represent the same Michigan vascular flora; ID 267 is the more current publication. " +
-  "ID 50 is identical to the C-value data used by Michigan Flora (michiganflora.net).";
+  "Universal FQA (universalfqa.org) is a public platform developed at the University of Michigan for standardizing Floristic Quality Assessment (FQA) calculations. " +
+  "FQA is an ecological method, developed by Floyd Swink and Gerould Wilhelm (Plants of the Chicago Region, 1979; 4th ed. 1994), for measuring the ecological quality of a plant community. " +
+  "It works by assigning every plant species a Coefficient of Conservatism (C-value) — an integer from 0 to 10 reflecting how tolerant that species is of habitat disturbance. " +
+  "A C-value of 0 means the species grows almost anywhere regardless of habitat quality; a C-value of 10 means it is restricted to pristine, undisturbed habitats. " +
+  "These C-values are assigned by regional botanists for a specific geographic area, so universalfqa.org hosts many independent regional databases rather than one global list. " +
+  "As of 2025 the platform has 93 databases spanning 1993–2025, covering US states, EPA ecoregions, and Canadian provinces. " +
+  "The Floristic Quality Index (FQI) for a site is computed from the C-values of all species observed there: the higher the FQI, the higher quality the plant community. " +
+  "This source is NOT a watering guide, NOT a wetland delineation tool, and NOT related to WUCOLS water-use classifications. " +
+  "The C-value measures ecological fidelity to intact habitat, which is a different concept from wetland affinity (Coefficient of Wetness, W-value) or irrigation need (WUCOLS). " +
+  "FERNS serves two data types from this source: " +
+  "(1) Regional databases — per-species lists of C-values, W-values, and traits for each region. " +
+  "(2) Public site assessments — field inventories of named natural areas contributed by ecologists, botanists, students, and land managers, each with a full species list and computed FQI metrics. " +
+  "SELECTING A DATABASE: Read the region and citation fields together. They describe the geographic scope, institutional source, methodology, and publication year. " +
+  "Michigan databases: ID 50 (Reznicek et al. 2014, University of Michigan Herbarium, 2872 species) and ID 267 (Merjent Inc. 2024, 2873 species). " +
+  "Both cover the same Michigan vascular flora; ID 267 is more recent. " +
+  "ID 50 uses the same C-value assignments as Michigan Flora (michiganflora.net).";
 
 export const UNIVERSAL_FQA_DERIVATION_SCIENTIFIC =
-  "Source: universalfqa.org public REST API. No auth required. Base URL: http://universalfqa.org/get (HTTP; redirects to HTTPS). " +
-  "ENDPOINTS — " +
-  "Database list: GET /get/database/ — returns JSON {status, data} where data is an array of rows [id, region, year, citation]. " +
-  "Per-database species: GET /get/database/{id} — first row: region; second: year; third: full citation; fourth: empty; " +
-  "fifth: ['Total Species:', N]; sixth: ['Native Species:', N]; seventh: ['Non-native Species:', N]; " +
-  "eighth: ['Total Mean C:', N]; ninth: ['Native Mean C:', N]; tenth: empty; " +
-  "eleventh: header row ['Scientific Name','Family','Acronym','Native?','C','W','Physiognomy','Duration','Common Name']; " +
-  "twelfth onward: species rows matching the header. Some databases return malformed/empty responses — check species_count > 0 before relying on data. " +
-  "Assessment list: GET /get/database/{id}/inventory — returns data as rows [id, name, date, site, practitioner] for all public assessments. No column header row; first row is first assessment. " +
-  "Single assessment: GET /get/inventory/{assessment_id} — row-indexed structure: " +
-  "0: site name; 1: date; 2: city; 3: city (dup); 4: county; 5: state; 6: country; " +
-  "7: ['FQA DB Region:', region]; 8: ['FQA DB Publication Year:', year]; 9: ['FQA DB Description:', citation]; " +
-  "10: empty; 11: ['Practitioner:', name]; 12: ['Latitude:', val]; 13: ['Longitude:', val]; " +
-  "14: ['Weather Notes:', val]; 15: ['Duration Notes:', val]; 16: ['Community Type Notes:', val]; 17: ['Other Notes:', val]; " +
-  "18: ['Private/Public:', val]; " +
-  "20: ['Conservatism-Based Metrics:']; 21: ['Total Mean C:', N]; 22: ['Native Mean C:', N]; " +
-  "23: ['Total FQI:', N]; 24: ['Native FQI:', N]; 25: ['Adjusted FQI:', N]; " +
-  "26: ['% C value 0:', N]; 27: ['% C value 1-3:', N]; 28: ['% C value 4-6:', N]; 29: ['% C value 7-10:', N]; " +
-  "30: ['Native Tree Mean C:', N]; 31: ['Native Shrub Mean C:', N]; 32: ['Native Herbaceous Mean C:', N]; " +
-  "34: ['Species Richness:']; 35: ['Total Species:', N]; 36: ['Native Species:', N, pct]; 37: ['Non-native Species:', N, pct]; " +
-  "39: ['Species Wetness:']; 40: ['Mean Wetness:', N]; 41: ['Native Mean Wetness:', N]; " +
-  "43: ['Physiognomy Metrics:']; 44-52: physiognomy rows [type, count, pct%]; " +
-  "54: ['Duration Metrics:']; 55-60: duration rows [type, count, pct%]; " +
-  "62: ['Species:']; 63: header row; 64+: species rows matching header. " +
-  "CACHING: Species databases cached in-memory per database_id (Map). Assessments fetched live (no cache). Database list fetched live. " +
-  "Method: api_fetch. No FERNS database cache for Universal FQA data — memory only.";
+  "Source: universalfqa.org public REST API. Developed and maintained by the University of Michigan. " +
+  "No authentication required. Base URL: http://universalfqa.org/get (HTTP; server redirects to HTTPS). " +
+  "All responses are JSON with envelope {status: 'success'|'error', data: unknown[][]}. " +
+  "FIELD DEFINITIONS — SPECIES RECORDS (returned by both database and assessment endpoints): " +
+  "scientific_name: Full scientific name as assigned in the regional database. String. Pass through as-is. " +
+  "family: Plant family. String. " +
+  "acronym: Source-assigned abbreviation, typically derived from genus and species initials (e.g., 'LOBCAR' for Lobelia cardinalis). String. No fixed length or format; pass through as-is. " +
+  "native: Nativity designation. String. Two observed values: 'native' (indigenous to the region per the database authority) or 'non-native' (introduced/adventive). Pass through as-is. " +
+  "c: Coefficient of Conservatism (C-value). String representation of an integer 0–10. " +
+  "0 = cosmopolitan or highly tolerant of disturbance; 10 = restricted to high-quality, undisturbed habitats, per Swink & Wilhelm methodology. " +
+  "Assigned by regional botanists for each database; the same species may have different C-values in different regional databases. " +
+  "Some databases assign '*' (string) to non-native species instead of an integer. Never parse as integer without handling '*'. " +
+  "Distinct from: w (Coefficient of Wetness, a separate metric on a −5 to +5 numeric scale); WUCOLS water-use classification (VL/L/M/H, for managed landscape irrigation). " +
+  "w: Coefficient of Wetness (W-value). String representation of a numeric value, following Swink & Wilhelm fixed assignments by Wetland Indicator Status category: " +
+  "OBL (Obligate Wetland) = −5; FACW (Facultative Wetland) = −3; FAC (Facultative) = 0; FACU (Facultative Upland) = +3; UPL (Upland) = +5. " +
+  "Expresses wetland affinity numerically. Distinct from: c (Coefficient of Conservatism, a habitat-fidelity metric on a 0–10 scale); WUCOLS (irrigation guide). " +
+  "physiognomy: Plant life form. Lowercase string. Observed values: 'tree', 'shrub', 'vine', 'forb', 'grass', 'sedge', 'rush', 'fern', 'bryophyte'. Pass through as-is; vocabulary may vary by database. " +
+  "duration: Life cycle. Lowercase string. Observed values: 'annual', 'biennial', 'perennial'. Pass through as-is. " +
+  "common_name: Common name as listed in the regional database. String. " +
+  "FIELD DEFINITIONS — ASSESSMENT METRICS (assessment detail endpoint only): " +
+  "The Floristic Quality Index (FQI) is computed as the square root of species count multiplied by mean C-value. " +
+  "total_mean_c: Mean C-value across all recorded species (native and non-native). Numeric. " +
+  "native_mean_c: Mean C-value across native species only. Numeric. " +
+  "total_fqi: Total FQI = √(total species count) × total mean C. Numeric. " +
+  "native_fqi: Native FQI = √(native species count) × native mean C. Numeric. " +
+  "adjusted_fqi: Adjusted FQI = √(total species count) × native mean C. Uses total richness but native mean C, penalizing sites with high non-native presence while rewarding overall species richness. Numeric. " +
+  "pct_c0, pct_c1_3, pct_c4_6, pct_c7_10: Percentage of species in C-value bands 0, 1–3, 4–6, and 7–10. Numeric (0–100). " +
+  "native_tree_mean_c, native_shrub_mean_c, native_herbaceous_mean_c: Mean C-value by growth form, native species only. Numeric. " +
+  "total_species, native_species, non_native_species: Species richness counts. Numeric. " +
+  "native_species_pct, non_native_species_pct: Percentage of total species that are native or non-native. Numeric (0–100). " +
+  "mean_wetness, native_mean_wetness: Mean W-value across all species and native species respectively. Numeric. " +
+  "Physiognomy breakdown: {type}_count and {type}_pct for each of: tree, shrub, vine, forb, grass, sedge, rush, fern, bryophyte. Numeric. " +
+  "Duration breakdown: {type}_count and {type}_pct for each of: annual, perennial, biennial. Numeric. " +
+  "Native duration breakdown: native_{type}_count and native_{type}_pct for each of: annual, perennial, biennial. Numeric. " +
+  "ASSESSMENT LOCATION FIELDS: site_name, date (string, format varies), city, county, state, country, latitude (string or null), longitude (string or null), " +
+  "practitioner, weather_notes, duration_notes, community_type, other_notes, visibility (public/private status string from source). All string or null. " +
+  "API ENDPOINTS: " +
+  "GET /get/database/ — database list. Row-array; each row: [id (integer), region (string), year (string), citation (string)]. " +
+  "GET /get/database/{id} — full species list for one database. Row-indexed: rows 0–9 are header metadata (region, year, citation, summary counts); " +
+  "row 10 is column header ['Scientific Name','Family','Acronym','Native?','C','W','Physiognomy','Duration','Common Name']; rows 11+ are species data. " +
+  "Some database IDs return malformed or empty responses — treat species_count 0 as a known upstream limitation, not a FERNS error. " +
+  "GET /get/database/{id}/inventory — assessment list for one database. Row-array, no header row. Each row: [id, name, date, site, practitioner]. " +
+  "GET /get/inventory/{id} — full assessment detail. Row-indexed: rows 0–18 are site metadata; rows 21–41 are FQI metrics; " +
+  "rows 44–60 are physiognomy and duration breakdowns; rows 62+ are species rows in the same column order as the database species endpoint. " +
+  "CACHING: Full species databases are cached in server memory (JavaScript Map, keyed by database_id) on first request. " +
+  "Assessments are fetched live on each request with no cache. Database list is fetched live. " +
+  "No PostgreSQL persistence — a server restart clears all cached species databases. " +
+  "KNOWN LIMITATIONS: Assessment list endpoint has no county or state fields — location is only available in individual assessment detail. " +
+  "Latitude and longitude fields are frequently blank. " +
+  "C-values must not be compared across regional databases without confirming that both databases use the same authority and geographic scope.";
 
 export const UNIVERSAL_FQA_REGISTRY_ENTRY = {
   source_id: UNIVERSAL_FQA_SOURCE_ID,
