@@ -41,10 +41,6 @@ router.get("/universal-fqa/metadata", async (req, res) => {
     permission_granted: UNIVERSAL_FQA_PERMISSION_GRANTED,
     permission_status: UNIVERSAL_FQA_PERMISSION_STATUS,
     attribution: UNIVERSAL_FQA_ATTRIBUTION,
-    derivation: {
-      summary: UNIVERSAL_FQA_DERIVATION_SUMMARY,
-      scientific: UNIVERSAL_FQA_DERIVATION_SCIENTIFIC,
-    },
     registry_entry: {
       ...UNIVERSAL_FQA_REGISTRY_ENTRY,
       metadata_url: resolveUrl(req, UNIVERSAL_FQA_REGISTRY_ENTRY.metadata_url),
