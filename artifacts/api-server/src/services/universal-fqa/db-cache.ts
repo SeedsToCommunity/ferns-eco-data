@@ -163,12 +163,32 @@ export async function lookupSpeciesFromDb(
   databaseId: number,
   scientificName: string
 ): Promise<{ found: boolean; species: UniversalFqaSpeciesRecord | null; cache_hit: boolean }> {
-  const { detail, cache_hit } = await getOrFetchDatabase(databaseId);
+  const dbRows = await db
+    .select()
+    .from(universalFqaDatabasesTable)
+    .where(eq(universalFqaDatabasesTable.database_id, databaseId))
+    .limit(1);
 
-  const normalized = scientificName.toLowerCase().trim();
-  const match = detail.species.find(
-    (sp) => sp.scientific_name.toLowerCase() === normalized
-  ) ?? null;
+  let cache_hit = dbRows.length > 0;
+
+  if (!cache_hit) {
+    await getOrFetchDatabase(databaseId);
+    cache_hit = false;
+  }
+
+  const normalized = scientificName.trim();
+  const speciesRows = await db
+    .select()
+    .from(universalFqaSpeciesTable)
+    .where(
+      and(
+        eq(universalFqaSpeciesTable.database_id, databaseId),
+        ilike(universalFqaSpeciesTable.scientific_name, normalized),
+      )
+    )
+    .limit(1);
+
+  const match = speciesRows.length > 0 ? rowToSpeciesRecord(speciesRows[0]) : null;
 
   return {
     found: match !== null,
