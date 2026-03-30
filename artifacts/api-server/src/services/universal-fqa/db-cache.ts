@@ -86,23 +86,11 @@ export async function getOrFetchDatabase(
 
   const now = new Date();
 
-  await db
-    .insert(universalFqaDatabasesTable)
-    .values({
-      database_id: detail.id,
-      region: detail.region,
-      year: detail.year,
-      citation: detail.citation,
-      total_species: detail.total_species,
-      native_species: detail.native_species,
-      non_native_species: detail.non_native_species,
-      total_mean_c: detail.total_mean_c ?? undefined,
-      native_mean_c: detail.native_mean_c ?? undefined,
-      cached_at: now,
-    })
-    .onConflictDoUpdate({
-      target: universalFqaDatabasesTable.database_id,
-      set: {
+  await db.transaction(async (tx) => {
+    await tx
+      .insert(universalFqaDatabasesTable)
+      .values({
+        database_id: detail.id,
         region: detail.region,
         year: detail.year,
         citation: detail.citation,
@@ -112,47 +100,61 @@ export async function getOrFetchDatabase(
         total_mean_c: detail.total_mean_c ?? undefined,
         native_mean_c: detail.native_mean_c ?? undefined,
         cached_at: now,
-      },
-    });
+      })
+      .onConflictDoUpdate({
+        target: universalFqaDatabasesTable.database_id,
+        set: {
+          region: detail.region,
+          year: detail.year,
+          citation: detail.citation,
+          total_species: detail.total_species,
+          native_species: detail.native_species,
+          non_native_species: detail.non_native_species,
+          total_mean_c: detail.total_mean_c ?? undefined,
+          native_mean_c: detail.native_mean_c ?? undefined,
+          cached_at: now,
+        },
+      });
 
-  if (detail.species.length > 0) {
-    const chunkSize = 500;
-    for (let i = 0; i < detail.species.length; i += chunkSize) {
-      const chunk = detail.species.slice(i, i + chunkSize);
-      await db
-        .insert(universalFqaSpeciesTable)
-        .values(
-          chunk.map((sp) => ({
-            database_id: detail.id,
-            scientific_name: sp.scientific_name,
-            family: sp.family,
-            acronym: sp.acronym,
-            native: sp.native,
-            c: speciesRecordToC(sp),
-            w: speciesRecordToW(sp),
-            physiognomy: sp.physiognomy,
-            duration: sp.duration,
-            common_name: sp.common_name,
-            cached_at: now,
-          }))
-        )
-        .onConflictDoUpdate({
-          target: [universalFqaSpeciesTable.database_id, universalFqaSpeciesTable.scientific_name],
-          set: {
-            family: sql`excluded.family`,
-            acronym: sql`excluded.acronym`,
-            native: sql`excluded.native`,
-            c: sql`excluded.c`,
-            w: sql`excluded.w`,
-            physiognomy: sql`excluded.physiognomy`,
-            duration: sql`excluded.duration`,
-            common_name: sql`excluded.common_name`,
-            cached_at: sql`excluded.cached_at`,
-          },
-        });
+    if (detail.species.length > 0) {
+      const chunkSize = 500;
+      for (let i = 0; i < detail.species.length; i += chunkSize) {
+        const chunk = detail.species.slice(i, i + chunkSize);
+        await tx
+          .insert(universalFqaSpeciesTable)
+          .values(
+            chunk.map((sp) => ({
+              database_id: detail.id,
+              scientific_name: sp.scientific_name,
+              family: sp.family,
+              acronym: sp.acronym,
+              native: sp.native,
+              c: speciesRecordToC(sp),
+              w: speciesRecordToW(sp),
+              physiognomy: sp.physiognomy,
+              duration: sp.duration,
+              common_name: sp.common_name,
+              cached_at: now,
+            }))
+          )
+          .onConflictDoUpdate({
+            target: [universalFqaSpeciesTable.database_id, universalFqaSpeciesTable.scientific_name],
+            set: {
+              family: sql`excluded.family`,
+              acronym: sql`excluded.acronym`,
+              native: sql`excluded.native`,
+              c: sql`excluded.c`,
+              w: sql`excluded.w`,
+              physiognomy: sql`excluded.physiognomy`,
+              duration: sql`excluded.duration`,
+              common_name: sql`excluded.common_name`,
+              cached_at: sql`excluded.cached_at`,
+            },
+          });
+      }
+      logger.info({ databaseId, count: detail.species.length }, "Universal FQA: species stored");
     }
-    logger.info({ databaseId, count: detail.species.length }, "Universal FQA: species stored");
-  }
+  });
 
   return { detail, cache_hit: false };
 }
