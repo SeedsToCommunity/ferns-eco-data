@@ -5,6 +5,9 @@ import {
   useGetUniversalFqaSpecies,
   useGetUniversalFqaAssessments,
   useGetUniversalFqaAssessment,
+  type UniversalFqaDatabaseEntry,
+  type UniversalFqaAssessmentSummary,
+  type UniversalFqaSpeciesRecord,
 } from "@workspace/api-client-react";
 import {
   ArrowLeft,
@@ -64,20 +67,13 @@ function MetricRow({ label, value }: { label: string; value: unknown }) {
 
 type TabId = "databases" | "species" | "assessments";
 
-interface DatabaseOption {
-  id: number;
-  region: string;
-  year: string;
-  citation: string;
-}
-
 function DatabaseDropdown({
   databases,
   value,
   onChange,
   placeholder,
 }: {
-  databases: DatabaseOption[];
+  databases: UniversalFqaDatabaseEntry[];
   value: number | null;
   onChange: (id: number | null) => void;
   placeholder?: string;
@@ -205,13 +201,15 @@ export function UniversalFqaPage() {
         name: speciesQuery,
         database_id: speciesDbId ?? 0,
       },
-      { query: { enabled: !!speciesQuery && speciesDbId !== null } }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      { query: { enabled: !!speciesQuery && speciesDbId !== null } as any }
     );
 
   const { data: assessmentsRes, isLoading: assessmentsLoading } =
     useGetUniversalFqaAssessments(
       { database_id: assessmentsLoaded ?? 0 },
-      { query: { enabled: assessmentsLoaded !== null } }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      { query: { enabled: assessmentsLoaded !== null } as any }
     );
 
   const allAssessments = useMemo(
@@ -232,8 +230,9 @@ export function UniversalFqaPage() {
 
   const { data: assessmentDetailRes, isLoading: detailLoading } =
     useGetUniversalFqaAssessment(
-      { id: viewingAssessment ?? 0 },
-      { query: { enabled: viewingAssessment !== null } }
+      viewingAssessment ?? 0,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      { query: { enabled: viewingAssessment !== null } as any }
     );
 
   const assessmentDetail = assessmentDetailRes?.data;
@@ -587,10 +586,10 @@ export function UniversalFqaPage() {
                               </span>
                             </td>
                             <td className="px-3 py-2.5 text-xs font-bold tabular-nums text-foreground">
-                              {speciesRes.data.species.c ?? "—"}
+                              {speciesRes.data.species.c !== null && speciesRes.data.species.c !== undefined ? String(speciesRes.data.species.c) : "—"}
                             </td>
                             <td className="px-3 py-2.5 text-xs tabular-nums text-foreground">
-                              {speciesRes.data.species.w ?? "—"}
+                              {speciesRes.data.species.w !== null && speciesRes.data.species.w !== undefined ? String(speciesRes.data.species.w) : "—"}
                             </td>
                             <td className="px-3 py-2.5 text-xs text-foreground">
                               {speciesRes.data.species.physiognomy}
@@ -979,10 +978,10 @@ export function UniversalFqaPage() {
                                     </span>
                                   </td>
                                   <td className="px-3 py-2 text-xs font-bold tabular-nums text-foreground text-center">
-                                    {sp.c ?? "—"}
+                                    {sp.c !== null && sp.c !== undefined ? String(sp.c) : "—"}
                                   </td>
                                   <td className="px-3 py-2 text-xs tabular-nums text-foreground text-center">
-                                    {sp.w ?? "—"}
+                                    {sp.w !== null && sp.w !== undefined ? String(sp.w) : "—"}
                                   </td>
                                   <td className="px-3 py-2 text-xs text-muted-foreground whitespace-nowrap">
                                     {sp.physiognomy}
