@@ -1,6 +1,6 @@
 import { fetchJson, collectUrls } from "../http.js";
 import type { EndpointComparison, FieldFinding } from "../types.js";
-import type { TestSpecies } from "../corpus.js";
+import type { TestSpecies, TestAssessment } from "../corpus.js";
 
 const UFQA_API = "https://universalfqa.org/get";
 
@@ -10,6 +10,7 @@ const AUDIT_DATABASE_LABEL = "Chicago Region (DB 1)";
 export async function runUniversalFqaComparators(
   fernsBase: string,
   species: TestSpecies[],
+  assessments: TestAssessment[] = [],
 ): Promise<EndpointComparison[]> {
   const results: EndpointComparison[] = [];
 
@@ -19,6 +20,10 @@ export async function runUniversalFqaComparators(
 
   for (const sp of species) {
     results.push(await compareSpeciesLookup(fernsBase, sp, upstream));
+  }
+
+  for (const assessment of assessments) {
+    results.push(await compareAssessment(fernsBase, assessment));
   }
 
   return results;
@@ -259,6 +264,95 @@ async function compareSpeciesLookup(
     return {
       source: "universal-fqa",
       endpoint: `${fernsEndpoint}?name=${encodeURIComponent(sp.name)}&database_id=${AUDIT_DATABASE_ID}`,
+      label,
+      ok: false,
+      error: String(err),
+      findings: [],
+      urlsCollected: [],
+    };
+  }
+}
+
+async function compareAssessment(
+  fernsBase: string,
+  assessment: TestAssessment,
+): Promise<EndpointComparison> {
+  const fernsEndpoint = `/api/universal-fqa/assessment/${assessment.id}`;
+  const fernsUrl = `${fernsBase}${fernsEndpoint}`;
+  const label = `${assessment.label} — Universal FQA assessment`;
+
+  try {
+    const [fernsRaw, upstreamRaw] = await Promise.all([
+      fetchJson(fernsUrl) as Promise<Record<string, unknown>>,
+      fetchJson(`${UFQA_API}/assessment/${assessment.id}`) as Promise<Record<string, unknown>>,
+    ]);
+
+    const fernsEnvelope = fernsRaw as Record<string, unknown>;
+    const fernsData = (fernsEnvelope.data ?? {}) as Record<string, unknown>;
+    const upstreamData = (upstreamRaw.data ?? upstreamRaw) as Record<string, unknown>;
+    const urlsCollected = collectUrls(fernsEnvelope, `universal-fqa/assessment:${assessment.id}`);
+
+    const findings: FieldFinding[] = [];
+
+    if (!fernsEnvelope.found) {
+      findings.push({ type: "gap", sourceField: "found", note: `FERNS returned found: false for assessment ${assessment.id}` });
+      return {
+        source: "universal-fqa",
+        endpoint: fernsEndpoint,
+        label,
+        ok: true,
+        rawFerns: fernsData,
+        findings,
+        urlsCollected,
+      };
+    }
+
+    findings.push({ type: "ok", sourceField: "found", note: `Assessment ${assessment.id} found in FERNS` });
+
+    const requiredFields = ["assessment_name", "date", "db_name", "site_name"] as const;
+    for (const field of requiredFields) {
+      const fernsVal = fernsData[field];
+      const upstreamVal = upstreamData[field];
+      if (fernsVal !== undefined && upstreamVal !== undefined) {
+        if (String(fernsVal) === String(upstreamVal)) {
+          findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: fernsVal, note: `${field} matches upstream` });
+        } else {
+          findings.push({ type: "mismatch", sourceField: field, fernsField: field, sourceValue: upstreamVal, fernsValue: fernsVal });
+        }
+      } else if (fernsVal !== undefined) {
+        findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: fernsVal, note: `${field} present in FERNS (not in upstream raw)` });
+      } else {
+        findings.push({ type: "gap", sourceField: field, note: `${field} missing from FERNS response` });
+      }
+    }
+
+    const upstreamSpeciesArray = upstreamData.species as unknown[] | undefined;
+    const fernsSpeciesArray = fernsData.species as unknown[] | undefined;
+
+    if (fernsSpeciesArray !== undefined && upstreamSpeciesArray !== undefined) {
+      if (fernsSpeciesArray.length === upstreamSpeciesArray.length) {
+        findings.push({ type: "ok", sourceField: "species.length", note: `Species count matches: ${fernsSpeciesArray.length}` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "species.length", sourceValue: upstreamSpeciesArray.length, fernsValue: fernsSpeciesArray.length });
+      }
+    } else if (fernsSpeciesArray !== undefined) {
+      findings.push({ type: "ok", sourceField: "species", note: `${fernsSpeciesArray.length} species in FERNS response` });
+    }
+
+    return {
+      source: "universal-fqa",
+      endpoint: fernsEndpoint,
+      label,
+      ok: true,
+      rawSource: upstreamData,
+      rawFerns: fernsData,
+      findings,
+      urlsCollected,
+    };
+  } catch (err) {
+    return {
+      source: "universal-fqa",
+      endpoint: fernsEndpoint,
       label,
       ok: false,
       error: String(err),

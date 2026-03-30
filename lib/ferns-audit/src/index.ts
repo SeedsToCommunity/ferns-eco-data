@@ -4,7 +4,17 @@
 // - The user decides what (if anything) to fix after reviewing the audit report.
 // - Do not attempt to auto-correct, normalize, or silently hide source data based on findings.
 
-import { TEST_SPECIES, TEST_PLACES } from "./corpus.js";
+import {
+  TEST_SPECIES,
+  TEST_PLACES,
+  TEST_PLACE_QUERIES,
+  TEST_GBIF_SEARCHES,
+  TEST_COEFFICIENT_VALUES,
+  TEST_WETLAND_CODES,
+  TEST_WUCOLS_CODES,
+  TEST_S2C_YEARS,
+  TEST_UFQA_ASSESSMENTS,
+} from "./corpus.js";
 import { runGbifComparators } from "./comparators/gbif.js";
 import { runInatComparators } from "./comparators/inat.js";
 import { runBonapComparators } from "./comparators/bonap.js";
@@ -27,7 +37,10 @@ async function main(): Promise<void> {
   process.stderr.write(`\nFERNS Audit Tool\n`);
   process.stderr.write(`Target: ${fernsBase}\n`);
   process.stderr.write(`Species: ${TEST_SPECIES.map((s) => s.name).join(", ")}\n`);
-  process.stderr.write(`Places : ${TEST_PLACES.map((p) => `${p.name} (${p.id})`).join(", ")}\n\n`);
+  process.stderr.write(`Places : ${TEST_PLACES.map((p) => `${p.name} (${p.id})`).join(", ")}\n`);
+  process.stderr.write(`GBIF searches: ${TEST_GBIF_SEARCHES.map((s) => `"${s.q}"`).join(", ")}\n`);
+  process.stderr.write(`S2C years: ${TEST_S2C_YEARS.join(", ")}\n`);
+  process.stderr.write(`UFQA assessments: ${TEST_UFQA_ASSESSMENTS.map((a) => `${a.id} (${a.label})`).join(", ")}\n\n`);
 
   process.stderr.write("Checking API documentation...\n");
   const docChecks = await checkApiDocs(fernsBase);
@@ -35,11 +48,11 @@ async function main(): Promise<void> {
   process.stderr.write("Checking source registry...\n");
   const registryCheck = await checkRegistry(fernsBase);
 
-  process.stderr.write("Running GBIF comparators...\n");
-  const gbifComparisons = await runGbifComparators(fernsBase, TEST_SPECIES);
+  process.stderr.write("Running GBIF comparators (match, reconcile, occurrences, search)...\n");
+  const gbifComparisons = await runGbifComparators(fernsBase, TEST_SPECIES, TEST_GBIF_SEARCHES);
 
-  process.stderr.write("Running iNaturalist comparators...\n");
-  const inatComparisons = await runInatComparators(fernsBase, TEST_SPECIES, TEST_PLACES);
+  process.stderr.write("Running iNaturalist comparators (place, species, histogram, field-values, observations)...\n");
+  const inatComparisons = await runInatComparators(fernsBase, TEST_SPECIES, TEST_PLACES, TEST_PLACE_QUERIES);
 
   process.stderr.write("Running BONAP comparators...\n");
   const bonapComparisons = await runBonapComparators(fernsBase, TEST_SPECIES);
@@ -47,15 +60,15 @@ async function main(): Promise<void> {
   process.stderr.write("Running Michigan Flora comparators...\n");
   const mifloraComparisons = await runMifloraComparators(fernsBase, TEST_SPECIES);
 
-  process.stderr.write("Running Universal FQA comparators...\n");
-  const ufqaComparisons = await runUniversalFqaComparators(fernsBase, TEST_SPECIES);
+  process.stderr.write("Running Universal FQA comparators (databases, species, assessments)...\n");
+  const ufqaComparisons = await runUniversalFqaComparators(fernsBase, TEST_SPECIES, TEST_UFQA_ASSESSMENTS);
 
   process.stderr.write("Running static source health checks (Coefficient, Wetland Indicator, WUCOLS, S2C)...\n");
   const [coeffChecks, wetlandChecks, wucolsChecks, s2cChecks] = await Promise.all([
-    runCoefficientChecks(fernsBase),
-    runWetlandIndicatorChecks(fernsBase),
-    runWucolsChecks(fernsBase),
-    runS2CChecks(fernsBase),
+    runCoefficientChecks(fernsBase, TEST_COEFFICIENT_VALUES),
+    runWetlandIndicatorChecks(fernsBase, TEST_WETLAND_CODES),
+    runWucolsChecks(fernsBase, TEST_WUCOLS_CODES),
+    runS2CChecks(fernsBase, TEST_S2C_YEARS),
   ]);
 
   const allComparisons = [

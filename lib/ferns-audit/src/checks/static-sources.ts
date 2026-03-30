@@ -1,5 +1,6 @@
 import { fetchJson, collectUrls } from "../http.js";
 import type { EndpointComparison, FieldFinding } from "../types.js";
+import type { TestVocabularyEntry } from "../corpus.js";
 
 function envelopeFindings(envelope: Record<string, unknown>, context: string): FieldFinding[] {
   const findings: FieldFinding[] = [];
@@ -77,169 +78,201 @@ async function checkEndpoint(
   }
 }
 
-export async function runCoefficientChecks(fernsBase: string): Promise<EndpointComparison[]> {
-  return Promise.all([
-    checkEndpoint(
-      "coefficient",
-      "/api/coefficient?value=5",
-      "Coefficient of Conservatism — value lookup (C=5)",
-      fernsBase,
-      (envelope) => {
-        const findings: FieldFinding[] = [];
-        const data = envelope.data as Record<string, unknown> | null | undefined;
-        if (data && data.value !== undefined) {
-          findings.push({
-            type: "ok",
-            sourceField: "data.value",
-            note: `data.value present: ${data.value}`,
-          });
-        } else {
-          findings.push({
-            type: "mismatch",
-            sourceField: "data.value",
-            note: `data.value missing from response`,
-          });
-        }
-        return findings;
-      },
-    ),
-    checkEndpoint(
-      "coefficient",
-      "/api/coefficient/all",
-      "Coefficient of Conservatism — full lookup table",
-      fernsBase,
-      (envelope) => {
-        const findings: FieldFinding[] = [];
-        const data = envelope.data;
-        const entries = Array.isArray(data) ? data : [];
-        if (entries.length > 0) {
-          findings.push({
-            type: "ok",
-            sourceField: "data",
-            note: `${entries.length} C-value entries returned`,
-          });
-        } else {
-          findings.push({
-            type: "mismatch",
-            sourceField: "data",
-            note: `data is empty or not an array`,
-          });
-        }
-        return findings;
-      },
-    ),
-  ]);
+function knownValueFindings(
+  data: Record<string, unknown> | null | undefined,
+  entry: TestVocabularyEntry,
+): FieldFinding[] {
+  const findings: FieldFinding[] = [];
+  if (!data) return findings;
+  if (!entry.expectedFields) return findings;
+
+  for (const [field, expected] of Object.entries(entry.expectedFields)) {
+    const actual = data[field];
+    if (actual === expected) {
+      findings.push({
+        type: "ok",
+        sourceField: `data.${field}`,
+        fernsField: `data.${field}`,
+        fernsValue: actual,
+        note: `${field} = ${JSON.stringify(actual)} (expected)`,
+      });
+    } else {
+      findings.push({
+        type: "mismatch",
+        sourceField: `data.${field}`,
+        fernsField: `data.${field}`,
+        sourceValue: expected,
+        fernsValue: actual,
+        note: `${field}: expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`,
+      });
+    }
+  }
+  return findings;
 }
 
-export async function runWetlandIndicatorChecks(fernsBase: string): Promise<EndpointComparison[]> {
-  return Promise.all([
-    checkEndpoint(
-      "wetland-indicator",
-      "/api/wetland-indicator?code=OBL",
-      "Wetland Indicator Status — code lookup (OBL)",
-      fernsBase,
-      (envelope) => {
-        const findings: FieldFinding[] = [];
-        const data = envelope.data as Record<string, unknown> | null | undefined;
-        if (data && data.code !== undefined) {
-          findings.push({
-            type: "ok",
-            sourceField: "data.code",
-            note: `data.code present: ${data.code}`,
-          });
-        } else {
-          findings.push({
-            type: "mismatch",
-            sourceField: "data.code",
-            note: `data.code missing from response`,
-          });
-        }
-        return findings;
-      },
+export async function runCoefficientChecks(
+  fernsBase: string,
+  corpusEntries: TestVocabularyEntry[] = [],
+): Promise<EndpointComparison[]> {
+  const allCheck = await checkEndpoint(
+    "coefficient",
+    "/api/coefficient/all",
+    "Coefficient of Conservatism — full lookup table",
+    fernsBase,
+    (envelope) => {
+      const findings: FieldFinding[] = [];
+      const data = envelope.data;
+      const entries = Array.isArray(data) ? data : [];
+      if (entries.length > 0) {
+        findings.push({
+          type: "ok",
+          sourceField: "data",
+          note: `${entries.length} C-value entries returned`,
+        });
+      } else {
+        findings.push({
+          type: "mismatch",
+          sourceField: "data",
+          note: `data is empty or not an array`,
+        });
+      }
+      return findings;
+    },
+  );
+
+  const perValueChecks = await Promise.all(
+    corpusEntries.map((entry) =>
+      checkEndpoint(
+        "coefficient",
+        `/api/coefficient?value=${encodeURIComponent(entry.key)}`,
+        `Coefficient of Conservatism — value lookup (C=${entry.key})`,
+        fernsBase,
+        (envelope) => {
+          const data = envelope.data as Record<string, unknown> | null | undefined;
+          return [
+            ...(data?.value !== undefined
+              ? [{ type: "ok" as const, sourceField: "data.value", note: `data.value present: ${data.value}` }]
+              : [{ type: "mismatch" as const, sourceField: "data.value", note: `data.value missing from response` }]),
+            ...knownValueFindings(data, entry),
+          ];
+        },
+      ),
     ),
-    checkEndpoint(
-      "wetland-indicator",
-      "/api/wetland-indicator/all",
-      "Wetland Indicator Status — full code table",
-      fernsBase,
-      (envelope) => {
-        const findings: FieldFinding[] = [];
-        const data = envelope.data;
-        const entries = Array.isArray(data) ? data : [];
-        if (entries.length > 0) {
-          findings.push({
-            type: "ok",
-            sourceField: "data",
-            note: `${entries.length} WIS code entries returned`,
-          });
-        } else {
-          findings.push({
-            type: "mismatch",
-            sourceField: "data",
-            note: `data is empty or not an array`,
-          });
-        }
-        return findings;
-      },
-    ),
-  ]);
+  );
+
+  return [allCheck, ...perValueChecks];
 }
 
-export async function runWucolsChecks(fernsBase: string): Promise<EndpointComparison[]> {
-  return Promise.all([
-    checkEndpoint(
-      "wucols",
-      "/api/wucols?code=M",
-      "WUCOLS — water use classification lookup (M = Moderate)",
-      fernsBase,
-      (envelope) => {
-        const findings: FieldFinding[] = [];
-        const data = envelope.data as Record<string, unknown> | null | undefined;
-        if (data && data.code !== undefined) {
-          findings.push({
-            type: "ok",
-            sourceField: "data.code",
-            note: `data.code present: ${data.code}`,
-          });
-        } else {
-          findings.push({
-            type: "mismatch",
-            sourceField: "data.code",
-            note: `data.code missing from response`,
-          });
-        }
-        return findings;
-      },
+export async function runWetlandIndicatorChecks(
+  fernsBase: string,
+  corpusEntries: TestVocabularyEntry[] = [],
+): Promise<EndpointComparison[]> {
+  const allCheck = await checkEndpoint(
+    "wetland-indicator",
+    "/api/wetland-indicator/all",
+    "Wetland Indicator Status — full code table",
+    fernsBase,
+    (envelope) => {
+      const findings: FieldFinding[] = [];
+      const data = envelope.data;
+      const entries = Array.isArray(data) ? data : [];
+      if (entries.length > 0) {
+        findings.push({
+          type: "ok",
+          sourceField: "data",
+          note: `${entries.length} WIS code entries returned`,
+        });
+      } else {
+        findings.push({
+          type: "mismatch",
+          sourceField: "data",
+          note: `data is empty or not an array`,
+        });
+      }
+      return findings;
+    },
+  );
+
+  const perCodeChecks = await Promise.all(
+    corpusEntries.map((entry) =>
+      checkEndpoint(
+        "wetland-indicator",
+        `/api/wetland-indicator?code=${encodeURIComponent(entry.key)}`,
+        `Wetland Indicator Status — code lookup (${entry.key})`,
+        fernsBase,
+        (envelope) => {
+          const data = envelope.data as Record<string, unknown> | null | undefined;
+          return [
+            ...(data?.code !== undefined
+              ? [{ type: "ok" as const, sourceField: "data.code", note: `data.code present: ${data.code}` }]
+              : [{ type: "mismatch" as const, sourceField: "data.code", note: `data.code missing from response` }]),
+            ...knownValueFindings(data, entry),
+          ];
+        },
+      ),
     ),
-    checkEndpoint(
-      "wucols",
-      "/api/wucols/all",
-      "WUCOLS — full water use classification table",
-      fernsBase,
-      (envelope) => {
-        const findings: FieldFinding[] = [];
-        const data = envelope.data;
-        const entries = Array.isArray(data) ? data : [];
-        if (entries.length > 0) {
-          findings.push({
-            type: "ok",
-            sourceField: "data",
-            note: `${entries.length} WUCOLS entries returned`,
-          });
-        } else {
-          findings.push({
-            type: "mismatch",
-            sourceField: "data",
-            note: `data is empty or not an array`,
-          });
-        }
-        return findings;
-      },
-    ),
-  ]);
+  );
+
+  return [allCheck, ...perCodeChecks];
 }
 
-export async function runS2CChecks(fernsBase: string): Promise<EndpointComparison[]> {
+export async function runWucolsChecks(
+  fernsBase: string,
+  corpusEntries: TestVocabularyEntry[] = [],
+): Promise<EndpointComparison[]> {
+  const allCheck = await checkEndpoint(
+    "wucols",
+    "/api/wucols/all",
+    "WUCOLS — full water use classification table",
+    fernsBase,
+    (envelope) => {
+      const findings: FieldFinding[] = [];
+      const data = envelope.data;
+      const entries = Array.isArray(data) ? data : [];
+      if (entries.length > 0) {
+        findings.push({
+          type: "ok",
+          sourceField: "data",
+          note: `${entries.length} WUCOLS entries returned`,
+        });
+      } else {
+        findings.push({
+          type: "mismatch",
+          sourceField: "data",
+          note: `data is empty or not an array`,
+        });
+      }
+      return findings;
+    },
+  );
+
+  const perCodeChecks = await Promise.all(
+    corpusEntries.map((entry) =>
+      checkEndpoint(
+        "wucols",
+        `/api/wucols?code=${encodeURIComponent(entry.key)}`,
+        `WUCOLS — water use classification lookup (${entry.key})`,
+        fernsBase,
+        (envelope) => {
+          const data = envelope.data as Record<string, unknown> | null | undefined;
+          return [
+            ...(data?.code !== undefined
+              ? [{ type: "ok" as const, sourceField: "data.code", note: `data.code present: ${data.code}` }]
+              : [{ type: "mismatch" as const, sourceField: "data.code", note: `data.code missing from response` }]),
+            ...knownValueFindings(data, entry),
+          ];
+        },
+      ),
+    ),
+  );
+
+  return [allCheck, ...perCodeChecks];
+}
+
+export async function runS2CChecks(
+  fernsBase: string,
+  years: number[] = [],
+): Promise<EndpointComparison[]> {
   const yearsCheck = await checkEndpoint(
     "s2c",
     "/api/s2c/years",
@@ -257,6 +290,13 @@ export async function runS2CChecks(fernsBase: string): Promise<EndpointCompariso
           sourceField: "data.available_years",
           note: `${yearNums.length} years available: ${yearNums.join(", ")}`,
         });
+        for (const expectedYear of years) {
+          if (yearNums.includes(expectedYear)) {
+            findings.push({ type: "ok", sourceField: `data.available_years[${expectedYear}]`, note: `Year ${expectedYear} is present` });
+          } else {
+            findings.push({ type: "gap", sourceField: `data.available_years[${expectedYear}]`, note: `Year ${expectedYear} expected in corpus but not found in /years response` });
+          }
+        }
       } else {
         findings.push({
           type: "mismatch",
@@ -268,31 +308,35 @@ export async function runS2CChecks(fernsBase: string): Promise<EndpointCompariso
     },
   );
 
-  const speciesCheck = await checkEndpoint(
-    "s2c",
-    "/api/s2c?year=2026",
-    "Seeds to Community — species list for 2026",
-    fernsBase,
-    (envelope) => {
-      const findings: FieldFinding[] = [];
-      const data = envelope.data as Record<string, unknown> | null | undefined;
-      const speciesList = (data?.species ?? data?.species_list) as unknown[] | undefined;
-      if (speciesList && speciesList.length > 0) {
-        findings.push({
-          type: "ok",
-          sourceField: "data.species",
-          note: `${speciesList.length} species returned for 2026`,
-        });
-      } else {
-        findings.push({
-          type: "mismatch",
-          sourceField: "data.species",
-          note: `data.species missing or empty for year=2026 — no 2026 data loaded yet`,
-        });
-      }
-      return findings;
-    },
+  const speciesChecks = await Promise.all(
+    years.map((year) =>
+      checkEndpoint(
+        "s2c",
+        `/api/s2c?year=${year}`,
+        `Seeds to Community — species list for ${year}`,
+        fernsBase,
+        (envelope) => {
+          const findings: FieldFinding[] = [];
+          const data = envelope.data as Record<string, unknown> | null | undefined;
+          const speciesList = (data?.species ?? data?.species_list) as unknown[] | undefined;
+          if (speciesList && speciesList.length > 0) {
+            findings.push({
+              type: "ok",
+              sourceField: "data.species",
+              note: `${speciesList.length} species returned for ${year}`,
+            });
+          } else {
+            findings.push({
+              type: "mismatch",
+              sourceField: "data.species",
+              note: `data.species missing or empty for year=${year}`,
+            });
+          }
+          return findings;
+        },
+      ),
+    ),
   );
 
-  return [yearsCheck, speciesCheck];
+  return [yearsCheck, ...speciesChecks];
 }
