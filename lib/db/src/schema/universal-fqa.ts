@@ -29,6 +29,7 @@ export const universalFqaSpeciesTable = pgTable(
     physiognomy: text("physiognomy").notNull().default(""),
     duration: text("duration").notNull().default(""),
     common_name: text("common_name").notNull().default(""),
+    cached_at: timestamp("cached_at", { withTimezone: true }).notNull(),
   },
   (table) => [
     uniqueIndex("universal_fqa_species_db_name_idx").on(

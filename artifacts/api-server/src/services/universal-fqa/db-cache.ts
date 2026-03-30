@@ -3,7 +3,7 @@ import {
   universalFqaDatabasesTable,
   universalFqaSpeciesTable,
 } from "@workspace/db";
-import { eq, and, ilike } from "drizzle-orm";
+import { eq, and, ilike, sql } from "drizzle-orm";
 import { fetchDatabase } from "./client.js";
 import type { UniversalFqaDatabaseDetail, UniversalFqaSpeciesRecord } from "./client.js";
 import { logger } from "../../lib/logger.js";
@@ -133,9 +133,23 @@ export async function getOrFetchDatabase(
             physiognomy: sp.physiognomy,
             duration: sp.duration,
             common_name: sp.common_name,
+            cached_at: now,
           }))
         )
-        .onConflictDoNothing();
+        .onConflictDoUpdate({
+          target: [universalFqaSpeciesTable.database_id, universalFqaSpeciesTable.scientific_name],
+          set: {
+            family: sql`excluded.family`,
+            acronym: sql`excluded.acronym`,
+            native: sql`excluded.native`,
+            c: sql`excluded.c`,
+            w: sql`excluded.w`,
+            physiognomy: sql`excluded.physiognomy`,
+            duration: sql`excluded.duration`,
+            common_name: sql`excluded.common_name`,
+            cached_at: sql`excluded.cached_at`,
+          },
+        });
     }
     logger.info({ databaseId, count: detail.species.length }, "Universal FQA: species stored");
   }
