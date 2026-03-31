@@ -669,6 +669,54 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /miflora/images:
+    get:
+      operationId: getMifloraImages
+      tags: [miflora]
+      summary: Get the full photo gallery for a Michigan Flora species
+      description: >
+        Returns all images from the Michigan Flora allimage_info endpoint for a given species,
+        each enriched with constructed absolute image_url and thumbnail_url fields.
+        Two-step lookup: flora_search_sp resolves the plant_id, then allimage_info fetches
+        all available photos. Results are cached permanently (no TTL) — Michigan Flora image
+        data does not change. Use ?refresh=true to force a re-fetch.
+        Image URL formula (reverse-engineered from Michigan Flora frontend):
+        Full: https://michiganflora.net/static/species_images/_pid_{plant_id}/{image_id}.jpg
+        Thumbnail: https://michiganflora.net/static/species_images/_pid_{plant_id}/thumb_{image_id}.jpg
+      parameters:
+        - name: name
+          in: query
+          required: true
+          description: Scientific name to look up (e.g. Asclepias tuberosa)
+          schema:
+            type: string
+        - name: refresh
+          in: query
+          required: false
+          description: If true, bypasses cache and fetches fresh from Michigan Flora API
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Image gallery (check the found field)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MifloraImagesResponse"
+        "400":
+          description: Missing or empty name parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: Michigan Flora API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /miflora/metadata:
     get:
       operationId: getMifloraMetadata
@@ -2482,6 +2530,81 @@ components:
             Raw passthrough response from the Michigan Flora county API endpoint.
             Array of county records for all 83 Michigan counties. Each record includes
             county name, FIPS code, and occurrence status. All source fields unchanged.
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    MifloraImageRecord:
+      type: object
+      description: >
+        A single image record from the Michigan Flora allimage_info endpoint,
+        enriched with constructed absolute image_url and thumbnail_url fields.
+      required:
+        - image_id
+        - image_url
+        - thumbnail_url
+      properties:
+        image_id:
+          description: Michigan Flora internal image ID
+          oneOf:
+            - type: integer
+            - type: string
+        image_name:
+          type: string
+          nullable: true
+          description: Short descriptive name for the image (e.g. "flowers", "fruit")
+        caption:
+          type: string
+          nullable: true
+          description: Caption text from Michigan Flora for this image
+        photographer:
+          type: string
+          nullable: true
+          description: Photographer credit for this image
+        image_url:
+          type: string
+          description: >
+            Absolute URL to the full-size image on Michigan Flora's server.
+            Constructed as: https://michiganflora.net/static/species_images/_pid_{plant_id}/{image_id}.jpg
+        thumbnail_url:
+          type: string
+          description: >
+            Absolute URL to the thumbnail image on Michigan Flora's server.
+            Constructed as: https://michiganflora.net/static/species_images/_pid_{plant_id}/thumb_{image_id}.jpg
+
+    MifloraImagesResponse:
+      type: object
+      description: >
+        FERNS envelope for Michigan Flora image gallery.
+        data is the array of image records from allimage_info, each enriched with
+        constructed absolute image_url and thumbnail_url. Cached permanently (no TTL).
+      required:
+        - source_url
+        - found
+        - cache_status
+        - queried_at
+        - provenance
+      properties:
+        source_url:
+          type: string
+          nullable: true
+          description: Michigan Flora species page URL. Null when species not found.
+        found:
+          type: boolean
+          description: Whether images were found for this species in Michigan Flora
+        cache_status:
+          type: string
+          enum: [hit, miss, error]
+        queried_at:
+          type: string
+          format: date-time
+        data:
+          nullable: true
+          description: >
+            Array of image records from Michigan Flora allimage_info, each enriched with
+            image_url and thumbnail_url. Null when found is false.
+          type: array
+          items:
+            $ref: "#/components/schemas/MifloraImageRecord"
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
 

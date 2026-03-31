@@ -36,6 +36,7 @@ import type {
   GetInatPlaceParams,
   GetInatSpeciesParams,
   GetMifloraCountiesParams,
+  GetMifloraImagesParams,
   GetMifloraSpeciesParams,
   GetS2CSpeciesByYearParams,
   GetUniversalFqaAssessmentsParams,
@@ -51,6 +52,7 @@ import type {
   InatPlaceResponse,
   InatSpeciesResponse,
   MifloraCountiesResponse,
+  MifloraImagesResponse,
   MifloraMetadataResponse,
   MifloraSpeciesResponse,
   S2CSpeciesResponse,
@@ -1566,6 +1568,105 @@ export function useGetMifloraCounties<
   },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetMifloraCountiesQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns all images from the Michigan Flora allimage_info endpoint for a given species, each enriched with constructed absolute image_url and thumbnail_url fields. Two-step lookup: flora_search_sp resolves the plant_id, then allimage_info fetches all available photos. Results are cached permanently (no TTL) — Michigan Flora image data does not change. Use ?refresh=true to force a re-fetch. Image URL formula (reverse-engineered from Michigan Flora frontend): Full: https://michiganflora.net/static/species_images/_pid_{plant_id}/{image_id}.jpg Thumbnail: https://michiganflora.net/static/species_images/_pid_{plant_id}/thumb_{image_id}.jpg
+
+ * @summary Get the full photo gallery for a Michigan Flora species
+ */
+export const getGetMifloraImagesUrl = (params: GetMifloraImagesParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/miflora/images?${stringifiedParams}`
+    : `/api/miflora/images`;
+};
+
+export const getMifloraImages = async (
+  params: GetMifloraImagesParams,
+  options?: RequestInit,
+): Promise<MifloraImagesResponse> => {
+  return customFetch<MifloraImagesResponse>(getGetMifloraImagesUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetMifloraImagesQueryKey = (
+  params?: GetMifloraImagesParams,
+) => {
+  return [`/api/miflora/images`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetMifloraImagesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMifloraImages>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetMifloraImagesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMifloraImages>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetMifloraImagesQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getMifloraImages>>
+  > = ({ signal }) => getMifloraImages(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMifloraImages>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMifloraImagesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMifloraImages>>
+>;
+export type GetMifloraImagesQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get the full photo gallery for a Michigan Flora species
+ */
+
+export function useGetMifloraImages<
+  TData = Awaited<ReturnType<typeof getMifloraImages>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetMifloraImagesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMifloraImages>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMifloraImagesQueryOptions(params, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

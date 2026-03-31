@@ -1407,6 +1407,121 @@ export const GetMifloraCountiesResponse = zod
   );
 
 /**
+ * Returns all images from the Michigan Flora allimage_info endpoint for a given species, each enriched with constructed absolute image_url and thumbnail_url fields. Two-step lookup: flora_search_sp resolves the plant_id, then allimage_info fetches all available photos. Results are cached permanently (no TTL) — Michigan Flora image data does not change. Use ?refresh=true to force a re-fetch. Image URL formula (reverse-engineered from Michigan Flora frontend): Full: https://michiganflora.net/static/species_images/_pid_{plant_id}/{image_id}.jpg Thumbnail: https://michiganflora.net/static/species_images/_pid_{plant_id}/thumb_{image_id}.jpg
+
+ * @summary Get the full photo gallery for a Michigan Flora species
+ */
+export const getMifloraImagesQueryRefreshDefault = false;
+
+export const GetMifloraImagesQueryParams = zod.object({
+  name: zod.coerce
+    .string()
+    .describe("Scientific name to look up (e.g. Asclepias tuberosa)"),
+  refresh: zod.coerce
+    .boolean()
+    .default(getMifloraImagesQueryRefreshDefault)
+    .describe(
+      "If true, bypasses cache and fetches fresh from Michigan Flora API",
+    ),
+});
+
+export const GetMifloraImagesResponse = zod
+  .object({
+    source_url: zod
+      .string()
+      .nullable()
+      .describe(
+        "Michigan Flora species page URL. Null when species not found.",
+      ),
+    found: zod
+      .boolean()
+      .describe("Whether images were found for this species in Michigan Flora"),
+    cache_status: zod.enum(["hit", "miss", "error"]),
+    queried_at: zod.date(),
+    data: zod
+      .array(
+        zod
+          .object({
+            image_id: zod
+              .union([zod.number(), zod.string()])
+              .describe("Michigan Flora internal image ID"),
+            image_name: zod
+              .string()
+              .nullish()
+              .describe(
+                'Short descriptive name for the image (e.g. \"flowers\", \"fruit\")',
+              ),
+            caption: zod
+              .string()
+              .nullish()
+              .describe("Caption text from Michigan Flora for this image"),
+            photographer: zod
+              .string()
+              .nullish()
+              .describe("Photographer credit for this image"),
+            image_url: zod
+              .string()
+              .describe(
+                "Absolute URL to the full-size image on Michigan Flora's server. Constructed as: https:\/\/michiganflora.net\/static\/species_images\/_pid_{plant_id}\/{image_id}.jpg\n",
+              ),
+            thumbnail_url: zod
+              .string()
+              .describe(
+                "Absolute URL to the thumbnail image on Michigan Flora's server. Constructed as: https:\/\/michiganflora.net\/static\/species_images\/_pid_{plant_id}\/thumb_{image_id}.jpg\n",
+              ),
+          })
+          .describe(
+            "A single image record from the Michigan Flora allimage_info endpoint, enriched with constructed absolute image_url and thumbnail_url fields.\n",
+          ),
+      )
+      .nullish()
+      .describe(
+        "Array of image records from Michigan Flora allimage_info, each enriched with image_url and thumbnail_url. Null when found is false.\n",
+      ),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+        fetched_at: zod
+          .date()
+          .describe("When this record was obtained from the source"),
+        method: zod
+          .string()
+          .describe(
+            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+          ),
+        upstream_url: zod
+          .string()
+          .describe(
+            "Where this data came from (API endpoint, file path, or registry entry)",
+          ),
+        derivation_summary: zod
+          .string()
+          .describe(
+            "Plain language description readable by a homeowner or community member",
+          ),
+        derivation_scientific: zod
+          .string()
+          .describe(
+            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+          ),
+        matched_input: zod
+          .string()
+          .optional()
+          .describe(
+            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+          ),
+      })
+      .describe(
+        "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      ),
+  })
+  .describe(
+    "FERNS envelope for Michigan Flora image gallery. data is the array of image records from allimage_info, each enriched with constructed absolute image_url and thumbnail_url. Cached permanently (no TTL).\n",
+  );
+
+/**
  * Returns service identity, attribution, permission status, and the full registry entry for the Michigan Flora service. Use this to populate 'About this data' panels in any application displaying Michigan Flora data. Also seeds the Michigan Flora entry in the FERNS source registry.
 
  * @summary Michigan Flora service metadata

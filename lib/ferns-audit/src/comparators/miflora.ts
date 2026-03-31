@@ -19,6 +19,7 @@ export async function runMifloraComparators(
       : undefined;
 
     results.push(await compareMifloraCounties(fernsBase, sp, plantId ?? null));
+    results.push(await compareMifloraImages(fernsBase, sp, plantId ?? null));
   }
   return results;
 }
@@ -209,6 +210,114 @@ async function compareMifloraCounties(
       ok: true,
       rawSource: upstreamRaw,
       rawFerns: fernsData,
+      findings,
+      urlsCollected,
+    };
+  } catch (err) {
+    return {
+      source: "miflora",
+      endpoint: `${fernsEndpoint}?name=${encodeURIComponent(sp.name)}`,
+      label,
+      ok: false,
+      error: String(err),
+      findings: [],
+      urlsCollected: [],
+    };
+  }
+}
+
+async function compareMifloraImages(
+  fernsBase: string,
+  sp: TestSpecies,
+  plantId: number | string | null,
+): Promise<EndpointComparison> {
+  const fernsEndpoint = `/api/miflora/images`;
+  const fernsUrl = `${fernsBase}${fernsEndpoint}?name=${encodeURIComponent(sp.name)}&refresh=true`;
+  const label = `${sp.label}${plantId !== null ? ` (plant_id=${plantId})` : ""} — Michigan Flora images`;
+
+  try {
+    const fernsRaw = await fetchJson(fernsUrl) as Record<string, unknown>;
+    const fernsEnvelope = fernsRaw as Record<string, unknown>;
+    const fernsImages = (fernsEnvelope.data ?? []) as unknown[];
+    const urlsCollected = collectUrls(fernsEnvelope, `miflora/images:${sp.name}`);
+
+    const findings: FieldFinding[] = [];
+
+    if (plantId === null) {
+      findings.push({
+        type: "ok",
+        sourceField: "images.length",
+        note: `FERNS returned ${fernsImages.length} images — upstream comparison skipped (no plant_id from species lookup, species may not be in Michigan Flora)`,
+      });
+      return {
+        source: "miflora",
+        endpoint: `${fernsEndpoint}?name=${encodeURIComponent(sp.name)}`,
+        label,
+        ok: true,
+        rawFerns: { image_count: fernsImages.length },
+        findings,
+        urlsCollected,
+      };
+    }
+
+    const upstreamRaw = await fetchJson(`${MIFLORA_API}/allimage_info?id=${plantId}`);
+    const upstreamImages = Array.isArray(upstreamRaw) ? upstreamRaw : [];
+
+    if (fernsImages.length === upstreamImages.length) {
+      findings.push({
+        type: "ok",
+        sourceField: "images.length",
+        fernsField: "data.length",
+        fernsValue: fernsImages.length,
+        note: `Image count matches: ${fernsImages.length} images`,
+      });
+    } else {
+      findings.push({
+        type: "mismatch",
+        sourceField: "images.length",
+        fernsField: "data.length",
+        sourceValue: upstreamImages.length,
+        fernsValue: fernsImages.length,
+        note: `Image count mismatch: upstream has ${upstreamImages.length}, FERNS has ${fernsImages.length}`,
+      });
+    }
+
+    if (fernsImages.length > 0) {
+      const firstFerns = fernsImages[0] as Record<string, unknown>;
+      const hasImageUrl = typeof firstFerns["image_url"] === "string" && firstFerns["image_url"].startsWith("https://");
+      const hasThumbnailUrl = typeof firstFerns["thumbnail_url"] === "string" && firstFerns["thumbnail_url"].startsWith("https://");
+
+      if (hasImageUrl && hasThumbnailUrl) {
+        findings.push({
+          type: "ok",
+          sourceField: "image_url",
+          note: `First image has valid image_url and thumbnail_url (constructed absolute URLs present)`,
+        });
+      } else {
+        if (!hasImageUrl) {
+          findings.push({
+            type: "gap",
+            sourceField: "image_url",
+            note: `First image is missing a valid image_url`,
+          });
+        }
+        if (!hasThumbnailUrl) {
+          findings.push({
+            type: "gap",
+            sourceField: "thumbnail_url",
+            note: `First image is missing a valid thumbnail_url`,
+          });
+        }
+      }
+    }
+
+    return {
+      source: "miflora",
+      endpoint: `${fernsEndpoint}?name=${encodeURIComponent(sp.name)}`,
+      label,
+      ok: true,
+      rawSource: { image_count: upstreamImages.length },
+      rawFerns: { image_count: fernsImages.length },
       findings,
       urlsCollected,
     };

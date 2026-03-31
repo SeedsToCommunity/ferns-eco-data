@@ -714,6 +714,53 @@ export interface MifloraCountiesResponse {
   provenance: FernsProvenance;
 }
 
+/**
+ * A single image record from the Michigan Flora allimage_info endpoint, enriched with constructed absolute image_url and thumbnail_url fields.
+
+ */
+export interface MifloraImageRecord {
+  /** Michigan Flora internal image ID */
+  image_id: number | string;
+  /** Short descriptive name for the image (e.g. "flowers", "fruit") */
+  image_name?: string | null;
+  /** Caption text from Michigan Flora for this image */
+  caption?: string | null;
+  /** Photographer credit for this image */
+  photographer?: string | null;
+  /** Absolute URL to the full-size image on Michigan Flora's server. Constructed as: https://michiganflora.net/static/species_images/_pid_{plant_id}/{image_id}.jpg
+   */
+  image_url: string;
+  /** Absolute URL to the thumbnail image on Michigan Flora's server. Constructed as: https://michiganflora.net/static/species_images/_pid_{plant_id}/thumb_{image_id}.jpg
+   */
+  thumbnail_url: string;
+}
+
+export type MifloraImagesResponseCacheStatus =
+  (typeof MifloraImagesResponseCacheStatus)[keyof typeof MifloraImagesResponseCacheStatus];
+
+export const MifloraImagesResponseCacheStatus = {
+  hit: "hit",
+  miss: "miss",
+  error: "error",
+} as const;
+
+/**
+ * FERNS envelope for Michigan Flora image gallery. data is the array of image records from allimage_info, each enriched with constructed absolute image_url and thumbnail_url. Cached permanently (no TTL).
+
+ */
+export interface MifloraImagesResponse {
+  /** Michigan Flora species page URL. Null when species not found. */
+  source_url: string | null;
+  /** Whether images were found for this species in Michigan Flora */
+  found: boolean;
+  cache_status: MifloraImagesResponseCacheStatus;
+  queried_at: string;
+  /** Array of image records from Michigan Flora allimage_info, each enriched with image_url and thumbnail_url. Null when found is false.
+   */
+  data?: MifloraImageRecord[] | null;
+  provenance: FernsProvenance;
+}
+
 export interface MifloraAttribution {
   source_name: string;
   website: string;
@@ -1427,6 +1474,17 @@ export type GetMifloraSpeciesParams = {
 export type GetMifloraCountiesParams = {
   /**
    * Scientific name to look up county records for (e.g. Asclepias tuberosa)
+   */
+  name: string;
+  /**
+   * If true, bypasses cache and fetches fresh from Michigan Flora API
+   */
+  refresh?: boolean;
+};
+
+export type GetMifloraImagesParams = {
+  /**
+   * Scientific name to look up (e.g. Asclepias tuberosa)
    */
   name: string;
   /**

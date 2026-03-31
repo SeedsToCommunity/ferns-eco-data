@@ -2,14 +2,19 @@ import { Router, type IRouter } from "express";
 import {
   buildSpeciesCacheKey,
   buildCountiesCacheKey,
+  buildImagesCacheKey,
+  buildMifloraImageUrls,
   fetchSpecies,
   fetchCounties,
+  fetchImages,
 } from "../services/miflora/connector.js";
 import {
   lookupSpecies,
   storeSpecies,
   lookupCounties,
   storeCounties,
+  lookupImages,
+  storeImages,
 } from "../services/miflora/cache.js";
 import {
   MIFLORA_SOURCE_ID,
@@ -27,6 +32,8 @@ import {
   GetMifloraSpeciesResponse,
   GetMifloraCountiesQueryParams,
   GetMifloraCountiesResponse,
+  GetMifloraImagesQueryParams,
+  GetMifloraImagesResponse,
   GetMifloraMetadataResponse,
 } from "@workspace/api-zod";
 
@@ -72,6 +79,30 @@ router.get("/miflora/species", async (req, res) => {
   }
 });
 
+function enrichPimageInfo(
+  rawResponse: unknown,
+): unknown {
+  if (!rawResponse || typeof rawResponse !== "object") return rawResponse;
+  const resp = rawResponse as Record<string, unknown>;
+  const pimageInfo = resp["pimage_info"];
+  if (!pimageInfo || typeof pimageInfo !== "object") return rawResponse;
+
+  const pimage = pimageInfo as Record<string, unknown>;
+  const plantId = pimage["plant_id"];
+  const imageId = pimage["image_id"];
+  if (plantId == null || imageId == null) return rawResponse;
+
+  const urls = buildMifloraImageUrls(Number(plantId), imageId as number | string);
+  return {
+    ...resp,
+    pimage_info: {
+      ...pimage,
+      image_url: urls.image_url,
+      thumbnail_url: urls.thumbnail_url,
+    },
+  };
+}
+
 function buildSpeciesResponse(
   row: {
     found: boolean;
@@ -87,12 +118,13 @@ function buildSpeciesResponse(
   },
   cache_status: "hit" | "miss" | "error",
 ) {
+  const enriched = row.found ? enrichPimageInfo(row.raw_response) : null;
   return {
     source_url: row.source_url ?? null,
     found: row.found,
     cache_status,
     queried_at: new Date(),
-    data: row.found ? (row.raw_response ?? null) : null,
+    data: enriched ?? null,
     provenance: {
       source_id: row.source_id,
       fetched_at: row.fetched_at,
@@ -166,6 +198,81 @@ function buildCountiesResponse(
     cache_status,
     queried_at: new Date(),
     data: row.raw_response ?? null,
+    provenance: {
+      source_id: row.source_id,
+      fetched_at: row.fetched_at,
+      method: row.method,
+      upstream_url: row.upstream_url,
+      derivation_summary: row.derivation_summary,
+      derivation_scientific: row.derivation_scientific,
+      ...(row.queried_name ? { matched_input: row.queried_name } : {}),
+    },
+  };
+}
+
+router.get("/miflora/images", async (req, res) => {
+  const parsed = GetMifloraImagesQueryParams.safeParse(req.query);
+  if (!parsed.success) {
+    res.status(400).json({ error: "invalid_input", message: parsed.error.errors[0]?.message ?? "Invalid query parameters" });
+    return;
+  }
+
+  const name = parsed.data.name;
+  const refresh = parsed.data.refresh ?? false;
+  const cacheKey = buildImagesCacheKey(name);
+
+  if (!refresh) {
+    const cached = await lookupImages(cacheKey);
+    if (cached) {
+      res.json(GetMifloraImagesResponse.parse(buildImagesResponse(cached, "hit")));
+      return;
+    }
+  }
+
+  try {
+    const result = await fetchImages(name);
+    const stored = await storeImages(cacheKey, name, result);
+    res.json(GetMifloraImagesResponse.parse(buildImagesResponse(stored, "miss")));
+  } catch (err) {
+    req.log.error({ err }, "Michigan Flora images lookup failed");
+    res.status(502).json(buildImagesResponse({
+      found: false,
+      plant_id: null,
+      source_url: null,
+      raw_response: null,
+      fetched_at: new Date(),
+      upstream_url: `https://michiganflora.net/api/v1.0/flora_search_sp?scientific_name=${encodeURIComponent(name)}`,
+      source_id: MIFLORA_SOURCE_ID,
+      method: "api_fetch",
+      derivation_summary: MIFLORA_DERIVATION_SUMMARY,
+      derivation_scientific: MIFLORA_DERIVATION_SCIENTIFIC,
+      queried_name: name,
+    }, "error"));
+  }
+});
+
+function buildImagesResponse(
+  row: {
+    found: boolean;
+    source_url: string | null;
+    raw_response: unknown;
+    fetched_at: Date;
+    upstream_url: string;
+    source_id: string;
+    method: string;
+    derivation_summary: string;
+    derivation_scientific: string;
+    plant_id?: number | null;
+    queried_name?: string;
+  },
+  cache_status: "hit" | "miss" | "error",
+) {
+  return {
+    source_url: row.source_url ?? null,
+    found: row.found,
+    cache_status,
+    queried_at: new Date(),
+    data: row.found ? (row.raw_response ?? null) : null,
     provenance: {
       source_id: row.source_id,
       fetched_at: row.fetched_at,

@@ -27,6 +27,32 @@ export interface MifloraCountiesResult {
   raw_response: unknown;
 }
 
+export interface MifloraImageRecord {
+  image_id: number | string;
+  image_name: string | null;
+  caption: string | null;
+  photographer: string | null;
+  image_url: string;
+  thumbnail_url: string;
+}
+
+export interface MifloraImagesResult {
+  found: boolean;
+  plant_id: number | null;
+  source_url: string | null;
+  upstream_url: string;
+  images: MifloraImageRecord[];
+}
+
+export function buildMifloraImageUrls(
+  plantId: number,
+  imageId: number | string,
+): { image_url: string; thumbnail_url: string } {
+  const base = `https://michiganflora.net/static/species_images/_pid_${plantId}/${imageId}.jpg`;
+  const thumb = `https://michiganflora.net/static/species_images/_pid_${plantId}/thumb_${imageId}.jpg`;
+  return { image_url: base, thumbnail_url: thumb };
+}
+
 export function buildSpeciesCacheKey(name: string): string {
   const normalized = name.trim().toLowerCase().replace(/\s+/g, " ");
   return `miflora:species:${normalized}`;
@@ -35,6 +61,11 @@ export function buildSpeciesCacheKey(name: string): string {
 export function buildCountiesCacheKey(name: string): string {
   const normalized = name.trim().toLowerCase().replace(/\s+/g, " ");
   return `miflora:counties:${normalized}`;
+}
+
+export function buildImagesCacheKey(name: string): string {
+  const normalized = name.trim().toLowerCase().replace(/\s+/g, " ");
+  return `miflora:images:${normalized}`;
 }
 
 async function mifloraFetch(url: string): Promise<unknown> {
@@ -126,6 +157,52 @@ export async function fetchCounties(name: string): Promise<MifloraCountiesResult
     source_url: `https://michiganflora.net/species/${plantId}`,
     upstream_url: locsUrl,
     raw_response: raw,
+  };
+}
+
+export async function fetchImages(name: string): Promise<MifloraImagesResult> {
+  const trimmed = name.trim();
+  const searchUrl = `${MIFLORA_API_BASE}/flora_search_sp?scientific_name=${encodeURIComponent(trimmed)}`;
+
+  const searchRaw = await mifloraFetch(searchUrl);
+  const searchRecords: unknown[] = Array.isArray(searchRaw) ? searchRaw : [];
+
+  if (searchRecords.length === 0) {
+    return {
+      found: false,
+      plant_id: null,
+      source_url: null,
+      upstream_url: searchUrl,
+      images: [],
+    };
+  }
+
+  const matchedRecord = searchRecords[0] as Record<string, unknown>;
+  const plantId = Number(matchedRecord.plant_id);
+  const allImageUrl = `${MIFLORA_API_BASE}/allimage_info?id=${plantId}`;
+  const raw = await mifloraFetch(allImageUrl);
+
+  const rawArr: unknown[] = Array.isArray(raw) ? raw : [];
+  const images: MifloraImageRecord[] = rawArr.map((item) => {
+    const rec = item as Record<string, unknown>;
+    const imageId = rec["image_id"] as number | string;
+    const urls = buildMifloraImageUrls(plantId, imageId);
+    return {
+      image_id: imageId,
+      image_name: (rec["image_name"] as string | null) ?? null,
+      caption: (rec["caption"] as string | null) ?? null,
+      photographer: (rec["photographer"] as string | null) ?? null,
+      image_url: urls.image_url,
+      thumbnail_url: urls.thumbnail_url,
+    };
+  });
+
+  return {
+    found: images.length > 0,
+    plant_id: plantId,
+    source_url: `https://michiganflora.net/species/${plantId}`,
+    upstream_url: allImageUrl,
+    images,
   };
 }
 
