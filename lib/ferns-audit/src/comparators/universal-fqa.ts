@@ -175,24 +175,48 @@ async function compareDatabaseBlob(
         }
       }
 
-      const sampleUpstream = [...upstream.species.values()].slice(0, 10);
-      for (const upSp of sampleUpstream) {
-        const fernsMatch = fernsSpecies.find(
-          (s) => typeof s["scientific_name"] === "string" &&
-            s["scientific_name"].toLowerCase() === upSp.scientific_name.toLowerCase(),
-        );
-        if (fernsMatch) {
-          const fieldChecks: Array<keyof typeof upSp> = ["family", "acronym", "native", "physiognomy", "duration", "common_name"];
-          const mismatched = fieldChecks.filter(
-            (f) => String(upSp[f] ?? "").toLowerCase() !== String((fernsMatch[f] as unknown) ?? "").toLowerCase(),
-          );
-          if (mismatched.length === 0) {
-            findings.push({ type: "ok", sourceField: `species[${upSp.scientific_name}]`, note: `Field spot-check: all fields match for "${upSp.scientific_name}"` });
-          } else {
-            findings.push({ type: "mismatch", sourceField: `species[${upSp.scientific_name}]`, note: `Field spot-check mismatch on: ${mismatched.join(", ")} for "${upSp.scientific_name}"` });
-          }
+      const fieldChecks = ["family", "acronym", "native", "physiognomy", "duration", "common_name"] as const;
+      type FieldMismatch = { field: string; upstreamValue: string; fernsValue: string };
+      const fmByField = new Map<string, { count: number; examples: string[] }>();
+      let fullMatchCount = 0;
+
+      const fernsNameIndex = new Map<string, Record<string, unknown>>();
+      for (const sp of fernsSpecies) {
+        const name = String(sp["scientific_name"] ?? "").toLowerCase();
+        fernsNameIndex.set(name, sp);
+      }
+
+      for (const [nameLower, upSp] of upstream.species.entries()) {
+        const fernsMatch = fernsNameIndex.get(nameLower);
+        if (!fernsMatch) continue;
+        const mismatches: FieldMismatch[] = [];
+        for (const f of fieldChecks) {
+          const upVal = String((upSp as unknown as Record<string, unknown>)[f] ?? "").toLowerCase();
+          const fernsVal = String(fernsMatch[f] ?? "").toLowerCase();
+          if (upVal !== fernsVal) mismatches.push({ field: f, upstreamValue: upVal, fernsValue: fernsVal });
+        }
+        if (mismatches.length === 0) {
+          fullMatchCount++;
         } else {
-          findings.push({ type: "gap", sourceField: `species[${upSp.scientific_name}]`, note: `Upstream species "${upSp.scientific_name}" not found in FERNS blob for field check` });
+          for (const { field, upstreamValue, fernsValue } of mismatches) {
+            const entry = fmByField.get(field) ?? { count: 0, examples: [] };
+            entry.count++;
+            if (entry.examples.length < 3) entry.examples.push(`"${upSp.scientific_name}" upstream=${upstreamValue} ferns=${fernsValue}`);
+            fmByField.set(field, entry);
+          }
+        }
+      }
+
+      if (fmByField.size === 0) {
+        findings.push({ type: "ok", sourceField: "species[all].fields", note: `All ${fullMatchCount} matched species have identical field values (family, acronym, native, physiognomy, duration, common_name)` });
+      } else {
+        findings.push({ type: "ok", sourceField: "species[all].fields", note: `${fullMatchCount} species fully match; ${[...fmByField.keys()].length} field(s) have mismatches — see below` });
+        for (const [field, { count, examples }] of fmByField.entries()) {
+          findings.push({
+            type: "mismatch",
+            sourceField: `species[all].${field}`,
+            note: `${count} species have "${field}" mismatch (e.g., ${examples.join(" | ")})`,
+          });
         }
       }
     }
