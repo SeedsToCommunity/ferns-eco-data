@@ -141,7 +141,7 @@ export const TEST_WUCOLS_CODES: TestVocabularyEntry[] = [
 export const TEST_S2C_YEARS: number[] = [2023, 2024, 2025, 2026];
 
 export const TEST_UFQA_ASSESSMENTS: TestAssessment[] = [
-  { id: 1208, label: "Assessment 1208 (Chicago Region, public)", databaseId: 1 },
+  { id: 37736, label: "Assessment 37736 (KCG-Well Connect RLY, Chicago Region, public)", databaseId: 1 },
 ];
 
 export const FERNS_ENVELOPE_FIELDS = new Set([

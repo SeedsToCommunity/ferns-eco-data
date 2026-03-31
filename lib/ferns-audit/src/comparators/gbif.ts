@@ -17,7 +17,7 @@ export async function runGbifComparators(
     results.push(matchResult);
 
     const usageKey = matchResult.rawFerns
-      ? (matchResult.rawFerns["usage_key"] as number | undefined)
+      ? ((matchResult.rawFerns["usageKey"] ?? matchResult.rawFerns["usage_key"]) as number | undefined)
       : undefined;
 
     if (usageKey) {

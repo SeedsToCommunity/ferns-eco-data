@@ -140,7 +140,42 @@ async function compareDatabaseBlob(
     }
 
     if (upstream.ok && fernsSpecies.length > 0) {
-      const sampleUpstream = [...upstream.species.values()].slice(0, 3);
+      const fernsNameSet = new Set(
+        fernsSpecies.map((s) => String(s["scientific_name"] ?? "").toLowerCase()),
+      );
+
+      let missingFromFerns = 0;
+      const missingExamples: string[] = [];
+      for (const [nameLower, upSp] of upstream.species.entries()) {
+        if (!fernsNameSet.has(nameLower)) {
+          missingFromFerns++;
+          if (missingExamples.length < 5) missingExamples.push(upSp.scientific_name);
+        }
+      }
+
+      const upstreamNameSet = upstream.species;
+      let extraInFerns = 0;
+      const extraExamples: string[] = [];
+      for (const sp of fernsSpecies) {
+        const name = String(sp["scientific_name"] ?? "").toLowerCase();
+        if (!upstreamNameSet.has(name)) {
+          extraInFerns++;
+          if (extraExamples.length < 5) extraExamples.push(String(sp["scientific_name"] ?? ""));
+        }
+      }
+
+      if (missingFromFerns === 0 && extraInFerns === 0) {
+        findings.push({ type: "ok", sourceField: "species[all].scientific_name", note: `All ${upstream.species.size} upstream species names are present in FERNS blob and vice versa` });
+      } else {
+        if (missingFromFerns > 0) {
+          findings.push({ type: "gap", sourceField: "species[all].scientific_name", note: `${missingFromFerns} upstream species not found in FERNS blob (e.g., ${missingExamples.join(", ")})` });
+        }
+        if (extraInFerns > 0) {
+          findings.push({ type: "addition", sourceField: "species[all].scientific_name", note: `${extraInFerns} FERNS blob species not in upstream (e.g., ${extraExamples.join(", ")})` });
+        }
+      }
+
+      const sampleUpstream = [...upstream.species.values()].slice(0, 10);
       for (const upSp of sampleUpstream) {
         const fernsMatch = fernsSpecies.find(
           (s) => typeof s["scientific_name"] === "string" &&
@@ -152,12 +187,12 @@ async function compareDatabaseBlob(
             (f) => String(upSp[f] ?? "").toLowerCase() !== String((fernsMatch[f] as unknown) ?? "").toLowerCase(),
           );
           if (mismatched.length === 0) {
-            findings.push({ type: "ok", sourceField: `species[${upSp.scientific_name}]`, note: `Spot-check: all fields match for "${upSp.scientific_name}"` });
+            findings.push({ type: "ok", sourceField: `species[${upSp.scientific_name}]`, note: `Field spot-check: all fields match for "${upSp.scientific_name}"` });
           } else {
-            findings.push({ type: "mismatch", sourceField: `species[${upSp.scientific_name}]`, note: `Spot-check mismatch on fields: ${mismatched.join(", ")} for "${upSp.scientific_name}"` });
+            findings.push({ type: "mismatch", sourceField: `species[${upSp.scientific_name}]`, note: `Field spot-check mismatch on: ${mismatched.join(", ")} for "${upSp.scientific_name}"` });
           }
         } else {
-          findings.push({ type: "gap", sourceField: `species[${upSp.scientific_name}]`, note: `Upstream species "${upSp.scientific_name}" not found in FERNS blob array` });
+          findings.push({ type: "gap", sourceField: `species[${upSp.scientific_name}]`, note: `Upstream species "${upSp.scientific_name}" not found in FERNS blob for field check` });
         }
       }
     }
@@ -390,7 +425,7 @@ async function compareAssessment(
   try {
     const [fernsRaw, upstreamRaw] = await Promise.all([
       fetchJson(fernsUrl) as Promise<Record<string, unknown>>,
-      fetchJson(`${UFQA_API}/assessment/${assessment.id}`) as Promise<Record<string, unknown>>,
+      fetchJson(`${UFQA_API}/inventory/${assessment.id}`) as Promise<Record<string, unknown>>,
     ]);
 
     const fernsEnvelope = fernsRaw as Record<string, unknown>;

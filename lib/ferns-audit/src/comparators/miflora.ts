@@ -18,19 +18,7 @@ export async function runMifloraComparators(
       ? (speciesResult.rawFerns as Record<string, unknown>)["plant_id"] as number | string | undefined
       : undefined;
 
-    if (plantId !== undefined && plantId !== null) {
-      results.push(await compareMifloraCounties(fernsBase, sp, plantId));
-    } else {
-      results.push({
-        source: "miflora",
-        endpoint: `/api/miflora/counties`,
-        label: `${sp.label} (${sp.name}) — Michigan Flora counties (skipped: no plant_id)`,
-        ok: true,
-        error: "Cannot run counties comparison without plant_id — species not found in Michigan Flora or no exact match",
-        findings: [],
-        urlsCollected: [],
-      });
-    }
+    results.push(await compareMifloraCounties(fernsBase, sp, plantId ?? null));
   }
   return results;
 }
@@ -127,26 +115,40 @@ async function compareMifloraSpecies(fernsBase: string, sp: TestSpecies): Promis
 async function compareMifloraCounties(
   fernsBase: string,
   sp: TestSpecies,
-  plantId: number | string,
+  plantId: number | string | null,
 ): Promise<EndpointComparison> {
   const fernsEndpoint = `/api/miflora/counties`;
-  const fernsUrl = `${fernsBase}${fernsEndpoint}?plant_id=${plantId}&refresh=true`;
-  const upstreamUrl = `${MIFLORA_API}/locs_sp?id=${plantId}`;
-  const label = `${sp.label} (plant_id=${plantId}) — Michigan Flora counties`;
+  const fernsUrl = `${fernsBase}${fernsEndpoint}?name=${encodeURIComponent(sp.name)}&refresh=true`;
+  const label = `${sp.label}${plantId !== null ? ` (plant_id=${plantId})` : ""} — Michigan Flora counties`;
 
   try {
-    const [fernsRaw, upstreamRaw] = await Promise.all([
-      fetchJson(fernsUrl) as Promise<Record<string, unknown>>,
-      fetchJson(upstreamUrl) as Promise<Record<string, unknown>>,
-    ]);
-
+    const fernsRaw = await fetchJson(fernsUrl) as Record<string, unknown>;
     const fernsEnvelope = fernsRaw as Record<string, unknown>;
     const fernsData = (fernsEnvelope.data ?? {}) as Record<string, unknown>;
     const fernsLocations = (fernsData.locations ?? []) as string[];
-    const upstreamLocations = (upstreamRaw.locations ?? []) as string[];
     const urlsCollected = collectUrls(fernsEnvelope, `miflora/counties:${sp.name}`);
 
     const findings: FieldFinding[] = [];
+
+    if (plantId === null) {
+      findings.push({
+        type: "ok",
+        sourceField: "locations",
+        note: `FERNS returned ${fernsLocations.length} counties — upstream comparison skipped (no plant_id from species lookup, species may not be in Michigan Flora)`,
+      });
+      return {
+        source: "miflora",
+        endpoint: `${fernsEndpoint}?name=${encodeURIComponent(sp.name)}`,
+        label,
+        ok: true,
+        rawFerns: fernsData,
+        findings,
+        urlsCollected,
+      };
+    }
+
+    const upstreamRaw = await fetchJson(`${MIFLORA_API}/locs_sp?id=${plantId}`) as Record<string, unknown>;
+    const upstreamLocations = (upstreamRaw.locations ?? []) as string[];
 
     if (fernsLocations.length === upstreamLocations.length) {
       findings.push({
@@ -202,7 +204,7 @@ async function compareMifloraCounties(
 
     return {
       source: "miflora",
-      endpoint: `${fernsEndpoint}?plant_id=${plantId}`,
+      endpoint: `${fernsEndpoint}?name=${encodeURIComponent(sp.name)}`,
       label,
       ok: true,
       rawSource: upstreamRaw,
@@ -213,7 +215,7 @@ async function compareMifloraCounties(
   } catch (err) {
     return {
       source: "miflora",
-      endpoint: `${fernsEndpoint}?plant_id=${plantId}`,
+      endpoint: `${fernsEndpoint}?name=${encodeURIComponent(sp.name)}`,
       label,
       ok: false,
       error: String(err),
