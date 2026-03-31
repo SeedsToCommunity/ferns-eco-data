@@ -1,6 +1,6 @@
 import { fetchJson, collectUrls } from "../http.js";
 import type { EndpointComparison, FieldFinding } from "../types.js";
-import type { TestVocabularyEntry } from "../corpus.js";
+import type { TestVocabularyEntry, TestWetlandWValue } from "../corpus.js";
 
 function envelopeFindings(envelope: Record<string, unknown>, context: string): FieldFinding[] {
   const findings: FieldFinding[] = [];
@@ -166,6 +166,7 @@ export async function runCoefficientChecks(
 export async function runWetlandIndicatorChecks(
   fernsBase: string,
   corpusEntries: TestVocabularyEntry[] = [],
+  wValues: TestWetlandWValue[] = [],
 ): Promise<EndpointComparison[]> {
   const allCheck = await checkEndpoint(
     "wetland-indicator",
@@ -213,7 +214,54 @@ export async function runWetlandIndicatorChecks(
     ),
   );
 
-  return [allCheck, ...perCodeChecks];
+  const perWValueChecks = await Promise.all(
+    wValues.map((wv) =>
+      checkEndpoint(
+        "wetland-indicator",
+        `/api/wetland-indicator/w?value=${wv.value}`,
+        `Wetland Indicator Status — W-value lookup (${wv.label})`,
+        fernsBase,
+        (envelope) => {
+          const data = envelope.data as Record<string, unknown> | null | undefined;
+          const findings: FieldFinding[] = [];
+
+          if (data?.code !== undefined) {
+            if (data.code === wv.expectedCode) {
+              findings.push({ type: "ok", sourceField: "data.code", fernsField: "data.code", fernsValue: data.code, note: `code matches expected: "${wv.expectedCode}"` });
+            } else {
+              findings.push({ type: "mismatch", sourceField: "data.code", fernsField: "data.code", sourceValue: wv.expectedCode, fernsValue: data.code });
+            }
+          } else {
+            findings.push({ type: "mismatch", sourceField: "data.code", note: `data.code missing from W-value response` });
+          }
+
+          if (data?.full_name !== undefined) {
+            if (data.full_name === wv.expectedFullName) {
+              findings.push({ type: "ok", sourceField: "data.full_name", fernsField: "data.full_name", fernsValue: data.full_name, note: `full_name matches expected: "${wv.expectedFullName}"` });
+            } else {
+              findings.push({ type: "mismatch", sourceField: "data.full_name", fernsField: "data.full_name", sourceValue: wv.expectedFullName, fernsValue: data.full_name });
+            }
+          } else {
+            findings.push({ type: "mismatch", sourceField: "data.full_name", note: `data.full_name missing from W-value response` });
+          }
+
+          if (data?.w_value !== undefined) {
+            if (data.w_value === wv.value) {
+              findings.push({ type: "ok", sourceField: "data.w_value", fernsField: "data.w_value", fernsValue: data.w_value, note: `w_value matches: ${wv.value}` });
+            } else {
+              findings.push({ type: "mismatch", sourceField: "data.w_value", fernsField: "data.w_value", sourceValue: wv.value, fernsValue: data.w_value });
+            }
+          } else {
+            findings.push({ type: "mismatch", sourceField: "data.w_value", note: `data.w_value missing from W-value response` });
+          }
+
+          return findings;
+        },
+      ),
+    ),
+  );
+
+  return [allCheck, ...perCodeChecks, ...perWValueChecks];
 }
 
 export async function runWucolsChecks(

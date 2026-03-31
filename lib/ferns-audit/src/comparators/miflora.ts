@@ -1,6 +1,6 @@
 import { fetchJson, collectUrls } from "../http.js";
 import { diffObjects } from "../diff.js";
-import type { EndpointComparison } from "../types.js";
+import type { EndpointComparison, FieldFinding } from "../types.js";
 import type { TestSpecies } from "../corpus.js";
 
 const MIFLORA_API = "https://michiganflora.net/api/v1.0";
@@ -11,7 +11,26 @@ export async function runMifloraComparators(
 ): Promise<EndpointComparison[]> {
   const results: EndpointComparison[] = [];
   for (const sp of species) {
-    results.push(await compareMifloraSpecies(fernsBase, sp));
+    const speciesResult = await compareMifloraSpecies(fernsBase, sp);
+    results.push(speciesResult);
+
+    const plantId = speciesResult.rawFerns
+      ? (speciesResult.rawFerns as Record<string, unknown>)["plant_id"] as number | string | undefined
+      : undefined;
+
+    if (plantId !== undefined && plantId !== null) {
+      results.push(await compareMifloraCounties(fernsBase, sp, plantId));
+    } else {
+      results.push({
+        source: "miflora",
+        endpoint: `/api/miflora/counties`,
+        label: `${sp.label} (${sp.name}) — Michigan Flora counties (skipped: no plant_id)`,
+        ok: true,
+        error: "Cannot run counties comparison without plant_id — species not found in Michigan Flora or no exact match",
+        findings: [],
+        urlsCollected: [],
+      });
+    }
   }
   return results;
 }
@@ -51,6 +70,7 @@ async function compareMifloraSpecies(fernsBase: string, sp: TestSpecies): Promis
         endpoint: `${fernsEndpoint}?name=${encodeURIComponent(sp.name)}`,
         label,
         ok: true,
+        rawFerns: fernsData,
         error: `FERNS found the species but no exact scientific_name match in search_records — cannot identify plant_id for upstream comparison`,
         findings: [],
         urlsCollected,
@@ -79,13 +99,15 @@ async function compareMifloraSpecies(fernsBase: string, sp: TestSpecies): Promis
       findings.push(...synonymFindings);
     }
 
+    const resultData = { ...fernsData, plant_id: plantId };
+
     return {
       source: "miflora",
       endpoint: `${fernsEndpoint}?name=${encodeURIComponent(sp.name)}`,
       label,
       ok: true,
       rawSource: upstreamSpecText as Record<string, unknown>,
-      rawFerns: fernsSpecText,
+      rawFerns: resultData,
       findings,
       urlsCollected,
     };
@@ -93,6 +115,105 @@ async function compareMifloraSpecies(fernsBase: string, sp: TestSpecies): Promis
     return {
       source: "miflora",
       endpoint: `${fernsEndpoint}?name=${encodeURIComponent(sp.name)}`,
+      label,
+      ok: false,
+      error: String(err),
+      findings: [],
+      urlsCollected: [],
+    };
+  }
+}
+
+async function compareMifloraCounties(
+  fernsBase: string,
+  sp: TestSpecies,
+  plantId: number | string,
+): Promise<EndpointComparison> {
+  const fernsEndpoint = `/api/miflora/counties`;
+  const fernsUrl = `${fernsBase}${fernsEndpoint}?plant_id=${plantId}&refresh=true`;
+  const upstreamUrl = `${MIFLORA_API}/locs_sp?id=${plantId}`;
+  const label = `${sp.label} (plant_id=${plantId}) — Michigan Flora counties`;
+
+  try {
+    const [fernsRaw, upstreamRaw] = await Promise.all([
+      fetchJson(fernsUrl) as Promise<Record<string, unknown>>,
+      fetchJson(upstreamUrl) as Promise<Record<string, unknown>>,
+    ]);
+
+    const fernsEnvelope = fernsRaw as Record<string, unknown>;
+    const fernsData = (fernsEnvelope.data ?? {}) as Record<string, unknown>;
+    const fernsLocations = (fernsData.locations ?? []) as string[];
+    const upstreamLocations = (upstreamRaw.locations ?? []) as string[];
+    const urlsCollected = collectUrls(fernsEnvelope, `miflora/counties:${sp.name}`);
+
+    const findings: FieldFinding[] = [];
+
+    if (fernsLocations.length === upstreamLocations.length) {
+      findings.push({
+        type: "ok",
+        sourceField: "locations.length",
+        fernsField: "locations.length",
+        fernsValue: fernsLocations.length,
+        note: `County count matches: ${fernsLocations.length} counties`,
+      });
+    } else {
+      findings.push({
+        type: "mismatch",
+        sourceField: "locations.length",
+        fernsField: "locations.length",
+        sourceValue: upstreamLocations.length,
+        fernsValue: fernsLocations.length,
+        note: `County count mismatch`,
+      });
+    }
+
+    if (fernsLocations.length > 0 || upstreamLocations.length > 0) {
+      const fernsSet = new Set(fernsLocations.map((l) => l.toLowerCase().trim()));
+      const upstreamSet = new Set(upstreamLocations.map((l) => l.toLowerCase().trim()));
+
+      const missingFromFerns = [...upstreamSet].filter((l) => !fernsSet.has(l));
+      const extraInFerns = [...fernsSet].filter((l) => !upstreamSet.has(l));
+
+      if (missingFromFerns.length === 0 && extraInFerns.length === 0) {
+        findings.push({
+          type: "ok",
+          sourceField: "locations",
+          note: `All ${fernsLocations.length} county names match upstream exactly`,
+        });
+      } else {
+        if (missingFromFerns.length > 0) {
+          findings.push({
+            type: "gap",
+            sourceField: "locations",
+            note: `${missingFromFerns.length} counties in upstream not in FERNS: ${missingFromFerns.slice(0, 5).join(", ")}${missingFromFerns.length > 5 ? "..." : ""}`,
+          });
+        }
+        if (extraInFerns.length > 0) {
+          findings.push({
+            type: "addition",
+            sourceField: "locations",
+            note: `${extraInFerns.length} counties in FERNS not in upstream: ${extraInFerns.slice(0, 5).join(", ")}${extraInFerns.length > 5 ? "..." : ""}`,
+          });
+        }
+      }
+    } else {
+      findings.push({ type: "ok", sourceField: "locations", note: "Both FERNS and upstream returned no counties (species may have no Michigan occurrences)" });
+    }
+
+    return {
+      source: "miflora",
+      endpoint: `${fernsEndpoint}?plant_id=${plantId}`,
+      label,
+      ok: true,
+      rawSource: upstreamRaw,
+      rawFerns: fernsData,
+      findings,
+      urlsCollected,
+    };
+  } catch (err) {
+    return {
+      source: "miflora",
+      endpoint: `${fernsEndpoint}?plant_id=${plantId}`,
       label,
       ok: false,
       error: String(err),

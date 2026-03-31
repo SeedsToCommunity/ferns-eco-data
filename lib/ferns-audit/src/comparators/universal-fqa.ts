@@ -18,6 +18,8 @@ export async function runUniversalFqaComparators(
 
   const upstream = await fetchUpstreamDatabase(AUDIT_DATABASE_ID);
 
+  results.push(await compareDatabaseBlob(fernsBase, AUDIT_DATABASE_ID, AUDIT_DATABASE_LABEL, upstream));
+
   for (const sp of species) {
     results.push(await compareSpeciesLookup(fernsBase, sp, upstream));
   }
@@ -63,6 +65,110 @@ async function checkDatabaseList(fernsBase: string): Promise<EndpointComparison>
       label,
       ok: true,
       rawFerns: data,
+      findings,
+      urlsCollected,
+    };
+  } catch (err) {
+    return {
+      source: "universal-fqa",
+      endpoint: fernsEndpoint,
+      label,
+      ok: false,
+      error: String(err),
+      findings: [],
+      urlsCollected: [],
+    };
+  }
+}
+
+async function compareDatabaseBlob(
+  fernsBase: string,
+  databaseId: number,
+  databaseLabel: string,
+  upstream: UpstreamDatabaseResult,
+): Promise<EndpointComparison> {
+  const fernsEndpoint = `/api/universal-fqa/databases/${databaseId}`;
+  const fernsUrl = `${fernsBase}${fernsEndpoint}`;
+  const label = `Universal FQA — database blob (${databaseLabel})`;
+
+  try {
+    const fernsRaw = await fetchJson(fernsUrl) as Record<string, unknown>;
+    const fernsEnvelope = fernsRaw as Record<string, unknown>;
+    const fernsData = (fernsEnvelope.data ?? {}) as Record<string, unknown>;
+    const urlsCollected = collectUrls(fernsEnvelope, `universal-fqa/databases/${databaseId}`);
+
+    const findings: FieldFinding[] = [];
+
+    if (!fernsEnvelope.found) {
+      findings.push({ type: "gap", sourceField: "found", note: `FERNS returned found: false for database ${databaseId}` });
+      return {
+        source: "universal-fqa",
+        endpoint: fernsEndpoint,
+        label,
+        ok: true,
+        findings,
+        urlsCollected,
+      };
+    }
+
+    const fernsSpecies = (fernsData.species ?? []) as Array<Record<string, unknown>>;
+    const upstreamCount = upstream.species.size;
+    const fernsCount = fernsSpecies.length;
+    const fernsTotalSpecies = fernsData.total_species as number | undefined;
+
+    if (fernsCount === upstreamCount) {
+      findings.push({ type: "ok", sourceField: "species.length", fernsField: "species.length", fernsValue: fernsCount, note: `Species array length matches upstream: ${fernsCount}` });
+    } else {
+      findings.push({ type: "mismatch", sourceField: "species.length", fernsField: "species.length", sourceValue: upstreamCount, fernsValue: fernsCount, note: `Species array length mismatch vs upstream parsed count` });
+    }
+
+    if (fernsTotalSpecies !== undefined) {
+      if (fernsTotalSpecies === upstreamCount) {
+        findings.push({ type: "ok", sourceField: "total_species", fernsField: "total_species", fernsValue: fernsTotalSpecies, note: `total_species field matches upstream count: ${fernsTotalSpecies}` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "total_species", fernsField: "total_species", sourceValue: upstreamCount, fernsValue: fernsTotalSpecies });
+      }
+    }
+
+    const metaFields = ["region", "year", "citation"] as const;
+    for (const field of metaFields) {
+      if (fernsData[field] !== undefined) {
+        findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: fernsData[field], note: `${field} present: ${String(fernsData[field])}` });
+      } else {
+        findings.push({ type: "gap", sourceField: field, note: `${field} missing from FERNS blob response` });
+      }
+    }
+
+    if (upstream.ok && fernsSpecies.length > 0) {
+      const sampleUpstream = [...upstream.species.values()].slice(0, 3);
+      for (const upSp of sampleUpstream) {
+        const fernsMatch = fernsSpecies.find(
+          (s) => typeof s["scientific_name"] === "string" &&
+            s["scientific_name"].toLowerCase() === upSp.scientific_name.toLowerCase(),
+        );
+        if (fernsMatch) {
+          const fieldChecks: Array<keyof typeof upSp> = ["family", "acronym", "native", "physiognomy", "duration", "common_name"];
+          const mismatched = fieldChecks.filter(
+            (f) => String(upSp[f] ?? "").toLowerCase() !== String((fernsMatch[f] as unknown) ?? "").toLowerCase(),
+          );
+          if (mismatched.length === 0) {
+            findings.push({ type: "ok", sourceField: `species[${upSp.scientific_name}]`, note: `Spot-check: all fields match for "${upSp.scientific_name}"` });
+          } else {
+            findings.push({ type: "mismatch", sourceField: `species[${upSp.scientific_name}]`, note: `Spot-check mismatch on fields: ${mismatched.join(", ")} for "${upSp.scientific_name}"` });
+          }
+        } else {
+          findings.push({ type: "gap", sourceField: `species[${upSp.scientific_name}]`, note: `Upstream species "${upSp.scientific_name}" not found in FERNS blob array` });
+        }
+      }
+    }
+
+    return {
+      source: "universal-fqa",
+      endpoint: fernsEndpoint,
+      label,
+      ok: true,
+      rawFerns: { total_species: fernsCount, region: fernsData["region"], year: fernsData["year"] },
+      rawSource: { total_species: upstreamCount },
       findings,
       urlsCollected,
     };

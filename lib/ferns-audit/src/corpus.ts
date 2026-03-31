@@ -100,6 +100,21 @@ export const TEST_WETLAND_CODES: TestVocabularyEntry[] = [
   },
 ];
 
+export interface TestWetlandWValue {
+  value: number;
+  label: string;
+  expectedCode: string;
+  expectedFullName: string;
+}
+
+export const TEST_WETLAND_W_VALUES: TestWetlandWValue[] = [
+  { value: -5, label: "W=-5 → OBL", expectedCode: "OBL", expectedFullName: "Obligate Wetland" },
+  { value: -3, label: "W=-3 → FACW", expectedCode: "FACW", expectedFullName: "Facultative Wetland" },
+  { value: 0, label: "W=0 → FAC", expectedCode: "FAC", expectedFullName: "Facultative" },
+  { value: 3, label: "W=3 → FACU", expectedCode: "FACU", expectedFullName: "Facultative Upland" },
+  { value: 5, label: "W=5 → UPL", expectedCode: "UPL", expectedFullName: "Obligate Upland" },
+];
+
 export const TEST_WUCOLS_CODES: TestVocabularyEntry[] = [
   {
     key: "VL",

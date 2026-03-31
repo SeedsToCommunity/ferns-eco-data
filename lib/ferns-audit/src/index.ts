@@ -11,6 +11,7 @@ import {
   TEST_GBIF_SEARCHES,
   TEST_COEFFICIENT_VALUES,
   TEST_WETLAND_CODES,
+  TEST_WETLAND_W_VALUES,
   TEST_WUCOLS_CODES,
   TEST_S2C_YEARS,
   TEST_UFQA_ASSESSMENTS,
@@ -66,7 +67,7 @@ async function main(): Promise<void> {
   process.stderr.write("Running static source health checks (Coefficient, Wetland Indicator, WUCOLS, S2C)...\n");
   const [coeffChecks, wetlandChecks, wucolsChecks, s2cChecks] = await Promise.all([
     runCoefficientChecks(fernsBase, TEST_COEFFICIENT_VALUES),
-    runWetlandIndicatorChecks(fernsBase, TEST_WETLAND_CODES),
+    runWetlandIndicatorChecks(fernsBase, TEST_WETLAND_CODES, TEST_WETLAND_W_VALUES),
     runWucolsChecks(fernsBase, TEST_WUCOLS_CODES),
     runS2CChecks(fernsBase, TEST_S2C_YEARS),
   ]);
