@@ -7,7 +7,7 @@
  */
 
 /**
- * Raw passthrough response from Michigan Flora. Contains search_records (array from flora_search_sp — may include subspecies and varieties), spec_text (taxonomic details and description), synonyms (raw response — either {synonyms:[...]} or {message:'No synonyms found'}), and pimage_info (image metadata). All source fields are returned unchanged. The st field uses the literal string 'NULL' for unknown/absent status. The c field is always a string; '*' means adventive (non-native). Null when found is false.
+ * Passthrough response from Michigan Flora. Contains search_records (array from flora_search_sp — may include subspecies and varieties), spec_text (taxonomic details and description), synonyms (raw response — either {synonyms:[...]} or {message:'No synonyms found'}), and pimage_info (primary image metadata). pimage_info is additively enriched by FERNS with image_url and thumbnail_url (constructed absolute URLs). All other source fields are returned unchanged. The st field uses the literal string 'NULL' for unknown/absent status. The c field is always a string; '*' means adventive (non-native). Null when found is false.
 
  */
 export type MifloraSpeciesResponseData = { [key: string]: unknown } | null;

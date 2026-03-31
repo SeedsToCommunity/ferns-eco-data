@@ -1245,7 +1245,7 @@ export const GetInatMetadataResponse = zod.object({
 });
 
 /**
- * Looks up a vascular plant species in the Michigan Flora REST API. Returns the complete passthrough response from Michigan Flora: all search records from flora_search_sp, spec_text (taxonomic details and description), synonyms, and plant images. Two to four API calls are required per lookup. Results are cached 30 days for found species; 7 days for not-found. The st field in source records uses the literal string 'NULL' (not JSON null) for unknown or absent status — this is a quirk of the Michigan Flora API. The c field is always a string; '*' indicates an adventive (non-native) species. Scientific names for adventive species are returned ALL-CAPS by the source API.
+ * Looks up a vascular plant species in the Michigan Flora REST API. Returns the complete passthrough response from Michigan Flora: all search records from flora_search_sp, spec_text (taxonomic details and description), synonyms, and plant images. Two to four API calls are required per lookup. Results are cached permanently (no TTL) — Michigan Flora data does not change; use ?refresh=true to force a re-fetch from upstream. The pimage_info object in the response is addtively enriched by FERNS with two computed fields: image_url and thumbnail_url (constructed from the plant_id and image_id using the Michigan Flora static asset URL formula). All other source fields are returned unchanged. The st field in source records uses the literal string 'NULL' (not JSON null) for unknown or absent status — this is a quirk of the Michigan Flora API. The c field is always a string; '*' indicates an adventive (non-native) species. Scientific names for adventive species are returned ALL-CAPS by the source API.
 
  * @summary Look up a species in Michigan Flora
  */
@@ -1280,7 +1280,7 @@ export const GetMifloraSpeciesResponse = zod
       .record(zod.string(), zod.unknown())
       .nullish()
       .describe(
-        "Raw passthrough response from Michigan Flora. Contains search_records (array from flora_search_sp — may include subspecies and varieties), spec_text (taxonomic details and description), synonyms (raw response — either {synonyms:[...]} or {message:'No synonyms found'}), and pimage_info (image metadata). All source fields are returned unchanged. The st field uses the literal string 'NULL' for unknown\/absent status. The c field is always a string; '\*' means adventive (non-native). Null when found is false.\n",
+        "Passthrough response from Michigan Flora. Contains search_records (array from flora_search_sp — may include subspecies and varieties), spec_text (taxonomic details and description), synonyms (raw response — either {synonyms:[...]} or {message:'No synonyms found'}), and pimage_info (primary image metadata). pimage_info is additively enriched by FERNS with image_url and thumbnail_url (constructed absolute URLs). All other source fields are returned unchanged. The st field uses the literal string 'NULL' for unknown\/absent status. The c field is always a string; '\*' means adventive (non-native). Null when found is false.\n",
       ),
     provenance: zod
       .object({
@@ -1322,11 +1322,11 @@ export const GetMifloraSpeciesResponse = zod
       ),
   })
   .describe(
-    "FERNS envelope for Michigan Flora species lookup. data contains the raw passthrough response from Michigan Flora — all source fields are returned unchanged with original field names.\n",
+    "FERNS envelope for Michigan Flora species lookup. data contains the passthrough response from Michigan Flora with one additive enrichment: pimage_info is augmented with image_url and thumbnail_url fields constructed from the plant_id and image_id using the Michigan Flora static asset URL formula. All other source fields are returned unchanged.\n",
   );
 
 /**
- * Returns county-level occurrence records for all 83 Michigan counties for the given species name. Two-step lookup: first calls flora_search_sp?scientific_name={name} to resolve the plant_id, then calls locs_sp?id={plant_id} for county data. Results are the raw passthrough response from the Michigan Flora county API endpoint. Cached 30 days per normalized species name.
+ * Returns county-level occurrence records for all 83 Michigan counties for the given species name. Two-step lookup: first calls flora_search_sp?scientific_name={name} to resolve the plant_id, then calls locs_sp?id={plant_id} for county data. Results are the raw passthrough response from the Michigan Flora county API endpoint. Cached permanently (no TTL) — Michigan Flora data does not change; use ?refresh=true to force a re-fetch from upstream.
 
  * @summary Get county-level occurrence records for a Michigan Flora species by name
  */
