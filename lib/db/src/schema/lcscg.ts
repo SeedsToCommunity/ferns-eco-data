@@ -37,7 +37,7 @@ export const lcscgSpeciesTable = pgTable(
       .notNull()
       .$type<Array<{ name: string; description: string; images: string[] }>>(),
     image_filenames: jsonb("image_filenames").notNull().$type<string[]>(),
-    image_urls: jsonb("image_urls").notNull().$type<string[]>(),
+    image_urls: jsonb("image_urls").notNull().$type<(string | null)[]>(),
     page_number: integer("page_number").notNull(),
     imported_at: timestamp("imported_at", { withTimezone: true }).defaultNow().notNull(),
   },

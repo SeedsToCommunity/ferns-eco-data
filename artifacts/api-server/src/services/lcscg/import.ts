@@ -224,9 +224,7 @@ export async function importLcscg(filterGuideIds?: number[]): Promise<{ guidesUp
 
         const imageFilenames = Array.isArray(sp.images) ? sp.images : [];
         const imageUrls = imageFilenames.map((filename) => {
-          const url = cloudinaryMap.get(filename);
-          if (url) return url;
-          return buildCloudinaryUrl(CLOUDINARY_CLOUD_NAME, meta.cloudinary_folder, filename);
+          return cloudinaryMap.get(filename) ?? null;
         });
 
         await db

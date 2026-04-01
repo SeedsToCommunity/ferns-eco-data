@@ -468,6 +468,21 @@ export async function runLcscgChecks(fernsBase: string): Promise<EndpointCompari
       const spRecord = records.find((r) => r["guide_id"] === 1280);
       if (spRecord) {
         findings.push({ type: "ok", sourceField: "data.records[].guide_id", note: `Record in guide 1280 (Fall Grasses and Kin) — expected` });
+        // family assertion
+        const family = typeof spRecord["family"] === "string" ? spRecord["family"] : "";
+        if (family === "Poaceae") {
+          findings.push({ type: "ok", sourceField: "data.records[guide_1280].family", note: `family = "Poaceae" (expected for Sporobolus heterolepis)` });
+        } else {
+          findings.push({ type: "mismatch", sourceField: "data.records[guide_1280].family", note: `Expected family "Poaceae", got "${family}"` });
+        }
+        // seed_group_names Shattering assertion
+        const sgnRaw = spRecord["seed_group_names"];
+        const sgn = Array.isArray(sgnRaw) ? (sgnRaw as string[]) : [];
+        if (sgn.includes("Shattering")) {
+          findings.push({ type: "ok", sourceField: "data.records[guide_1280].seed_group_names", note: `"Shattering" present in seed_group_names` });
+        } else {
+          findings.push({ type: "gap", sourceField: "data.records[guide_1280].seed_group_names", note: `"Shattering" absent from seed_group_names (${JSON.stringify(sgn)}) — expected for Prairie Dropseed` });
+        }
         const urls = Array.isArray(spRecord["image_urls"]) ? spRecord["image_urls"] as Array<string | null> : [];
         const nonNull = urls.filter((u) => u !== null && u !== "");
         if (nonNull.length === 3) {

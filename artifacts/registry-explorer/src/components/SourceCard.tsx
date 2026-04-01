@@ -198,20 +198,20 @@ export function SourceCard({ source, index }: SourceCardProps) {
 
         {/* Actions */}
         <div className="mt-auto pt-4 border-t border-border flex flex-wrap gap-3">
-          <a
-            href={source.explorer_url || "#"}
-            className={cn(
-              "flex-1 inline-flex justify-center items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200",
-              source.explorer_url
-                ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90 hover:-translate-y-0.5"
-                : "bg-muted text-muted-foreground opacity-50 cursor-not-allowed pointer-events-none"
-            )}
-            target={source.explorer_url?.startsWith('http') ? "_blank" : "_self"}
-            rel={source.explorer_url?.startsWith('http') ? "noopener noreferrer" : undefined}
-          >
-            <Map className="w-4 h-4" />
-            Explorer
-          </a>
+          {source.explorer_url ? (
+            <Link
+              href={(() => { try { return new URL(source.explorer_url).pathname; } catch { return source.explorer_url; } })()}
+              className="flex-1 inline-flex justify-center items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90 hover:-translate-y-0.5"
+            >
+              <Map className="w-4 h-4" />
+              Explorer
+            </Link>
+          ) : (
+            <span className={cn("flex-1 inline-flex justify-center items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 bg-muted text-muted-foreground opacity-50 cursor-not-allowed pointer-events-none")}>
+              <Map className="w-4 h-4" />
+              Explorer
+            </span>
+          )}
 
           {source.metadata_url ? (
             <Link
