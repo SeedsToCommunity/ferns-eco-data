@@ -2575,6 +2575,443 @@ export const GetS2CMetadataResponse = zod.object({
 });
 
 /**
+ * Returns service identity, permission status, guide count, species count, and the full registry entry for the Lake County Seed Collection Guides source. Also seeds the registry entry on first call.
+
+ * @summary Lake County Seed Collection Guides service metadata
+ */
+export const GetLcscgMetadataResponse = zod.object({
+  service_id: zod.string(),
+  service_name: zod.string(),
+  permission_granted: zod.boolean(),
+  permission_status: zod.string(),
+  guide_count: zod.number(),
+  species_count: zod.number(),
+  registry_entry: zod.record(zod.string(), zod.unknown()),
+  queried_at: zod.date().optional(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+});
+
+/**
+ * Returns all 12 guide records (Field Museum Guide IDs 1271–1282), including title, season, habitat type, license, Cloudinary folder name, and harvest notes.
+
+ * @summary List all Lake County Seed Collection Guides
+ */
+export const GetLcscgGuidesResponse = zod.object({
+  found: zod.boolean(),
+  queried_at: zod.date(),
+  source_url: zod.string(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+  data: zod
+    .object({
+      guide_count: zod.number().optional(),
+      guides: zod
+        .array(
+          zod.object({
+            guide_id: zod
+              .number()
+              .describe("Field Museum Guide ID (1271–1282)"),
+            title: zod.string(),
+            subtitle: zod.string(),
+            season: zod.enum(["spring", "summer", "fall", "all"]),
+            habitat_type: zod.enum([
+              "woodland",
+              "wetland",
+              "prairie",
+              "grasses_and_kin",
+              "asters_and_goldenrods",
+              "woody_plants",
+            ]),
+            authors: zod.string(),
+            license: zod.string(),
+            attribution_text: zod.string(),
+            harvest_notes: zod.string(),
+            version: zod.string(),
+            field_museum_url: zod.string(),
+            cloudinary_folder: zod.string(),
+            status: zod.string(),
+            imported_at: zod.date(),
+          }),
+        )
+        .optional(),
+    })
+    .nullable(),
+});
+
+/**
+ * Returns all species records for the specified guide (Field Museum Guide ID 1271–1282). Each species record includes harvest notes, seed dispersal categories, photo date, plant family, and Cloudinary image URLs.
+
+ * @summary Get species list for a single Lake County Seed Collection Guide
+ */
+export const getLcscgGuidePathGuideIdMin = 1271;
+export const getLcscgGuidePathGuideIdMax = 1282;
+
+export const GetLcscgGuideParams = zod.object({
+  guideId: zod.coerce
+    .number()
+    .min(getLcscgGuidePathGuideIdMin)
+    .max(getLcscgGuidePathGuideIdMax)
+    .describe("Field Museum Guide ID (1271–1282)."),
+});
+
+export const GetLcscgGuideResponse = zod.object({
+  found: zod.boolean(),
+  queried_at: zod.date(),
+  source_url: zod.string(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+  data: zod
+    .union([
+      zod.object({
+        guide: zod
+          .object({
+            guide_id: zod
+              .number()
+              .describe("Field Museum Guide ID (1271–1282)"),
+            title: zod.string(),
+            subtitle: zod.string(),
+            season: zod.enum(["spring", "summer", "fall", "all"]),
+            habitat_type: zod.enum([
+              "woodland",
+              "wetland",
+              "prairie",
+              "grasses_and_kin",
+              "asters_and_goldenrods",
+              "woody_plants",
+            ]),
+            authors: zod.string(),
+            license: zod.string(),
+            attribution_text: zod.string(),
+            harvest_notes: zod.string(),
+            version: zod.string(),
+            field_museum_url: zod.string(),
+            cloudinary_folder: zod.string(),
+            status: zod.string(),
+            imported_at: zod.date(),
+          })
+          .optional(),
+        species_count: zod.number().optional(),
+        species: zod
+          .array(
+            zod.object({
+              id: zod.number(),
+              guide_id: zod
+                .number()
+                .describe("Field Museum Guide ID (1271–1282)"),
+              species_id: zod
+                .string()
+                .describe("Per-guide species identifier string"),
+              scientific_name: zod
+                .string()
+                .describe(
+                  "Scientific name per Flora of the Chicago Region (Wilhelm & Rericha, 2017)",
+                ),
+              common_name: zod.string(),
+              family: zod.string(),
+              photo_date: zod
+                .string()
+                .describe(
+                  "Reference photograph date (M-D-YY format). Approximates seed collection timing; varies by microclimate, proximity to Lake Michigan, slope, and sun\/shade.\n",
+                ),
+              description: zod
+                .string()
+                .describe("Authors' harvest notes for this species"),
+              seed_group_names: zod
+                .array(zod.string())
+                .describe(
+                  "Seed dispersal category names (e.g., Elaiosomes, Ballistic, Fluffy, Milkweed, Berries, Mama's Boys, Shakers, Beaks, Coneheads, Crumbly Coneheads, Shattering, Hitchhikers, Do Not Collect)\n",
+                ),
+              seed_group_details: zod.array(
+                zod.object({
+                  name: zod.string().describe("Seed dispersal category name"),
+                  description: zod
+                    .string()
+                    .describe(
+                      "Harvest technique description for this seed group",
+                    ),
+                  images: zod
+                    .array(zod.string())
+                    .describe("Image filenames for this seed group"),
+                }),
+              ),
+              image_filenames: zod
+                .array(zod.string())
+                .describe("Original image filenames from the guide"),
+              image_urls: zod
+                .array(zod.string())
+                .describe("Cloudinary CDN URLs for guide photographs"),
+              page_number: zod
+                .number()
+                .describe("Page number within the guide"),
+              imported_at: zod.date(),
+              guide_title: zod
+                .string()
+                .nullish()
+                .describe("Present in \/lcscg\/species search results"),
+              guide_season: zod
+                .string()
+                .nullish()
+                .describe("Present in \/lcscg\/species search results"),
+              guide_habitat_type: zod
+                .string()
+                .nullish()
+                .describe("Present in \/lcscg\/species search results"),
+              guide_cloudinary_folder: zod
+                .string()
+                .nullish()
+                .describe("Present in \/lcscg\/species search results"),
+            }),
+          )
+          .optional(),
+      }),
+      zod.null(),
+    ])
+    .nullish(),
+});
+
+/**
+ * Returns species records matching the given name (partial match against scientific_name and common_name, case-insensitive) across all 12 guides. Results include harvest notes, seed dispersal categories, photo date, plant family, guide context, and Cloudinary image URLs.
+
+ * @summary Search Lake County Seed Collection Guides species by name
+ */
+export const GetLcscgSpeciesQueryParams = zod.object({
+  name: zod.coerce
+    .string()
+    .describe(
+      "Scientific or common name to search (partial match, case-insensitive).\n",
+    ),
+});
+
+export const GetLcscgSpeciesResponse = zod.object({
+  found: zod.boolean(),
+  queried_at: zod.date(),
+  source_url: zod.string(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      derivation_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      derivation_scientific: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+    ),
+  data: zod
+    .object({
+      queried_name: zod.string().optional(),
+      result_count: zod.number().optional(),
+      records: zod
+        .array(
+          zod.object({
+            id: zod.number(),
+            guide_id: zod
+              .number()
+              .describe("Field Museum Guide ID (1271–1282)"),
+            species_id: zod
+              .string()
+              .describe("Per-guide species identifier string"),
+            scientific_name: zod
+              .string()
+              .describe(
+                "Scientific name per Flora of the Chicago Region (Wilhelm & Rericha, 2017)",
+              ),
+            common_name: zod.string(),
+            family: zod.string(),
+            photo_date: zod
+              .string()
+              .describe(
+                "Reference photograph date (M-D-YY format). Approximates seed collection timing; varies by microclimate, proximity to Lake Michigan, slope, and sun\/shade.\n",
+              ),
+            description: zod
+              .string()
+              .describe("Authors' harvest notes for this species"),
+            seed_group_names: zod
+              .array(zod.string())
+              .describe(
+                "Seed dispersal category names (e.g., Elaiosomes, Ballistic, Fluffy, Milkweed, Berries, Mama's Boys, Shakers, Beaks, Coneheads, Crumbly Coneheads, Shattering, Hitchhikers, Do Not Collect)\n",
+              ),
+            seed_group_details: zod.array(
+              zod.object({
+                name: zod.string().describe("Seed dispersal category name"),
+                description: zod
+                  .string()
+                  .describe(
+                    "Harvest technique description for this seed group",
+                  ),
+                images: zod
+                  .array(zod.string())
+                  .describe("Image filenames for this seed group"),
+              }),
+            ),
+            image_filenames: zod
+              .array(zod.string())
+              .describe("Original image filenames from the guide"),
+            image_urls: zod
+              .array(zod.string())
+              .describe("Cloudinary CDN URLs for guide photographs"),
+            page_number: zod.number().describe("Page number within the guide"),
+            imported_at: zod.date(),
+            guide_title: zod
+              .string()
+              .nullish()
+              .describe("Present in \/lcscg\/species search results"),
+            guide_season: zod
+              .string()
+              .nullish()
+              .describe("Present in \/lcscg\/species search results"),
+            guide_habitat_type: zod
+              .string()
+              .nullish()
+              .describe("Present in \/lcscg\/species search results"),
+            guide_cloudinary_folder: zod
+              .string()
+              .nullish()
+              .describe("Present in \/lcscg\/species search results"),
+          }),
+        )
+        .optional(),
+    })
+    .nullable(),
+});
+
+/**
  * Returns a summary entry for every registered FERNS Knowledge Service. This is the primary discovery endpoint. Each entry contains enough information to make a routing decision without a follow-up call to individual /metadata endpoints.
 
  * @summary List all registered FERNS Knowledge Services

@@ -317,6 +317,107 @@ export async function runWucolsChecks(
   return [allCheck, ...perCodeChecks];
 }
 
+export async function runLcscgChecks(fernsBase: string): Promise<EndpointComparison[]> {
+  const metadataCheck = await checkEndpoint(
+    "lcscg",
+    "/api/lcscg/metadata",
+    "LCSCG — service metadata",
+    fernsBase,
+    (envelope) => {
+      const findings: FieldFinding[] = [];
+      const ec = envelope as Record<string, unknown>;
+      if (typeof ec.guide_count === "number" && ec.guide_count > 0) {
+        findings.push({ type: "ok", sourceField: "guide_count", note: `${ec.guide_count} guides` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "guide_count", note: `guide_count missing or 0` });
+      }
+      if (typeof ec.species_count === "number" && ec.species_count > 0) {
+        findings.push({ type: "ok", sourceField: "species_count", note: `${ec.species_count} species` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "species_count", note: `species_count missing or 0` });
+      }
+      return findings;
+    },
+  );
+
+  const guidesCheck = await checkEndpoint(
+    "lcscg",
+    "/api/lcscg/guides",
+    "LCSCG — guides list",
+    fernsBase,
+    (envelope) => {
+      const findings: FieldFinding[] = [];
+      const data = envelope.data as Record<string, unknown> | null | undefined;
+      const guides = Array.isArray(data?.guides) ? data.guides : [];
+      if (guides.length === 12) {
+        findings.push({ type: "ok", sourceField: "data.guides", note: `12 guides returned (expected)` });
+      } else if (guides.length > 0) {
+        findings.push({ type: "mismatch", sourceField: "data.guides", note: `Expected 12 guides, got ${guides.length}` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.guides", note: `No guides returned — import may not have run` });
+      }
+      return findings;
+    },
+  );
+
+  const guideDetailCheck = await checkEndpoint(
+    "lcscg",
+    "/api/lcscg/guide/1271",
+    "LCSCG — guide detail (ID 1271, Summer Woodland Forbs)",
+    fernsBase,
+    (envelope) => {
+      const findings: FieldFinding[] = [];
+      const data = envelope.data as Record<string, unknown> | null | undefined;
+      if (!data) {
+        findings.push({ type: "mismatch", sourceField: "data", note: `No data returned — guide 1271 not found` });
+        return findings;
+      }
+      const guide = data.guide as Record<string, unknown> | undefined;
+      if (guide?.title) {
+        findings.push({ type: "ok", sourceField: "data.guide.title", note: `Guide title: ${guide.title}` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.guide.title", note: `Guide title missing` });
+      }
+      const speciesCount = typeof data.species_count === "number" ? data.species_count : 0;
+      if (speciesCount > 0) {
+        findings.push({ type: "ok", sourceField: "data.species_count", note: `${speciesCount} species in guide 1271` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.species_count", note: `No species in guide 1271 — import may not have run` });
+      }
+      return findings;
+    },
+  );
+
+  const speciesSearchCheck = await checkEndpoint(
+    "lcscg",
+    "/api/lcscg/species?name=Asclepias",
+    "LCSCG — species name search (Asclepias)",
+    fernsBase,
+    (envelope) => {
+      const findings: FieldFinding[] = [];
+      const data = envelope.data as Record<string, unknown> | null | undefined;
+      const resultCount = typeof data?.result_count === "number" ? data.result_count : 0;
+      if (resultCount > 0) {
+        findings.push({ type: "ok", sourceField: "data.result_count", note: `${resultCount} records for "Asclepias"` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.result_count", note: `No records for "Asclepias" — import may not have run or no Asclepias in guides` });
+      }
+      const records = Array.isArray(data?.records) ? data.records : [];
+      if (records.length > 0) {
+        const first = records[0] as Record<string, unknown>;
+        if (first.image_urls && Array.isArray(first.image_urls) && first.image_urls.length > 0) {
+          findings.push({ type: "ok", sourceField: "data.records[0].image_urls", note: `image_urls populated: ${first.image_urls.length} URLs` });
+        } else {
+          findings.push({ type: "gap", sourceField: "data.records[0].image_urls", note: `image_urls missing or empty for first record` });
+        }
+      }
+      return findings;
+    },
+  );
+
+  return [metadataCheck, guidesCheck, guideDetailCheck, speciesSearchCheck];
+}
+
 export async function runS2CChecks(
   fernsBase: string,
   years: number[] = [],

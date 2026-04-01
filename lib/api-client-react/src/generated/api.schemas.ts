@@ -1296,6 +1296,146 @@ export interface UniversalFqaMetadataResponse {
   provenance: FernsProvenance;
 }
 
+export type LcscgGuideSeason =
+  (typeof LcscgGuideSeason)[keyof typeof LcscgGuideSeason];
+
+export const LcscgGuideSeason = {
+  spring: "spring",
+  summer: "summer",
+  fall: "fall",
+  all: "all",
+} as const;
+
+export type LcscgGuideHabitatType =
+  (typeof LcscgGuideHabitatType)[keyof typeof LcscgGuideHabitatType];
+
+export const LcscgGuideHabitatType = {
+  woodland: "woodland",
+  wetland: "wetland",
+  prairie: "prairie",
+  grasses_and_kin: "grasses_and_kin",
+  asters_and_goldenrods: "asters_and_goldenrods",
+  woody_plants: "woody_plants",
+} as const;
+
+export interface LcscgGuide {
+  /** Field Museum Guide ID (1271–1282) */
+  guide_id: number;
+  title: string;
+  subtitle: string;
+  season: LcscgGuideSeason;
+  habitat_type: LcscgGuideHabitatType;
+  authors: string;
+  license: string;
+  attribution_text: string;
+  harvest_notes: string;
+  version: string;
+  field_museum_url: string;
+  cloudinary_folder: string;
+  status: string;
+  imported_at: string;
+}
+
+export interface LcscgSeedGroupDetail {
+  /** Seed dispersal category name */
+  name: string;
+  /** Harvest technique description for this seed group */
+  description: string;
+  /** Image filenames for this seed group */
+  images: string[];
+}
+
+export interface LcscgSpeciesRecord {
+  id: number;
+  /** Field Museum Guide ID (1271–1282) */
+  guide_id: number;
+  /** Per-guide species identifier string */
+  species_id: string;
+  /** Scientific name per Flora of the Chicago Region (Wilhelm & Rericha, 2017) */
+  scientific_name: string;
+  common_name: string;
+  family: string;
+  /** Reference photograph date (M-D-YY format). Approximates seed collection timing; varies by microclimate, proximity to Lake Michigan, slope, and sun/shade.
+   */
+  photo_date: string;
+  /** Authors' harvest notes for this species */
+  description: string;
+  /** Seed dispersal category names (e.g., Elaiosomes, Ballistic, Fluffy, Milkweed, Berries, Mama's Boys, Shakers, Beaks, Coneheads, Crumbly Coneheads, Shattering, Hitchhikers, Do Not Collect)
+   */
+  seed_group_names: string[];
+  seed_group_details: LcscgSeedGroupDetail[];
+  /** Original image filenames from the guide */
+  image_filenames: string[];
+  /** Cloudinary CDN URLs for guide photographs */
+  image_urls: string[];
+  /** Page number within the guide */
+  page_number: number;
+  imported_at: string;
+  /** Present in /lcscg/species search results */
+  guide_title?: string | null;
+  /** Present in /lcscg/species search results */
+  guide_season?: string | null;
+  /** Present in /lcscg/species search results */
+  guide_habitat_type?: string | null;
+  /** Present in /lcscg/species search results */
+  guide_cloudinary_folder?: string | null;
+}
+
+export type LcscgGuidesResponseData = {
+  guide_count?: number;
+  guides?: LcscgGuide[];
+} | null;
+
+export interface LcscgGuidesResponse {
+  found: boolean;
+  queried_at: string;
+  source_url: string;
+  provenance: FernsProvenance;
+  data: LcscgGuidesResponseData;
+}
+
+export type LcscgGuideResponseData = {
+  guide?: LcscgGuide;
+  species_count?: number;
+  species?: LcscgSpeciesRecord[];
+} | null;
+
+export interface LcscgGuideResponse {
+  found: boolean;
+  queried_at: string;
+  source_url: string;
+  provenance: FernsProvenance;
+  data?: LcscgGuideResponseData;
+}
+
+export type LcscgSpeciesResponseData = {
+  queried_name?: string;
+  result_count?: number;
+  records?: LcscgSpeciesRecord[];
+} | null;
+
+export interface LcscgSpeciesResponse {
+  found: boolean;
+  queried_at: string;
+  source_url: string;
+  provenance: FernsProvenance;
+  data: LcscgSpeciesResponseData;
+}
+
+export type LcscgMetadataResponseRegistryEntry = { [key: string]: unknown };
+
+export interface LcscgMetadataResponse {
+  service_id: string;
+  service_name: string;
+  permission_granted: boolean;
+  permission_status: string;
+  guide_count: number;
+  species_count: number;
+  registry_entry: LcscgMetadataResponseRegistryEntry;
+  queried_at?: string;
+  provenance: FernsProvenance;
+}
+
 export type GetBonapMapParams = {
   /**
  * Genus name. First letter capitalized, remainder lowercase (e.g. Asclepias). The service normalizes to title case before URL construction.
@@ -1570,6 +1710,14 @@ export const GetS2CSpeciesByYearYear = {
   NUMBER_2025: 2025,
   NUMBER_2026: 2026,
 } as const;
+
+export type GetLcscgSpeciesParams = {
+  /**
+ * Scientific or common name to search (partial match, case-insensitive).
+
+ */
+  name: string;
+};
 
 export type GetUniversalFqaSpeciesParams = {
   /**

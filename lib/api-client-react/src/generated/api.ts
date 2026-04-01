@@ -35,6 +35,7 @@ import type {
   GetInatObservationsParams,
   GetInatPlaceParams,
   GetInatSpeciesParams,
+  GetLcscgSpeciesParams,
   GetMifloraCountiesParams,
   GetMifloraImagesParams,
   GetMifloraSpeciesParams,
@@ -51,6 +52,10 @@ import type {
   InatObservationsResponse,
   InatPlaceResponse,
   InatSpeciesResponse,
+  LcscgGuideResponse,
+  LcscgGuidesResponse,
+  LcscgMetadataResponse,
+  LcscgSpeciesResponse,
   MifloraCountiesResponse,
   MifloraImagesResponse,
   MifloraMetadataResponse,
@@ -2887,6 +2892,345 @@ export function useGetS2CMetadata<
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetS2CMetadataQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns service identity, permission status, guide count, species count, and the full registry entry for the Lake County Seed Collection Guides source. Also seeds the registry entry on first call.
+
+ * @summary Lake County Seed Collection Guides service metadata
+ */
+export const getGetLcscgMetadataUrl = () => {
+  return `/api/lcscg/metadata`;
+};
+
+export const getLcscgMetadata = async (
+  options?: RequestInit,
+): Promise<LcscgMetadataResponse> => {
+  return customFetch<LcscgMetadataResponse>(getGetLcscgMetadataUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetLcscgMetadataQueryKey = () => {
+  return [`/api/lcscg/metadata`] as const;
+};
+
+export const getGetLcscgMetadataQueryOptions = <
+  TData = Awaited<ReturnType<typeof getLcscgMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getLcscgMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetLcscgMetadataQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getLcscgMetadata>>
+  > = ({ signal }) => getLcscgMetadata({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getLcscgMetadata>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetLcscgMetadataQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getLcscgMetadata>>
+>;
+export type GetLcscgMetadataQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Lake County Seed Collection Guides service metadata
+ */
+
+export function useGetLcscgMetadata<
+  TData = Awaited<ReturnType<typeof getLcscgMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getLcscgMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetLcscgMetadataQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns all 12 guide records (Field Museum Guide IDs 1271–1282), including title, season, habitat type, license, Cloudinary folder name, and harvest notes.
+
+ * @summary List all Lake County Seed Collection Guides
+ */
+export const getGetLcscgGuidesUrl = () => {
+  return `/api/lcscg/guides`;
+};
+
+export const getLcscgGuides = async (
+  options?: RequestInit,
+): Promise<LcscgGuidesResponse> => {
+  return customFetch<LcscgGuidesResponse>(getGetLcscgGuidesUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetLcscgGuidesQueryKey = () => {
+  return [`/api/lcscg/guides`] as const;
+};
+
+export const getGetLcscgGuidesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getLcscgGuides>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getLcscgGuides>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetLcscgGuidesQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getLcscgGuides>>> = ({
+    signal,
+  }) => getLcscgGuides({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getLcscgGuides>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetLcscgGuidesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getLcscgGuides>>
+>;
+export type GetLcscgGuidesQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List all Lake County Seed Collection Guides
+ */
+
+export function useGetLcscgGuides<
+  TData = Awaited<ReturnType<typeof getLcscgGuides>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getLcscgGuides>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetLcscgGuidesQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns all species records for the specified guide (Field Museum Guide ID 1271–1282). Each species record includes harvest notes, seed dispersal categories, photo date, plant family, and Cloudinary image URLs.
+
+ * @summary Get species list for a single Lake County Seed Collection Guide
+ */
+export const getGetLcscgGuideUrl = (guideId: number) => {
+  return `/api/lcscg/guide/${guideId}`;
+};
+
+export const getLcscgGuide = async (
+  guideId: number,
+  options?: RequestInit,
+): Promise<LcscgGuideResponse> => {
+  return customFetch<LcscgGuideResponse>(getGetLcscgGuideUrl(guideId), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetLcscgGuideQueryKey = (guideId: number) => {
+  return [`/api/lcscg/guide/${guideId}`] as const;
+};
+
+export const getGetLcscgGuideQueryOptions = <
+  TData = Awaited<ReturnType<typeof getLcscgGuide>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  guideId: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getLcscgGuide>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetLcscgGuideQueryKey(guideId);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getLcscgGuide>>> = ({
+    signal,
+  }) => getLcscgGuide(guideId, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!guideId,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getLcscgGuide>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetLcscgGuideQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getLcscgGuide>>
+>;
+export type GetLcscgGuideQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get species list for a single Lake County Seed Collection Guide
+ */
+
+export function useGetLcscgGuide<
+  TData = Awaited<ReturnType<typeof getLcscgGuide>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  guideId: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getLcscgGuide>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetLcscgGuideQueryOptions(guideId, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns species records matching the given name (partial match against scientific_name and common_name, case-insensitive) across all 12 guides. Results include harvest notes, seed dispersal categories, photo date, plant family, guide context, and Cloudinary image URLs.
+
+ * @summary Search Lake County Seed Collection Guides species by name
+ */
+export const getGetLcscgSpeciesUrl = (params: GetLcscgSpeciesParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/lcscg/species?${stringifiedParams}`
+    : `/api/lcscg/species`;
+};
+
+export const getLcscgSpecies = async (
+  params: GetLcscgSpeciesParams,
+  options?: RequestInit,
+): Promise<LcscgSpeciesResponse> => {
+  return customFetch<LcscgSpeciesResponse>(getGetLcscgSpeciesUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetLcscgSpeciesQueryKey = (params?: GetLcscgSpeciesParams) => {
+  return [`/api/lcscg/species`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetLcscgSpeciesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getLcscgSpecies>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetLcscgSpeciesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getLcscgSpecies>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetLcscgSpeciesQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getLcscgSpecies>>> = ({
+    signal,
+  }) => getLcscgSpecies(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getLcscgSpecies>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetLcscgSpeciesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getLcscgSpecies>>
+>;
+export type GetLcscgSpeciesQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Search Lake County Seed Collection Guides species by name
+ */
+
+export function useGetLcscgSpecies<
+  TData = Awaited<ReturnType<typeof getLcscgSpecies>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetLcscgSpeciesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getLcscgSpecies>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetLcscgSpeciesQueryOptions(params, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

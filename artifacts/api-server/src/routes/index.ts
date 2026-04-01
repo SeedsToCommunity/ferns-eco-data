@@ -9,6 +9,7 @@ import wetlandIndicatorRouter from "./wetland-indicator.js";
 import wucolsRouter from "./wucols.js";
 import s2cRouter from "./s2c.js";
 import universalFqaRouter from "./universal-fqa.js";
+import lcscgRouter from "./lcscg.js";
 import registryRouter from "./registry.js";
 import specRouter from "./spec.js";
 
@@ -24,6 +25,7 @@ router.use(wetlandIndicatorRouter);
 router.use(wucolsRouter);
 router.use(s2cRouter);
 router.use(universalFqaRouter);
+router.use(lcscgRouter);
 router.use(registryRouter);
 router.use(specRouter);
 

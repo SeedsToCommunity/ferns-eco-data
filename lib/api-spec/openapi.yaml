@@ -28,6 +28,8 @@ tags:
     description: Seeds to Community Washtenaw — Annual Native Plant Species Availability
   - name: universal-fqa
     description: Universal FQA — Federated Floristic Quality Assessment Databases
+  - name: lcscg
+    description: Lake County Seed Collection Guides — Native Seed Identification and Collection
   - name: registry
     description: FERNS Service Registry
 paths:
@@ -1028,6 +1030,102 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/VocabularyMetadataResponse"
+
+  /lcscg/metadata:
+    get:
+      operationId: getLcscgMetadata
+      tags: [lcscg]
+      summary: Lake County Seed Collection Guides service metadata
+      description: >
+        Returns service identity, permission status, guide count, species count, and the full registry
+        entry for the Lake County Seed Collection Guides source. Also seeds the registry entry on first call.
+      responses:
+        "200":
+          description: Service metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LcscgMetadataResponse"
+
+  /lcscg/guides:
+    get:
+      operationId: getLcscgGuides
+      tags: [lcscg]
+      summary: List all Lake County Seed Collection Guides
+      description: >
+        Returns all 12 guide records (Field Museum Guide IDs 1271–1282), including title, season,
+        habitat type, license, Cloudinary folder name, and harvest notes.
+      responses:
+        "200":
+          description: All available guides
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LcscgGuidesResponse"
+
+  /lcscg/guide/{guideId}:
+    get:
+      operationId: getLcscgGuide
+      tags: [lcscg]
+      summary: Get species list for a single Lake County Seed Collection Guide
+      description: >
+        Returns all species records for the specified guide (Field Museum Guide ID 1271–1282).
+        Each species record includes harvest notes, seed dispersal categories, photo date,
+        plant family, and Cloudinary image URLs.
+      parameters:
+        - name: guideId
+          in: path
+          required: true
+          description: Field Museum Guide ID (1271–1282).
+          schema:
+            type: integer
+            minimum: 1271
+            maximum: 1282
+      responses:
+        "200":
+          description: Guide detail with species list, or not-found response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LcscgGuideResponse"
+        "400":
+          description: Invalid guideId
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /lcscg/species:
+    get:
+      operationId: getLcscgSpecies
+      tags: [lcscg]
+      summary: Search Lake County Seed Collection Guides species by name
+      description: >
+        Returns species records matching the given name (partial match against scientific_name
+        and common_name, case-insensitive) across all 12 guides.
+        Results include harvest notes, seed dispersal categories, photo date, plant family,
+        guide context, and Cloudinary image URLs.
+      parameters:
+        - name: name
+          in: query
+          required: true
+          description: >
+            Scientific or common name to search (partial match, case-insensitive).
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Matching species records
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LcscgSpeciesResponse"
+        "400":
+          description: Missing name parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /v1/sources:
     get:
@@ -3709,6 +3807,287 @@ components:
         attribution:
           type: object
           additionalProperties: true
+        registry_entry:
+          type: object
+          additionalProperties: true
+        queried_at:
+          type: string
+          format: date-time
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    LcscgGuide:
+      type: object
+      required:
+        - guide_id
+        - title
+        - subtitle
+        - season
+        - habitat_type
+        - authors
+        - license
+        - attribution_text
+        - harvest_notes
+        - version
+        - field_museum_url
+        - cloudinary_folder
+        - status
+        - imported_at
+      properties:
+        guide_id:
+          type: integer
+          description: Field Museum Guide ID (1271–1282)
+        title:
+          type: string
+        subtitle:
+          type: string
+        season:
+          type: string
+          enum: [spring, summer, fall, all]
+        habitat_type:
+          type: string
+          enum: [woodland, wetland, prairie, grasses_and_kin, asters_and_goldenrods, woody_plants]
+        authors:
+          type: string
+        license:
+          type: string
+        attribution_text:
+          type: string
+        harvest_notes:
+          type: string
+        version:
+          type: string
+        field_museum_url:
+          type: string
+        cloudinary_folder:
+          type: string
+        status:
+          type: string
+        imported_at:
+          type: string
+          format: date-time
+
+    LcscgSeedGroupDetail:
+      type: object
+      required:
+        - name
+        - description
+        - images
+      properties:
+        name:
+          type: string
+          description: Seed dispersal category name
+        description:
+          type: string
+          description: Harvest technique description for this seed group
+        images:
+          type: array
+          items:
+            type: string
+          description: Image filenames for this seed group
+
+    LcscgSpeciesRecord:
+      type: object
+      required:
+        - id
+        - guide_id
+        - species_id
+        - scientific_name
+        - common_name
+        - family
+        - photo_date
+        - description
+        - seed_group_names
+        - seed_group_details
+        - image_filenames
+        - image_urls
+        - page_number
+        - imported_at
+      properties:
+        id:
+          type: integer
+        guide_id:
+          type: integer
+          description: Field Museum Guide ID (1271–1282)
+        species_id:
+          type: string
+          description: Per-guide species identifier string
+        scientific_name:
+          type: string
+          description: Scientific name per Flora of the Chicago Region (Wilhelm & Rericha, 2017)
+        common_name:
+          type: string
+        family:
+          type: string
+        photo_date:
+          type: string
+          description: >
+            Reference photograph date (M-D-YY format). Approximates seed collection timing;
+            varies by microclimate, proximity to Lake Michigan, slope, and sun/shade.
+        description:
+          type: string
+          description: Authors' harvest notes for this species
+        seed_group_names:
+          type: array
+          items:
+            type: string
+          description: >
+            Seed dispersal category names (e.g., Elaiosomes, Ballistic, Fluffy, Milkweed,
+            Berries, Mama's Boys, Shakers, Beaks, Coneheads, Crumbly Coneheads,
+            Shattering, Hitchhikers, Do Not Collect)
+        seed_group_details:
+          type: array
+          items:
+            $ref: "#/components/schemas/LcscgSeedGroupDetail"
+        image_filenames:
+          type: array
+          items:
+            type: string
+          description: Original image filenames from the guide
+        image_urls:
+          type: array
+          items:
+            type: string
+          description: Cloudinary CDN URLs for guide photographs
+        page_number:
+          type: integer
+          description: Page number within the guide
+        imported_at:
+          type: string
+          format: date-time
+        guide_title:
+          type: string
+          description: Present in /lcscg/species search results
+          nullable: true
+        guide_season:
+          type: string
+          description: Present in /lcscg/species search results
+          nullable: true
+        guide_habitat_type:
+          type: string
+          description: Present in /lcscg/species search results
+          nullable: true
+        guide_cloudinary_folder:
+          type: string
+          description: Present in /lcscg/species search results
+          nullable: true
+
+    LcscgGuidesResponse:
+      type: object
+      required:
+        - found
+        - queried_at
+        - source_url
+        - provenance
+        - data
+      properties:
+        found:
+          type: boolean
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          type: object
+          nullable: true
+          properties:
+            guide_count:
+              type: integer
+            guides:
+              type: array
+              items:
+                $ref: "#/components/schemas/LcscgGuide"
+
+    LcscgGuideResponse:
+      type: object
+      required:
+        - found
+        - queried_at
+        - source_url
+        - provenance
+      properties:
+        found:
+          type: boolean
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          nullable: true
+          oneOf:
+            - type: object
+              properties:
+                guide:
+                  $ref: "#/components/schemas/LcscgGuide"
+                species_count:
+                  type: integer
+                species:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/LcscgSpeciesRecord"
+            - type: "null"
+
+    LcscgSpeciesResponse:
+      type: object
+      required:
+        - found
+        - queried_at
+        - source_url
+        - provenance
+        - data
+      properties:
+        found:
+          type: boolean
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          type: object
+          nullable: true
+          properties:
+            queried_name:
+              type: string
+            result_count:
+              type: integer
+            records:
+              type: array
+              items:
+                $ref: "#/components/schemas/LcscgSpeciesRecord"
+
+    LcscgMetadataResponse:
+      type: object
+      required:
+        - service_id
+        - service_name
+        - permission_granted
+        - permission_status
+        - guide_count
+        - species_count
+        - registry_entry
+        - provenance
+      properties:
+        service_id:
+          type: string
+        service_name:
+          type: string
+        permission_granted:
+          type: boolean
+        permission_status:
+          type: string
+        guide_count:
+          type: integer
+        species_count:
+          type: integer
         registry_entry:
           type: object
           additionalProperties: true
