@@ -72,11 +72,6 @@ interface DriveFile {
   mimeType: string;
 }
 
-function buildCloudinaryUrl(cloudName: string, folder: string, filename: string): string {
-  const stem = filename.replace(/\.[^.]+$/, "");
-  return `https://res.cloudinary.com/${cloudName}/image/upload/${folder}/${stem}`;
-}
-
 async function fetchCloudinaryImages(folder: string): Promise<Map<string, string>> {
   if (!CLOUDINARY_API_KEY || !CLOUDINARY_API_SECRET) {
     logger.warn("Cloudinary credentials not set — image URLs will be empty");
@@ -111,10 +106,16 @@ async function fetchCloudinaryImages(folder: string): Promise<Map<string, string
 
     const data = (await res.json()) as CloudinarySearchResult;
     for (const resource of data.resources ?? []) {
-      const parts = resource.public_id.split("/");
-      const stem = parts[parts.length - 1];
-      const filename = `${stem}.${resource.format}`;
-      urlMap.set(filename, resource.secure_url);
+      // Two upload patterns in Cloudinary:
+      //   (a) "stem_XXXXXX"   — no folder prefix, 6-char random suffix
+      //   (b) "folder/stem"   — folder prefix, no random suffix
+      // Normalise to baseStem (lowercase, folder stripped, suffix stripped)
+      // to match filenames stored in species JSON.
+      const withoutFolder = resource.public_id.includes("/")
+        ? resource.public_id.split("/").pop()!
+        : resource.public_id;
+      const baseStem = withoutFolder.replace(/_[a-zA-Z0-9]{6}$/, "").toLowerCase();
+      urlMap.set(baseStem, resource.secure_url);
     }
 
     nextCursor = data.next_cursor;
@@ -224,7 +225,8 @@ export async function importLcscg(filterGuideIds?: number[]): Promise<{ guidesUp
 
         const imageFilenames = Array.isArray(sp.images) ? sp.images : [];
         const imageUrls = imageFilenames.map((filename) => {
-          return cloudinaryMap.get(filename) ?? null;
+          const stem = filename.replace(/\.[^.]+$/, "").toLowerCase();
+          return cloudinaryMap.get(stem) ?? null;
         });
 
         await db
