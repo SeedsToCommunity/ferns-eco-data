@@ -3947,8 +3947,8 @@ components:
         image_urls:
           type: array
           items:
-            type: string
-          description: Cloudinary CDN URLs for guide photographs
+            type: ["string", "null"]
+          description: Cloudinary CDN URLs for guide photographs (null for unresolved filenames)
         page_number:
           type: integer
           description: Page number within the guide

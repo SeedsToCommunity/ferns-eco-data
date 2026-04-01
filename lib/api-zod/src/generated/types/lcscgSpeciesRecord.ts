@@ -28,8 +28,8 @@ export interface LcscgSpeciesRecord {
   seed_group_details: LcscgSeedGroupDetail[];
   /** Original image filenames from the guide */
   image_filenames: string[];
-  /** Cloudinary CDN URLs for guide photographs */
-  image_urls: string[];
+  /** Cloudinary CDN URLs for guide photographs (null for unresolved filenames) */
+  image_urls: (string | null)[];
   /** Page number within the guide */
   page_number: number;
   imported_at: Date;

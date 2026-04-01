@@ -2847,8 +2847,10 @@ export const GetLcscgGuideResponse = zod.object({
                 .array(zod.string())
                 .describe("Original image filenames from the guide"),
               image_urls: zod
-                .array(zod.string())
-                .describe("Cloudinary CDN URLs for guide photographs"),
+                .array(zod.string().nullable())
+                .describe(
+                  "Cloudinary CDN URLs for guide photographs (null for unresolved filenames)",
+                ),
               page_number: zod
                 .number()
                 .describe("Page number within the guide"),
@@ -2984,8 +2986,10 @@ export const GetLcscgSpeciesResponse = zod.object({
               .array(zod.string())
               .describe("Original image filenames from the guide"),
             image_urls: zod
-              .array(zod.string())
-              .describe("Cloudinary CDN URLs for guide photographs"),
+              .array(zod.string().nullable())
+              .describe(
+                "Cloudinary CDN URLs for guide photographs (null for unresolved filenames)",
+              ),
             page_number: zod.number().describe("Page number within the guide"),
             imported_at: zod.date(),
             guide_title: zod
