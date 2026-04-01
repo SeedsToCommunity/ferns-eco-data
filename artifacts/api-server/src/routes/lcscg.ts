@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { db, lcscgGuidesTable, lcscgSpeciesTable } from "@workspace/db";
-import { eq, ilike, or } from "drizzle-orm";
+import { eq, ilike, or, sql } from "drizzle-orm";
 import {
   LCSCG_SOURCE_ID,
   LCSCG_DERIVATION_SUMMARY,
@@ -57,6 +57,18 @@ router.get("/lcscg/metadata", async (req, res) => {
 router.get("/lcscg/guides", async (req, res) => {
   const guides = await db.select().from(lcscgGuidesTable).orderBy(lcscgGuidesTable.guide_id);
 
+  // Include per-guide species count for Explorer UI display
+  const countRows = await db
+    .select({ guide_id: lcscgSpeciesTable.guide_id, count: sql<number>`count(*)::int` })
+    .from(lcscgSpeciesTable)
+    .groupBy(lcscgSpeciesTable.guide_id);
+  const countMap = new Map(countRows.map((r) => [r.guide_id, r.count]));
+
+  const guidesWithCounts = guides.map((g) => ({
+    ...g,
+    species_count: countMap.get(g.guide_id) ?? 0,
+  }));
+
   res.json({
     found: true,
     queried_at: new Date(),
@@ -64,7 +76,7 @@ router.get("/lcscg/guides", async (req, res) => {
     provenance: buildProvenance(req),
     data: {
       guide_count: guides.length,
-      guides,
+      guides: guidesWithCounts,
     },
   });
 });

@@ -317,105 +317,210 @@ export async function runWucolsChecks(
   return [allCheck, ...perCodeChecks];
 }
 
+// Known-value corpus for LCSCG assertions
+// guide_id -> { title, season, habitat_type, expected_species_count }
+const LCSCG_KNOWN_GUIDES: Record<number, { title: string; season: string; habitat_type: string; species_count: number }> = {
+  1271: { title: "Summer Woodland Forbs",          season: "summer", habitat_type: "woodland",           species_count: 28 },
+  1272: { title: "Woody Plants",                   season: "all",    habitat_type: "woody_plants",       species_count: 50 },
+  1273: { title: "Summer Wetland Grasses and Kin", season: "summer", habitat_type: "grasses_and_kin",   species_count: 37 },
+  1274: { title: "Summer Wetland Forbs",           season: "summer", habitat_type: "wetland",            species_count: 23 },
+  1275: { title: "Summer Prairie Forbs",           season: "summer", habitat_type: "prairie",            species_count: 42 },
+  1276: { title: "Summer Grasses and Kin",         season: "summer", habitat_type: "grasses_and_kin",   species_count: 38 },
+  1277: { title: "Spring Woodland Forbs",          season: "spring", habitat_type: "woodland",           species_count: 29 },
+  1278: { title: "Fall Woodland Forbs",            season: "fall",   habitat_type: "woodland",           species_count: 55 },
+  1279: { title: "Fall Wetland Forbs",             season: "fall",   habitat_type: "wetland",            species_count: 66 },
+  1280: { title: "Fall Grasses and Kin",           season: "fall",   habitat_type: "grasses_and_kin",   species_count: 32 },
+  1281: { title: "Asters and Goldenrods",          season: "fall",   habitat_type: "asters_and_goldenrods", species_count: 34 },
+  1282: { title: "Fall Prairie Forbs",             season: "fall",   habitat_type: "prairie",            species_count: 60 },
+};
+
 export async function runLcscgChecks(fernsBase: string): Promise<EndpointComparison[]> {
+  // 1. Metadata: assert guide_count=12, species_count=494
   const metadataCheck = await checkEndpoint(
     "lcscg",
     "/api/lcscg/metadata",
-    "LCSCG — service metadata",
+    "LCSCG — service metadata (guide_count=12, species_count=494)",
     fernsBase,
     (envelope) => {
       const findings: FieldFinding[] = [];
       const ec = envelope as Record<string, unknown>;
-      if (typeof ec.guide_count === "number" && ec.guide_count > 0) {
-        findings.push({ type: "ok", sourceField: "guide_count", note: `${ec.guide_count} guides` });
+      const guideCount = typeof ec.guide_count === "number" ? ec.guide_count : -1;
+      if (guideCount === 12) {
+        findings.push({ type: "ok", sourceField: "guide_count", note: `guide_count = 12 (expected)` });
       } else {
-        findings.push({ type: "mismatch", sourceField: "guide_count", note: `guide_count missing or 0` });
+        findings.push({ type: "mismatch", sourceField: "guide_count", note: `Expected guide_count=12, got ${guideCount}` });
       }
-      if (typeof ec.species_count === "number" && ec.species_count > 0) {
-        findings.push({ type: "ok", sourceField: "species_count", note: `${ec.species_count} species` });
+      const speciesCount = typeof ec.species_count === "number" ? ec.species_count : -1;
+      if (speciesCount === 494) {
+        findings.push({ type: "ok", sourceField: "species_count", note: `species_count = 494 (expected)` });
       } else {
-        findings.push({ type: "mismatch", sourceField: "species_count", note: `species_count missing or 0` });
+        findings.push({ type: "mismatch", sourceField: "species_count", note: `Expected species_count=494, got ${speciesCount}` });
       }
       return findings;
     },
   );
 
+  // 2. Guides list: 12 guides, all known IDs and titles present, season+habitat fields present
   const guidesCheck = await checkEndpoint(
     "lcscg",
     "/api/lcscg/guides",
-    "LCSCG — guides list",
+    "LCSCG — guides list (12 guides, all IDs and titles verified)",
     fernsBase,
     (envelope) => {
       const findings: FieldFinding[] = [];
       const data = envelope.data as Record<string, unknown> | null | undefined;
-      const guides = Array.isArray(data?.guides) ? data.guides : [];
+      const guides = (Array.isArray(data?.guides) ? data.guides : []) as Array<Record<string, unknown>>;
       if (guides.length === 12) {
         findings.push({ type: "ok", sourceField: "data.guides", note: `12 guides returned (expected)` });
-      } else if (guides.length > 0) {
-        findings.push({ type: "mismatch", sourceField: "data.guides", note: `Expected 12 guides, got ${guides.length}` });
       } else {
-        findings.push({ type: "mismatch", sourceField: "data.guides", note: `No guides returned — import may not have run` });
-      }
-      return findings;
-    },
-  );
-
-  const guideDetailCheck = await checkEndpoint(
-    "lcscg",
-    "/api/lcscg/guide/1271",
-    "LCSCG — guide detail (ID 1271, Summer Woodland Forbs)",
-    fernsBase,
-    (envelope) => {
-      const findings: FieldFinding[] = [];
-      const data = envelope.data as Record<string, unknown> | null | undefined;
-      if (!data) {
-        findings.push({ type: "mismatch", sourceField: "data", note: `No data returned — guide 1271 not found` });
+        findings.push({ type: "mismatch", sourceField: "data.guides", note: `Expected 12 guides, got ${guides.length}` });
         return findings;
       }
-      const guide = data.guide as Record<string, unknown> | undefined;
-      if (guide?.title) {
-        findings.push({ type: "ok", sourceField: "data.guide.title", note: `Guide title: ${guide.title}` });
-      } else {
-        findings.push({ type: "mismatch", sourceField: "data.guide.title", note: `Guide title missing` });
-      }
-      const speciesCount = typeof data.species_count === "number" ? data.species_count : 0;
-      if (speciesCount > 0) {
-        findings.push({ type: "ok", sourceField: "data.species_count", note: `${speciesCount} species in guide 1271` });
-      } else {
-        findings.push({ type: "mismatch", sourceField: "data.species_count", note: `No species in guide 1271 — import may not have run` });
-      }
-      return findings;
-    },
-  );
-
-  const speciesSearchCheck = await checkEndpoint(
-    "lcscg",
-    "/api/lcscg/species?name=Asclepias",
-    "LCSCG — species name search (Asclepias)",
-    fernsBase,
-    (envelope) => {
-      const findings: FieldFinding[] = [];
-      const data = envelope.data as Record<string, unknown> | null | undefined;
-      const resultCount = typeof data?.result_count === "number" ? data.result_count : 0;
-      if (resultCount > 0) {
-        findings.push({ type: "ok", sourceField: "data.result_count", note: `${resultCount} records for "Asclepias"` });
-      } else {
-        findings.push({ type: "mismatch", sourceField: "data.result_count", note: `No records for "Asclepias" — import may not have run or no Asclepias in guides` });
-      }
-      const records = Array.isArray(data?.records) ? data.records : [];
-      if (records.length > 0) {
-        const first = records[0] as Record<string, unknown>;
-        if (first.image_urls && Array.isArray(first.image_urls) && first.image_urls.length > 0) {
-          findings.push({ type: "ok", sourceField: "data.records[0].image_urls", note: `image_urls populated: ${first.image_urls.length} URLs` });
+      // Verify each known guide is present with correct title and fields
+      const guideMap = new Map(guides.map((g) => [g["guide_id"] as number, g]));
+      for (const [id, expected] of Object.entries(LCSCG_KNOWN_GUIDES)) {
+        const g = guideMap.get(Number(id));
+        if (!g) {
+          findings.push({ type: "mismatch", sourceField: `data.guides[${id}]`, note: `Guide ID ${id} (${expected.title}) not found` });
+          continue;
+        }
+        if (g["title"] === expected.title) {
+          findings.push({ type: "ok", sourceField: `data.guides[${id}].title`, note: `"${g["title"]}"` });
         } else {
-          findings.push({ type: "gap", sourceField: "data.records[0].image_urls", note: `image_urls missing or empty for first record` });
+          findings.push({ type: "mismatch", sourceField: `data.guides[${id}].title`, note: `Expected "${expected.title}", got "${g["title"]}"` });
+        }
+        if (g["season"] === expected.season) {
+          findings.push({ type: "ok", sourceField: `data.guides[${id}].season`, note: `season="${expected.season}"` });
+        } else {
+          findings.push({ type: "mismatch", sourceField: `data.guides[${id}].season`, note: `Expected season="${expected.season}", got "${g["season"]}"` });
         }
       }
       return findings;
     },
   );
 
-  return [metadataCheck, guidesCheck, guideDetailCheck, speciesSearchCheck];
+  // 3. Guide detail: guide 1282 (Fall Prairie Forbs, 60 species) contains Echinacea pallida and Daucus carota
+  const guide1282Check = await checkEndpoint(
+    "lcscg",
+    "/api/lcscg/guide/1282",
+    "LCSCG — guide detail ID 1282 (Fall Prairie Forbs, 60 species, Echinacea pallida + Daucus carota present)",
+    fernsBase,
+    (envelope) => {
+      const findings: FieldFinding[] = [];
+      const data = envelope.data as Record<string, unknown> | null | undefined;
+      if (!data) {
+        findings.push({ type: "mismatch", sourceField: "data", note: `No data returned for guide 1282` });
+        return findings;
+      }
+      const guide = data.guide as Record<string, unknown> | undefined;
+      if (guide?.title === "Fall Prairie Forbs") {
+        findings.push({ type: "ok", sourceField: "data.guide.title", note: `"Fall Prairie Forbs" (expected)` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.guide.title", note: `Expected "Fall Prairie Forbs", got "${guide?.title}"` });
+      }
+      const speciesCount = typeof data.species_count === "number" ? data.species_count : 0;
+      if (speciesCount === 60) {
+        findings.push({ type: "ok", sourceField: "data.species_count", note: `species_count = 60 (expected for guide 1282)` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.species_count", note: `Expected species_count=60 for guide 1282, got ${speciesCount}` });
+      }
+      const species = (Array.isArray(data.species) ? data.species : []) as Array<Record<string, unknown>>;
+      const names = species.map((s) => s["scientific_name"] as string);
+      for (const expected of ["Echinacea pallida", "Daucus carota"]) {
+        if (names.includes(expected)) {
+          findings.push({ type: "ok", sourceField: "data.species[].scientific_name", note: `"${expected}" present in guide 1282` });
+        } else {
+          findings.push({ type: "mismatch", sourceField: "data.species[].scientific_name", note: `"${expected}" expected in guide 1282 but not found` });
+        }
+      }
+      // Verify Echinacea pallida has 3 non-null image_urls
+      const echinacea = species.find((s) => s["scientific_name"] === "Echinacea pallida");
+      if (echinacea) {
+        const urls = Array.isArray(echinacea["image_urls"]) ? echinacea["image_urls"] as Array<string | null> : [];
+        const nonNull = urls.filter((u) => u !== null && u !== "");
+        if (nonNull.length === 3) {
+          findings.push({ type: "ok", sourceField: "Echinacea pallida.image_urls", note: `3 non-null image URLs (expected)` });
+        } else {
+          findings.push({ type: "mismatch", sourceField: "Echinacea pallida.image_urls", note: `Expected 3 image URLs, got ${nonNull.length} non-null` });
+        }
+      }
+      return findings;
+    },
+  );
+
+  // 4. Species search: Sporobolus heterolepis in Fall Grasses and Kin (guide 1280), 3 images
+  const sporobolusCheck = await checkEndpoint(
+    "lcscg",
+    "/api/lcscg/species?name=Sporobolus+heterolepis",
+    "LCSCG — species search for Sporobolus heterolepis (guide 1280, 3 images)",
+    fernsBase,
+    (envelope) => {
+      const findings: FieldFinding[] = [];
+      const data = envelope.data as Record<string, unknown> | null | undefined;
+      const records = (Array.isArray(data?.records) ? data.records : []) as Array<Record<string, unknown>>;
+      const resultCount = typeof data?.result_count === "number" ? data.result_count : 0;
+      if (resultCount > 0) {
+        findings.push({ type: "ok", sourceField: "data.result_count", note: `${resultCount} records for "Sporobolus heterolepis"` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.result_count", note: `No records for "Sporobolus heterolepis" — expected ≥1 from guide 1280` });
+        return findings;
+      }
+      const spRecord = records.find((r) => r["guide_id"] === 1280);
+      if (spRecord) {
+        findings.push({ type: "ok", sourceField: "data.records[].guide_id", note: `Record in guide 1280 (Fall Grasses and Kin) — expected` });
+        const urls = Array.isArray(spRecord["image_urls"]) ? spRecord["image_urls"] as Array<string | null> : [];
+        const nonNull = urls.filter((u) => u !== null && u !== "");
+        if (nonNull.length === 3) {
+          findings.push({ type: "ok", sourceField: "data.records[guide_1280].image_urls", note: `3 non-null Cloudinary image URLs (expected)` });
+        } else {
+          findings.push({ type: "mismatch", sourceField: "data.records[guide_1280].image_urls", note: `Expected 3 image URLs, got ${nonNull.length} non-null` });
+        }
+        if (typeof spRecord["description"] === "string" && spRecord["description"].length > 0) {
+          findings.push({ type: "ok", sourceField: "data.records[guide_1280].description", note: `harvest description present` });
+        } else {
+          findings.push({ type: "gap", sourceField: "data.records[guide_1280].description", note: `harvest description missing` });
+        }
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.records[].guide_id", note: `No record for Sporobolus heterolepis in guide 1280` });
+      }
+      return findings;
+    },
+  );
+
+  // 5. Species search: Daucus carota (non-native "Do Not Collect" species) — confirms non-native records are present
+  const daucusCheck = await checkEndpoint(
+    "lcscg",
+    "/api/lcscg/species?name=Daucus+carota",
+    "LCSCG — species search Daucus carota (non-native Do Not Collect, guide 1282)",
+    fernsBase,
+    (envelope) => {
+      const findings: FieldFinding[] = [];
+      const data = envelope.data as Record<string, unknown> | null | undefined;
+      const records = (Array.isArray(data?.records) ? data.records : []) as Array<Record<string, unknown>>;
+      if (records.length > 0) {
+        findings.push({ type: "ok", sourceField: "data.result_count", note: `${records.length} record(s) for non-native "Daucus carota"` });
+        const rec = records[0];
+        const urls = Array.isArray(rec["image_urls"]) ? rec["image_urls"] as Array<string | null> : [];
+        const nonNull = urls.filter((u) => u !== null && u !== "");
+        if (nonNull.length > 0) {
+          findings.push({ type: "ok", sourceField: "data.records[0].image_urls", note: `${nonNull.length} non-null image URL(s)` });
+        } else {
+          findings.push({ type: "gap", sourceField: "data.records[0].image_urls", note: `image_urls empty for Daucus carota` });
+        }
+        const groups = Array.isArray(rec["seed_group_names"]) ? rec["seed_group_names"] as string[] : [];
+        if (groups.includes("Do Not Collect")) {
+          findings.push({ type: "ok", sourceField: "data.records[0].seed_group_names", note: `"Do Not Collect" group confirmed` });
+        } else {
+          findings.push({ type: "mismatch", sourceField: "data.records[0].seed_group_names", note: `Expected "Do Not Collect" group for Daucus carota, got: ${JSON.stringify(groups)}` });
+        }
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.result_count", note: `Daucus carota not found — expected in guide 1282 as Do Not Collect species` });
+      }
+      return findings;
+    },
+  );
+
+  return [metadataCheck, guidesCheck, guide1282Check, sporobolusCheck, daucusCheck];
 }
 
 export async function runS2CChecks(

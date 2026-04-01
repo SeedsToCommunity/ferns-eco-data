@@ -17,6 +17,7 @@ interface LcscgGuide {
   cloudinary_folder: string;
   status: string;
   imported_at: string;
+  species_count?: number;
 }
 
 interface SeedGroupDetail {
@@ -280,6 +281,17 @@ export function LcscgPage() {
 
   const guides = guidesData?.guides ?? [];
 
+  // Group guides by season → habitat for display
+  const SEASON_ORDER = ["spring", "summer", "fall", "all"];
+  const guidesBySeason = useMemo(() => {
+    const grouped: Record<string, LcscgGuide[]> = {};
+    for (const g of guides) {
+      if (!grouped[g.season]) grouped[g.season] = [];
+      grouped[g.season].push(g);
+    }
+    return SEASON_ORDER.filter((s) => grouped[s]).map((s) => ({ season: s, guides: grouped[s] }));
+  }, [guides]);
+
   const filteredSpecies = useMemo(() => {
     const records = guideDetail?.species ?? [];
     if (!searchName.trim() || mode !== "guides") return records;
@@ -363,28 +375,38 @@ export function LcscgPage() {
 
         {mode === "guides" && (
           <div className="space-y-4">
-            <div className="bg-card border border-border rounded-xl p-5 space-y-3">
+            <div className="bg-card border border-border rounded-xl p-5 space-y-4">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Select a Guide ({guides.length} guides)
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {guides.map((g) => (
-                  <button
-                    key={g.guide_id}
-                    onClick={() => loadGuide(g.guide_id)}
-                    className={`text-left px-3 py-2.5 rounded-lg border text-sm transition-colors ${
-                      selectedGuideId === g.guide_id
-                        ? "bg-primary text-primary-foreground border-primary"
-                        : "bg-card border-border hover:border-primary/50 hover:bg-muted/30"
-                    }`}
-                  >
-                    <div className="font-medium leading-tight">{g.title}</div>
-                    <div className={`text-[11px] mt-0.5 ${selectedGuideId === g.guide_id ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
-                      {SEASON_LABELS[g.season] ?? g.season} · {HABITAT_LABELS[g.habitat_type] ?? g.habitat_type}
-                    </div>
-                  </button>
-                ))}
-              </div>
+              {guidesBySeason.map(({ season, guides: seasonGuides }) => (
+                <div key={season} className="space-y-1.5">
+                  <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/70 pl-0.5">
+                    {SEASON_LABELS[season] ?? season}
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                    {seasonGuides.map((g) => (
+                      <button
+                        key={g.guide_id}
+                        onClick={() => loadGuide(g.guide_id)}
+                        className={`text-left px-3 py-2.5 rounded-lg border text-sm transition-colors ${
+                          selectedGuideId === g.guide_id
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-card border-border hover:border-primary/50 hover:bg-muted/30"
+                        }`}
+                      >
+                        <div className="font-medium leading-tight">{g.title}</div>
+                        <div className={`text-[11px] mt-0.5 flex gap-2 ${selectedGuideId === g.guide_id ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
+                          <span>{HABITAT_LABELS[g.habitat_type] ?? g.habitat_type}</span>
+                          {g.species_count != null && (
+                            <span>· {g.species_count} spp.</span>
+                          )}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
 
             {loading && (
