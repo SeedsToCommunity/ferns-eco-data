@@ -5,7 +5,8 @@ import { useGetSourcesIndex } from "@workspace/api-client-react";
 import { Layout } from "@/components/Layout";
 import {
   ArrowLeft, ShieldCheck, ShieldOff, ExternalLink,
-  Loader2, ServerCrash, BookOpen, Globe, FileText, Layers, Clock
+  Loader2, ServerCrash, BookOpen, Globe, FileText, Layers, Clock,
+  Braces, Calendar, AlertCircle
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -198,19 +199,24 @@ export default function MetadataPage() {
   const { data: sourcesData, isLoading: sourcesLoading } = useGetSourcesIndex();
   const source = sourcesData?.data?.sources?.find((s) => s.source_id === sourceId);
 
+  // Use relative path so requests go through the Vite proxy instead of hitting
+  // localhost:8080 directly (which is unreachable from the user's browser).
   const metadataUrl = source?.metadata_url;
+  const metadataFetchPath = metadataUrl
+    ? (() => { try { return new URL(metadataUrl).pathname; } catch { return metadataUrl; } })()
+    : undefined;
 
   const { data: meta, isLoading: metaLoading, isError, error } = useQuery({
     queryKey: ["source-metadata", metadataUrl],
-    enabled: !!metadataUrl,
+    enabled: !!metadataFetchPath,
     queryFn: async () => {
-      const res = await fetch(metadataUrl!);
+      const res = await fetch(metadataFetchPath!);
       if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
       return res.json() as Promise<Record<string, unknown>>;
     },
   });
 
-  const isLoading = sourcesLoading || metaLoading;
+  const isLoading = sourcesLoading;
 
   const unwrapped: Record<string, unknown> = (() => {
     if (!meta) return {};
@@ -250,6 +256,7 @@ export default function MetadataPage() {
           All Sources
         </Link>
 
+        {/* Loading registry data */}
         {isLoading && (
           <div className="flex flex-col items-center justify-center py-32 text-primary">
             <Loader2 className="w-10 h-10 animate-spin mb-4" />
@@ -257,6 +264,7 @@ export default function MetadataPage() {
           </div>
         )}
 
+        {/* Source not registered */}
         {!isLoading && !source && (
           <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-10 text-center">
             <ServerCrash className="w-10 h-10 text-destructive mx-auto mb-4" />
@@ -265,17 +273,8 @@ export default function MetadataPage() {
           </div>
         )}
 
-        {!isLoading && source && isError && (
-          <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-10 text-center">
-            <ServerCrash className="w-10 h-10 text-destructive mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-destructive mb-2">Failed to load metadata</h2>
-            <p className="text-muted-foreground">
-              {error instanceof Error ? error.message : "The metadata endpoint is unreachable."}
-            </p>
-          </div>
-        )}
-
-        {!isLoading && meta && source && (
+        {/* Source found — always render once registry data is loaded */}
+        {!isLoading && source && (
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -304,54 +303,121 @@ export default function MetadataPage() {
               </div>
             </div>
 
-            {/* Permission status */}
-            {permissionStatus && (
-              <div className={`rounded-xl px-5 py-4 border text-sm leading-relaxed ${
-                permissionGranted
-                  ? "bg-green-500/5 border-green-500/20 text-green-800"
-                  : "bg-amber-500/5 border-amber-500/20 text-amber-800"
-              }`}>
-                {permissionStatus}
+            {/* Source Profile: from registry data — always visible */}
+            {(source.output_summary || source.update_frequency || source.known_limitations) && (
+              <Section title="Source Profile" icon={<Braces className="w-4 h-4" />}>
+                <div className="space-y-0">
+                  {source.output_summary && (
+                    <KVRow
+                      label="Provides"
+                      value={
+                        <span className="flex items-start gap-2">
+                          <Braces className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
+                          {source.output_summary}
+                        </span>
+                      }
+                    />
+                  )}
+                  {source.update_frequency && (
+                    <KVRow
+                      label="Update Frequency"
+                      value={
+                        <span className="flex items-start gap-2">
+                          <Calendar className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
+                          {source.update_frequency}
+                        </span>
+                      }
+                    />
+                  )}
+                  {source.known_limitations && (
+                    <KVRow
+                      label="Known Limitations"
+                      value={
+                        <span className="flex items-start gap-2">
+                          <AlertCircle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                          {source.known_limitations}
+                        </span>
+                      }
+                    />
+                  )}
+                </div>
+              </Section>
+            )}
+
+            {/* Metadata endpoint: loading */}
+            {metaLoading && (
+              <div className="flex items-center gap-3 py-6 text-muted-foreground text-sm">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Loading live metadata…
               </div>
             )}
 
-            {/* Identity */}
-            {(serviceId || serviceName || dataVintage || queriedAt) && (
-              <IdentitySection
-                serviceId={serviceId}
-                serviceName={serviceName}
-                dataVintage={dataVintage}
-                queriedAt={queriedAt}
-              />
+            {/* Metadata endpoint: error */}
+            {!metaLoading && isError && (
+              <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-6 text-sm text-destructive">
+                <ServerCrash className="w-5 h-5 mb-2" />
+                <p className="font-semibold mb-1">Live metadata unavailable</p>
+                <p className="text-muted-foreground font-normal">
+                  {error instanceof Error ? error.message : "The metadata endpoint is unreachable."}
+                </p>
+              </div>
             )}
 
-            {/* Attribution */}
-            {attribution && <AttributionSection attribution={attribution} />}
+            {/* Metadata endpoint: content */}
+            {!metaLoading && meta && (
+              <>
+                {/* Permission status */}
+                {permissionStatus && (
+                  <div className={`rounded-xl px-5 py-4 border text-sm leading-relaxed ${
+                    permissionGranted
+                      ? "bg-green-500/5 border-green-500/20 text-green-800"
+                      : "bg-amber-500/5 border-amber-500/20 text-amber-800"
+                  }`}>
+                    {permissionStatus}
+                  </div>
+                )}
 
-            {/* Color key (BONAP) */}
-            {colorKey && colorKey.length > 0 && (
-              <BonapColorKeySection pageUrl={colorKeyUrl} />
+                {/* Identity */}
+                {(serviceId || serviceName || dataVintage || queriedAt) && (
+                  <IdentitySection
+                    serviceId={serviceId}
+                    serviceName={serviceName}
+                    dataVintage={dataVintage}
+                    queriedAt={queriedAt}
+                  />
+                )}
+
+                {/* Attribution */}
+                {attribution && <AttributionSection attribution={attribution} />}
+
+                {/* Color key (BONAP) */}
+                {colorKey && colorKey.length > 0 && (
+                  <BonapColorKeySection pageUrl={colorKeyUrl} />
+                )}
+
+                {/* Vocabularies (GBIF) */}
+                {vocabularies && Object.keys(vocabularies).length > 0 && (
+                  <VocabularySection vocabularies={vocabularies} />
+                )}
+
+                {/* Provenance (FERNS envelope) */}
+                {provenance && <ProvenanceSection provenance={provenance} />}
+              </>
             )}
-
-            {/* Vocabularies (GBIF) */}
-            {vocabularies && Object.keys(vocabularies).length > 0 && (
-              <VocabularySection vocabularies={vocabularies} />
-            )}
-
-            {/* Provenance (FERNS envelope) */}
-            {provenance && <ProvenanceSection provenance={provenance} />}
 
             {/* Raw endpoint link */}
-            <div className="text-right">
-              <a
-                href={source.metadata_url ?? "#"}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-primary transition-colors"
-              >
-                View raw JSON <ExternalLink className="w-3 h-3" />
-              </a>
-            </div>
+            {source.metadata_url && (
+              <div className="text-right">
+                <a
+                  href={source.metadata_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-primary transition-colors"
+                >
+                  View raw JSON <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            )}
           </motion.div>
         )}
       </div>

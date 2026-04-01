@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
-import { Map, Plug, Database, Activity, AlertCircle, Calendar, Braces, Copy, Check, X, FileCode2 } from "lucide-react";
+import { Map, Plug, Database, Activity, Copy, Check, X, FileCode2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import type { SourceSummary } from "@workspace/api-client-react";
@@ -123,39 +123,6 @@ export function SourceCard({ source, index }: SourceCardProps) {
         <p className="text-muted-foreground text-sm leading-relaxed mb-6 flex-1">
           {source.description || "No description provided."}
         </p>
-
-        {/* Details Grid */}
-        <div className="grid grid-cols-1 gap-y-3 mb-6 bg-muted/30 rounded-xl p-4 border border-border/50">
-          {source.output_summary && (
-            <div className="flex gap-3">
-              <Braces className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-              <div>
-                <span className="block text-xs font-semibold text-foreground uppercase tracking-wider mb-0.5">Provides</span>
-                <span className="text-sm text-muted-foreground">{source.output_summary}</span>
-              </div>
-            </div>
-          )}
-
-          {source.update_frequency && (
-            <div className="flex gap-3">
-              <Calendar className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-              <div>
-                <span className="block text-xs font-semibold text-foreground uppercase tracking-wider mb-0.5">Update Frequency</span>
-                <span className="text-sm text-muted-foreground">{source.update_frequency}</span>
-              </div>
-            </div>
-          )}
-
-          {source.known_limitations && (
-            <div className="flex gap-3">
-              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-              <div>
-                <span className="block text-xs font-semibold text-foreground uppercase tracking-wider mb-0.5">Known Limitations</span>
-                <span className="text-sm text-muted-foreground">{source.known_limitations}</span>
-              </div>
-            </div>
-          )}
-        </div>
 
         {/* Dependencies */}
         {source.dependencies && source.dependencies.length > 0 && (
