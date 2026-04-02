@@ -67,18 +67,19 @@ router.get("/lady-bird-johnson", async (req, res) => {
     return;
   }
 
-  const url = buildSearchUrl(speciesParam);
+  const searchUrl = buildSearchUrl(speciesParam);
 
   res.json({
-    found: true,
+    found: false,
     queried_at: new Date(),
     source_url: resolveUrl(req, "/api/lady-bird-johnson"),
     provenance: { ...buildProvenance(req), matched_input: speciesParam },
     data: {
       species: speciesParam,
-      url,
-      validation_method: "direct_construction",
-      note: "Returns a plant search URL. Direct profile URLs require an internal plant ID not derivable from the scientific name.",
+      url: null,
+      search_url: searchUrl,
+      validation_method: "not_resolvable",
+      note: "Species profile URLs require an internal LBJWC plant ID that cannot be derived from the scientific name. FERNS provides a search URL instead; the profile URL is not available.",
     },
   });
 });

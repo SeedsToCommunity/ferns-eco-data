@@ -161,20 +161,24 @@ router.get("/botanical-refs", async (req, res) => {
       validation: "species_list_lookup",
     })),
 
-    // USDA PLANTS — always found
+    // USDA PLANTS — profile URL not resolvable; provides search URL only
     (async () => ({
       siteId: USDA_PLANTS_SOURCE_ID,
-      found: true,
-      url: buildUsdaPlantsUrl(speciesParam),
-      validation: "direct_construction",
+      found: false,
+      url: null,
+      search_url: buildUsdaPlantsUrl(speciesParam),
+      validation: "not_resolvable",
+      note: "Profile URLs require a USDA symbol code not derivable from scientific name; search URL provided.",
     }))(),
 
-    // Lady Bird Johnson — always found
+    // Lady Bird Johnson — profile URL not resolvable; provides search URL only
     (async () => ({
       siteId: LADY_BIRD_JOHNSON_SOURCE_ID,
-      found: true,
-      url: buildLadyBirdJohnsonUrl(genus, species),
-      validation: "direct_construction",
+      found: false,
+      url: null,
+      search_url: buildLadyBirdJohnsonUrl(genus, species),
+      validation: "not_resolvable",
+      note: "Profile URLs require an internal LBJWC plant ID not derivable from scientific name; search URL provided.",
     }))(),
   ]);
 
@@ -186,6 +190,9 @@ router.get("/botanical-refs", async (req, res) => {
   }
 
   const foundCount = Object.values(results).filter((r: unknown) => (r as { found: boolean }).found).length;
+  const searchOnlyCount = Object.values(results).filter(
+    (r: unknown) => !(r as { found: boolean }).found && (r as { search_url?: string }).search_url,
+  ).length;
 
   res.json({
     found: foundCount > 0,
@@ -200,6 +207,7 @@ router.get("/botanical-refs", async (req, res) => {
     data: {
       species: speciesParam,
       sites_found: foundCount,
+      sites_search_only: searchOnlyCount,
       sites_total: SITES.length,
       results,
     },
