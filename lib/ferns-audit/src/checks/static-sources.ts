@@ -611,11 +611,11 @@ export async function runS2CChecks(
 }
 
 export async function runMnfiChecks(fernsBase: string): Promise<EndpointComparison[]> {
-  // 1. Metadata: assert community_count=77
+  // 1. Metadata: assert community_count=77, descriptions_fetched=77, plant_record_count>0
   const metadataCheck = await checkEndpoint(
     "mnfi",
     "/api/mnfi/metadata",
-    "MNFI — service metadata (community_count=77)",
+    "MNFI — service metadata (community_count=77, descriptions_fetched=77, plant_record_count>0)",
     fernsBase,
     (envelope) => {
       const findings: FieldFinding[] = [];
@@ -628,6 +628,26 @@ export async function runMnfiChecks(fernsBase: string): Promise<EndpointComparis
           type: "mismatch",
           sourceField: "community_count",
           note: `Expected community_count=77, got ${communityCount}`,
+        });
+      }
+      const descFetched = typeof ec.descriptions_fetched === "number" ? ec.descriptions_fetched : -1;
+      if (descFetched === 77) {
+        findings.push({ type: "ok", sourceField: "descriptions_fetched", note: `descriptions_fetched = 77 (all scraped)` });
+      } else {
+        findings.push({
+          type: "mismatch",
+          sourceField: "descriptions_fetched",
+          note: `Expected descriptions_fetched=77, got ${descFetched} — run POST /api/mnfi/import-descriptions`,
+        });
+      }
+      const plantCount = typeof ec.plant_record_count === "number" ? ec.plant_record_count : -1;
+      if (plantCount > 0) {
+        findings.push({ type: "ok", sourceField: "plant_record_count", note: `plant_record_count = ${plantCount} (>0)` });
+      } else {
+        findings.push({
+          type: "mismatch",
+          sourceField: "plant_record_count",
+          note: `plant_record_count = ${plantCount}; run POST /api/mnfi/import-plant-lists`,
         });
       }
       const classes = ec.community_classes;
@@ -744,5 +764,45 @@ export async function runMnfiChecks(fernsBase: string): Promise<EndpointComparis
     },
   );
 
-  return [metadataCheck, communitiesCheck, prairieFeCheck, countyCheck];
+  // 5. Plant list for prairie-fen: 86 entries, Graminoids/Forbs/Shrubs present
+  const plantListCheck = await checkEndpoint(
+    "mnfi",
+    "/api/mnfi/communities/10667/plants",
+    "MNFI — prairie-fen plant list (plants_imported=true, graminoids+forbs+shrubs present)",
+    fernsBase,
+    (envelope) => {
+      const findings: FieldFinding[] = [];
+      const data = envelope.data as Record<string, unknown> | null | undefined;
+      if (!data) {
+        findings.push({ type: "mismatch", sourceField: "data", note: "No data returned for prairie-fen plants" });
+        return findings;
+      }
+      if (data.plants_imported === true) {
+        findings.push({ type: "ok", sourceField: "data.plants_imported", note: `plants_imported=true` });
+      } else {
+        findings.push({
+          type: "mismatch",
+          sourceField: "data.plants_imported",
+          note: `plants_imported=${data.plants_imported}; run POST /api/mnfi/import-plant-lists`,
+        });
+      }
+      const totalEntries = typeof data.total_entries === "number" ? data.total_entries : 0;
+      if (totalEntries > 0) {
+        findings.push({ type: "ok", sourceField: "data.total_entries", note: `${totalEntries} plant entries for prairie fen` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.total_entries", note: `total_entries=${totalEntries}; no plants loaded` });
+      }
+      const byLifeForm = data.by_life_form as Record<string, unknown> | null | undefined;
+      for (const form of ["Graminoids", "Forbs", "Shrubs"]) {
+        if (byLifeForm && Array.isArray(byLifeForm[form]) && (byLifeForm[form] as unknown[]).length > 0) {
+          findings.push({ type: "ok", sourceField: `data.by_life_form.${form}`, note: `${form} list present (${(byLifeForm[form] as unknown[]).length} entries)` });
+        } else {
+          findings.push({ type: "gap", sourceField: `data.by_life_form.${form}`, note: `${form} life form missing from prairie-fen plant list` });
+        }
+      }
+      return findings;
+    },
+  );
+
+  return [metadataCheck, communitiesCheck, prairieFeCheck, countyCheck, plantListCheck];
 }

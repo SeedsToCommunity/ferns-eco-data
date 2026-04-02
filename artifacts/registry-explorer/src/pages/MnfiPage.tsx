@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link } from "wouter";
 import {
   ArrowLeft,
@@ -11,6 +11,7 @@ import {
   MapPin,
   Layers,
   AlertCircle,
+  Leaf,
 } from "lucide-react";
 
 interface MnfiCommunity {
@@ -23,9 +24,26 @@ interface MnfiCommunity {
   state_rank: string;
   overview: string | null;
   landscape_context: string | null;
+  soils_description: string | null;
+  natural_processes: string | null;
+  vegetation: string | null;
+  management_notes: string | null;
+  similar_communities: string[] | null;
   mnfi_url: string;
   county_map_url: string | null;
+  description_fetched_at: string | null;
   imported_at: string;
+}
+
+interface PlantsByLifeForm {
+  [lifeForm: string]: Array<{ common_name: string; scientific_names: string[] }>;
+}
+
+interface PlantData {
+  total_entries: number;
+  plants_imported: boolean;
+  by_life_form: PlantsByLifeForm;
+  plant_list_url: string;
 }
 
 interface MnfiCountyElement {
@@ -69,6 +87,30 @@ function RawPanel({ title, data }: { title: string; data: unknown }) {
   );
 }
 
+function ExpandableText({ label, text }: { label: string; text: string }) {
+  const [open, setOpen] = useState(false);
+  const preview = text.slice(0, 200);
+  const needsTruncation = text.length > 200;
+  return (
+    <div className="space-y-1">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full text-left flex items-center justify-between gap-2 group"
+      >
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{label}</p>
+        {needsTruncation && (
+          <span className="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">
+            {open ? "show less" : "show more"}
+          </span>
+        )}
+      </button>
+      <p className="text-sm leading-relaxed text-foreground/90">
+        {needsTruncation && !open ? `${preview}…` : text}
+      </p>
+    </div>
+  );
+}
+
 function RankBadge({ rank, label }: { rank: string; label: string }) {
   const rankLevel = rank.replace(/[?]/g, "");
   const isImperiled = rankLevel.startsWith("G1") || rankLevel.startsWith("G2") || rankLevel.startsWith("S1") || rankLevel.startsWith("S2");
@@ -94,6 +136,8 @@ function RankBadge({ rank, label }: { rank: string; label: string }) {
   );
 }
 
+const LIFE_FORM_ORDER = ["Trees", "Shrubs", "Graminoids", "Forbs", "Ferns", "Fern Allies", "Mosses", "Lichens", "Vines"];
+
 const CLASS_ORDER = ["Palustrine", "Palustrine/Terrestrial", "Primary", "Subterranean/Sink", "Terrestrial"];
 const CLASS_COLORS: Record<string, string> = {
   Palustrine: "text-blue-400",
@@ -102,6 +146,104 @@ const CLASS_COLORS: Record<string, string> = {
   "Subterranean/Sink": "text-purple-400",
   Terrestrial: "text-green-400",
 };
+
+function PlantListPanel({ communityId, communitySlug }: { communityId: number; communitySlug: string }) {
+  const [plantData, setPlantData] = useState<PlantData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    setPlantData(null);
+    setLoading(true);
+    setError(null);
+    setOpen(false);
+    fetch(`../api/mnfi/communities/${communityId}/plants`)
+      .then((r) => r.json())
+      .then((d) => {
+        setPlantData(d.data ?? null);
+        setLoading(false);
+      })
+      .catch((e) => {
+        setError(String(e));
+        setLoading(false);
+      });
+  }, [communityId, communitySlug]);
+
+  if (loading) {
+    return (
+      <div className="border border-border/50 rounded-xl p-3 bg-muted/20">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground animate-pulse">
+          <Leaf className="w-3.5 h-3.5" />
+          Loading plant list…
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !plantData || !plantData.plants_imported) {
+    return null;
+  }
+
+  const lifeFormKeys = Object.keys(plantData.by_life_form);
+  const orderedForms = [
+    ...LIFE_FORM_ORDER.filter((f) => lifeFormKeys.includes(f)),
+    ...lifeFormKeys.filter((f) => !LIFE_FORM_ORDER.includes(f)),
+  ];
+  const totalSpecies = plantData.total_entries;
+
+  return (
+    <div className="border border-border/50 rounded-xl overflow-hidden bg-muted/20">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between p-3 hover:bg-muted/40 transition-colors text-left"
+      >
+        <div className="flex items-center gap-2 text-xs font-medium">
+          <Leaf className="w-3.5 h-3.5 text-green-400" />
+          <span>Characteristic Plants</span>
+          <span className="text-muted-foreground">({totalSpecies} entries)</span>
+        </div>
+        {open
+          ? <ChevronUp className="w-4 h-4 text-muted-foreground" />
+          : <ChevronDown className="w-4 h-4 text-muted-foreground" />
+        }
+      </button>
+      {open && (
+        <div className="border-t border-border/50 p-3 space-y-4 max-h-96 overflow-y-auto">
+          {orderedForms.map((form) => {
+            const plants = plantData.by_life_form[form];
+            return (
+              <div key={form}>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5">{form}</p>
+                <ul className="space-y-1">
+                  {plants.map((p, i) => (
+                    <li key={i} className="text-xs leading-relaxed flex gap-1">
+                      <span className="text-foreground/80">{p.common_name}</span>
+                      {p.scientific_names.length > 0 && (
+                        <span className="italic text-muted-foreground">
+                          ({p.scientific_names.join(", ")})
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
+          <a
+            href={plantData.plant_list_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ExternalLink className="w-3 h-3" />
+            View on MNFI
+          </a>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function MnfiPage() {
   const [communities, setCommunities] = useState<MnfiCommunity[] | null>(null);
@@ -204,12 +346,13 @@ export default function MnfiPage() {
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold">Michigan Natural Features Inventory</h1>
-                  <p className="text-sm text-muted-foreground">Natural Community Classification · County Element Data</p>
+                  <p className="text-sm text-muted-foreground">Natural Community Classification · Plant Lists · County Element Data</p>
                 </div>
               </div>
               <p className="text-sm text-muted-foreground max-w-2xl">
                 Michigan's authoritative classification of 77 natural community types across 5 ecological classes,
-                maintained by MNFI at Michigan State University Extension. Ranks follow NatureServe methodology.
+                maintained by MNFI at Michigan State University Extension. Includes full community descriptions,
+                characteristic plant species lists, and conservation ranks following NatureServe methodology.
               </p>
             </div>
             <div className="flex gap-2 shrink-0">
@@ -352,7 +495,7 @@ export default function MnfiPage() {
 
                 {/* Detail Panel */}
                 {selected && (
-                  <div className="sticky top-4 space-y-4">
+                  <div className="sticky top-4 space-y-3 max-h-[calc(100vh-8rem)] overflow-y-auto pr-1">
                     <div className="rounded-xl border border-border/60 bg-card p-5 space-y-4">
                       <div className="space-y-1">
                         <div className="flex items-start justify-between gap-2">
@@ -375,17 +518,49 @@ export default function MnfiPage() {
                       </div>
 
                       {selected.overview && (
-                        <div className="space-y-1">
-                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Overview</p>
-                          <p className="text-sm leading-relaxed">{selected.overview}</p>
-                        </div>
+                        <ExpandableText label="Overview" text={selected.overview} />
                       )}
 
                       {selected.landscape_context && (
+                        <ExpandableText label="Landscape Context" text={selected.landscape_context} />
+                      )}
+
+                      {selected.soils_description && (
+                        <ExpandableText label="Soils" text={selected.soils_description} />
+                      )}
+
+                      {selected.natural_processes && (
+                        <ExpandableText label="Natural Processes" text={selected.natural_processes} />
+                      )}
+
+                      {selected.vegetation && (
+                        <ExpandableText label="Vegetation" text={selected.vegetation} />
+                      )}
+
+                      {selected.similar_communities && selected.similar_communities.length > 0 && (
                         <div className="space-y-1">
-                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Landscape Context</p>
-                          <p className="text-sm leading-relaxed">{selected.landscape_context}</p>
+                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Similar Communities</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {selected.similar_communities.map((name) => (
+                              <button
+                                key={name}
+                                onClick={() => {
+                                  const match = communities?.find(
+                                    (c) => c.name.toLowerCase() === name.toLowerCase()
+                                  );
+                                  if (match) setSelected(match);
+                                }}
+                                className="px-2 py-0.5 text-xs rounded-full border border-border/50 bg-muted/30 hover:bg-muted/60 hover:border-border/80 transition-colors cursor-pointer"
+                              >
+                                {name}
+                              </button>
+                            ))}
+                          </div>
                         </div>
+                      )}
+
+                      {selected.management_notes && (
+                        <ExpandableText label="Management Notes" text={selected.management_notes} />
                       )}
 
                       {selected.county_map_url && (
@@ -413,6 +588,12 @@ export default function MnfiPage() {
                         <span className="text-xs text-muted-foreground self-center font-mono">ID: {selected.community_id}</span>
                       </div>
                     </div>
+
+                    <PlantListPanel
+                      communityId={selected.community_id}
+                      communitySlug={selected.slug}
+                    />
+
                     <RawPanel title="Raw JSON" data={selected} />
                   </div>
                 )}
@@ -436,9 +617,8 @@ export default function MnfiPage() {
               <p className="text-sm font-medium text-amber-200">Data availability note</p>
               <p className="text-sm text-amber-300/80">
                 MNFI county element data (species and community occurrences per Michigan county) is served
-                through MNFI's dynamic web interface only — no public bulk-download API exists.
-                The search below will work once data is imported; currently no records are loaded.
-                Contact MNFI via their{" "}
+                through a JavaScript-rendered web interface with no public bulk-download API. A data-sharing
+                agreement is being pursued with MNFI to obtain direct access. Contact MNFI via their{" "}
                 <a
                   href="https://mnfi.anr.msu.edu/services/special-data-requests"
                   target="_blank"

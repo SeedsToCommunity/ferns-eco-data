@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer, timestamp, unique } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, integer, timestamp, unique, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -12,8 +12,24 @@ export const mnfiCommunitiesTable = pgTable("mnfi_communities", {
   state_rank: text("state_rank").notNull(),
   overview: text("overview"),
   landscape_context: text("landscape_context"),
+  soils_description: text("soils_description"),
+  natural_processes: text("natural_processes"),
+  vegetation: text("vegetation"),
+  similar_communities: jsonb("similar_communities"),
+  management_notes: text("management_notes"),
   mnfi_url: text("mnfi_url").notNull(),
   county_map_url: text("county_map_url"),
+  description_fetched_at: timestamp("description_fetched_at", { withTimezone: true }),
+  imported_at: timestamp("imported_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const mnfiCommunityPlantsTable = pgTable("mnfi_community_plants", {
+  id: serial("id").primaryKey(),
+  community_id: integer("community_id").notNull().references(() => mnfiCommunitiesTable.community_id, { onDelete: "cascade" }),
+  life_form: text("life_form").notNull(),
+  common_name: text("common_name").notNull(),
+  scientific_names: jsonb("scientific_names").notNull().default([]),
+  sort_order: integer("sort_order").notNull().default(0),
   imported_at: timestamp("imported_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
@@ -39,10 +55,14 @@ export const mnfiCountyElementsTable = pgTable(
 
 export const insertMnfiCommunitySchema = createInsertSchema(mnfiCommunitiesTable).omit({ imported_at: true });
 export const selectMnfiCommunitySchema = createSelectSchema(mnfiCommunitiesTable);
+export const insertMnfiCommunityPlantSchema = createInsertSchema(mnfiCommunityPlantsTable).omit({ id: true, imported_at: true });
+export const selectMnfiCommunityPlantSchema = createSelectSchema(mnfiCommunityPlantsTable);
 export const insertMnfiCountyElementSchema = createInsertSchema(mnfiCountyElementsTable).omit({ id: true, imported_at: true });
 export const selectMnfiCountyElementSchema = createSelectSchema(mnfiCountyElementsTable);
 
 export type InsertMnfiCommunity = z.infer<typeof insertMnfiCommunitySchema>;
 export type MnfiCommunity = typeof mnfiCommunitiesTable.$inferSelect;
+export type InsertMnfiCommunityPlant = z.infer<typeof insertMnfiCommunityPlantSchema>;
+export type MnfiCommunityPlant = typeof mnfiCommunityPlantsTable.$inferSelect;
 export type InsertMnfiCountyElement = z.infer<typeof insertMnfiCountyElementSchema>;
 export type MnfiCountyElement = typeof mnfiCountyElementsTable.$inferSelect;
