@@ -38,7 +38,7 @@ router.get("/wucols", (req, res) => {
     found,
     cache_status: "miss",
     queried_at: new Date(),
-    source_url: resolveUrl(req, "/api/wucols"),
+    source_url: resolveUrl(req, "/api/wucols/all"),
     provenance: {
       ...buildProvenance(req),
       matched_input: code.trim().toUpperCase(),

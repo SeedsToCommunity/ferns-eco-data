@@ -38,7 +38,7 @@ router.get("/coefficient", (req, res) => {
     found,
     cache_status: "miss",
     queried_at: new Date(),
-    source_url: resolveUrl(req, "/api/coefficient"),
+    source_url: resolveUrl(req, "/api/coefficient/all"),
     provenance: {
       ...buildProvenance(req),
       matched_input: value.trim(),

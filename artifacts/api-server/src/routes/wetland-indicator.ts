@@ -42,7 +42,7 @@ router.get("/wetland-indicator", (req, res) => {
     found,
     cache_status: "miss",
     queried_at: new Date(),
-    source_url: resolveUrl(req, "/api/wetland-indicator"),
+    source_url: resolveUrl(req, "/api/wetland-indicator/all"),
     provenance: {
       ...buildProvenance(req),
       matched_input: code.trim().toUpperCase(),
@@ -71,10 +71,10 @@ router.get("/wetland-indicator/w", (req, res) => {
     found,
     cache_status: "miss",
     queried_at: new Date(),
-    source_url: resolveUrl(req, "/api/wetland-indicator/w"),
+    source_url: resolveUrl(req, "/api/wetland-indicator/all"),
     provenance: {
       ...buildProvenance(req),
-      upstream_url: resolveUrl(req, "/api/wetland-indicator/w"),
+      upstream_url: resolveUrl(req, "/api/wetland-indicator/all"),
       matched_input: String(w),
     },
     data: found ? entry : null,

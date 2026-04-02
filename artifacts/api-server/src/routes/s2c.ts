@@ -73,7 +73,7 @@ router.get("/s2c", (req, res) => {
     found,
     cache_status: "miss",
     queried_at: new Date(),
-    source_url: resolveUrl(req, "/api/s2c"),
+    source_url: resolveUrl(req, "/api/s2c/years"),
     provenance: {
       ...buildProvenance(req),
       matched_input: year,
