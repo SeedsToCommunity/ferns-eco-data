@@ -1,6 +1,7 @@
 import app from "./app";
 import { logger } from "./lib/logger";
 import { ensureBonapRegistryEntry } from "./services/bonap/seed.js";
+import { autoImportMnfiIfEmpty } from "./services/mnfi/seed.js";
 import { ensureGbifRegistryEntry } from "./services/gbif/seed.js";
 import { ensureInatRegistryEntry } from "./services/inat/seed.js";
 import { ensureMifloraRegistryEntry } from "./services/miflora/seed.js";
@@ -66,5 +67,9 @@ app.listen(port, (err) => {
 
   ensureUniversalFqaRegistryEntry().catch((seedErr) => {
     logger.error({ err: seedErr }, "Failed to seed Universal FQA registry entry at startup");
+  });
+
+  autoImportMnfiIfEmpty(port).catch((err) => {
+    logger.error({ err }, "MNFI auto-import check failed at startup");
   });
 });
