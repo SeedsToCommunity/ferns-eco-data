@@ -1,0 +1,77 @@
+export const NATURESERVE_SOURCE_ID = "natureserve";
+
+export const NATURESERVE_API_BASE = "https://explorer.natureserve.org/api/data";
+export const NATURESERVE_EXPLORER_BASE = "https://explorer.natureserve.org";
+
+export const NATURESERVE_PERMISSION_GRANTED = true;
+
+export const NATURESERVE_PERMISSION_STATUS =
+  "OPEN — Free public API. Attribution required per NatureServe Terms of Use.";
+
+export const NATURESERVE_ATTRIBUTION = {
+  source_name: "NatureServe Explorer",
+  website: "https://explorer.natureserve.org",
+  license: "Attribution required",
+  citation:
+    "NatureServe. [Year]. NatureServe Explorer [web application]. NatureServe, Arlington, Virginia. " +
+    "Available: https://explorer.natureserve.org. (Accessed: [Date]).",
+  terms_of_use: "https://www.natureserve.org/terms-and-conditions",
+  api_base_url: NATURESERVE_API_BASE,
+};
+
+export const NATURESERVE_DERIVATION_SUMMARY =
+  "Conservation status and ecological systems data from NatureServe Explorer. " +
+  "NatureServe is the authoritative conservation status authority for species and ecosystems " +
+  "across the Americas, drawing on data from 80+ member programs including state Natural Heritage " +
+  "Programs. Global ranks (G1–G5), national ranks (N1–N5), state ranks (S1–S5), IUCN Red List " +
+  "categories, and US federal listing status (ESA Threatened/Endangered) are provided for queried " +
+  "species. Ecological systems / natural communities are searched by name and include global rank " +
+  "and US national rank. Data is accessed through NatureServe Explorer's public REST API " +
+  "and cached 30 days per NatureServe's recommendation for slowly-changing conservation data. " +
+  "Attribution to NatureServe Explorer is required per their Terms of Use.";
+
+export const NATURESERVE_DERIVATION_SCIENTIFIC =
+  "Source: NatureServe Explorer API (https://explorer.natureserve.org/api/data). " +
+  "Species search uses POST /api/data/speciesSearch with criteriaType:species and quickSearch text " +
+  "criteria (page 0-indexed). Ecosystem search uses POST /api/data/search with criteriaType:combined " +
+  "and quickSearch text criteria, filtering for ECOSYSTEM recordType results. Full taxon detail " +
+  "retrieved via GET /api/data/taxon/ELEMENT_GLOBAL.2.{elementGlobalId}. " +
+  "Global rank (grank): G1=Critically Imperiled, G2=Imperiled, G3=Vulnerable, G4=Apparently Secure, " +
+  "G5=Secure; GH=Possibly Extinct; GX=Presumed Extinct; GNR=Not Ranked; GU=Unrankable. " +
+  "National rank (nrank): N1–N5 follow same scale for US. State rank (srank): S1–S5 for queried state. " +
+  "IUCN categories: EX/EW/CR/EN/VU/NT/LC/DD/NE. " +
+  "Federal status (usesa): E=Endangered, T=Threatened, SC=Species of Concern. " +
+  "COSEWIC (Canada): E=Endangered, T=Threatened, SC=Special Concern, NAR=Not at Risk. " +
+  "State rank is extracted from elementNationals[nation=US].elementSubnationals[subnation={stateCode}].srank. " +
+  "Ecosystems: ecosystemGlobal.conceptSentence provides the ecosystem description. " +
+  "Method: api_fetch. FERNS cache TTL: 30 days for all NatureServe data.";
+
+export const NATURESERVE_REGISTRY_ENTRY = {
+  source_id: NATURESERVE_SOURCE_ID,
+  name: "NatureServe Explorer — Species Conservation Status and Ecological Systems",
+  knowledge_type: "source_wrapper",
+  status: "live",
+  description:
+    "Conservation status data from NatureServe Explorer, the authoritative global conservation " +
+    "status authority for species and ecosystems across the Americas. NatureServe aggregates data " +
+    "from 80+ member programs including state Natural Heritage Programs. Provides global ranks " +
+    "(G1–G5), US national ranks (N1–N5), state ranks, IUCN Red List category, US federal ESA " +
+    "listing status, and CITES/COSEWIC listings for species. Also provides ecological systems / " +
+    "natural communities data — NatureServe's national-scale terrestrial and aquatic ecosystem " +
+    "classification — complementing MNFI's Michigan-specific field data at a national scale.",
+  input_summary:
+    "Scientific or common name string for species search; common name or ecosystem name for ecological systems search; optional US state code (default MI) for state rank",
+  output_summary:
+    "Species: scientific name, common name, global rank, US national rank, state rank, IUCN category, federal ESA status, CITES, COSEWIC, NatureServe Explorer URL. " +
+    "Ecosystems: system name, global rank, US national rank, concept description, NatureServe Explorer URL.",
+  dependencies: [] as string[],
+  update_frequency:
+    "Live API. Conservation ranks reviewed on conservation status review cycles (varies by taxon, typically every 1–10 years). FERNS cache TTL: 30 days.",
+  known_limitations:
+    "State rank is only returned for the queried state (default MI). NatureServe quickSearch may return the most prominent matching taxon rather than an exact scientific name match — verify returned scientific name against query. " +
+    "Ecosystem conceptSentence may be null for some ecosystems with incomplete records. " +
+    "GNR (Not Ranked) and SNR (State Not Ranked) are common for ecosystem associations where status assessment is pending. " +
+    "NatureServe's Element Occurrence spatial data (precise localities) is restricted to member programs and is not available through this integration.",
+  metadata_url: "/api/natureserve/metadata",
+  explorer_url: "/source/natureserve",
+};

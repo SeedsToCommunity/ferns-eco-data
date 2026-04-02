@@ -868,3 +868,113 @@ export async function runMnfiChecks(fernsBase: string): Promise<EndpointComparis
 
   return [metadataCheck, communitiesCheck, prairieFeCheck, countyCheck, plantListCheck];
 }
+
+export async function runNatureserveChecks(fernsBase: string): Promise<EndpointComparison[]> {
+  const metadataCheck = await checkEndpoint(
+    "natureserve",
+    "/api/natureserve/metadata",
+    "NatureServe — service metadata (permission_granted, attribution, cache_stats)",
+    fernsBase,
+    (envelope) => {
+      const findings: FieldFinding[] = [];
+      const ec = envelope as Record<string, unknown>;
+      if (ec.permission_granted === true) {
+        findings.push({ type: "ok", sourceField: "permission_granted", note: "permission_granted=true" });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "permission_granted", note: `permission_granted=${ec.permission_granted}` });
+      }
+      const attr = ec.attribution as Record<string, unknown> | null | undefined;
+      if (attr && attr.source_name) {
+        findings.push({ type: "ok", sourceField: "attribution.source_name", note: `${attr.source_name}` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "attribution", note: "attribution block missing" });
+      }
+      const cs = ec.cache_stats as Record<string, unknown> | null | undefined;
+      if (cs && typeof cs.ttl_days === "number") {
+        findings.push({ type: "ok", sourceField: "cache_stats.ttl_days", note: `ttl_days=${cs.ttl_days}` });
+      } else {
+        findings.push({ type: "gap", sourceField: "cache_stats", note: "cache_stats block missing or malformed" });
+      }
+      return findings;
+    },
+  );
+
+  const speciesCheck = await checkEndpoint(
+    "natureserve",
+    "/api/natureserve/species?name=Platanthera+leucophaea",
+    "NatureServe — species search (Platanthera leucophaea: G2G3, S1, USESA Threatened)",
+    fernsBase,
+    (envelope) => {
+      const findings: FieldFinding[] = [];
+      const data = envelope.data as Record<string, unknown> | null | undefined;
+      if (!data) {
+        findings.push({ type: "mismatch", sourceField: "data", note: "No data in response" });
+        return findings;
+      }
+      if (data.scientific_name === "Platanthera leucophaea") {
+        findings.push({ type: "ok", sourceField: "data.scientific_name", note: "Platanthera leucophaea (exact match)" });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.scientific_name", note: `Expected Platanthera leucophaea, got ${data.scientific_name}` });
+      }
+      if (data.global_rank) {
+        findings.push({ type: "ok", sourceField: "data.global_rank", note: `global_rank=${data.global_rank}` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.global_rank", note: "global_rank missing" });
+      }
+      if (data.state_rank) {
+        findings.push({ type: "ok", sourceField: "data.state_rank", note: `state_rank=${data.state_rank} (MI)` });
+      } else {
+        findings.push({ type: "gap", sourceField: "data.state_rank", note: "state_rank not available for MI" });
+      }
+      if (data.federal_status_code === "T") {
+        findings.push({ type: "ok", sourceField: "data.federal_status_code", note: "federal_status_code=T (Threatened, ESA)" });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.federal_status_code", note: `Expected T (Threatened), got ${data.federal_status_code}` });
+      }
+      if (data.natureserve_url) {
+        findings.push({ type: "ok", sourceField: "data.natureserve_url", note: "natureserve_url present" });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.natureserve_url", note: "natureserve_url missing" });
+      }
+      return findings;
+    },
+  );
+
+  const ecosystemsCheck = await checkEndpoint(
+    "natureserve",
+    "/api/natureserve/ecosystems?name=lakeplain+prairie",
+    "NatureServe — ecosystem search (lakeplain prairie: results present, Great Lakes Wet-Mesic Lakeplain Prairie)",
+    fernsBase,
+    (envelope) => {
+      const findings: FieldFinding[] = [];
+      const data = envelope.data as Record<string, unknown> | null | undefined;
+      if (!data) {
+        findings.push({ type: "mismatch", sourceField: "data", note: "No data in response" });
+        return findings;
+      }
+      const ecosystems = Array.isArray(data.ecosystems) ? (data.ecosystems as Record<string, unknown>[]) : [];
+      if (ecosystems.length > 0) {
+        findings.push({ type: "ok", sourceField: "data.ecosystems", note: `${ecosystems.length} ecosystem(s) returned` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.ecosystems", note: "No ecosystems returned for 'lakeplain prairie'" });
+      }
+      const lakeplain = ecosystems.find((e) =>
+        typeof e.system_name === "string" && e.system_name.toLowerCase().includes("lakeplain"),
+      );
+      if (lakeplain) {
+        findings.push({ type: "ok", sourceField: "data.ecosystems[lakeplain]", note: `Found: ${lakeplain.system_name}` });
+      } else {
+        findings.push({ type: "gap", sourceField: "data.ecosystems[lakeplain]", note: "No lakeplain ecosystem found in results" });
+      }
+      const hasUrls = ecosystems.every((e) => typeof e.natureserve_url === "string" && e.natureserve_url.includes("explorer.natureserve.org"));
+      if (hasUrls) {
+        findings.push({ type: "ok", sourceField: "data.ecosystems[].natureserve_url", note: "All ecosystem results have valid NatureServe URLs" });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.ecosystems[].natureserve_url", note: "Some ecosystems missing NatureServe URL" });
+      }
+      return findings;
+    },
+  );
+
+  return [metadataCheck, speciesCheck, ecosystemsCheck];
+}

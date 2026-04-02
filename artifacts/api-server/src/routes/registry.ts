@@ -5,6 +5,7 @@ import { ensureBonapRegistryEntry } from "../services/bonap/seed.js";
 import { ensureGbifRegistryEntry } from "../services/gbif/seed.js";
 import { ensureLcscgRegistryEntry } from "../services/lcscg/seed.js";
 import { ensureMnfiRegistryEntry } from "../services/mnfi/seed.js";
+import { ensureNatureserveRegistryEntry } from "../services/natureserve/seed.js";
 import { ensureRegistryEntry } from "../services/registry/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
 
@@ -28,6 +29,7 @@ async function seedAll(): Promise<void> {
     ensureGbifRegistryEntry(),
     ensureLcscgRegistryEntry(),
     ensureMnfiRegistryEntry(),
+    ensureNatureserveRegistryEntry(),
     ensureRegistryEntry(),
   ]);
 }
