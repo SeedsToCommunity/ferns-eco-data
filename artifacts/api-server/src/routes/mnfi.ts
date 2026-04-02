@@ -19,11 +19,19 @@ const router: IRouter = Router();
 // Admin guard — protects mutating import endpoints.
 // Set ADMIN_SECRET in the environment; callers must send:
 //   Authorization: Bearer <secret>
-// If ADMIN_SECRET is not configured the guard is skipped (dev / seed workflow).
+// In production (NODE_ENV=production), ADMIN_SECRET must be set — requests are
+// rejected if it is missing. In development, the guard passes without a secret.
 // ---------------------------------------------------------------------------
 function requireAdmin(req: Request, res: Response): boolean {
   const secret = process.env["ADMIN_SECRET"];
-  if (!secret) return true; // No secret configured — allow (dev mode)
+  const isProd = process.env["NODE_ENV"] === "production";
+  if (!secret) {
+    if (isProd) {
+      res.status(503).json({ error: "misconfigured", message: "ADMIN_SECRET must be set in production to use import endpoints." });
+      return false;
+    }
+    return true; // dev mode — allow without secret
+  }
   const auth = req.headers["authorization"] ?? "";
   if (auth === `Bearer ${secret}`) return true;
   res.status(401).json({ error: "unauthorized", message: "Valid Authorization: Bearer <ADMIN_SECRET> header required." });
