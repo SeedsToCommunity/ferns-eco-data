@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link } from "wouter";
+import { SourceMetadataPanel } from "@/components/SourceMetadataPanel";
 import {
   ArrowLeft,
   TreePine,
@@ -694,6 +695,11 @@ export default function MnfiPage() {
             </div>
           )}
         </div>
+      </div>
+
+      <div className="border-t border-border mt-12 pt-10 pb-12 px-4 sm:px-6 lg:px-8">
+        <h2 className="text-xl font-bold text-foreground mb-6">About This Source</h2>
+        <SourceMetadataPanel metadataApiPath="/api/mnfi/metadata" />
       </div>
     </div>
   );

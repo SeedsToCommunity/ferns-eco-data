@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Link } from "wouter";
 import { Search, Leaf, Beaker, FileJson, ArrowLeft } from "lucide-react";
+import { SourceMetadataPanel } from "@/components/SourceMetadataPanel";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -126,6 +127,11 @@ export function GbifPage() {
               <p className="text-lg">Enter a search query above to begin exploring GBIF data.</p>
             </div>
           )}
+        </div>
+
+        <div className="border-t border-border mt-12 pt-10 pb-12">
+          <h2 className="text-xl font-bold text-foreground mb-6">About This Source</h2>
+          <SourceMetadataPanel metadataApiPath="/api/gbif/metadata" />
         </div>
       </main>
     </div>

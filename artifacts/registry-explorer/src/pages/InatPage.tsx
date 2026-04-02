@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { MapPin, Leaf, CalendarDays, Eye, Binoculars, FileJson, ArrowLeft } from "lucide-react";
+import { SourceMetadataPanel } from "@/components/SourceMetadataPanel";
 import { PlaceLookupTab } from "@/components/inat/PlaceLookupTab";
 import { SpeciesTab } from "@/components/inat/SpeciesTab";
 import { PhenologyTab } from "@/components/inat/PhenologyTab";
@@ -131,6 +132,11 @@ export function InatPage() {
             />
           )}
           {activeTab === "observations" && <ObservationsTab />}
+        </div>
+
+        <div className="border-t border-border mt-12 pt-10 pb-12">
+          <h2 className="text-xl font-bold text-foreground mb-6">About This Source</h2>
+          <SourceMetadataPanel metadataApiPath="/api/inat/metadata" />
         </div>
       </div>
     </div>

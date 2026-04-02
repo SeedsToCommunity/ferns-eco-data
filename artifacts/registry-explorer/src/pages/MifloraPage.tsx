@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { useGetMifloraSpecies, useGetMifloraCounties, useGetMifloraImages } from "@workspace/api-client-react";
+import { SourceMetadataPanel } from "@/components/SourceMetadataPanel";
 import { Leaf, Search, Loader2, AlertCircle, MapPin, ExternalLink, Database, Code, ChevronDown, ChevronUp, ArrowLeft, FileJson, Camera, ImageOff } from "lucide-react";
 import { stripHtml } from "@/lib/utils";
 import type { MifloraImageRecord } from "@workspace/api-client-react";
@@ -415,6 +416,11 @@ export function MifloraPage() {
             </div>
           </div>
         )}
+
+        <div className="border-t border-border mt-12 pt-10 pb-12">
+          <h2 className="text-xl font-bold text-foreground mb-6">About This Source</h2>
+          <SourceMetadataPanel metadataApiPath="/api/miflora/metadata" />
+        </div>
       </div>
     </div>
   );

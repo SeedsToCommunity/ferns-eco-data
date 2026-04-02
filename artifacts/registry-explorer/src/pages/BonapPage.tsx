@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { useBonapExplorer } from "@/hooks/use-bonap";
+import { SourceMetadataPanel } from "@/components/SourceMetadataPanel";
 import { PermissionModal } from "@/components/bonap/PermissionModal";
 import { SearchForm } from "@/components/bonap/SearchForm";
 import { ResultDisplay } from "@/components/bonap/ResultDisplay";
@@ -83,6 +84,11 @@ export function BonapPage() {
             error={mapQuery.error}
             response={mapQuery.data}
           />
+        </section>
+
+        <section className="border-t border-border mt-12 pt-10 pb-12">
+          <h2 className="text-xl font-bold text-foreground mb-6">About This Source</h2>
+          <SourceMetadataPanel metadataApiPath="/api/bonap/metadata" />
         </section>
       </main>
     </div>

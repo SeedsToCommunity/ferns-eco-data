@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link } from "wouter";
 import { ArrowLeft, Leaf, ChevronDown, ChevronUp, Code, ExternalLink, Search, BookOpen, Image } from "lucide-react";
+import { SourceMetadataPanel } from "@/components/SourceMetadataPanel";
 
 interface LcscgGuide {
   guide_id: number;
@@ -531,6 +532,11 @@ export function LcscgPage() {
             {rawSearch && <RawPanel title={`Raw API response — /api/lcscg/species?name=…`} data={rawSearch} />}
           </div>
         )}
+
+        <div className="border-t border-border mt-12 pt-10 pb-12">
+          <h2 className="text-xl font-bold text-foreground mb-6">About This Source</h2>
+          <SourceMetadataPanel metadataApiPath="/api/lcscg/metadata" />
+        </div>
       </div>
     </div>
   );

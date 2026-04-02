@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link } from "wouter";
+import { SourceMetadataPanel } from "@/components/SourceMetadataPanel";
 import {
   useGetUniversalFqaDatabases,
   useGetUniversalFqaDatabase,
@@ -1182,6 +1183,11 @@ export function UniversalFqaPage() {
             )}
           </div>
         )}
+      </div>
+
+      <div className="border-t border-border mt-12 pt-10 pb-12 px-4 sm:px-6 lg:px-8">
+        <h2 className="text-xl font-bold text-foreground mb-6">About This Source</h2>
+        <SourceMetadataPanel metadataApiPath="/api/universal-fqa/metadata" />
       </div>
     </div>
   );

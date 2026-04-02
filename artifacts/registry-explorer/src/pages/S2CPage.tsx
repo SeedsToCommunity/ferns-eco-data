@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link } from "wouter";
+import { SourceMetadataPanel } from "@/components/SourceMetadataPanel";
 import {
   useGetS2CYears,
   useGetS2CSpeciesByYear,
@@ -279,6 +280,11 @@ export function S2CPage() {
 
         <RawPanel title="Raw API response — /api/s2c?year=…" data={speciesRes} />
         <RawPanel title="Raw API response — /api/s2c/years" data={yearsRes} />
+
+        <div className="border-t border-border mt-12 pt-10 pb-12">
+          <h2 className="text-xl font-bold text-foreground mb-6">About This Source</h2>
+          <SourceMetadataPanel metadataApiPath="/api/s2c/metadata" />
+        </div>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link } from "wouter";
+import { SourceMetadataPanel } from "@/components/SourceMetadataPanel";
 import {
   ArrowLeft,
   Shield,
@@ -552,6 +553,11 @@ export function NatureservePage() {
             </p>
           </div>
         )}
+
+        <div className="border-t border-border mt-12 pt-10 pb-12">
+          <h2 className="text-xl font-bold text-foreground mb-6">About This Source</h2>
+          <SourceMetadataPanel metadataApiPath="/api/natureserve/metadata" />
+        </div>
       </main>
     </div>
   );
