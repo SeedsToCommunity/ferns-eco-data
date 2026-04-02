@@ -12,6 +12,7 @@ import UniversalFqaPage from "@/pages/UniversalFqaPage";
 import LcscgPage from "@/pages/LcscgPage";
 import MnfiPage from "@/pages/MnfiPage";
 import { NatureservePage } from "@/pages/NatureservePage";
+import GenericSourcePage from "@/pages/GenericSourcePage";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -38,6 +39,8 @@ function Router() {
       <Route path="/source/mnfi" component={MnfiPage} />
       <Route path="/source/natureserve" component={NatureservePage} />
       <Route path="/source/:sourceId/metadata" component={MetadataPage} />
+      {/* Generic fallback: any source not matched above gets this page automatically */}
+      <Route path="/source/:sourceId" component={GenericSourcePage} />
       <Route path="/vocabulary/:vocabulary" component={VocabularyPage} />
       <Route component={NotFound} />
     </Switch>
