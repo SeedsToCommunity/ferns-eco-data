@@ -42,16 +42,6 @@ export async function seedLcscgData(): Promise<{ guidesUpserted: number; species
     return { guidesUpserted: 0, speciesUpserted: 0 };
   }
 
-  const [row] = await db
-    .select({ count: sql<number>`count(*)::int` })
-    .from(lcscgGuidesTable);
-
-  if (Number(row?.count ?? 0) >= 12) {
-    logger.info({ guide_count: row?.count }, "LCSCG data already seeded, skipping");
-    dataSeeded = true;
-    return { guidesUpserted: 0, speciesUpserted: 0 };
-  }
-
   logger.info({ guides: LCSCG_GUIDES.length, species: LCSCG_SPECIES.length }, "Seeding LCSCG data from static files");
 
   for (const guide of LCSCG_GUIDES) {
