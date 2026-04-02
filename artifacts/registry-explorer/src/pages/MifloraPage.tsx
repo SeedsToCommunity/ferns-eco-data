@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { useGetMifloraSpecies, useGetMifloraCounties, useGetMifloraImages } from "@workspace/api-client-react";
 import { SourceMetadataPanel } from "@/components/SourceMetadataPanel";
+import { SourceSummary } from "@/components/SourceSummary";
 import { Leaf, Search, Loader2, AlertCircle, MapPin, ExternalLink, Database, Code, ChevronDown, ChevronUp, ArrowLeft, FileJson, Camera, ImageOff } from "lucide-react";
 import { stripHtml } from "@/lib/utils";
 import type { MifloraImageRecord } from "@workspace/api-client-react";
@@ -212,6 +213,10 @@ export function MifloraPage() {
       </header>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+        <SourceSummary
+          metadataApiPath="/api/miflora/metadata"
+          className="text-sm text-muted-foreground leading-relaxed"
+        />
         <div className="bg-card border border-border rounded-xl p-6">
           <form onSubmit={handleSubmit} className="flex gap-2">
             <input

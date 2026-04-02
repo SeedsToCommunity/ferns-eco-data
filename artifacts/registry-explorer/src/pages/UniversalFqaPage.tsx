@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import { SourceMetadataPanel } from "@/components/SourceMetadataPanel";
+import { SourceSummary } from "@/components/SourceSummary";
 import {
   useGetUniversalFqaDatabases,
   useGetUniversalFqaDatabase,
@@ -312,9 +313,11 @@ export function UniversalFqaPage() {
               Universal FQA
             </h1>
           </div>
-          <p className="text-sm text-muted-foreground pl-12">
-            93 regional FQA databases · per-species C &amp; W values · public site assessments
-          </p>
+          <SourceSummary
+            metadataApiPath="/api/universal-fqa/metadata"
+            fallback="93 regional FQA databases · per-species C & W values · public site assessments"
+            className="text-sm text-muted-foreground pl-12"
+          />
           <div className="pl-12 flex items-center gap-3">
             <a
               href="/source/universal-fqa/metadata"

@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { Link } from "wouter";
 import { ArrowLeft, Leaf, ChevronDown, ChevronUp, Code, ExternalLink, Search, BookOpen, Image } from "lucide-react";
 import { SourceMetadataPanel } from "@/components/SourceMetadataPanel";
+import { SourceSummary } from "@/components/SourceSummary";
 
 interface LcscgGuide {
   guide_id: number;
@@ -324,9 +325,11 @@ export function LcscgPage() {
               Lake County Seed Collection Guides
             </h1>
           </div>
-          <p className="text-sm text-muted-foreground pl-12">
-            Native seed identification &amp; collection — Lake County, Illinois
-          </p>
+          <SourceSummary
+            metadataApiPath="/api/lcscg/metadata"
+            fallback="Native seed identification & collection — Lake County, Illinois"
+            className="text-sm text-muted-foreground pl-12"
+          />
           <div className="pl-12 flex gap-3">
             <a
               href="/source/lcscg/metadata"

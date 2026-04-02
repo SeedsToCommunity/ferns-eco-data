@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link } from "wouter";
 import { Search, Leaf, Beaker, FileJson, ArrowLeft } from "lucide-react";
 import { SourceMetadataPanel } from "@/components/SourceMetadataPanel";
+import { SourceSummary } from "@/components/SourceSummary";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -66,10 +67,11 @@ export function GbifPage() {
               API Metadata
             </a>
           </div>
-          <p className="text-muted-foreground text-lg max-w-2xl leading-relaxed mt-4">
-            Directly query the Global Biodiversity Information Facility backbone taxonomy and occurrence records.
-            Resolve scientific names, discover synonyms, and map distributions across North America.
-          </p>
+          <SourceSummary
+            metadataApiPath="/api/gbif/metadata"
+            fallback="Directly query the Global Biodiversity Information Facility backbone taxonomy and occurrence records. Resolve scientific names, discover synonyms, and map distributions across North America."
+            className="text-muted-foreground text-lg max-w-2xl leading-relaxed mt-4"
+          />
         </div>
       </header>
 

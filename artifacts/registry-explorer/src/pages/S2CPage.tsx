@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import { SourceMetadataPanel } from "@/components/SourceMetadataPanel";
+import { SourceSummary } from "@/components/SourceSummary";
 import {
   useGetS2CYears,
   useGetS2CSpeciesByYear,
@@ -101,9 +102,11 @@ export function S2CPage() {
               Seeds to Community Washtenaw
             </h1>
           </div>
-          <p className="text-sm text-muted-foreground pl-12">
-            Annual native plant species availability — Washtenaw County, MI
-          </p>
+          <SourceSummary
+            metadataApiPath="/api/s2c/metadata"
+            fallback="Annual native plant species availability — Washtenaw County, MI"
+            className="text-sm text-muted-foreground pl-12"
+          />
           <div className="pl-12">
             <a
               href="/source/s2c/metadata"

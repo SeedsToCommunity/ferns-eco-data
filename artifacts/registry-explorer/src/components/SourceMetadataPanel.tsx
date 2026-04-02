@@ -2,7 +2,7 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   BookOpen, Clock, Globe, ExternalLink, ShieldCheck, ShieldOff,
-  Loader2, ServerCrash, AlertCircle,
+  Loader2, ServerCrash, AlertCircle, FlaskConical,
 } from "lucide-react";
 
 function Section({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {
@@ -164,12 +164,9 @@ export function SourceMetadataPanel({ metadataApiPath }: { metadataApiPath: stri
       )}
 
       {/* Provenance */}
-      {provenance && (
+      {provenance && (provenance.method || provenance.upstream_url || provenance.fetched_at) && (
         <Section title="Provenance" icon={<Clock className="w-4 h-4" />}>
           <div>
-            {provenance.derivation_summary && (
-              <KVRow label="Summary" value={provenance.derivation_summary} />
-            )}
             {provenance.method && (
               <KVRow label="Method" value={<span className="font-mono text-xs bg-muted px-2 py-1 rounded">{provenance.method}</span>} />
             )}
@@ -179,13 +176,16 @@ export function SourceMetadataPanel({ metadataApiPath }: { metadataApiPath: stri
             {provenance.fetched_at && (
               <KVRow label="Fetched At" value={new Date(provenance.fetched_at).toLocaleString()} />
             )}
-            {provenance.derivation_scientific && (
-              <div className="mt-4 pt-4 border-t border-border">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Scientific Method Note</p>
-                <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">{provenance.derivation_scientific}</p>
-              </div>
-            )}
           </div>
+        </Section>
+      )}
+
+      {/* Scientific Description */}
+      {provenance?.derivation_scientific && (
+        <Section title="Scientific Description" icon={<FlaskConical className="w-4 h-4" />}>
+          <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
+            {provenance.derivation_scientific}
+          </p>
         </Section>
       )}
     </div>

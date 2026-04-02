@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { MapPin, Leaf, CalendarDays, Eye, Binoculars, FileJson, ArrowLeft } from "lucide-react";
 import { SourceMetadataPanel } from "@/components/SourceMetadataPanel";
+import { SourceSummary } from "@/components/SourceSummary";
 import { PlaceLookupTab } from "@/components/inat/PlaceLookupTab";
 import { SpeciesTab } from "@/components/inat/SpeciesTab";
 import { PhenologyTab } from "@/components/inat/PhenologyTab";
@@ -67,6 +68,10 @@ export function InatPage() {
       </header>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-6">
+        <SourceSummary
+          metadataApiPath="/api/inat/metadata"
+          className="text-sm text-muted-foreground leading-relaxed mb-4"
+        />
         {(selectedPlaceId || selectedTaxonId) && (
           <div className="mb-4 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
             <span className="font-medium text-foreground/60">Pinned for Phenology:</span>

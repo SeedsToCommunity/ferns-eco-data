@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { useBonapExplorer } from "@/hooks/use-bonap";
 import { SourceMetadataPanel } from "@/components/SourceMetadataPanel";
+import { SourceSummary } from "@/components/SourceSummary";
 import { PermissionModal } from "@/components/bonap/PermissionModal";
 import { SearchForm } from "@/components/bonap/SearchForm";
 import { ResultDisplay } from "@/components/bonap/ResultDisplay";
@@ -66,9 +67,11 @@ export function BonapPage() {
           <h2 className="text-4xl md:text-5xl font-serif font-bold text-foreground tracking-tight mb-4">
             North American Plant Atlas
           </h2>
-          <p className="text-lg text-muted-foreground leading-relaxed">
-            Search county-level and state/continental vascular plant distribution maps compiled from nearly four million vouchered herbarium specimens.
-          </p>
+          <SourceSummary
+            metadataApiPath="/api/bonap/metadata"
+            fallback="Search county-level and state/continental vascular plant distribution maps compiled from nearly four million vouchered herbarium specimens."
+            className="text-lg text-muted-foreground leading-relaxed"
+          />
         </motion.div>
 
         <section>

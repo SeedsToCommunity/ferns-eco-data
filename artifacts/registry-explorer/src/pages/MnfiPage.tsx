@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link } from "wouter";
 import { SourceMetadataPanel } from "@/components/SourceMetadataPanel";
+import { SourceSummary } from "@/components/SourceSummary";
 import {
   ArrowLeft,
   TreePine,
@@ -350,11 +351,11 @@ export default function MnfiPage() {
                   <p className="text-sm text-muted-foreground">Natural Community Classification · Plant Lists · County Element Data</p>
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground max-w-2xl">
-                Michigan's authoritative classification of 77 natural community types across 5 ecological classes,
-                maintained by MNFI at Michigan State University Extension. Includes full community descriptions,
-                characteristic plant species lists, and conservation ranks following NatureServe methodology.
-              </p>
+              <SourceSummary
+                metadataApiPath="/api/mnfi/metadata"
+                fallback="Michigan's authoritative classification of 77 natural community types across 5 ecological classes, maintained by MNFI at Michigan State University Extension. Includes full community descriptions, characteristic plant species lists, and conservation ranks following NatureServe methodology."
+                className="text-sm text-muted-foreground max-w-2xl"
+              />
             </div>
             <div className="flex gap-2 shrink-0">
               <a

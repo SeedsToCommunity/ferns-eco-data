@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Link } from "wouter";
 import { SourceMetadataPanel } from "@/components/SourceMetadataPanel";
+import { SourceSummary } from "@/components/SourceSummary";
 import {
   ArrowLeft,
   Shield,
@@ -427,11 +428,11 @@ export function NatureservePage() {
               </a>
             </div>
           </div>
-          <p className="text-muted-foreground max-w-2xl text-sm leading-relaxed">
-            NatureServe is the authoritative global conservation status authority for species and ecosystems across
-            the Americas. Data from 80+ Natural Heritage Programs. G-ranks, N-ranks, S-ranks, IUCN Red List,
-            and US ESA status for species; global ecological systems classification for natural communities.
-          </p>
+          <SourceSummary
+            metadataApiPath="/api/natureserve/metadata"
+            fallback="NatureServe is the authoritative global conservation status authority for species and ecosystems across the Americas. Data from 80+ Natural Heritage Programs. G-ranks, N-ranks, S-ranks, IUCN Red List, and US ESA status for species; global ecological systems classification for natural communities."
+            className="text-muted-foreground max-w-2xl text-sm leading-relaxed"
+          />
         </div>
       </header>
 
