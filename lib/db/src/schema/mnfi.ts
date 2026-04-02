@@ -38,6 +38,7 @@ export const mnfiCountyElementsTable = pgTable(
   {
     id: serial("id").primaryKey(),
     county: text("county").notNull(),
+    element_id: integer("element_id"),
     element_name: text("element_name").notNull(),
     element_type: text("element_type").notNull(),
     scientific_name: text("scientific_name"),
@@ -46,6 +47,9 @@ export const mnfiCountyElementsTable = pgTable(
     state_status: text("state_status"),
     global_rank: text("global_rank"),
     state_rank: text("state_rank"),
+    g_rank_description: text("g_rank_description"),
+    s_rank_description: text("s_rank_description"),
+    species_category: text("species_category"),
     occurrences_in_county: integer("occurrences_in_county"),
     last_observed: text("last_observed"),
     imported_at: timestamp("imported_at", { withTimezone: true }).defaultNow().notNull(),

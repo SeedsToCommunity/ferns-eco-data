@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request, type Response } from "express";
 import { db, mnfiCommunitiesTable, mnfiCountyElementsTable } from "@workspace/db";
 import { eq, ilike, and, sql } from "drizzle-orm";
 import {
@@ -10,9 +10,25 @@ import {
 import { ensureMnfiRegistryEntry, ensureMnfiCommunities } from "../services/mnfi/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
 import { importAllDescriptions, importAllPlantLists } from "../services/mnfi/scraper.js";
+import { importAllCountyElements } from "../services/mnfi/county-import.js";
 import { mnfiCommunityPlantsTable } from "@workspace/db";
 
 const router: IRouter = Router();
+
+// ---------------------------------------------------------------------------
+// Admin guard — protects mutating import endpoints.
+// Set ADMIN_SECRET in the environment; callers must send:
+//   Authorization: Bearer <secret>
+// If ADMIN_SECRET is not configured the guard is skipped (dev / seed workflow).
+// ---------------------------------------------------------------------------
+function requireAdmin(req: Request, res: Response): boolean {
+  const secret = process.env["ADMIN_SECRET"];
+  if (!secret) return true; // No secret configured — allow (dev mode)
+  const auth = req.headers["authorization"] ?? "";
+  if (auth === `Bearer ${secret}`) return true;
+  res.status(401).json({ error: "unauthorized", message: "Valid Authorization: Bearer <ADMIN_SECRET> header required." });
+  return false;
+}
 
 function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
   return {
@@ -29,6 +45,19 @@ async function ensureAll() {
   await Promise.all([ensureMnfiRegistryEntry(), ensureMnfiCommunities()]);
 }
 
+// Helper to group plants by life form (used in community detail + plants endpoint)
+function groupPlantsByLifeForm(plants: Array<{ life_form: string; common_name: string; scientific_names: unknown }>) {
+  const byLifeForm: Record<string, Array<{ common_name: string; scientific_names: string[] }>> = {};
+  for (const p of plants) {
+    if (!byLifeForm[p.life_form]) byLifeForm[p.life_form] = [];
+    byLifeForm[p.life_form].push({ common_name: p.common_name, scientific_names: p.scientific_names as string[] });
+  }
+  return byLifeForm;
+}
+
+// ---------------------------------------------------------------------------
+// GET /api/mnfi/metadata
+// ---------------------------------------------------------------------------
 router.get("/mnfi/metadata", async (req, res) => {
   await ensureAll();
 
@@ -81,6 +110,9 @@ router.get("/mnfi/metadata", async (req, res) => {
   });
 });
 
+// ---------------------------------------------------------------------------
+// GET /api/mnfi/communities
+// ---------------------------------------------------------------------------
 router.get("/mnfi/communities", async (req, res) => {
   await ensureAll();
 
@@ -114,6 +146,10 @@ router.get("/mnfi/communities", async (req, res) => {
   });
 });
 
+// ---------------------------------------------------------------------------
+// GET /api/mnfi/communities/:id
+// Returns the full community profile including characteristic plants
+// ---------------------------------------------------------------------------
 router.get("/mnfi/communities/:id", async (req, res) => {
   await ensureAll();
 
@@ -145,15 +181,32 @@ router.get("/mnfi/communities/:id", async (req, res) => {
     return;
   }
 
+  // Include characteristic plants inline so callers get the full profile in one request
+  const plants = await db
+    .select()
+    .from(mnfiCommunityPlantsTable)
+    .where(eq(mnfiCommunityPlantsTable.community_id, community.community_id))
+    .orderBy(mnfiCommunityPlantsTable.sort_order);
+
   res.json({
     found: true,
     queried_at: new Date(),
     source_url: resolveUrl(req, `/api/mnfi/communities/${param}`),
     provenance: buildProvenance(req),
-    data: community,
+    data: {
+      ...community,
+      characteristic_plants: {
+        total_entries: plants.length,
+        plant_list_url: `https://mnfi.anr.msu.edu/communities/plant-list/${community.community_id}/${community.slug}`,
+        by_life_form: groupPlantsByLifeForm(plants),
+      },
+    },
   });
 });
 
+// ---------------------------------------------------------------------------
+// GET /api/mnfi/communities/:id/plants   (dedicated plants endpoint)
+// ---------------------------------------------------------------------------
 router.get("/mnfi/communities/:id/plants", async (req, res) => {
   await ensureAll();
 
@@ -176,13 +229,6 @@ router.get("/mnfi/communities/:id/plants", async (req, res) => {
     .where(eq(mnfiCommunityPlantsTable.community_id, community.community_id))
     .orderBy(mnfiCommunityPlantsTable.sort_order);
 
-  // Group by life form
-  const byLifeForm: Record<string, Array<{ common_name: string; scientific_names: string[] }>> = {};
-  for (const p of plants) {
-    if (!byLifeForm[p.life_form]) byLifeForm[p.life_form] = [];
-    byLifeForm[p.life_form].push({ common_name: p.common_name, scientific_names: p.scientific_names as string[] });
-  }
-
   res.json({
     found: plants.length > 0,
     queried_at: new Date(),
@@ -198,11 +244,15 @@ router.get("/mnfi/communities/:id/plants", async (req, res) => {
       plant_list_url: `https://mnfi.anr.msu.edu/communities/plant-list/${community.community_id}/${community.slug}`,
       total_entries: plants.length,
       plants_imported: plants.length > 0,
-      by_life_form: byLifeForm,
+      by_life_form: groupPlantsByLifeForm(plants),
     },
   });
 });
 
+// ---------------------------------------------------------------------------
+// GET /api/mnfi/county-elements
+// Query: ?county=<name>  &type=species|community
+// ---------------------------------------------------------------------------
 router.get("/mnfi/county-elements", async (req, res) => {
   await ensureAll();
 
@@ -243,19 +293,17 @@ router.get("/mnfi/county-elements", async (req, res) => {
       county,
       element_type_filter: elementType,
       result_count: elements.length,
-      data_loaded: totalImported > 0,
-      note:
-        totalImported === 0
-          ? "County element data has not been imported yet. MNFI serves this data only through a JavaScript-rendered " +
-            "web UI with no public bulk-download API. A formal data-sharing agreement is being pursued to obtain direct " +
-            "database access. See MNFI Special Data Requests for more information."
-          : null,
+      total_imported_across_all_counties: totalImported,
       elements,
     },
   });
 });
 
-router.post("/mnfi/import-communities", async (_req, res) => {
+// ---------------------------------------------------------------------------
+// POST /api/mnfi/import-communities  (admin-protected)
+// ---------------------------------------------------------------------------
+router.post("/mnfi/import-communities", async (req, res) => {
+  if (!requireAdmin(req, res)) return;
   try {
     await ensureMnfiRegistryEntry();
     const result = await ensureMnfiCommunities();
@@ -269,15 +317,18 @@ router.post("/mnfi/import-communities", async (_req, res) => {
   }
 });
 
-/** Scrape all 77 community description pages and upsert into mnfi_communities */
-router.post("/mnfi/import-descriptions", async (_req, res) => {
+// ---------------------------------------------------------------------------
+// POST /api/mnfi/import-descriptions  (admin-protected)
+// Scrapes all 77 community description pages and upserts into mnfi_communities
+// ---------------------------------------------------------------------------
+router.post("/mnfi/import-descriptions", async (req, res) => {
+  if (!requireAdmin(req, res)) return;
   try {
     await ensureAll();
     const { descriptions, result } = await importAllDescriptions((done, total, name) => {
       process.stdout.write(`[MNFI descriptions] ${done}/${total}: ${name}\n`);
     });
 
-    // Upsert into DB
     for (const d of descriptions) {
       await db
         .update(mnfiCommunitiesTable)
@@ -307,15 +358,18 @@ router.post("/mnfi/import-descriptions", async (_req, res) => {
   }
 });
 
-/** Scrape all 77 community plant list pages and replace plant records in DB */
-router.post("/mnfi/import-plant-lists", async (_req, res) => {
+// ---------------------------------------------------------------------------
+// POST /api/mnfi/import-plant-lists  (admin-protected)
+// Scrapes all 77 community plant list pages and replaces plant records in DB
+// ---------------------------------------------------------------------------
+router.post("/mnfi/import-plant-lists", async (req, res) => {
+  if (!requireAdmin(req, res)) return;
   try {
     await ensureAll();
     const { allPlants, result } = await importAllPlantLists((done, total, name) => {
       process.stdout.write(`[MNFI plant lists] ${done}/${total}: ${name}\n`);
     });
 
-    // Delete existing and re-insert
     await db.delete(mnfiCommunityPlantsTable);
     if (allPlants.length > 0) {
       const BATCH = 200;
@@ -329,6 +383,72 @@ router.post("/mnfi/import-plant-lists", async (_req, res) => {
       queried_at: new Date(),
       data: {
         message: `Scraped ${result.communities_succeeded}/${result.total} communities; imported ${result.plants_inserted} plant entries`,
+        ...result,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "import_failed", message: String(err) });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// POST /api/mnfi/import-county-elements  (admin-protected)
+// Fetches all 83 Michigan counties from the MNFI REST API and upserts
+// both species and community element records into mnfi_county_elements.
+//
+// Data source (public JSON API):
+//   https://mnfi.anr.msu.edu/resources/countyQuery?county={1..83}
+//   https://mnfi.anr.msu.edu/resources/countyCommunityQuery?county={1..83}
+//
+// County IDs 1–83 map to Michigan counties in alphabetical order.
+// ---------------------------------------------------------------------------
+router.post("/mnfi/import-county-elements", async (req, res) => {
+  if (!requireAdmin(req, res)) return;
+  try {
+    await ensureAll();
+
+    const { records, result } = await importAllCountyElements((done, total, county, sp, comm) => {
+      process.stdout.write(
+        `[MNFI county] ${done}/${total}: ${county} — ${sp} species, ${comm} communities\n`,
+      );
+    });
+
+    if (records.length === 0) {
+      res.json({ success: true, queried_at: new Date(), data: { ...result, message: "No records to import." } });
+      return;
+    }
+
+    // Clear previous data and bulk-insert all records
+    await db.delete(mnfiCountyElementsTable);
+
+    const BATCH = 500;
+    for (let i = 0; i < records.length; i += BATCH) {
+      const batch = records.slice(i, i + BATCH).map((r) => ({
+        county: r.county,
+        element_id: r.element_id,
+        element_name: r.element_name,
+        element_type: r.element_type,
+        scientific_name: r.scientific_name,
+        common_name: r.common_name,
+        federal_status: r.federal_status,
+        state_status: r.state_status,
+        global_rank: r.global_rank,
+        state_rank: r.state_rank,
+        g_rank_description: r.g_rank_description,
+        s_rank_description: r.s_rank_description,
+        species_category: r.species_category,
+        occurrences_in_county: r.occurrences_in_county,
+        last_observed: r.last_observed,
+      }));
+      await db.insert(mnfiCountyElementsTable).values(batch);
+    }
+
+    res.json({
+      success: result.failed.length === 0,
+      queried_at: new Date(),
+      data: {
+        message: `Imported county element data for ${result.succeeded_counties}/${result.total_counties} counties`,
+        total_records_imported: records.length,
         ...result,
       },
     });

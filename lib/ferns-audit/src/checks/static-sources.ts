@@ -660,6 +660,16 @@ export async function runMnfiChecks(fernsBase: string): Promise<EndpointComparis
           note: `Expected 5 community classes, got ${Array.isArray(classes) ? classes.length : "non-array"}`,
         });
       }
+      const countyElementCount = typeof ec.county_element_count === "number" ? ec.county_element_count : -1;
+      if (countyElementCount > 7000) {
+        findings.push({ type: "ok", sourceField: "county_element_count", note: `county_element_count=${countyElementCount} (all 83 counties imported)` });
+      } else {
+        findings.push({
+          type: "mismatch",
+          sourceField: "county_element_count",
+          note: `Expected county_element_count>7000, got ${countyElementCount} — run POST /api/mnfi/import-county-elements`,
+        });
+      }
       return findings;
     },
   );
@@ -696,11 +706,11 @@ export async function runMnfiChecks(fernsBase: string): Promise<EndpointComparis
     },
   );
 
-  // 3. Community by slug: prairie-fen (id=10667, Palustrine, Fen Group, G3, S3)
+  // 3. Community by slug: prairie-fen — full profile including inline characteristic plants
   const prairieFeCheck = await checkEndpoint(
     "mnfi",
     "/api/mnfi/communities/prairie-fen",
-    "MNFI — community by slug 'prairie-fen' (id=10667, Palustrine/Fen Group, G3/S3)",
+    "MNFI — community detail 'prairie-fen' (id=10667, G3/S3, inline characteristic_plants)",
     fernsBase,
     (envelope) => {
       const findings: FieldFinding[] = [];
@@ -733,32 +743,84 @@ export async function runMnfiChecks(fernsBase: string): Promise<EndpointComparis
       } else {
         findings.push({ type: "mismatch", sourceField: "data.mnfi_url", note: `mnfi_url missing or unexpected: ${data.mnfi_url}` });
       }
+      // Inline characteristic plants must be present in the community detail response
+      const charPlants = data.characteristic_plants as Record<string, unknown> | null | undefined;
+      if (charPlants && typeof charPlants === "object") {
+        const totalEntries = typeof charPlants.total_entries === "number" ? charPlants.total_entries : 0;
+        if (totalEntries > 0) {
+          findings.push({ type: "ok", sourceField: "data.characteristic_plants.total_entries", note: `${totalEntries} plant entries inline in community detail` });
+        } else {
+          findings.push({
+            type: "mismatch",
+            sourceField: "data.characteristic_plants.total_entries",
+            note: `characteristic_plants.total_entries=0 — plants not loaded`,
+          });
+        }
+        const byLifeForm = charPlants.by_life_form as Record<string, unknown> | null | undefined;
+        for (const form of ["Graminoids", "Forbs"]) {
+          if (byLifeForm && Array.isArray(byLifeForm[form]) && (byLifeForm[form] as unknown[]).length > 0) {
+            findings.push({ type: "ok", sourceField: `data.characteristic_plants.by_life_form.${form}`, note: `${form} life form present inline` });
+          } else {
+            findings.push({ type: "gap", sourceField: `data.characteristic_plants.by_life_form.${form}`, note: `${form} life form missing from inline plants` });
+          }
+        }
+      } else {
+        findings.push({
+          type: "mismatch",
+          sourceField: "data.characteristic_plants",
+          note: `characteristic_plants object missing from community detail — plants should be inline`,
+        });
+      }
       return findings;
     },
   );
 
-  // 4. County elements: verify endpoint responds (data may be empty)
+  // 4. County elements: Washtenaw must return real species + community records
   const countyCheck = await checkEndpoint(
     "mnfi",
     "/api/mnfi/county-elements?county=Washtenaw",
-    "MNFI — county elements for Washtenaw (endpoint reachable, data_loaded field present)",
+    "MNFI — county elements for Washtenaw (real species+community records imported for all 83 counties)",
     fernsBase,
     (envelope) => {
       const findings: FieldFinding[] = [];
       const data = envelope.data as Record<string, unknown> | null | undefined;
-      if (data && "data_loaded" in data) {
-        findings.push({
-          type: "ok",
-          sourceField: "data.data_loaded",
-          note: `data_loaded=${data.data_loaded}; county element table ${data.data_loaded ? "has" : "has no"} records`,
-        });
-      } else {
-        findings.push({ type: "mismatch", sourceField: "data.data_loaded", note: `data.data_loaded field missing` });
+      if (!data) {
+        findings.push({ type: "mismatch", sourceField: "data", note: `No data returned for county=Washtenaw` });
+        return findings;
       }
-      if (data && typeof data.county === "string") {
+      if (typeof data.county === "string") {
         findings.push({ type: "ok", sourceField: "data.county", note: `county="${data.county}"` });
       } else {
         findings.push({ type: "mismatch", sourceField: "data.county", note: `data.county field missing` });
+      }
+      const resultCount = typeof data.result_count === "number" ? data.result_count : 0;
+      if (resultCount > 0) {
+        findings.push({ type: "ok", sourceField: "data.result_count", note: `result_count=${resultCount} elements for Washtenaw` });
+      } else {
+        findings.push({
+          type: "mismatch",
+          sourceField: "data.result_count",
+          note: `result_count=0 — county element data not imported. Run POST /api/mnfi/import-county-elements`,
+        });
+      }
+      const totalImported = typeof data.total_imported_across_all_counties === "number" ? data.total_imported_across_all_counties : 0;
+      if (totalImported > 7000) {
+        findings.push({ type: "ok", sourceField: "data.total_imported_across_all_counties", note: `${totalImported} records across all 83 counties` });
+      } else {
+        findings.push({
+          type: "mismatch",
+          sourceField: "data.total_imported_across_all_counties",
+          note: `Expected >7000 records across all counties, got ${totalImported}`,
+        });
+      }
+      // Verify Prairie Fen is in Washtenaw's community data
+      const elements = Array.isArray(data.elements) ? (data.elements as Array<Record<string, unknown>>) : [];
+      const prairiefen = elements.find((e) => e["element_name"] === "Prairie Fen" && e["element_type"] === "community");
+      if (prairiefen) {
+        const count = prairiefen["occurrences_in_county"];
+        findings.push({ type: "ok", sourceField: "data.elements[Prairie Fen]", note: `Prairie Fen in Washtenaw with ${count} occurrence(s)` });
+      } else {
+        findings.push({ type: "gap", sourceField: "data.elements[Prairie Fen]", note: `Prairie Fen not found in Washtenaw county elements (type filter active)` });
       }
       return findings;
     },
