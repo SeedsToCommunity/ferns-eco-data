@@ -14,6 +14,15 @@ import mnfiRouter from "./mnfi.js";
 import natureserveRouter from "./natureserve.js";
 import registryRouter from "./registry.js";
 import specRouter from "./spec.js";
+import gobotanyRouter from "./gobotany.js";
+import googleImagesRouter from "./google-images.js";
+import missouriPlantsRouter from "./missouri-plants.js";
+import minnesotaWildflowersRouter from "./minnesota-wildflowers.js";
+import illinoisWildflowersRouter from "./illinois-wildflowers.js";
+import prairieMoonRouter from "./prairie-moon.js";
+import usdaPlantsRouter from "./usda-plants.js";
+import ladyBirdJohnsonRouter from "./lady-bird-johnson.js";
+import botanicalRefsRouter from "./botanical-refs.js";
 
 const router: IRouter = Router();
 
@@ -30,6 +39,15 @@ router.use(universalFqaRouter);
 router.use(lcscgRouter);
 router.use(mnfiRouter);
 router.use(natureserveRouter);
+router.use(gobotanyRouter);
+router.use(googleImagesRouter);
+router.use(missouriPlantsRouter);
+router.use(minnesotaWildflowersRouter);
+router.use(illinoisWildflowersRouter);
+router.use(prairieMoonRouter);
+router.use(usdaPlantsRouter);
+router.use(ladyBirdJohnsonRouter);
+router.use(botanicalRefsRouter);
 router.use(registryRouter);
 router.use(specRouter);
 

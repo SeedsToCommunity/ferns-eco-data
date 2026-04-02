@@ -1,0 +1,60 @@
+export const PRAIRIE_MOON_SOURCE_ID = "prairie-moon";
+
+export const PRAIRIE_MOON_PERMISSION_GRANTED = true;
+
+export const PRAIRIE_MOON_PERMISSION_STATUS =
+  "OPEN — prairiemoon.com is a public e-commerce and reference site for native plants. " +
+  "FERNS indexes plant URLs from the publicly accessible sitemap.xml " +
+  "and stores species-to-URL mappings in its local database. " +
+  "No authentication or API key is required.";
+
+export const PRAIRIE_MOON_DERIVATION_SUMMARY =
+  "Prairie Moon Nursery (prairiemoon.com) is a leading native plant nursery based in Winona, Minnesota, " +
+  "specializing in native prairie and wetland plants for the Upper Midwest and Great Plains. " +
+  "The site carries ~970 native plant species with product pages that include growing information, " +
+  "ecological notes, and seed/plant availability. " +
+  "FERNS indexes plant URLs from Prairie Moon's sitemap.xml, where plant page URLs follow the pattern " +
+  "prairiemoon.com/{genus}-{species}-{common-name-slug}. " +
+  "Scientific names are inferred from the URL slug: the first two hyphen-separated parts are the genus " +
+  "and species epithet; subspecies and varieties are recognized when 'subsp' or 'var' appears at position 3. " +
+  "Lookups are served from FERNS's local database; no live scraping occurs at query time.";
+
+export const PRAIRIE_MOON_DERIVATION_SCIENTIFIC =
+  "Primary source: https://www.prairiemoon.com/sitemap.xml. " +
+  "Operated by Prairie Moon Nursery, Winona, MN. " +
+  "Import method: Parse sitemap.xml, filter for plant URLs " +
+  "(root-level paths matching {genus}-{species}-..., excluding category, cart, and info pages). " +
+  "Scientific name inference from URL slug: " +
+  "  Binomial: Genus species (first two parts capitalized/lowercased). " +
+  "  Trinomial: Genus species subsp. epithet or Genus species var. epithet " +
+  "  (when parts[2] is 'subsp' or 'var', parts[3] is the infraspecific epithet). " +
+  "URL count: ~970 plant URLs at time of last import. " +
+  "Lookup method: ILIKE match on inferred scientific_name. " +
+  "Known limitation: URL slugs may contain site-specific spelling variants or older taxonomy — " +
+  "the inferred scientific name may not match current accepted names exactly. " +
+  "Method: sitemap_scrape with DB lookup.";
+
+export const PRAIRIE_MOON_REGISTRY_ENTRY = {
+  source_id: PRAIRIE_MOON_SOURCE_ID,
+  name: "Prairie Moon Nursery — Native Plant Reference and Nursery Catalog",
+  knowledge_type: "web_reference",
+  status: "live",
+  description:
+    "Native plant nursery and reference site for prairie, wetland, and woodland species, " +
+    "based in Winona, Minnesota (prairiemoon.com). " +
+    "Carries ~970 native plant species. FERNS indexes plant URLs from the site's sitemap.xml " +
+    "and infers scientific names from URL slug structure. " +
+    "Useful for finding nursery availability and growing information for Midwest native plants.",
+  input_summary: "Scientific name (binomial or trinomial with subsp./var.)",
+  output_summary:
+    "Direct URL to the Prairie Moon Nursery plant page, or found: false if not in the Prairie Moon catalog",
+  dependencies: [] as string[],
+  update_frequency:
+    "Manual re-import via admin endpoint. Sitemap re-parsed and database updated when triggered.",
+  known_limitations:
+    "Coverage limited to species carried by Prairie Moon Nursery (primarily Midwest natives). " +
+    "Scientific names are inferred from URL slugs, which may reflect site-specific spelling or older taxonomy. " +
+    "Species not in the nursery catalog return found: false.",
+  metadata_url: "/api/prairie-moon/metadata",
+  explorer_url: "/source/prairie-moon",
+};

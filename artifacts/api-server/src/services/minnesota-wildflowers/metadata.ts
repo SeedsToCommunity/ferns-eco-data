@@ -1,0 +1,54 @@
+export const MINNESOTA_WILDFLOWERS_SOURCE_ID = "minnesota-wildflowers";
+
+export const MINNESOTA_WILDFLOWERS_PERMISSION_GRANTED = true;
+
+export const MINNESOTA_WILDFLOWERS_PERMISSION_STATUS =
+  "OPEN — minnesotawildflowers.info is a public botanical reference site maintained by Sue Dingwell. " +
+  "FERNS indexes the species list from the publicly accessible /page/plants-by-name page " +
+  "and stores species-to-URL mappings in its local database. " +
+  "No authentication or API key is required.";
+
+export const MINNESOTA_WILDFLOWERS_DERIVATION_SUMMARY =
+  "Minnesota Wildflowers (minnesotawildflowers.info) is a photographic field guide for native and naturalized " +
+  "plants of Minnesota, maintained by Sue Dingwell. " +
+  "The site covers ~1,861 taxa with photos, descriptions, identification notes, and bloom time information. " +
+  "Species are organized by plant type (flower, tree, grass-sedge-rush, etc.); " +
+  "URLs use common-name slugs under category paths (e.g., /flower/red-maple, /tree/bur-oak). " +
+  "FERNS imports the authoritative species list from minnesotawildflowers.info/page/plants-by-name, " +
+  "which lists all species alphabetically by scientific name with their direct URLs. " +
+  "Lookups are served from FERNS's local database; no live scraping occurs at query time.";
+
+export const MINNESOTA_WILDFLOWERS_DERIVATION_SCIENTIFIC =
+  "Primary source: https://www.minnesotawildflowers.info/page/plants-by-name. " +
+  "Maintained by Sue Dingwell (minnesotawildflowers.info). " +
+  "Import method: HTML parse — extracts all <a href='/category/slug'>Scientific Name</a> links " +
+  "where the link text is the scientific name and the href is a category-qualified common-name slug. " +
+  "Species count: ~1,861 at time of last import. " +
+  "URL pattern: https://www.minnesotawildflowers.info/{category}/{common-name-slug} " +
+  "where category is flower, tree, grass-sedge-rush, fern, shrub, vine, or aquatic. " +
+  "Lookup method: ILIKE match on stored scientific_name (case-insensitive). " +
+  "Method: species_list_scrape with DB lookup. No HTTP validation at query time.";
+
+export const MINNESOTA_WILDFLOWERS_REGISTRY_ENTRY = {
+  source_id: MINNESOTA_WILDFLOWERS_SOURCE_ID,
+  name: "Minnesota Wildflowers — Photographic Field Guide for Minnesota Plants",
+  knowledge_type: "web_reference",
+  status: "live",
+  description:
+    "Photographic field guide for native and naturalized plants of Minnesota, maintained by Sue Dingwell (minnesotawildflowers.info). " +
+    "Covers ~1,861 taxa with photos, descriptions, and identification notes. " +
+    "FERNS indexes the species list and returns direct species page URLs. " +
+    "URLs use common-name slugs under category paths; not directly derivable from scientific names alone.",
+  input_summary: "Scientific name (binomial: genus + species epithet)",
+  output_summary:
+    "Direct URL to the Minnesota Wildflowers species page, or found: false if not indexed",
+  dependencies: [] as string[],
+  update_frequency:
+    "Manual re-import via admin endpoint. Species list re-scraped from the site when triggered.",
+  known_limitations:
+    "Coverage is limited to Minnesota flora (native and naturalized). " +
+    "URLs use common-name slugs not derivable from scientific names — the species list index is authoritative. " +
+    "Exact binomial match required (case-insensitive); subspecies and varieties follow site taxonomy.",
+  metadata_url: "/api/minnesota-wildflowers/metadata",
+  explorer_url: "/source/minnesota-wildflowers",
+};
