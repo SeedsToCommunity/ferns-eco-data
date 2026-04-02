@@ -81,6 +81,8 @@ router.get("/gobotany", async (req, res) => {
 
   const { genus, species } = parsed;
   const url = `${GOBOTANY_BASE}/species/${genus}/${species}/`;
+  // Normalize for consistent cache key regardless of input casing/whitespace
+  const cacheKey = speciesParam.trim().toLowerCase();
   const cacheThreshold = new Date(Date.now() - CACHE_TTL_MS);
 
   // Check cache first
@@ -90,7 +92,7 @@ router.get("/gobotany", async (req, res) => {
     .where(
       and(
         eq(botanicalWebRefsCacheTable.site_id, GOBOTANY_SOURCE_ID),
-        eq(botanicalWebRefsCacheTable.scientific_name, speciesParam),
+        eq(botanicalWebRefsCacheTable.scientific_name, cacheKey),
         gt(botanicalWebRefsCacheTable.cached_at, cacheThreshold),
       ),
     )
@@ -130,12 +132,12 @@ router.get("/gobotany", async (req, res) => {
     found = false;
   }
 
-  // Write to cache
+  // Write to cache (using normalized key)
   await db
     .insert(botanicalWebRefsCacheTable)
     .values({
       site_id: GOBOTANY_SOURCE_ID,
-      scientific_name: speciesParam,
+      scientific_name: cacheKey,
       url: found ? url : null,
       found,
       validation_method: validationMethod,
