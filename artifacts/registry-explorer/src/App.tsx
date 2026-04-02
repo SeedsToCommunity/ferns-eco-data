@@ -12,6 +12,7 @@ import UniversalFqaPage from "@/pages/UniversalFqaPage";
 import LcscgPage from "@/pages/LcscgPage";
 import MnfiPage from "@/pages/MnfiPage";
 import { NatureservePage } from "@/pages/NatureservePage";
+import BotanicalRefSourcePage from "@/pages/BotanicalRefSourcePage";
 import GenericSourcePage from "@/pages/GenericSourcePage";
 import NotFound from "@/pages/not-found";
 
@@ -38,8 +39,17 @@ function Router() {
       <Route path="/source/lcscg" component={LcscgPage} />
       <Route path="/source/mnfi" component={MnfiPage} />
       <Route path="/source/natureserve" component={NatureservePage} />
+      {/* Botanical web reference sources — shared explorer with species lookup */}
+      <Route path="/source/gobotany" component={BotanicalRefSourcePage} />
+      <Route path="/source/google-images" component={BotanicalRefSourcePage} />
+      <Route path="/source/illinois-wildflowers" component={BotanicalRefSourcePage} />
+      <Route path="/source/lady-bird-johnson" component={BotanicalRefSourcePage} />
+      <Route path="/source/minnesota-wildflowers" component={BotanicalRefSourcePage} />
+      <Route path="/source/missouri-plants" component={BotanicalRefSourcePage} />
+      <Route path="/source/prairie-moon" component={BotanicalRefSourcePage} />
+      <Route path="/source/usda-plants" component={BotanicalRefSourcePage} />
       <Route path="/source/:sourceId/metadata" component={MetadataPage} />
-      {/* Generic fallback: any source not matched above gets this page automatically */}
+      {/* Generic fallback: any source not matched above gets the metadata page */}
       <Route path="/source/:sourceId" component={GenericSourcePage} />
       <Route path="/vocabulary/:vocabulary" component={VocabularyPage} />
       <Route component={NotFound} />
