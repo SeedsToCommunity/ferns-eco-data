@@ -120,6 +120,7 @@ router.get("/gobotany", async (req, res) => {
       method: "GET",
       headers: { "User-Agent": "FERNS/1.0 (ecological data aggregator; research use)" },
       redirect: "follow",
+      signal: AbortSignal.timeout(10000),
     });
     httpStatus = resp.status;
     found = resp.status === 200;
