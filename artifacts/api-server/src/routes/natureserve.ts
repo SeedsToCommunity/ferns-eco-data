@@ -38,7 +38,12 @@ router.get("/natureserve/species", async (req, res) => {
   }
 
   const name = rawName.trim();
-  const state = typeof req.query.state === "string" ? req.query.state.trim().toUpperCase() : DEFAULT_STATE;
+  const rawState = typeof req.query.state === "string" ? req.query.state.trim().toUpperCase() : DEFAULT_STATE;
+  if (!/^[A-Z]{2}$/.test(rawState)) {
+    res.status(400).json({ error: "invalid_input", message: "state must be a 2-letter US state code (e.g. MI, WI, OH)" });
+    return;
+  }
+  const state = rawState;
   const refresh = req.query.refresh === "true" || req.query.refresh === "1";
   const cacheKey = buildSpeciesCacheKey(name, state);
 
@@ -83,6 +88,7 @@ function buildSpeciesResponse(
       federal_status: row.federal_status ?? null,
       federal_status_description: row.federal_status_description ?? null,
       state_status: row.state_status ?? null,
+      state_status_note: row.state_status ? "Derived from NatureServe S-rank; reflects rarity status, not a formal statutory state listing" : null,
       cites_description: row.cites_description ?? null,
       cosewic_code: row.cosewic_code ?? null,
       cosewic_description: row.cosewic_description ?? null,
@@ -142,7 +148,8 @@ function buildEcosystemsResponse(
     data: {
       ecosystems: items,
       result_count: items.length,
-      total_results: row.result_count ? parseInt(row.result_count, 10) : items.length,
+      total_ecosystem_results: items.length,
+      total_results_all_types: row.result_count ? parseInt(row.result_count, 10) : items.length,
       cache_status,
     },
     provenance: {
