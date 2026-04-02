@@ -609,3 +609,140 @@ export async function runS2CChecks(
 
   return [yearsCheck, ...speciesChecks];
 }
+
+export async function runMnfiChecks(fernsBase: string): Promise<EndpointComparison[]> {
+  // 1. Metadata: assert community_count=77
+  const metadataCheck = await checkEndpoint(
+    "mnfi",
+    "/api/mnfi/metadata",
+    "MNFI — service metadata (community_count=77)",
+    fernsBase,
+    (envelope) => {
+      const findings: FieldFinding[] = [];
+      const ec = envelope as Record<string, unknown>;
+      const communityCount = typeof ec.community_count === "number" ? ec.community_count : -1;
+      if (communityCount === 77) {
+        findings.push({ type: "ok", sourceField: "community_count", note: `community_count = 77 (expected)` });
+      } else {
+        findings.push({
+          type: "mismatch",
+          sourceField: "community_count",
+          note: `Expected community_count=77, got ${communityCount}`,
+        });
+      }
+      const classes = ec.community_classes;
+      if (Array.isArray(classes) && classes.length === 5) {
+        findings.push({ type: "ok", sourceField: "community_classes", note: `5 ecological classes present` });
+      } else {
+        findings.push({
+          type: "mismatch",
+          sourceField: "community_classes",
+          note: `Expected 5 community classes, got ${Array.isArray(classes) ? classes.length : "non-array"}`,
+        });
+      }
+      return findings;
+    },
+  );
+
+  // 2. Communities list: 77 communities, all 5 classes represented
+  const communitiesCheck = await checkEndpoint(
+    "mnfi",
+    "/api/mnfi/communities",
+    "MNFI — communities list (77 total, all 5 ecological classes)",
+    fernsBase,
+    (envelope) => {
+      const findings: FieldFinding[] = [];
+      const data = envelope.data as Record<string, unknown> | null | undefined;
+      const communities = Array.isArray(data?.communities) ? (data.communities as Array<Record<string, unknown>>) : [];
+      if (communities.length === 77) {
+        findings.push({ type: "ok", sourceField: "data.community_count", note: `77 communities returned (expected)` });
+      } else {
+        findings.push({
+          type: "mismatch",
+          sourceField: "data.community_count",
+          note: `Expected 77 communities, got ${communities.length}`,
+        });
+      }
+      const classes = new Set(communities.map((c) => c["community_class"] as string));
+      const expectedClasses = ["Palustrine", "Palustrine/Terrestrial", "Primary", "Subterranean/Sink", "Terrestrial"];
+      for (const cls of expectedClasses) {
+        if (classes.has(cls)) {
+          findings.push({ type: "ok", sourceField: `community_class[${cls}]`, note: `Class "${cls}" is present` });
+        } else {
+          findings.push({ type: "gap", sourceField: `community_class[${cls}]`, note: `Class "${cls}" not found in communities list` });
+        }
+      }
+      return findings;
+    },
+  );
+
+  // 3. Community by slug: prairie-fen (id=10667, Palustrine, Fen Group, G3, S3)
+  const prairieFeCheck = await checkEndpoint(
+    "mnfi",
+    "/api/mnfi/communities/prairie-fen",
+    "MNFI — community by slug 'prairie-fen' (id=10667, Palustrine/Fen Group, G3/S3)",
+    fernsBase,
+    (envelope) => {
+      const findings: FieldFinding[] = [];
+      const data = envelope.data as Record<string, unknown> | null | undefined;
+      if (!data) {
+        findings.push({ type: "mismatch", sourceField: "data", note: `No data returned for slug 'prairie-fen'` });
+        return findings;
+      }
+      const checks: Array<[string, unknown, unknown]> = [
+        ["community_id", data.community_id, 10667],
+        ["name", data.name, "Prairie Fen"],
+        ["community_class", data.community_class, "Palustrine"],
+        ["community_group", data.community_group, "Fen Group"],
+        ["global_rank", data.global_rank, "G3"],
+        ["state_rank", data.state_rank, "S3"],
+      ];
+      for (const [field, actual, expected] of checks) {
+        if (actual === expected) {
+          findings.push({ type: "ok", sourceField: `data.${field}`, note: `${field} = ${JSON.stringify(expected)}` });
+        } else {
+          findings.push({
+            type: "mismatch",
+            sourceField: `data.${field}`,
+            note: `Expected ${field}=${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`,
+          });
+        }
+      }
+      if (typeof data.mnfi_url === "string" && data.mnfi_url.includes("mnfi.anr.msu.edu")) {
+        findings.push({ type: "ok", sourceField: "data.mnfi_url", note: `mnfi_url present and points to mnfi.anr.msu.edu` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.mnfi_url", note: `mnfi_url missing or unexpected: ${data.mnfi_url}` });
+      }
+      return findings;
+    },
+  );
+
+  // 4. County elements: verify endpoint responds (data may be empty)
+  const countyCheck = await checkEndpoint(
+    "mnfi",
+    "/api/mnfi/county-elements?county=Washtenaw",
+    "MNFI — county elements for Washtenaw (endpoint reachable, data_loaded field present)",
+    fernsBase,
+    (envelope) => {
+      const findings: FieldFinding[] = [];
+      const data = envelope.data as Record<string, unknown> | null | undefined;
+      if (data && "data_loaded" in data) {
+        findings.push({
+          type: "ok",
+          sourceField: "data.data_loaded",
+          note: `data_loaded=${data.data_loaded}; county element table ${data.data_loaded ? "has" : "has no"} records`,
+        });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.data_loaded", note: `data.data_loaded field missing` });
+      }
+      if (data && typeof data.county === "string") {
+        findings.push({ type: "ok", sourceField: "data.county", note: `county="${data.county}"` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.county", note: `data.county field missing` });
+      }
+      return findings;
+    },
+  );
+
+  return [metadataCheck, communitiesCheck, prairieFeCheck, countyCheck];
+}

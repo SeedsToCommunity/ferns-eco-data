@@ -5,3 +5,4 @@ export * from "./inat";
 export * from "./miflora";
 export * from "./universal-fqa";
 export * from "./lcscg";
+export * from "./mnfi";

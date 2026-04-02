@@ -4,6 +4,7 @@ import { asc } from "drizzle-orm";
 import { ensureBonapRegistryEntry } from "../services/bonap/seed.js";
 import { ensureGbifRegistryEntry } from "../services/gbif/seed.js";
 import { ensureLcscgRegistryEntry } from "../services/lcscg/seed.js";
+import { ensureMnfiRegistryEntry } from "../services/mnfi/seed.js";
 import { ensureRegistryEntry } from "../services/registry/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
 
@@ -26,6 +27,7 @@ async function seedAll(): Promise<void> {
     ensureBonapRegistryEntry(),
     ensureGbifRegistryEntry(),
     ensureLcscgRegistryEntry(),
+    ensureMnfiRegistryEntry(),
     ensureRegistryEntry(),
   ]);
 }

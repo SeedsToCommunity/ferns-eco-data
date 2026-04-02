@@ -21,7 +21,7 @@ import { runInatComparators } from "./comparators/inat.js";
 import { runBonapComparators } from "./comparators/bonap.js";
 import { runMifloraComparators } from "./comparators/miflora.js";
 import { runUniversalFqaComparators } from "./comparators/universal-fqa.js";
-import { runCoefficientChecks, runWetlandIndicatorChecks, runWucolsChecks, runS2CChecks, runLcscgChecks } from "./checks/static-sources.js";
+import { runCoefficientChecks, runWetlandIndicatorChecks, runWucolsChecks, runS2CChecks, runLcscgChecks, runMnfiChecks } from "./checks/static-sources.js";
 import { checkApiDocs, checkRegistry } from "./checks/docs.js";
 import { checkUrls } from "./checks/urls.js";
 import { printReport, printReportJson } from "./report.js";
@@ -64,13 +64,14 @@ async function main(): Promise<void> {
   process.stderr.write("Running Universal FQA comparators (databases, species, assessments)...\n");
   const ufqaComparisons = await runUniversalFqaComparators(fernsBase, TEST_SPECIES, TEST_UFQA_ASSESSMENTS);
 
-  process.stderr.write("Running static source health checks (Coefficient, Wetland Indicator, WUCOLS, S2C, LCSCG)...\n");
-  const [coeffChecks, wetlandChecks, wucolsChecks, s2cChecks, lcscgChecks] = await Promise.all([
+  process.stderr.write("Running static source health checks (Coefficient, Wetland Indicator, WUCOLS, S2C, LCSCG, MNFI)...\n");
+  const [coeffChecks, wetlandChecks, wucolsChecks, s2cChecks, lcscgChecks, mnfiChecks] = await Promise.all([
     runCoefficientChecks(fernsBase, TEST_COEFFICIENT_VALUES),
     runWetlandIndicatorChecks(fernsBase, TEST_WETLAND_CODES, TEST_WETLAND_W_VALUES),
     runWucolsChecks(fernsBase, TEST_WUCOLS_CODES),
     runS2CChecks(fernsBase, TEST_S2C_YEARS),
     runLcscgChecks(fernsBase),
+    runMnfiChecks(fernsBase),
   ]);
 
   const allComparisons = [
@@ -84,6 +85,7 @@ async function main(): Promise<void> {
     ...wucolsChecks,
     ...s2cChecks,
     ...lcscgChecks,
+    ...mnfiChecks,
   ];
 
   const allUrls: UrlEntry[] = allComparisons.flatMap((c) => c.urlsCollected);
