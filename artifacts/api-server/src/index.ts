@@ -10,6 +10,7 @@ import { ensureWetlandIndicatorRegistryEntry } from "./services/wetland-indicato
 import { ensureWucolsRegistryEntry } from "./services/wucols/seed.js";
 import { ensureS2CRegistryEntry } from "./services/s2c/seed.js";
 import { ensureUniversalFqaRegistryEntry } from "./services/universal-fqa/seed.js";
+import { ensureLcscgRegistryEntry, seedLcscgData } from "./services/lcscg/seed.js";
 
 const rawPort = process.env["PORT"];
 
@@ -71,5 +72,13 @@ app.listen(port, (err) => {
 
   autoImportMnfiIfEmpty(port).catch((err) => {
     logger.error({ err }, "MNFI auto-import check failed at startup");
+  });
+
+  ensureLcscgRegistryEntry().catch((seedErr) => {
+    logger.error({ err: seedErr }, "Failed to seed LCSCG registry entry at startup");
+  });
+
+  seedLcscgData().catch((seedErr) => {
+    logger.error({ err: seedErr }, "Failed to seed LCSCG data at startup");
   });
 });

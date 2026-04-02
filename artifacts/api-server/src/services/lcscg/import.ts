@@ -1,3 +1,13 @@
+// ---------------------------------------------------------------------------
+// DEVELOPER-ONLY DATA REFRESH TOOL
+// This file is NOT part of any production or server startup code path.
+// Production LCSCG data is seeded from static committed files in ./data/
+// via seedLcscgData() in seed.ts, which runs at server startup.
+//
+// This import tool exists solely to re-extract data from Google Drive + Cloudinary
+// if the guides are ever revised. After re-running, export the updated DB rows
+// to ./data/guides-data.ts and ./data/species-data.ts and commit those files.
+// ---------------------------------------------------------------------------
 import { ReplitConnectors } from "@replit/connectors-sdk";
 import { fileURLToPath } from "url";
 import { db, lcscgGuidesTable, lcscgSpeciesTable } from "@workspace/db";
