@@ -47,8 +47,19 @@ export async function autoImportMnfiIfEmpty(port: number): Promise<void> {
         headers,
         signal: AbortSignal.timeout(TIMEOUT_MS),
       });
+
+      if (!res.ok) {
+        const body = await res.text().catch(() => "(unreadable)");
+        logger.error({ endpoint, status: res.status, body }, "MNFI auto-import: endpoint returned non-2xx");
+        continue;
+      }
+
       const data = (await res.json()) as { success?: boolean; data?: { message?: string } };
-      logger.info({ endpoint, success: data.success, message: data.data?.message }, "MNFI auto-import: endpoint complete");
+      if (data.success === false) {
+        logger.error({ endpoint, message: data.data?.message }, "MNFI auto-import: endpoint reported failure");
+      } else {
+        logger.info({ endpoint, message: data.data?.message }, "MNFI auto-import: endpoint complete");
+      }
     } catch (err) {
       logger.error({ err, endpoint }, "MNFI auto-import: endpoint failed");
     }
