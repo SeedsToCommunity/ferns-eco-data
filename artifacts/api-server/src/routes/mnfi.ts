@@ -43,7 +43,7 @@ function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
     source_id: MNFI_SOURCE_ID,
     fetched_at: new Date(),
     method: "static_data",
-    upstream_url: resolveUrl(req, "/api/mnfi"),
+    upstream_url: resolveUrl(req, "/api/mnfi/communities"),
     derivation_summary: MNFI_DERIVATION_SUMMARY,
     derivation_scientific: MNFI_DERIVATION_SCIENTIFIC,
   };

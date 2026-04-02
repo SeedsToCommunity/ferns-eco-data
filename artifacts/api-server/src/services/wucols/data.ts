@@ -37,14 +37,14 @@ export const WUCOLS_DATA: WucolsEntry[] = [
   },
   {
     code: "M",
-    full_name: "Medium Water Use",
+    full_name: "Moderate Water Use",
     eto_range: "40–60% of ETo",
     eto_percentage_low: 40,
     eto_percentage_high: 60,
     irrigation_description:
       "Moderate regular irrigation required. Plants need consistent watering on a typical garden schedule and do not tolerate extended dry periods.",
     scientific_description:
-      "M (Medium, 40–60% ETo): Supplemental irrigation need 40–60% of reference evapotranspiration (ETo). " +
+      "M (Moderate, 40–60% ETo): Supplemental irrigation need 40–60% of reference evapotranspiration (ETo). " +
       "Species require moderate, regular irrigation to maintain healthy growth. " +
       "Typical of conventional garden plants. UC Cooperative Extension, WUCOLS IV (2014).",
   },

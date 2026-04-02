@@ -18,7 +18,7 @@ function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
     source_id: WUCOLS_SOURCE_ID,
     fetched_at: new Date(),
     method: "static_data",
-    upstream_url: resolveUrl(req, "/api/wucols"),
+    upstream_url: resolveUrl(req, "/api/wucols/all"),
     derivation_summary: WUCOLS_DERIVATION_SUMMARY,
     derivation_scientific: WUCOLS_DERIVATION_SCIENTIFIC,
   };

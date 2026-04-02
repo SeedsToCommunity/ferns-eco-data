@@ -18,7 +18,7 @@ function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
     source_id: COEFFICIENT_SOURCE_ID,
     fetched_at: new Date(),
     method: "static_data",
-    upstream_url: resolveUrl(req, "/api/coefficient"),
+    upstream_url: resolveUrl(req, "/api/coefficient/all"),
     derivation_summary: COEFFICIENT_DERIVATION_SUMMARY,
     derivation_scientific: COEFFICIENT_DERIVATION_SCIENTIFIC,
   };

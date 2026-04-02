@@ -22,7 +22,7 @@ function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
     source_id: S2C_SOURCE_ID,
     fetched_at: new Date(),
     method: "static_data",
-    upstream_url: resolveUrl(req, "/api/s2c"),
+    upstream_url: resolveUrl(req, "/api/s2c/years"),
     derivation_summary: S2C_DERIVATION_SUMMARY,
     derivation_scientific: S2C_DERIVATION_SCIENTIFIC,
   };

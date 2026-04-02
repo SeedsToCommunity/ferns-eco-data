@@ -22,7 +22,7 @@ function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
     source_id: WETLAND_INDICATOR_SOURCE_ID,
     fetched_at: new Date(),
     method: "static_data",
-    upstream_url: resolveUrl(req, "/api/wetland-indicator"),
+    upstream_url: resolveUrl(req, "/api/wetland-indicator/all"),
     derivation_summary: WETLAND_INDICATOR_DERIVATION_SUMMARY,
     derivation_scientific: WETLAND_INDICATOR_DERIVATION_SCIENTIFIC,
   };

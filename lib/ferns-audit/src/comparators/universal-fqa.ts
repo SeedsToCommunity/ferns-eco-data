@@ -486,8 +486,10 @@ async function compareAssessment(
         }
       } else if (fernsVal !== undefined) {
         findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: fernsVal, note: `${field} present in FERNS (not in upstream raw)` });
-      } else {
+      } else if (upstreamVal !== undefined) {
         findings.push({ type: "gap", sourceField: field, note: `${field} missing from FERNS response` });
+      } else {
+        findings.push({ type: "ok", sourceField: field, note: `${field} not present in either FERNS or upstream — field may not apply to this assessment` });
       }
     }
 

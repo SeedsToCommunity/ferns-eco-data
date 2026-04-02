@@ -73,7 +73,15 @@ async function compareInatPlace(
       const firstInat = inatResults[0];
       if (firstFerns && firstInat) {
         for (const field of ["id", "display_name", "place_type", "place_type_name"] as const) {
-          if (String(firstFerns[field] ?? "") === String(firstInat[field] ?? "")) {
+          if (field === "place_type_name") {
+            findings.push({
+              type: "addition",
+              sourceField: field,
+              fernsField: field,
+              fernsValue: firstFerns[field],
+              note: `place_type_name is intentional FERNS enrichment: human-readable label derived from the numeric place_type value (${firstFerns["place_type"]}); iNat does not include this field in autocomplete results`,
+            });
+          } else if (String(firstFerns[field] ?? "") === String(firstInat[field] ?? "")) {
             findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: firstFerns[field], note: `First result ${field} matches` });
           } else {
             findings.push({ type: "mismatch", sourceField: field, fernsField: field, sourceValue: firstInat[field], fernsValue: firstFerns[field] });

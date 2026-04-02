@@ -319,7 +319,7 @@ router.get("/inat/observations", (req, res) => {
   const api_observations_endpoint = "https://api.inaturalist.org/v1/observations";
 
   const queriedAt = new Date();
-  const prov = buildProvenance("/api/inat/observations", "url_construction");
+  const prov = buildProvenance("https://api.inaturalist.org/v1/observations", "url_construction");
 
   const combined_url = taxonId && placeId
     ? `https://www.inaturalist.org/observations?taxon_id=${taxonId}&place_id=${placeId}`

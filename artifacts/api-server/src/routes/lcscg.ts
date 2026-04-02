@@ -19,7 +19,7 @@ function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
     source_id: LCSCG_SOURCE_ID,
     fetched_at: new Date(),
     method: "static_data",
-    upstream_url: resolveUrl(req, "/api/lcscg"),
+    upstream_url: resolveUrl(req, "/api/lcscg/guides"),
     derivation_summary: LCSCG_DERIVATION_SUMMARY,
     derivation_scientific: LCSCG_DERIVATION_SCIENTIFIC,
   };
