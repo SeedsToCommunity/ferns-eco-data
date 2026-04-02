@@ -14,10 +14,11 @@ export interface NatureserveSpeciesResult {
   state_code: string;
   state_rank: string | null;
   rounded_state_rank: string | null;
-  iucn_code: string | null;
+  iucn_category: string | null;
   iucn_description: string | null;
-  federal_status_code: string | null;
+  federal_status: string | null;
   federal_status_description: string | null;
+  state_status: string | null;
   cites_description: string | null;
   cosewic_code: string | null;
   cosewic_description: string | null;
@@ -27,6 +28,13 @@ export interface NatureserveSpeciesResult {
   detail_upstream_url: string | null;
 }
 
+export interface CharacteristicSpecies {
+  scientific_name: string;
+  stratum: string | null;
+  constancy_percent: number | null;
+  cover_class_percent: number | null;
+}
+
 export interface NatureserveEcosystemItem {
   system_name: string;
   global_rank: string | null;
@@ -34,6 +42,8 @@ export interface NatureserveEcosystemItem {
   us_national_rank: string | null;
   rounded_us_national_rank: string | null;
   description_excerpt: string | null;
+  national_distribution: string | null;
+  characteristic_species: CharacteristicSpecies[];
   natureserve_url: string | null;
   element_global_id: string;
   record_type: string;
@@ -101,6 +111,28 @@ function extractUsNationalRank(
   };
 }
 
+function deriveStateStatus(srank: string | null): string | null {
+  if (!srank) return null;
+  const rank = srank.toUpperCase();
+  if (rank.startsWith("S1") || rank === "SX" || rank === "SH") return "State Endangered or Extirpated";
+  if (rank.startsWith("S2")) return "State Threatened";
+  if (rank.startsWith("S3")) return "State Special Concern";
+  return null;
+}
+
+function extractCharacteristicSpecies(compositions: Record<string, unknown>[]): CharacteristicSpecies[] {
+  if (!Array.isArray(compositions) || compositions.length === 0) return [];
+  return compositions
+    .slice(0, 20)
+    .map((c) => ({
+      scientific_name: (c.scientificName as string) ?? "",
+      stratum: ((c.stratum as Record<string, unknown>)?.stratumDescEn as string) ?? null,
+      constancy_percent: typeof c.constancyPercent === "number" ? c.constancyPercent : null,
+      cover_class_percent: typeof c.coverClassPercent === "number" ? c.coverClassPercent : null,
+    }))
+    .filter((c) => c.scientific_name);
+}
+
 export async function searchSpecies(name: string, stateCode: string = "MI"): Promise<NatureserveSpeciesResult> {
   const searchUrl = NATURESERVE_SEARCH_SPECIES_URL;
   const searchBody = {
@@ -115,7 +147,6 @@ export async function searchSpecies(name: string, stateCode: string = "MI"): Pro
   })) as Record<string, unknown>;
 
   const results = searchRaw.results as Record<string, unknown>[] | undefined;
-  const totalResults = (searchRaw.resultsSummary as Record<string, unknown>)?.totalResults as number | undefined;
 
   if (!results || results.length === 0) {
     return {
@@ -128,10 +159,11 @@ export async function searchSpecies(name: string, stateCode: string = "MI"): Pro
       state_code: stateCode.toUpperCase(),
       state_rank: null,
       rounded_state_rank: null,
-      iucn_code: null,
+      iucn_category: null,
       iucn_description: null,
-      federal_status_code: null,
+      federal_status: null,
       federal_status_description: null,
+      state_status: null,
       cites_description: null,
       cosewic_code: null,
       cosewic_description: null,
@@ -145,20 +177,22 @@ export async function searchSpecies(name: string, stateCode: string = "MI"): Pro
   const first = results[0];
   const elementGlobalId = first.elementGlobalId as number | undefined;
   if (!elementGlobalId) {
+    const gRank = (first.gRank as string) ?? null;
     return {
       scientific_name: (first.scientificName as string) ?? null,
       common_name: (first.primaryCommonName as string) ?? null,
-      global_rank: (first.gRank as string) ?? null,
+      global_rank: gRank,
       rounded_global_rank: (first.roundedGRank as string) ?? null,
       national_rank: null,
       rounded_national_rank: null,
       state_code: stateCode.toUpperCase(),
       state_rank: null,
       rounded_state_rank: null,
-      iucn_code: null,
+      iucn_category: null,
       iucn_description: null,
-      federal_status_code: null,
+      federal_status: null,
       federal_status_description: null,
+      state_status: null,
       cites_description: null,
       cosewic_code: null,
       cosewic_description: null,
@@ -181,6 +215,7 @@ export async function searchSpecies(name: string, stateCode: string = "MI"): Pro
   const elementNationals = detail.elementNationals as Record<string, unknown>[] | undefined;
   const { nrank, roundedNRank } = extractUsNationalRank(elementNationals);
   const { srank, roundedSRank } = extractStateRank(elementNationals, stateCode);
+  const stateStatus = deriveStateStatus(srank);
 
   return {
     scientific_name: (detail.scientificName as string) ?? null,
@@ -192,10 +227,11 @@ export async function searchSpecies(name: string, stateCode: string = "MI"): Pro
     state_code: stateCode.toUpperCase(),
     state_rank: srank,
     rounded_state_rank: roundedSRank,
-    iucn_code: (iucn?.iucnCode as string) ?? null,
+    iucn_category: (iucn?.iucnCode as string) ?? null,
     iucn_description: (iucn?.iucnDescEn as string) ?? null,
-    federal_status_code: (usesa?.usesaCode as string) ?? null,
+    federal_status: (usesa?.usesaCode as string) ?? null,
     federal_status_description: (usesa?.usesaDescEn as string) ?? null,
+    state_status: stateStatus,
     cites_description: (cites?.citesDescEn as string) ?? null,
     cosewic_code: (cosewic?.cosewicCode as string) ?? null,
     cosewic_description: (cosewic?.cosewicDescEn as string) ?? null,
@@ -233,6 +269,8 @@ export async function searchEcosystems(name: string): Promise<NatureserveEcosyst
       const nsxUrl = buildNsxUrl(r.nsxUrl as string);
 
       let descriptionExcerpt: string | null = null;
+      let nationalDistribution: string | null = null;
+      let characteristicSpecies: CharacteristicSpecies[] = [];
       let usNationalRank: string | null = null;
       let roundedUsNationalRank: string | null = null;
 
@@ -240,12 +278,14 @@ export async function searchEcosystems(name: string): Promise<NatureserveEcosyst
         const detailUrl = NATURESERVE_TAXON_URL(uniqueId);
         const detail = (await natureserveFetch(detailUrl)) as Record<string, unknown>;
         const ecosystemGlobal = detail.ecosystemGlobal as Record<string, unknown> | null | undefined;
-        descriptionExcerpt = (ecosystemGlobal?.conceptSentence as string) ?? (ecosystemGlobal?.summary as string) ?? null;
+        descriptionExcerpt = (ecosystemGlobal?.summary as string) ?? (ecosystemGlobal?.conceptSentence as string) ?? null;
+        nationalDistribution = (ecosystemGlobal?.distributionSummary as string) ?? null;
+        const compositions = detail.communityCompositions as Record<string, unknown>[] | undefined;
+        characteristicSpecies = extractCharacteristicSpecies(compositions ?? []);
         const { nrank, roundedNRank } = extractUsNationalRank(detail.elementNationals as Record<string, unknown>[] | undefined);
         usNationalRank = nrank;
         roundedUsNationalRank = roundedNRank;
       } catch {
-        // Use summary data from search result if detail fetch fails
         const nations = r.nations as Record<string, unknown>[] | undefined;
         const usNation = nations?.find((n) => n.nationCode === "US");
         usNationalRank = (usNation?.roundedNRank as string) ?? null;
@@ -257,7 +297,9 @@ export async function searchEcosystems(name: string): Promise<NatureserveEcosyst
         rounded_global_rank: roundedGRank,
         us_national_rank: usNationalRank,
         rounded_us_national_rank: roundedUsNationalRank,
-        description_excerpt: descriptionExcerpt ? descriptionExcerpt.slice(0, 500) : null,
+        description_excerpt: descriptionExcerpt ? descriptionExcerpt.slice(0, 800) : null,
+        national_distribution: nationalDistribution ? nationalDistribution.slice(0, 600) : null,
+        characteristic_species: characteristicSpecies,
         natureserve_url: nsxUrl,
         element_global_id: uniqueId,
         record_type: "ECOSYSTEM",

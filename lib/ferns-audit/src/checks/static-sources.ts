@@ -926,10 +926,20 @@ export async function runNatureserveChecks(fernsBase: string): Promise<EndpointC
       } else {
         findings.push({ type: "gap", sourceField: "data.state_rank", note: "state_rank not available for MI" });
       }
-      if (data.federal_status_code === "T") {
-        findings.push({ type: "ok", sourceField: "data.federal_status_code", note: "federal_status_code=T (Threatened, ESA)" });
+      if (data.federal_status === "T") {
+        findings.push({ type: "ok", sourceField: "data.federal_status", note: "federal_status=T (Threatened, ESA)" });
       } else {
-        findings.push({ type: "mismatch", sourceField: "data.federal_status_code", note: `Expected T (Threatened), got ${data.federal_status_code}` });
+        findings.push({ type: "mismatch", sourceField: "data.federal_status", note: `Expected T (Threatened), got ${data.federal_status}` });
+      }
+      if (data.iucn_category) {
+        findings.push({ type: "ok", sourceField: "data.iucn_category", note: `iucn_category=${data.iucn_category}` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.iucn_category", note: "iucn_category missing" });
+      }
+      if (data.state_status !== undefined) {
+        findings.push({ type: "ok", sourceField: "data.state_status", note: `state_status=${data.state_status ?? "null (S-rank not low enough)"}` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.state_status", note: "state_status field missing from response" });
       }
       if (data.natureserve_url) {
         findings.push({ type: "ok", sourceField: "data.natureserve_url", note: "natureserve_url present" });
@@ -971,6 +981,18 @@ export async function runNatureserveChecks(fernsBase: string): Promise<EndpointC
         findings.push({ type: "ok", sourceField: "data.ecosystems[].natureserve_url", note: "All ecosystem results have valid NatureServe URLs" });
       } else {
         findings.push({ type: "mismatch", sourceField: "data.ecosystems[].natureserve_url", note: "Some ecosystems missing NatureServe URL" });
+      }
+      const withDistribution = ecosystems.filter((e) => typeof e.national_distribution === "string" && (e.national_distribution as string).length > 0);
+      if (withDistribution.length > 0) {
+        findings.push({ type: "ok", sourceField: "data.ecosystems[].national_distribution", note: `${withDistribution.length}/${ecosystems.length} ecosystems have national_distribution` });
+      } else {
+        findings.push({ type: "gap", sourceField: "data.ecosystems[].national_distribution", note: "No ecosystems have national_distribution text" });
+      }
+      const withCharSpecies = ecosystems.filter((e) => Array.isArray(e.characteristic_species) && (e.characteristic_species as unknown[]).length > 0);
+      if (withCharSpecies.length > 0) {
+        findings.push({ type: "ok", sourceField: "data.ecosystems[].characteristic_species", note: `${withCharSpecies.length}/${ecosystems.length} ecosystems have characteristic_species` });
+      } else {
+        findings.push({ type: "gap", sourceField: "data.ecosystems[].characteristic_species", note: "No ecosystems have characteristic_species (data may be sparse)" });
       }
       return findings;
     },

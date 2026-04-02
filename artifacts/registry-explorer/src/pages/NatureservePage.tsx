@@ -79,10 +79,11 @@ interface SpeciesData {
   state_code: string;
   state_rank: string | null;
   rounded_state_rank: string | null;
-  iucn_code: string | null;
+  iucn_category: string | null;
   iucn_description: string | null;
-  federal_status_code: string | null;
+  federal_status: string | null;
   federal_status_description: string | null;
+  state_status: string | null;
   cites_description: string | null;
   cosewic_code: string | null;
   cosewic_description: string | null;
@@ -106,6 +107,13 @@ interface SpeciesEnvelope {
   };
 }
 
+interface CharacteristicSpecies {
+  scientific_name: string;
+  stratum: string | null;
+  constancy_percent: number | null;
+  cover_class_percent: number | null;
+}
+
 interface EcosystemItem {
   system_name: string;
   global_rank: string | null;
@@ -113,6 +121,8 @@ interface EcosystemItem {
   us_national_rank: string | null;
   rounded_us_national_rank: string | null;
   description_excerpt: string | null;
+  national_distribution: string | null;
+  characteristic_species: CharacteristicSpecies[];
   natureserve_url: string | null;
   element_global_id: string;
   record_type: string;
@@ -177,18 +187,24 @@ function SpeciesResultPanel({ result }: { result: SpeciesEnvelope }) {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {d.iucn_code && (
+          {d.iucn_category && (
             <div className="bg-muted/50 rounded-lg p-3">
               <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-1">IUCN Red List</div>
-              <div className="font-bold text-foreground">{d.iucn_code}</div>
+              <div className="font-bold text-foreground">{d.iucn_category}</div>
               {d.iucn_description && <div className="text-xs text-muted-foreground mt-0.5">{d.iucn_description}</div>}
             </div>
           )}
-          {d.federal_status_code && (
+          {d.federal_status && (
             <div className="bg-muted/50 rounded-lg p-3">
               <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-1">US ESA Status</div>
-              <div className="font-bold text-foreground">{d.federal_status_code}</div>
+              <div className="font-bold text-foreground">{d.federal_status}</div>
               {d.federal_status_description && <div className="text-xs text-muted-foreground mt-0.5">{d.federal_status_description}</div>}
+            </div>
+          )}
+          {d.state_status && (
+            <div className="bg-muted/50 rounded-lg p-3">
+              <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-1">{d.state_code} State Status</div>
+              <div className="text-sm text-foreground font-medium">{d.state_status}</div>
             </div>
           )}
           {d.cites_description && (
@@ -221,11 +237,12 @@ function SpeciesResultPanel({ result }: { result: SpeciesEnvelope }) {
 
 function EcosystemCard({ item }: { item: EcosystemItem }) {
   const [expanded, setExpanded] = useState(false);
+  const [showSpecies, setShowSpecies] = useState(false);
   return (
     <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3 flex-wrap mb-2">
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-foreground text-sm leading-snug">{item.system_name}</h3>
+          <h3 className="font-semibold text-foreground text-sm leading-snug italic">{item.system_name}</h3>
           <p className="text-xs text-muted-foreground mt-0.5">{item.element_global_id}</p>
         </div>
         {item.natureserve_url && (
@@ -247,7 +264,7 @@ function EcosystemCard({ item }: { item: EcosystemItem }) {
       </div>
 
       {item.description_excerpt && (
-        <div>
+        <div className="mb-2">
           <p className={cn("text-xs text-muted-foreground leading-relaxed", !expanded && "line-clamp-3")}>
             {item.description_excerpt}
           </p>
@@ -258,6 +275,35 @@ function EcosystemCard({ item }: { item: EcosystemItem }) {
             >
               {expanded ? "Show less" : "Show more"}
             </button>
+          )}
+        </div>
+      )}
+
+      {item.national_distribution && (
+        <div className="mb-2 border-t border-border/30 pt-2">
+          <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-1">National Distribution</div>
+          <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">{item.national_distribution}</p>
+        </div>
+      )}
+
+      {item.characteristic_species && item.characteristic_species.length > 0 && (
+        <div className="border-t border-border/30 pt-2">
+          <button
+            onClick={() => setShowSpecies(!showSpecies)}
+            className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground uppercase tracking-wide hover:text-foreground transition-colors mb-1"
+          >
+            {showSpecies ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+            Characteristic Species ({item.characteristic_species.length})
+          </button>
+          {showSpecies && (
+            <ul className="space-y-0.5 mt-1">
+              {item.characteristic_species.slice(0, 12).map((s, i) => (
+                <li key={i} className="flex items-baseline gap-2 text-xs">
+                  <span className="italic text-foreground">{s.scientific_name}</span>
+                  {s.stratum && <span className="text-muted-foreground text-[10px]">{s.stratum}</span>}
+                </li>
+              ))}
+            </ul>
           )}
         </div>
       )}

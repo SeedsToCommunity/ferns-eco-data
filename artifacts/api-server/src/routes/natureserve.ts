@@ -64,7 +64,6 @@ function buildSpeciesResponse(
   row: typeof natureserveSpeciesCacheTable.$inferSelect,
   cache_status: "hit" | "miss" | "bypassed",
 ) {
-  const rawSummary = (row.raw_summary as Record<string, unknown> | null) ?? {};
   return {
     source_url: row.natureserve_url ?? null,
     found: row.scientific_name !== null,
@@ -79,13 +78,14 @@ function buildSpeciesResponse(
       state_code: row.state_code,
       state_rank: row.state_rank ?? null,
       rounded_state_rank: row.rounded_state_rank ?? null,
-      iucn_code: row.iucn_code ?? null,
+      iucn_category: row.iucn_category ?? null,
       iucn_description: row.iucn_description ?? null,
-      federal_status_code: row.federal_status_code ?? null,
+      federal_status: row.federal_status ?? null,
       federal_status_description: row.federal_status_description ?? null,
-      cites_description: (rawSummary.cites_description as string) ?? null,
-      cosewic_code: (rawSummary.cosewic_code as string) ?? null,
-      cosewic_description: (rawSummary.cosewic_description as string) ?? null,
+      state_status: row.state_status ?? null,
+      cites_description: row.cites_description ?? null,
+      cosewic_code: row.cosewic_code ?? null,
+      cosewic_description: row.cosewic_description ?? null,
       natureserve_url: row.natureserve_url ?? null,
       element_global_id: row.element_global_id ?? null,
       cache_status,
