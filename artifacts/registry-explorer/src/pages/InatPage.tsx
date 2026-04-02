@@ -70,6 +70,7 @@ export function InatPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-6">
         <SourceSummary
           metadataApiPath="/api/inat/metadata"
+          fallback="iNaturalist is a global citizen science platform with over 100 million biodiversity observations. FERNS uses it for taxon lookups, species phenology data, and georeferenced occurrence records across Michigan and North America."
           className="text-sm text-muted-foreground leading-relaxed mb-4"
         />
         {(selectedPlaceId || selectedTaxonId) && (

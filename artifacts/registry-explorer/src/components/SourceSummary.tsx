@@ -13,7 +13,7 @@ interface SourceSummaryProps {
 }
 
 export function SourceSummary({ metadataApiPath, fallback, className }: SourceSummaryProps) {
-  const { data: meta, isLoading } = useQuery<MetadataShape>({
+  const { data: meta, isLoading, isError } = useQuery<MetadataShape>({
     queryKey: ["source-metadata-panel", metadataApiPath],
     queryFn: async () => {
       const res = await fetch(metadataApiPath);
@@ -31,6 +31,11 @@ export function SourceSummary({ metadataApiPath, fallback, className }: SourceSu
         <div className="h-4 bg-muted animate-pulse rounded max-w-lg" />
       </div>
     );
+  }
+
+  if (isError) {
+    if (fallback) return <p className={className}>{fallback}</p>;
+    return null;
   }
 
   const summary = meta?.provenance?.derivation_summary;

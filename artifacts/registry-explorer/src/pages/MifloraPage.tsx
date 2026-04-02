@@ -215,6 +215,7 @@ export function MifloraPage() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
         <SourceSummary
           metadataApiPath="/api/miflora/metadata"
+          fallback="Michigan Flora (michiganflora.net) is the University of Michigan's comprehensive vascular plant checklist and county-level distribution database for Michigan, covering over 3,000 species."
           className="text-sm text-muted-foreground leading-relaxed"
         />
         <div className="bg-card border border-border rounded-xl p-6">
