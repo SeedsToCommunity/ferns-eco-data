@@ -1,4 +1,6 @@
 import { Router, type IRouter } from "express";
+import { db, botanicalWebRefsCacheTable } from "@workspace/db";
+import { and, eq, gt } from "drizzle-orm";
 import {
   GOBOTANY_SOURCE_ID,
   GOBOTANY_DERIVATION_SUMMARY,
@@ -9,6 +11,8 @@ import {
 } from "../services/gobotany/metadata.js";
 import { ensureGobotanyRegistryEntry } from "../services/gobotany/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
+
+const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 const router: IRouter = Router();
 
@@ -77,7 +81,36 @@ router.get("/gobotany", async (req, res) => {
 
   const { genus, species } = parsed;
   const url = `${GOBOTANY_BASE}/species/${genus}/${species}/`;
+  const cacheThreshold = new Date(Date.now() - CACHE_TTL_MS);
 
+  // Check cache first
+  const cached = await db
+    .select()
+    .from(botanicalWebRefsCacheTable)
+    .where(
+      and(
+        eq(botanicalWebRefsCacheTable.site_id, GOBOTANY_SOURCE_ID),
+        eq(botanicalWebRefsCacheTable.scientific_name, speciesParam),
+        gt(botanicalWebRefsCacheTable.cached_at, cacheThreshold),
+      ),
+    )
+    .limit(1);
+
+  if (cached.length > 0) {
+    const hit = cached[0];
+    res.json({
+      found: hit.found,
+      queried_at: new Date(),
+      source_url: resolveUrl(req, "/api/gobotany"),
+      provenance: { ...buildProvenance(req), matched_input: speciesParam, cache_hit: true, cached_at: hit.cached_at },
+      data: hit.found
+        ? { species: speciesParam, url: hit.url, validation_method: hit.validation_method, cache_hit: true }
+        : null,
+    });
+    return;
+  }
+
+  // Cache miss — make live HTTP GET request
   let found = false;
   let validationMethod: string;
   let httpStatus: number | null = null;
@@ -96,11 +129,26 @@ router.get("/gobotany", async (req, res) => {
     found = false;
   }
 
+  // Write to cache
+  await db
+    .insert(botanicalWebRefsCacheTable)
+    .values({
+      site_id: GOBOTANY_SOURCE_ID,
+      scientific_name: speciesParam,
+      url: found ? url : null,
+      found,
+      validation_method: validationMethod,
+    })
+    .onConflictDoUpdate({
+      target: [botanicalWebRefsCacheTable.site_id, botanicalWebRefsCacheTable.scientific_name],
+      set: { url: found ? url : null, found, validation_method: validationMethod, cached_at: new Date() },
+    });
+
   res.json({
     found,
     queried_at: new Date(),
     source_url: resolveUrl(req, "/api/gobotany"),
-    provenance: { ...buildProvenance(req), matched_input: speciesParam },
+    provenance: { ...buildProvenance(req), matched_input: speciesParam, cache_hit: false },
     data: found
       ? {
           species: speciesParam,
