@@ -58,9 +58,7 @@ export function GbifPage() {
               </div>
             </div>
             <a
-              href="/api/gbif/metadata"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/source/gbif/metadata"
               className="hidden sm:inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors border border-border rounded-md px-2.5 py-1.5 bg-card/80 hover:bg-muted mt-2 shrink-0"
             >
               <FileJson className="w-3 h-3" />

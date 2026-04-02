@@ -230,7 +230,7 @@ export default function MetadataPage() {
     : null;
   const provenance = isFernsEnvelope
     ? (meta.provenance as Record<string, string> | undefined)
-    : null;
+    : (meta?.provenance as Record<string, string> | undefined);
 
   const root = innerData ?? unwrapped;
 

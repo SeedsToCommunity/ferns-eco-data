@@ -328,13 +328,11 @@ export function LcscgPage() {
           </p>
           <div className="pl-12 flex gap-3">
             <a
-              href={`${apiBase}/api/lcscg/metadata`}
-              target="_blank"
-              rel="noreferrer"
+              href="/source/lcscg/metadata"
               className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
             >
               <ExternalLink className="w-3 h-3" />
-              Raw metadata
+              API Metadata
             </a>
             <a
               href="https://fieldguides.fieldmuseum.org/guides/guide/1271"

@@ -316,13 +316,11 @@ export function UniversalFqaPage() {
           </p>
           <div className="pl-12 flex items-center gap-3">
             <a
-              href={`${apiBase}/api/universal-fqa/metadata`}
-              target="_blank"
-              rel="noreferrer"
+              href="/source/universal-fqa/metadata"
               className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
             >
               <ExternalLink className="w-3 h-3" />
-              Raw metadata
+              API Metadata
             </a>
             <a
               href="https://universalfqa.org"

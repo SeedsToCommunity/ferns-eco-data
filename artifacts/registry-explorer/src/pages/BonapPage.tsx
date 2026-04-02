@@ -47,9 +47,7 @@ export function BonapPage() {
             </div>
           </div>
           <a
-            href="/api/bonap/metadata"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/source/bonap/metadata"
             className="hidden sm:inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors border border-border rounded-md px-2.5 py-1.5 bg-muted/50 hover:bg-muted"
           >
             <FileJson className="w-3 h-3" />

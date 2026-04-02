@@ -407,15 +407,24 @@ export function NatureservePage() {
                 </p>
               </div>
             </div>
-            <a
-              href="https://explorer.natureserve.org"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0"
-            >
-              <ExternalLink className="w-4 h-4" />
-              <span className="hidden sm:inline">NatureServe Explorer</span>
-            </a>
+            <div className="flex items-center gap-2 shrink-0">
+              <Link
+                href="/source/natureserve/metadata"
+                className="hidden sm:inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors border border-border rounded-md px-2.5 py-1.5 bg-muted/50 hover:bg-muted"
+              >
+                <ExternalLink className="w-3 h-3" />
+                API Metadata
+              </Link>
+              <a
+                href="https://explorer.natureserve.org"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ExternalLink className="w-4 h-4" />
+                <span className="hidden sm:inline">NatureServe Explorer</span>
+              </a>
+            </div>
           </div>
           <p className="text-muted-foreground max-w-2xl text-sm leading-relaxed">
             NatureServe is the authoritative global conservation status authority for species and ecosystems across

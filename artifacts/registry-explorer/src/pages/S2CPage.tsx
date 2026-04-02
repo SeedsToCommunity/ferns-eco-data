@@ -105,13 +105,11 @@ export function S2CPage() {
           </p>
           <div className="pl-12">
             <a
-              href={`${apiBase}/api/s2c/metadata`}
-              target="_blank"
-              rel="noreferrer"
+              href="/source/s2c/metadata"
               className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
             >
               <ExternalLink className="w-3 h-3" />
-              Raw metadata
+              API Metadata
             </a>
           </div>
         </div>
