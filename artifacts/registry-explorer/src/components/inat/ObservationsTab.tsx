@@ -3,14 +3,6 @@ import { useGetInatObservations, getGetInatObservationsQueryKey } from "@workspa
 import { Eye, Search, Loader2, AlertCircle, ExternalLink } from "lucide-react";
 import { RawJsonPanel } from "@/components/RawJsonPanel";
 
-interface InatObsData {
-  taxon_id: number | null;
-  place_id: number | null;
-  observations_by_species_url: string | null;
-  observations_by_place_url: string | null;
-  api_observations_endpoint: string;
-}
-
 export function ObservationsTab() {
   const [taxonIdInput, setTaxonIdInput] = useState("");
   const [placeIdInput, setPlaceIdInput] = useState("");
@@ -44,7 +36,7 @@ export function ObservationsTab() {
     setSubmitted(true);
   }
 
-  const obsData = data?.data as InatObsData | undefined;
+  const obsData = data?.data;
 
   return (
     <div className="space-y-6">
