@@ -11,7 +11,7 @@ FERNS fetches, caches, and exposes ecological and environmental data from author
 ## User Preferences
 
 -   **Communication**: Provide detailed explanations.
--   **New Source Workflow**: When asked to add a new source, follow the Source Onboarding Workflow below. Research the source independently from primary sources. Produce a Source Research Proposal and present it to the human for review before writing any code. Do not begin implementation until the proposal is explicitly approved. Checkpoints are required at the proposal stage and after the Explorer is live.
+-   **New Source Workflow**: When asked to add a new source, follow the Source Onboarding Playbook below (see ## Source Onboarding Playbook). Complete every step on the mandatory checklist. Research the source independently from primary sources. Produce a Source Research Proposal and present it to the user for review before writing any code. Do not begin implementation until the proposal is explicitly approved. After approval, execute all remaining steps autonomously — no interim check-ins unless a genuinely novel architectural decision arises that is not covered by this document.
 -   **Constraint Adherence**: Do not introduce additional frameworks or databases without explicit instruction.
 -   **File editing**: Always use targeted edits (`edit` tool) on `replit.md` — never the `write` tool, which replaces the entire file.
 -   **Audit script results**: When the audit script (the passthrough compliance checker in this repository) reports discrepancies, stop immediately and present the results to the user. Do not make any changes based on audit output without explicit user direction. The user decides what — if anything — to do about each flagged discrepancy.
@@ -19,8 +19,8 @@ FERNS fetches, caches, and exposes ecological and environmental data from author
 -   **Discrepancy ownership**: All discrepancies — whether flagged by the audit script, the automated reviewer, or any other tool — are the user's decision to resolve. Do not resolve them unilaterally.
 -   **Post-task summary (required after any significant task)**: After completing a task that involved substantial implementation or decisions, write a plain-language summary covering all of the following — do not omit sections:
     1. **What was built** — one paragraph a non-technical person can follow.
-    2. **Plain-language description** — reproduce the actual `DERIVATION_SUMMARY` text (or equivalent) verbatim if a new source was added, so the user can verify it reads correctly.
-    3. **Scientific/technical description** — reproduce the actual `DERIVATION_SCIENTIFIC` text verbatim, so the user can verify accuracy.
+    2. **General summary** — reproduce the actual `general_summary` text verbatim if a new source was added, so the user can verify it reads correctly for a general audience.
+    3. **Technical details** — reproduce the actual `technical_details` text verbatim, so the user can verify accuracy and completeness for a technical audience.
     4. **Architectural decisions made** — every non-trivial decision with its tradeoff stated explicitly. Examples: "chose in-memory cache instead of PostgreSQL — means data is lost on server restart"; "exact match only, no fuzzy fallback — means partial names won't match". Do not bury these. If you made a decision the user might have made differently, surface it.
     5. **What was NOT done** — explicitly list anything that was in scope but skipped, deferred, or not updated (e.g. "audit tool not updated", "no database cache added", "OpenAPI schema not reviewed").
     6. **What the user should decide or review** — flag anything that requires a human judgment call, approval, or follow-up action.
@@ -59,7 +59,7 @@ Every external data source integrated into FERNS follows a consistent five-compo
 
 **Key Design Principles and Features:**
 
--   **Provenance Tracking**: Every database record and API response includes comprehensive provenance metadata (`source_id`, `fetched_at`, `method`, `upstream_url`, `derivation_summary`, `derivation_scientific`) to enable trust decisions.
+-   **Provenance Tracking**: Every database record and API response includes comprehensive provenance metadata (`source_id`, `fetched_at`, `method`, `upstream_url`, `general_summary`, `technical_details`) to enable trust decisions.
 -   **API Response Envelope**: All API responses are wrapped in a standard envelope including `source_url`, `data`, `provenance`, and `found` status.
 -   **Cache Policy**: Data is cached with specific TTLs per source. Michigan Flora data is cached permanently (no TTL, `expires_at=null`) since the source does not change; `?refresh=true` is the only way to force a re-fetch. Other sources vary — positive results are often cached long-term; negative results may have shorter TTLs.
 -   **Permission Enforcement**: Source metadata includes a `permission_granted` flag, and Explorer UIs display blocking modals when permission is not granted.
@@ -70,20 +70,203 @@ Every external data source integrated into FERNS follows a consistent five-compo
 -   **Database Schema**: Dedicated Drizzle ORM schemas exist for each source's cache tables and a central `ferns_sources` table for the registry.
 -   **OpenAPI Specification**: An OpenAPI 3.1 spec (`openapi.yaml`) drives API codegen for consistency.
 -   **Source Fidelity**: FERNS API mirrors each source's own interface as closely as possible, preserving all fields and known quirks.
--   **Source Descriptions**: Comprehensive written descriptions are the primary artifact for each source, covering institutional context, scientific methodology, data generation, and limitations.
+-   **Source Descriptions**: Every source has three structured description fields — `description`, `general_summary`, and `technical_details` — that together serve as a complete self-contained reference for any reader. Standards and examples are defined in the Source Onboarding Playbook below.
 -   **No Normalization**: FERNS preserves the distinctness of each source; it does not collapse sources into a common data model or imply equivalence.
 -   **Self-Describing Registry**: All `metadata_url`, `explorer_url`, and `source_url` fields in registry and metadata responses must be absolute URLs.
 -   **TypeScript declarations**: When adding or changing a file in a package that uses `composite: true` (e.g., `lib/db`, `lib/api-client-react`), rebuild its declarations before type-checking consumers: `cd lib/db && pnpm exec tsc -p tsconfig.json` (emitDeclarationOnly). Stale dist/.d.ts files in those packages will cause false "no exported member" errors in packages that reference them.
--   **Metadata response structure**: Every source's `/metadata` endpoint must follow the same response shape as existing sources. The `derivation_summary` and `derivation_scientific` fields must appear inside the `provenance` object, not as top-level keys or nested under any other wrapper. Before writing a new metadata route, read an existing one (e.g., `artifacts/api-server/src/routes/miflora.ts`) to confirm the shape. Do not invent a new response structure.
--   **Derivation field completeness**: The `derivation_summary` and `derivation_scientific` fields in every source's registry metadata must be fully self-contained. A reader — human or AI agent — must be able to understand the data completely from those fields alone, without consulting external documentation. For sources with encoded fields (e.g. coded values like `OBL`, `C5`, `FACW`), the derivation fields must enumerate every possible value and its meaning. If a consumer cannot interpret the data from the metadata alone, the registry entry is incomplete.
--   **Disambiguation requirement**: Any FERNS source whose vocabulary overlaps with another source must include explicit disambiguation language in both `derivation_summary` and `derivation_scientific`. This means naming the other metrics, stating clearly what this source does NOT measure, and identifying the authority, scale, and domain of each. This is factual domain mapping, not editorial opinion. Saying "this metric is used by ecologists for habitat assessment, not by nurseries for irrigation planning" is a factual statement and belongs in the derivation text.
--   **Clarity for humans and agents**: All metadata, derivation text, and documentation must be written to be understood by both human readers and AI agents. Avoid unexplained abbreviations. Spell out acronyms on first use. Prefer complete sentences over terse field lists.
--   **Dedicated vocabulary sources**: If a data type (such as the Coefficient of Conservatism) is a standalone, well-defined standard with a published authority and a use across multiple FERNS sources, it may have its own registry entry, API, and explorer so that its definition is authoritative and centrally queryable. This is a design option to consider, not a mandatory pattern — the user decides whether a given metric warrants a standalone source. A cross-reference meta-source whose sole purpose is to disambiguate other sources was evaluated and intentionally declined (see Task #28): disambiguation belongs in each source's own `derivation_summary` / `derivation_scientific` fields and in this document, not in a separate API endpoint.
+-   **Metadata response structure**: Every source's `/metadata` endpoint must follow the same response shape as existing sources. The `general_summary` and `technical_details` fields must appear inside the `provenance` object, not as top-level keys or nested under any other wrapper. Before writing a new metadata route, read an existing one (e.g., `artifacts/api-server/src/routes/miflora.ts`) to confirm the shape. Do not invent a new response structure.
+-   **Description field completeness**: The `description`, `general_summary`, and `technical_details` fields in every source's registry metadata must be fully self-contained. Together they must give any reader — general user, developer, researcher — a complete understanding of the source without consulting any external documentation. For sources with encoded fields (e.g. coded values like `OBL`, `C5`, `FACW`), `technical_details` must enumerate every possible value and its meaning. If a consumer cannot interpret the data from these fields alone, the registry entry is incomplete.
+-   **Disambiguation requirement**: Any FERNS source whose vocabulary overlaps with another source must include explicit disambiguation language in both `general_summary` and `technical_details`. This means naming the other sources, stating clearly what this source does NOT measure, and identifying the authority, scale, and domain of each. This is factual domain mapping, not editorial opinion. Saying "this metric is used by ecologists for habitat assessment, not by nurseries for irrigation planning" is a factual statement and belongs in the description text.
+-   **Clarity for humans and agents**: All metadata, description text, and documentation must be written to be understood by both human readers and AI agents. Avoid unexplained abbreviations. Spell out acronyms on first use. Prefer complete sentences over terse field lists.
+-   **Dedicated vocabulary sources**: If a data type (such as the Coefficient of Conservatism) is a standalone, well-defined standard with a published authority and a use across multiple FERNS sources, it may have its own registry entry, API, and explorer so that its definition is authoritative and centrally queryable. This is a design option to consider, not a mandatory pattern — the user decides whether a given metric warrants a standalone source. A cross-reference meta-source whose sole purpose is to disambiguate other sources was evaluated and intentionally declined (see Task #28): disambiguation belongs in each source's own `general_summary` and `technical_details` fields and in this document, not in a separate API endpoint.
 -   **Non-standard conventions**: When a data field uses a convention that is not backed by a published standard (e.g., a 1–10 numeric wetness scale used by some nursery databases), document it explicitly as a non-standard convention. State that different publishers may implement it differently, and that FERNS does not treat it as authoritative.
+
+## Source Onboarding Playbook
+
+### Onboarding Checklist (Mandatory — do not skip steps)
+
+Every step must be completed before a source is considered done. If a step is genuinely not applicable, state that explicitly with a reason. Do not silently omit steps.
+
+**Step 1: Research (before any code)**
+Independently read the source's website, documentation, and terms of service from primary sources. Identify: institution, coverage (geographic, taxonomic, data type), access method (API / scrape / static), permission status (check robots.txt and ToS), data freshness, known limitations, and overlap with any existing FERNS source. Do not rely on secondary descriptions or assumptions. Done when you can answer every field in the Source Research Proposal template.
+
+**Step 2: Source Research Proposal (must be approved before any code is written)**
+Write the proposal using the template below. Present it to the user in a single message. Wait for explicit written approval before proceeding. Done when the user has replied with explicit approval.
+
+**Step 3: DB Schema** (required if source needs caching; otherwise explicitly note "no DB cache — data is static/in-memory")
+Create a new Drizzle schema file in `lib/db/src/schema/`. Export the table(s) from `lib/db/src/schema/index.ts`. Run `pnpm --filter @workspace/db run push` (pipe `\n` for the interactive prompt) to sync to the database. Rebuild DB declarations: `cd lib/db && pnpm exec tsc -p tsconfig.json`. Done when the table exists in the database and is queryable.
+
+**Step 4: Connector / Importer** (required if source needs data ingestion; not needed for direct-construction sources)
+Implement data ingestion in `artifacts/api-server/src/services/{source-id}/`. Done when data is in the DB or loaded into memory. If skipped, state why.
+
+**Step 5: Source Metadata and Registry Seed**
+Create `artifacts/api-server/src/services/{source-id}/metadata.ts` with the source constants (SOURCE_ID, GENERAL_SUMMARY, TECHNICAL_DETAILS, REGISTRY_ENTRY, PERMISSION_GRANTED, PERMISSION_STATUS). Create `artifacts/api-server/src/services/{source-id}/seed.ts` that upserts into `fernsSourcesTable`. Done when `GET /api/v1/sources` includes the new source.
+
+**Step 6: Route Handler**
+Create `artifacts/api-server/src/routes/{source-id}.ts`. Implement `GET /api/{source-id}` (data endpoint) and `GET /api/{source-id}/metadata` (metadata endpoint). The metadata endpoint must return the same envelope shape as all existing sources — read `artifacts/api-server/src/routes/miflora.ts` before writing the new one. Register the router in `artifacts/api-server/src/index.ts`. Done when both endpoints return 200 with a correct envelope.
+
+**Step 7: OpenAPI Spec**
+Add the new endpoints to `lib/api-spec/openapi.yaml`. Follow existing path, parameter, response schema, and tag conventions. Done when the spec is valid and covers the new endpoints.
+
+**Step 8: Codegen**
+Run: `pnpm --filter @workspace/api-client-react run codegen`. Done when generated types are updated and there are no TypeScript errors in consumer packages.
+
+**Step 9: Explorer Page (NON-NEGOTIABLE — never skip, never defer)**
+Create `artifacts/registry-explorer/src/pages/{SourceId}Page.tsx`. The page must include a working search form, result display, and provenance panel. Follow `NatureservePage.tsx` for layout and data-fetch patterns. Use `const BASE_URL = import.meta.env.BASE_URL.replace(/\/$/, ""); const API_BASE = \`${BASE_URL}/api\`` for all fetch calls. If this source shares a query interface with existing sources, use or extend the appropriate shared page component. Done when the explorer page renders real search results for at least one species name.
+
+**Step 10: App.tsx Route Registration**
+Add an explicit `<Route path="/source/{source-id}">` in `artifacts/registry-explorer/src/App.tsx` BEFORE the generic catch-all route. Done when navigating to `/source/{source-id}` renders the explorer page — not the generic fallback page.
+
+**Step 11: Audit Tool Coverage**
+Add a comparator or health check in `lib/ferns-audit/src/`. For API/scrape sources: add a comparator that queries both the upstream source and the FERNS endpoint and diffs the result. For static sources: add a health check with known-value assertions. Done when the audit tool has coverage for the new source. If skipped, document exactly why and what coverage was omitted — do not silently omit.
+
+**Step 12: Post-Task Summary**
+Write the mandatory post-task summary (see User Preferences). Include the verbatim text of `description`, `general_summary`, and `technical_details` so the user can verify them. Done when the summary is complete and presented.
+
+---
+
+### Source Research Proposal Template
+
+Present this as a formatted document in one chat message. Every field is required unless marked optional.
+
+```
+## Source Research Proposal: {Source Name}
+
+**Source URL**: {primary URL}
+**Institution / Publisher**: {legal name of the institution or organization that runs it}
+**Data type**: {taxonomy / distribution / occurrence / phenology / nursery catalog / field guide / etc.}
+**Geographic coverage**: {continent / country / region / state — be specific}
+**Taxonomic coverage**: {vascular plants / all plants / all species / etc.}
+**Access method**: {API / sitemap scrape / species list scrape / static data / direct URL construction}
+**Permission status**: {Open / Restricted / Unknown — state how you verified this: robots.txt, ToS URL, or contact}
+**Data freshness**: {how often does the upstream source update? is FERNS data live or cached?}
+**Proposed source_id**: {kebab-case identifier, e.g. prairie-moon}
+**Proposed endpoints**:
+  - GET /api/{source-id}?species={name} — {one sentence}
+  - GET /api/{source-id}/metadata — standard metadata envelope
+**Proposed caching strategy**: {DB cache with TTL / in-memory / no cache / permanent}
+**Known limitations**: {gaps in coverage, taxonomy mismatches, edge cases, accuracy concerns}
+**Overlap with existing FERNS sources**: {name any sources that cover similar data and explain how they differ; if none, say "none"}
+
+**Draft description** (1–3 sentences, plain English, no jargon — see field standards below):
+{draft}
+
+**Draft general_summary** (comprehensive, plain language — see field standards below):
+{draft}
+
+**Draft technical_details** (graduate-level, complete reference — see field standards below):
+{draft}
+```
+
+---
+
+### Description Field Standards
+
+These three fields are required on every FERNS source. They are structured deliverables with defined audiences and required content, not optional prose. A source is not complete until all three meet the standards below.
+
+#### `description`
+
+**Audience**: A non-technical person — a homeowner, student, or restoration practitioner — deciding whether this source is relevant to their question.
+
+**Required content**:
+- What kind of resource this is (nursery catalog, government database, field guide, scientific atlas, etc.)
+- What you can find or do with it, in plain terms
+- Geographic or domain scope, stated simply (e.g. "Midwest and Great Plains", "Michigan only")
+
+**Length**: 1–3 sentences.
+
+**Anti-patterns — do not include**:
+- Technical method terms ("sitemap scrape", "API fetch", "ILIKE query", "DB cache")
+- Botanical or scientific jargon without a plain-English translation
+- URLs
+- The source organization's name (the source card already shows the name)
+- Repetition of information already visible in the source name or title
+
+**Worked example (Prairie Moon)**:
+> "An online guide and nursery catalog for native wildflowers, grasses, and sedges of the Midwest and Great Plains. Each plant has growing notes, ecological information, and nursery availability. Covers roughly 970 species."
+
+---
+
+#### `general_summary`
+
+**Audience**: A general user — a developer, a citizen science app builder, a data program coordinator, a domain analyst — deciding whether this source aligns with their use case and domain.
+
+**Required content (all 8 points must be covered)**:
+1. Who runs it and what institution it belongs to
+2. What the data is: type, content, scope
+3. Geographic and taxonomic coverage (specific — counts and regions)
+4. How FERNS accesses the data, stated in plain language (not technical jargon)
+5. What a query to FERNS returns: what fields, what shape — in plain English
+6. How current the data is: live, cached, static, and what the refresh policy is
+7. Known limitations: what this source does not cover, edge cases, accuracy concerns
+8. How this source relates to other FERNS sources that cover similar ground — name them explicitly; state when to use this one and when to use the other
+
+**Length**: As many sentences as needed to cover all 8 points. Typically 4–8 sentences.
+
+**Anti-patterns — do not include**:
+- Omitting any of the 8 required points
+- Technical implementation details: DB column names, SQL, URL patterns, exact parse logic
+- Unexplained ecological or botanical terminology
+- Vague non-statements ("provides data about plants", "contains useful information")
+- Treating the data as equivalent to another FERNS source without explicitly comparing them
+
+**Worked example (Prairie Moon)**:
+> "Prairie Moon Nursery (Winona, Minnesota) is a leading native plant supplier for the Upper Midwest and Great Plains. Their website lists roughly 970 native species — wildflowers, grasses, sedges, ferns, and woody plants — with growing notes, ecological context, and nursery availability. FERNS imports Prairie Moon's full plant catalog periodically and stores it locally; when you query by scientific name, FERNS looks it up in that local index and returns a direct link to the Prairie Moon plant page if a match exists. The data reflects the time of the last import, not live nursery stock. Prairie Moon covers nursery availability and growing information only — it is not a scientific taxonomic source and does not include distribution data, nativity status, or conservation rankings. For taxonomy, use the GBIF source. For regional distribution in Michigan, use Michigan Flora. For native status, use BONAP."
+
+---
+
+#### `technical_details`
+
+**Audience**: A graduate student, hardcore developer, botanist researcher, mathematician, or organizational data archivist who needs every technical and methodological detail without consulting any other document. This is the authoritative stop for everything precise.
+
+**Required content (all 12 points must be covered)**:
+1. Full institution name, URL, and any relevant legal, publication, or licensing context
+2. Primary citation or authority: author, year, publication, if applicable
+3. Exact access method: URL patterns, API endpoints, sitemap path, scraping strategy, parsing logic — include all edge cases and known exceptions
+4. Scientific name inference or parsing logic, if applicable — document every rule and edge case
+5. Database schema: table name(s), key columns, primary key, unique constraints, index strategy
+6. Caching policy: TTL value, refresh strategy, cache invalidation behavior, what `?refresh=true` does if implemented
+7. Response normalization: what FERNS adds, changes, or omits relative to the upstream data; any field transformations
+8. All coded or enumerated field values with their complete meaning (e.g. OBL = Obligate Wetland; C=10 = highest ecological fidelity to undisturbed habitat; W=−5 = most strongly wetland-affiliated)
+9. Coverage: record count, geographic region, taxonomic scope, date range if relevant — always use specific numbers
+10. Known limitations, edge cases, and accuracy concerns: taxonomy mismatches, missing coverage, encoding issues, unstable upstream identifiers
+11. Overlap with other FERNS sources: name them, state exactly what this source measures and what it does not, explain why a user would choose this source over the others — this is required for every source, even those with no apparent overlap
+12. Any non-standard conventions used by the source: undocumented scales, idiosyncratic field names, publisher-specific coding
+
+**Length**: As long as needed. Do not abbreviate to fit a length target. This field must be complete.
+
+**Anti-patterns — do not include**:
+- Omitting any of the 12 required points
+- Vague coverage statements — always use specific record counts and geographic boundaries
+- Unexplained coded values or abbreviations
+- Omitting point 11 (overlap / disambiguation) — this is required even for apparently unique sources
+
+**Worked example (Prairie Moon, excerpt)**:
+> "Primary source: https://www.prairiemoon.com/sitemap.xml. Operator: Prairie Moon Nursery, Winona, MN (prairiemoon.com). Access method: sitemap_scrape. Sitemap parsed at import time; plant URLs filtered from root-level paths matching {genus}-{species}-{common-name-slug}, excluding /category/, /cart/, and /info/ paths (~970 plant URLs at last import). Scientific name inference from URL slug: genus = parts[0] capitalized; species = parts[1] lowercase; trinomial recognized when parts[2] is 'subsp' or 'var' (infraspecific epithet = parts[3]). DB table: botanical_species_lists (columns: id, site_id, scientific_name, url, imported_at; unique on (site_id, scientific_name)). Caching: full import on demand via POST /api/prairie-moon/import (admin-protected); no TTL; data is permanent until re-imported. FERNS returns: found (bool), species (inferred scientific name string), url (direct plant page URL string), validation_method = 'species_list_lookup', imported_at (timestamp). Lookup: ILIKE match on scientific_name column — case-insensitive, no fuzzy matching, exact binomial required. Known limitation: URL slug spelling may not match current accepted taxonomy (synonyms, older names not yet updated on the Prairie Moon site). Prairie Moon is a nursery catalog, not a scientific taxonomic authority. It does not provide distribution data, nativity status, conservation status, or C-values. For taxonomy: use GBIF (`gbif`). For Michigan distribution: use Michigan Flora (`miflora`). For regional distribution: use BONAP (`bonap`). For C-values: use Universal FQA (`universal-fqa`). Prairie Moon is useful specifically when you need to confirm nursery availability or retrieve a direct plant page URL for a Midwest or Great Plains native species."
+
+---
+
+### Autonomy Guidance
+
+After the user approves the Source Research Proposal, execute all remaining checklist steps (Steps 3–12) autonomously. No interim check-ins are required or expected.
+
+**Do NOT pause for**:
+- Implementation choices already covered by this playbook or elsewhere in replit.md
+- Caching strategy that follows an existing pattern
+- Explorer page layout, component structure, or form design
+- Route registration and OpenAPI spec additions
+- Audit health check implementation for a source that follows existing patterns
+
+**DO pause and present to the user before proceeding when**:
+- A genuinely novel DB schema pattern is needed that has no precedent in existing sources
+- A new caching approach is required that differs fundamentally from all existing sources (e.g. streaming, event-sourcing, Redis)
+- The upstream API response cannot be cleanly mapped to the FERNS envelope without a structural design decision
+- Permission status is unclear or requires contacting the source institution
+- The source reveals a data overlap or disambiguation issue not yet addressed in replit.md
 
 ## Coefficient & Wetness Vocabulary Reference
 
-The ecological/botanical domain contains several metrics whose names are superficially similar but measure entirely different things. This is a known source of confusion for both humans and agents. FERNS sources that use any of these metrics must disambiguate explicitly in their derivation fields.
+The ecological/botanical domain contains several metrics whose names are superficially similar but measure entirely different things. This is a known source of confusion for both humans and agents. FERNS sources that use any of these metrics must disambiguate explicitly in their description fields.
 
 | Metric | FERNS Source ID (planned) | Scale | Authority | Domain | What it is NOT |
 |---|---|---|---|---|---|
