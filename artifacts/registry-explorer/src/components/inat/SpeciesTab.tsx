@@ -3,6 +3,25 @@ import { useGetInatSpecies, getGetInatSpeciesQueryKey } from "@workspace/api-cli
 import { Leaf, Search, Loader2, AlertCircle, ExternalLink, AlertTriangle } from "lucide-react";
 import { RawJsonPanel } from "@/components/RawJsonPanel";
 
+interface InatConservationStatus {
+  status_name?: string;
+}
+
+interface InatDefaultPhoto {
+  medium_url?: string;
+}
+
+interface InatTaxon {
+  id: number;
+  name: string;
+  preferred_common_name?: string | null;
+  default_photo?: InatDefaultPhoto | null;
+  observations_count?: number | null;
+  conservation_status?: InatConservationStatus | string | null;
+  wikipedia_url?: string | null;
+  wikipedia_summary?: string | null;
+}
+
 interface SpeciesTabProps {
   onTaxonIdSelected?: (taxonId: number, taxonName: string) => void;
 }
@@ -28,13 +47,19 @@ export function SpeciesTab({ onTaxonIdSelected }: SpeciesTabProps) {
     setQuery(name);
   }
 
-  const species = response?.data as Record<string, unknown> | null | undefined;
+  const species = response?.data as InatTaxon | null | undefined;
 
-  const inatTaxonId = species?.id as number | null | undefined;
-  const inatName = species?.name as string | null | undefined;
-  const defaultPhotoUrl = (species?.default_photo as Record<string, unknown> | null)?.medium_url as string | null | undefined;
+  const inatTaxonId = species?.id ?? null;
+  const inatName = species?.name ?? null;
+  const defaultPhotoUrl = species?.default_photo?.medium_url ?? null;
   const isFallback = !!inatName && !!query && inatName.toLowerCase() !== query.toLowerCase();
-  const cacheStatus = response?.cache_status as string | null | undefined;
+  const cacheStatus = response?.cache_status;
+
+  const conservationLabel = (() => {
+    if (!species?.conservation_status) return null;
+    if (typeof species.conservation_status === "string") return species.conservation_status;
+    return species.conservation_status.status_name ?? null;
+  })();
 
   return (
     <div className="space-y-6">
@@ -114,7 +139,7 @@ export function SpeciesTab({ onTaxonIdSelected }: SpeciesTabProps) {
                 <div className="sm:w-64 shrink-0">
                   <img
                     src={defaultPhotoUrl}
-                    alt={(species.preferred_common_name as string) ?? (inatName as string)}
+                    alt={species.preferred_common_name ?? inatName ?? ""}
                     className="w-full h-52 sm:h-full object-cover"
                   />
                 </div>
@@ -122,7 +147,7 @@ export function SpeciesTab({ onTaxonIdSelected }: SpeciesTabProps) {
               <div className="p-6 flex-1 space-y-4">
                 <div>
                   <h2 className="text-2xl font-display font-bold text-foreground">
-                    {(species.preferred_common_name as string) ?? inatName}
+                    {species.preferred_common_name ?? inatName}
                   </h2>
                   <p className="text-sm italic text-muted-foreground">{inatName}</p>
                   <span className={`inline-block mt-1 px-2 py-0.5 rounded-md text-xs font-medium capitalize ${
@@ -138,21 +163,18 @@ export function SpeciesTab({ onTaxonIdSelected }: SpeciesTabProps) {
                   {inatTaxonId && (
                     <Stat label="Taxon ID" value={String(inatTaxonId)} />
                   )}
-                  {species.observations_count !== null && species.observations_count !== undefined && (
-                    <Stat label="Observations" value={new Intl.NumberFormat().format(species.observations_count as number)} />
+                  {species.observations_count != null && (
+                    <Stat label="Observations" value={new Intl.NumberFormat().format(species.observations_count)} />
                   )}
-                  {!!species.conservation_status && (
-                    <Stat
-                      label="Conservation"
-                      value={String((species.conservation_status as Record<string, unknown>)?.status_name ?? species.conservation_status)}
-                    />
+                  {conservationLabel && (
+                    <Stat label="Conservation" value={String(conservationLabel)} />
                   )}
                 </div>
 
                 <div className="flex items-center gap-3 flex-wrap">
                   {response?.source_url && (
                     <a
-                      href={response.source_url as string}
+                      href={response.source_url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
@@ -161,9 +183,9 @@ export function SpeciesTab({ onTaxonIdSelected }: SpeciesTabProps) {
                       View on iNaturalist
                     </a>
                   )}
-                  {!!species.wikipedia_url && (
+                  {species.wikipedia_url && (
                     <a
-                      href={encodeURI(species.wikipedia_url as string)}
+                      href={encodeURI(species.wikipedia_url)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
@@ -185,7 +207,7 @@ export function SpeciesTab({ onTaxonIdSelected }: SpeciesTabProps) {
               </div>
             </div>
 
-            {!!species.wikipedia_summary && (
+            {species.wikipedia_summary && (
               <div className="px-6 pb-6 border-t border-border pt-4">
                 <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
                   Wikipedia Summary{" "}
@@ -195,7 +217,7 @@ export function SpeciesTab({ onTaxonIdSelected }: SpeciesTabProps) {
                 </h3>
                 <div
                   className="text-sm text-foreground leading-relaxed prose prose-sm max-w-none"
-                  dangerouslySetInnerHTML={{ __html: species.wikipedia_summary as string }}
+                  dangerouslySetInnerHTML={{ __html: species.wikipedia_summary }}
                 />
               </div>
             )}
@@ -205,7 +227,7 @@ export function SpeciesTab({ onTaxonIdSelected }: SpeciesTabProps) {
           {(response?.provenance?.fetched_at || cacheStatus) && (
             <p className="text-xs text-muted-foreground px-1">
               {response?.provenance?.fetched_at && (
-                <>Cached: {new Date(response.provenance.fetched_at as string).toLocaleString()}</>
+                <>Cached: {new Date(response.provenance.fetched_at).toLocaleString()}</>
               )}
               {cacheStatus && (
                 <span className="ml-2 capitalize px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border">

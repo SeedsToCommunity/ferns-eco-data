@@ -3,6 +3,14 @@ import { useGetInatObservations, getGetInatObservationsQueryKey } from "@workspa
 import { Eye, Search, Loader2, AlertCircle, ExternalLink } from "lucide-react";
 import { RawJsonPanel } from "@/components/RawJsonPanel";
 
+interface InatObsData {
+  taxon_id: number | null;
+  place_id: number | null;
+  observations_by_species_url: string | null;
+  observations_by_place_url: string | null;
+  api_observations_endpoint: string;
+}
+
 export function ObservationsTab() {
   const [taxonIdInput, setTaxonIdInput] = useState("");
   const [placeIdInput, setPlaceIdInput] = useState("");
@@ -36,7 +44,7 @@ export function ObservationsTab() {
     setSubmitted(true);
   }
 
-  const obsData = data?.data as Record<string, unknown> | undefined;
+  const obsData = data?.data as InatObsData | undefined;
 
   return (
     <div className="space-y-6">
@@ -124,14 +132,14 @@ export function ObservationsTab() {
               {obsData.taxon_id !== null && (
                 <ObsLink
                   label="Observations by Species"
-                  url={obsData.observations_by_species_url as string}
+                  url={obsData.observations_by_species_url ?? ""}
                   description={`All observations of taxon ID ${obsData.taxon_id}`}
                 />
               )}
               {obsData.place_id !== null && (
                 <ObsLink
                   label="Observations by Place"
-                  url={obsData.observations_by_place_url as string}
+                  url={obsData.observations_by_place_url ?? ""}
                   description={`All observations in place ID ${obsData.place_id}`}
                 />
               )}
@@ -146,7 +154,7 @@ export function ObservationsTab() {
               <div className="border-t border-border pt-4">
                 <ObsLink
                   label="API Endpoint"
-                  url={obsData.api_observations_endpoint as string}
+                  url={obsData.api_observations_endpoint}
                   description="iNaturalist API v1 observations endpoint"
                   mono
                 />
