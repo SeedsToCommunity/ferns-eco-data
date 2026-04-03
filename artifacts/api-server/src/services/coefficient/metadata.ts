@@ -67,4 +67,8 @@ export const COEFFICIENT_REGISTRY_ENTRY = {
     "species-level values are provided by individual flora sources (e.g., Michigan Flora).",
   metadata_url: "/api/coefficient/metadata",
   explorer_url: "/vocabulary/coefficient",
+  permission_granted: COEFFICIENT_PERMISSION_GRANTED,
+  permission_status: COEFFICIENT_PERMISSION_STATUS,
+  general_summary: COEFFICIENT_GENERAL_SUMMARY,
+  technical_details: COEFFICIENT_TECHNICAL_DETAILS,
 };

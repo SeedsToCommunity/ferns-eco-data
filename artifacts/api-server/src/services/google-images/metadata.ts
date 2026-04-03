@@ -44,4 +44,8 @@ export const GOOGLE_IMAGES_REGISTRY_ENTRY = {
     "Google may change its URL format; this source should be periodically verified.",
   metadata_url: "/api/google-images/metadata",
   explorer_url: "/source/google-images",
+  permission_granted: GOOGLE_IMAGES_PERMISSION_GRANTED,
+  permission_status: GOOGLE_IMAGES_PERMISSION_STATUS,
+  general_summary: GOOGLE_IMAGES_GENERAL_SUMMARY,
+  technical_details: GOOGLE_IMAGES_TECHNICAL_DETAILS,
 };

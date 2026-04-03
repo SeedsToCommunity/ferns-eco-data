@@ -22,6 +22,10 @@ export async function ensureIllinoisWildflowersRegistryEntry(): Promise<void> {
           known_limitations: ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY.known_limitations,
           metadata_url: ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY.metadata_url,
           explorer_url: ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY.explorer_url,
+          permission_granted: ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY.permission_granted ?? null,
+          permission_status: ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY.permission_status ?? null,
+          general_summary: ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY.general_summary ?? null,
+          technical_details: ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY.technical_details ?? null,
           updated_at: new Date(),
         },
       });

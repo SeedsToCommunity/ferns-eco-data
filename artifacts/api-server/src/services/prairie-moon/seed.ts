@@ -22,6 +22,10 @@ export async function ensurePrairieMoonRegistryEntry(): Promise<void> {
           known_limitations: PRAIRIE_MOON_REGISTRY_ENTRY.known_limitations,
           metadata_url: PRAIRIE_MOON_REGISTRY_ENTRY.metadata_url,
           explorer_url: PRAIRIE_MOON_REGISTRY_ENTRY.explorer_url,
+          permission_granted: PRAIRIE_MOON_REGISTRY_ENTRY.permission_granted ?? null,
+          permission_status: PRAIRIE_MOON_REGISTRY_ENTRY.permission_status ?? null,
+          general_summary: PRAIRIE_MOON_REGISTRY_ENTRY.general_summary ?? null,
+          technical_details: PRAIRIE_MOON_REGISTRY_ENTRY.technical_details ?? null,
           updated_at: new Date(),
         },
       });

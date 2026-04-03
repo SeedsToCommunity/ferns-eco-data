@@ -194,4 +194,8 @@ export const BONAP_REGISTRY_ENTRY = {
     "Data vintage 2014. No subspecies-level maps. Family-level maps exist at bonap.net but are not implemented. Color key hex codes are approximate. Written permission from BONAP is required before public deployment — not yet obtained.",
   metadata_url: "/api/bonap/metadata",
   explorer_url: "/source/bonap-napa",
+  permission_granted: BONAP_PERMISSION_GRANTED,
+  permission_status: BONAP_PERMISSION_STATUS,
+  general_summary: BONAP_GENERAL_SUMMARY,
+  technical_details: BONAP_TECHNICAL_DETAILS,
 };

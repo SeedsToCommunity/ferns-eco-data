@@ -23,6 +23,10 @@ export async function ensureNatureserveRegistryEntry(): Promise<void> {
           known_limitations: NATURESERVE_REGISTRY_ENTRY.known_limitations,
           metadata_url: NATURESERVE_REGISTRY_ENTRY.metadata_url,
           explorer_url: NATURESERVE_REGISTRY_ENTRY.explorer_url,
+          permission_granted: NATURESERVE_REGISTRY_ENTRY.permission_granted ?? null,
+          permission_status: NATURESERVE_REGISTRY_ENTRY.permission_status ?? null,
+          general_summary: NATURESERVE_REGISTRY_ENTRY.general_summary ?? null,
+          technical_details: NATURESERVE_REGISTRY_ENTRY.technical_details ?? null,
           updated_at: new Date(),
         },
       });

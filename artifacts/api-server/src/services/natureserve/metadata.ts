@@ -74,4 +74,8 @@ export const NATURESERVE_REGISTRY_ENTRY = {
     "NatureServe's Element Occurrence spatial data (precise localities) is restricted to member programs and is not available through this integration.",
   metadata_url: "/api/natureserve/metadata",
   explorer_url: "/source/natureserve",
+  permission_granted: NATURESERVE_PERMISSION_GRANTED,
+  permission_status: NATURESERVE_PERMISSION_STATUS,
+  general_summary: NATURESERVE_GENERAL_SUMMARY,
+  technical_details: NATURESERVE_TECHNICAL_DETAILS,
 };

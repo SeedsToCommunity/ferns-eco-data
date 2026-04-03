@@ -80,6 +80,10 @@ export const LCSCG_REGISTRY_ENTRY = {
     "Geographic scope is Lake County, Illinois only.",
   metadata_url: "/api/lcscg/metadata",
   explorer_url: "/source/lcscg",
+  permission_granted: LCSCG_PERMISSION_GRANTED,
+  permission_status: LCSCG_PERMISSION_STATUS,
+  general_summary: LCSCG_GENERAL_SUMMARY,
+  technical_details: LCSCG_TECHNICAL_DETAILS,
 };
 
 export const GUIDE_METADATA: Record<

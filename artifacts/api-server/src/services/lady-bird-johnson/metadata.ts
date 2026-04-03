@@ -52,4 +52,8 @@ export const LADY_BIRD_JOHNSON_REGISTRY_ENTRY = {
     "The search page may return multiple results for ambiguous queries.",
   metadata_url: "/api/lady-bird-johnson/metadata",
   explorer_url: "/source/lady-bird-johnson",
+  permission_granted: LADY_BIRD_JOHNSON_PERMISSION_GRANTED,
+  permission_status: LADY_BIRD_JOHNSON_PERMISSION_STATUS,
+  general_summary: LADY_BIRD_JOHNSON_GENERAL_SUMMARY,
+  technical_details: LADY_BIRD_JOHNSON_TECHNICAL_DETAILS,
 };

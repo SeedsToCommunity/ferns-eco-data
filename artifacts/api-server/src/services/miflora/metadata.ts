@@ -123,4 +123,8 @@ export const MIFLORA_REGISTRY_ENTRY = {
     "for one query. Two API calls minimum for any species query; four for full species data.",
   metadata_url: "/api/miflora/metadata",
   explorer_url: "/source/michigan-flora",
+  permission_granted: MIFLORA_PERMISSION_GRANTED,
+  permission_status: MIFLORA_PERMISSION_STATUS,
+  general_summary: MIFLORA_GENERAL_SUMMARY,
+  technical_details: MIFLORA_TECHNICAL_DETAILS,
 };

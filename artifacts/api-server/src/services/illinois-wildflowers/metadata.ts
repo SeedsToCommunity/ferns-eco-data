@@ -54,4 +54,8 @@ export const ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY = {
     "Nomenclature follows the site's taxonomy, which may differ from current accepted names.",
   metadata_url: "/api/illinois-wildflowers/metadata",
   explorer_url: "/source/illinois-wildflowers",
+  permission_granted: ILLINOIS_WILDFLOWERS_PERMISSION_GRANTED,
+  permission_status: ILLINOIS_WILDFLOWERS_PERMISSION_STATUS,
+  general_summary: ILLINOIS_WILDFLOWERS_GENERAL_SUMMARY,
+  technical_details: ILLINOIS_WILDFLOWERS_TECHNICAL_DETAILS,
 };

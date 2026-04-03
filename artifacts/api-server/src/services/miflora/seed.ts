@@ -23,6 +23,10 @@ export async function ensureMifloraRegistryEntry(): Promise<void> {
           known_limitations: MIFLORA_REGISTRY_ENTRY.known_limitations,
           metadata_url: MIFLORA_REGISTRY_ENTRY.metadata_url,
           explorer_url: MIFLORA_REGISTRY_ENTRY.explorer_url,
+          permission_granted: MIFLORA_REGISTRY_ENTRY.permission_granted ?? null,
+          permission_status: MIFLORA_REGISTRY_ENTRY.permission_status ?? null,
+          general_summary: MIFLORA_REGISTRY_ENTRY.general_summary ?? null,
+          technical_details: MIFLORA_REGISTRY_ENTRY.technical_details ?? null,
           updated_at: new Date(),
         },
       });

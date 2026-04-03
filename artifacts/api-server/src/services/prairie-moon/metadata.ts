@@ -57,4 +57,8 @@ export const PRAIRIE_MOON_REGISTRY_ENTRY = {
     "Species not in the nursery catalog return found: false.",
   metadata_url: "/api/prairie-moon/metadata",
   explorer_url: "/source/prairie-moon",
+  permission_granted: PRAIRIE_MOON_PERMISSION_GRANTED,
+  permission_status: PRAIRIE_MOON_PERMISSION_STATUS,
+  general_summary: PRAIRIE_MOON_GENERAL_SUMMARY,
+  technical_details: PRAIRIE_MOON_TECHNICAL_DETAILS,
 };

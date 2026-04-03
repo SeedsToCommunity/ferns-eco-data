@@ -23,6 +23,10 @@ export async function ensureWetlandIndicatorRegistryEntry(): Promise<void> {
           known_limitations: WETLAND_INDICATOR_REGISTRY_ENTRY.known_limitations,
           metadata_url: WETLAND_INDICATOR_REGISTRY_ENTRY.metadata_url,
           explorer_url: WETLAND_INDICATOR_REGISTRY_ENTRY.explorer_url,
+          permission_granted: WETLAND_INDICATOR_REGISTRY_ENTRY.permission_granted ?? null,
+          permission_status: WETLAND_INDICATOR_REGISTRY_ENTRY.permission_status ?? null,
+          general_summary: WETLAND_INDICATOR_REGISTRY_ENTRY.general_summary ?? null,
+          technical_details: WETLAND_INDICATOR_REGISTRY_ENTRY.technical_details ?? null,
           updated_at: new Date(),
         },
       });

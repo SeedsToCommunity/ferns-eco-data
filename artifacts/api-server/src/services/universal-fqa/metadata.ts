@@ -119,4 +119,8 @@ export const UNIVERSAL_FQA_REGISTRY_ENTRY = {
     "C-values are calibrated per database — the same species may have different C-values in different regional databases.",
   metadata_url: "/api/universal-fqa/metadata",
   explorer_url: "/source/universal-fqa",
+  permission_granted: UNIVERSAL_FQA_PERMISSION_GRANTED,
+  permission_status: UNIVERSAL_FQA_PERMISSION_STATUS,
+  general_summary: UNIVERSAL_FQA_GENERAL_SUMMARY,
+  technical_details: UNIVERSAL_FQA_TECHNICAL_DETAILS,
 };

@@ -74,4 +74,8 @@ export const INAT_REGISTRY_ENTRY = {
     "Observation timing data reflects observer effort and seasonal accessibility as much as actual species biology.",
   metadata_url: "/api/inat/metadata",
   explorer_url: "/source/inaturalist",
+  permission_granted: INAT_PERMISSION_GRANTED,
+  permission_status: INAT_PERMISSION_STATUS,
+  general_summary: INAT_GENERAL_SUMMARY,
+  technical_details: INAT_TECHNICAL_DETAILS,
 };

@@ -53,4 +53,8 @@ export const MISSOURI_PLANTS_REGISTRY_ENTRY = {
     "Exact name match required (genus + species, case-insensitive); subspecies and varieties not individually listed.",
   metadata_url: "/api/missouri-plants/metadata",
   explorer_url: "/source/missouri-plants",
+  permission_granted: MISSOURI_PLANTS_PERMISSION_GRANTED,
+  permission_status: MISSOURI_PLANTS_PERMISSION_STATUS,
+  general_summary: MISSOURI_PLANTS_GENERAL_SUMMARY,
+  technical_details: MISSOURI_PLANTS_TECHNICAL_DETAILS,
 };

@@ -51,4 +51,8 @@ export const MINNESOTA_WILDFLOWERS_REGISTRY_ENTRY = {
     "Exact binomial match required (case-insensitive); subspecies and varieties follow site taxonomy.",
   metadata_url: "/api/minnesota-wildflowers/metadata",
   explorer_url: "/source/minnesota-wildflowers",
+  permission_granted: MINNESOTA_WILDFLOWERS_PERMISSION_GRANTED,
+  permission_status: MINNESOTA_WILDFLOWERS_PERMISSION_STATUS,
+  general_summary: MINNESOTA_WILDFLOWERS_GENERAL_SUMMARY,
+  technical_details: MINNESOTA_WILDFLOWERS_TECHNICAL_DETAILS,
 };

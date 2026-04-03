@@ -65,4 +65,8 @@ export const WETLAND_INDICATOR_REGISTRY_ENTRY = {
     "this source defines the national standard only.",
   metadata_url: "/api/wetland-indicator/metadata",
   explorer_url: "/vocabulary/wetland-indicator",
+  permission_granted: WETLAND_INDICATOR_PERMISSION_GRANTED,
+  permission_status: WETLAND_INDICATOR_PERMISSION_STATUS,
+  general_summary: WETLAND_INDICATOR_GENERAL_SUMMARY,
+  technical_details: WETLAND_INDICATOR_TECHNICAL_DETAILS,
 };

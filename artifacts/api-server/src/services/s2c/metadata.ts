@@ -55,4 +55,8 @@ export const S2C_REGISTRY_ENTRY = {
     "Neat & Tidy flag not tracked for 2023. Sweet & Simple flag only available from 2026 onward.",
   metadata_url: "/api/s2c/metadata",
   explorer_url: "/source/seeds-to-community-washtenaw",
+  permission_granted: S2C_PERMISSION_GRANTED,
+  permission_status: S2C_PERMISSION_STATUS,
+  general_summary: S2C_GENERAL_SUMMARY,
+  technical_details: S2C_TECHNICAL_DETAILS,
 };

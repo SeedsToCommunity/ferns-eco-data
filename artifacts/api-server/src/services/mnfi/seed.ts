@@ -90,6 +90,10 @@ export async function ensureMnfiRegistryEntry(): Promise<void> {
           known_limitations: MNFI_REGISTRY_ENTRY.known_limitations,
           metadata_url: MNFI_REGISTRY_ENTRY.metadata_url,
           explorer_url: MNFI_REGISTRY_ENTRY.explorer_url,
+          permission_granted: MNFI_REGISTRY_ENTRY.permission_granted ?? null,
+          permission_status: MNFI_REGISTRY_ENTRY.permission_status ?? null,
+          general_summary: MNFI_REGISTRY_ENTRY.general_summary ?? null,
+          technical_details: MNFI_REGISTRY_ENTRY.technical_details ?? null,
           updated_at: new Date(),
         },
       });

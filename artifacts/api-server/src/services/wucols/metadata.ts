@@ -66,4 +66,8 @@ export const WUCOLS_REGISTRY_ENTRY = {
     "The UC WUCOLS database contains species-level ratings but is not integrated into this source.",
   metadata_url: "/api/wucols/metadata",
   explorer_url: "/vocabulary/wucols",
+  permission_granted: WUCOLS_PERMISSION_GRANTED,
+  permission_status: WUCOLS_PERMISSION_STATUS,
+  general_summary: WUCOLS_GENERAL_SUMMARY,
+  technical_details: WUCOLS_TECHNICAL_DETAILS,
 };

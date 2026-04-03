@@ -2518,6 +2518,27 @@ components:
         explorer_url:
           type: string
           description: Link to this service's Source Explorer UI
+        permission_granted:
+          type: boolean
+          nullable: true
+          description: >
+            Whether FERNS has verified that use of this source is explicitly permitted.
+            true = permission confirmed; null = not yet evaluated.
+        permission_status:
+          type: string
+          description: >
+            Plain-English description of the permission situation for this source.
+            Covers license type, access model, and any restrictions on use.
+        general_summary:
+          type: string
+          description: >
+            One-paragraph plain-English description of this source suitable for
+            non-technical users, agents, and routing decisions.
+        technical_details:
+          type: string
+          description: >
+            Technical description of how this source works, including data model,
+            method, upstream URL, caching behavior, and known edge cases.
 
     SourcesIndexResponse:
       type: object

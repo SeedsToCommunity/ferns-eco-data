@@ -1,5 +1,7 @@
 export const MNFI_SOURCE_ID = "mnfi";
 
+export const MNFI_PERMISSION_GRANTED = true;
+
 export const MNFI_PERMISSION_STATUS =
   "Public access — MNFI natural community classification, descriptions, and county element data are " +
   "published by Michigan State University Extension at mnfi.anr.msu.edu. " +
@@ -85,4 +87,8 @@ export const MNFI_REGISTRY_ENTRY = {
     "Geographic scope: Michigan only. No national or multi-state coverage.",
   metadata_url: "/api/mnfi/metadata",
   explorer_url: "/source/mnfi",
+  permission_granted: MNFI_PERMISSION_GRANTED,
+  permission_status: MNFI_PERMISSION_STATUS,
+  general_summary: MNFI_GENERAL_SUMMARY,
+  technical_details: MNFI_TECHNICAL_DETAILS,
 };

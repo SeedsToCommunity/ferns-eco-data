@@ -54,4 +54,8 @@ export const USDA_PLANTS_REGISTRY_ENTRY = {
     "Synonyms may produce multiple search results; accepted name preferred for best results.",
   metadata_url: "/api/usda-plants/metadata",
   explorer_url: "/source/usda-plants",
+  permission_granted: USDA_PLANTS_PERMISSION_GRANTED,
+  permission_status: USDA_PLANTS_PERMISSION_STATUS,
+  general_summary: USDA_PLANTS_GENERAL_SUMMARY,
+  technical_details: USDA_PLANTS_TECHNICAL_DETAILS,
 };

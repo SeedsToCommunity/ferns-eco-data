@@ -22,6 +22,10 @@ export async function ensureGobotanyRegistryEntry(): Promise<void> {
           known_limitations: GOBOTANY_REGISTRY_ENTRY.known_limitations,
           metadata_url: GOBOTANY_REGISTRY_ENTRY.metadata_url,
           explorer_url: GOBOTANY_REGISTRY_ENTRY.explorer_url,
+          permission_granted: GOBOTANY_REGISTRY_ENTRY.permission_granted ?? null,
+          permission_status: GOBOTANY_REGISTRY_ENTRY.permission_status ?? null,
+          general_summary: GOBOTANY_REGISTRY_ENTRY.general_summary ?? null,
+          technical_details: GOBOTANY_REGISTRY_ENTRY.technical_details ?? null,
           updated_at: new Date(),
         },
       });

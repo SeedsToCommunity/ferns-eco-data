@@ -23,6 +23,10 @@ export async function ensureGbifRegistryEntry(): Promise<void> {
           known_limitations: GBIF_REGISTRY_ENTRY.known_limitations,
           metadata_url: GBIF_REGISTRY_ENTRY.metadata_url,
           explorer_url: GBIF_REGISTRY_ENTRY.explorer_url,
+          permission_granted: GBIF_REGISTRY_ENTRY.permission_granted ?? null,
+          permission_status: GBIF_REGISTRY_ENTRY.permission_status ?? null,
+          general_summary: GBIF_REGISTRY_ENTRY.general_summary ?? null,
+          technical_details: GBIF_REGISTRY_ENTRY.technical_details ?? null,
           updated_at: new Date(),
         },
       });

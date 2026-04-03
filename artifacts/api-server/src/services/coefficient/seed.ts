@@ -23,6 +23,10 @@ export async function ensureCoefficientRegistryEntry(): Promise<void> {
           known_limitations: COEFFICIENT_REGISTRY_ENTRY.known_limitations,
           metadata_url: COEFFICIENT_REGISTRY_ENTRY.metadata_url,
           explorer_url: COEFFICIENT_REGISTRY_ENTRY.explorer_url,
+          permission_granted: COEFFICIENT_REGISTRY_ENTRY.permission_granted ?? null,
+          permission_status: COEFFICIENT_REGISTRY_ENTRY.permission_status ?? null,
+          general_summary: COEFFICIENT_REGISTRY_ENTRY.general_summary ?? null,
+          technical_details: COEFFICIENT_REGISTRY_ENTRY.technical_details ?? null,
           updated_at: new Date(),
         },
       });

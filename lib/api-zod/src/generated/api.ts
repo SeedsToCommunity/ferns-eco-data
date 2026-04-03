@@ -3064,6 +3064,30 @@ export const GetSourcesIndexResponse = zod.object({
         explorer_url: zod
           .string()
           .describe("Link to this service's Source Explorer UI"),
+        permission_granted: zod
+          .boolean()
+          .nullish()
+          .describe(
+            "Whether FERNS has verified that use of this source is explicitly permitted. true = permission confirmed; null = not yet evaluated.\n",
+          ),
+        permission_status: zod
+          .string()
+          .optional()
+          .describe(
+            "Plain-English description of the permission situation for this source. Covers license type, access model, and any restrictions on use.\n",
+          ),
+        general_summary: zod
+          .string()
+          .optional()
+          .describe(
+            "One-paragraph plain-English description of this source suitable for non-technical users, agents, and routing decisions.\n",
+          ),
+        technical_details: zod
+          .string()
+          .optional()
+          .describe(
+            "Technical description of how this source works, including data model, method, upstream URL, caching behavior, and known edge cases.\n",
+          ),
       }),
     ),
   }),
@@ -3789,6 +3813,30 @@ export const GetSourcesMetadataResponse = zod.object({
     explorer_url: zod
       .string()
       .describe("Link to this service's Source Explorer UI"),
+    permission_granted: zod
+      .boolean()
+      .nullish()
+      .describe(
+        "Whether FERNS has verified that use of this source is explicitly permitted. true = permission confirmed; null = not yet evaluated.\n",
+      ),
+    permission_status: zod
+      .string()
+      .optional()
+      .describe(
+        "Plain-English description of the permission situation for this source. Covers license type, access model, and any restrictions on use.\n",
+      ),
+    general_summary: zod
+      .string()
+      .optional()
+      .describe(
+        "One-paragraph plain-English description of this source suitable for non-technical users, agents, and routing decisions.\n",
+      ),
+    technical_details: zod
+      .string()
+      .optional()
+      .describe(
+        "Technical description of how this source works, including data model, method, upstream URL, caching behavior, and known edge cases.\n",
+      ),
   }),
   provenance: zod
     .object({

@@ -22,6 +22,10 @@ export async function ensureLadyBirdJohnsonRegistryEntry(): Promise<void> {
           known_limitations: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.known_limitations,
           metadata_url: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.metadata_url,
           explorer_url: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.explorer_url,
+          permission_granted: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.permission_granted ?? null,
+          permission_status: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.permission_status ?? null,
+          general_summary: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.general_summary ?? null,
+          technical_details: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.technical_details ?? null,
           updated_at: new Date(),
         },
       });

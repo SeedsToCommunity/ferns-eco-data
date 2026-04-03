@@ -49,4 +49,8 @@ export const GOBOTANY_REGISTRY_ENTRY = {
     "Taxonomic synonyms not recognized by Go Botany will return 404 even if the species occurs in New England.",
   metadata_url: "/api/gobotany/metadata",
   explorer_url: "/source/gobotany",
+  permission_granted: GOBOTANY_PERMISSION_GRANTED,
+  permission_status: GOBOTANY_PERMISSION_STATUS,
+  general_summary: GOBOTANY_GENERAL_SUMMARY,
+  technical_details: GOBOTANY_TECHNICAL_DETAILS,
 };

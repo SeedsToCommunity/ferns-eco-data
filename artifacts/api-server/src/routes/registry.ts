@@ -11,6 +11,12 @@ import { resolveUrl } from "../lib/resolve-url.js";
 
 const router: IRouter = Router();
 
+const REGISTRY_PERMISSION_GRANTED = true;
+
+const REGISTRY_PERMISSION_STATUS =
+  "OPEN — FERNS is a self-hosted internal system. " +
+  "The registry endpoint is unauthenticated and intended for use by FERNS consumers and agents.";
+
 const GENERAL_SUMMARY =
   "FERNS Source Registry — live catalog of all registered FERNS Knowledge Services. " +
   "Reflects current registration state at time of request. Populated at service startup.";
@@ -73,6 +79,10 @@ router.get("/v1/sources", async (req, res) => {
       known_limitations: r.known_limitations ?? "",
       metadata_url: resolveUrl(req, r.metadata_url ?? ""),
       explorer_url: resolveUrl(req, r.explorer_url ?? ""),
+      permission_granted: r.permission_granted ?? null,
+      permission_status: r.permission_status ?? "",
+      general_summary: r.general_summary ?? "",
+      technical_details: r.technical_details ?? "",
     }))
     .sort(sortSources);
 
