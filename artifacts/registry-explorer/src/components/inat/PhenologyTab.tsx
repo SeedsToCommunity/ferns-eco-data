@@ -40,14 +40,11 @@ function buildStageChartData(
     .sort((a, b) => a - b)
     .map((monthNum) => {
       const monthData = phenByMonth[String(monthNum)] ?? {};
-      const entry = {
+      return {
         month: monthName(monthNum),
         monthNum,
-      } as unknown as { month: string; monthNum: number } & Record<string, number>;
-      for (const stage of stages) {
-        entry[stage] = monthData[stage] ?? 0;
-      }
-      return entry;
+        ...Object.fromEntries(stages.map((s) => [s, monthData[s] ?? 0])),
+      } as { month: string; monthNum: number } & Record<string, number>;
     })
     .filter((d) => stages.some((s) => (d[s] ?? 0) > 0));
 }
