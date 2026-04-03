@@ -33,3 +33,6 @@ channel = "stable-25_05"
 [userenv]
 
 [userenv.shared]
+
+[userenv.production]
+FERNS_API_BASE_URL = "https://ferns-eco-data.replit.app"

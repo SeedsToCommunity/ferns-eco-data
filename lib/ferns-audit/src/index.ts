@@ -32,7 +32,11 @@ const DEFAULT_FERNS_BASE = process.env["REPLIT_DEV_DOMAIN"]
   : "http://localhost:8080";
 
 async function main(): Promise<void> {
-  const fernsBase = (process.env["FERNS_BASE_URL"] ?? DEFAULT_FERNS_BASE).replace(/\/$/, "");
+  const fernsBase = (
+    process.env["FERNS_API_BASE_URL"] ??
+    process.env["FERNS_BASE_URL"] ??
+    DEFAULT_FERNS_BASE
+  ).replace(/\/$/, "");
   const outputJson = process.argv.includes("--json");
 
   process.stderr.write(`\nFERNS Audit Tool\n`);
