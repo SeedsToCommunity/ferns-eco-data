@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { useGetSourcesIndex } from "@workspace/api-client-react";
+import { useGetSourcesIndex, getGetSourcesIndexQueryKey } from "@workspace/api-client-react";
 import {
   ArrowLeft,
   Search,
@@ -207,7 +207,9 @@ function ResultDisplay({
 export default function BotanicalRefSourcePage() {
   const [location] = useLocation();
   const sourceId = location.split("/source/")[1]?.split("/")[0];
-  const { data: sourcesData } = useGetSourcesIndex();
+  const { data: sourcesData } = useGetSourcesIndex({
+    query: { queryKey: getGetSourcesIndexQueryKey() },
+  });
   const sourceEntry = sourcesData?.data?.sources?.find((s) => s.source_id === sourceId);
   const sourceName = sourceEntry?.name ?? sourceId;
   const externalUrl = SOURCE_EXTERNAL_URLS[sourceId ?? ""];

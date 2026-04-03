@@ -4,6 +4,7 @@ import { SourceMetadataPanel } from "@/components/SourceMetadataPanel";
 import { SourceSummary } from "@/components/SourceSummary";
 import {
   useGetUniversalFqaDatabases,
+  getGetUniversalFqaDatabasesQueryKey,
   useGetUniversalFqaDatabase,
   getGetUniversalFqaDatabaseQueryKey,
   useGetUniversalFqaSpecies,
@@ -191,7 +192,9 @@ export function UniversalFqaPage() {
   const [browseDbLoaded, setBrowseDbLoaded] = useState<number | null>(null);
   const [browseSpeciesFilter, setBrowseSpeciesFilter] = useState("");
 
-  const { data: dbsRes, isLoading: dbsLoading } = useGetUniversalFqaDatabases();
+  const { data: dbsRes, isLoading: dbsLoading } = useGetUniversalFqaDatabases({
+    query: { queryKey: getGetUniversalFqaDatabasesQueryKey() },
+  });
   const databases = useMemo(() => dbsRes?.data?.databases ?? [], [dbsRes]);
 
   const filteredDbs = useMemo(() => {

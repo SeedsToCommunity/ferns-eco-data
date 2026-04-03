@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import {
   useGetSourcesIndex,
+  getGetSourcesIndexQueryKey,
   type SourceSummary,
 } from "@workspace/api-client-react";
 import { Layout } from "@/components/Layout";
@@ -33,7 +34,9 @@ const GROUP_DESCRIPTIONS: Record<string, string> = {
 };
 
 export default function Home() {
-  const { data, isLoading, isError, error } = useGetSourcesIndex();
+  const { data, isLoading, isError, error } = useGetSourcesIndex({
+    query: { queryKey: getGetSourcesIndexQueryKey() },
+  });
 
   const groupedSources = useMemo(() => {
     if (!data?.data?.sources) return null;

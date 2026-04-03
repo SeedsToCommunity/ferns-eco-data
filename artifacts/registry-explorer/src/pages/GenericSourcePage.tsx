@@ -1,12 +1,14 @@
 import { useParams } from "wouter";
-import { useGetSourcesIndex } from "@workspace/api-client-react";
+import { useGetSourcesIndex, getGetSourcesIndexQueryKey } from "@workspace/api-client-react";
 import { Loader2, ServerCrash } from "lucide-react";
 import { SourceMetadataPanel } from "@/components/SourceMetadataPanel";
 import MetadataPage from "./MetadataPage";
 
 export default function GenericSourcePage() {
   const { sourceId } = useParams<{ sourceId: string }>();
-  const { data: sourcesData, isLoading } = useGetSourcesIndex();
+  const { data: sourcesData, isLoading } = useGetSourcesIndex({
+    query: { queryKey: getGetSourcesIndexQueryKey() },
+  });
   const source = sourcesData?.data?.sources?.find((s) => s.source_id === sourceId);
 
   if (isLoading) {

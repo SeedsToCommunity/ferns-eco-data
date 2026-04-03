@@ -1,7 +1,7 @@
 import React from "react";
 import { useParams, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { useGetSourcesIndex } from "@workspace/api-client-react";
+import { useGetSourcesIndex, getGetSourcesIndexQueryKey } from "@workspace/api-client-react";
 import { Layout } from "@/components/Layout";
 import {
   ArrowLeft, ShieldCheck, ShieldOff, ExternalLink,
@@ -196,7 +196,9 @@ function IdentitySection({
 export default function MetadataPage() {
   const { sourceId } = useParams<{ sourceId: string }>();
 
-  const { data: sourcesData, isLoading: sourcesLoading } = useGetSourcesIndex();
+  const { data: sourcesData, isLoading: sourcesLoading } = useGetSourcesIndex({
+    query: { queryKey: getGetSourcesIndexQueryKey() },
+  });
   const source = sourcesData?.data?.sources?.find((s) => s.source_id === sourceId);
 
   // Use relative path so requests go through the Vite proxy instead of hitting

@@ -5,8 +5,11 @@ import { Loader2, ServerCrash, ArrowLeft, AlertTriangle, Info } from "lucide-rea
 import { motion } from "framer-motion";
 import {
   useGetAllCoefficientValues,
+  getGetAllCoefficientValuesQueryKey,
   useGetAllWetlandIndicators,
+  getGetAllWetlandIndicatorsQueryKey,
   useGetAllWucols,
+  getGetAllWucolsQueryKey,
 } from "@workspace/api-client-react";
 
 function DisambiguationNote({ children }: { children: React.ReactNode }) {
@@ -28,7 +31,9 @@ function InfoNote({ children }: { children: React.ReactNode }) {
 }
 
 function CoefficientTable() {
-  const { data, isLoading, isError } = useGetAllCoefficientValues();
+  const { data, isLoading, isError } = useGetAllCoefficientValues({
+    query: { queryKey: getGetAllCoefficientValuesQueryKey() },
+  });
 
   if (isLoading) return <Loader />;
   if (isError || !data?.data) return <ErrorState />;
@@ -77,7 +82,9 @@ function CoefficientTable() {
 }
 
 function WetlandIndicatorTable() {
-  const { data, isLoading, isError } = useGetAllWetlandIndicators();
+  const { data, isLoading, isError } = useGetAllWetlandIndicators({
+    query: { queryKey: getGetAllWetlandIndicatorsQueryKey() },
+  });
 
   if (isLoading) return <Loader />;
   if (isError || !data?.data) return <ErrorState />;
@@ -126,7 +133,9 @@ function WetlandIndicatorTable() {
 }
 
 function WucolsTable() {
-  const { data, isLoading, isError } = useGetAllWucols();
+  const { data, isLoading, isError } = useGetAllWucols({
+    query: { queryKey: getGetAllWucolsQueryKey() },
+  });
 
   if (isLoading) return <Loader />;
   if (isError || !data?.data) return <ErrorState />;
