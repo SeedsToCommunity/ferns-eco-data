@@ -32,10 +32,11 @@ export const GBIF_GENERAL_SUMMARY =
   "basis of record, and collection date. " +
   "Data is licensed CC BY 4.0; backbone updated approximately annually; occurrence index updated continuously; " +
   "FERNS cache TTLs are 30 days for name data and 7 days for occurrence data. " +
-  "known_limitations: HIGHERRANK matches mean the name resolved above species level — these must not be " +
-  "treated as species-level confirmations; DOUBTFUL status means the name exists but is taxonomically uncertain. " +
+  "Consumers must inspect match_type in every response: HIGHERRANK means the name resolved only to genus " +
+  "or family level and must not be treated as a species-level confirmation; DOUBTFUL status means the name " +
+  "exists in the backbone but its taxonomic standing is uncertain. " +
   "iNaturalist research-grade observations are published to GBIF — GBIF occurrence counts therefore overlap " +
-  "with FERNS's iNaturalist service; do not treat simultaneous queries to both as fully independent datasets.";
+  "with FERNS's iNaturalist service; treat simultaneous queries to both as complementary views, not independent datasets.";
 
 export const GBIF_TECHNICAL_DETAILS =
   "Source: GBIF.org. Data licensed CC BY 4.0. " +
