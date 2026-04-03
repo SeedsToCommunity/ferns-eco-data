@@ -9,7 +9,7 @@ import {
 } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import type { MifloraSpeciesResult, MifloraCountiesResult, MifloraImagesResult } from "./connector.js";
-import { MIFLORA_SOURCE_ID, MIFLORA_DERIVATION_SUMMARY, MIFLORA_DERIVATION_SCIENTIFIC } from "./metadata.js";
+import { MIFLORA_SOURCE_ID, MIFLORA_GENERAL_SUMMARY, MIFLORA_TECHNICAL_DETAILS } from "./metadata.js";
 
 export async function lookupSpecies(cacheKey: string): Promise<MifloraSpecies | null> {
   const rows = await db
@@ -45,8 +45,8 @@ export async function storeSpecies(
     method: "api_fetch",
     upstream_url: result.upstream_url,
     source_url: result.source_url,
-    derivation_summary: MIFLORA_DERIVATION_SUMMARY,
-    derivation_scientific: MIFLORA_DERIVATION_SCIENTIFIC,
+    general_summary: MIFLORA_GENERAL_SUMMARY,
+    technical_details: MIFLORA_TECHNICAL_DETAILS,
   };
 
   const rows = await db
@@ -96,8 +96,8 @@ export async function storeCounties(
     method: "api_fetch",
     upstream_url: result.upstream_url,
     source_url: result.source_url,
-    derivation_summary: MIFLORA_DERIVATION_SUMMARY,
-    derivation_scientific: MIFLORA_DERIVATION_SCIENTIFIC,
+    general_summary: MIFLORA_GENERAL_SUMMARY,
+    technical_details: MIFLORA_TECHNICAL_DETAILS,
   };
 
   const rows = await db
@@ -148,8 +148,8 @@ export async function storeImages(
     method: "api_fetch",
     upstream_url: result.upstream_url,
     source_url: result.source_url,
-    derivation_summary: MIFLORA_DERIVATION_SUMMARY,
-    derivation_scientific: MIFLORA_DERIVATION_SCIENTIFIC,
+    general_summary: MIFLORA_GENERAL_SUMMARY,
+    technical_details: MIFLORA_TECHNICAL_DETAILS,
   };
 
   const rows = await db

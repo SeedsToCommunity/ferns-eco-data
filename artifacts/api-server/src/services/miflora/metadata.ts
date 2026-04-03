@@ -20,7 +20,7 @@ export const MIFLORA_ATTRIBUTION = {
   api_base_url: MIFLORA_API_BASE,
 };
 
-export const MIFLORA_DERIVATION_SUMMARY =
+export const MIFLORA_GENERAL_SUMMARY =
   "Vascular plant flora data for the state of Michigan from the University of Michigan Herbarium. " +
   "Covers all vascular plant species documented in Michigan including natives, adventives (non-natives), " +
   "and historical records. Data includes taxonomic details, county-level occurrence records, plant images, " +
@@ -58,7 +58,7 @@ export const MIFLORA_DERIVATION_SUMMARY =
   "'Forb/Herb', 'Graminoid', 'Fern/Fern ally', 'Aquatic'. May vary; pass through as-is. " +
   "na (Native/Adventive flag): string or boolean from source; use st field for primary native/adventive determination.";
 
-export const MIFLORA_DERIVATION_SCIENTIFIC =
+export const MIFLORA_TECHNICAL_DETAILS =
   "Source: Michigan Flora REST API v1.0 (https://michiganflora.net/api/v1.0). " +
   "Species lookup: GET /flora_search_sp?scientific_name={name} returns array of matching records; " +
   "first record gives plant_id; then parallel fetches: GET /spec_text?id={id} (taxonomic details and description text), " +

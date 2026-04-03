@@ -3,8 +3,8 @@ import { db, mnfiCommunitiesTable, mnfiCountyElementsTable } from "@workspace/db
 import { eq, ilike, and, sql } from "drizzle-orm";
 import {
   MNFI_SOURCE_ID,
-  MNFI_DERIVATION_SUMMARY,
-  MNFI_DERIVATION_SCIENTIFIC,
+  MNFI_GENERAL_SUMMARY,
+  MNFI_TECHNICAL_DETAILS,
   MNFI_REGISTRY_ENTRY,
 } from "../services/mnfi/metadata.js";
 import { ensureMnfiRegistryEntry, ensureMnfiCommunities } from "../services/mnfi/seed.js";
@@ -44,8 +44,8 @@ function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
     fetched_at: new Date(),
     method: "static_data",
     upstream_url: resolveUrl(req, "/api/mnfi/communities"),
-    derivation_summary: MNFI_DERIVATION_SUMMARY,
-    derivation_scientific: MNFI_DERIVATION_SCIENTIFIC,
+    general_summary: MNFI_GENERAL_SUMMARY,
+    technical_details: MNFI_TECHNICAL_DETAILS,
   };
 }
 

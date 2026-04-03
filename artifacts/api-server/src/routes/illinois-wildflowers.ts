@@ -3,8 +3,8 @@ import { db, botanicalSpeciesListsTable } from "@workspace/db";
 import { eq, ilike, and, sql } from "drizzle-orm";
 import {
   ILLINOIS_WILDFLOWERS_SOURCE_ID,
-  ILLINOIS_WILDFLOWERS_DERIVATION_SUMMARY,
-  ILLINOIS_WILDFLOWERS_DERIVATION_SCIENTIFIC,
+  ILLINOIS_WILDFLOWERS_GENERAL_SUMMARY,
+  ILLINOIS_WILDFLOWERS_TECHNICAL_DETAILS,
   ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY,
   ILLINOIS_WILDFLOWERS_PERMISSION_GRANTED,
   ILLINOIS_WILDFLOWERS_PERMISSION_STATUS,
@@ -23,8 +23,8 @@ function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
     fetched_at: new Date(),
     method: "species_list_lookup",
     upstream_url: resolveUrl(req, "/api/illinois-wildflowers/metadata"),
-    derivation_summary: ILLINOIS_WILDFLOWERS_DERIVATION_SUMMARY,
-    derivation_scientific: ILLINOIS_WILDFLOWERS_DERIVATION_SCIENTIFIC,
+    general_summary: ILLINOIS_WILDFLOWERS_GENERAL_SUMMARY,
+    technical_details: ILLINOIS_WILDFLOWERS_TECHNICAL_DETAILS,
   };
 }
 

@@ -1,4 +1,4 @@
-import { NATURESERVE_API_BASE, NATURESERVE_EXPLORER_BASE, NATURESERVE_SOURCE_ID, NATURESERVE_DERIVATION_SUMMARY, NATURESERVE_DERIVATION_SCIENTIFIC } from "./metadata.js";
+import { NATURESERVE_API_BASE, NATURESERVE_EXPLORER_BASE, NATURESERVE_SOURCE_ID, NATURESERVE_GENERAL_SUMMARY, NATURESERVE_TECHNICAL_DETAILS } from "./metadata.js";
 
 export const NATURESERVE_SEARCH_SPECIES_URL = `${NATURESERVE_API_BASE}/speciesSearch`;
 export const NATURESERVE_SEARCH_ALL_URL = `${NATURESERVE_API_BASE}/search`;
@@ -331,7 +331,7 @@ export function buildProvenance(upstreamUrl: string) {
     fetched_at: new Date(),
     method: "api_fetch",
     upstream_url: upstreamUrl,
-    derivation_summary: NATURESERVE_DERIVATION_SUMMARY,
-    derivation_scientific: NATURESERVE_DERIVATION_SCIENTIFIC,
+    general_summary: NATURESERVE_GENERAL_SUMMARY,
+    technical_details: NATURESERVE_TECHNICAL_DETAILS,
   };
 }

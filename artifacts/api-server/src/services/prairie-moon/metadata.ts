@@ -8,7 +8,7 @@ export const PRAIRIE_MOON_PERMISSION_STATUS =
   "and stores species-to-URL mappings in its local database. " +
   "No authentication or API key is required.";
 
-export const PRAIRIE_MOON_DERIVATION_SUMMARY =
+export const PRAIRIE_MOON_GENERAL_SUMMARY =
   "Prairie Moon Nursery (prairiemoon.com) is a leading native plant nursery based in Winona, Minnesota, " +
   "specializing in native prairie and wetland plants for the Upper Midwest and Great Plains. " +
   "The site carries ~970 native plant species with product pages that include growing information, " +
@@ -19,7 +19,7 @@ export const PRAIRIE_MOON_DERIVATION_SUMMARY =
   "and species epithet; subspecies and varieties are recognized when 'subsp' or 'var' appears at position 3. " +
   "Lookups are served from FERNS's local database; no live scraping occurs at query time.";
 
-export const PRAIRIE_MOON_DERIVATION_SCIENTIFIC =
+export const PRAIRIE_MOON_TECHNICAL_DETAILS =
   "Primary source: https://www.prairiemoon.com/sitemap.xml. " +
   "Operated by Prairie Moon Nursery, Winona, MN. " +
   "Import method: Parse sitemap.xml, filter for plant URLs " +

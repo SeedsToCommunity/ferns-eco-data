@@ -73,10 +73,10 @@ export function ResultDisplay({ isLoading, error, response }: ResultDisplayProps
             </a>
           </div>
         )}
-        {response?.provenance?.derivation_summary && (
+        {response?.provenance?.general_summary && (
           <div className="bg-card border rounded-xl p-4 space-y-1">
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Derivation Summary</p>
-            <p className="text-sm text-foreground leading-relaxed">{response.provenance.derivation_summary}</p>
+            <p className="text-sm text-foreground leading-relaxed">{response.provenance.general_summary}</p>
           </div>
         )}
       </div>

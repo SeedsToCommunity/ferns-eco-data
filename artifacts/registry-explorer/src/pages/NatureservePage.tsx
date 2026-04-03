@@ -104,8 +104,8 @@ interface SpeciesEnvelope {
     fetched_at: string;
     method: string;
     upstream_url: string;
-    derivation_summary: string;
-    derivation_scientific: string;
+    general_summary: string;
+    technical_details: string;
   };
 }
 
@@ -145,8 +145,8 @@ interface EcosystemsEnvelope {
     fetched_at: string;
     method: string;
     upstream_url: string;
-    derivation_summary: string;
-    derivation_scientific: string;
+    general_summary: string;
+    technical_details: string;
   };
 }
 

@@ -8,7 +8,7 @@ export const LADY_BIRD_JOHNSON_PERMISSION_STATUS =
   "No authentication or API key is required. " +
   "FERNS constructs a plant search URL from the scientific name; no data is stored locally.";
 
-export const LADY_BIRD_JOHNSON_DERIVATION_SUMMARY =
+export const LADY_BIRD_JOHNSON_GENERAL_SUMMARY =
   "The Lady Bird Johnson Wildflower Center Plant Database (wildflower.org/plants) is a comprehensive " +
   "reference for native plants of North America, maintained by the Lady Bird Johnson Wildflower Center " +
   "at The University of Texas at Austin. " +
@@ -19,7 +19,7 @@ export const LADY_BIRD_JOHNSON_DERIVATION_SUMMARY =
   "For single-word queries (genus only), a genus-only search is returned. " +
   "The URL is always valid but requires a browser and returns search results rather than a direct profile.";
 
-export const LADY_BIRD_JOHNSON_DERIVATION_SCIENTIFIC =
+export const LADY_BIRD_JOHNSON_TECHNICAL_DETAILS =
   "Source: https://www.wildflower.org/plants/. " +
   "Operated by Lady Bird Johnson Wildflower Center, The University of Texas at Austin. " +
   "URL construction: " +

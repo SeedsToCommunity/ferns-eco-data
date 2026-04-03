@@ -1,4 +1,4 @@
-import { GBIF_API_BASE, GBIF_DERIVATION_SCIENTIFIC, GBIF_DERIVATION_SUMMARY, GBIF_SOURCE_ID } from "./metadata.js";
+import { GBIF_API_BASE, GBIF_TECHNICAL_DETAILS, GBIF_GENERAL_SUMMARY, GBIF_SOURCE_ID } from "./metadata.js";
 import { createHash } from "crypto";
 
 export type GeographyMode = "countries" | "continent" | "bbox";
@@ -458,7 +458,7 @@ export function buildProvenance(upstreamUrl: string) {
     fetched_at: new Date(),
     method: "api_fetch",
     upstream_url: upstreamUrl,
-    derivation_summary: GBIF_DERIVATION_SUMMARY,
-    derivation_scientific: GBIF_DERIVATION_SCIENTIFIC,
+    general_summary: GBIF_GENERAL_SUMMARY,
+    technical_details: GBIF_TECHNICAL_DETAILS,
   };
 }

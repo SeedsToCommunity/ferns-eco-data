@@ -1,8 +1,8 @@
 import { Router, type IRouter } from "express";
 import {
   GOOGLE_IMAGES_SOURCE_ID,
-  GOOGLE_IMAGES_DERIVATION_SUMMARY,
-  GOOGLE_IMAGES_DERIVATION_SCIENTIFIC,
+  GOOGLE_IMAGES_GENERAL_SUMMARY,
+  GOOGLE_IMAGES_TECHNICAL_DETAILS,
   GOOGLE_IMAGES_REGISTRY_ENTRY,
   GOOGLE_IMAGES_PERMISSION_GRANTED,
   GOOGLE_IMAGES_PERMISSION_STATUS,
@@ -18,8 +18,8 @@ function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
     fetched_at: new Date(),
     method: "direct_construction",
     upstream_url: resolveUrl(req, "/api/google-images/metadata"),
-    derivation_summary: GOOGLE_IMAGES_DERIVATION_SUMMARY,
-    derivation_scientific: GOOGLE_IMAGES_DERIVATION_SCIENTIFIC,
+    general_summary: GOOGLE_IMAGES_GENERAL_SUMMARY,
+    technical_details: GOOGLE_IMAGES_TECHNICAL_DETAILS,
   };
 }
 

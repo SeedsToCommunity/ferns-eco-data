@@ -8,7 +8,7 @@ export const MISSOURI_PLANTS_PERMISSION_STATUS =
   "and stores species-to-URL mappings in its local database. " +
   "No authentication or API key is required.";
 
-export const MISSOURI_PLANTS_DERIVATION_SUMMARY =
+export const MISSOURI_PLANTS_GENERAL_SUMMARY =
   "Missouri Plants (missouriplants.com) is a comprehensive photographic reference for plants of Missouri, " +
   "maintained by Paul Wycoff. " +
   "The site covers over 1,400 species with detailed species pages including photographs, descriptions, " +
@@ -19,7 +19,7 @@ export const MISSOURI_PLANTS_DERIVATION_SUMMARY =
   "URL filenames are not derivable from scientific names alone — the species list is the authoritative source. " +
   "Lookups are served from FERNS's local database; no live scraping occurs at query time.";
 
-export const MISSOURI_PLANTS_DERIVATION_SCIENTIFIC =
+export const MISSOURI_PLANTS_TECHNICAL_DETAILS =
   "Primary source: missouriplants.com/All_Species_list.html. Maintained by Paul Wycoff. " +
   "Import method: HTML parse of All_Species_list.html — " +
   "extracts all <a href='...'> links with scientific name as link text. " +

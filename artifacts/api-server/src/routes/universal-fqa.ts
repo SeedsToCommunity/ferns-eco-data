@@ -1,8 +1,8 @@
 import { Router, type IRouter } from "express";
 import {
   UNIVERSAL_FQA_SOURCE_ID,
-  UNIVERSAL_FQA_DERIVATION_SUMMARY,
-  UNIVERSAL_FQA_DERIVATION_SCIENTIFIC,
+  UNIVERSAL_FQA_GENERAL_SUMMARY,
+  UNIVERSAL_FQA_TECHNICAL_DETAILS,
   UNIVERSAL_FQA_REGISTRY_ENTRY,
   UNIVERSAL_FQA_PERMISSION_GRANTED,
   UNIVERSAL_FQA_PERMISSION_STATUS,
@@ -30,8 +30,8 @@ function buildProvenance(req: Parameters<typeof resolveUrl>[0], upstreamUrl: str
     fetched_at: new Date(),
     method: "api_fetch",
     upstream_url: upstreamUrl,
-    derivation_summary: UNIVERSAL_FQA_DERIVATION_SUMMARY,
-    derivation_scientific: UNIVERSAL_FQA_DERIVATION_SCIENTIFIC,
+    general_summary: UNIVERSAL_FQA_GENERAL_SUMMARY,
+    technical_details: UNIVERSAL_FQA_TECHNICAL_DETAILS,
   };
 }
 

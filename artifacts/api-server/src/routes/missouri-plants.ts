@@ -3,8 +3,8 @@ import { db, botanicalSpeciesListsTable } from "@workspace/db";
 import { eq, ilike, and } from "drizzle-orm";
 import {
   MISSOURI_PLANTS_SOURCE_ID,
-  MISSOURI_PLANTS_DERIVATION_SUMMARY,
-  MISSOURI_PLANTS_DERIVATION_SCIENTIFIC,
+  MISSOURI_PLANTS_GENERAL_SUMMARY,
+  MISSOURI_PLANTS_TECHNICAL_DETAILS,
   MISSOURI_PLANTS_REGISTRY_ENTRY,
   MISSOURI_PLANTS_PERMISSION_GRANTED,
   MISSOURI_PLANTS_PERMISSION_STATUS,
@@ -23,8 +23,8 @@ function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
     fetched_at: new Date(),
     method: "species_list_lookup",
     upstream_url: resolveUrl(req, "/api/missouri-plants/metadata"),
-    derivation_summary: MISSOURI_PLANTS_DERIVATION_SUMMARY,
-    derivation_scientific: MISSOURI_PLANTS_DERIVATION_SCIENTIFIC,
+    general_summary: MISSOURI_PLANTS_GENERAL_SUMMARY,
+    technical_details: MISSOURI_PLANTS_TECHNICAL_DETAILS,
   };
 }
 

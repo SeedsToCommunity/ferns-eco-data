@@ -5,7 +5,7 @@ export const WUCOLS_PERMISSION_GRANTED = true;
 export const WUCOLS_PERMISSION_STATUS =
   "OPEN — Static reference data. WUCOLS methodology published by the University of California Cooperative Extension. No authentication required.";
 
-export const WUCOLS_DERIVATION_SUMMARY =
+export const WUCOLS_GENERAL_SUMMARY =
   "WUCOLS (Water Use Classifications of Landscape Species) is a classification system for the supplemental irrigation needs " +
   "of landscape and garden plants. It was developed by the University of California Cooperative Extension (UC CES) " +
   "and is widely used by nursery professionals, landscape architects, and water agencies in California and adjacent regions. " +
@@ -23,7 +23,7 @@ export const WUCOLS_DERIVATION_SUMMARY =
   "WUCOLS is NOT the Coefficient of Wetness (W, -5 to +5), which is the numeric companion to WIS in Floristic Quality Assessment. " +
   "WUCOLS is NOT the Coefficient of Conservatism (C-value, 0–10), which measures ecological fidelity to natural habitats.";
 
-export const WUCOLS_DERIVATION_SCIENTIFIC =
+export const WUCOLS_TECHNICAL_DETAILS =
   "Source: Static reference data. " +
   "Authority: University of California Cooperative Extension (UC CES). " +
   "Reference: Costello, L.R. et al. WUCOLS IV: Water Use Classification of Landscape Species. " +

@@ -3,8 +3,8 @@ import { db, botanicalWebRefsCacheTable } from "@workspace/db";
 import { and, eq, gt } from "drizzle-orm";
 import {
   GOBOTANY_SOURCE_ID,
-  GOBOTANY_DERIVATION_SUMMARY,
-  GOBOTANY_DERIVATION_SCIENTIFIC,
+  GOBOTANY_GENERAL_SUMMARY,
+  GOBOTANY_TECHNICAL_DETAILS,
   GOBOTANY_REGISTRY_ENTRY,
   GOBOTANY_PERMISSION_GRANTED,
   GOBOTANY_PERMISSION_STATUS,
@@ -24,8 +24,8 @@ function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
     fetched_at: new Date(),
     method: "direct_construction",
     upstream_url: resolveUrl(req, "/api/gobotany/metadata"),
-    derivation_summary: GOBOTANY_DERIVATION_SUMMARY,
-    derivation_scientific: GOBOTANY_DERIVATION_SCIENTIFIC,
+    general_summary: GOBOTANY_GENERAL_SUMMARY,
+    technical_details: GOBOTANY_TECHNICAL_DETAILS,
   };
 }
 

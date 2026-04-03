@@ -19,8 +19,8 @@ FERNS fetches, caches, and exposes ecological and environmental data from author
 -   **Discrepancy ownership**: All discrepancies — whether flagged by the audit script, the automated reviewer, or any other tool — are the user's decision to resolve. Do not resolve them unilaterally.
 -   **Post-task summary (required after any significant task)**: After completing a task that involved substantial implementation or decisions, write a plain-language summary covering all of the following — do not omit sections:
     1. **What was built** — one paragraph a non-technical person can follow.
-    2. **Derivation summary** — reproduce the actual `derivation_summary` text verbatim if a new source was added, so the user can verify it reads correctly for a general audience.
-    3. **Scientific/technical description** — reproduce the actual `derivation_scientific` text verbatim, so the user can verify accuracy and completeness for a technical audience.
+    2. **Derivation summary** — reproduce the actual `general_summary` text verbatim if a new source was added, so the user can verify it reads correctly for a general audience.
+    3. **Scientific/technical description** — reproduce the actual `technical_details` text verbatim, so the user can verify accuracy and completeness for a technical audience.
     4. **Architectural decisions made** — every non-trivial decision with its tradeoff stated explicitly. Examples: "chose in-memory cache instead of PostgreSQL — means data is lost on server restart"; "exact match only, no fuzzy fallback — means partial names won't match". Do not bury these. If you made a decision the user might have made differently, surface it.
     5. **What was NOT done** — explicitly list anything that was in scope but skipped, deferred, or not updated (e.g. "audit tool not updated", "no database cache added", "OpenAPI schema not reviewed").
     6. **What the user should decide or review** — flag anything that requires a human judgment call, approval, or follow-up action.
@@ -59,7 +59,7 @@ Every external data source integrated into FERNS follows a consistent five-compo
 
 **Key Design Principles and Features:**
 
--   **Provenance Tracking**: Every database record and API response includes comprehensive provenance metadata (`source_id`, `fetched_at`, `method`, `upstream_url`, `derivation_summary`, `derivation_scientific`) to enable trust decisions.
+-   **Provenance Tracking**: Every database record and API response includes comprehensive provenance metadata (`source_id`, `fetched_at`, `method`, `upstream_url`, `general_summary`, `technical_details`) to enable trust decisions.
 -   **API Response Envelope**: All API responses are wrapped in a standard envelope including `source_url`, `data`, `provenance`, and `found` status.
 -   **Cache Policy**: Data is cached with specific TTLs per source. Michigan Flora data is cached permanently (no TTL, `expires_at=null`) since the source does not change; `?refresh=true` is the only way to force a re-fetch. Other sources vary — positive results are often cached long-term; negative results may have shorter TTLs.
 -   **Permission Enforcement**: Source metadata includes a `permission_granted` flag, and Explorer UIs display blocking modals when permission is not granted.
@@ -70,15 +70,15 @@ Every external data source integrated into FERNS follows a consistent five-compo
 -   **Database Schema**: Dedicated Drizzle ORM schemas exist for each source's cache tables and a central `ferns_sources` table for the registry.
 -   **OpenAPI Specification**: An OpenAPI 3.1 spec (`openapi.yaml`) drives API codegen for consistency.
 -   **Source Fidelity**: FERNS API mirrors each source's own interface as closely as possible, preserving all fields and known quirks.
--   **Source Descriptions**: Every source has three structured description fields — `description`, `derivation_summary`, and `derivation_scientific` — that together serve as a complete self-contained reference for any reader. Standards and examples are defined in the Source Onboarding Playbook below.
+-   **Source Descriptions**: Every source has three structured description fields — `description`, `general_summary`, and `technical_details` — that together serve as a complete self-contained reference for any reader. Standards and examples are defined in the Source Onboarding Playbook below.
 -   **No Normalization**: FERNS preserves the distinctness of each source; it does not collapse sources into a common data model or imply equivalence.
 -   **Self-Describing Registry**: All `metadata_url`, `explorer_url`, and `source_url` fields in registry and metadata responses must be absolute URLs.
 -   **TypeScript declarations**: When adding or changing a file in a package that uses `composite: true` (e.g., `lib/db`, `lib/api-client-react`), rebuild its declarations before type-checking consumers: `cd lib/db && pnpm exec tsc -p tsconfig.json` (emitDeclarationOnly). Stale dist/.d.ts files in those packages will cause false "no exported member" errors in packages that reference them.
--   **Metadata response structure**: Every source's `/metadata` endpoint must follow the same response shape as existing sources. The `derivation_summary` and `derivation_scientific` fields must appear inside the `provenance` object, not as top-level keys or nested under any other wrapper. Before writing a new metadata route, read an existing one (e.g., `artifacts/api-server/src/routes/miflora.ts`) to confirm the shape. Do not invent a new response structure.
--   **Description field completeness**: The `description`, `derivation_summary`, and `derivation_scientific` fields in every source's registry metadata must be fully self-contained. Together they must give any reader — general user, developer, researcher — a complete understanding of the source without consulting any external documentation. For sources with encoded fields (e.g. coded values like `OBL`, `C5`, `FACW`), `derivation_scientific` must enumerate every possible value and its meaning. If a consumer cannot interpret the data from these fields alone, the registry entry is incomplete.
--   **Disambiguation requirement**: Any FERNS source whose vocabulary overlaps with another source must include explicit disambiguation language in both `derivation_summary` and `derivation_scientific`. This means naming the other sources, stating clearly what this source does NOT measure, and identifying the authority, scale, and domain of each. This is factual domain mapping, not editorial opinion. Saying "this metric is used by ecologists for habitat assessment, not by nurseries for irrigation planning" is a factual statement and belongs in the description text.
+-   **Metadata response structure**: Every source's `/metadata` endpoint must follow the same response shape as existing sources. The `general_summary` and `technical_details` fields must appear inside the `provenance` object, not as top-level keys or nested under any other wrapper. Before writing a new metadata route, read an existing one (e.g., `artifacts/api-server/src/routes/miflora.ts`) to confirm the shape. Do not invent a new response structure.
+-   **Description field completeness**: The `description`, `general_summary`, and `technical_details` fields in every source's registry metadata must be fully self-contained. Together they must give any reader — general user, developer, researcher — a complete understanding of the source without consulting any external documentation. For sources with encoded fields (e.g. coded values like `OBL`, `C5`, `FACW`), `technical_details` must enumerate every possible value and its meaning. If a consumer cannot interpret the data from these fields alone, the registry entry is incomplete.
+-   **Disambiguation requirement**: Any FERNS source whose vocabulary overlaps with another source must include explicit disambiguation language in both `general_summary` and `technical_details`. This means naming the other sources, stating clearly what this source does NOT measure, and identifying the authority, scale, and domain of each. This is factual domain mapping, not editorial opinion. Saying "this metric is used by ecologists for habitat assessment, not by nurseries for irrigation planning" is a factual statement and belongs in the description text.
 -   **Clarity for humans and agents**: All metadata, description text, and documentation must be written to be understood by both human readers and AI agents. Avoid unexplained abbreviations. Spell out acronyms on first use. Prefer complete sentences over terse field lists.
--   **Dedicated vocabulary sources**: If a data type (such as the Coefficient of Conservatism) is a standalone, well-defined standard with a published authority and a use across multiple FERNS sources, it may have its own registry entry, API, and explorer so that its definition is authoritative and centrally queryable. This is a design option to consider, not a mandatory pattern — the user decides whether a given metric warrants a standalone source. A cross-reference meta-source whose sole purpose is to disambiguate other sources was evaluated and intentionally declined (see Task #28): disambiguation belongs in each source's own `derivation_summary` and `derivation_scientific` fields and in this document, not in a separate API endpoint.
+-   **Dedicated vocabulary sources**: If a data type (such as the Coefficient of Conservatism) is a standalone, well-defined standard with a published authority and a use across multiple FERNS sources, it may have its own registry entry, API, and explorer so that its definition is authoritative and centrally queryable. This is a design option to consider, not a mandatory pattern — the user decides whether a given metric warrants a standalone source. A cross-reference meta-source whose sole purpose is to disambiguate other sources was evaluated and intentionally declined (see Task #28): disambiguation belongs in each source's own `general_summary` and `technical_details` fields and in this document, not in a separate API endpoint.
 -   **Non-standard conventions**: When a data field uses a convention that is not backed by a published standard (e.g., a 1–10 numeric wetness scale used by some nursery databases), document it explicitly as a non-standard convention. State that different publishers may implement it differently, and that FERNS does not treat it as authoritative.
 
 ## Source Onboarding Playbook
@@ -100,7 +100,7 @@ Create a new Drizzle schema file in `lib/db/src/schema/`. Export the table(s) fr
 Implement data ingestion in `artifacts/api-server/src/services/{source-id}/`. Done when data is in the DB or loaded into memory. If skipped, state why.
 
 **Step 5: Source Metadata and Registry Seed (DO NOT SKIP description quality)**
-Create `artifacts/api-server/src/services/{source-id}/metadata.ts` with the source constants (SOURCE_ID, DERIVATION_SUMMARY, DERIVATION_SCIENTIFIC, REGISTRY_ENTRY, PERMISSION_GRANTED, PERMISSION_STATUS). Create `artifacts/api-server/src/services/{source-id}/seed.ts` that upserts into `fernsSourcesTable`. The three description fields (`description`, `derivation_summary`, `derivation_scientific`) must conform to the standards defined below before this step is considered done. A source is not complete if any description field fails its audience test. Done when `GET /api/v1/sources` includes the new source with description fields that meet the defined standards.
+Create `artifacts/api-server/src/services/{source-id}/metadata.ts` with the source constants (SOURCE_ID, GENERAL_SUMMARY, TECHNICAL_DETAILS, REGISTRY_ENTRY, PERMISSION_GRANTED, PERMISSION_STATUS). Create `artifacts/api-server/src/services/{source-id}/seed.ts` that upserts into `fernsSourcesTable`. The three description fields (`description`, `general_summary`, `technical_details`) must conform to the standards defined below before this step is considered done. A source is not complete if any description field fails its audience test. Done when `GET /api/v1/sources` includes the new source with description fields that meet the defined standards.
 
 **Step 6: Route Handler**
 Create `artifacts/api-server/src/routes/{source-id}.ts`. Implement `GET /api/{source-id}` (data endpoint) and `GET /api/{source-id}/metadata` (metadata endpoint). The metadata endpoint must return the same envelope shape as all existing sources — read `artifacts/api-server/src/routes/miflora.ts` before writing the new one. Register the router in `artifacts/api-server/src/index.ts`. Done when both endpoints return 200 with a correct envelope.
@@ -121,7 +121,7 @@ Add an explicit `<Route path="/source/{source-id}">` in `artifacts/registry-expl
 Add a comparator or health check in `lib/ferns-audit/src/`. For API/scrape sources: add a comparator that queries both the upstream source and the FERNS endpoint and diffs the result. For static sources: add a health check with known-value assertions. Done when the audit tool has coverage for the new source. If this step is skipped for any reason, write an explicit paragraph in the post-task summary stating exactly what coverage was omitted and why — a silent omission is a task failure.
 
 **Step 12: Post-Task Summary**
-Write the mandatory post-task summary (see User Preferences). Include the verbatim text of `description`, `derivation_summary`, and `derivation_scientific` so the user can verify them. Done when the summary is complete and presented.
+Write the mandatory post-task summary (see User Preferences). Include the verbatim text of `description`, `general_summary`, and `technical_details` so the user can verify them. Done when the summary is complete and presented.
 
 ---
 
@@ -151,10 +151,10 @@ Present this as a formatted document in one chat message. Every field is require
 **Draft description** (1–3 sentences, plain English, no jargon — see field standards below):
 {draft}
 
-**Draft derivation_summary** (comprehensive, plain language — see field standards below):
+**Draft general_summary** (comprehensive, plain language — see field standards below):
 {draft}
 
-**Draft derivation_scientific** (graduate-level, complete reference — see field standards below):
+**Draft technical_details** (graduate-level, complete reference — see field standards below):
 {draft}
 ```
 
@@ -187,7 +187,7 @@ These three fields are required on every FERNS source. They are structured deliv
 
 ---
 
-#### `derivation_summary`
+#### `general_summary`
 
 **Audience**: A general user — a developer, a citizen science app builder, a data program coordinator, a domain analyst — deciding whether this source aligns with their use case and domain.
 
@@ -215,7 +215,7 @@ These three fields are required on every FERNS source. They are structured deliv
 
 ---
 
-#### `derivation_scientific`
+#### `technical_details`
 
 **Audience**: A graduate student, hardcore developer, botanist researcher, mathematician, or organizational data archivist who needs every technical and methodological detail without consulting any other document. This is the authoritative stop for everything precise.
 

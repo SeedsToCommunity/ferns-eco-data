@@ -19,7 +19,7 @@ export const INAT_ATTRIBUTION = {
   api_base_url: INAT_API_BASE,
 };
 
-export const INAT_DERIVATION_SUMMARY =
+export const INAT_GENERAL_SUMMARY =
   "Observation and species data from iNaturalist (inaturalist.org), a citizen science platform " +
   "operated jointly by the California Academy of Sciences and the National Geographic Society. " +
   "Over 200 million observations contributed by millions of users worldwide. " +
@@ -28,7 +28,7 @@ export const INAT_DERIVATION_SUMMARY =
   "All data accessed through the iNaturalist v1 REST API and cached to reduce redundant requests. " +
   "Attribution required: 'Observations from iNaturalist (inaturalist.org). Species descriptions from Wikipedia.'";
 
-export const INAT_DERIVATION_SCIENTIFIC =
+export const INAT_TECHNICAL_DETAILS =
   "Source: iNaturalist (https://api.inaturalist.org/v1). " +
   "Place lookup: GET /places/autocomplete — returns iNaturalist place IDs from US Census TIGER and similar boundaries. " +
   "Species appearance: two-step fetch via GET /taxa?q={name}&rank=species then GET /taxa/{id}. " +

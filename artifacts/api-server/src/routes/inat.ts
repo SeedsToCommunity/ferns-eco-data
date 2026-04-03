@@ -26,8 +26,8 @@ import {
   INAT_ATTRIBUTION,
   INAT_PERMISSION_GRANTED,
   INAT_PERMISSION_STATUS,
-  INAT_DERIVATION_SUMMARY,
-  INAT_DERIVATION_SCIENTIFIC,
+  INAT_GENERAL_SUMMARY,
+  INAT_TECHNICAL_DETAILS,
   INAT_REGISTRY_ENTRY,
 } from "../services/inat/metadata.js";
 import { ensureInatRegistryEntry } from "../services/inat/seed.js";
@@ -86,8 +86,8 @@ function buildPlaceResponse(
     upstream_url: string;
     source_id: string;
     method: string;
-    derivation_summary: string;
-    derivation_scientific: string;
+    general_summary: string;
+    technical_details: string;
   },
   cache_status: "hit" | "miss" | "bypassed",
 ) {
@@ -119,8 +119,8 @@ function buildPlaceResponse(
       fetched_at: row.fetched_at,
       method: row.method,
       upstream_url: row.upstream_url,
-      derivation_summary: row.derivation_summary,
-      derivation_scientific: row.derivation_scientific,
+      general_summary: row.general_summary,
+      technical_details: row.technical_details,
     },
   };
 }
@@ -163,8 +163,8 @@ function buildSpeciesResponse(
     upstream_url: string;
     source_id: string;
     method: string;
-    derivation_summary: string;
-    derivation_scientific: string;
+    general_summary: string;
+    technical_details: string;
   },
   cache_status: "hit" | "miss" | "bypassed",
 ) {
@@ -179,8 +179,8 @@ function buildSpeciesResponse(
       fetched_at: row.fetched_at,
       method: row.method,
       upstream_url: row.upstream_url,
-      derivation_summary: row.derivation_summary,
-      derivation_scientific: row.derivation_scientific,
+      general_summary: row.general_summary,
+      technical_details: row.technical_details,
     },
   };
 }
@@ -276,8 +276,8 @@ function buildPassthroughResponse(
     upstream_url: string;
     source_id: string;
     method: string;
-    derivation_summary: string;
-    derivation_scientific: string;
+    general_summary: string;
+    technical_details: string;
   },
   cache_status: "hit" | "miss" | "bypassed",
 ) {
@@ -292,8 +292,8 @@ function buildPassthroughResponse(
       fetched_at: row.fetched_at,
       method: row.method,
       upstream_url: row.upstream_url,
-      derivation_summary: row.derivation_summary,
-      derivation_scientific: row.derivation_scientific,
+      general_summary: row.general_summary,
+      technical_details: row.technical_details,
     },
   };
 }
@@ -342,8 +342,8 @@ router.get("/inat/observations", (req, res) => {
       fetched_at: prov.fetched_at,
       method: prov.method,
       upstream_url: prov.upstream_url,
-      derivation_summary: prov.derivation_summary,
-      derivation_scientific: prov.derivation_scientific,
+      general_summary: prov.general_summary,
+      technical_details: prov.technical_details,
     },
   }));
 });
@@ -369,8 +369,8 @@ router.get("/inat/metadata", async (req, res) => {
       fetched_at: queriedAt,
       method: "static_metadata",
       upstream_url: resolveUrl(req, "/api/inat/metadata"),
-      derivation_summary: INAT_DERIVATION_SUMMARY,
-      derivation_scientific: INAT_DERIVATION_SCIENTIFIC,
+      general_summary: INAT_GENERAL_SUMMARY,
+      technical_details: INAT_TECHNICAL_DETAILS,
     },
   }));
 });

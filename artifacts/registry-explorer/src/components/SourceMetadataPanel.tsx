@@ -66,8 +66,8 @@ interface MetadataShape {
     fetched_at?: string;
     method?: string;
     upstream_url?: string;
-    derivation_summary?: string;
-    derivation_scientific?: string;
+    general_summary?: string;
+    technical_details?: string;
   };
 }
 
@@ -181,10 +181,10 @@ export function SourceMetadataPanel({ metadataApiPath }: { metadataApiPath: stri
       )}
 
       {/* Scientific Description */}
-      {provenance?.derivation_scientific && (
+      {provenance?.technical_details && (
         <Section title="Scientific Description" icon={<FlaskConical className="w-4 h-4" />}>
           <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
-            {provenance.derivation_scientific}
+            {provenance.technical_details}
           </p>
         </Section>
       )}

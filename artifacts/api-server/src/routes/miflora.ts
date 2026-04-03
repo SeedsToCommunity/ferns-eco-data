@@ -21,8 +21,8 @@ import {
   MIFLORA_ATTRIBUTION,
   MIFLORA_PERMISSION_GRANTED,
   MIFLORA_PERMISSION_STATUS,
-  MIFLORA_DERIVATION_SUMMARY,
-  MIFLORA_DERIVATION_SCIENTIFIC,
+  MIFLORA_GENERAL_SUMMARY,
+  MIFLORA_TECHNICAL_DETAILS,
   MIFLORA_REGISTRY_ENTRY,
 } from "../services/miflora/metadata.js";
 import { ensureMifloraRegistryEntry } from "../services/miflora/seed.js";
@@ -72,8 +72,8 @@ router.get("/miflora/species", async (req, res) => {
       upstream_url: `https://michiganflora.net/api/v1.0/flora_search_sp?scientific_name=${encodeURIComponent(name)}`,
       source_id: MIFLORA_SOURCE_ID,
       method: "api_fetch",
-      derivation_summary: MIFLORA_DERIVATION_SUMMARY,
-      derivation_scientific: MIFLORA_DERIVATION_SCIENTIFIC,
+      general_summary: MIFLORA_GENERAL_SUMMARY,
+      technical_details: MIFLORA_TECHNICAL_DETAILS,
       queried_name: name,
     }, "error"));
   }
@@ -112,8 +112,8 @@ function buildSpeciesResponse(
     upstream_url: string;
     source_id: string;
     method: string;
-    derivation_summary: string;
-    derivation_scientific: string;
+    general_summary: string;
+    technical_details: string;
     queried_name?: string;
   },
   cache_status: "hit" | "miss" | "error",
@@ -130,8 +130,8 @@ function buildSpeciesResponse(
       fetched_at: row.fetched_at,
       method: row.method,
       upstream_url: row.upstream_url,
-      derivation_summary: row.derivation_summary,
-      derivation_scientific: row.derivation_scientific,
+      general_summary: row.general_summary,
+      technical_details: row.technical_details,
       ...(row.queried_name ? { matched_input: row.queried_name } : {}),
     },
   };
@@ -170,8 +170,8 @@ router.get("/miflora/counties", async (req, res) => {
       upstream_url: `https://michiganflora.net/api/v1.0/flora_search_sp?scientific_name=${encodeURIComponent(name)}`,
       source_id: MIFLORA_SOURCE_ID,
       method: "api_fetch",
-      derivation_summary: MIFLORA_DERIVATION_SUMMARY,
-      derivation_scientific: MIFLORA_DERIVATION_SCIENTIFIC,
+      general_summary: MIFLORA_GENERAL_SUMMARY,
+      technical_details: MIFLORA_TECHNICAL_DETAILS,
       queried_name: name,
     }, "error"));
   }
@@ -186,8 +186,8 @@ function buildCountiesResponse(
     upstream_url: string;
     source_id: string;
     method: string;
-    derivation_summary: string;
-    derivation_scientific: string;
+    general_summary: string;
+    technical_details: string;
     queried_name?: string;
   },
   cache_status: "hit" | "miss" | "error",
@@ -203,8 +203,8 @@ function buildCountiesResponse(
       fetched_at: row.fetched_at,
       method: row.method,
       upstream_url: row.upstream_url,
-      derivation_summary: row.derivation_summary,
-      derivation_scientific: row.derivation_scientific,
+      general_summary: row.general_summary,
+      technical_details: row.technical_details,
       ...(row.queried_name ? { matched_input: row.queried_name } : {}),
     },
   };
@@ -244,8 +244,8 @@ router.get("/miflora/images", async (req, res) => {
       upstream_url: `https://michiganflora.net/api/v1.0/flora_search_sp?scientific_name=${encodeURIComponent(name)}`,
       source_id: MIFLORA_SOURCE_ID,
       method: "api_fetch",
-      derivation_summary: MIFLORA_DERIVATION_SUMMARY,
-      derivation_scientific: MIFLORA_DERIVATION_SCIENTIFIC,
+      general_summary: MIFLORA_GENERAL_SUMMARY,
+      technical_details: MIFLORA_TECHNICAL_DETAILS,
       queried_name: name,
     }, "error"));
   }
@@ -260,8 +260,8 @@ function buildImagesResponse(
     upstream_url: string;
     source_id: string;
     method: string;
-    derivation_summary: string;
-    derivation_scientific: string;
+    general_summary: string;
+    technical_details: string;
     plant_id?: number | null;
     queried_name?: string;
   },
@@ -278,8 +278,8 @@ function buildImagesResponse(
       fetched_at: row.fetched_at,
       method: row.method,
       upstream_url: row.upstream_url,
-      derivation_summary: row.derivation_summary,
-      derivation_scientific: row.derivation_scientific,
+      general_summary: row.general_summary,
+      technical_details: row.technical_details,
       ...(row.queried_name ? { matched_input: row.queried_name } : {}),
     },
   };
@@ -306,8 +306,8 @@ router.get("/miflora/metadata", async (req, res) => {
       fetched_at: queriedAt,
       method: "static_metadata",
       upstream_url: resolveUrl(req, "/api/miflora/metadata"),
-      derivation_summary: MIFLORA_DERIVATION_SUMMARY,
-      derivation_scientific: MIFLORA_DERIVATION_SCIENTIFIC,
+      general_summary: MIFLORA_GENERAL_SUMMARY,
+      technical_details: MIFLORA_TECHNICAL_DETAILS,
     },
   }));
 });

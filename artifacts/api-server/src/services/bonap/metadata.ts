@@ -155,14 +155,14 @@ export const BONAP_COLOR_KEY = [
   },
 ];
 
-export const BONAP_DERIVATION_SUMMARY =
+export const BONAP_GENERAL_SUMMARY =
   "Distribution data from the Biota of North America Program (BONAP) North American Plant Atlas (NAPA). " +
   "BONAP maps show which U.S. counties a vascular plant species has been recorded in, based on vouchered herbarium " +
   "specimens — physical plant samples deposited in scientific collections. Colors indicate nativity status, rarity, " +
   "and presence type. Data was last updated December 15, 2014. FERNS provides the map URL pointing to BONAP's " +
   "server; no image is stored or proxied.";
 
-export const BONAP_DERIVATION_SCIENTIFIC =
+export const BONAP_TECHNICAL_DETAILS =
   "Source: Kartesz, J.T., The Biota of North America Program (BONAP). 2015. North American Plant Atlas. " +
   "(http://bonap.net/napa). Chapel Hill, N.C. [maps generated from Kartesz, J.T. 2015. Floristic Synthesis of " +
   "North America, Version 1.0. Biota of North America Program (BONAP).] " +

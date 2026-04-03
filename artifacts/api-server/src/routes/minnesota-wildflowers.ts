@@ -3,8 +3,8 @@ import { db, botanicalSpeciesListsTable } from "@workspace/db";
 import { eq, ilike, and } from "drizzle-orm";
 import {
   MINNESOTA_WILDFLOWERS_SOURCE_ID,
-  MINNESOTA_WILDFLOWERS_DERIVATION_SUMMARY,
-  MINNESOTA_WILDFLOWERS_DERIVATION_SCIENTIFIC,
+  MINNESOTA_WILDFLOWERS_GENERAL_SUMMARY,
+  MINNESOTA_WILDFLOWERS_TECHNICAL_DETAILS,
   MINNESOTA_WILDFLOWERS_REGISTRY_ENTRY,
   MINNESOTA_WILDFLOWERS_PERMISSION_GRANTED,
   MINNESOTA_WILDFLOWERS_PERMISSION_STATUS,
@@ -23,8 +23,8 @@ function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
     fetched_at: new Date(),
     method: "species_list_lookup",
     upstream_url: resolveUrl(req, "/api/minnesota-wildflowers/metadata"),
-    derivation_summary: MINNESOTA_WILDFLOWERS_DERIVATION_SUMMARY,
-    derivation_scientific: MINNESOTA_WILDFLOWERS_DERIVATION_SCIENTIFIC,
+    general_summary: MINNESOTA_WILDFLOWERS_GENERAL_SUMMARY,
+    technical_details: MINNESOTA_WILDFLOWERS_TECHNICAL_DETAILS,
   };
 }
 

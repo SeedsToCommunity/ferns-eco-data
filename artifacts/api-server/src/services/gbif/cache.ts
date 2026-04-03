@@ -12,7 +12,7 @@ import {
 import { eq } from "drizzle-orm";
 import type { GbifMatchResult, GbifReconcileResult, GbifOccurrencesResult, GeographyParams } from "./connector.js";
 import { serializeGeography } from "./connector.js";
-import { GBIF_SOURCE_ID, GBIF_DERIVATION_SUMMARY, GBIF_DERIVATION_SCIENTIFIC } from "./metadata.js";
+import { GBIF_SOURCE_ID, GBIF_GENERAL_SUMMARY, GBIF_TECHNICAL_DETAILS } from "./metadata.js";
 
 const MATCH_HIT_TTL_DAYS = 30;
 const MATCH_NOMATCH_TTL_DAYS = 7;
@@ -90,8 +90,8 @@ export async function storeNameMatch(
     fetched_at: new Date(),
     method: "api_fetch",
     upstream_url: result.upstream_url,
-    derivation_summary: GBIF_DERIVATION_SUMMARY,
-    derivation_scientific: GBIF_DERIVATION_SCIENTIFIC,
+    general_summary: GBIF_GENERAL_SUMMARY,
+    technical_details: GBIF_TECHNICAL_DETAILS,
   };
 
   const rows = await db
@@ -163,8 +163,8 @@ export async function storeSynonyms(
     fetched_at: new Date(),
     method: "api_fetch",
     upstream_url: result.synonyms_upstream_url,
-    derivation_summary: GBIF_DERIVATION_SUMMARY,
-    derivation_scientific: GBIF_DERIVATION_SCIENTIFIC,
+    general_summary: GBIF_GENERAL_SUMMARY,
+    technical_details: GBIF_TECHNICAL_DETAILS,
   };
 
   const rows = await db
@@ -215,8 +215,8 @@ export async function storeVernacular(
     fetched_at: new Date(),
     method: "api_fetch",
     upstream_url: result.vernacular_upstream_url,
-    derivation_summary: GBIF_DERIVATION_SUMMARY,
-    derivation_scientific: GBIF_DERIVATION_SCIENTIFIC,
+    general_summary: GBIF_GENERAL_SUMMARY,
+    technical_details: GBIF_TECHNICAL_DETAILS,
   };
 
   const rows = await db
@@ -274,8 +274,8 @@ export async function storeOccurrences(
     fetched_at: now,
     method: "api_fetch",
     upstream_url: result.upstream_url,
-    derivation_summary: GBIF_DERIVATION_SUMMARY,
-    derivation_scientific: GBIF_DERIVATION_SCIENTIFIC,
+    general_summary: GBIF_GENERAL_SUMMARY,
+    technical_details: GBIF_TECHNICAL_DETAILS,
   };
 
   const rows = await db

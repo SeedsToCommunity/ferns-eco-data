@@ -35,8 +35,8 @@ export const gbifNameMatchesTable = pgTable("gbif_name_matches", {
   fetched_at: timestamp("fetched_at", { withTimezone: true }).notNull(),
   method: text("method").notNull().default("api_fetch"),
   upstream_url: text("upstream_url").notNull(),
-  derivation_summary: text("derivation_summary").notNull(),
-  derivation_scientific: text("derivation_scientific").notNull(),
+  general_summary: text("general_summary").notNull(),
+  technical_details: text("technical_details").notNull(),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
@@ -51,8 +51,8 @@ export const gbifSynonymsTable = pgTable("gbif_synonyms", {
   fetched_at: timestamp("fetched_at", { withTimezone: true }).notNull(),
   method: text("method").notNull().default("api_fetch"),
   upstream_url: text("upstream_url").notNull(),
-  derivation_summary: text("derivation_summary").notNull(),
-  derivation_scientific: text("derivation_scientific").notNull(),
+  general_summary: text("general_summary").notNull(),
+  technical_details: text("technical_details").notNull(),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
@@ -68,8 +68,8 @@ export const gbifVernacularNamesTable = pgTable("gbif_vernacular_names", {
   fetched_at: timestamp("fetched_at", { withTimezone: true }).notNull(),
   method: text("method").notNull().default("api_fetch"),
   upstream_url: text("upstream_url").notNull(),
-  derivation_summary: text("derivation_summary").notNull(),
-  derivation_scientific: text("derivation_scientific").notNull(),
+  general_summary: text("general_summary").notNull(),
+  technical_details: text("technical_details").notNull(),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
@@ -89,8 +89,8 @@ export const gbifOccurrencesTable = pgTable("gbif_occurrences", {
   fetched_at: timestamp("fetched_at", { withTimezone: true }).notNull(),
   method: text("method").notNull().default("api_fetch"),
   upstream_url: text("upstream_url").notNull(),
-  derivation_summary: text("derivation_summary").notNull(),
-  derivation_scientific: text("derivation_scientific").notNull(),
+  general_summary: text("general_summary").notNull(),
+  technical_details: text("technical_details").notNull(),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 

@@ -8,7 +8,7 @@ export const ILLINOIS_WILDFLOWERS_PERMISSION_STATUS =
   "and stores species-to-URL mappings in its local database. " +
   "No authentication or API key is required.";
 
-export const ILLINOIS_WILDFLOWERS_DERIVATION_SUMMARY =
+export const ILLINOIS_WILDFLOWERS_GENERAL_SUMMARY =
   "Illinois Wildflowers (illinoiswildflowers.info) is a photographic reference for wild plants of Illinois, " +
   "maintained by John Hilty. " +
   "The site is organized by habitat type into eight sections: " +
@@ -19,7 +19,7 @@ export const ILLINOIS_WILDFLOWERS_DERIVATION_SUMMARY =
   "Link text format is 'Scientific Name (Common Name)'; FERNS extracts the scientific name from this format. " +
   "Lookups may return multiple records for the same species (one per habitat section in which it appears).";
 
-export const ILLINOIS_WILDFLOWERS_DERIVATION_SCIENTIFIC =
+export const ILLINOIS_WILDFLOWERS_TECHNICAL_DETAILS =
   "Primary sources: eight habitat section indexes at https://www.illinoiswildflowers.info/{section}/{index}: " +
   "prairie/plant_index.htm, savanna/savanna_index.htm, woodland/woodland_index.htm, wetland/wetland_index.htm, " +
   "weeds/weed_index.htm, grasses/grass_index.htm, trees/tree_index.htm, mosses/moss_index.html. " +

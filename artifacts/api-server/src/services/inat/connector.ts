@@ -3,8 +3,8 @@ import {
   INAT_USER_AGENT,
   INAT_REQUEST_TIMEOUT_MS,
   INAT_SOURCE_ID,
-  INAT_DERIVATION_SUMMARY,
-  INAT_DERIVATION_SCIENTIFIC,
+  INAT_GENERAL_SUMMARY,
+  INAT_TECHNICAL_DETAILS,
 } from "./metadata.js";
 
 export interface InatPlaceResult {
@@ -324,7 +324,7 @@ export function buildProvenance(upstreamUrl: string, method: "api_fetch" | "url_
     fetched_at: new Date(),
     method,
     upstream_url: upstreamUrl,
-    derivation_summary: INAT_DERIVATION_SUMMARY,
-    derivation_scientific: INAT_DERIVATION_SCIENTIFIC,
+    general_summary: INAT_GENERAL_SUMMARY,
+    technical_details: INAT_TECHNICAL_DETAILS,
   };
 }

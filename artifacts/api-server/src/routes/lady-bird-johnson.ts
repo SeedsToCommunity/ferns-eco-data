@@ -1,8 +1,8 @@
 import { Router, type IRouter } from "express";
 import {
   LADY_BIRD_JOHNSON_SOURCE_ID,
-  LADY_BIRD_JOHNSON_DERIVATION_SUMMARY,
-  LADY_BIRD_JOHNSON_DERIVATION_SCIENTIFIC,
+  LADY_BIRD_JOHNSON_GENERAL_SUMMARY,
+  LADY_BIRD_JOHNSON_TECHNICAL_DETAILS,
   LADY_BIRD_JOHNSON_REGISTRY_ENTRY,
   LADY_BIRD_JOHNSON_PERMISSION_GRANTED,
   LADY_BIRD_JOHNSON_PERMISSION_STATUS,
@@ -20,8 +20,8 @@ function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
     fetched_at: new Date(),
     method: "direct_construction",
     upstream_url: resolveUrl(req, "/api/lady-bird-johnson/metadata"),
-    derivation_summary: LADY_BIRD_JOHNSON_DERIVATION_SUMMARY,
-    derivation_scientific: LADY_BIRD_JOHNSON_DERIVATION_SCIENTIFIC,
+    general_summary: LADY_BIRD_JOHNSON_GENERAL_SUMMARY,
+    technical_details: LADY_BIRD_JOHNSON_TECHNICAL_DETAILS,
   };
 }
 

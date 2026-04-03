@@ -1,8 +1,8 @@
 import { Router, type IRouter } from "express";
 import {
   USDA_PLANTS_SOURCE_ID,
-  USDA_PLANTS_DERIVATION_SUMMARY,
-  USDA_PLANTS_DERIVATION_SCIENTIFIC,
+  USDA_PLANTS_GENERAL_SUMMARY,
+  USDA_PLANTS_TECHNICAL_DETAILS,
   USDA_PLANTS_REGISTRY_ENTRY,
   USDA_PLANTS_PERMISSION_GRANTED,
   USDA_PLANTS_PERMISSION_STATUS,
@@ -18,8 +18,8 @@ function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
     fetched_at: new Date(),
     method: "direct_construction",
     upstream_url: resolveUrl(req, "/api/usda-plants/metadata"),
-    derivation_summary: USDA_PLANTS_DERIVATION_SUMMARY,
-    derivation_scientific: USDA_PLANTS_DERIVATION_SCIENTIFIC,
+    general_summary: USDA_PLANTS_GENERAL_SUMMARY,
+    technical_details: USDA_PLANTS_TECHNICAL_DETAILS,
   };
 }
 

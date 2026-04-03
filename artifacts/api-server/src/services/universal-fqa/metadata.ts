@@ -17,7 +17,7 @@ export const UNIVERSAL_FQA_ATTRIBUTION = {
   api_base_url: UNIVERSAL_FQA_API_BASE,
 };
 
-export const UNIVERSAL_FQA_DERIVATION_SUMMARY =
+export const UNIVERSAL_FQA_GENERAL_SUMMARY =
   "Universal FQA (universalfqa.org) is a public platform developed at the University of Michigan for standardizing Floristic Quality Assessment (FQA) calculations. " +
   "FQA is an ecological method, developed by Floyd Swink and Gerould Wilhelm (Plants of the Chicago Region, 1979; 4th ed. 1994), for measuring the ecological quality of a plant community. " +
   "It works by assigning every plant species a Coefficient of Conservatism (C-value) — an integer from 0 to 10 reflecting how tolerant that species is of habitat disturbance. " +
@@ -35,7 +35,7 @@ export const UNIVERSAL_FQA_DERIVATION_SUMMARY =
   "Both cover the same Michigan vascular flora; ID 267 is more recent. " +
   "ID 50 uses the same C-value assignments as Michigan Flora (michiganflora.net).";
 
-export const UNIVERSAL_FQA_DERIVATION_SCIENTIFIC =
+export const UNIVERSAL_FQA_TECHNICAL_DETAILS =
   "Source: universalfqa.org public REST API. Developed and maintained by the University of Michigan. " +
   "No authentication required. Base URL: http://universalfqa.org/get (HTTP; server redirects to HTTPS). " +
   "All responses are JSON with envelope {status: 'success'|'error', data: unknown[][]}. " +

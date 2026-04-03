@@ -172,12 +172,12 @@ export const GetBonapMapResponse = zod
           .describe(
             "Where this data came from (API endpoint, file path, or registry entry)",
           ),
-        derivation_summary: zod
+        general_summary: zod
           .string()
           .describe(
             "Plain language description readable by a homeowner or community member",
           ),
-        derivation_scientific: zod
+        technical_details: zod
           .string()
           .describe(
             "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -190,7 +190,7 @@ export const GetBonapMapResponse = zod
           ),
       })
       .describe(
-        "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
       ),
   })
   .describe("Standard FERNS response envelope for BONAP map lookups");
@@ -340,12 +340,12 @@ export const GetGbifMatchResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -358,7 +358,7 @@ export const GetGbifMatchResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
 });
 
@@ -429,12 +429,12 @@ export const GetGbifReconcileResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -447,7 +447,7 @@ export const GetGbifReconcileResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
 });
 
@@ -548,12 +548,12 @@ export const GetGbifOccurrencesResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -566,7 +566,7 @@ export const GetGbifOccurrencesResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
 });
 
@@ -622,12 +622,12 @@ export const GetGbifSearchResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -640,7 +640,7 @@ export const GetGbifSearchResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
 });
 
@@ -735,12 +735,12 @@ export const GetGbifMetadataResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -753,7 +753,7 @@ export const GetGbifMetadataResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
 });
 
@@ -836,12 +836,12 @@ export const GetInatPlaceResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -854,7 +854,7 @@ export const GetInatPlaceResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
 });
 
@@ -907,12 +907,12 @@ export const GetInatSpeciesResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -925,7 +925,7 @@ export const GetInatSpeciesResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
 });
 
@@ -984,12 +984,12 @@ export const GetInatHistogramResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -1002,7 +1002,7 @@ export const GetInatHistogramResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
 });
 
@@ -1068,12 +1068,12 @@ export const GetInatFieldValuesResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -1086,7 +1086,7 @@ export const GetInatFieldValuesResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
 });
 
@@ -1143,12 +1143,12 @@ export const GetInatObservationsResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -1161,7 +1161,7 @@ export const GetInatObservationsResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
 });
 
@@ -1222,12 +1222,12 @@ export const GetInatMetadataResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -1240,7 +1240,7 @@ export const GetInatMetadataResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
 });
 
@@ -1300,12 +1300,12 @@ export const GetMifloraSpeciesResponse = zod
           .describe(
             "Where this data came from (API endpoint, file path, or registry entry)",
           ),
-        derivation_summary: zod
+        general_summary: zod
           .string()
           .describe(
             "Plain language description readable by a homeowner or community member",
           ),
-        derivation_scientific: zod
+        technical_details: zod
           .string()
           .describe(
             "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -1318,7 +1318,7 @@ export const GetMifloraSpeciesResponse = zod
           ),
       })
       .describe(
-        "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
       ),
   })
   .describe(
@@ -1381,12 +1381,12 @@ export const GetMifloraCountiesResponse = zod
           .describe(
             "Where this data came from (API endpoint, file path, or registry entry)",
           ),
-        derivation_summary: zod
+        general_summary: zod
           .string()
           .describe(
             "Plain language description readable by a homeowner or community member",
           ),
-        derivation_scientific: zod
+        technical_details: zod
           .string()
           .describe(
             "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -1399,7 +1399,7 @@ export const GetMifloraCountiesResponse = zod
           ),
       })
       .describe(
-        "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
       ),
   })
   .describe(
@@ -1496,12 +1496,12 @@ export const GetMifloraImagesResponse = zod
           .describe(
             "Where this data came from (API endpoint, file path, or registry entry)",
           ),
-        derivation_summary: zod
+        general_summary: zod
           .string()
           .describe(
             "Plain language description readable by a homeowner or community member",
           ),
-        derivation_scientific: zod
+        technical_details: zod
           .string()
           .describe(
             "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -1514,7 +1514,7 @@ export const GetMifloraImagesResponse = zod
           ),
       })
       .describe(
-        "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
       ),
   })
   .describe(
@@ -1574,12 +1574,12 @@ export const GetMifloraMetadataResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -1592,7 +1592,7 @@ export const GetMifloraMetadataResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
 });
 
@@ -1632,12 +1632,12 @@ export const GetCoefficientByValueResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -1650,7 +1650,7 @@ export const GetCoefficientByValueResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
   data: zod
     .object({
@@ -1703,12 +1703,12 @@ export const GetAllCoefficientValuesResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -1721,7 +1721,7 @@ export const GetAllCoefficientValuesResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
   data: zod.array(
     zod.object({
@@ -1792,12 +1792,12 @@ export const GetCoefficientMetadataResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -1810,7 +1810,7 @@ export const GetCoefficientMetadataResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
 });
 
@@ -1850,12 +1850,12 @@ export const GetWetlandIndicatorByCodeResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -1868,7 +1868,7 @@ export const GetWetlandIndicatorByCodeResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
   data: zod
     .object({
@@ -1934,12 +1934,12 @@ export const GetWetlandIndicatorByWResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -1952,7 +1952,7 @@ export const GetWetlandIndicatorByWResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
   data: zod
     .object({
@@ -2006,12 +2006,12 @@ export const GetAllWetlandIndicatorsResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -2024,7 +2024,7 @@ export const GetAllWetlandIndicatorsResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
   data: zod.array(
     zod.object({
@@ -2096,12 +2096,12 @@ export const GetWetlandIndicatorMetadataResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -2114,7 +2114,7 @@ export const GetWetlandIndicatorMetadataResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
 });
 
@@ -2154,12 +2154,12 @@ export const GetWucolsByCodeResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -2172,7 +2172,7 @@ export const GetWucolsByCodeResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
   data: zod
     .object({
@@ -2230,12 +2230,12 @@ export const GetAllWucolsResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -2248,7 +2248,7 @@ export const GetAllWucolsResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
   data: zod.array(
     zod.object({
@@ -2324,12 +2324,12 @@ export const GetWucolsMetadataResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -2342,7 +2342,7 @@ export const GetWucolsMetadataResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
 });
 
@@ -2385,12 +2385,12 @@ export const GetS2CSpeciesByYearResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -2403,7 +2403,7 @@ export const GetS2CSpeciesByYearResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
   data: zod
     .union([
@@ -2466,12 +2466,12 @@ export const GetS2CYearsResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -2484,7 +2484,7 @@ export const GetS2CYearsResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
   data: zod.object({
     available_years: zod
@@ -2552,12 +2552,12 @@ export const GetS2CMetadataResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -2570,7 +2570,7 @@ export const GetS2CMetadataResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
 });
 
@@ -2606,12 +2606,12 @@ export const GetLcscgMetadataResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -2624,7 +2624,7 @@ export const GetLcscgMetadataResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
 });
 
@@ -2655,12 +2655,12 @@ export const GetLcscgGuidesResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -2673,7 +2673,7 @@ export const GetLcscgGuidesResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
   data: zod
     .object({
@@ -2749,12 +2749,12 @@ export const GetLcscgGuideResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -2767,7 +2767,7 @@ export const GetLcscgGuideResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
   data: zod
     .union([
@@ -2915,12 +2915,12 @@ export const GetLcscgSpeciesResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -2933,7 +2933,7 @@ export const GetLcscgSpeciesResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
   data: zod
     .object({
@@ -3085,12 +3085,12 @@ export const GetSourcesIndexResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -3103,7 +3103,7 @@ export const GetSourcesIndexResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
 });
 
@@ -3138,12 +3138,12 @@ export const GetUniversalFqaMetadataResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -3156,7 +3156,7 @@ export const GetUniversalFqaMetadataResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
 });
 
@@ -3188,12 +3188,12 @@ export const GetUniversalFqaDatabasesResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -3206,7 +3206,7 @@ export const GetUniversalFqaDatabasesResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
   data: zod
     .union([
@@ -3269,12 +3269,12 @@ export const GetUniversalFqaDatabaseResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -3287,7 +3287,7 @@ export const GetUniversalFqaDatabaseResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
   data: zod
     .union([
@@ -3405,12 +3405,12 @@ export const GetUniversalFqaSpeciesResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -3423,7 +3423,7 @@ export const GetUniversalFqaSpeciesResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
   data: zod
     .union([
@@ -3513,12 +3513,12 @@ export const GetUniversalFqaAssessmentsResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -3531,7 +3531,7 @@ export const GetUniversalFqaAssessmentsResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
   data: zod
     .union([
@@ -3598,12 +3598,12 @@ export const GetUniversalFqaAssessmentResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -3616,7 +3616,7 @@ export const GetUniversalFqaAssessmentResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
   data: zod
     .union([
@@ -3808,12 +3808,12 @@ export const GetSourcesMetadataResponse = zod.object({
         .describe(
           "Where this data came from (API endpoint, file path, or registry entry)",
         ),
-      derivation_summary: zod
+      general_summary: zod
         .string()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
-      derivation_scientific: zod
+      technical_details: zod
         .string()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
@@ -3826,6 +3826,6 @@ export const GetSourcesMetadataResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
 });

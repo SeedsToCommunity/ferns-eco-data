@@ -153,8 +153,8 @@ function ProvenanceSection({ provenance }: { provenance: Record<string, string> 
   return (
     <Section title="Provenance" icon={<Clock className="w-4 h-4" />}>
       <div>
-        {provenance.derivation_summary && (
-          <KVRow label="Summary" value={provenance.derivation_summary} />
+        {provenance.general_summary && (
+          <KVRow label="Summary" value={provenance.general_summary} />
         )}
         {provenance.method && (
           <KVRow label="Method" value={<span className="font-mono text-xs bg-muted px-2 py-1 rounded">{provenance.method}</span>} />
@@ -165,10 +165,10 @@ function ProvenanceSection({ provenance }: { provenance: Record<string, string> 
         {provenance.fetched_at && (
           <KVRow label="Fetched At" value={new Date(provenance.fetched_at).toLocaleString()} />
         )}
-        {provenance.derivation_scientific && (
+        {provenance.technical_details && (
           <div className="mt-4 pt-4 border-t border-border">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Scientific Method Note</p>
-            <p className="text-sm text-muted-foreground leading-relaxed">{provenance.derivation_scientific}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">{provenance.technical_details}</p>
           </div>
         )}
       </div>

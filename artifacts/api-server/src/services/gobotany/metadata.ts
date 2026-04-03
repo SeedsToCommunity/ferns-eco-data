@@ -6,7 +6,7 @@ export const GOBOTANY_PERMISSION_STATUS =
   "OPEN — Go Botany is a free public botanical reference maintained by the Native Plant Trust (formerly New England Wild Flower Society). " +
   "No authentication required. URLs are constructed directly from scientific names without scraping.";
 
-export const GOBOTANY_DERIVATION_SUMMARY =
+export const GOBOTANY_GENERAL_SUMMARY =
   "Go Botany is an interactive botanical key and species reference for New England plants, " +
   "maintained by the Native Plant Trust (nativeplanttrust.org). " +
   "The database covers vascular plants native and naturalized in New England (CT, MA, ME, NH, RI, VT). " +
@@ -16,7 +16,7 @@ export const GOBOTANY_DERIVATION_SUMMARY =
   "FERNS validates the URL via HTTP GET before returning it. A 200 response confirms the species is in the Go Botany database; " +
   "a non-200 response means the species is not indexed (e.g., not native or naturalized in New England).";
 
-export const GOBOTANY_DERIVATION_SCIENTIFIC =
+export const GOBOTANY_TECHNICAL_DETAILS =
   "Source: gobotany.nativeplanttrust.org. Maintained by Native Plant Trust, Framingham, MA. " +
   "URL construction: https://gobotany.nativeplanttrust.org/species/{genus}/{species}/ " +
   "where {genus} and {species} are lowercase. " +

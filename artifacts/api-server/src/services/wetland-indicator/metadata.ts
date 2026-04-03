@@ -5,7 +5,7 @@ export const WETLAND_INDICATOR_PERMISSION_GRANTED = true;
 export const WETLAND_INDICATOR_PERMISSION_STATUS =
   "OPEN — Static reference data. Wetland indicator codes defined by USDA NRCS National Wetland Plant List and U.S. Army Corps of Engineers. No authentication required.";
 
-export const WETLAND_INDICATOR_DERIVATION_SUMMARY =
+export const WETLAND_INDICATOR_GENERAL_SUMMARY =
   "The Wetland Indicator Status (WIS) classifies plant species by their frequency of occurrence in wetland habitats. " +
   "Codes are assigned by the USDA NRCS National Wetland Plant List (NWPL) under authority of the U.S. Army Corps of Engineers (USACE). " +
   "The five national codes are: " +
@@ -22,7 +22,7 @@ export const WETLAND_INDICATOR_DERIVATION_SUMMARY =
   "WUCOLS describes supplemental irrigation needs in managed landscapes and gardens — it is a nursery planning tool, not an ecological classification. " +
   "WIS is NOT the Coefficient of Conservatism (C-value, 0–10), which measures ecological fidelity and disturbance tolerance, not wetland affinity.";
 
-export const WETLAND_INDICATOR_DERIVATION_SCIENTIFIC =
+export const WETLAND_INDICATOR_TECHNICAL_DETAILS =
   "Source: Static reference data. " +
   "Authority: USDA NRCS National Wetland Plant List (NWPL), maintained under U.S. Army Corps of Engineers (USACE) regulatory authority. " +
   "See: https://wetland-plants.usace.army.mil/ " +

@@ -28,8 +28,8 @@ export const natureserveSpeciesCacheTable = pgTable("natureserve_species_cache",
   fetched_at: timestamp("fetched_at", { withTimezone: true }).notNull(),
   method: text("method").notNull().default("api_fetch"),
   upstream_url: text("upstream_url").notNull(),
-  derivation_summary: text("derivation_summary").notNull(),
-  derivation_scientific: text("derivation_scientific").notNull(),
+  general_summary: text("general_summary").notNull(),
+  technical_details: text("technical_details").notNull(),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
@@ -43,7 +43,7 @@ export const natureserveEcosystemsCacheTable = pgTable("natureserve_ecosystems_c
   fetched_at: timestamp("fetched_at", { withTimezone: true }).notNull(),
   method: text("method").notNull().default("api_fetch"),
   upstream_url: text("upstream_url").notNull(),
-  derivation_summary: text("derivation_summary").notNull(),
-  derivation_scientific: text("derivation_scientific").notNull(),
+  general_summary: text("general_summary").notNull(),
+  technical_details: text("technical_details").notNull(),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });

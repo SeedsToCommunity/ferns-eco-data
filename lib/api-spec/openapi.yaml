@@ -1393,15 +1393,15 @@ components:
       type: object
       description: >
         Provenance block present on every FERNS API response.
-        Both derivation fields are required — derivation_summary for general audiences,
-        derivation_scientific for researchers who need to evaluate and reproduce the data.
+        Both derivation fields are required — general_summary for general audiences,
+        technical_details for researchers who need to evaluate and reproduce the data.
       required:
         - source_id
         - fetched_at
         - method
         - upstream_url
-        - derivation_summary
-        - derivation_scientific
+        - general_summary
+        - technical_details
       properties:
         source_id:
           type: string
@@ -1416,10 +1416,10 @@ components:
         upstream_url:
           type: string
           description: Where this data came from (API endpoint, file path, or registry entry)
-        derivation_summary:
+        general_summary:
           type: string
           description: Plain language description readable by a homeowner or community member
-        derivation_scientific:
+        technical_details:
           type: string
           description: >
             Research-grade description: methods, measurement protocols, algorithms,

@@ -6,7 +6,7 @@ export const S2C_PERMISSION_STATUS =
   "GRANTED — Seeds to Community Washtenaw is operated by the data owner. " +
   "Data is public-facing and published for community use. Permission to serve via FERNS explicitly granted by the program organizer.";
 
-export const S2C_DERIVATION_SUMMARY =
+export const S2C_GENERAL_SUMMARY =
   "Seeds to Community Washtenaw is a native plant seed-growing program based in Washtenaw County, Michigan. " +
   "Each program year (January–March workshops), participants grow native plants from seeds collected " +
   "during the prior spring–fall season. " +
@@ -20,7 +20,7 @@ export const S2C_DERIVATION_SUMMARY =
   "neat_and_tidy — species suitable for 'neat and tidy' formal or managed garden settings. " +
   "sweet_and_simple — species designated for first-time or beginner growers (introduced in 2026).";
 
-export const S2C_DERIVATION_SCIENTIFIC =
+export const S2C_TECHNICAL_DETAILS =
   "Source: Seeds to Community Washtenaw native plant program, Washtenaw County, Michigan. " +
   "Data owner: program organizer. Permission: granted explicitly. " +
   "Method: static_data. Species lists extracted from program documents per year: " +

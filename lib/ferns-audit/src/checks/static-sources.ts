@@ -17,7 +17,7 @@ function envelopeFindings(envelope: Record<string, unknown>, context: string): F
 
   const prov = envelope.provenance as Record<string, unknown> | null | undefined;
   if (prov && typeof prov === "object") {
-    for (const key of ["source_id", "method", "derivation_summary", "derivation_scientific"]) {
+    for (const key of ["source_id", "method", "general_summary", "technical_details"]) {
       if (prov[key]) {
         findings.push({ type: "ok", sourceField: `provenance.${key}`, note: `present` });
       } else {

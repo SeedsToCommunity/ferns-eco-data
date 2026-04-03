@@ -28,8 +28,8 @@ import {
   GBIF_PERMISSION_GRANTED,
   GBIF_PERMISSION_STATUS,
   GBIF_VOCABULARIES,
-  GBIF_DERIVATION_SUMMARY,
-  GBIF_DERIVATION_SCIENTIFIC,
+  GBIF_GENERAL_SUMMARY,
+  GBIF_TECHNICAL_DETAILS,
   GBIF_REGISTRY_ENTRY,
 } from "../services/gbif/metadata.js";
 import { ensureGbifRegistryEntry } from "../services/gbif/seed.js";
@@ -98,8 +98,8 @@ function buildMatchResponse(
     upstream_url: string;
     source_id: string;
     method: string;
-    derivation_summary: string;
-    derivation_scientific: string;
+    general_summary: string;
+    technical_details: string;
   },
   cache_status: "hit" | "miss" | "bypassed",
 ) {
@@ -138,8 +138,8 @@ function buildMatchResponse(
       fetched_at: row.fetched_at,
       method: row.method,
       upstream_url: row.upstream_url,
-      derivation_summary: row.derivation_summary,
-      derivation_scientific: row.derivation_scientific,
+      general_summary: row.general_summary,
+      technical_details: row.technical_details,
       matched_input: row.matched_input,
     },
   };
@@ -197,8 +197,8 @@ function buildReconcileResponse(
     upstream_url: string;
     source_id: string;
     method: string;
-    derivation_summary: string;
-    derivation_scientific: string;
+    general_summary: string;
+    technical_details: string;
   },
   vern: {
     vernacular_names: unknown;
@@ -228,8 +228,8 @@ function buildReconcileResponse(
       fetched_at: syn.fetched_at,
       method: syn.method,
       upstream_url: syn.upstream_url,
-      derivation_summary: syn.derivation_summary,
-      derivation_scientific: syn.derivation_scientific,
+      general_summary: syn.general_summary,
+      technical_details: syn.technical_details,
     },
   };
 }
@@ -313,8 +313,8 @@ function buildOccurrencesResponse(
     fetched_at: Date;
     method: string;
     upstream_url: string;
-    derivation_summary: string;
-    derivation_scientific: string;
+    general_summary: string;
+    technical_details: string;
   },
   cache_status: "hit" | "miss" | "bypassed",
 ) {
@@ -337,8 +337,8 @@ function buildOccurrencesResponse(
       fetched_at: row.fetched_at,
       method: row.method,
       upstream_url: row.upstream_url,
-      derivation_summary: row.derivation_summary,
-      derivation_scientific: row.derivation_scientific,
+      general_summary: row.general_summary,
+      technical_details: row.technical_details,
     },
   };
 }
@@ -367,8 +367,8 @@ router.get("/gbif/search", async (req, res) => {
         fetched_at: provenance.fetched_at,
         method: provenance.method,
         upstream_url: provenance.upstream_url,
-        derivation_summary: provenance.derivation_summary,
-        derivation_scientific: provenance.derivation_scientific,
+        general_summary: provenance.general_summary,
+        technical_details: provenance.technical_details,
       },
     });
   } catch (err) {
@@ -399,8 +399,8 @@ router.get("/gbif/metadata", async (req, res) => {
       fetched_at: queriedAt,
       method: "static_metadata",
       upstream_url: resolveUrl(req, "/api/gbif/metadata"),
-      derivation_summary: GBIF_DERIVATION_SUMMARY,
-      derivation_scientific: GBIF_DERIVATION_SCIENTIFIC,
+      general_summary: GBIF_GENERAL_SUMMARY,
+      technical_details: GBIF_TECHNICAL_DETAILS,
     },
   });
 });

@@ -15,7 +15,7 @@ export interface ErrorResponse {
 }
 
 /**
- * Provenance block present on every FERNS API response. Both derivation fields are required — derivation_summary for general audiences, derivation_scientific for researchers who need to evaluate and reproduce the data.
+ * Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.
 
  */
 export interface FernsProvenance {
@@ -28,10 +28,10 @@ export interface FernsProvenance {
   /** Where this data came from (API endpoint, file path, or registry entry) */
   upstream_url: string;
   /** Plain language description readable by a homeowner or community member */
-  derivation_summary: string;
+  general_summary: string;
   /** Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce
    */
-  derivation_scientific: string;
+  technical_details: string;
   /** The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.
    */
   matched_input?: string;

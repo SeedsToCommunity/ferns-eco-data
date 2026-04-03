@@ -17,8 +17,8 @@ import {
   NATURESERVE_ATTRIBUTION,
   NATURESERVE_PERMISSION_GRANTED,
   NATURESERVE_PERMISSION_STATUS,
-  NATURESERVE_DERIVATION_SUMMARY,
-  NATURESERVE_DERIVATION_SCIENTIFIC,
+  NATURESERVE_GENERAL_SUMMARY,
+  NATURESERVE_TECHNICAL_DETAILS,
   NATURESERVE_REGISTRY_ENTRY,
 } from "../services/natureserve/metadata.js";
 import { ensureNatureserveRegistryEntry } from "../services/natureserve/seed.js";
@@ -101,8 +101,8 @@ function buildSpeciesResponse(
       fetched_at: row.fetched_at,
       method: row.method,
       upstream_url: row.upstream_url,
-      derivation_summary: row.derivation_summary,
-      derivation_scientific: row.derivation_scientific,
+      general_summary: row.general_summary,
+      technical_details: row.technical_details,
     },
   };
 }
@@ -157,8 +157,8 @@ function buildEcosystemsResponse(
       fetched_at: row.fetched_at,
       method: row.method,
       upstream_url: row.upstream_url,
-      derivation_summary: row.derivation_summary,
-      derivation_scientific: row.derivation_scientific,
+      general_summary: row.general_summary,
+      technical_details: row.technical_details,
     },
   };
 }
@@ -199,8 +199,8 @@ router.get("/natureserve/metadata", async (req, res) => {
       fetched_at: queriedAt,
       method: "static_metadata",
       upstream_url: resolveUrl(req, "/api/natureserve/metadata"),
-      derivation_summary: NATURESERVE_DERIVATION_SUMMARY,
-      derivation_scientific: NATURESERVE_DERIVATION_SCIENTIFIC,
+      general_summary: NATURESERVE_GENERAL_SUMMARY,
+      technical_details: NATURESERVE_TECHNICAL_DETAILS,
     },
   });
 });

@@ -5,7 +5,7 @@ export const COEFFICIENT_PERMISSION_GRANTED = true;
 export const COEFFICIENT_PERMISSION_STATUS =
   "OPEN — Static reference data. Methodology published by Swink & Wilhelm (1994). No authentication required.";
 
-export const COEFFICIENT_DERIVATION_SUMMARY =
+export const COEFFICIENT_GENERAL_SUMMARY =
   "The Coefficient of Conservatism (C-value) is an ecological fidelity score assigned to native plant species. " +
   "It was developed by Floyd Swink and Gerould Wilhelm in 'Plants of the Chicago Region' (1994) and is used " +
   "in Floristic Quality Assessment (FQA) to evaluate habitat quality. " +
@@ -30,7 +30,7 @@ export const COEFFICIENT_DERIVATION_SUMMARY =
   "C-values are typically calibrated regionally. This source reflects the general Swink & Wilhelm methodology " +
   "as applied in Michigan Flora. Other states may assign different C-values to the same species.";
 
-export const COEFFICIENT_DERIVATION_SCIENTIFIC =
+export const COEFFICIENT_TECHNICAL_DETAILS =
   "Source: Static reference data. Methodology: Swink, F. and G. Wilhelm. 1994. " +
   "Plants of the Chicago Region, 4th ed. Indiana Academy of Science. " +
   "C-value assignment: integer 0–10, assigned by regional botanical authorities to native species based on ecological fidelity. " +

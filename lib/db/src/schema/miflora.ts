@@ -15,8 +15,8 @@ export const mifloraSpeciesCacheTable = pgTable("miflora_species_cache", {
   method: text("method").notNull().default("api_fetch"),
   upstream_url: text("upstream_url").notNull(),
   source_url: text("source_url"),
-  derivation_summary: text("derivation_summary").notNull(),
-  derivation_scientific: text("derivation_scientific").notNull(),
+  general_summary: text("general_summary").notNull(),
+  technical_details: text("technical_details").notNull(),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
@@ -33,8 +33,8 @@ export const mifloraCountiesCacheTable = pgTable("miflora_counties_cache", {
   method: text("method").notNull().default("api_fetch"),
   upstream_url: text("upstream_url").notNull(),
   source_url: text("source_url"),
-  derivation_summary: text("derivation_summary").notNull(),
-  derivation_scientific: text("derivation_scientific").notNull(),
+  general_summary: text("general_summary").notNull(),
+  technical_details: text("technical_details").notNull(),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
@@ -51,8 +51,8 @@ export const mifloraImagesCacheTable = pgTable("miflora_images_cache", {
   method: text("method").notNull().default("api_fetch"),
   upstream_url: text("upstream_url").notNull(),
   source_url: text("source_url"),
-  derivation_summary: text("derivation_summary").notNull(),
-  derivation_scientific: text("derivation_scientific").notNull(),
+  general_summary: text("general_summary").notNull(),
+  technical_details: text("technical_details").notNull(),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 

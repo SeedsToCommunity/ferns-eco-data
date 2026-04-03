@@ -8,7 +8,7 @@ export const MINNESOTA_WILDFLOWERS_PERMISSION_STATUS =
   "and stores species-to-URL mappings in its local database. " +
   "No authentication or API key is required.";
 
-export const MINNESOTA_WILDFLOWERS_DERIVATION_SUMMARY =
+export const MINNESOTA_WILDFLOWERS_GENERAL_SUMMARY =
   "Minnesota Wildflowers (minnesotawildflowers.info) is a photographic field guide for native and naturalized " +
   "plants of Minnesota, maintained by Sue Dingwell. " +
   "The site covers ~1,861 taxa with photos, descriptions, identification notes, and bloom time information. " +
@@ -18,7 +18,7 @@ export const MINNESOTA_WILDFLOWERS_DERIVATION_SUMMARY =
   "which lists all species alphabetically by scientific name with their direct URLs. " +
   "Lookups are served from FERNS's local database; no live scraping occurs at query time.";
 
-export const MINNESOTA_WILDFLOWERS_DERIVATION_SCIENTIFIC =
+export const MINNESOTA_WILDFLOWERS_TECHNICAL_DETAILS =
   "Primary source: https://www.minnesotawildflowers.info/page/plants-by-name. " +
   "Maintained by Sue Dingwell (minnesotawildflowers.info). " +
   "Import method: HTML parse — extracts all <a href='/category/slug'>Scientific Name</a> links " +

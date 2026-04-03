@@ -1,8 +1,8 @@
 import { Router, type IRouter } from "express";
 import {
   WUCOLS_SOURCE_ID,
-  WUCOLS_DERIVATION_SUMMARY,
-  WUCOLS_DERIVATION_SCIENTIFIC,
+  WUCOLS_GENERAL_SUMMARY,
+  WUCOLS_TECHNICAL_DETAILS,
   WUCOLS_REGISTRY_ENTRY,
   WUCOLS_PERMISSION_GRANTED,
   WUCOLS_PERMISSION_STATUS,
@@ -19,8 +19,8 @@ function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
     fetched_at: new Date(),
     method: "static_data",
     upstream_url: resolveUrl(req, "/api/wucols/all"),
-    derivation_summary: WUCOLS_DERIVATION_SUMMARY,
-    derivation_scientific: WUCOLS_DERIVATION_SCIENTIFIC,
+    general_summary: WUCOLS_GENERAL_SUMMARY,
+    technical_details: WUCOLS_TECHNICAL_DETAILS,
   };
 }
 

@@ -7,7 +7,7 @@ export const GOOGLE_IMAGES_PERMISSION_STATUS =
   "FERNS constructs a search URL from the scientific name; no Google API key is required. " +
   "This source returns a search results page URL, not a direct image URL.";
 
-export const GOOGLE_IMAGES_DERIVATION_SUMMARY =
+export const GOOGLE_IMAGES_GENERAL_SUMMARY =
   "Google Images is the image search component of Google Search (images.google.com). " +
   "FERNS constructs a Google Images search URL for any scientific name using the standard query string format: " +
   "https://www.google.com/search?tbm=isch&q={scientific+name}. " +
@@ -15,7 +15,7 @@ export const GOOGLE_IMAGES_DERIVATION_SUMMARY =
   "No HTTP validation is performed because the URL is guaranteed to return results (even if no photos exist for the species). " +
   "This source is useful for quick visual identification of unfamiliar taxa using Google's aggregated image index.";
 
-export const GOOGLE_IMAGES_DERIVATION_SCIENTIFIC =
+export const GOOGLE_IMAGES_TECHNICAL_DETAILS =
   "Source: google.com/images. Operated by Google LLC. " +
   "URL construction: https://www.google.com/search?tbm=isch&q={URL-encoded scientific name} " +
   "where {scientific name} is the exact binomial as provided. " +

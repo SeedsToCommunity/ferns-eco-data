@@ -11,7 +11,7 @@ import {
 } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import type { InatPlaceLookupResult, InatSpeciesResult, InatHistogramResult, InatFieldValuesResult } from "./connector.js";
-import { INAT_SOURCE_ID, INAT_DERIVATION_SUMMARY, INAT_DERIVATION_SCIENTIFIC } from "./metadata.js";
+import { INAT_SOURCE_ID, INAT_GENERAL_SUMMARY, INAT_TECHNICAL_DETAILS } from "./metadata.js";
 
 const SPECIES_HIT_TTL_DAYS = 30;
 const SPECIES_NOMATCH_TTL_DAYS = 7;
@@ -52,8 +52,8 @@ export async function storePlace(
     fetched_at: now,
     method: "api_fetch",
     upstream_url: result.upstream_url,
-    derivation_summary: INAT_DERIVATION_SUMMARY,
-    derivation_scientific: INAT_DERIVATION_SCIENTIFIC,
+    general_summary: INAT_GENERAL_SUMMARY,
+    technical_details: INAT_TECHNICAL_DETAILS,
   };
 
   const rows = await db
@@ -121,8 +121,8 @@ export async function storeSpecies(
     fetched_at: now,
     method: "api_fetch",
     upstream_url: result.search_upstream_url,
-    derivation_summary: INAT_DERIVATION_SUMMARY,
-    derivation_scientific: INAT_DERIVATION_SCIENTIFIC,
+    general_summary: INAT_GENERAL_SUMMARY,
+    technical_details: INAT_TECHNICAL_DETAILS,
   };
 
   const rows = await db
@@ -186,8 +186,8 @@ export async function storeHistogram(
     fetched_at: now,
     method: "api_fetch",
     upstream_url: result.upstream_url,
-    derivation_summary: INAT_DERIVATION_SUMMARY,
-    derivation_scientific: INAT_DERIVATION_SCIENTIFIC,
+    general_summary: INAT_GENERAL_SUMMARY,
+    technical_details: INAT_TECHNICAL_DETAILS,
   };
 
   const rows = await db
@@ -240,8 +240,8 @@ export async function storeFieldValues(
     fetched_at: now,
     method: "api_fetch",
     upstream_url: result.upstream_url,
-    derivation_summary: INAT_DERIVATION_SUMMARY,
-    derivation_scientific: INAT_DERIVATION_SCIENTIFIC,
+    general_summary: INAT_GENERAL_SUMMARY,
+    technical_details: INAT_TECHNICAL_DETAILS,
   };
 
   const rows = await db

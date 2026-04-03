@@ -1,7 +1,7 @@
 import { db, natureserveSpeciesCacheTable, natureserveEcosystemsCacheTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import type { NatureserveSpeciesResult, NatureserveEcosystemsResult } from "./connector.js";
-import { NATURESERVE_SOURCE_ID, NATURESERVE_DERIVATION_SUMMARY, NATURESERVE_DERIVATION_SCIENTIFIC } from "./metadata.js";
+import { NATURESERVE_SOURCE_ID, NATURESERVE_GENERAL_SUMMARY, NATURESERVE_TECHNICAL_DETAILS } from "./metadata.js";
 
 const SPECIES_TTL_DAYS = 30;
 const ECOSYSTEMS_TTL_DAYS = 30;
@@ -60,8 +60,8 @@ export async function storeSpeciesCache(
     fetched_at: now,
     method: "api_fetch",
     upstream_url: upstreamUrl,
-    derivation_summary: NATURESERVE_DERIVATION_SUMMARY,
-    derivation_scientific: NATURESERVE_DERIVATION_SCIENTIFIC,
+    general_summary: NATURESERVE_GENERAL_SUMMARY,
+    technical_details: NATURESERVE_TECHNICAL_DETAILS,
   };
 
   const rows = await db
@@ -128,8 +128,8 @@ export async function storeEcosystemsCache(
     fetched_at: now,
     method: "api_fetch",
     upstream_url: result.upstream_url,
-    derivation_summary: NATURESERVE_DERIVATION_SUMMARY,
-    derivation_scientific: NATURESERVE_DERIVATION_SCIENTIFIC,
+    general_summary: NATURESERVE_GENERAL_SUMMARY,
+    technical_details: NATURESERVE_TECHNICAL_DETAILS,
   };
 
   const rows = await db

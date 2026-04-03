@@ -3,8 +3,8 @@ import { db, lcscgGuidesTable, lcscgSpeciesTable } from "@workspace/db";
 import { eq, ilike, or, sql } from "drizzle-orm";
 import {
   LCSCG_SOURCE_ID,
-  LCSCG_DERIVATION_SUMMARY,
-  LCSCG_DERIVATION_SCIENTIFIC,
+  LCSCG_GENERAL_SUMMARY,
+  LCSCG_TECHNICAL_DETAILS,
   LCSCG_REGISTRY_ENTRY,
   LCSCG_PERMISSION_GRANTED,
   LCSCG_PERMISSION_STATUS,
@@ -20,8 +20,8 @@ function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
     fetched_at: new Date(),
     method: "static_data",
     upstream_url: resolveUrl(req, "/api/lcscg/guides"),
-    derivation_summary: LCSCG_DERIVATION_SUMMARY,
-    derivation_scientific: LCSCG_DERIVATION_SCIENTIFIC,
+    general_summary: LCSCG_GENERAL_SUMMARY,
+    technical_details: LCSCG_TECHNICAL_DETAILS,
   };
 }
 

@@ -4,8 +4,8 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 
 interface MetadataShape {
   provenance?: {
-    derivation_summary?: string;
-    derivation_scientific?: string;
+    general_summary?: string;
+    technical_details?: string;
   };
 }
 
@@ -43,8 +43,8 @@ export function SourceSummary({ metadataApiPath, fallback, className }: SourceSu
     return null;
   }
 
-  const summary = meta?.provenance?.derivation_summary;
-  const scientific = meta?.provenance?.derivation_scientific;
+  const summary = meta?.provenance?.general_summary;
+  const scientific = meta?.provenance?.technical_details;
 
   if (!summary) {
     if (fallback) return <p className={className}>{fallback}</p>;

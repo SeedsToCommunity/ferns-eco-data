@@ -1,8 +1,8 @@
 import { Router, type IRouter } from "express";
 import {
   S2C_SOURCE_ID,
-  S2C_DERIVATION_SUMMARY,
-  S2C_DERIVATION_SCIENTIFIC,
+  S2C_GENERAL_SUMMARY,
+  S2C_TECHNICAL_DETAILS,
   S2C_REGISTRY_ENTRY,
   S2C_PERMISSION_GRANTED,
   S2C_PERMISSION_STATUS,
@@ -23,8 +23,8 @@ function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
     fetched_at: new Date(),
     method: "static_data",
     upstream_url: resolveUrl(req, "/api/s2c/years"),
-    derivation_summary: S2C_DERIVATION_SUMMARY,
-    derivation_scientific: S2C_DERIVATION_SCIENTIFIC,
+    general_summary: S2C_GENERAL_SUMMARY,
+    technical_details: S2C_TECHNICAL_DETAILS,
   };
 }
 

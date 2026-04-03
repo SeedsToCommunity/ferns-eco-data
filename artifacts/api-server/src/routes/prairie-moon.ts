@@ -3,8 +3,8 @@ import { db, botanicalSpeciesListsTable } from "@workspace/db";
 import { eq, ilike, and } from "drizzle-orm";
 import {
   PRAIRIE_MOON_SOURCE_ID,
-  PRAIRIE_MOON_DERIVATION_SUMMARY,
-  PRAIRIE_MOON_DERIVATION_SCIENTIFIC,
+  PRAIRIE_MOON_GENERAL_SUMMARY,
+  PRAIRIE_MOON_TECHNICAL_DETAILS,
   PRAIRIE_MOON_REGISTRY_ENTRY,
   PRAIRIE_MOON_PERMISSION_GRANTED,
   PRAIRIE_MOON_PERMISSION_STATUS,
@@ -23,8 +23,8 @@ function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
     fetched_at: new Date(),
     method: "species_list_lookup",
     upstream_url: resolveUrl(req, "/api/prairie-moon/metadata"),
-    derivation_summary: PRAIRIE_MOON_DERIVATION_SUMMARY,
-    derivation_scientific: PRAIRIE_MOON_DERIVATION_SCIENTIFIC,
+    general_summary: PRAIRIE_MOON_GENERAL_SUMMARY,
+    technical_details: PRAIRIE_MOON_TECHNICAL_DETAILS,
   };
 }
 

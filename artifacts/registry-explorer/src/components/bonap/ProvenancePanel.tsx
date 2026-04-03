@@ -74,11 +74,11 @@ export function ProvenancePanel({ response }: { response: BonapMapResponse }) {
         </h3>
         <div className="space-y-4 text-sm">
           <p className="text-muted-foreground leading-relaxed">
-            <strong className="text-foreground">Derivation Summary:</strong> {prov.derivation_summary}
+            <strong className="text-foreground">General Summary:</strong> {prov.general_summary}
           </p>
           <div className="bg-background p-4 rounded-xl border space-y-2">
-            <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">Scientific Derivation</p>
-            <p className="text-foreground/80 font-serif leading-relaxed text-[13px]">{prov.derivation_scientific}</p>
+            <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">Technical Details</p>
+            <p className="text-foreground/80 font-serif leading-relaxed text-[13px]">{prov.technical_details}</p>
           </div>
           <div className="flex flex-wrap gap-4 text-xs text-muted-foreground pt-2">
             <span className="flex items-center gap-1.5"><Database className="w-3.5 h-3.5"/> Source ID: {prov.source_id}</span>

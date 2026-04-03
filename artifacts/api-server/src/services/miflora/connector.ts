@@ -3,8 +3,8 @@ import {
   MIFLORA_USER_AGENT,
   MIFLORA_REQUEST_TIMEOUT_MS,
   MIFLORA_SOURCE_ID,
-  MIFLORA_DERIVATION_SUMMARY,
-  MIFLORA_DERIVATION_SCIENTIFIC,
+  MIFLORA_GENERAL_SUMMARY,
+  MIFLORA_TECHNICAL_DETAILS,
 } from "./metadata.js";
 
 export interface MifloraSpeciesResult {
@@ -212,7 +212,7 @@ export function buildProvenance(upstreamUrl: string, method: "api_fetch" | "stat
     fetched_at: new Date(),
     method,
     upstream_url: upstreamUrl,
-    derivation_summary: MIFLORA_DERIVATION_SUMMARY,
-    derivation_scientific: MIFLORA_DERIVATION_SCIENTIFIC,
+    general_summary: MIFLORA_GENERAL_SUMMARY,
+    technical_details: MIFLORA_TECHNICAL_DETAILS,
   };
 }

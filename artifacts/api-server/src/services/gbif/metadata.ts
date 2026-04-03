@@ -15,7 +15,7 @@ export const GBIF_ATTRIBUTION = {
   api_base_url: GBIF_API_BASE,
 };
 
-export const GBIF_DERIVATION_SUMMARY =
+export const GBIF_GENERAL_SUMMARY =
   "Name and taxonomy data from the Global Biodiversity Information Facility (GBIF). " +
   "GBIF is a free international database run by governments worldwide, bringing together biodiversity " +
   "records from nearly 2,000 organizations including museums, universities, and citizen science " +
@@ -24,7 +24,7 @@ export const GBIF_DERIVATION_SUMMARY =
   "All data is accessed through GBIF's public API and cached to reduce redundant requests. " +
   "Data is licensed CC BY 4.0. Retrieved date is recorded with every result.";
 
-export const GBIF_DERIVATION_SCIENTIFIC =
+export const GBIF_TECHNICAL_DETAILS =
   "Source: GBIF.org. Data licensed CC BY 4.0. " +
   "Name matching uses the GBIF Backbone Taxonomy (DOI: https://doi.org/10.15468/39omei), a synthetic " +
   "management classification assembled algorithmically from 105 source checklists in priority order, " +

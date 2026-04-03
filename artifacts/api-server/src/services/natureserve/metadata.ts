@@ -19,7 +19,7 @@ export const NATURESERVE_ATTRIBUTION = {
   api_base_url: NATURESERVE_API_BASE,
 };
 
-export const NATURESERVE_DERIVATION_SUMMARY =
+export const NATURESERVE_GENERAL_SUMMARY =
   "Conservation status and ecological systems data from NatureServe Explorer. " +
   "NatureServe is the authoritative conservation status authority for species and ecosystems " +
   "across the Americas, drawing on data from 80+ member programs including state Natural Heritage " +
@@ -30,7 +30,7 @@ export const NATURESERVE_DERIVATION_SUMMARY =
   "and cached 30 days per NatureServe's recommendation for slowly-changing conservation data. " +
   "Attribution to NatureServe Explorer is required per their Terms of Use.";
 
-export const NATURESERVE_DERIVATION_SCIENTIFIC =
+export const NATURESERVE_TECHNICAL_DETAILS =
   "Source: NatureServe Explorer API (https://explorer.natureserve.org/api/data). " +
   "Species search uses POST /api/data/speciesSearch with criteriaType:species and quickSearch text " +
   "criteria (page 0-indexed). Ecosystem search uses POST /api/data/search with criteriaType:combined " +

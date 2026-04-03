@@ -8,7 +8,7 @@ export const MNFI_PERMISSION_STATUS =
   "(countyQuery and countyCommunityQuery endpoints). " +
   "No authentication is required for any MNFI data consumed by FERNS.";
 
-export const MNFI_DERIVATION_SUMMARY =
+export const MNFI_GENERAL_SUMMARY =
   "Michigan Natural Features Inventory (MNFI) — Natural Communities Classification and County Element Data. " +
   "MNFI is housed at Michigan State University Extension and maintains the authoritative classification " +
   "of Michigan's natural communities. " +
@@ -25,7 +25,7 @@ export const MNFI_DERIVATION_SUMMARY =
   "MNFI, Michigan State University Extension, Lansing, MI. https://mnfi.anr.msu.edu/communities/classification. " +
   "Geographic scope: Michigan (all 83 counties, Lower and Upper Peninsula).";
 
-export const MNFI_DERIVATION_SCIENTIFIC =
+export const MNFI_TECHNICAL_DETAILS =
   "Primary source: Michigan Natural Features Inventory Natural Community Classification " +
   "(mnfi.anr.msu.edu/communities/classification), version accessed April 2026. " +
   "Authors: Cohen, J.G., M.A. Kost, B.S. Slaughter, D.A. Albert, J.M. Lincoln, A.P. Kortenhoven, " +

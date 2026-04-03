@@ -8,7 +8,7 @@ export const USDA_PLANTS_PERMISSION_STATUS =
   "No authentication or API key is required. " +
   "FERNS constructs a search URL from the scientific name; no USDA data is stored locally.";
 
-export const USDA_PLANTS_DERIVATION_SUMMARY =
+export const USDA_PLANTS_GENERAL_SUMMARY =
   "The USDA PLANTS Database (plants.usda.gov) is the authoritative federal reference for plant taxonomy, " +
   "nomenclature, and occurrence in the United States and its territories. " +
   "Maintained by the USDA Natural Resources Conservation Service (NRCS), it covers vascular plants, " +
@@ -20,7 +20,7 @@ export const USDA_PLANTS_DERIVATION_SUMMARY =
   "This URL is always valid — USDA PLANTS accepts any query — but requires JavaScript to render results. " +
   "The URL is returned without HTTP validation.";
 
-export const USDA_PLANTS_DERIVATION_SCIENTIFIC =
+export const USDA_PLANTS_TECHNICAL_DETAILS =
   "Source: https://plants.usda.gov. Operated by USDA Natural Resources Conservation Service (NRCS). " +
   "URL construction: https://plants.usda.gov/home/basicSearchResults?nameSearch={URL-encoded scientific name} " +
   "where the scientific name is the exact binomial as provided. " +

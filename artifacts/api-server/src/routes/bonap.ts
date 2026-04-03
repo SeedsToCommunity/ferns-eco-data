@@ -81,8 +81,8 @@ function buildMapResponse(
     fetched_at: Date;
     method: string;
     upstream_url: string;
-    derivation_summary: string;
-    derivation_scientific: string;
+    general_summary: string;
+    technical_details: string;
   },
   cache_status: "hit" | "miss" | "bypassed",
 ) {
@@ -114,8 +114,8 @@ function buildMapResponse(
       fetched_at: row.fetched_at,
       method: row.method,
       upstream_url: row.upstream_url,
-      derivation_summary: row.derivation_summary,
-      derivation_scientific: row.derivation_scientific,
+      general_summary: row.general_summary,
+      technical_details: row.technical_details,
     },
   };
 }

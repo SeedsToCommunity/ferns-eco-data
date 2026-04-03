@@ -7,7 +7,7 @@ export const LCSCG_PERMISSION_STATUS =
   "under a CC BY-NC 4.0 license. The guides are freely available on the Field Museum Field Guides platform. " +
   "FERNS serves static data extracted from those publicly licensed PDF documents.";
 
-export const LCSCG_DERIVATION_SUMMARY =
+export const LCSCG_GENERAL_SUMMARY =
   "Lake County Seed Collection Guides — a set of 12 illustrated field guides for native seed identification, " +
   "produced by the Lake County Forest Preserve District (LCFPD) Volunteer Stewardship Network and published by " +
   "the Field Museum Field Guides platform (fieldguides.fieldmuseum.org, Guide IDs 1271–1282). " +
@@ -25,7 +25,7 @@ export const LCSCG_DERIVATION_SUMMARY =
   "NOTE: Not all records are native species — non-native comparison species marked 'Do Not Collect' are included. " +
   "No Floristic Quality (C-value), wetland status, or other assessment metric is provided.";
 
-export const LCSCG_DERIVATION_SCIENTIFIC =
+export const LCSCG_TECHNICAL_DETAILS =
   "Primary source: 12 PDF field guides (version 2, March 2021) authored by Kelly Schultz " +
   "(LCFPD Stewardship Ecologist) and Dale Shields (volunteer); photography by Dale J. Shields. " +
   "Published by Field Museum Field Guides. " +

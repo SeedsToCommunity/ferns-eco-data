@@ -11,11 +11,11 @@ import { resolveUrl } from "../lib/resolve-url.js";
 
 const router: IRouter = Router();
 
-const DERIVATION_SUMMARY =
+const GENERAL_SUMMARY =
   "FERNS Source Registry — live catalog of all registered FERNS Knowledge Services. " +
   "Reflects current registration state at time of request. Populated at service startup.";
 
-const DERIVATION_SCIENTIFIC =
+const TECHNICAL_DETAILS =
   "FERNS Knowledge Registry. Source: internal ferns_sources table. " +
   "Entries are written at service build time by each source's seed function. " +
   "The registry reads from this table without caching. " +
@@ -85,8 +85,8 @@ router.get("/v1/sources", async (req, res) => {
       fetched_at: new Date(),
       method: "system",
       upstream_url: "internal:ferns_sources",
-      derivation_summary: DERIVATION_SUMMARY,
-      derivation_scientific: DERIVATION_SCIENTIFIC,
+      general_summary: GENERAL_SUMMARY,
+      technical_details: TECHNICAL_DETAILS,
     },
   });
 });
@@ -119,8 +119,8 @@ router.get("/v1/sources/metadata", async (req, res) => {
       fetched_at: queriedAt,
       method: "system",
       upstream_url: "internal:ferns_sources",
-      derivation_summary: DERIVATION_SUMMARY,
-      derivation_scientific: DERIVATION_SCIENTIFIC,
+      general_summary: GENERAL_SUMMARY,
+      technical_details: TECHNICAL_DETAILS,
     },
   });
 });

@@ -1,8 +1,8 @@
 import { Router, type IRouter } from "express";
 import {
   WETLAND_INDICATOR_SOURCE_ID,
-  WETLAND_INDICATOR_DERIVATION_SUMMARY,
-  WETLAND_INDICATOR_DERIVATION_SCIENTIFIC,
+  WETLAND_INDICATOR_GENERAL_SUMMARY,
+  WETLAND_INDICATOR_TECHNICAL_DETAILS,
   WETLAND_INDICATOR_REGISTRY_ENTRY,
   WETLAND_INDICATOR_PERMISSION_GRANTED,
   WETLAND_INDICATOR_PERMISSION_STATUS,
@@ -23,8 +23,8 @@ function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
     fetched_at: new Date(),
     method: "static_data",
     upstream_url: resolveUrl(req, "/api/wetland-indicator/all"),
-    derivation_summary: WETLAND_INDICATOR_DERIVATION_SUMMARY,
-    derivation_scientific: WETLAND_INDICATOR_DERIVATION_SCIENTIFIC,
+    general_summary: WETLAND_INDICATOR_GENERAL_SUMMARY,
+    technical_details: WETLAND_INDICATOR_TECHNICAL_DETAILS,
   };
 }
 
