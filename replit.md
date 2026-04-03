@@ -99,8 +99,8 @@ Create a new Drizzle schema file in `lib/db/src/schema/`. Export the table(s) fr
 **Step 4: Connector / Importer** (required if source needs data ingestion; not needed for direct-construction sources)
 Implement data ingestion in `artifacts/api-server/src/services/{source-id}/`. Done when data is in the DB or loaded into memory. If skipped, state why.
 
-**Step 5: Source Metadata and Registry Seed**
-Create `artifacts/api-server/src/services/{source-id}/metadata.ts` with the source constants (SOURCE_ID, DERIVATION_SUMMARY, DERIVATION_SCIENTIFIC, REGISTRY_ENTRY, PERMISSION_GRANTED, PERMISSION_STATUS). Create `artifacts/api-server/src/services/{source-id}/seed.ts` that upserts into `fernsSourcesTable`. Done when `GET /api/v1/sources` includes the new source.
+**Step 5: Source Metadata and Registry Seed (DO NOT SKIP description quality)**
+Create `artifacts/api-server/src/services/{source-id}/metadata.ts` with the source constants (SOURCE_ID, DERIVATION_SUMMARY, DERIVATION_SCIENTIFIC, REGISTRY_ENTRY, PERMISSION_GRANTED, PERMISSION_STATUS). Create `artifacts/api-server/src/services/{source-id}/seed.ts` that upserts into `fernsSourcesTable`. The three description fields (`description`, `derivation_summary`, `derivation_scientific`) must conform to the standards defined below before this step is considered done. A source is not complete if any description field fails its audience test. Done when `GET /api/v1/sources` includes the new source with description fields that meet the defined standards.
 
 **Step 6: Route Handler**
 Create `artifacts/api-server/src/routes/{source-id}.ts`. Implement `GET /api/{source-id}` (data endpoint) and `GET /api/{source-id}/metadata` (metadata endpoint). The metadata endpoint must return the same envelope shape as all existing sources — read `artifacts/api-server/src/routes/miflora.ts` before writing the new one. Register the router in `artifacts/api-server/src/index.ts`. Done when both endpoints return 200 with a correct envelope.
@@ -117,8 +117,8 @@ Create `artifacts/registry-explorer/src/pages/{SourceId}Page.tsx`. The page must
 **Step 10: App.tsx Route Registration**
 Add an explicit `<Route path="/source/{source-id}">` in `artifacts/registry-explorer/src/App.tsx` BEFORE the generic catch-all route. Done when navigating to `/source/{source-id}` renders the explorer page — not the generic fallback page.
 
-**Step 11: Audit Tool Coverage**
-Add a comparator or health check in `lib/ferns-audit/src/`. For API/scrape sources: add a comparator that queries both the upstream source and the FERNS endpoint and diffs the result. For static sources: add a health check with known-value assertions. Done when the audit tool has coverage for the new source. If skipped, document exactly why and what coverage was omitted — do not silently omit.
+**Step 11: Audit Tool Coverage (DO NOT SKIP — skipping requires explicit written justification)**
+Add a comparator or health check in `lib/ferns-audit/src/`. For API/scrape sources: add a comparator that queries both the upstream source and the FERNS endpoint and diffs the result. For static sources: add a health check with known-value assertions. Done when the audit tool has coverage for the new source. If this step is skipped for any reason, write an explicit paragraph in the post-task summary stating exactly what coverage was omitted and why — a silent omission is a task failure.
 
 **Step 12: Post-Task Summary**
 Write the mandatory post-task summary (see User Preferences). Include the verbatim text of `description`, `derivation_summary`, and `derivation_scientific` so the user can verify them. Done when the summary is complete and presented.
