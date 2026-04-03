@@ -11,21 +11,24 @@ export const MNFI_PERMISSION_STATUS =
   "No authentication is required for any MNFI data consumed by FERNS.";
 
 export const MNFI_GENERAL_SUMMARY =
-  "Michigan Natural Features Inventory (MNFI) — Natural Communities Classification and County Element Data. " +
-  "MNFI is housed at Michigan State University Extension and maintains the authoritative classification " +
-  "of Michigan's natural communities. " +
-  "FERNS imports 77 natural community types spanning 5 ecological classes (Palustrine, " +
-  "Palustrine/Terrestrial, Primary, Subterranean/Sink, Terrestrial) and 18 community groups. " +
-  "Each record includes: community name, MNFI community ID, URL slug, class, group, " +
-  "NatureServe global rank (G1–G5/GU/GNR/GX), Michigan state rank (S1–S5/SX/SU), " +
-  "description sections (overview, landscape context, soils, natural processes, vegetation, management), " +
-  "characteristic plant list by life form, and links to MNFI county distribution maps. " +
-  "County element data (species and natural community occurrences recorded per Michigan county) " +
-  "is fetched from MNFI's public JSON API (countyQuery and countyCommunityQuery endpoints) " +
-  "covering all 83 Michigan counties; 7,289 records total (6,360 species + 929 community occurrences). " +
-  "Classification citation: Cohen et al. 2025. Michigan Natural Community Classification [web application]. " +
-  "MNFI, Michigan State University Extension, Lansing, MI. https://mnfi.anr.msu.edu/communities/classification. " +
-  "Geographic scope: Michigan (all 83 counties, Lower and Upper Peninsula).";
+  "Michigan's authoritative natural community classification and county element data, maintained by " +
+  "the Michigan Natural Features Inventory (MNFI) at Michigan State University Extension. " +
+  "FERNS imports 77 natural community types spanning 5 ecological classes and 18 community groups, " +
+  "each with NatureServe global rank, Michigan state rank, description sections (overview, landscape " +
+  "context, soils, natural processes, vegetation, management), and characteristic plant lists by life form. " +
+  "Geographic scope: Michigan only (all 83 counties, Lower and Upper Peninsula). " +
+  "Community classification data is imported from MNFI's public website; county element data is " +
+  "fetched from MNFI's public JSON API (countyQuery and countyCommunityQuery endpoints), " +
+  "covering 7,289 records (6,360 species + 929 community occurrences) across all 83 Michigan counties. " +
+  "A community query returns name, class, group, conservation ranks, full description, characteristic " +
+  "plant list, MNFI URL, and county distribution map link; a county element query returns species and " +
+  "community occurrences with conservation status codes and last observation year. " +
+  "Community descriptions require a one-time import step (POST /api/mnfi/import-descriptions) and may " +
+  "be null until run; county element data similarly requires POST /api/mnfi/import-county-elements. " +
+  "Citation: Cohen et al. 2025. Michigan Natural Community Classification. MNFI, MSU Extension. " +
+  "MNFI community types align with NatureServe ecological systems at the national scale — MNFI provides " +
+  "Michigan field-level detail (characteristic plants, county maps, management notes) that NatureServe's " +
+  "national classification does not; combining both FERNS services gives the most complete picture.";
 
 export const MNFI_TECHNICAL_DETAILS =
   "Primary source: Michigan Natural Features Inventory Natural Community Classification " +
@@ -61,12 +64,10 @@ export const MNFI_REGISTRY_ENTRY = {
   knowledge_type: "source_wrapper" as const,
   status: "live" as const,
   description:
-    "Michigan's authoritative natural community classification maintained by MNFI at MSU Extension. " +
-    "Covers 77 natural community types organized into 5 ecological classes and 18 community groups, " +
-    "ranging from rare globally imperiled communities (G1) to common secure types (G4–G5). " +
-    "Includes NatureServe global and Michigan state conservation ranks, full community descriptions, " +
-    "characteristic plant lists by life form, and county element occurrence data " +
-    "(species and communities recorded per county) for all 83 Michigan counties.",
+    "Michigan's authoritative natural community classification covering 77 natural community types " +
+    "organized into 5 ecological classes and 18 community groups, with NatureServe global and Michigan " +
+    "state conservation ranks, full community descriptions, characteristic plant lists, and county element " +
+    "occurrence data (species and communities recorded per county) for all 83 Michigan counties.",
   input_summary:
     "Community ID, slug, or name; or Michigan county name for county element lookups",
   output_summary:

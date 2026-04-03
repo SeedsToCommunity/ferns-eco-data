@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { useGetMifloraSpecies, useGetMifloraCounties, useGetMifloraImages } from "@workspace/api-client-react";
+import { useGetMifloraSpecies, useGetMifloraCounties, useGetMifloraImages, getGetMifloraSpeciesQueryKey, getGetMifloraCountiesQueryKey, getGetMifloraImagesQueryKey } from "@workspace/api-client-react";
 import { SourceMetadataPanel } from "@/components/SourceMetadataPanel";
 import { SourceSummary } from "@/components/SourceSummary";
 import { Leaf, Search, Loader2, AlertCircle, MapPin, ExternalLink, Database, Code, ChevronDown, ChevronUp, ArrowLeft, FileJson, Camera, ImageOff } from "lucide-react";
@@ -135,18 +135,19 @@ export function MifloraPage() {
   const [query, setQuery] = useState("");
 
   const enabled = !!query;
+  const mifloraParams = { name: query };
 
   const { data: speciesRes, isLoading: speciesLoading, isError: speciesError } = useGetMifloraSpecies(
-    { name: query },
-    { query: { enabled } }
+    mifloraParams,
+    { query: { enabled, queryKey: getGetMifloraSpeciesQueryKey(mifloraParams) } }
   );
   const { data: countiesRes, isLoading: countiesLoading } = useGetMifloraCounties(
-    { name: query },
-    { query: { enabled } }
+    mifloraParams,
+    { query: { enabled, queryKey: getGetMifloraCountiesQueryKey(mifloraParams) } }
   );
   const { data: imagesRes, isLoading: imagesLoading } = useGetMifloraImages(
-    { name: query },
-    { query: { enabled } }
+    mifloraParams,
+    { query: { enabled, queryKey: getGetMifloraImagesQueryKey(mifloraParams) } }
   );
 
   function handleSubmit(e: React.FormEvent) {
@@ -267,7 +268,7 @@ export function MifloraPage() {
                         <p className="text-xl font-serif font-semibold italic text-foreground">
                           {String(primaryRecord.scientific_name ?? "")}
                         </p>
-                        {primaryRecord.common_name && (
+                        {!!primaryRecord.common_name && (
                           <p className="text-sm text-muted-foreground mt-0.5">{String(primaryRecord.common_name)}</p>
                         )}
                       </div>
@@ -280,7 +281,7 @@ export function MifloraPage() {
                     </div>
                   </div>
 
-                  {specText?.spec_text_html && (
+                  {!!specText?.spec_text_html && (
                     <div className="p-5 text-sm text-foreground/80 leading-relaxed border-b border-border">
                       {stripHtml(String(specText.spec_text_html))}
                     </div>
@@ -289,7 +290,7 @@ export function MifloraPage() {
                   {pimageInfo && (
                     <div className="p-5 border-b border-border space-y-2">
                       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Primary Image</p>
-                      {pimageInfo.image_url && (
+                      {!!pimageInfo.image_url && (
                         <div className="flex flex-col gap-2">
                           <img
                             src={String(pimageInfo.image_url)}
@@ -297,7 +298,7 @@ export function MifloraPage() {
                             className="rounded-lg max-h-48 object-cover border border-border"
                             loading="lazy"
                           />
-                          {pimageInfo.image_attribution && (
+                          {!!pimageInfo.image_attribution && (
                             <p className="text-xs text-muted-foreground">{String(pimageInfo.image_attribution)}</p>
                           )}
                         </div>
@@ -319,7 +320,7 @@ export function MifloraPage() {
                   )}
 
                   <div className="p-5 flex flex-wrap gap-3">
-                    {primaryRecord.url && (
+                    {!!primaryRecord.url && (
                       <a
                         href={String(primaryRecord.url)}
                         target="_blank"
@@ -330,7 +331,7 @@ export function MifloraPage() {
                         Michigan Flora page
                       </a>
                     )}
-                    {primaryRecord.map_url && (
+                    {!!primaryRecord.map_url && (
                       <a
                         href={String(primaryRecord.map_url)}
                         target="_blank"

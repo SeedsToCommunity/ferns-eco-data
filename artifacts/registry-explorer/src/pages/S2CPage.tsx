@@ -5,6 +5,7 @@ import { SourceSummary } from "@/components/SourceSummary";
 import {
   useGetS2CYears,
   useGetS2CSpeciesByYear,
+  getGetS2CSpeciesByYearQueryKey,
   type GetS2CSpeciesByYearYear,
 } from "@workspace/api-client-react";
 import {
@@ -57,9 +58,10 @@ export function S2CPage() {
   const [onlySweet, setOnlySweet] = useState(false);
 
   const { data: yearsRes } = useGetS2CYears();
+  const s2cParams = { year: selectedYear };
   const { data: speciesRes, isLoading } = useGetS2CSpeciesByYear(
-    { year: selectedYear },
-    { query: { enabled: true } },
+    s2cParams,
+    { query: { enabled: true, queryKey: getGetS2CSpeciesByYearQueryKey(s2cParams) } },
   );
 
   const yearSummaries = yearsRes?.data?.years ?? [];

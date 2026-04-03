@@ -6,22 +6,22 @@ export const WUCOLS_PERMISSION_STATUS =
   "OPEN — Static reference data. WUCOLS methodology published by the University of California Cooperative Extension. No authentication required.";
 
 export const WUCOLS_GENERAL_SUMMARY =
-  "WUCOLS (Water Use Classifications of Landscape Species) is a classification system for the supplemental irrigation needs " +
-  "of landscape and garden plants. It was developed by the University of California Cooperative Extension (UC CES) " +
-  "and is widely used by nursery professionals, landscape architects, and water agencies in California and adjacent regions. " +
-  "WUCOLS rates plants by how much supplemental water they need beyond natural rainfall to thrive in a managed landscape, " +
-  "expressed as a percentage of reference evapotranspiration (ETo). " +
-  "The four classification levels are: " +
-  "VL (Very Low): <10% of ETo. Plants need very little to no supplemental irrigation once established. " +
-  "L (Low): 10–30% of ETo. Plants need infrequent, deep irrigation. " +
-  "M (Medium): 40–60% of ETo. Plants need moderate regular irrigation. " +
-  "H (High): 70–90% of ETo. Plants need frequent, substantial irrigation. " +
-  "DISAMBIGUATION: " +
-  "WUCOLS (this metric) is NOT the Wetland Indicator Status (WIS, OBL/FACW/FAC/FACU/UPL). " +
-  "WUCOLS describes supplemental water needs in cultivated landscapes and gardens. " +
-  "WIS describes a plant's natural habitat hydrology — how often the plant occurs in wetlands in the wild — and is an ecological tool, not a gardening guide. " +
-  "WUCOLS is NOT the Coefficient of Wetness (W, -5 to +5), which is the numeric companion to WIS in Floristic Quality Assessment. " +
-  "WUCOLS is NOT the Coefficient of Conservatism (C-value, 0–10), which measures ecological fidelity to natural habitats.";
+  "Vocabulary reference for WUCOLS (Water Use Classifications of Landscape Species), a supplemental " +
+  "irrigation classification developed by the University of California Cooperative Extension (UC CES) " +
+  "and widely used by nursery professionals, landscape architects, and water agencies. " +
+  "This source is maintained as static reference data by FERNS — no upstream API call is made at query time. " +
+  "Four classification levels rate how much supplemental irrigation a plant needs beyond natural rainfall: " +
+  "VL (Very Low, <10% ETo), L (Low, 10–30% ETo), M (Medium, 40–60% ETo), H (High, 70–90% ETo). " +
+  "Scope: US, primarily calibrated for California climate zones; applicability varies elsewhere. " +
+  "A query returns the full definition for a WUCOLS code: ETo percentage range, irrigation frequency " +
+  "description, scientific rationale, and authority. " +
+  "Definitions do not change; this source is perpetually current. " +
+  "Per-species WUCOLS ratings are not stored here; the UC WUCOLS database contains species-level ratings " +
+  "but is not integrated into FERNS — this source defines only the classification system itself. " +
+  "WUCOLS (this source) describes managed landscape irrigation needs — it is NOT the Wetland Indicator " +
+  "Status (WIS, OBL/FACW/FAC/FACU/UPL), which classifies natural wetland habitat occurrence, nor the " +
+  "Coefficient of Wetness (W, -5 to +5) or Coefficient of Conservatism (C-value, 0–10) — " +
+  "all of which are separate FERNS vocabulary references covering ecological, not horticultural, dimensions.";
 
 export const WUCOLS_TECHNICAL_DETAILS =
   "Source: Static reference data. " +

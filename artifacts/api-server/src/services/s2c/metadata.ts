@@ -7,18 +7,21 @@ export const S2C_PERMISSION_STATUS =
   "Data is public-facing and published for community use. Permission to serve via FERNS explicitly granted by the program organizer.";
 
 export const S2C_GENERAL_SUMMARY =
-  "Seeds to Community Washtenaw is a native plant seed-growing program based in Washtenaw County, Michigan. " +
-  "Each program year (January–March workshops), participants grow native plants from seeds collected " +
-  "during the prior spring–fall season. " +
-  "This source records the botanical names of species offered in each program year's growing workshops. " +
-  "Program years are labeled by the calendar year in which the January–March workshops occur. " +
-  "Series 1 (2023): 24 species; source is plant-sheet PDFs distributed at workshops. " +
-  "Series 2 (2024): 96 species; source is the public program spreadsheet. " +
-  "Series 3 (2025): 151 species; source is the public program spreadsheet. " +
-  "Series 4 (2026): 166 species; source is the master species tracking spreadsheet (Collected=TRUE). " +
-  "Optional metadata flags when tracked: " +
-  "neat_and_tidy — species suitable for 'neat and tidy' formal or managed garden settings. " +
-  "sweet_and_simple — species designated for first-time or beginner growers (introduced in 2026).";
+  "Species availability records for Seeds to Community Washtenaw, a native plant seed-growing program " +
+  "run by a Washtenaw County, Michigan community organization; permission to serve this data via FERNS " +
+  "has been explicitly granted by the program organizer. " +
+  "Data type: the list of botanical names offered for growing in each annual workshop series, " +
+  "extracted from program documents (PDFs and Google Sheets). " +
+  "Geographic scope: Washtenaw County, Michigan; taxonomic scope: native plants suitable for " +
+  "seed-growing workshops in the Upper Midwest. " +
+  "FERNS serves static in-memory data extracted from program documents; no live API is queried at runtime. " +
+  "A query by year returns the species list with optional metadata flags: " +
+  "neat_and_tidy (suitable for formal garden settings) and sweet_and_simple (beginner-friendly, 2026+). " +
+  "Data is updated annually when new program year documents are processed; " +
+  "the 2023 list is from workshop PDFs (24 species) and may be incomplete. " +
+  "Botanical names reflect S2C program usage and are not formally reconciled to GBIF, BONAP, " +
+  "Michigan Flora, or USDA PLANTS taxonomy — cross-reference those FERNS sources to confirm " +
+  "current accepted names or local Michigan occurrence data for any S2C species.";
 
 export const S2C_TECHNICAL_DETAILS =
   "Source: Seeds to Community Washtenaw native plant program, Washtenaw County, Michigan. " +

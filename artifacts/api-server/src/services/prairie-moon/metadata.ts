@@ -9,15 +9,24 @@ export const PRAIRIE_MOON_PERMISSION_STATUS =
   "No authentication or API key is required.";
 
 export const PRAIRIE_MOON_GENERAL_SUMMARY =
-  "Prairie Moon Nursery (prairiemoon.com) is a leading native plant nursery based in Winona, Minnesota, " +
-  "specializing in native prairie and wetland plants for the Upper Midwest and Great Plains. " +
-  "The site carries ~970 native plant species with product pages that include growing information, " +
-  "ecological notes, and seed/plant availability. " +
-  "FERNS indexes plant URLs from Prairie Moon's sitemap.xml, where plant page URLs follow the pattern " +
-  "prairiemoon.com/{genus}-{species}-{common-name-slug}. " +
-  "Scientific names are inferred from the URL slug: the first two hyphen-separated parts are the genus " +
-  "and species epithet; subspecies and varieties are recognized when 'subsp' or 'var' appears at position 3. " +
-  "Lookups are served from FERNS's local database; no live scraping occurs at query time.";
+  "Native plant species reference and commercial availability data from Prairie Moon Nursery " +
+  "(prairiemoon.com), a Winona, Minnesota nursery specializing in native prairie and wetland plants " +
+  "for the Upper Midwest and Great Plains. " +
+  "Data type: catalog of ~970 native plant product pages, each with growing information, ecological notes, " +
+  "and seed/plant availability. " +
+  "Geographic scope: primarily Upper Midwest and Great Plains natives; taxonomic scope: vascular plants " +
+  "commercially available through the nursery catalog at time of last import. " +
+  "FERNS indexes plant URLs from Prairie Moon's sitemap.xml and stores species-to-URL mappings in its " +
+  "local database; no live scraping occurs at query time. " +
+  "A query returns the direct product page URL or found: false if the species is not in the catalog; " +
+  "scientific names are inferred from URL slug structure (genus-species-common-name-slug pattern). " +
+  "The index reflects the catalog at the time of the last admin-triggered import; " +
+  "catalog additions and removals are not reflected until a new import is run. " +
+  "URL slugs may use site-specific spelling or older taxonomy — the inferred scientific name may not " +
+  "match current accepted names in GBIF, BONAP, or USDA PLANTS. " +
+  "Prairie Moon overlaps in geographic scope with Illinois Wildflowers and Minnesota Wildflowers in FERNS, " +
+  "but Prairie Moon's primary value is commercial availability data, not botanical documentation — " +
+  "use regional wildflower references for identification, and Prairie Moon for sourcing.";
 
 export const PRAIRIE_MOON_TECHNICAL_DETAILS =
   "Primary source: https://www.prairiemoon.com/sitemap.xml. " +
@@ -40,11 +49,9 @@ export const PRAIRIE_MOON_REGISTRY_ENTRY = {
   knowledge_type: "web_reference",
   status: "live",
   description:
-    "Native plant nursery and reference site for prairie, wetland, and woodland species, " +
-    "based in Winona, Minnesota (prairiemoon.com). " +
-    "Carries ~970 native plant species. FERNS indexes plant URLs from the site's sitemap.xml " +
-    "and infers scientific names from URL slug structure. " +
-    "Useful for finding nursery availability and growing information for Midwest native plants.",
+    "Native plant catalog and growing reference for prairie, wetland, and woodland species, " +
+    "specializing in Upper Midwest natives. Carries ~970 species with product pages including growing " +
+    "information and ecological notes. FERNS indexes the catalog and returns direct product page URLs.",
   input_summary: "Scientific name (binomial or trinomial with subsp./var.)",
   output_summary:
     "Direct URL to the Prairie Moon Nursery plant page, or found: false if not in the Prairie Moon catalog",

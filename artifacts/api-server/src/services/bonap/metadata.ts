@@ -156,11 +156,20 @@ export const BONAP_COLOR_KEY = [
 ];
 
 export const BONAP_GENERAL_SUMMARY =
-  "Distribution data from the Biota of North America Program (BONAP) North American Plant Atlas (NAPA). " +
-  "BONAP maps show which U.S. counties a vascular plant species has been recorded in, based on vouchered herbarium " +
-  "specimens — physical plant samples deposited in scientific collections. Colors indicate nativity status, rarity, " +
-  "and presence type. Data was last updated December 15, 2014. FERNS provides the map URL pointing to BONAP's " +
-  "server; no image is stored or proxied.";
+  "County-level plant distribution maps compiled by the Biota of North America Program (BONAP), maintained by " +
+  "Dr. John T. Kartesz at the North Carolina Botanical Garden. " +
+  "Maps show which U.S. counties each vascular plant species has been recorded in, based on nearly four million " +
+  "vouchered herbarium specimens — physical plant samples deposited in scientific collections. " +
+  "Data covers approximately 28,000 accepted vascular plant taxa in North America north of Mexico; " +
+  "county presence codes include native, adventive, exotic, rare, extirpated, waif, and extinct. " +
+  "FERNS constructs the map image URL from genus and species, then verifies it resolves to a PNG via HTTP; " +
+  "no image data is stored or proxied locally. " +
+  "A query returns the map URL, full color-key vocabulary with hex codes, data vintage, and the complete " +
+  "attribution and copyright notice required by BONAP. " +
+  "Maps were published as a batch in December 2014 and have not been updated since; no automated update mechanism exists. " +
+  "Written permission from BONAP is required for any public deployment of these maps; permission has not yet been obtained. " +
+  "BONAP and GBIF both draw on overlapping North American plant taxonomic sources — name agreement between " +
+  "these two FERNS services is not independent corroboration of taxonomy.";
 
 export const BONAP_TECHNICAL_DETAILS =
   "Source: Kartesz, J.T., The Biota of North America Program (BONAP). 2015. North American Plant Atlas. " +
@@ -182,7 +191,7 @@ export const BONAP_REGISTRY_ENTRY = {
   knowledge_type: "source_wrapper",
   status: "live",
   description:
-    "Plant distribution maps from the Biota of North America Program (BONAP). Shows which U.S. counties a vascular plant species has been recorded in, based on vouchered herbarium specimens. Colors show whether the species is native, rare, adventive, or exotic in each county. Data covers roughly 28,000 plant taxa across the continental US and Canada.",
+    "County-level plant distribution maps showing which U.S. counties a vascular plant species has been recorded in, based on vouchered herbarium specimens. Map colors indicate whether the species is native, rare, adventive, exotic, extirpated, or a waif in each county. Covers roughly 28,000 vascular plant taxa in North America north of Mexico.",
   input_summary:
     "Genus name (required) + species epithet (required) + map type (county_species or state_species)",
   output_summary:

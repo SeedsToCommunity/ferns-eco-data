@@ -9,15 +9,20 @@ export const MISSOURI_PLANTS_PERMISSION_STATUS =
   "No authentication or API key is required.";
 
 export const MISSOURI_PLANTS_GENERAL_SUMMARY =
-  "Missouri Plants (missouriplants.com) is a comprehensive photographic reference for plants of Missouri, " +
-  "maintained by Paul Wycoff. " +
-  "The site covers over 1,400 species with detailed species pages including photographs, descriptions, " +
-  "taxonomy, ecology, and distribution. " +
-  "FERNS imports the authoritative species list from missouriplants.com/All_Species_list.html, " +
-  "which provides the direct URL for each species (using whatever genus name appears in the filename, " +
-  "which may reflect historical synonyms). " +
-  "URL filenames are not derivable from scientific names alone — the species list is the authoritative source. " +
-  "Lookups are served from FERNS's local database; no live scraping occurs at query time.";
+  "Comprehensive photographic reference for plants of Missouri, maintained by Paul Wycoff " +
+  "(missouriplants.com), a privately operated botanical website. " +
+  "Data type: species profile pages with photographs, descriptions, taxonomy, ecology, and distribution; " +
+  "covers over 1,400 species of Missouri flora. " +
+  "Geographic scope: Missouri; taxonomic scope: vascular plants present in Missouri (native and non-native). " +
+  "FERNS imports the authoritative species list from the site's All_Species_list.html and stores " +
+  "species-to-URL mappings in its local database; no live scraping occurs at query time. " +
+  "A query returns the direct species profile URL or found: false; URL filenames may use historical " +
+  "synonym genera and are not derivable from scientific names alone — the species list is authoritative. " +
+  "The index reflects the site at the time of the last admin-triggered import; ~1,464 species at last import. " +
+  "Exact genus + species match required (case-insensitive); subspecies and varieties not individually listed. " +
+  "Missouri Plants covers Missouri only — for Illinois coverage, Illinois Wildflowers in FERNS provides " +
+  "a comparable resource; for Minnesota, Minnesota Wildflowers; for New England, Go Botany; " +
+  "for North America-wide references, use Lady Bird Johnson Wildflower Center or USDA PLANTS.";
 
 export const MISSOURI_PLANTS_TECHNICAL_DETAILS =
   "Primary source: missouriplants.com/All_Species_list.html. Maintained by Paul Wycoff. " +
@@ -36,10 +41,9 @@ export const MISSOURI_PLANTS_REGISTRY_ENTRY = {
   knowledge_type: "web_reference",
   status: "live",
   description:
-    "Comprehensive photographic reference for plants of Missouri, maintained by Paul Wycoff (missouriplants.com). " +
-    "Covers ~1,464 species with photographs, descriptions, taxonomy, and ecology. " +
-    "FERNS indexes the species list and returns direct species page URLs. " +
-    "Lookups served from FERNS's local database populated from the site's All_Species_list.html.",
+    "Comprehensive photographic reference for plants of Missouri, covering ~1,464 species with photographs, " +
+    "descriptions, taxonomy, and ecology. FERNS indexes the species list and returns direct species profile URLs; " +
+    "URL filenames may use historical synonym genera and are not derivable from scientific names alone.",
   input_summary: "Scientific name (binomial: genus + species epithet)",
   output_summary:
     "Direct URL to the Missouri Plants species page, or found: false if the species is not in the Missouri Plants database",

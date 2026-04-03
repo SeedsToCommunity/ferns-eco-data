@@ -6,29 +6,23 @@ export const COEFFICIENT_PERMISSION_STATUS =
   "OPEN — Static reference data. Methodology published by Swink & Wilhelm (1994). No authentication required.";
 
 export const COEFFICIENT_GENERAL_SUMMARY =
-  "The Coefficient of Conservatism (C-value) is an ecological fidelity score assigned to native plant species. " +
-  "It was developed by Floyd Swink and Gerould Wilhelm in 'Plants of the Chicago Region' (1994) and is used " +
+  "Vocabulary reference for the Coefficient of Conservatism (C-value), an ecological fidelity score " +
+  "developed by Floyd Swink and Gerould Wilhelm in 'Plants of the Chicago Region' (1994) and used " +
   "in Floristic Quality Assessment (FQA) to evaluate habitat quality. " +
-  "The scale runs from 0 to 10, assigned by botanists based on each species' tolerance of habitat disturbance " +
-  "and fidelity to natural ecosystems. " +
-  "0 = cosmopolitan, weedy, or highly tolerant of disturbance; grows in heavily altered habitats. " +
-  "1 = tolerant; common in disturbed or degraded habitats. " +
-  "2 = somewhat tolerant; occurs in both degraded and moderately intact habitats. " +
-  "3 = slightly intolerant; shows mild preference for higher quality habitats. " +
-  "4 = moderately conservative; prefers relatively intact habitats, found in some disturbed areas. " +
-  "5 = conservative; characteristic of habitats of good ecological quality. " +
-  "6 = conservative; rarely found in significantly disturbed habitats. " +
-  "7 = highly conservative; found only in relatively high-quality natural communities. " +
-  "8 = very highly conservative; found only in high-quality, relatively undisturbed habitats. " +
-  "9 = very highly conservative; strongly associated with pristine natural communities. " +
-  "10 = most conservative; restricted to pristine, undisturbed habitats. " +
-  "* = non-native/adventive species; no C-value is assigned. " +
-  "DISAMBIGUATION: " +
-  "C-value (this metric) is NOT the Coefficient of Wetness (W, -5 to +5), which measures a species' affinity for wetland conditions. " +
-  "C-value is NOT a Wetland Indicator Status code (OBL/FACW/FAC/FACU/UPL), which expresses habitat hydrology. " +
-  "C-value is NOT a WUCOLS rating (VL/L/M/H), which is a landscape irrigation guide for nursery professionals. " +
-  "C-values are typically calibrated regionally. This source reflects the general Swink & Wilhelm methodology " +
-  "as applied in Michigan Flora. Other states may assign different C-values to the same species.";
+  "This source is maintained as static reference data by FERNS — no upstream institution or API. " +
+  "Scale: 0 (cosmopolitan, disturbance-tolerant) to 10 (restricted to pristine habitats); " +
+  "'*' = non-native/adventive species for which no C-value is assigned. " +
+  "Geographic and taxonomic scope: global methodology, but C-values are always calibrated regionally " +
+  "by local botanical authorities — the same species may have different values in different regions. " +
+  "This source serves as an in-memory vocabulary reference; no API call is made at query time. " +
+  "A query returns the full definition for a given C-value: short label, ecological meaning, " +
+  "scientific description, authority, and disambiguation from related metrics. " +
+  "Definitions do not change; this source is perpetually current. " +
+  "Per-species C-values are not stored here — they are accessed from Michigan Flora (c field) " +
+  "or Universal FQA regional databases; this source defines the 0–10 scale those services apply. " +
+  "C-value (this source) is NOT the Coefficient of Wetness (W, -5 to +5) defined by Wetland Indicator " +
+  "Status, NOT a Wetland Indicator Status code (OBL/FACW etc.), and NOT a WUCOLS irrigation rating — " +
+  "all three of these are separate FERNS vocabulary references covering distinct ecological dimensions.";
 
 export const COEFFICIENT_TECHNICAL_DETAILS =
   "Source: Static reference data. Methodology: Swink, F. and G. Wilhelm. 1994. " +

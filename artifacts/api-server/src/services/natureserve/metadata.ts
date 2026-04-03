@@ -20,15 +20,24 @@ export const NATURESERVE_ATTRIBUTION = {
 };
 
 export const NATURESERVE_GENERAL_SUMMARY =
-  "Conservation status and ecological systems data from NatureServe Explorer. " +
-  "NatureServe is the authoritative conservation status authority for species and ecosystems " +
-  "across the Americas, drawing on data from 80+ member programs including state Natural Heritage " +
-  "Programs. Global ranks (G1–G5), national ranks (N1–N5), state ranks (S1–S5), IUCN Red List " +
-  "categories, and US federal listing status (ESA Threatened/Endangered) are provided for queried " +
-  "species. Ecological systems / natural communities are searched by name and include global rank " +
-  "and US national rank. Data is accessed through NatureServe Explorer's public REST API " +
-  "and cached 30 days per NatureServe's recommendation for slowly-changing conservation data. " +
-  "Attribution to NatureServe Explorer is required per their Terms of Use.";
+  "Conservation status and ecological systems data from NatureServe Explorer, the authoritative " +
+  "conservation status database for species and ecosystems across the Americas, maintained by " +
+  "NatureServe and its 80+ member programs including state Natural Heritage Programs. " +
+  "Data types: global ranks (G1–G5), US national ranks (N1–N5), state ranks (S1–S5), IUCN Red List " +
+  "categories, US federal ESA listing status, CITES status, and COSEWIC status for species; " +
+  "global and national ranks and ecosystem descriptions for ecological systems / natural communities. " +
+  "Geographic scope: Americas-wide for global ranks; US for national ranks; configurable US state " +
+  "(default Michigan) for state ranks. " +
+  "Data accessed via NatureServe Explorer's public REST API; cached 30 days per NatureServe's " +
+  "recommendation for slowly-changing conservation data. " +
+  "A species query returns scientific name, common name, all rank codes, IUCN category, federal listing " +
+  "status, and a direct URL to the NatureServe Explorer species record. " +
+  "Conservation ranks are reviewed on species-specific cycles (typically 1–10 years); NatureServe's " +
+  "Element Occurrence spatial data (precise locality records) is restricted to member programs and is " +
+  "not available through this integration. " +
+  "NatureServe national conservation ranks complement MNFI's Michigan-specific field data — MNFI provides " +
+  "detailed community descriptions and county distribution maps for Michigan, while NatureServe provides " +
+  "broader Americas-scale conservation context; both services may be combined for a complete picture.";
 
 export const NATURESERVE_TECHNICAL_DETAILS =
   "Source: NatureServe Explorer API (https://explorer.natureserve.org/api/data). " +
@@ -52,13 +61,10 @@ export const NATURESERVE_REGISTRY_ENTRY = {
   knowledge_type: "source_wrapper",
   status: "live",
   description:
-    "Conservation status data from NatureServe Explorer, the authoritative global conservation " +
-    "status authority for species and ecosystems across the Americas. NatureServe aggregates data " +
-    "from 80+ member programs including state Natural Heritage Programs. Provides global ranks " +
-    "(G1–G5), US national ranks (N1–N5), state ranks, IUCN Red List category, US federal ESA " +
-    "listing status, and CITES/COSEWIC listings for species. Also provides ecological systems / " +
-    "natural communities data — NatureServe's national-scale terrestrial and aquatic ecosystem " +
-    "classification — complementing MNFI's Michigan-specific field data at a national scale.",
+    "Conservation status rankings and ecological systems data covering species and ecosystems across " +
+    "the Americas, aggregated from 80+ member programs including state Natural Heritage Programs. " +
+    "Provides global ranks (G1–G5), US national ranks (N1–N5), state ranks, IUCN Red List category, " +
+    "federal ESA listing status, and natural communities classification at national scale.",
   input_summary:
     "Scientific or common name string for species search; common name or ecosystem name for ecological systems search; optional US state code (default MI) for state rank",
   output_summary:

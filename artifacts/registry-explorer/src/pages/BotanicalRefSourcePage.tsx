@@ -344,7 +344,7 @@ export default function BotanicalRefSourcePage() {
             </div>
           )}
 
-          {rawResult && !loading && <RawPanel data={rawResult} />}
+          {!!rawResult && !loading && <RawPanel data={rawResult} />}
         </div>
 
         {/* Metadata panel */}

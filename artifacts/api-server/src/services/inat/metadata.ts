@@ -21,12 +21,22 @@ export const INAT_ATTRIBUTION = {
 
 export const INAT_GENERAL_SUMMARY =
   "Observation and species data from iNaturalist (inaturalist.org), a citizen science platform " +
-  "operated jointly by the California Academy of Sciences and the National Geographic Society. " +
-  "Over 200 million observations contributed by millions of users worldwide. " +
-  "Phenological stage data (flowering, budding, fruiting) from community-added annotations. " +
-  "Species descriptions from Wikipedia via iNaturalist API. " +
-  "All data accessed through the iNaturalist v1 REST API and cached to reduce redundant requests. " +
-  "Attribution required: 'Observations from iNaturalist (inaturalist.org). Species descriptions from Wikipedia.'";
+  "operated jointly by the California Academy of Sciences and the National Geographic Society, " +
+  "with over 200 million observations contributed by millions of users worldwide. " +
+  "Data types: place ID lookup for geographic filtering; species appearance data including " +
+  "representative photos, Wikipedia summaries, common names, conservation status, and native/introduced status; " +
+  "and month-by-month phenology (what stage — flowering, budding, fruiting — a species is typically in) " +
+  "derived from community-added annotations. " +
+  "Geographic scope: global; taxonomic scope: all organisms (FERNS uses it for vascular plants). " +
+  "iNaturalist maintains its own taxonomic backbone independently of GBIF, BONAP, and Michigan Flora — " +
+  "name divergence across FERNS sources is expected. " +
+  "All data accessed through the iNaturalist v1 REST API and cached per species; " +
+  "place IDs are cached permanently, species appearance for 30 days, phenology for 7 days. " +
+  "A species query returns photos, Wikipedia description, common names, conservation status, native status, " +
+  "global observation count, and month-by-month phenological stage breakdowns. " +
+  "Phenological annotation coverage is uneven — many species have sparse or no stage annotations. " +
+  "iNaturalist research-grade observations are published to GBIF — occurrence counts from FERNS's iNaturalist " +
+  "and GBIF services therefore overlap; treat them as complementary views, not independent datasets.";
 
 export const INAT_TECHNICAL_DETAILS =
   "Source: iNaturalist (https://api.inaturalist.org/v1). " +
@@ -50,13 +60,10 @@ export const INAT_REGISTRY_ENTRY = {
   knowledge_type: "source_wrapper",
   status: "live",
   description:
-    "Observation and species data from iNaturalist, a citizen science platform with over 200 million " +
-    "nature sightings contributed by millions of users worldwide. This service provides: place ID lookup " +
-    "for geographic filtering; species appearance data including representative photos, Wikipedia summaries, " +
-    "common names, conservation status, and native/introduced status; month-by-month phenology " +
-    "(when a species is observed and what stage — flowering, budding, fruiting) from community annotations; " +
-    "and direct URLs for querying live observation records. Individual observation records are not cached — " +
-    "FERNS provides URLs to query iNaturalist directly.",
+    "Observation and species data from a global citizen science platform with over 200 million nature sightings. " +
+    "Provides place ID lookup, species photos and descriptions, native/introduced status, conservation status, " +
+    "and month-by-month phenology (when a species is flowering, budding, or fruiting) from community annotations. " +
+    "FERNS provides URLs to query live observation records directly.",
   input_summary:
     "Place name (for place ID resolution); species name (for appearance and phenology); place IDs (for phenology filtering)",
   output_summary:

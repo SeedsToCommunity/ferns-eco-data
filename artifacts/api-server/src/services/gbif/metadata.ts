@@ -16,13 +16,26 @@ export const GBIF_ATTRIBUTION = {
 };
 
 export const GBIF_GENERAL_SUMMARY =
-  "Name and taxonomy data from the Global Biodiversity Information Facility (GBIF). " +
-  "GBIF is a free international database run by governments worldwide, bringing together biodiversity " +
-  "records from nearly 2,000 organizations including museums, universities, and citizen science " +
-  "platforms. GBIF is used here for name matching (checking whether a plant name is current or an " +
-  "old synonym), finding common names, and retrieving sighting records across North America. " +
-  "All data is accessed through GBIF's public API and cached to reduce redundant requests. " +
-  "Data is licensed CC BY 4.0. Retrieved date is recorded with every result.";
+  "Taxonomic name matching, synonym resolution, common names, and species occurrence records from the " +
+  "Global Biodiversity Information Facility (GBIF), an intergovernmental organization aggregating " +
+  "biodiversity records from nearly 2,000 institutions including museums, universities, and citizen " +
+  "science platforms worldwide. " +
+  "GBIF's Backbone Taxonomy covers all kingdoms; FERNS uses it here for vascular plant name matching " +
+  "(checking whether a name is current or a synonym), finding common names, and retrieving georeferenced " +
+  "sighting records across North America. " +
+  "Taxonomic scope: all vascular plants globally; geographic scope for occurrence queries is configurable " +
+  "by country, continent, or GBIF taxon key. " +
+  "All data is accessed through GBIF's public REST API and cached per species to reduce redundant requests; " +
+  "no GBIF data is stored in FERNS's database. " +
+  "A name-match query returns taxonomic rank, GBIF backbone key, match confidence, and whether the name " +
+  "is accepted or a synonym; occurrence queries return count and georeferenced records with coordinates, " +
+  "basis of record, and collection date. " +
+  "Data is licensed CC BY 4.0; backbone updated approximately annually; occurrence index updated continuously; " +
+  "FERNS cache TTLs are 30 days for name data and 7 days for occurrence data. " +
+  "known_limitations: HIGHERRANK matches mean the name resolved above species level — these must not be " +
+  "treated as species-level confirmations; DOUBTFUL status means the name exists but is taxonomically uncertain. " +
+  "iNaturalist research-grade observations are published to GBIF — GBIF occurrence counts therefore overlap " +
+  "with FERNS's iNaturalist service; do not treat simultaneous queries to both as fully independent datasets.";
 
 export const GBIF_TECHNICAL_DETAILS =
   "Source: GBIF.org. Data licensed CC BY 4.0. " +
@@ -166,7 +179,7 @@ export const GBIF_REGISTRY_ENTRY = {
   knowledge_type: "source_wrapper",
   status: "live",
   description:
-    "Taxonomic name matching, synonym lookup, common name search, and occurrence records from the Global Biodiversity Information Facility (GBIF). GBIF is a free international database run by governments worldwide, aggregating records from nearly 2,000 institutions. Used here to check whether a plant name is current or an old synonym, to find common names, and to retrieve sighting records across North America. All data is CC BY 4.0.",
+    "Taxonomic name matching, synonym lookup, common name search, and occurrence records from an international biodiversity data aggregator covering nearly 2,000 institutions worldwide. Used to verify whether a plant name is current or a synonym, to find common names, and to retrieve georeferenced sighting records across North America. All data is CC BY 4.0.",
   input_summary:
     "Scientific name (for matching and reconciliation), GBIF usageKey (for synonyms, vernacular names, and occurrences), or common name string (for vernacular search)",
   output_summary:

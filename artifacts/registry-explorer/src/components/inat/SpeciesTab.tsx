@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useGetInatSpecies } from "@workspace/api-client-react";
+import { useGetInatSpecies, getGetInatSpeciesQueryKey } from "@workspace/api-client-react";
 import { Leaf, Search, Loader2, AlertCircle, ExternalLink, AlertTriangle } from "lucide-react";
 import { RawJsonPanel } from "@/components/RawJsonPanel";
 
@@ -12,9 +12,10 @@ export function SpeciesTab({ onTaxonIdSelected }: SpeciesTabProps) {
   const [query, setQuery] = useState("");
 
   const enabled = !!query;
+  const speciesParams = { name: query };
   const { data: response, isLoading, isError, error } = useGetInatSpecies(
-    { name: query },
-    { query: { enabled } }
+    speciesParams,
+    { query: { enabled, queryKey: getGetInatSpeciesQueryKey(speciesParams) } }
   );
 
   function handleSubmit(e: React.FormEvent) {
@@ -140,7 +141,7 @@ export function SpeciesTab({ onTaxonIdSelected }: SpeciesTabProps) {
                   {species.observations_count !== null && species.observations_count !== undefined && (
                     <Stat label="Observations" value={new Intl.NumberFormat().format(species.observations_count as number)} />
                   )}
-                  {species.conservation_status && (
+                  {!!species.conservation_status && (
                     <Stat
                       label="Conservation"
                       value={String((species.conservation_status as Record<string, unknown>)?.status_name ?? species.conservation_status)}
@@ -160,7 +161,7 @@ export function SpeciesTab({ onTaxonIdSelected }: SpeciesTabProps) {
                       View on iNaturalist
                     </a>
                   )}
-                  {species.wikipedia_url && (
+                  {!!species.wikipedia_url && (
                     <a
                       href={encodeURI(species.wikipedia_url as string)}
                       target="_blank"
@@ -184,7 +185,7 @@ export function SpeciesTab({ onTaxonIdSelected }: SpeciesTabProps) {
               </div>
             </div>
 
-            {species.wikipedia_summary && (
+            {!!species.wikipedia_summary && (
               <div className="px-6 pb-6 border-t border-border pt-4">
                 <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
                   Wikipedia Summary{" "}

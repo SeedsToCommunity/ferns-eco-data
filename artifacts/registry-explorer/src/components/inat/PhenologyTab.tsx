@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useGetInatHistogram, useGetInatFieldValues } from "@workspace/api-client-react";
+import { useGetInatHistogram, useGetInatFieldValues, getGetInatHistogramQueryKey, getGetInatFieldValuesQueryKey } from "@workspace/api-client-react";
 import { CalendarDays, Search, Loader2, AlertCircle, Plus, X, ExternalLink } from "lucide-react";
 import { monthName, formatNumber } from "@/lib/utils";
 import {
@@ -40,10 +40,10 @@ function buildStageChartData(
     .sort((a, b) => a - b)
     .map((monthNum) => {
       const monthData = phenByMonth[String(monthNum)] ?? {};
-      const entry: { month: string; monthNum: number } & Record<string, number> = {
+      const entry = {
         month: monthName(monthNum),
         monthNum,
-      };
+      } as unknown as { month: string; monthNum: number } & Record<string, number>;
       for (const stage of stages) {
         entry[stage] = monthData[stage] ?? 0;
       }
@@ -84,21 +84,16 @@ export function PhenologyTab({
 
   const enabled = !!submittedTaxon && !!submittedPlaceId;
 
+  const histParams = { taxon_id: Number(submittedTaxon), place_id: submittedPlaceId };
   const { data: histResponse, isLoading: histLoading, isError: histError, error: histErr } = useGetInatHistogram(
-    {
-      taxon_id: Number(submittedTaxon),
-      place_id: submittedPlaceId,
-    },
-    { query: { enabled } }
+    histParams,
+    { query: { enabled, queryKey: getGetInatHistogramQueryKey(histParams) } }
   );
 
+  const fvParams = { taxon_id: Number(submittedTaxon), place_id: submittedPlaceId, verifiable: true };
   const { data: fvResponse, isLoading: fvLoading, isError: fvError, error: fvErr } = useGetInatFieldValues(
-    {
-      taxon_id: Number(submittedTaxon),
-      place_id: submittedPlaceId,
-      verifiable: true,
-    },
-    { query: { enabled } }
+    fvParams,
+    { query: { enabled, queryKey: getGetInatFieldValuesQueryKey(fvParams) } }
   );
 
   const isLoading = histLoading || fvLoading;

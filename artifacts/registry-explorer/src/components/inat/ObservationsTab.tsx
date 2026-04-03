@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useGetInatObservations } from "@workspace/api-client-react";
+import { useGetInatObservations, getGetInatObservationsQueryKey } from "@workspace/api-client-react";
 import { Eye, Search, Loader2, AlertCircle, ExternalLink } from "lucide-react";
 import { RawJsonPanel } from "@/components/RawJsonPanel";
 
@@ -11,12 +11,10 @@ export function ObservationsTab() {
   const [submitted, setSubmitted] = useState(false);
 
   const enabled = submitted;
+  const obsParams = { taxon_id: submittedTaxonId, place_id: submittedPlaceId };
   const { data, isLoading, isError, error } = useGetInatObservations(
-    {
-      taxon_id: submittedTaxonId,
-      place_id: submittedPlaceId,
-    },
-    { query: { enabled } }
+    obsParams,
+    { query: { enabled, queryKey: getGetInatObservationsQueryKey(obsParams) } }
   );
 
   function handleSubmit(e: React.FormEvent) {

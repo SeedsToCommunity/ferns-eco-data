@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer, timestamp, unique, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, integer, timestamp, uniqueIndex, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -54,7 +54,7 @@ export const mnfiCountyElementsTable = pgTable(
     last_observed: text("last_observed"),
     imported_at: timestamp("imported_at", { withTimezone: true }).defaultNow().notNull(),
   },
-  (t) => [unique("mnfi_county_element_unique").on(t.county, t.element_type, t.element_name)],
+  (t) => [uniqueIndex("mnfi_county_element_unique").on(t.county, t.element_type, t.element_name)],
 );
 
 export const insertMnfiCommunitySchema = createInsertSchema(mnfiCommunitiesTable).omit({ imported_at: true });

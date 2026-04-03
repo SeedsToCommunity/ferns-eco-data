@@ -9,15 +9,23 @@ export const LADY_BIRD_JOHNSON_PERMISSION_STATUS =
   "FERNS constructs a plant search URL from the scientific name; no data is stored locally.";
 
 export const LADY_BIRD_JOHNSON_GENERAL_SUMMARY =
-  "The Lady Bird Johnson Wildflower Center Plant Database (wildflower.org/plants) is a comprehensive " +
-  "reference for native plants of North America, maintained by the Lady Bird Johnson Wildflower Center " +
-  "at The University of Texas at Austin. " +
-  "It covers thousands of native species with information on habitat, bloom time, growing conditions, " +
-  "regional suitability, wildlife value, and photographs. " +
-  "FERNS constructs a plant search URL from the genus and species epithet: " +
-  "wildflower.org/plants/search.php?search_field=genus&genus={Genus}&species={species}. " +
-  "For single-word queries (genus only), a genus-only search is returned. " +
-  "The URL is always valid but requires a browser and returns search results rather than a direct profile.";
+  "Comprehensive native plant database for North America, maintained by the Lady Bird Johnson Wildflower " +
+  "Center at The University of Texas at Austin (wildflower.org/plants). " +
+  "Data type: species profile pages for thousands of native North American species with habitat, bloom " +
+  "time, growing conditions, regional suitability, wildlife value, and photographs. " +
+  "Geographic scope: North America (emphasis on US natives; some naturalized non-natives included); " +
+  "taxonomic scope: vascular plants. " +
+  "FERNS constructs a plant search URL from genus and species — " +
+  "wildflower.org/plants/search.php?search_field=genus&genus={Genus}&species={species} — " +
+  "no data is stored locally and no HTTP validation is performed. " +
+  "A query returns a search results URL, not a direct species profile URL; " +
+  "profile URLs require knowing the Wildflower Center's internal plant ID code, which cannot be derived " +
+  "from the scientific name without a lookup. The search URL is always valid. " +
+  "Live — URLs are constructed at query time; the Wildflower Center database is updated by staff periodically. " +
+  "Lady Bird Johnson Wildflower Center covers all North American natives at broad scope; " +
+  "for regional-specialist references within FERNS, Go Botany (New England), Illinois Wildflowers " +
+  "(Illinois), Minnesota Wildflowers (Minnesota), and Missouri Plants (Missouri) provide more locally " +
+  "detailed coverage; USDA PLANTS provides the authoritative federal taxonomy across all US species.";
 
 export const LADY_BIRD_JOHNSON_TECHNICAL_DETAILS =
   "Source: https://www.wildflower.org/plants/. " +
@@ -36,10 +44,10 @@ export const LADY_BIRD_JOHNSON_REGISTRY_ENTRY = {
   knowledge_type: "web_reference",
   status: "live",
   description:
-    "Comprehensive native plant reference for North America, maintained by the Lady Bird Johnson Wildflower Center " +
-    "at The University of Texas at Austin (wildflower.org/plants). " +
-    "Covers habitat, bloom time, growing conditions, wildlife value, and regional suitability. " +
-    "FERNS constructs a plant search URL from the scientific name — always valid, returns search results page.",
+    "Comprehensive native plant database for North America, covering thousands of species with habitat, " +
+    "bloom time, growing conditions, regional suitability, and wildlife value. " +
+    "FERNS constructs a plant search URL from the scientific name — always valid, returns a search results page " +
+    "rather than a direct species profile.",
   input_summary: "Scientific name (genus + optional species epithet)",
   output_summary:
     "Lady Bird Johnson Wildflower Center plant search URL for the queried scientific name",

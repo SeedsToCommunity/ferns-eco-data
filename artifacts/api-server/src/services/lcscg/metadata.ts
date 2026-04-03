@@ -8,22 +8,22 @@ export const LCSCG_PERMISSION_STATUS =
   "FERNS serves static data extracted from those publicly licensed PDF documents.";
 
 export const LCSCG_GENERAL_SUMMARY =
-  "Lake County Seed Collection Guides — a set of 12 illustrated field guides for native seed identification, " +
-  "produced by the Lake County Forest Preserve District (LCFPD) Volunteer Stewardship Network and published by " +
-  "the Field Museum Field Guides platform (fieldguides.fieldmuseum.org, Guide IDs 1271–1282). " +
-  "Authors: Kelly Schultz and Dale Shields. License: CC BY-NC 4.0. " +
-  "The guides cover 494 species of native and adventive plants in Lake County, northeastern Illinois, " +
-  "organized by season (spring, summer, fall) and habitat (woodland, wetland, prairie, grasses and sedges, " +
-  "asters and goldenrods, woody plants). " +
-  "Data per species includes: scientific name (per Flora of the Chicago Region, Wilhelm & Rericha 2017), " +
-  "common name, plant family, seed dispersal category (Elaiosomes, Ballistic, Fluffy, Milkweed, Berries, " +
-  "Mama's Boys, Shakers, Beaks, Coneheads, Crumbly Coneheads, Shattering, Hitchhikers, Do Not Collect), " +
-  "seed ripeness description and harvest technique, photo date (approximate collection timing proxy), " +
-  "and guide photographs served from Cloudinary CDN (2,093 images across all 12 guides). " +
-  "No live upstream API — FERNS serves static data imported once from PDF-extracted records. " +
-  "Geographic scope: Lake County, Illinois, USA. " +
-  "NOTE: Not all records are native species — non-native comparison species marked 'Do Not Collect' are included. " +
-  "No Floristic Quality (C-value), wetland status, or other assessment metric is provided.";
+  "Illustrated field guide data for native seed collection in Lake County, northeastern Illinois, " +
+  "compiled by the Lake County Forest Preserve District Volunteer Stewardship Network and published " +
+  "as 12 CC BY-NC 4.0 guides by the Field Museum Field Guides platform (Guide IDs 1271–1282). " +
+  "Authors: Kelly Schultz (LCFPD Stewardship Ecologist) and Dale Shields. " +
+  "Covers 494 plant species organized by season (spring, summer, fall) and habitat (woodland, wetland, " +
+  "prairie, grasses and sedges, asters and goldenrods, woody plants). " +
+  "Geographic scope: Lake County, Illinois; taxonomic scope: native and adventive vascular plants of that region. " +
+  "FERNS serves static data extracted from the PDF guides (no live upstream API); " +
+  "2,093 guide photographs are served from Cloudinary CDN. " +
+  "A species query returns scientific name, common name, plant family, guide and habitat section, seed dispersal " +
+  "category, harvest technique description, photo date (timing proxy), and image URLs. " +
+  "Data is static with no update cycle; not all records are native — non-native comparison species " +
+  "marked 'Do Not Collect' are included; no Floristic Quality C-values or wetland status codes are provided. " +
+  "LCSCG species names follow Flora of the Chicago Region (Wilhelm & Rericha 2017), which may differ from " +
+  "GBIF, iNaturalist, BONAP, USDA PLANTS, or Michigan Flora taxonomy used by other FERNS sources — " +
+  "cross-reference names carefully when combining with those services.";
 
 export const LCSCG_TECHNICAL_DETAILS =
   "Primary source: 12 PDF field guides (version 2, March 2021) authored by Kelly Schultz " +

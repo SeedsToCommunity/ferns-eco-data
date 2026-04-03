@@ -18,22 +18,25 @@ export const UNIVERSAL_FQA_ATTRIBUTION = {
 };
 
 export const UNIVERSAL_FQA_GENERAL_SUMMARY =
-  "Universal FQA (universalfqa.org) is a public platform developed at the University of Michigan for standardizing Floristic Quality Assessment (FQA) calculations. " +
-  "FQA is an ecological method, developed by Floyd Swink and Gerould Wilhelm (Plants of the Chicago Region, 1979; 4th ed. 1994), for measuring the ecological quality of a plant community. " +
-  "It works by assigning every plant species a Coefficient of Conservatism (C-value) — an integer from 0 to 10 reflecting how tolerant that species is of habitat disturbance. " +
-  "A C-value of 0 means the species grows almost anywhere regardless of habitat quality; a C-value of 10 means it is restricted to pristine, undisturbed habitats. " +
-  "These C-values are assigned by regional botanists for a specific geographic area, so universalfqa.org hosts many independent regional databases rather than one global list. " +
-  "As of 2025 the platform has 93 databases spanning 1993–2025, covering US states, EPA ecoregions, and Canadian provinces. " +
-  "The Floristic Quality Index (FQI) for a site is computed from the C-values of all species observed there: the higher the FQI, the higher quality the plant community. " +
-  "This source is NOT a watering guide, NOT a wetland delineation tool, and NOT related to WUCOLS water-use classifications. " +
-  "The C-value measures ecological fidelity to intact habitat, which is a different concept from wetland affinity (Coefficient of Wetness, W-value) or irrigation need (WUCOLS). " +
-  "FERNS serves two data types from this source: " +
-  "(1) Regional databases — per-species lists of C-values, W-values, and traits for each region. " +
-  "(2) Public site assessments — field inventories of named natural areas contributed by ecologists, botanists, students, and land managers, each with a full species list and computed FQI metrics. " +
-  "SELECTING A DATABASE: Read the region and citation fields together. They describe the geographic scope, institutional source, methodology, and publication year. " +
-  "Michigan databases: ID 50 (Reznicek et al. 2014, University of Michigan Herbarium, 2872 species) and ID 267 (Merjent Inc. 2024, 2873 species). " +
-  "Both cover the same Michigan vascular flora; ID 267 is more recent. " +
-  "ID 50 uses the same C-value assignments as Michigan Flora (michiganflora.net).";
+  "Regional Floristic Quality Assessment (FQA) databases and public site assessments, hosted by " +
+  "Universal FQA (universalfqa.org), a platform developed and maintained at the University of Michigan. " +
+  "FQA is an ecological method (Swink & Wilhelm, 1979/1994) that evaluates plant community quality using " +
+  "Coefficient of Conservatism (C-value) scores — integers 0–10 assigned to native species by regional " +
+  "botanical authorities reflecting ecological fidelity to intact habitats. " +
+  "As of 2025, the platform hosts 93 regional databases (1993–2025) covering US states, EPA ecoregions, " +
+  "and Canadian provinces, plus thousands of publicly shared site assessment inventories. " +
+  "Geographic and taxonomic scope: varies by database; Michigan databases (IDs 50 and 267) cover all " +
+  "Michigan vascular plants. " +
+  "All data accessed via the universalfqa.org public REST API; full species databases are cached in " +
+  "server memory on first request (cleared on server restart); assessments are fetched live per query. " +
+  "A database query returns per-species: scientific name, family, nativity, C-value, W-value, physiognomy, " +
+  "duration, and common name; an assessment query returns site metadata, all FQI metrics (total FQI, " +
+  "native FQI, adjusted FQI, mean C, mean W), and the full species list with per-species values. " +
+  "C-values must not be compared across databases from different regions or authorities. " +
+  "Michigan databases ID 50 (Reznicek et al. 2014, University of Michigan Herbarium) and ID 267 (Merjent " +
+  "Inc. 2024) share the same Michigan vascular flora; ID 50 uses the same C-value assignments as " +
+  "Michigan Flora (michiganflora.net) in FERNS — querying both will produce consistent C-values for " +
+  "Michigan species, making them complementary rather than independent sources for that metric.";
 
 export const UNIVERSAL_FQA_TECHNICAL_DETAILS =
   "Source: universalfqa.org public REST API. Developed and maintained by the University of Michigan. " +

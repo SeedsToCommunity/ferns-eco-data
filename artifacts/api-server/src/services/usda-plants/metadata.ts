@@ -9,16 +9,22 @@ export const USDA_PLANTS_PERMISSION_STATUS =
   "FERNS constructs a search URL from the scientific name; no USDA data is stored locally.";
 
 export const USDA_PLANTS_GENERAL_SUMMARY =
-  "The USDA PLANTS Database (plants.usda.gov) is the authoritative federal reference for plant taxonomy, " +
-  "nomenclature, and occurrence in the United States and its territories. " +
-  "Maintained by the USDA Natural Resources Conservation Service (NRCS), it covers vascular plants, " +
-  "mosses, liverworts, hornworts, and lichens. " +
-  "Each species has a profile page (identified by a short USDA symbol code) with taxonomy, synonyms, " +
-  "state-level occurrence data, Wetland Indicator Status, legal status, and related resources. " +
-  "FERNS constructs a search URL for any scientific name: " +
-  "plants.usda.gov/home/basicSearchResults?nameSearch={species name}. " +
-  "This URL is always valid — USDA PLANTS accepts any query — but requires JavaScript to render results. " +
-  "The URL is returned without HTTP validation.";
+  "Authoritative federal plant taxonomy and occurrence database, maintained by the USDA Natural Resources " +
+  "Conservation Service (NRCS) at plants.usda.gov. " +
+  "Data type: species profile pages with taxonomy, synonyms, state-level occurrence data, Wetland Indicator " +
+  "Status, legal status, and related resources; covers vascular plants, mosses, liverworts, hornworts, " +
+  "and lichens in the United States and its territories. " +
+  "Geographic scope: US and territories; taxonomic scope: all land plants. " +
+  "FERNS constructs a search URL from the scientific name — " +
+  "plants.usda.gov/home/basicSearchResults?nameSearch={name} — no data is stored locally " +
+  "and no HTTP validation is performed; USDA PLANTS accepts any query. " +
+  "A query returns a search results URL; profile URLs require knowing the USDA symbol code " +
+  "(e.g., ACRU for Acer rubrum), which cannot be derived from the scientific name without a lookup. " +
+  "The search results page is JavaScript-rendered (React SPA) and requires a browser to display results. " +
+  "Live — URLs are constructed at query time; the USDA PLANTS database is updated continuously by NRCS. " +
+  "USDA PLANTS is the federal nomenclatural authority and overlaps in name coverage with GBIF and BONAP; " +
+  "GBIF and BONAP both draw on USDA PLANTS-derived taxonomy, so name agreement across those FERNS services " +
+  "is not independent corroboration — USDA PLANTS is the authoritative US government source.";
 
 export const USDA_PLANTS_TECHNICAL_DETAILS =
   "Source: https://plants.usda.gov. Operated by USDA Natural Resources Conservation Service (NRCS). " +
@@ -37,11 +43,10 @@ export const USDA_PLANTS_REGISTRY_ENTRY = {
   knowledge_type: "web_reference",
   status: "live",
   description:
-    "Authoritative federal reference for plant taxonomy, nomenclature, and state-level occurrence data, " +
-    "maintained by the USDA Natural Resources Conservation Service (plants.usda.gov). " +
-    "Covers vascular plants, mosses, liverworts, and lichens in the United States and territories. " +
-    "FERNS constructs a search URL from the scientific name — always valid but returns a search results page " +
-    "rather than a direct species profile (profile URLs require knowing the USDA symbol code).",
+    "Authoritative federal plant taxonomy and occurrence reference covering vascular plants, mosses, " +
+    "liverworts, and lichens in the United States and territories, with state-level occurrence data, " +
+    "Wetland Indicator Status, and legal status. FERNS constructs a search URL from the scientific name — " +
+    "always valid, returns a search results page rather than a direct species profile.",
   input_summary: "Scientific name (binomial or trinomial)",
   output_summary:
     "USDA PLANTS search results URL for the queried scientific name",

@@ -6,21 +6,22 @@ export const WETLAND_INDICATOR_PERMISSION_STATUS =
   "OPEN — Static reference data. Wetland indicator codes defined by USDA NRCS National Wetland Plant List and U.S. Army Corps of Engineers. No authentication required.";
 
 export const WETLAND_INDICATOR_GENERAL_SUMMARY =
-  "The Wetland Indicator Status (WIS) classifies plant species by their frequency of occurrence in wetland habitats. " +
-  "Codes are assigned by the USDA NRCS National Wetland Plant List (NWPL) under authority of the U.S. Army Corps of Engineers (USACE). " +
-  "The five national codes are: " +
-  "OBL (Obligate Wetland): species occur in wetlands >99% of the time under natural conditions. Almost never found in uplands. " +
-  "FACW (Facultative Wetland): species occur in wetlands 67–99% of the time. Usually found in wetlands but occasionally in uplands. " +
-  "FAC (Facultative): species occur in wetlands 34–66% of the time. Equally likely in wetlands or uplands. " +
-  "FACU (Facultative Upland): species occur in wetlands 1–33% of the time. Usually found in uplands but occasionally in wetlands. " +
-  "UPL (Upland): species occur in wetlands <1% of the time under natural conditions. Almost never found in wetlands. " +
-  "The Coefficient of Wetness (W-value) is the numeric companion to the WIS code, developed by Swink & Wilhelm for Floristic Quality Assessment. " +
-  "W values map directly to WIS codes: OBL = -5, FACW = -3, FAC = 0, FACU = +3, UPL = +5. " +
-  "DISAMBIGUATION: " +
-  "Wetland Indicator Status (this metric) is NOT WUCOLS (Water Use Classifications of Landscape Species, VL/L/M/H). " +
-  "WIS describes a plant's natural habitat hydrology in wild ecosystems. " +
-  "WUCOLS describes supplemental irrigation needs in managed landscapes and gardens — it is a nursery planning tool, not an ecological classification. " +
-  "WIS is NOT the Coefficient of Conservatism (C-value, 0–10), which measures ecological fidelity and disturbance tolerance, not wetland affinity.";
+  "Vocabulary reference for the Wetland Indicator Status (WIS) classification system, defined by the " +
+  "USDA NRCS National Wetland Plant List (NWPL) under U.S. Army Corps of Engineers authority. " +
+  "This source is maintained as static reference data by FERNS — no upstream API call is made at query time. " +
+  "Five national codes describe how often a species occurs in wetlands: " +
+  "OBL (>99%), FACW (67–99%), FAC (34–66%), FACU (1–33%), UPL (<1%); each has a numeric Coefficient of " +
+  "Wetness (W-value) companion: OBL = -5, FACW = -3, FAC = 0, FACU = +3, UPL = +5. " +
+  "Scope: national (US) classification system; per-species ratings may vary regionally. " +
+  "A query returns the full definition for a WIS code or W-value: occurrence frequency range, ecological " +
+  "meaning, W-value companion, authority, and disambiguation from other metrics. " +
+  "Definitions do not change; this source is perpetually current. " +
+  "Per-species WIS codes and W-values are provided by Michigan Flora (wet and w fields); " +
+  "this vocabulary reference defines the classification system those fields belong to — " +
+  "consult Michigan Flora for species-level data, this source for system-level definitions. " +
+  "WIS (this source) is NOT WUCOLS (landscape irrigation ratings, VL/L/M/H), which is a separate FERNS " +
+  "vocabulary reference, and NOT the Coefficient of Conservatism (C-value, 0–10), which measures " +
+  "ecological fidelity rather than wetland affinity.";
 
 export const WETLAND_INDICATOR_TECHNICAL_DETAILS =
   "Source: Static reference data. " +
