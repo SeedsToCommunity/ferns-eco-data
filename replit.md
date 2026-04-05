@@ -169,10 +169,9 @@ These three fields are required on every FERNS source. They are structured deliv
 
 **Audience**: A non-technical person — a homeowner, student, or restoration practitioner — deciding whether this source is relevant to their question.
 
-**Required content**:
-- What kind of resource this is (nursery catalog, government database, field guide, scientific atlas, etc.)
-- What you can find or do with it, in plain terms
-- Geographic or domain scope, stated simply (e.g. "Midwest and Great Plains", "Michigan only")
+**Structure (required order)**:
+1. **Accessible scope first** — what FERNS makes available from this source: what you can look up or retrieve, and the geographic or domain scope, stated in plain terms. This is the lead.
+2. **Source identity second** — who publishes or maintains the data and what kind of authority it is (government agency, university herbarium, national nonprofit, nursery, etc.). One phrase or sentence, at the end.
 
 **Length**: 1–3 sentences.
 
@@ -180,11 +179,12 @@ These three fields are required on every FERNS source. They are structured deliv
 - Technical method terms ("sitemap scrape", "API fetch", "ILIKE query", "DB cache")
 - Botanical or scientific jargon without a plain-English translation
 - URLs
-- The source organization's name (the source card already shows the name)
+- Leading with source identity — accessible content always comes first
+- Repeating the exact source name shown in the card label; the institution or authority name is fine and often important
 - Repetition of information already visible in the source name or title
 
 **Worked example (Prairie Moon)**:
-> "An online guide and nursery catalog for native wildflowers, grasses, and sedges of the Midwest and Great Plains. Each plant has growing notes, ecological information, and nursery availability. Covers roughly 970 species."
+> "Growing notes, ecological information, and nursery availability for roughly 970 native wildflowers, grasses, and sedges of the Midwest and Great Plains. From Prairie Moon Nursery, a leading native plant nursery and field reference resource for the region."
 
 ---
 
