@@ -23,7 +23,7 @@ export const MIFLORA_ATTRIBUTION = {
 export const MIFLORA_GENERAL_SUMMARY =
   "Michigan Flora Online is published by the University of Michigan Herbarium and authored by Reznicek, Voss, and Walters (2011). " +
   "It covers all documented native and introduced non-native (adventive) vascular plant species in Michigan across all 83 counties. " +
-  "FERNS queries this source via its public REST API and caches results per species (30 days for found species, 7 days for not-found). " +
+  "FERNS queries this source via its public REST API and caches results between requests. " +
   "A species query returns family, common name, native or adventive status, botanical description text, a primary plant image, synonyms, and county-level occurrence records. " +
   "Each species record also carries three ecological metrics: a Coefficient of Conservatism (C-value, 0–10 for native species, '*' for adventive species), " +
   "a Coefficient of Wetness (W-value, −5 to +5), and a Wetland Indicator Status code (OBL/FACW/FAC/FACU/UPL). " +
@@ -68,7 +68,7 @@ export const MIFLORA_TECHNICAL_DETAILS =
   "Other quirks: scientific names are inconsistently cased — adventive species names returned ALL-CAPS by the API. " +
   "synonyms endpoint returns {synonyms:[...]} when synonyms exist, or {message:'No synonyms found'} when none — both shapes passed through. " +
   "flora_search_sp may return multiple records (subspecies, varieties) for one query — all records included in search_records. " +
-  "Method: api_fetch. FERNS cache TTLs: species 30 days (hit), 7 days (no-match); counties 30 days.";
+  "Method: api_fetch. Results are cached between requests.";
 
 export const MIFLORA_REGISTRY_ENTRY = {
   source_id: MIFLORA_SOURCE_ID,
@@ -85,7 +85,7 @@ export const MIFLORA_REGISTRY_ENTRY = {
     "descriptive text; plant images; synonyms; county-level occurrence records for all 83 Michigan counties",
   dependencies: [] as string[],
   update_frequency:
-    "Static. Michigan Flora Online (2011) is a published reference work. Content does not change. FERNS cache TTLs: species 30 days; county records 30 days.",
+    "Static. Michigan Flora Online (2011) is a published reference work. Content does not change.",
   known_limitations:
     "Coverage limited to Michigan only. Scientific name casing is inconsistent in the source API " +
     "(adventive species names are ALL-CAPS). The st field uses the literal string 'NULL' for unknown " +

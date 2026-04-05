@@ -28,8 +28,7 @@ export const NATURESERVE_GENERAL_SUMMARY =
   "global and national ranks and ecosystem descriptions for ecological systems / natural communities. " +
   "Geographic scope: Americas-wide for global ranks; US for national ranks; configurable US state " +
   "(default Michigan) for state ranks. " +
-  "Data accessed via NatureServe Explorer's public REST API; cached 30 days per NatureServe's " +
-  "recommendation for slowly-changing conservation data. " +
+  "Data accessed via NatureServe Explorer's public REST API; results are cached between requests. " +
   "A species query returns scientific name, common name, all rank codes, IUCN category, federal listing " +
   "status, and a direct URL to the NatureServe Explorer species record. " +
   "Conservation ranks are reviewed on species-specific cycles (typically 1–10 years); NatureServe's " +
@@ -53,7 +52,7 @@ export const NATURESERVE_TECHNICAL_DETAILS =
   "COSEWIC (Canada): E=Endangered, T=Threatened, SC=Special Concern, NAR=Not at Risk. " +
   "State rank is extracted from elementNationals[nation=US].elementSubnationals[subnation={stateCode}].srank. " +
   "Ecosystems: ecosystemGlobal.conceptSentence provides the ecosystem description. " +
-  "Method: api_fetch. FERNS cache TTL: 30 days for all NatureServe data.";
+  "Method: api_fetch. Results are cached between requests.";
 
 export const NATURESERVE_REGISTRY_ENTRY = {
   source_id: NATURESERVE_SOURCE_ID,
@@ -72,7 +71,7 @@ export const NATURESERVE_REGISTRY_ENTRY = {
     "Ecosystems: system name, global rank, US national rank, concept description, NatureServe Explorer URL.",
   dependencies: [] as string[],
   update_frequency:
-    "Live API. Conservation ranks reviewed on conservation status review cycles (varies by taxon, typically every 1–10 years). FERNS cache TTL: 30 days.",
+    "Live API. Conservation ranks reviewed on conservation status review cycles (varies by taxon, typically every 1–10 years).",
   known_limitations:
     "State rank is only returned for the queried state (default MI). NatureServe quickSearch may return the most prominent matching taxon rather than an exact scientific name match — verify returned scientific name against query. " +
     "Ecosystem conceptSentence may be null for some ecosystems with incomplete records. " +

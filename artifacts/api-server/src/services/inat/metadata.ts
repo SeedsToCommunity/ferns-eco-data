@@ -23,15 +23,13 @@ export const INAT_GENERAL_SUMMARY =
   "Observation and species data from iNaturalist (inaturalist.org), a citizen science platform " +
   "operated jointly by the California Academy of Sciences and the National Geographic Society, " +
   "with over 200 million observations contributed by millions of users worldwide. " +
-  "Data types: place ID lookup for geographic filtering; species appearance data including " +
-  "representative photos, Wikipedia summaries, common names, conservation status, and native/introduced status; " +
-  "and month-by-month phenology (what stage — flowering, budding, fruiting — a species is typically in) " +
-  "derived from community-added annotations. " +
+  "FERNS exposes three data types from iNaturalist: place ID lookup for geographic filtering; " +
+  "species appearance data (representative photos, Wikipedia summaries, common names, conservation status, and native/introduced status); " +
+  "and month-by-month phenology derived from community-added annotations showing what stage a species is typically in (flowering, budding, or fruiting). " +
   "Geographic scope: global; taxonomic scope: all organisms (FERNS uses it for vascular plants). " +
   "iNaturalist maintains its own taxonomic backbone independently of GBIF, BONAP, and Michigan Flora — " +
   "name divergence across FERNS sources is expected. " +
-  "All data accessed through the iNaturalist v1 REST API and cached per species; " +
-  "place IDs are cached permanently, species appearance for 30 days, phenology for 7 days. " +
+  "All data accessed through the iNaturalist v1 REST API and cached between requests. " +
   "A species query returns photos, Wikipedia description, common names, conservation status, native status, " +
   "global observation count, and month-by-month phenological stage breakdowns. " +
   "Phenological annotation coverage is uneven — many species have sparse or no stage annotations. " +
@@ -51,8 +49,7 @@ export const INAT_TECHNICAL_DETAILS =
   "Phenological annotations added voluntarily — coverage is uneven, often sparse or absent. " +
   "Research Grade observations (community-confirmed, open license) are published to GBIF; " +
   "overlap with FERNS GBIF service is expected and is an application-layer concern. " +
-  "Method: api_fetch. FERNS cache TTLs: place IDs permanent, species appearance 30 days, phenology 7 days, " +
-  "no-match species 7 days, no-annotation phenology 7 days.";
+  "Method: api_fetch. Results are cached between requests.";
 
 export const INAT_REGISTRY_ENTRY = {
   source_id: INAT_SOURCE_ID,
@@ -60,10 +57,11 @@ export const INAT_REGISTRY_ENTRY = {
   knowledge_type: "source_wrapper",
   status: "live",
   description:
-    "Observation and species data from a global citizen science platform with over 200 million nature sightings. " +
-    "Provides place ID lookup, species photos and descriptions, native/introduced status, conservation status, " +
-    "and month-by-month phenology (when a species is flowering, budding, or fruiting) from community annotations. " +
-    "FERNS provides URLs to query live observation records directly.",
+    "Species photos, Wikipedia summaries, common names, native or introduced status, conservation status, " +
+    "monthly sighting counts, and phenological stage annotations (flowering, budding, fruiting) for any searchable species worldwide; " +
+    "also constructs direct URLs for querying live observation records by taxon, place, or both. " +
+    "From iNaturalist, a global citizen science platform operated by the California Academy of Sciences and National Geographic Society " +
+    "with over 200 million user observations.",
   input_summary:
     "Place name (for place ID resolution); species name (for appearance and phenology); place IDs (for phenology filtering)",
   output_summary:
@@ -72,7 +70,7 @@ export const INAT_REGISTRY_ENTRY = {
     "(flowering, fruiting, budding) by month; direct URLs for querying live iNaturalist observation records",
   dependencies: [] as string[],
   update_frequency:
-    "Live. iNaturalist data changes continuously. FERNS cache TTLs: place IDs permanent; species appearance 30 days; phenology 7 days.",
+    "Live — iNaturalist data is continuously updated by the global community.",
   known_limitations:
     "Two API calls are always required for species appearance (search then full record). " +
     "Phenological annotation coverage is uneven — many species have sparse or no annotations. " +

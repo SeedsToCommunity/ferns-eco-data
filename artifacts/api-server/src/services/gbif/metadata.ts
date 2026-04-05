@@ -30,8 +30,7 @@ export const GBIF_GENERAL_SUMMARY =
   "A name-match query returns taxonomic rank, GBIF backbone key, match confidence, and whether the name " +
   "is accepted or a synonym; occurrence queries return count and georeferenced records with coordinates, " +
   "basis of record, and collection date. " +
-  "Data is licensed CC BY 4.0; backbone updated approximately annually; occurrence index updated continuously; " +
-  "FERNS cache TTLs are 30 days for name data and 7 days for occurrence data. " +
+  "Data is licensed CC BY 4.0; backbone updated approximately annually; occurrence index updated continuously. " +
   "Consumers must inspect match_type in every response: HIGHERRANK means the name resolved only to genus " +
   "or family level and must not be treated as a species-level confirmation; DOUBTFUL status means the name " +
   "exists in the backbone but its taxonomic standing is uncertain. " +
@@ -59,8 +58,7 @@ export const GBIF_TECHNICAL_DETAILS =
   "name agreement between GBIF and BONAP is NOT independent corroboration. " +
   "iNaturalist publishes its observations to GBIF; GBIF occurrence counts include iNaturalist records. " +
   "If combining with a separate iNaturalist source, account for double-counting at the application layer. " +
-  "Method: api_fetch. FERNS caches results per species with TTLs: name match 30d, " +
-  "occurrence records 7d, synonyms 30d, vernacular names 90d, no-match 7d.";
+  "Method: api_fetch. Results are cached between requests.";
 
 export const GBIF_VOCABULARIES = {
   basisOfRecord: [
@@ -187,7 +185,7 @@ export const GBIF_REGISTRY_ENTRY = {
     "Taxonomic name match with GBIF backbone key and classification; synonym list; vernacular (common) names; occurrence count and recent georeferenced records with configurable geography",
   dependencies: [] as string[],
   update_frequency:
-    "Live API. Backbone updated approximately annually. Occurrence index updated continuously. FERNS cache TTLs: name match 30 days, synonyms 30 days, vernacular names 90 days, occurrence data 7 days, no-match 7 days.",
+    "Live API. Backbone updated approximately annually. Occurrence index updated continuously.",
   known_limitations:
     "found: true means the name resolved to something in the GBIF backbone, but applications must check match_type to determine whether that match is at the species level or fell back to a higher rank (HIGHERRANK). A HIGHERRANK result should not be treated as a confirmed species identification. Backbone may diverge from BONAP taxonomy for contested North American plant names. Vernacular names are uncontrolled and of variable quality. iNaturalist records appear in GBIF occurrence counts — do not count both as independent. usageKeys may change across annual backbone rebuilds.",
   metadata_url: "/api/gbif/metadata",

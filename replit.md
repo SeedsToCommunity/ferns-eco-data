@@ -226,7 +226,7 @@ These three fields are required on every FERNS source. They are structured deliv
 3. Exact access method: URL patterns, API endpoints, sitemap path, scraping strategy, parsing logic — include all edge cases and known exceptions
 4. Scientific name inference or parsing logic, if applicable — document every rule and edge case
 5. Database schema: table name(s), key columns, primary key, unique constraints, index strategy
-6. Caching policy: TTL value, refresh strategy, cache invalidation behavior, what `?refresh=true` does if implemented
+6. Caching policy: what is cached, refresh strategy, cache invalidation behavior, what `?refresh=true` does if implemented — do not include specific TTL day values (see rule below)
 7. Response normalization: what FERNS adds, changes, or omits relative to the upstream data; any field transformations
 8. All coded or enumerated field values with their complete meaning (e.g. OBL = Obligate Wetland; C=10 = highest ecological fidelity to undisturbed habitat; W=−5 = most strongly wetland-affiliated)
 9. Coverage: record count, geographic region, taxonomic scope, date range if relevant — always use specific numbers
@@ -244,6 +244,21 @@ These three fields are required on every FERNS source. They are structured deliv
 
 **Worked example (Prairie Moon, excerpt)**:
 > "Primary source: https://www.prairiemoon.com/sitemap.xml. Operator: Prairie Moon Nursery, Winona, MN (prairiemoon.com). Access method: sitemap_scrape. Sitemap parsed at import time; plant URLs filtered from root-level paths matching {genus}-{species}-{common-name-slug}, excluding /category/, /cart/, and /info/ paths (~970 plant URLs at last import). Scientific name inference from URL slug: genus = parts[0] capitalized; species = parts[1] lowercase; trinomial recognized when parts[2] is 'subsp' or 'var' (infraspecific epithet = parts[3]). DB table: botanical_species_lists (columns: id, site_id, scientific_name, url, imported_at; unique on (site_id, scientific_name)). Caching: full import on demand via POST /api/prairie-moon/import (admin-protected); no TTL; data is permanent until re-imported. FERNS returns: found (bool), species (inferred scientific name string), url (direct plant page URL string), validation_method = 'species_list_lookup', imported_at (timestamp). Lookup: ILIKE match on scientific_name column — case-insensitive, no fuzzy matching, exact binomial required. Known limitation: URL slug spelling may not match current accepted taxonomy (synonyms, older names not yet updated on the Prairie Moon site). Prairie Moon is a nursery catalog, not a scientific taxonomic authority. It does not provide distribution data, nativity status, conservation status, or C-values. For taxonomy: use GBIF (`gbif`). For Michigan distribution: use Michigan Flora (`miflora`). For regional distribution: use BONAP (`bonap`). For C-values: use Universal FQA (`universal-fqa`). Prairie Moon is useful specifically when you need to confirm nursery availability or retrieve a direct plant page URL for a Midwest or Great Plains native species."
+
+---
+
+### Rule Applying to All Three Description Fields — No Internal Cache TTL Values
+
+Do not include specific cache duration values (e.g. "30 days", "7 days", "90 days", "permanent") in `description`, `general_summary`, `technical_details`, or `update_frequency` text. Cache TTLs are implementation details defined in the code and can change without any change to the source's data or methodology. Hardcoding them in description fields creates silent drift when a TTL is adjusted.
+
+**Use qualitative language instead:**
+- In `technical_details`: `"Method: api_fetch. Results are cached between requests."`
+- In `update_frequency`: describe only the upstream source's refresh cadence, not FERNS's caching interval. Examples:
+  - `"Live — iNaturalist data is continuously updated by the global community."`
+  - `"Live API. Backbone updated approximately annually. Occurrence index updated continuously."`
+  - `"Static. Michigan Flora Online (2011) is a published reference work. Content does not change."`
+
+The precise TTL for each cache entry lives in the source's `cache.ts` file and is the authoritative reference for cache duration.
 
 ---
 
