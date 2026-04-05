@@ -16,24 +16,23 @@ export const GBIF_ATTRIBUTION = {
 };
 
 export const GBIF_GENERAL_SUMMARY =
-  "Taxonomic name matching, synonym resolution, common names, and species occurrence records from the " +
+  "Plant scientific name lookup, synonym resolution, common names, and occurrence records from the " +
   "Global Biodiversity Information Facility (GBIF), an intergovernmental organization aggregating " +
   "biodiversity records from nearly 2,000 institutions including museums, universities, and citizen " +
   "science platforms worldwide. " +
-  "GBIF's Backbone Taxonomy covers all kingdoms; FERNS uses it here for vascular plant name matching " +
-  "(checking whether a name is current or a synonym), finding common names, and retrieving georeferenced " +
+  "GBIF's Backbone Taxonomy (a master reference classification of all known organisms) covers all kingdoms; " +
+  "FERNS uses it here for vascular plants — specifically to verify whether a scientific name is currently " +
+  "accepted or has been replaced by a synonym, to find common names, and to retrieve location-tagged " +
   "sighting records across North America. " +
-  "Taxonomic scope: all vascular plants globally; geographic scope for occurrence queries is configurable " +
-  "by country, continent, or GBIF taxon key. " +
-  "All data is accessed through GBIF's public REST API and cached per species to reduce redundant requests; " +
-  "no GBIF data is stored in FERNS's database. " +
-  "A name-match query returns taxonomic rank, GBIF backbone key, match confidence, and whether the name " +
-  "is accepted or a synonym; occurrence queries return count and georeferenced records with coordinates, " +
-  "basis of record, and collection date. " +
+  "Geographic scope for occurrence queries is configurable by country, continent, or GBIF taxon key. " +
+  "All data is accessed through GBIF's public REST API; no GBIF data is stored in FERNS's database. " +
+  "A name-match query returns the GBIF backbone key, match confidence, and whether the name is accepted " +
+  "or a synonym; occurrence queries return count and location-tagged records with coordinates, basis of " +
+  "record, and collection date. " +
   "Data is licensed CC BY 4.0; backbone updated approximately annually; occurrence index updated continuously. " +
   "Consumers must inspect match_type in every response: HIGHERRANK means the name resolved only to genus " +
   "or family level and must not be treated as a species-level confirmation; DOUBTFUL status means the name " +
-  "exists in the backbone but its taxonomic standing is uncertain. " +
+  "exists in the backbone but its standing is uncertain. " +
   "iNaturalist research-grade observations are published to GBIF — GBIF occurrence counts therefore overlap " +
   "with FERNS's iNaturalist service; treat simultaneous queries to both as complementary views, not independent datasets.";
 
@@ -178,7 +177,8 @@ export const GBIF_REGISTRY_ENTRY = {
   knowledge_type: "source_wrapper",
   status: "live",
   description:
-    "Taxonomic name matching, synonym lookup, common name search, and occurrence records from an international biodiversity data aggregator covering nearly 2,000 institutions worldwide. Used to verify whether a plant name is current or a synonym, to find common names, and to retrieve georeferenced sighting records across North America. All data is CC BY 4.0.",
+    "Plant scientific name lookup and verification — checks whether a name is currently accepted or has been replaced by a newer one — plus synonym lists, common names, and location-tagged sighting records across North America. " +
+    "From the Global Biodiversity Information Facility (GBIF), an intergovernmental organization aggregating biodiversity records from nearly 2,000 institutions worldwide. All data is CC BY 4.0.",
   input_summary:
     "Scientific name (for matching and reconciliation), GBIF usageKey (for synonyms, vernacular names, and occurrences), or common name string (for vernacular search)",
   output_summary:
