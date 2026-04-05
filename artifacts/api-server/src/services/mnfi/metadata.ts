@@ -11,24 +11,21 @@ export const MNFI_PERMISSION_STATUS =
   "No authentication is required for any MNFI data consumed by FERNS.";
 
 export const MNFI_GENERAL_SUMMARY =
-  "Michigan's authoritative natural community classification and county element data, maintained by " +
-  "the Michigan Natural Features Inventory (MNFI) at Michigan State University Extension. " +
-  "FERNS imports 77 natural community types spanning 5 ecological classes and 18 community groups, " +
-  "each with NatureServe global rank, Michigan state rank, description sections (overview, landscape " +
-  "context, soils, natural processes, vegetation, management), and characteristic plant lists by life form. " +
-  "Geographic scope: Michigan only (all 83 counties, Lower and Upper Peninsula). " +
-  "Community classification data is imported from MNFI's public website; county element data is " +
-  "fetched from MNFI's public JSON API (countyQuery and countyCommunityQuery endpoints), " +
-  "covering 7,289 records (6,360 species + 929 community occurrences) across all 83 Michigan counties. " +
-  "A community query returns name, class, group, conservation ranks, full description, characteristic " +
-  "plant list, MNFI URL, and county distribution map link; a county element query returns species and " +
-  "community occurrences with conservation status codes and last observation year. " +
-  "Community descriptions require a one-time import step (POST /api/mnfi/import-descriptions) and may " +
-  "be null until run; county element data similarly requires POST /api/mnfi/import-county-elements. " +
-  "Citation: Cohen et al. 2025. Michigan Natural Community Classification. MNFI, MSU Extension. " +
-  "MNFI community types align with NatureServe ecological systems at the national scale — MNFI provides " +
-  "Michigan field-level detail (characteristic plants, county maps, management notes) that NatureServe's " +
-  "national classification does not; combining both FERNS services gives the most complete picture.";
+  "The Michigan Natural Features Inventory (MNFI), a research program of Michigan State University Extension, " +
+  "maintains Michigan's authoritative classification of natural communities — the 77 recurring plant community types " +
+  "(such as oak woodlands, sedge meadows, and bog forests) that define Michigan's ecological landscape. " +
+  "FERNS hosts the complete community classification: 77 types spanning 5 ecological classes and 18 community groups, " +
+  "each with a NatureServe global rank and Michigan state rank (measures of imperilment ranging from G1/S1 = critically imperiled " +
+  "to G5/S5 = secure), plus full ecological descriptions covering landscape context, soils, natural processes, vegetation, " +
+  "and management considerations, and characteristic plant lists by life form. " +
+  "County element data covers all 83 Michigan counties, with approximately 6,360 species records and 929 community records " +
+  "documenting which species and communities have been observed in each county, along with conservation status codes and last observation year. " +
+  "FERNS imports community classification data from MNFI's public website and API at startup; all data is available immediately on a correctly configured deployment. " +
+  "A community query returns name, class, group, conservation ranks, full description, characteristic plant list, MNFI URL, and county distribution map link; " +
+  "a county element query returns species and community occurrences with conservation status codes and last observation year. " +
+  "MNFI community types align with NatureServe ecological systems at the national scale — MNFI provides Michigan field-level detail " +
+  "(characteristic plants, county maps, management notes) that NatureServe's national classification does not; " +
+  "using both FERNS services together gives the most complete picture of a community type.";
 
 export const MNFI_TECHNICAL_DETAILS =
   "Primary source: Michigan Natural Features Inventory Natural Community Classification " +
@@ -64,10 +61,10 @@ export const MNFI_REGISTRY_ENTRY = {
   knowledge_type: "source_wrapper" as const,
   status: "live" as const,
   description:
-    "Michigan's authoritative natural community classification covering 77 natural community types " +
-    "organized into 5 ecological classes and 18 community groups, with NatureServe global and Michigan " +
-    "state conservation ranks, full community descriptions, characteristic plant lists, and county element " +
-    "occurrence data (species and communities recorded per county) for all 83 Michigan counties.",
+    "Natural community classifications, conservation ranks, ecological descriptions, characteristic plant lists, " +
+    "and county-level occurrence records for species and communities across all 83 Michigan counties — " +
+    "covering 77 community types spanning Michigan's major ecological zones. " +
+    "From the Michigan Natural Features Inventory (MNFI), a research program of Michigan State University Extension.",
   input_summary:
     "Community ID, slug, or name; or Michigan county name for county element lookups",
   output_summary:
@@ -91,5 +88,11 @@ export const MNFI_REGISTRY_ENTRY = {
   permission_granted: MNFI_PERMISSION_GRANTED,
   permission_status: MNFI_PERMISSION_STATUS,
   general_summary: MNFI_GENERAL_SUMMARY,
-  technical_details: MNFI_TECHNICAL_DETAILS,
+  technical_details:
+    MNFI_TECHNICAL_DETAILS +
+    " Startup behavior: on first startup, the server automatically checks whether community descriptions are populated " +
+    "and, if not, runs the three import endpoints in sequence as a background task (non-blocking): " +
+    "POST /api/mnfi/import-descriptions, POST /api/mnfi/import-plant-lists, POST /api/mnfi/import-county-elements. " +
+    "Requires ADMIN_SECRET environment variable to be set. " +
+    "Subsequent startups skip the import if data is already present (idempotent check on description_fetched_at).",
 };
