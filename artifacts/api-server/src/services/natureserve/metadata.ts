@@ -23,17 +23,19 @@ export const NATURESERVE_GENERAL_SUMMARY =
   "Conservation status and ecological systems data from NatureServe Explorer, the authoritative " +
   "conservation status database for species and ecosystems across the Americas, maintained by " +
   "NatureServe and its 80+ member programs including state Natural Heritage Programs. " +
-  "Data types: global ranks (G1–G5), US national ranks (N1–N5), state ranks (S1–S5), IUCN Red List " +
-  "categories, US federal ESA listing status, CITES status, and COSEWIC status for species; " +
-  "global and national ranks and ecosystem descriptions for ecological systems / natural communities. " +
+  "FERNS exposes two data types from NatureServe: species conservation status (global rank G1–G5, " +
+  "US national rank N1–N5, and state rank S1–S5, where 1 = critically imperiled and 5 = secure; " +
+  "plus IUCN Red List category, US federal Endangered Species Act listing status, " +
+  "CITES trade restriction status, and COSEWIC status for Canadian populations); " +
+  "and ecological systems (natural community types with global and national ranks and a concept description). " +
   "Geographic scope: Americas-wide for global ranks; US for national ranks; configurable US state " +
   "(default Michigan) for state ranks. " +
   "Data accessed via NatureServe Explorer's public REST API; results are cached between requests. " +
   "A species query returns scientific name, common name, all rank codes, IUCN category, federal listing " +
-  "status, and a direct URL to the NatureServe Explorer species record. " +
+  "status, and a direct link to the NatureServe Explorer species record. " +
   "Conservation ranks are reviewed on species-specific cycles (typically 1–10 years); NatureServe's " +
-  "Element Occurrence spatial data (precise locality records) is restricted to member programs and is " +
-  "not available through this integration. " +
+  "Element Occurrence data (precise locality records showing exactly where a species has been documented) " +
+  "is restricted to member programs and is not available through this integration. " +
   "NatureServe national conservation ranks complement MNFI's Michigan-specific field data — MNFI provides " +
   "detailed community descriptions and county distribution maps for Michigan, while NatureServe provides " +
   "broader Americas-scale conservation context; both services may be combined for a complete picture.";
@@ -60,10 +62,10 @@ export const NATURESERVE_REGISTRY_ENTRY = {
   knowledge_type: "source_wrapper",
   status: "live",
   description:
-    "Conservation status rankings and ecological systems data covering species and ecosystems across " +
-    "the Americas, aggregated from 80+ member programs including state Natural Heritage Programs. " +
-    "Provides global ranks (G1–G5), US national ranks (N1–N5), state ranks, IUCN Red List category, " +
-    "federal ESA listing status, and natural communities classification at national scale.",
+    "Conservation status ratings and ecological descriptions for plant and animal species across the Americas — " +
+    "how imperiled each species is globally, within the U.S., and within a specific state, " +
+    "plus federal and international protection statuses. " +
+    "From NatureServe, a nonprofit that coordinates conservation assessments across 80+ natural heritage programs throughout the Americas.",
   input_summary:
     "Scientific or common name string for species search; common name or ecosystem name for ecological systems search; optional US state code (default MI) for state rank",
   output_summary:
