@@ -25,7 +25,7 @@ export const GBIF_GENERAL_SUMMARY =
   "accepted or has been replaced by a synonym, to find common names, and to retrieve location-tagged " +
   "sighting records across North America. " +
   "Geographic scope for occurrence queries is configurable by country, continent, or GBIF taxon key. " +
-  "All data is accessed through GBIF's public REST API; no GBIF data is stored in FERNS's database. " +
+  "All data is accessed through GBIF's public REST API; query results are cached locally and reused for subsequent queries. " +
   "A name-match query returns the GBIF backbone key, match confidence, and whether the name is accepted " +
   "or a synonym; occurrence queries return count and location-tagged records with coordinates, basis of " +
   "record, and collection date. " +
@@ -34,7 +34,11 @@ export const GBIF_GENERAL_SUMMARY =
   "or family level and must not be treated as a species-level confirmation; DOUBTFUL status means the name " +
   "exists in the backbone but its standing is uncertain. " +
   "iNaturalist research-grade observations are published to GBIF — GBIF occurrence counts therefore overlap " +
-  "with FERNS's iNaturalist service; treat simultaneous queries to both as complementary views, not independent datasets.";
+  "with FERNS's iNaturalist service; treat simultaneous queries to both as complementary views, not independent datasets. " +
+  "BONAP (bonap-napa) and GBIF draw on overlapping North American plant taxonomic sources — name agreement between them is not independent corroboration. " +
+  "For Michigan county-level distribution with nativity and botanical context, use Michigan Flora (miflora). " +
+  "For authoritative conservation status ranks (G/N/S), use NatureServe (natureserve) — GBIF surfaces IUCN categories through its backbone, but NatureServe's element-based ranking is independently assessed. " +
+  "GBIF is the only FERNS source for global taxonomic backbone lookups, accepted-name verification across all kingdoms, and worldwide occurrence record aggregation across nearly 2,000 institutions.";
 
 export const GBIF_TECHNICAL_DETAILS =
   "Source: GBIF.org. Data licensed CC BY 4.0. " +
@@ -57,7 +61,17 @@ export const GBIF_TECHNICAL_DETAILS =
   "name agreement between GBIF and BONAP is NOT independent corroboration. " +
   "iNaturalist publishes its observations to GBIF; GBIF occurrence counts include iNaturalist records. " +
   "If combining with a separate iNaturalist source, account for double-counting at the application layer. " +
-  "Method: api_fetch. Results are cached between requests.";
+  "Method: api_fetch. Results are cached between requests. " +
+  "DB tables: gbif_name_matches (columns: cache_key unique, canonical_name, usage_key, accepted_usage_key, accepted_canonical_name, rank, status, confidence, match_type, kingdom through species hierarchy + corresponding keys, matched_input, expires_at); " +
+  "gbif_synonyms (columns: cache_key unique, usage_key, synonyms jsonb, synonym_count); " +
+  "gbif_vernacular_names (columns: cache_key unique, usage_key, vernacular_names jsonb, vernacular_name_primary, vernacular_name_count); " +
+  "gbif_occurrences (columns: cache_key unique, usage_key, geography_mode, geography_params, occurrence_count, occurrence_count_us, recent_occurrences jsonb, occurrence_last_fetched). " +
+  "Overlap with other FERNS sources: BONAP (bonap-napa) and GBIF draw on overlapping North American plant taxonomic sources — name agreement between them is not independent corroboration. " +
+  "iNaturalist (inaturalist) research-grade observations are published to GBIF — occurrence counts overlap and must not be double-counted. " +
+  "For Michigan county-level distribution with nativity and botanical context, use Michigan Flora (miflora). " +
+  "For conservation status and imperilment ranks, use NatureServe (natureserve) — NatureServe's G/N/S ranking system is independent of GBIF's IUCN backbone data. " +
+  "For FQA ecological quality assessment, use Universal FQA (universal-fqa). " +
+  "GBIF is the only FERNS source for global taxonomic backbone lookups, synonym chains, and worldwide occurrence record aggregation across nearly 2,000 institutions.";
 
 export const GBIF_VOCABULARIES = {
   basisOfRecord: [

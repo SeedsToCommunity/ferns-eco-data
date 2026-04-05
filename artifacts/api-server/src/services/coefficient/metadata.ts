@@ -14,7 +14,7 @@ export const COEFFICIENT_GENERAL_SUMMARY =
   "'*' = non-native/adventive species for which no C-value is assigned. " +
   "Geographic and taxonomic scope: global methodology, but C-values are always calibrated regionally " +
   "by local botanical authorities — the same species may have different values in different regions. " +
-  "This source serves as an in-memory vocabulary reference; no API call is made at query time. " +
+  "This source serves as a static vocabulary reference within FERNS; results are returned from built-in reference data at query time. " +
   "A query returns the full definition for a given C-value: short label, ecological meaning, " +
   "scientific description, authority, and disambiguation from related metrics. " +
   "Definitions do not change; this source is perpetually current. " +

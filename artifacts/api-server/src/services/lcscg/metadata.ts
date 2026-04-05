@@ -50,7 +50,13 @@ export const LCSCG_TECHNICAL_DETAILS =
   "494 total records, all unique by scientific name. " +
   "Non-native Do Not Collect species included: Daucus carota, Cirsium vulgare, Phleum pratense, " +
   "Abutilon theophrasti, Dianthus armeria, others. " +
-  "FERNS does NOT cross-reference LCSCG records with any other FERNS source.";
+  "FERNS does not cross-reference LCSCG records with any other FERNS source. " +
+  "Overlap with other FERNS sources: For taxonomy verification of a species found in LCSCG data, use GBIF (gbif) — LCSCG nomenclature follows Flora of the Chicago Region (2017) and may not match GBIF accepted names. " +
+  "For county-level distribution, use BONAP (bonap-napa) or, for Michigan species, Michigan Flora (miflora). " +
+  "For C-values and ecological quality assessment, use Universal FQA (universal-fqa) or Michigan Flora (miflora) — LCSCG provides no C-values. " +
+  "For conservation status of LCSCG-listed species, use NatureServe (natureserve). " +
+  "For observation photos and phenology of LCSCG species, use iNaturalist (inaturalist). " +
+  "LCSCG is the only FERNS source for seed harvest guidance: seed dispersal category, harvest technique notes, collection timing (photo date), and guide photographs organized by season and habitat.";
 
 export const LCSCG_REGISTRY_ENTRY = {
   source_id: LCSCG_SOURCE_ID,

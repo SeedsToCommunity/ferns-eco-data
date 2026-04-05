@@ -34,7 +34,16 @@ export const MINNESOTA_WILDFLOWERS_TECHNICAL_DETAILS =
   "URL pattern: https://www.minnesotawildflowers.info/{category}/{common-name-slug} " +
   "where category is flower, tree, grass-sedge-rush, fern, shrub, vine, or aquatic. " +
   "Lookup method: ILIKE match on stored scientific_name (case-insensitive). " +
-  "Method: species_list_scrape with DB lookup. No HTTP validation at query time.";
+  "Method: species_list_scrape with DB lookup. No HTTP validation at query time. " +
+  "DB table: botanical_species_lists (columns: id serial PK, site_id text, scientific_name text, url text, section text, imported_at; " +
+  "unique on (site_id, scientific_name, section)). Coverage: ~1,861 taxa at last import. " +
+  "Overlap with other FERNS sources: For comparable regional references, use Illinois Wildflowers (illinois-wildflowers) for Illinois, " +
+  "Missouri Plants (missouri-plants) for Missouri, Go Botany (gobotany) for New England. " +
+  "For North America-wide plant reference, use Lady Bird Johnson Wildflower Center (lady-bird-johnson) or USDA PLANTS (usda-plants). " +
+  "For plant scientific name verification, use GBIF (gbif). For county-level distribution, use BONAP (bonap-napa). " +
+  "For nursery availability of Midwest species, use Prairie Moon (prairie-moon). " +
+  "Minnesota Wildflowers is the only FERNS source for Minnesota species-specific botanical profile URLs " +
+  "organized by plant type with common-name slug addressing.";
 
 export const MINNESOTA_WILDFLOWERS_REGISTRY_ENTRY = {
   source_id: MINNESOTA_WILDFLOWERS_SOURCE_ID,
@@ -42,10 +51,8 @@ export const MINNESOTA_WILDFLOWERS_REGISTRY_ENTRY = {
   knowledge_type: "web_reference",
   status: "live",
   description:
-    "Photographic field guide for native and naturalized plants of Minnesota, covering ~1,861 taxa " +
-    "with photos, descriptions, and identification notes. " +
-    "FERNS indexes the species list and returns direct species profile URLs; " +
-    "URLs use common-name slugs not derivable from scientific names alone.",
+    "Photographic field guide and species profiles for native and naturalized plants of Minnesota, covering roughly 1,861 taxa with photos, descriptions, and identification notes. " +
+    "From Minnesota Wildflowers, a photographic botanical reference maintained by Sue Dingwell.",
   input_summary: "Scientific name (binomial: genus + species epithet)",
   output_summary:
     "Direct URL to the Minnesota Wildflowers species page, or found: false if not indexed",

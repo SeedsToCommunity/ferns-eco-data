@@ -15,16 +15,22 @@ export const USDA_PLANTS_GENERAL_SUMMARY =
   "Status, legal status, and related resources; covers vascular plants, mosses, liverworts, hornworts, " +
   "and lichens in the United States and its territories. " +
   "Geographic scope: US and territories; taxonomic scope: all land plants. " +
-  "FERNS constructs a search URL from the scientific name — " +
-  "plants.usda.gov/home/basicSearchResults?nameSearch={name} — no data is stored locally " +
-  "and no HTTP validation is performed; USDA PLANTS accepts any query. " +
+  "FERNS constructs a plant search link from the scientific name at query time; no data is stored locally and no HTTP validation is performed. " +
   "A query returns a search results URL; profile URLs require knowing the USDA symbol code " +
   "(e.g., ACRU for Acer rubrum), which cannot be derived from the scientific name without a lookup. " +
   "The search results page is JavaScript-rendered (React SPA) and requires a browser to display results. " +
   "Live — URLs are constructed at query time; the USDA PLANTS database is updated continuously by NRCS. " +
   "USDA PLANTS is the federal nomenclatural authority and overlaps in name coverage with GBIF and BONAP; " +
   "GBIF and BONAP both draw on USDA PLANTS-derived taxonomy, so name agreement across those FERNS services " +
-  "is not independent corroboration — USDA PLANTS is the authoritative US government source.";
+  "is not independent corroboration — USDA PLANTS is the authoritative US government source. " +
+  "For Michigan county-level distribution, use Michigan Flora (miflora). " +
+  "For citizen science occurrence data, use iNaturalist (inaturalist). " +
+  "For conservation status and imperilment ranks, use NatureServe (natureserve). " +
+  "For regional species-specific botanical profile URLs, use Go Botany (gobotany) for New England, " +
+  "Illinois Wildflowers (illinois-wildflowers) for Illinois, Minnesota Wildflowers (minnesota-wildflowers) for Minnesota, " +
+  "Missouri Plants (missouri-plants) for Missouri. " +
+  "USDA PLANTS is the only FERNS source for federal legal status, US government wetland indicator ratings by NRCS, " +
+  "and coverage of all US and territory land plants including mosses, liverworts, hornworts, and lichens.";
 
 export const USDA_PLANTS_TECHNICAL_DETAILS =
   "Source: https://plants.usda.gov. Operated by USDA Natural Resources Conservation Service (NRCS). " +
@@ -35,7 +41,19 @@ export const USDA_PLANTS_TECHNICAL_DETAILS =
   "FERNS therefore returns a search results URL rather than a direct profile URL. " +
   "Method: direct_construction (no HTTP validation — search URL always valid). " +
   "The search results page is JavaScript-rendered (React SPA); " +
-  "the returned URL requires a browser to display results.";
+  "the returned URL requires a browser to display results. " +
+  "No DB table — URL is constructed at query time (direct_construction); no data is persisted. " +
+  "Coverage: US and territories; all land plants (vascular plants, mosses, liverworts, hornworts, lichens). " +
+  "Overlap with other FERNS sources: GBIF (gbif) and BONAP (bonap-napa) both draw on USDA PLANTS-derived taxonomy — " +
+  "name agreement across these FERNS sources is not independent corroboration. " +
+  "For Michigan county-level distribution, use Michigan Flora (miflora). " +
+  "For citizen science occurrence data, use iNaturalist (inaturalist). " +
+  "For conservation status, use NatureServe (natureserve). " +
+  "For regional species-specific botanical profile URLs, use Go Botany (gobotany) for New England, " +
+  "Illinois Wildflowers (illinois-wildflowers) for Illinois, Minnesota Wildflowers (minnesota-wildflowers) for Minnesota, " +
+  "Missouri Plants (missouri-plants) for Missouri. " +
+  "USDA PLANTS is the only FERNS source for federal legal status and coverage of all US and territory land plants " +
+  "including mosses, liverworts, hornworts, and lichens.";
 
 export const USDA_PLANTS_REGISTRY_ENTRY = {
   source_id: USDA_PLANTS_SOURCE_ID,
@@ -43,10 +61,8 @@ export const USDA_PLANTS_REGISTRY_ENTRY = {
   knowledge_type: "web_reference",
   status: "live",
   description:
-    "Authoritative federal plant taxonomy and occurrence reference covering vascular plants, mosses, " +
-    "liverworts, and lichens in the United States and territories, with state-level occurrence data, " +
-    "Wetland Indicator Status, and legal status. FERNS constructs a search URL from the scientific name — " +
-    "always valid, returns a search results page rather than a direct species profile.",
+    "Plant taxonomy, synonyms, state-level occurrence data, Wetland Indicator Status, and legal status for vascular plants, mosses, liverworts, and lichens across the United States and territories. " +
+    "From the USDA PLANTS Database, maintained by the USDA Natural Resources Conservation Service (NRCS).",
   input_summary: "Scientific name (binomial or trinomial)",
   output_summary:
     "USDA PLANTS search results URL for the queried scientific name",

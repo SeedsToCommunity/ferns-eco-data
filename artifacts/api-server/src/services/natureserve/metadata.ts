@@ -38,7 +38,10 @@ export const NATURESERVE_GENERAL_SUMMARY =
   "is restricted to member programs and is not available through this integration. " +
   "NatureServe national conservation ranks complement MNFI's Michigan-specific field data — MNFI provides " +
   "detailed community descriptions and county distribution maps for Michigan, while NatureServe provides " +
-  "broader Americas-scale conservation context; both services may be combined for a complete picture.";
+  "broader Americas-scale conservation context; both services may be combined for a complete picture. " +
+  "GBIF also surfaces IUCN Red List categories through its taxonomic backbone, but NatureServe's element-based G/N/S ranking system is independently assessed and is the authoritative conservation rank source in FERNS. " +
+  "iNaturalist also returns a conservation_status field per species, but it sources that data from third-party databases and may lag NatureServe's current assessments — use NatureServe for authoritative conservation ranks. " +
+  "NatureServe is the only FERNS source for Americas-wide G/N/S conservation ranks, CITES trade restriction status, and COSEWIC Canadian conservation assessments.";
 
 export const NATURESERVE_TECHNICAL_DETAILS =
   "Source: NatureServe Explorer API (https://explorer.natureserve.org/api/data). " +
@@ -54,7 +57,15 @@ export const NATURESERVE_TECHNICAL_DETAILS =
   "COSEWIC (Canada): E=Endangered, T=Threatened, SC=Special Concern, NAR=Not at Risk. " +
   "State rank is extracted from elementNationals[nation=US].elementSubnationals[subnation={stateCode}].srank. " +
   "Ecosystems: ecosystemGlobal.conceptSentence provides the ecosystem description. " +
-  "Method: api_fetch. Results are cached between requests.";
+  "Method: api_fetch. Results are cached between requests. " +
+  "DB tables: natureserve_species_cache (columns: cache_key unique, scientific_name, common_name, global_rank, rounded_global_rank, national_rank, rounded_national_rank, state_code, state_rank, rounded_state_rank, iucn_category, iucn_description, federal_status, federal_status_description, state_status, cites_description, cosewic_code, cosewic_description, natureserve_url, element_global_id, raw_summary jsonb, expires_at); " +
+  "natureserve_ecosystems_cache (columns: cache_key unique, results jsonb, result_count, expires_at). " +
+  "Coverage: NatureServe maintains assessments for approximately 100,000+ species across the Americas; exact count is not published as a fixed total and is continuously updated as assessments are completed or revised. " +
+  "Overlap with other FERNS sources: For Michigan natural community descriptions, characteristic plant lists, and county distribution maps, use MNFI (mnfi) — MNFI provides Michigan field-level detail (community descriptions, characteristic plants, county maps) that NatureServe's national classification does not. " +
+  "GBIF (gbif) surfaces IUCN Red List categories through its taxonomic backbone, but NatureServe's G/N/S element-based ranking system is independently assessed and is the authoritative conservation rank source in FERNS. " +
+  "iNaturalist (inaturalist) returns a conservation_status field per species, but that field sources from third-party IUCN data and may lag NatureServe reassessments — use NatureServe for authoritative ranks. " +
+  "For geographic distribution of NatureServe-tracked species, use Michigan Flora (miflora) for Michigan or BONAP (bonap-napa) for North America. " +
+  "NatureServe is the only FERNS source for Americas-wide G/N/S conservation ranks, CITES trade restriction status, and COSEWIC Canadian conservation assessments.";
 
 export const NATURESERVE_REGISTRY_ENTRY = {
   source_id: NATURESERVE_SOURCE_ID,

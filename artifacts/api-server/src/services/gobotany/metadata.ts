@@ -13,15 +13,16 @@ export const GOBOTANY_GENERAL_SUMMARY =
   "characteristics, and links to related taxa; covers vascular plants native and naturalized in New England. " +
   "Geographic scope: New England (CT, MA, ME, NH, RI, VT) only; taxonomic scope: vascular plants " +
   "(mosses, lichens, and algae are not included; only binomials supported, not subspecies or varieties). " +
-  "FERNS constructs the URL directly from genus and species (gobotany.nativeplanttrust.org/species/{genus}/{species}/) " +
-  "and validates it via HTTP GET; no data is stored locally. " +
+  "FERNS constructs a URL from the plant scientific name and checks whether it exists on the Go Botany website; no data is stored locally. " +
   "A query returns the direct species profile URL and found/not-found status; " +
   "a 200 HTTP response confirms the species is in the Go Botany database. " +
   "URLs are validated at query time; the Go Botany database is updated periodically by Native Plant Trust staff. " +
   "Taxonomic synonyms not recognized by Go Botany will return 404 even if the species occurs in New England. " +
-  "Go Botany covers New England only — for Midwest coverage, Illinois Wildflowers and Minnesota Wildflowers " +
-  "in FERNS provide comparable regional web references; for North America-wide references, use " +
-  "Lady Bird Johnson Wildflower Center or USDA PLANTS.";
+  "Go Botany covers New England only — for comparable regional references within FERNS, " +
+  "use Illinois Wildflowers (illinois-wildflowers) for Illinois, Minnesota Wildflowers (minnesota-wildflowers) for Minnesota, " +
+  "Missouri Plants (missouri-plants) for Missouri, or Prairie Moon (prairie-moon) for Midwest nursery availability. " +
+  "For North America-wide plant reference, use Lady Bird Johnson Wildflower Center (lady-bird-johnson) or USDA PLANTS (usda-plants). " +
+  "Go Botany is the only FERNS source for New England species-specific botanical profile pages with identification keys and distribution maps.";
 
 export const GOBOTANY_TECHNICAL_DETAILS =
   "Source: gobotany.nativeplanttrust.org. Maintained by Native Plant Trust, Framingham, MA. " +
@@ -31,6 +32,14 @@ export const GOBOTANY_TECHNICAL_DETAILS =
   "Geographic scope: New England (CT, MA, ME, NH, RI, VT). " +
   "Covers vascular plants (native and naturalized); mosses, lichens, and algae are out of scope. " +
   "Subspecies and varieties are not individually keyed — only binomials are supported. " +
+  "No DB table — URL is constructed at query time and validated via HTTP GET; no data is persisted. " +
+  "Coverage: New England vascular plants (native and naturalized) across the six states; Go Botany does not publish a fixed species count. " +
+  "Overlap with other FERNS sources: For comparable regional references, use Illinois Wildflowers (illinois-wildflowers) for Illinois, " +
+  "Minnesota Wildflowers (minnesota-wildflowers) for Minnesota, Missouri Plants (missouri-plants) for Missouri, " +
+  "Prairie Moon (prairie-moon) for Midwest nursery catalog coverage. " +
+  "For North America-wide plant reference, use Lady Bird Johnson Wildflower Center (lady-bird-johnson) or USDA PLANTS (usda-plants). " +
+  "For plant scientific name verification, use GBIF (gbif). For conservation status, use NatureServe (natureserve). " +
+  "Go Botany does not provide distribution data, conservation ranks, C-values, or phenology — use dedicated FERNS sources for those. " +
   "Method: direct_construction with HTTP validation.";
 
 export const GOBOTANY_REGISTRY_ENTRY = {
@@ -39,9 +48,9 @@ export const GOBOTANY_REGISTRY_ENTRY = {
   knowledge_type: "web_reference",
   status: "live",
   description:
-    "Interactive botanical key and species reference for vascular plants native and naturalized in New England " +
-    "(CT, MA, ME, NH, RI, VT). URLs are constructed directly from scientific names and validated via HTTP. " +
-    "Returns a direct species profile URL or indicates the species is not in the New England flora.",
+    "Identification guide and species profiles for native and naturalized vascular plants of New England (CT, MA, ME, NH, RI, VT), " +
+    "with identification keys, photos, and distribution maps. " +
+    "From Go Botany, a plant identification resource maintained by the Native Plant Trust in Framingham, Massachusetts.",
   input_summary: "Scientific name (binomial: genus + species epithet)",
   output_summary:
     "Direct URL to the Go Botany species profile page, validation method, and found/not-found status",

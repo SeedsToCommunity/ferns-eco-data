@@ -178,6 +178,8 @@ These three fields are required on every FERNS source. They are structured deliv
 **Anti-patterns — do not include**:
 - Technical method terms ("sitemap scrape", "API fetch", "ILIKE query", "DB cache")
 - Botanical or scientific jargon without a plain-English translation
+- "Adventive" used without definition — always write "introduced, non-native (adventive)" on first use within any description field
+- "Taxonomic" as a descriptor — use "plant scientific name" or "species name" in plain language instead
 - URLs
 - Leading with source identity — accessible content always comes first
 - Repeating the exact source name shown in the card label; the institution or authority name is fine and often important
@@ -200,16 +202,18 @@ These three fields are required on every FERNS source. They are structured deliv
 5. What a query to FERNS returns: what fields, what shape — in plain English
 6. How current the data is: live, cached, static, and what the refresh policy is
 7. Known limitations: what this source does not cover, edge cases, accuracy concerns
-8. How this source relates to other FERNS sources that cover similar ground — name them explicitly; state when to use this one and when to use the other
+8. How this source relates to other FERNS sources that cover similar ground — name all overlapping sources explicitly (not just the most obvious one); state when to use this one and when to use each of the others. If there is genuinely no overlap with any other FERNS source, say so explicitly.
 
 **Length**: As many sentences as needed to cover all 8 points. Typically 4–8 sentences.
 
 **Anti-patterns — do not include**:
 - Omitting any of the 8 required points
 - Technical implementation details: DB column names, SQL, URL patterns, exact parse logic
+- Internal system terminology in point 4 (how FERNS accesses the data): "server memory", "JavaScript Map", "ILIKE", "cache key", "server restart" — describe caching in plain language only: "cached locally", "stored locally and reused for subsequent queries", "fetched live per request"
 - Unexplained ecological or botanical terminology
 - Vague non-statements ("provides data about plants", "contains useful information")
 - Treating the data as equivalent to another FERNS source without explicitly comparing them
+- Naming only the single most obvious overlapping FERNS source in point 8 — all overlapping sources must be named
 
 **Worked example (Prairie Moon)**:
 > "Prairie Moon Nursery (Winona, Minnesota) is a leading native plant supplier for the Upper Midwest and Great Plains. Their website lists roughly 970 native species — wildflowers, grasses, sedges, ferns, and woody plants — with growing notes, ecological context, and nursery availability. FERNS imports Prairie Moon's full plant catalog periodically and stores it locally; when you query by scientific name, FERNS looks it up in that local index and returns a direct link to the Prairie Moon plant page if a match exists. The data reflects the time of the last import, not live nursery stock. Prairie Moon covers nursery availability and growing information only — it is not a scientific taxonomic source and does not include distribution data, nativity status, or conservation rankings. For taxonomy, use the GBIF source. For regional distribution in Michigan, use Michigan Flora. For native status, use BONAP."

@@ -28,8 +28,7 @@ export const UNIVERSAL_FQA_GENERAL_SUMMARY =
   "and Canadian provinces, plus thousands of publicly shared site assessment inventories. " +
   "Geographic and taxonomic scope varies by database; Michigan databases (IDs 50 and 267) cover all " +
   "Michigan vascular plants. " +
-  "All data accessed via the universalfqa.org public REST API; full species databases are cached in " +
-  "server memory on first request (cleared on server restart); assessments are fetched live per query. " +
+  "All data accessed via the universalfqa.org public REST API; species databases are cached locally after the first request and reused for subsequent queries; assessments are fetched live per request. " +
   "A database query returns per-species: scientific name, family, native or non-native status, C-value, W-value, physiognomy, " +
   "duration, and common name; an assessment query returns site metadata, all FQI metrics (total FQI, " +
   "native FQI, adjusted FQI, mean C, mean W), and the full species list with per-species values. " +
@@ -37,7 +36,12 @@ export const UNIVERSAL_FQA_GENERAL_SUMMARY =
   "Michigan databases ID 50 (Reznicek et al. 2014, University of Michigan Herbarium) and ID 267 (Merjent " +
   "Inc. 2024) share the same Michigan vascular flora; ID 50 uses the same C-value assignments as " +
   "Michigan Flora (michiganflora.net) in FERNS — querying both will produce consistent C-values for " +
-  "Michigan species, making them complementary rather than independent sources for that metric.";
+  "Michigan species, making them complementary rather than independent sources for that metric. " +
+  "For scientific name verification of species found in a database, use GBIF. " +
+  "For geographic distribution of FQA-assessed species in Michigan, use Michigan Flora; for all of North America, use BONAP. " +
+  "For natural community classification that provides habitat context for FQA assessments in Michigan, use MNFI. " +
+  "For conservation status of species in FQA databases, use NatureServe. " +
+  "Universal FQA is the only FERNS source for quantitative FQI metrics and publicly contributed site assessment inventories.";
 
 export const UNIVERSAL_FQA_TECHNICAL_DETAILS =
   "Source: universalfqa.org public REST API. Developed and maintained by the University of Michigan. " +
@@ -84,12 +88,20 @@ export const UNIVERSAL_FQA_TECHNICAL_DETAILS =
   "GET /get/database/{id}/inventory — assessment list for one database. Row-array, no header row. Each row: [id, name, date, site, practitioner]. " +
   "GET /get/inventory/{id} — full assessment detail. Row-indexed: rows 0–18 are site metadata; rows 21–41 are FQI metrics; " +
   "rows 44–60 are physiognomy and duration breakdowns; rows 62+ are species rows in the same column order as the database species endpoint. " +
-  "CACHING: Full species databases are cached in server memory (JavaScript Map, keyed by database_id) on first request. " +
-  "Assessments are fetched live on each request with no cache. Database list is fetched live. " +
-  "No PostgreSQL persistence — a server restart clears all cached species databases. " +
+  "CACHING: Species databases are persisted to PostgreSQL on first fetch and served from DB cache on subsequent requests. " +
+  "Assessments are fetched live per request — not cached. Database list is fetched live per request — not cached. " +
+  "DB tables: universal_fqa_databases (columns: database_id integer PK, region text, year text, citation text, species_count integer), " +
+  "universal_fqa_species (columns: id serial PK, database_id integer FK, scientific_name text, family text, acronym text, native text, c text, w text, physiognomy text, duration text, common_name text; unique on database_id + scientific_name). " +
+  "A species_count of 0 for a given database ID indicates a malformed upstream response — this is a known upstream limitation, not a FERNS error. " +
   "KNOWN LIMITATIONS: Assessment list endpoint has no county or state fields — location is only available in individual assessment detail. " +
   "Latitude and longitude fields are frequently blank. " +
-  "C-values must not be compared across regional databases without confirming that both databases use the same authority and geographic scope.";
+  "C-values must not be compared across regional databases without confirming that both databases use the same authority and geographic scope. " +
+  "Overlap with other FERNS sources: Universal FQA database ID 50 (Reznicek et al. 2014) shares C-value assignments with Michigan Flora (miflora) — querying both returns consistent C-values for Michigan species. " +
+  "For scientific name verification of species found in a database, use GBIF (gbif). " +
+  "For geographic distribution of FQA-assessed species in Michigan, use Michigan Flora (miflora); for North America, use BONAP (bonap-napa). " +
+  "For natural community classification that provides FQA habitat context in Michigan, use MNFI (mnfi). " +
+  "For conservation status of species in FQA databases, use NatureServe (natureserve). " +
+  "Universal FQA is the only FERNS source for quantitative FQI metrics, mean C-value scores, and publicly contributed site assessment inventories.";
 
 export const UNIVERSAL_FQA_REGISTRY_ENTRY = {
   source_id: UNIVERSAL_FQA_SOURCE_ID,

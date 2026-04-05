@@ -24,14 +24,26 @@ const REGISTRY_ENTRY = {
     "OPEN — FERNS is a self-hosted internal system. " +
     "The registry endpoint is unauthenticated and intended for use by FERNS consumers and agents.",
   general_summary:
-    "FERNS Source Registry — live catalog of all registered FERNS Knowledge Services. " +
-    "Reflects current registration state at time of request. Populated at service startup.",
+    "FERNS Source Registry is a self-hosted system catalog maintained by the FERNS Data Layer deployment itself — not an external institution. " +
+    "Data type: a real-time index of all registered FERNS Knowledge Services, one entry per source, including identity, description, input/output shape, permission status, and links to full metadata and Source Explorer. " +
+    "Coverage: all 21 registered FERNS sources across ecological, taxonomic, distribution, phenological, vocabulary, and web-reference knowledge types; no geographic or taxonomic restriction. " +
+    "FERNS reads directly from its internal source registry table at request time; no upstream API is called and no external data is fetched. " +
+    "A query returns an array of SourceSummary objects, one per registered service, each including all identity and description fields. " +
+    "The registry reflects the current registration state at the time of the request; entries are written at service startup by each source's seed function and are not cached separately from the database. " +
+    "Limitation: the registry reports what is registered, not what is reliable — it does not evaluate data quality, trust tier, accuracy, or methodological soundness of any registered source. Those are application-layer concerns. " +
+    "The registry does not overlap with any individual FERNS data source — it is the discovery catalog for all of them; use it as the first call in any FERNS integration to identify available sources and their capabilities.",
   technical_details:
-    "FERNS Knowledge Registry. Source: internal ferns_sources table. " +
-    "Entries are written at service build time by each source's seed function. " +
-    "The registry reads from this table without caching. " +
-    "It does not perform taxonomy reconciliation, trust tier assignment, or cross-source synthesis — " +
+    "FERNS Knowledge Registry. Source: internal ferns_sources table (PostgreSQL). " +
+    "DB table: ferns_sources (key columns: source_id text PK, name text, knowledge_type text, status text, description text, " +
+    "general_summary text, technical_details text, input_summary text, output_summary text, dependencies text[], " +
+    "update_frequency text, known_limitations text, metadata_url text, explorer_url text, permission_granted boolean, " +
+    "permission_status text, created_at timestamptz, updated_at timestamptz). " +
+    "Entries are written at service startup by each source's seed.ts via onConflictDoUpdate (upsert on source_id). " +
+    "The registry reads from this table without caching — every /api/v1/sources request queries the DB. " +
+    "Coverage: 21 registered sources at current deployment; source count grows as new services are onboarded. " +
+    "It does not perform taxonomy reconciliation, trust tier assignment, cross-source synthesis, or data quality assessment — " +
     "those are application-layer concerns. " +
+    "Overlap: not applicable — the registry is a system catalog for all FERNS sources, not a data source that overlaps with others. " +
     "Method: system (internal DB read, no upstream HTTP call).",
 };
 

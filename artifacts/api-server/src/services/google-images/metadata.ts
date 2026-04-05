@@ -13,15 +13,15 @@ export const GOOGLE_IMAGES_GENERAL_SUMMARY =
   "Data type: a constructed search URL that opens Google Images filtered to the queried scientific name; " +
   "no structured species data, provenance, or metadata is returned. " +
   "Geographic and taxonomic scope: unlimited — Google Images indexes the public web globally. " +
-  "FERNS constructs the URL directly: https://www.google.com/search?tbm=isch&q={URL-encoded name}; " +
-  "no HTTP validation is performed and no data is stored locally. " +
+  "FERNS constructs an image search link from the plant scientific name at query time; no HTTP validation is performed and no data is stored locally. " +
   "A query returns only the image search URL; the URL is always valid. " +
   "Live — URLs are constructed at query time; Google's index is continuously updated. " +
   "No authentication, no rate limiting server-side; client browsers handle normal Google rate limits. " +
   "Google Images provides no structured ecological data and should not be used as a data source — " +
-  "it complements FERNS sources such as iNaturalist (species photos with provenance), Michigan Flora " +
-  "(botanical illustrations), and LCSCG (guide photographs) by offering a quick, unfiltered visual " +
-  "overview when those sources return no image or when an unfamiliar taxon needs quick visual confirmation.";
+  "it complements FERNS sources such as iNaturalist (inaturalist — species photos with provenance and location), " +
+  "Michigan Flora (miflora — botanical illustrations), and LCSCG (lcscg — guide photographs organized by season and habitat) " +
+  "by offering a quick, unfiltered visual overview when those sources return no image or when an unfamiliar taxon needs rapid visual confirmation. " +
+  "Google Images is the only FERNS source for broad aggregated web image search with no geographic or institutional restriction.";
 
 export const GOOGLE_IMAGES_TECHNICAL_DETAILS =
   "Source: google.com/images. Operated by Google LLC. " +
@@ -29,7 +29,13 @@ export const GOOGLE_IMAGES_TECHNICAL_DETAILS =
   "where {scientific name} is the exact binomial as provided. " +
   "Method: direct_construction (no HTTP validation — always valid). " +
   "No rate limiting is applied server-side; client browsers handle rate limiting through normal browser usage. " +
-  "This source provides no species data, provenance, or structured metadata — only an image search URL.";
+  "This source provides no species data, provenance, or structured metadata — only an image search URL. " +
+  "No DB table — URL is constructed at query time (direct_construction); no data is persisted. " +
+  "Coverage: unlimited — Google Images indexes the global public web. " +
+  "Overlap with other FERNS sources: For scientific species photographs with provenance and geographic metadata, use iNaturalist (inaturalist). " +
+  "For botanical illustration photographs from Michigan herbarium records, use Michigan Flora (miflora). " +
+  "For illustrated seed harvest guide photographs organized by season and habitat, use LCSCG (lcscg). " +
+  "Google Images is the only FERNS source for broad aggregated web image search with no geographic or institutional restriction.";
 
 export const GOOGLE_IMAGES_REGISTRY_ENTRY = {
   source_id: GOOGLE_IMAGES_SOURCE_ID,
@@ -37,10 +43,8 @@ export const GOOGLE_IMAGES_REGISTRY_ENTRY = {
   knowledge_type: "web_reference",
   status: "live",
   description:
-    "Google Images search URL for any scientific name. " +
-    "Constructed directly from the queried scientific name — always valid, no lookup required. " +
-    "Useful for rapid visual identification using Google's aggregated image index. " +
-    "Returns a search results URL, not individual image URLs or structured species data.",
+    "Image search results for any plant scientific name, drawing from Google's global index of publicly available photographs — useful for rapid visual identification of unfamiliar species. " +
+    "From Google Images, a service operated by Google LLC.",
   input_summary: "Scientific name (binomial or full trinomial)",
   output_summary: "Google Images search URL for the queried scientific name",
   dependencies: [] as string[],

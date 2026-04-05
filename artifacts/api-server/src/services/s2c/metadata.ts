@@ -32,7 +32,15 @@ export const S2C_TECHNICAL_DETAILS =
   "2025 — Google Sheets 'Species' tab, filter Barn S3=TRUE (file: 121a1HIhNPJwyM1fr_OWgi4jMKRipF9EKDeT7_zo4mA8); 151 species; neat_and_tidy from Neat column. " +
   "2026 — Google Sheets 'Species' tab, filter Collected=TRUE (file: 1sVNi4MuqSI6tugCgDodiUJZMTMkDuK1FEXojexI5f-E); 166 species; neat_and_tidy and sweet_and_simple from S2C Lists column. " +
   "Botanical names reflect S2C program usage; not formally reconciled to a single taxonomic authority. " +
-  "No upstream API. No cache TTL — data is in-memory static reference.";
+  "No upstream API. No cache TTL — data is in-memory static reference. " +
+  "Overlap with other FERNS sources: For plant scientific name verification of S2C species, use GBIF (gbif) — " +
+  "S2C botanical names reflect program usage and are not reconciled to any single taxonomic authority. " +
+  "For Michigan county occurrence data, use Michigan Flora (miflora) or BONAP (bonap-napa) for North America-wide distribution. " +
+  "For conservation status of S2C-listed species, use NatureServe (natureserve). " +
+  "For seed harvest guidance for species that overlap with the Chicago region, use LCSCG (lcscg) — " +
+  "LCSCG covers Lake County, Illinois species and includes season and habitat photographs; S2C and LCSCG may share species. " +
+  "S2C is the only FERNS source for Washtenaw County, Michigan native plant workshop availability records, " +
+  "including the 'Neat & Tidy' and 'Sweet & Simple' suitability flags.";
 
 export const S2C_REGISTRY_ENTRY = {
   source_id: S2C_SOURCE_ID,

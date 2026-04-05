@@ -34,7 +34,17 @@ export const ILLINOIS_WILDFLOWERS_TECHNICAL_DETAILS =
   "Absolute URLs are constructed by combining the section base URL with the relative href. " +
   "A species appearing in multiple sections is stored as multiple rows (one per section). " +
   "Lookup method: ILIKE match on scientific_name; may return multiple rows for different habitat sections. " +
-  "Method: species_list_scrape (multi-section) with DB lookup.";
+  "Method: species_list_scrape (multi-section) with DB lookup. " +
+  "DB table: botanical_species_lists (columns: id serial PK, site_id text, scientific_name text, url text, section text, imported_at; " +
+  "unique on (site_id, scientific_name, section)). Coverage: ~1,459 entries across 8 habitat sections; " +
+  "many species appear in multiple sections, yielding more DB rows than unique species. " +
+  "Overlap with other FERNS sources: For comparable regional references, use Minnesota Wildflowers (minnesota-wildflowers) for Minnesota, " +
+  "Missouri Plants (missouri-plants) for Missouri, Go Botany (gobotany) for New England. " +
+  "For North America-wide plant reference, use Lady Bird Johnson Wildflower Center (lady-bird-johnson) or USDA PLANTS (usda-plants). " +
+  "For plant scientific name verification, use GBIF (gbif). For county-level distribution, use BONAP (bonap-napa). " +
+  "For nursery availability of Midwest species, use Prairie Moon (prairie-moon). " +
+  "Illinois Wildflowers is the only FERNS source for Illinois habitat-specific botanical profile URLs, " +
+  "with species organized across eight ecological habitat sections.";
 
 export const ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY = {
   source_id: ILLINOIS_WILDFLOWERS_SOURCE_ID,
@@ -42,10 +52,8 @@ export const ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY = {
   knowledge_type: "web_reference",
   status: "live",
   description:
-    "Photographic reference for wild plants of Illinois, organized by habitat type across eight sections: " +
-    "prairie, savanna, woodland, wetland, weeds, grasses, trees, and mosses. " +
-    "FERNS indexes all eight sections and returns species profile URLs; a species may appear in multiple " +
-    "habitat sections, returning multiple URLs.",
+    "Photographic species profiles for wild plants of Illinois, organized by habitat type across eight sections: prairie, savanna, woodland, wetland, weeds, grasses, trees, and mosses. " +
+    "From Illinois Wildflowers, a photographic botanical reference maintained by John Hilty.",
   input_summary: "Scientific name (binomial: genus + species epithet)",
   output_summary:
     "Direct URL(s) to Illinois Wildflowers species page(s), one per habitat section in which the species appears",

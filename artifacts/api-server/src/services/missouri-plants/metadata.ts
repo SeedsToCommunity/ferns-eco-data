@@ -33,7 +33,15 @@ export const MISSOURI_PLANTS_TECHNICAL_DETAILS =
   "the list page href is authoritative and is stored verbatim. " +
   "Species count: ~1,464 at time of last import. " +
   "Lookup method: ILIKE match on stored scientific_name (case-insensitive exact match preferred). " +
-  "Method: species_list_scrape with DB lookup. No HTTP validation at query time.";
+  "Method: species_list_scrape with DB lookup. No HTTP validation at query time. " +
+  "DB table: botanical_species_lists (columns: id serial PK, site_id text, scientific_name text, url text, section text, imported_at; " +
+  "unique on (site_id, scientific_name, section)). Coverage: ~1,464 species at last import. " +
+  "Overlap with other FERNS sources: For comparable regional references, use Illinois Wildflowers (illinois-wildflowers) for Illinois, " +
+  "Minnesota Wildflowers (minnesota-wildflowers) for Minnesota, Go Botany (gobotany) for New England. " +
+  "For North America-wide plant reference, use Lady Bird Johnson Wildflower Center (lady-bird-johnson) or USDA PLANTS (usda-plants). " +
+  "For plant scientific name verification, use GBIF (gbif). For county-level distribution, use BONAP (bonap-napa). " +
+  "For nursery availability of Midwest species, use Prairie Moon (prairie-moon). " +
+  "Missouri Plants is the only FERNS source for Missouri species-specific botanical profile URLs.";
 
 export const MISSOURI_PLANTS_REGISTRY_ENTRY = {
   source_id: MISSOURI_PLANTS_SOURCE_ID,
@@ -41,9 +49,8 @@ export const MISSOURI_PLANTS_REGISTRY_ENTRY = {
   knowledge_type: "web_reference",
   status: "live",
   description:
-    "Comprehensive photographic reference for plants of Missouri, covering ~1,464 species with photographs, " +
-    "descriptions, taxonomy, and ecology. FERNS indexes the species list and returns direct species profile URLs; " +
-    "URL filenames may use historical synonym genera and are not derivable from scientific names alone.",
+    "Photographic species profiles and ecological information for plants of Missouri, covering roughly 1,464 species including native and non-native taxa, with photographs, descriptions, taxonomy, and distribution. " +
+    "From Missouri Plants, a botanical reference maintained by Paul Wycoff.",
   input_summary: "Scientific name (binomial: genus + species epithet)",
   output_summary:
     "Direct URL to the Missouri Plants species page, or found: false if the species is not in the Missouri Plants database",

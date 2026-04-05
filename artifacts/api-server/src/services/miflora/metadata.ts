@@ -30,7 +30,13 @@ export const MIFLORA_GENERAL_SUMMARY =
   "The C-values come from the Reznicek et al. 2014 Michigan Floristic Quality Assessment Database — the same dataset available as Universal FQA (universalfqa.org) database ID 50 — " +
   "so querying Michigan Flora and Universal FQA ID 50 for the same species will return consistent C-values for Michigan flora. " +
   "The content is static (published 2011, no update mechanism in the API); county coverage is comprehensive for all 83 Michigan counties. " +
-  "Notable source quirks: adventive species names are returned ALL-CAPS by the API, and the native/adventive status field uses the literal string 'NULL' (not a JSON null) for unknown or absent status.";
+  "Notable source quirks: adventive species names are returned ALL-CAPS by the API, and the native/adventive status field uses the literal string 'NULL' (not a JSON null) for unknown or absent status. " +
+  "For scientific name verification and synonym resolution, use GBIF. " +
+  "For North American county- and state-level distribution beyond Michigan, use BONAP. " +
+  "For observation photos, phenology (flowering and fruiting timing), and citizen science occurrence data, use iNaturalist. " +
+  "For Michigan species conservation status and imperilment ranks, use NatureServe. " +
+  "For natural community classification and county-level element data in Michigan, use MNFI. " +
+  "Michigan Flora is the only FERNS source for botanical species descriptions, the complete 83-county Michigan occurrence map, and archival plant photographs.";
 
 export const MIFLORA_TECHNICAL_DETAILS =
   "Source: Michigan Flora REST API v1.0 (https://michiganflora.net/api/v1.0). " +
@@ -39,7 +45,12 @@ export const MIFLORA_TECHNICAL_DETAILS =
   "GET /synonyms?id={id} (synonym records), GET /pimage_info?id={id} (primary image). " +
   "County presence (name-based, two-step): GET /flora_search_sp?scientific_name={name} to resolve plant_id, " +
   "then GET /locs_sp?id={id} returns {locations:[...county names...]} for confirmed counties. " +
-  "Cache keys for both endpoints are normalized lowercase scientific name. " +
+  "Cache keys for all endpoints are normalized lowercase scientific names. " +
+  "DB tables: miflora_species_cache, miflora_counties_cache, miflora_images_cache (all share the same structure: serial PK, cache_key unique text, source_id, fetched_at, method, upstream_url, expires_at, plus response data columns). " +
+  "expires_at = null for all records (permanent cache — Michigan Flora data does not change). " +
+  "?refresh=true on any endpoint forces a re-fetch of the cached record for that species. " +
+  "Response normalization: pimage_info records are enriched at serve time with constructed image_url and thumbnail_url fields. " +
+  "Formula (reverse-engineered from Michigan Flora frontend): full image = https://michiganflora.net/static/species_images/_pid_{plant_id}/{image_id}.jpg; thumbnail = ..._pid_{plant_id}/thumb_{image_id}.jpg. " +
   "FIELD DEFINITIONS — " +
   "c: Coefficient of Conservatism (C-value, Swink & Wilhelm 1994 methodology). Always a string. " +
   "Per-species Michigan C-values sourced from: Reznicek, A.A., M.R. Penskar, B.S. Walters, and B.S. Slaughter. 2014. " +
@@ -68,7 +79,14 @@ export const MIFLORA_TECHNICAL_DETAILS =
   "Other quirks: scientific names are inconsistently cased — adventive species names returned ALL-CAPS by the API. " +
   "synonyms endpoint returns {synonyms:[...]} when synonyms exist, or {message:'No synonyms found'} when none — both shapes passed through. " +
   "flora_search_sp may return multiple records (subspecies, varieties) for one query — all records included in search_records. " +
-  "Method: api_fetch. Results are cached between requests.";
+  "Method: api_fetch. Results are cached between requests. " +
+  "Overlap with other FERNS sources: For scientific name verification and synonym resolution, use GBIF (gbif). " +
+  "For North American county- and state-level distribution across all 50 states, use BONAP (bonap-napa) — BONAP covers 28,000 taxa through 2014 vs. Michigan Flora's Michigan-only 2011 data. " +
+  "For observation photos, phenology (flowering and fruiting timing), and continuously updated citizen science occurrence data, use iNaturalist (inaturalist). " +
+  "For Michigan species conservation status and imperilment ranks (G/N/S), use NatureServe (natureserve). " +
+  "For Michigan natural community classification and county-level element occurrence records, use MNFI (mnfi). " +
+  "For the complete Reznicek 2014 Michigan C-value database with full FQA assessment tools and site inventories, use Universal FQA (universal-fqa) database ID 50 — it shares the same C-value assignments as this source. " +
+  "Michigan Flora is the only FERNS source for Michigan botanical species descriptions, the complete 83-county occurrence map, and archival plant photographs.";
 
 export const MIFLORA_REGISTRY_ENTRY = {
   source_id: MIFLORA_SOURCE_ID,
