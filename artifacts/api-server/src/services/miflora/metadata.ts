@@ -21,49 +21,16 @@ export const MIFLORA_ATTRIBUTION = {
 };
 
 export const MIFLORA_GENERAL_SUMMARY =
-  "Vascular plant flora data for Michigan from Michigan Flora Online, published by the University of Michigan Herbarium " +
-  "and authored by Reznicek, Voss, and Walters (2011). " +
-  "Covers all documented native and adventive (non-native) vascular plant species in Michigan, " +
-  "with taxonomic details, county-level occurrence records, plant images, synonyms, and descriptive text. " +
-  "Geographic scope: Michigan only, all 83 counties; taxonomic scope: all Michigan vascular plants. " +
-  "All data accessed via the Michigan Flora REST API and cached per species (30 days hit, 7 days no-match). " +
-  "A species query returns family, common name, native status, descriptive text, images, synonyms, and county " +
-  "occurrence records for all 83 Michigan counties with occurrence codes. " +
-  "Content is static (published 2011); no update mechanism exists in the API. " +
-  "Notable limitation: adventive species names are returned ALL-CAPS by the API; the st field uses the " +
-  "literal string 'NULL' (not JSON null) for absent or unknown status. " +
-  "Michigan Flora's per-species C-values (c field) and W-values (w field) are the same assignments used by " +
-  "Universal FQA database ID 50 (Reznicek et al. 2014); FERNS's Universal FQA service and Michigan Flora " +
-  "share this C-value authority and will agree on those values for Michigan species. " +
-  "KEY CODED FIELDS — " +
-  "c (Coefficient of Conservatism, C-value): string '0'–'10' for native species, or '*' for non-native/adventive species. " +
-  "C-value is an ecological fidelity score assigned to native Michigan plants by the Swink & Wilhelm (1994) methodology. " +
-  "The per-species Michigan C-values come from the Reznicek et al. 2014 Michigan Floristic Quality Assessment Database " +
-  "(Reznicek, A.A., M.R. Penskar, B.S. Walters, and B.S. Slaughter. 2014. Michigan Floristic Quality Assessment Database. " +
-  "Herbarium, University of Michigan, Ann Arbor, MI and Michigan Natural Features Inventory. http://michiganflora.net). " +
-  "This is the same dataset available in Universal FQA (universalfqa.org) as database ID 50. " +
-  "0 = cosmopolitan or highly disturbance-tolerant species; 10 = species restricted to pristine, high-quality habitats. " +
-  "Non-natives are assigned '*' and do not receive a numeric C-value. " +
-  "Do NOT parse c as an integer. " +
-  "This is NOT the Coefficient of Wetness (w field), which is a separate metric on a -5 to +5 scale. " +
-  "w (Coefficient of Wetness, W-value): numeric string or number, -5 to +5. " +
-  "Expresses a species' statistical affinity for wetland conditions. " +
-  "-5 = obligate wetland species (almost always in wetlands); +5 = obligate upland species (almost never in wetlands). " +
-  "This is the numeric companion to the Wetland Indicator Status code (wet field). " +
-  "This is NOT the Coefficient of Conservatism (c field) and is NOT a WUCOLS irrigation rating. " +
-  "wet (Wetland Indicator Status, WIS code): string. Assigned by USDA NRCS National Wetland Plant List. " +
-  "OBL = Obligate Wetland (>99% of occurrences in wetlands); " +
-  "FACW = Facultative Wetland (67–99%); " +
-  "FAC = Facultative (34–66%); " +
-  "FACU = Facultative Upland (1–33%); " +
-  "UPL = Upland (<1%). " +
-  "Some species have compound codes (e.g., 'FACU/UPL') indicating regional variation in the source data. " +
-  "This is NOT a WUCOLS (Water Use Classifications of Landscape Species) rating, which uses VL/L/M/H codes for nursery irrigation planning. " +
-  "st (Status): string. 'native' = indigenous to Michigan; 'adventive' = introduced non-native; " +
-  "literal string 'NULL' (not JSON null) = species absent from Michigan or status unknown (source API quirk). " +
-  "phys (Physiognomy): plant life form. Typical values from source: 'Tree', 'Shrub', 'Shrub-tree', 'Vine', " +
-  "'Forb/Herb', 'Graminoid', 'Fern/Fern ally', 'Aquatic'. May vary; pass through as-is. " +
-  "na (Native/Adventive flag): string or boolean from source; use st field for primary native/adventive determination.";
+  "Michigan Flora Online is published by the University of Michigan Herbarium and authored by Reznicek, Voss, and Walters (2011). " +
+  "It covers all documented native and introduced non-native (adventive) vascular plant species in Michigan across all 83 counties. " +
+  "FERNS queries this source via its public REST API and caches results per species (30 days for found species, 7 days for not-found). " +
+  "A species query returns family, common name, native or adventive status, botanical description text, a primary plant image, synonyms, and county-level occurrence records. " +
+  "Each species record also carries three ecological metrics: a Coefficient of Conservatism (C-value, 0–10 for native species, '*' for adventive species), " +
+  "a Coefficient of Wetness (W-value, −5 to +5), and a Wetland Indicator Status code (OBL/FACW/FAC/FACU/UPL). " +
+  "The C-values come from the Reznicek et al. 2014 Michigan Floristic Quality Assessment Database — the same dataset available as Universal FQA (universalfqa.org) database ID 50 — " +
+  "so querying Michigan Flora and Universal FQA ID 50 for the same species will return consistent C-values for Michigan flora. " +
+  "The content is static (published 2011, no update mechanism in the API); county coverage is comprehensive for all 83 Michigan counties. " +
+  "Notable source quirks: adventive species names are returned ALL-CAPS by the API, and the native/adventive status field uses the literal string 'NULL' (not a JSON null) for unknown or absent status.";
 
 export const MIFLORA_TECHNICAL_DETAILS =
   "Source: Michigan Flora REST API v1.0 (https://michiganflora.net/api/v1.0). " +
@@ -109,9 +76,9 @@ export const MIFLORA_REGISTRY_ENTRY = {
   knowledge_type: "source_wrapper",
   status: "live",
   description:
-    "Vascular plant data for all documented native and non-native plant species in Michigan, covering " +
-    "species taxonomy, family, common name, descriptive text, native status, representative images, synonyms, " +
-    "and county-level occurrence records for all 83 Michigan counties. Based on a published 2011 flora reference.",
+    "A detailed plant reference for Michigan covering every documented native and non-native vascular plant species in the state. " +
+    "Includes botanical descriptions, photographs, synonym lists, native or non-native status, and county-by-county occurrence records for all 83 Michigan counties. " +
+    "Published in 2011 and static — reflects the state of knowledge at that time.",
   input_summary:
     "Scientific name (for both species lookup and county occurrence lookup)",
   output_summary:
