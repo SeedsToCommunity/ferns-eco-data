@@ -23,13 +23,14 @@ export const UNIVERSAL_FQA_GENERAL_SUMMARY =
   "FQA is an ecological method (Swink & Wilhelm, 1979/1994) that evaluates plant community quality using " +
   "Coefficient of Conservatism (C-value) scores — integers 0–10 assigned to native species by regional " +
   "botanical authorities reflecting ecological fidelity to intact habitats. " +
-  "As of 2025, the platform hosts 93 regional databases (1993–2025) covering US states, EPA ecoregions, " +
+  "As of 2025, the platform hosts 93 regional databases (1993–2025) covering US states, EPA ecoregions " +
+  "(geographically defined ecological zones used by the US Environmental Protection Agency), " +
   "and Canadian provinces, plus thousands of publicly shared site assessment inventories. " +
-  "Geographic and taxonomic scope: varies by database; Michigan databases (IDs 50 and 267) cover all " +
+  "Geographic and taxonomic scope varies by database; Michigan databases (IDs 50 and 267) cover all " +
   "Michigan vascular plants. " +
   "All data accessed via the universalfqa.org public REST API; full species databases are cached in " +
   "server memory on first request (cleared on server restart); assessments are fetched live per query. " +
-  "A database query returns per-species: scientific name, family, nativity, C-value, W-value, physiognomy, " +
+  "A database query returns per-species: scientific name, family, native or non-native status, C-value, W-value, physiognomy, " +
   "duration, and common name; an assessment query returns site metadata, all FQI metrics (total FQI, " +
   "native FQI, adjusted FQI, mean C, mean W), and the full species list with per-species values. " +
   "C-values must not be compared across databases from different regions or authorities. " +
@@ -96,13 +97,9 @@ export const UNIVERSAL_FQA_REGISTRY_ENTRY = {
   knowledge_type: "source_wrapper",
   status: "live",
   description:
-    "Universal FQA (universalfqa.org) hosts 93 regional Floristic Quality Assessment databases from the US, Canada, " +
-    "and other regions, each providing per-species C-values and W-values for that region's flora. " +
-    "It also hosts thousands of publicly shared site assessments — real field inventories at named natural areas, " +
-    "each with observed species lists and computed FQI metrics (Total/Native FQI, Adjusted FQI, Mean C, Mean Wetness, " +
-    "species richness by nativity, physiognomy and duration breakdowns). " +
-    "Databases span 1993–2025 and include state databases (Michigan, Arkansas, Colorado, etc.), " +
-    "EPA ecoregion databases, and site-specific databases. No authentication required.",
+    "Access to 93 regional plant quality databases — each rating native species on a 0-to-10 ecological sensitivity scale — " +
+    "plus thousands of ecologist-submitted field survey inventories spanning 1993 to 2025, covering the US, Canada, and other regions. " +
+    "From the Universal FQA platform, developed and maintained at the University of Michigan.",
   input_summary:
     "Database selection: read region + citation fields to determine relevance. " +
     "Species lookup: scientific name + database_id. " +

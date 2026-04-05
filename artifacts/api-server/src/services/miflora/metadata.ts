@@ -76,9 +76,8 @@ export const MIFLORA_REGISTRY_ENTRY = {
   knowledge_type: "source_wrapper",
   status: "live",
   description:
-    "A detailed plant reference for Michigan covering every documented native and non-native vascular plant species in the state. " +
-    "Includes botanical descriptions, photographs, synonym lists, native or non-native status, and county-by-county occurrence records for all 83 Michigan counties. " +
-    "Published in 2011 and static — reflects the state of knowledge at that time.",
+    "Botanical descriptions, photographs, synonym lists, native or non-native status, and county-by-county occurrence records for every documented vascular plant species in Michigan, covering all 83 counties. " +
+    "From Michigan Flora Online, a published flora reference from the University of Michigan Herbarium (Reznicek, Voss, and Walters, 2011); content is static and reflects the state of knowledge at that time.",
   input_summary:
     "Scientific name (for both species lookup and county occurrence lookup)",
   output_summary:
