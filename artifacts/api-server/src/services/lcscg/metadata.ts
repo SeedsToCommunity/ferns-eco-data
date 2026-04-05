@@ -14,13 +14,14 @@ export const LCSCG_GENERAL_SUMMARY =
   "Authors: Kelly Schultz (LCFPD Stewardship Ecologist) and Dale Shields. " +
   "Covers 494 plant species organized by season (spring, summer, fall) and habitat (woodland, wetland, " +
   "prairie, grasses and sedges, asters and goldenrods, woody plants). " +
-  "Geographic scope: Lake County, Illinois; taxonomic scope: native and adventive vascular plants of that region. " +
+  "Geographic scope: Lake County, Illinois; taxonomic scope: native and introduced, non-native (adventive) vascular plants of that region. " +
   "FERNS serves static data extracted from the PDF guides (no live upstream API); " +
   "2,093 guide photographs are served from Cloudinary CDN. " +
   "A species query returns scientific name, common name, plant family, guide and habitat section, seed dispersal " +
   "category, harvest technique description, photo date (timing proxy), and image URLs. " +
   "Data is static with no update cycle; not all records are native — non-native comparison species " +
-  "marked 'Do Not Collect' are included; no Floristic Quality C-values or wetland status codes are provided. " +
+  "marked 'Do Not Collect' are included; no Floristic Quality Assessment C-values (a measure of a plant's fidelity to undisturbed habitat) " +
+  "or wetland status codes are provided. " +
   "LCSCG species names follow Flora of the Chicago Region (Wilhelm & Rericha 2017), which may differ from " +
   "GBIF, iNaturalist, BONAP, USDA PLANTS, or Michigan Flora taxonomy used by other FERNS sources — " +
   "cross-reference names carefully when combining with those services.";
@@ -57,11 +58,10 @@ export const LCSCG_REGISTRY_ENTRY = {
   knowledge_type: "source_wrapper",
   status: "live",
   description:
-    "12 illustrated field guides for native seed identification in Lake County, Illinois, " +
-    "produced by the Lake County Forest Preserve District Volunteer Stewardship Network. " +
-    "Covers 494 species organized by season and habitat. " +
-    "Each species record includes harvest notes, seed dispersal category, photo date, " +
-    "and CDN-hosted photographs. Nomenclature follows Flora of the Chicago Region (2017).",
+    "Seed identification photos, harvest instructions, and collection timing for 494 native plant species " +
+    "in Lake County, Illinois, organized by season and habitat type. " +
+    "From 12 illustrated field guides published by the Lake County Forest Preserve District Volunteer Stewardship Network " +
+    "under a CC BY-NC 4.0 license.",
   input_summary: "Scientific name (partial or exact) or guide ID (1271–1282)",
   output_summary:
     "Species harvest description, seed dispersal categories, photo date, plant family, " +
