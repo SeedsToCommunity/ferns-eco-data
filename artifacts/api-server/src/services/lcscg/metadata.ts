@@ -10,7 +10,7 @@ export const LCSCG_PERMISSION_STATUS =
 export const LCSCG_GENERAL_SUMMARY =
   "Illustrated field guide data for native seed collection in Lake County, northeastern Illinois, " +
   "compiled by the Lake County Forest Preserve District Volunteer Stewardship Network and published " +
-  "as 12 CC BY-NC 4.0 guides by the Field Museum Field Guides platform (Guide IDs 1271–1282). " +
+  "as 12 illustrated guides by the Field Museum Field Guides platform (Guide IDs 1271–1282). " +
   "Authors: Kelly Schultz (LCFPD Stewardship Ecologist) and Dale Shields. " +
   "Covers 494 plant species organized by season (spring, summer, fall) and habitat (woodland, wetland, " +
   "prairie, grasses and sedges, asters and goldenrods, woody plants). " +
@@ -66,8 +66,7 @@ export const LCSCG_REGISTRY_ENTRY = {
   description:
     "Seed identification photos, harvest instructions, and collection timing for 494 native plant species " +
     "in Lake County, Illinois, organized by season and habitat type. " +
-    "From 12 illustrated field guides published by the Lake County Forest Preserve District Volunteer Stewardship Network " +
-    "under a CC BY-NC 4.0 license.",
+    "From 12 illustrated field guides published by the Lake County Forest Preserve District Volunteer Stewardship Network.",
   input_summary: "Scientific name (partial or exact) or guide ID (1271–1282)",
   output_summary:
     "Species harvest description, seed dispersal categories, photo date, plant family, " +

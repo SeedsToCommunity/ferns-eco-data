@@ -29,7 +29,7 @@ export const GBIF_GENERAL_SUMMARY =
   "A name-match query returns the GBIF backbone key, match confidence, and whether the name is accepted " +
   "or a synonym; occurrence queries return count and location-tagged records with coordinates, basis of " +
   "record, and collection date. " +
-  "Data is licensed CC BY 4.0; backbone updated approximately annually; occurrence index updated continuously. " +
+  "Backbone updated approximately annually; occurrence index updated continuously. " +
   "Consumers must inspect match_type in every response: HIGHERRANK means the name resolved only to genus " +
   "or family level and must not be treated as a species-level confirmation; DOUBTFUL status means the name " +
   "exists in the backbone but its standing is uncertain. " +
@@ -192,7 +192,7 @@ export const GBIF_REGISTRY_ENTRY = {
   status: "live",
   description:
     "Plant scientific name lookup and verification — checks whether a name is currently accepted or has been replaced by a newer one — plus synonym lists, common names, and location-tagged sighting records across North America. " +
-    "From the Global Biodiversity Information Facility (GBIF), an intergovernmental organization aggregating biodiversity records from nearly 2,000 institutions worldwide. All data is CC BY 4.0.",
+    "From the Global Biodiversity Information Facility (GBIF), an intergovernmental organization aggregating biodiversity records from nearly 2,000 institutions worldwide.",
   input_summary:
     "Scientific name (for matching and reconciliation), GBIF usageKey (for synonyms, vernacular names, and occurrences), or common name string (for vernacular search)",
   output_summary:

@@ -171,7 +171,7 @@ export const BONAP_GENERAL_SUMMARY =
   "A query returns the map URL, full color-key vocabulary with hex codes, data vintage, and the complete " +
   "attribution and copyright notice required by BONAP. " +
   "Maps were published as a batch in December 2014 and have not been updated since; no automated update mechanism exists. " +
-  "Written permission from BONAP is required for any public deployment of these maps; permission has not yet been obtained. " +
+  "BONAP requires advance written permission for any public deployment of these maps. " +
   "BONAP and GBIF both draw on overlapping North American plant taxonomic sources — name agreement between " +
   "these two FERNS services is not independent corroboration of plant identity. " +
   "For Michigan county-level distribution with richer floristic detail and botanical descriptions, use Michigan Flora (miflora) — Michigan Flora is limited to Michigan but includes nativity and botanical context BONAP does not. " +
@@ -215,7 +215,7 @@ export const BONAP_REGISTRY_ENTRY = {
   update_frequency:
     "Static. NAPA maps last updated December 2014. Not updated since. No update notification mechanism exists.",
   known_limitations:
-    "Data vintage 2014. No subspecies-level maps. Family-level maps exist at bonap.net but are not implemented. Color key hex codes are approximate. Written permission from BONAP is required before public deployment — not yet obtained.",
+    "Data vintage 2014. No subspecies-level maps. Family-level maps exist at bonap.net but are not implemented. Color key hex codes are approximate. Written permission from BONAP is required before any public deployment.",
   metadata_url: "/api/bonap/metadata",
   explorer_url: "/source/bonap-napa",
   permission_granted: BONAP_PERMISSION_GRANTED,
