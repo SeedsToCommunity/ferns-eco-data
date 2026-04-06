@@ -26,7 +26,7 @@ const REGISTRY_ENTRY = {
   general_summary:
     "FERNS Source Registry is a self-hosted system catalog maintained by the FERNS Data Layer deployment itself — not an external institution. " +
     "Data type: a real-time index of all registered FERNS Knowledge Services, one entry per source, including identity, description, input/output shape, permission status, and links to full metadata and Source Explorer. " +
-    "Coverage: all 21 registered FERNS sources across ecological, taxonomic, distribution, phenological, vocabulary, and web-reference knowledge types; no geographic or taxonomic restriction. " +
+    "Coverage: all registered FERNS sources across ecological, taxonomic, distribution, phenological, vocabulary, web-reference, and system knowledge types; no geographic or taxonomic restriction. " +
     "FERNS reads directly from its internal source registry table at request time; no upstream API is called and no external data is fetched. " +
     "A query returns an array of SourceSummary objects, one per registered service, each including all identity and description fields. " +
     "The registry reflects the current registration state at the time of the request; entries are written at service startup by each source's seed function and are not cached separately from the database. " +
@@ -40,7 +40,7 @@ const REGISTRY_ENTRY = {
     "permission_status text, created_at timestamptz, updated_at timestamptz). " +
     "Entries are written at service startup by each source's seed.ts via onConflictDoUpdate (upsert on source_id). " +
     "The registry reads from this table without caching — every /api/v1/sources request queries the DB. " +
-    "Coverage: 21 registered sources at current deployment; source count grows as new services are onboarded. " +
+    "Coverage: grows as new services are onboarded; source count reflects current deployment. " +
     "It does not perform taxonomy reconciliation, trust tier assignment, cross-source synthesis, or data quality assessment — " +
     "those are application-layer concerns. " +
     "Overlap: not applicable — the registry is a system catalog for all FERNS sources, not a data source that overlaps with others. " +

@@ -23,7 +23,7 @@ import { autoImportMissouriPlantsIfEmpty } from "./services/botanical-refs/impor
 import { autoImportMinnesotaWildflowersIfEmpty } from "./services/botanical-refs/importers/minnesota-wildflowers.js";
 import { autoImportIllinoisWildflowersIfEmpty } from "./services/botanical-refs/importers/illinois-wildflowers.js";
 import { autoImportPrairieMoonIfEmpty } from "./services/botanical-refs/importers/prairie-moon.js";
-import { ensureSourceRelationships } from "./services/source-relationships/seed.js";
+import { ensureSourceRelationships, ensureSourceRelationshipsRegistryEntry } from "./services/source-relationships/seed.js";
 
 const rawPort = process.env["PORT"];
 
@@ -90,6 +90,7 @@ app.listen(port, (err) => {
     ["Prairie Moon", ensurePrairieMoonRegistryEntry()],
     ["USDA PLANTS", ensureUsdaPlantsRegistryEntry()],
     ["Lady Bird Johnson", ensureLadyBirdJohnsonRegistryEntry()],
+    ["Source Relationships", ensureSourceRelationshipsRegistryEntry()],
   ] as const;
 
   Promise.allSettled(registrySeedLabels.map(([, p]) => p))
