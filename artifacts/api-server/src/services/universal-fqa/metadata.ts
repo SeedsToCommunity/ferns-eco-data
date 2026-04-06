@@ -34,13 +34,7 @@ export const UNIVERSAL_FQA_GENERAL_SUMMARY =
   "native FQI, adjusted FQI, mean C, mean W), and the full species list with per-species values. " +
   "C-values must not be compared across databases from different regions or authorities. " +
   "Michigan databases ID 50 (Reznicek et al. 2014, University of Michigan Herbarium) and ID 267 (Merjent " +
-  "Inc. 2024) share the same Michigan vascular flora; ID 50 uses the same C-value assignments as " +
-  "Michigan Flora (michiganflora.net) in FERNS — querying both will produce consistent C-values for " +
-  "Michigan species, making them complementary rather than independent sources for that metric. " +
-  "For scientific name verification of species found in a database, use GBIF. " +
-  "For geographic distribution of FQA-assessed species in Michigan, use Michigan Flora; for all of North America, use BONAP. " +
-  "For natural community classification that provides habitat context for FQA assessments in Michigan, use MNFI. " +
-  "For conservation status of species in FQA databases, use NatureServe.";
+  "Inc. 2024) share the same Michigan vascular flora.";
 
 export const UNIVERSAL_FQA_TECHNICAL_DETAILS =
   "Source: universalfqa.org public REST API. Developed and maintained by the University of Michigan. " +
@@ -94,12 +88,7 @@ export const UNIVERSAL_FQA_TECHNICAL_DETAILS =
   "A species_count of 0 for a given database ID indicates a malformed upstream response — this is a known upstream limitation, not a FERNS error. " +
   "KNOWN LIMITATIONS: Assessment list endpoint has no county or state fields — location is only available in individual assessment detail. " +
   "Latitude and longitude fields are frequently blank. " +
-  "C-values must not be compared across regional databases without confirming that both databases use the same authority and geographic scope. " +
-  "Overlap with other FERNS sources: Universal FQA database ID 50 (Reznicek et al. 2014) shares C-value assignments with Michigan Flora (miflora) — querying both returns consistent C-values for Michigan species. " +
-  "For scientific name verification of species found in a database, use GBIF (gbif). " +
-  "For geographic distribution of FQA-assessed species in Michigan, use Michigan Flora (miflora); for North America, use BONAP (bonap-napa). " +
-  "For natural community classification that provides FQA habitat context in Michigan, use MNFI (mnfi). " +
-  "For conservation status of species in FQA databases, use NatureServe (natureserve).";
+  "C-values must not be compared across regional databases without confirming that both databases use the same authority and geographic scope.";
 
 export const UNIVERSAL_FQA_REGISTRY_ENTRY = {
   source_id: UNIVERSAL_FQA_SOURCE_ID,

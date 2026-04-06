@@ -37,11 +37,7 @@ export const MINNESOTA_WILDFLOWERS_TECHNICAL_DETAILS =
   "Method: species_list_scrape with DB lookup. No HTTP validation at query time. " +
   "DB table: botanical_species_lists (columns: id serial PK, site_id text, scientific_name text, url text, section text, imported_at; " +
   "unique on (site_id, scientific_name, section)). Coverage: ~1,861 taxa at last import. " +
-  "Overlap with other FERNS sources: For comparable regional references, use Illinois Wildflowers (illinois-wildflowers) for Illinois, " +
-  "Missouri Plants (missouri-plants) for Missouri, Go Botany (gobotany) for New England. " +
-  "For North America-wide plant reference, use Lady Bird Johnson Wildflower Center (lady-bird-johnson) or USDA PLANTS (usda-plants). " +
-  "For plant scientific name verification, use GBIF (gbif). For county-level distribution, use BONAP (bonap-napa). " +
-  "For nursery availability of Midwest species, use Prairie Moon (prairie-moon).";
+  "Minnesota Wildflowers does not provide distribution data, conservation ranks, C-values, or nursery availability.";
 
 export const MINNESOTA_WILDFLOWERS_REGISTRY_ENTRY = {
   source_id: MINNESOTA_WILDFLOWERS_SOURCE_ID,

@@ -1448,6 +1448,67 @@ export interface LcscgMetadataResponse {
   provenance: FernsProvenance;
 }
 
+/**
+ * Nature of the relationship between the two sources
+ */
+export type SourceRelationshipRelationshipType =
+  (typeof SourceRelationshipRelationshipType)[keyof typeof SourceRelationshipRelationshipType];
+
+export const SourceRelationshipRelationshipType = {
+  overlap: "overlap",
+  conflict: "conflict",
+  complements: "complements",
+  supersedes: "supersedes",
+} as const;
+
+/**
+ * blocking — must account for this before combining these sources; cautionary — awareness required, may cause errors if ignored; informational — useful context, no required action.
+
+ */
+export type SourceRelationshipSeverity =
+  (typeof SourceRelationshipSeverity)[keyof typeof SourceRelationshipSeverity];
+
+export const SourceRelationshipSeverity = {
+  blocking: "blocking",
+  cautionary: "cautionary",
+  informational: "informational",
+} as const;
+
+export interface SourceRelationship {
+  id: number;
+  /** One of the two source IDs (lexically smaller of the pair) */
+  source_id_a: string;
+  /** The other source ID (lexically larger of the pair) */
+  source_id_b: string;
+  /** Nature of the relationship between the two sources */
+  relationship_type: SourceRelationshipRelationshipType;
+  /** Domain in which the relationship applies. One of: taxonomy, occurrence_counts, c_values, conservation_ranks, geographic_coverage, terminology, seed_harvest, community_classification, occurrence.
+   */
+  scope: string;
+  /** blocking — must account for this before combining these sources; cautionary — awareness required, may cause errors if ignored; informational — useful context, no required action.
+   */
+  severity: SourceRelationshipSeverity;
+  /** Plain-English description of the relationship for agents and non-technical users */
+  description: string;
+  /** Implementation-level detail for developers and researchers */
+  technical_note: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export type SourceRelationshipsResponseData = {
+  relationships: SourceRelationship[];
+  relationship_count: number;
+  filtered_by_source_id?: string | null;
+};
+
+export interface SourceRelationshipsResponse {
+  source_url: string;
+  found: boolean;
+  data: SourceRelationshipsResponseData;
+  provenance: FernsProvenance;
+}
+
 export type GetBonapMapParams = {
   /**
  * Genus name. First letter capitalized, remainder lowercase (e.g. Asclepias). The service normalizes to title case before URL construction.
@@ -1748,4 +1809,12 @@ export type GetUniversalFqaAssessmentsParams = {
    * Universal FQA database ID
    */
   database_id: number;
+};
+
+export type GetSourceRelationshipsParams = {
+  /**
+ * If provided, returns only relationships where this source_id is one of the two parties.
+
+ */
+  source_id?: string;
 };

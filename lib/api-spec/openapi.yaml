@@ -1368,6 +1368,34 @@ paths:
               schema:
                 $ref: "#/components/schemas/SourcesMetadataResponse"
 
+  /v1/source-relationships:
+    get:
+      operationId: getSourceRelationships
+      tags: [registry]
+      summary: List cross-source relationships (overlaps, conflicts, complements)
+      description: >
+        Returns all documented relationships between FERNS sources — overlaps, conflicts,
+        and complementary pairings. Optionally filter by source_id to get only relationships
+        involving a specific source. Use this endpoint to understand whether two sources
+        double-count data, disagree on terminology, or cover the same domain from different
+        methodologies. Individual source metadata does not contain cross-source information;
+        this endpoint is the canonical location for all inter-source knowledge.
+      parameters:
+        - name: source_id
+          in: query
+          required: false
+          description: >
+            If provided, returns only relationships where this source_id is one of the two parties.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of source relationships
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SourceRelationshipsResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -4115,5 +4143,87 @@ components:
         queried_at:
           type: string
           format: date-time
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    SourceRelationship:
+      type: object
+      required:
+        - id
+        - source_id_a
+        - source_id_b
+        - relationship_type
+        - scope
+        - severity
+        - description
+        - technical_note
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: integer
+        source_id_a:
+          type: string
+          description: One of the two source IDs (lexically smaller of the pair)
+        source_id_b:
+          type: string
+          description: The other source ID (lexically larger of the pair)
+        relationship_type:
+          type: string
+          enum: [overlap, conflict, complements, supersedes]
+          description: Nature of the relationship between the two sources
+        scope:
+          type: string
+          description: >
+            Domain in which the relationship applies. One of: taxonomy, occurrence_counts,
+            c_values, conservation_ranks, geographic_coverage, terminology, seed_harvest,
+            community_classification, occurrence.
+        severity:
+          type: string
+          enum: [blocking, cautionary, informational]
+          description: >
+            blocking — must account for this before combining these sources;
+            cautionary — awareness required, may cause errors if ignored;
+            informational — useful context, no required action.
+        description:
+          type: string
+          description: Plain-English description of the relationship for agents and non-technical users
+        technical_note:
+          type: string
+          description: Implementation-level detail for developers and researchers
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    SourceRelationshipsResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+        found:
+          type: boolean
+        data:
+          type: object
+          required:
+            - relationships
+            - relationship_count
+          properties:
+            relationships:
+              type: array
+              items:
+                $ref: "#/components/schemas/SourceRelationship"
+            relationship_count:
+              type: integer
+            filtered_by_source_id:
+              type: string
+              nullable: true
         provenance:
           $ref: "#/components/schemas/FernsProvenance"

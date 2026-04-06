@@ -3877,3 +3877,102 @@ export const GetSourcesMetadataResponse = zod.object({
       "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
 });
+
+/**
+ * Returns all documented relationships between FERNS sources — overlaps, conflicts, and complementary pairings. Optionally filter by source_id to get only relationships involving a specific source. Use this endpoint to understand whether two sources double-count data, disagree on terminology, or cover the same domain from different methodologies. Individual source metadata does not contain cross-source information; this endpoint is the canonical location for all inter-source knowledge.
+
+ * @summary List cross-source relationships (overlaps, conflicts, complements)
+ */
+export const GetSourceRelationshipsQueryParams = zod.object({
+  source_id: zod.coerce
+    .string()
+    .optional()
+    .describe(
+      "If provided, returns only relationships where this source_id is one of the two parties.\n",
+    ),
+});
+
+export const GetSourceRelationshipsResponse = zod.object({
+  source_url: zod.string(),
+  found: zod.boolean(),
+  data: zod.object({
+    relationships: zod.array(
+      zod.object({
+        id: zod.number(),
+        source_id_a: zod
+          .string()
+          .describe(
+            "One of the two source IDs (lexically smaller of the pair)",
+          ),
+        source_id_b: zod
+          .string()
+          .describe("The other source ID (lexically larger of the pair)"),
+        relationship_type: zod
+          .enum(["overlap", "conflict", "complements", "supersedes"])
+          .describe("Nature of the relationship between the two sources"),
+        scope: zod
+          .string()
+          .describe(
+            "Domain in which the relationship applies. One of: taxonomy, occurrence_counts, c_values, conservation_ranks, geographic_coverage, terminology, seed_harvest, community_classification, occurrence.\n",
+          ),
+        severity: zod
+          .enum(["blocking", "cautionary", "informational"])
+          .describe(
+            "blocking — must account for this before combining these sources; cautionary — awareness required, may cause errors if ignored; informational — useful context, no required action.\n",
+          ),
+        description: zod
+          .string()
+          .describe(
+            "Plain-English description of the relationship for agents and non-technical users",
+          ),
+        technical_note: zod
+          .string()
+          .describe(
+            "Implementation-level detail for developers and researchers",
+          ),
+        created_at: zod.date(),
+        updated_at: zod.date(),
+      }),
+    ),
+    relationship_count: zod.number(),
+    filtered_by_source_id: zod.string().nullish(),
+  }),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      general_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      technical_details: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+    ),
+});

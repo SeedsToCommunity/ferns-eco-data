@@ -33,12 +33,7 @@ export const GOBOTANY_TECHNICAL_DETAILS =
   "Subspecies and varieties are not individually keyed — only binomials are supported. " +
   "No DB table — URL is constructed at query time and validated via HTTP GET; no data is persisted. " +
   "Coverage: New England vascular plants (native and naturalized) across the six states; Go Botany does not publish a fixed species count. " +
-  "Overlap with other FERNS sources: For comparable regional references, use Illinois Wildflowers (illinois-wildflowers) for Illinois, " +
-  "Minnesota Wildflowers (minnesota-wildflowers) for Minnesota, Missouri Plants (missouri-plants) for Missouri, " +
-  "Prairie Moon (prairie-moon) for Midwest nursery catalog coverage. " +
-  "For North America-wide plant reference, use Lady Bird Johnson Wildflower Center (lady-bird-johnson) or USDA PLANTS (usda-plants). " +
-  "For plant scientific name verification, use GBIF (gbif). For conservation status, use NatureServe (natureserve). " +
-  "Go Botany does not provide distribution data, conservation ranks, C-values, or phenology — use dedicated FERNS sources for those. " +
+  "Go Botany does not provide distribution data, conservation ranks, C-values, or phenology. " +
   "Method: direct_construction with HTTP validation.";
 
 export const GOBOTANY_REGISTRY_ENTRY = {

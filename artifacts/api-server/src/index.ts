@@ -23,6 +23,7 @@ import { autoImportMissouriPlantsIfEmpty } from "./services/botanical-refs/impor
 import { autoImportMinnesotaWildflowersIfEmpty } from "./services/botanical-refs/importers/minnesota-wildflowers.js";
 import { autoImportIllinoisWildflowersIfEmpty } from "./services/botanical-refs/importers/illinois-wildflowers.js";
 import { autoImportPrairieMoonIfEmpty } from "./services/botanical-refs/importers/prairie-moon.js";
+import { ensureSourceRelationships } from "./services/source-relationships/seed.js";
 
 const rawPort = process.env["PORT"];
 
@@ -140,5 +141,9 @@ app.listen(port, (err) => {
 
   autoImportPrairieMoonIfEmpty().catch((err) => {
     logger.error({ err }, "Prairie Moon auto-import check failed at startup");
+  });
+
+  ensureSourceRelationships().catch((err) => {
+    logger.error({ err }, "Failed to seed source relationships at startup");
   });
 });

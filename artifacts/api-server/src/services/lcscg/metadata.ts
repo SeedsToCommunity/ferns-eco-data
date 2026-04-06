@@ -22,9 +22,7 @@ export const LCSCG_GENERAL_SUMMARY =
   "Data is static with no update cycle; not all records are native — non-native comparison species " +
   "marked 'Do Not Collect' are included; no Floristic Quality Assessment C-values (a measure of a plant's fidelity to undisturbed habitat) " +
   "or wetland status codes are provided. " +
-  "LCSCG species names follow Flora of the Chicago Region (Wilhelm & Rericha 2017), which may differ from " +
-  "GBIF, iNaturalist, BONAP, USDA PLANTS, or Michigan Flora taxonomy used by other FERNS sources — " +
-  "cross-reference names carefully when combining with those services.";
+  "LCSCG species names follow Flora of the Chicago Region (Wilhelm & Rericha 2017).";
 
 export const LCSCG_TECHNICAL_DETAILS =
   "Primary source: 12 PDF field guides (version 2, March 2021) authored by Kelly Schultz " +
@@ -38,8 +36,7 @@ export const LCSCG_TECHNICAL_DETAILS =
   "Scientific reviewer: Laurie Ryan, McHenry County Conservation District. " +
   "Data extracted from PDFs into JSON files; stored in FERNS as static PostgreSQL records " +
   "(no TTL, no cache, no refresh). " +
-  "Nomenclature follows Flora of the Chicago Region (Wilhelm & Rericha, 2017), which may differ from " +
-  "GBIF, iNaturalist, or USDA PLANTS taxonomy. " +
+  "Nomenclature follows Flora of the Chicago Region (Wilhelm & Rericha, 2017). " +
   "Images (2,093 PNGs) hosted on Cloudinary (cloud: dqe2vv0fo), organized in per-guide folders. " +
   "Fields per species: scientific_name, common_name, family, guide_id, guide_name, season, habitat_type, " +
   "page_number, photo_date (M-D-YY format; date of reference photograph; approximate collection timing; " +
@@ -50,12 +47,7 @@ export const LCSCG_TECHNICAL_DETAILS =
   "494 total records, all unique by scientific name. " +
   "Non-native Do Not Collect species included: Daucus carota, Cirsium vulgare, Phleum pratense, " +
   "Abutilon theophrasti, Dianthus armeria, others. " +
-  "FERNS does not cross-reference LCSCG records with any other FERNS source. " +
-  "Overlap with other FERNS sources: For taxonomy verification of a species found in LCSCG data, use GBIF (gbif) — LCSCG nomenclature follows Flora of the Chicago Region (2017) and may not match GBIF accepted names. " +
-  "For county-level distribution, use BONAP (bonap-napa) or, for Michigan species, Michigan Flora (miflora). " +
-  "For C-values and ecological quality assessment, use Universal FQA (universal-fqa) or Michigan Flora (miflora) — LCSCG provides no C-values. " +
-  "For conservation status of LCSCG-listed species, use NatureServe (natureserve). " +
-  "For observation photos and phenology of LCSCG species, use iNaturalist (inaturalist).";
+  "LCSCG provides no C-values or wetland status codes.";
 
 export const LCSCG_REGISTRY_ENTRY = {
   source_id: LCSCG_SOURCE_ID,

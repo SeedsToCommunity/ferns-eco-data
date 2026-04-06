@@ -33,11 +33,7 @@ export const GBIF_GENERAL_SUMMARY =
   "Consumers must inspect match_type in every response: HIGHERRANK means the name resolved only to genus " +
   "or family level and must not be treated as a species-level confirmation; DOUBTFUL status means the name " +
   "exists in the backbone but its standing is uncertain. " +
-  "iNaturalist research-grade observations are published to GBIF — GBIF occurrence counts therefore overlap " +
-  "with FERNS's iNaturalist service; treat simultaneous queries to both as complementary views, not independent datasets. " +
-  "BONAP (bonap-napa) and GBIF draw on overlapping North American plant taxonomic sources — name agreement between them is not independent corroboration. " +
-  "For Michigan county-level distribution with nativity and botanical context, use Michigan Flora (miflora). " +
-  "For authoritative conservation status ranks (G/N/S), use NatureServe (natureserve) — GBIF surfaces IUCN categories through its backbone, but NatureServe's element-based ranking is independently assessed.";
+  "iNaturalist research-grade observations are published to GBIF — account for this when combining occurrence counts from multiple sources.";
 
 export const GBIF_TECHNICAL_DETAILS =
   "Source: GBIF.org. Data licensed CC BY 4.0. " +
@@ -56,20 +52,12 @@ export const GBIF_TECHNICAL_DETAILS =
   "COORDINATE_INVALID, COUNTRY_COORDINATE_MISMATCH. Does NOT exclude: high coordinate " +
   "uncertainty, gridded datasets, centroid records (identifiable by coordinateUncertaintyInMeters " +
   "values 301, 3036, 999, 9999). " +
-  "GBIF backbone and BONAP both draw on overlapping North American plant taxonomic sources — " +
-  "name agreement between GBIF and BONAP is NOT independent corroboration. " +
   "iNaturalist publishes its observations to GBIF; GBIF occurrence counts include iNaturalist records. " +
-  "If combining with a separate iNaturalist source, account for double-counting at the application layer. " +
   "Method: api_fetch. Results are cached between requests. " +
   "DB tables: gbif_name_matches (columns: cache_key unique, canonical_name, usage_key, accepted_usage_key, accepted_canonical_name, rank, status, confidence, match_type, kingdom through species hierarchy + corresponding keys, matched_input, expires_at); " +
   "gbif_synonyms (columns: cache_key unique, usage_key, synonyms jsonb, synonym_count); " +
   "gbif_vernacular_names (columns: cache_key unique, usage_key, vernacular_names jsonb, vernacular_name_primary, vernacular_name_count); " +
-  "gbif_occurrences (columns: cache_key unique, usage_key, geography_mode, geography_params, occurrence_count, occurrence_count_us, recent_occurrences jsonb, occurrence_last_fetched). " +
-  "Overlap with other FERNS sources: BONAP (bonap-napa) and GBIF draw on overlapping North American plant taxonomic sources — name agreement between them is not independent corroboration. " +
-  "iNaturalist (inaturalist) research-grade observations are published to GBIF — occurrence counts overlap and must not be double-counted. " +
-  "For Michigan county-level distribution with nativity and botanical context, use Michigan Flora (miflora). " +
-  "For conservation status and imperilment ranks, use NatureServe (natureserve) — NatureServe's G/N/S ranking system is independent of GBIF's IUCN backbone data. " +
-  "For FQA ecological quality assessment, use Universal FQA (universal-fqa).";
+  "gbif_occurrences (columns: cache_key unique, usage_key, geography_mode, geography_params, occurrence_count, occurrence_count_us, recent_occurrences jsonb, occurrence_last_fetched).";
 
 export const GBIF_VOCABULARIES = {
   basisOfRecord: [
@@ -199,7 +187,7 @@ export const GBIF_REGISTRY_ENTRY = {
   update_frequency:
     "Live API. Backbone updated approximately annually. Occurrence index updated continuously.",
   known_limitations:
-    "found: true means the name resolved to something in the GBIF backbone, but applications must check match_type to determine whether that match is at the species level or fell back to a higher rank (HIGHERRANK). A HIGHERRANK result should not be treated as a confirmed species identification. Backbone may diverge from BONAP taxonomy for contested North American plant names. Vernacular names are uncontrolled and of variable quality. iNaturalist records appear in GBIF occurrence counts — do not count both as independent. usageKeys may change across annual backbone rebuilds.",
+    "found: true means the name resolved to something in the GBIF backbone, but applications must check match_type to determine whether that match is at the species level or fell back to a higher rank (HIGHERRANK). A HIGHERRANK result should not be treated as a confirmed species identification. Vernacular names are uncontrolled and of variable quality. iNaturalist records are included in GBIF occurrence counts. usageKeys may change across annual backbone rebuilds.",
   metadata_url: "/api/gbif/metadata",
   explorer_url: "/source/gbif",
   permission_granted: GBIF_PERMISSION_GRANTED,

@@ -14,6 +14,7 @@ import MnfiPage from "@/pages/MnfiPage";
 import { NatureservePage } from "@/pages/NatureservePage";
 import BotanicalRefSourcePage from "@/pages/BotanicalRefSourcePage";
 import GenericSourcePage from "@/pages/GenericSourcePage";
+import SourceRelationshipsPage from "@/pages/SourceRelationshipsPage";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -48,6 +49,7 @@ function Router() {
       <Route path="/source/missouri-plants" component={BotanicalRefSourcePage} />
       <Route path="/source/prairie-moon" component={BotanicalRefSourcePage} />
       <Route path="/source/usda-plants" component={BotanicalRefSourcePage} />
+      <Route path="/source-relationships" component={SourceRelationshipsPage} />
       <Route path="/source/:sourceId/metadata" component={MetadataPage} />
       {/* Generic fallback: any source not matched above gets the metadata page */}
       <Route path="/source/:sourceId" component={GenericSourcePage} />

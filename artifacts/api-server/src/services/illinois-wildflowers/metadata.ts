@@ -38,11 +38,7 @@ export const ILLINOIS_WILDFLOWERS_TECHNICAL_DETAILS =
   "DB table: botanical_species_lists (columns: id serial PK, site_id text, scientific_name text, url text, section text, imported_at; " +
   "unique on (site_id, scientific_name, section)). Coverage: ~1,459 entries across 8 habitat sections; " +
   "many species appear in multiple sections, yielding more DB rows than unique species. " +
-  "Overlap with other FERNS sources: For comparable regional references, use Minnesota Wildflowers (minnesota-wildflowers) for Minnesota, " +
-  "Missouri Plants (missouri-plants) for Missouri, Go Botany (gobotany) for New England. " +
-  "For North America-wide plant reference, use Lady Bird Johnson Wildflower Center (lady-bird-johnson) or USDA PLANTS (usda-plants). " +
-  "For plant scientific name verification, use GBIF (gbif). For county-level distribution, use BONAP (bonap-napa). " +
-  "For nursery availability of Midwest species, use Prairie Moon (prairie-moon).";
+  "Illinois Wildflowers does not provide distribution data, conservation ranks, C-values, or nursery availability.";
 
 export const ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY = {
   source_id: ILLINOIS_WILDFLOWERS_SOURCE_ID,

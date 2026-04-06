@@ -23,13 +23,7 @@ export const MNFI_GENERAL_SUMMARY =
   "FERNS imports community classification data from MNFI's public website and API at startup; all data is available immediately on a correctly configured deployment. " +
   "A community query returns name, class, group, conservation ranks, full description, characteristic plant list, MNFI URL, and county distribution map link; " +
   "a county element query returns species and community occurrences with conservation status codes and last observation year. " +
-  "MNFI community types align with NatureServe ecological systems at the national scale — MNFI provides Michigan field-level detail " +
-  "(characteristic plants, county maps, management notes) that NatureServe's national classification does not; " +
-  "using both FERNS services together gives the most complete picture of a community type. " +
-  "Community description and characteristic plant list data is imported at server startup; if a deployment has just been initialized, descriptions may take a short time to populate. Geographic scope is Michigan only. " +
-  "For scientific name verification of species in MNFI characteristic plant lists, use GBIF. " +
-  "For vascular plant county occurrence data in Michigan, use Michigan Flora (miflora) — Michigan Flora provides botanical descriptions and distributional context MNFI does not. " +
-  "For citizen science occurrence data for MNFI-tracked species, use iNaturalist (inaturalist).";
+  "Community description and characteristic plant list data is imported at server startup; if a deployment has just been initialized, descriptions may take a short time to populate. Geographic scope is Michigan only.";
 
 export const MNFI_TECHNICAL_DETAILS =
   "Primary source: Michigan Natural Features Inventory Natural Community Classification " +
@@ -58,10 +52,7 @@ export const MNFI_TECHNICAL_DETAILS =
   "Fields stored per community: community_id, slug, name, community_class, community_group, " +
   "global_rank, state_rank, overview, landscape_context, soils_description, natural_processes, " +
   "vegetation, management_notes, similar_communities (jsonb), mnfi_url, county_map_url. " +
-  "Overlap with other FERNS sources: For Americas-wide conservation ranks (G/N/S) of the same community types, use NatureServe (natureserve) — NatureServe provides the national classification framework; MNFI provides Michigan-specific field detail, characteristic plant lists, and county distribution maps not in NatureServe. " +
-  "For vascular plant county occurrence data in Michigan, use Michigan Flora (miflora) — Michigan Flora covers county distribution for all Michigan vascular plants at the species level; MNFI county element data covers MNFI-tracked taxa (vascular and non-vascular plants, animals, and communities). " +
-  "For scientific name verification of species in MNFI characteristic plant lists, use GBIF (gbif). " +
-  "For citizen science occurrence data for MNFI-tracked species, use iNaturalist (inaturalist).";
+  "Rank codes follow NatureServe methodology throughout (see methodology description above).";
 
 export const MNFI_REGISTRY_ENTRY = {
   source_id: MNFI_SOURCE_ID,

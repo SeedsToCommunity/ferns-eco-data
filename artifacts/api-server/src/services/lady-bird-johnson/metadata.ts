@@ -20,11 +20,8 @@ export const LADY_BIRD_JOHNSON_GENERAL_SUMMARY =
   "profile URLs require knowing the Wildflower Center's internal plant ID code, which cannot be derived " +
   "from the scientific name without a lookup. The search URL is always valid. " +
   "Live — URLs are constructed at query time; the Wildflower Center database is updated by staff periodically. " +
-  "Lady Bird Johnson Wildflower Center covers all North American natives at broad scope; " +
-  "for regional-specialist references within FERNS, use Go Botany (gobotany) for New England, " +
-  "Illinois Wildflowers (illinois-wildflowers) for Illinois, Minnesota Wildflowers (minnesota-wildflowers) for Minnesota, " +
-  "Missouri Plants (missouri-plants) for Missouri, and Prairie Moon (prairie-moon) for Midwest nursery availability. " +
-  "USDA PLANTS (usda-plants) provides the authoritative federal taxonomy across all US and territory species.";
+  "Lady Bird Johnson Wildflower Center covers all North American natives at broad geographic scope; " +
+  "it does not provide conservation ranks, C-values, or nursery availability.";
 
 export const LADY_BIRD_JOHNSON_TECHNICAL_DETAILS =
   "Source: https://www.wildflower.org/plants/. " +
@@ -38,12 +35,7 @@ export const LADY_BIRD_JOHNSON_TECHNICAL_DETAILS =
   "Geographic scope: North American native plants (emphasis on US, including non-native naturalized species). " +
   "No DB table — URL is constructed at query time (direct_construction); no data is persisted. " +
   "Coverage: thousands of North American native and naturalized species; exact count not published; database is continuously updated by Wildflower Center staff. " +
-  "Overlap with other FERNS sources: For regional specialist references, use Go Botany (gobotany) for New England, " +
-  "Illinois Wildflowers (illinois-wildflowers) for Illinois, Minnesota Wildflowers (minnesota-wildflowers) for Minnesota, " +
-  "Missouri Plants (missouri-plants) for Missouri, Prairie Moon (prairie-moon) for Midwest nursery availability. " +
-  "For federal nomenclatural authority, use USDA PLANTS (usda-plants). " +
-  "For plant scientific name verification and synonym resolution, use GBIF (gbif). " +
-  "For conservation status, use NatureServe (natureserve).";
+  "Lady Bird Johnson Wildflower Center does not provide conservation ranks, distribution maps, C-values, or nursery availability.";
 
 export const LADY_BIRD_JOHNSON_REGISTRY_ENTRY = {
   source_id: LADY_BIRD_JOHNSON_SOURCE_ID,

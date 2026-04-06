@@ -20,15 +20,7 @@ export const USDA_PLANTS_GENERAL_SUMMARY =
   "(e.g., ACRU for Acer rubrum), which cannot be derived from the scientific name without a lookup. " +
   "The search results page is JavaScript-rendered (React SPA) and requires a browser to display results. " +
   "Live — URLs are constructed at query time; the USDA PLANTS database is updated continuously by NRCS. " +
-  "USDA PLANTS is the federal nomenclatural authority and overlaps in name coverage with GBIF and BONAP; " +
-  "GBIF and BONAP both draw on USDA PLANTS-derived taxonomy, so name agreement across those FERNS services " +
-  "is not independent corroboration — USDA PLANTS is the authoritative US government source. " +
-  "For Michigan county-level distribution, use Michigan Flora (miflora). " +
-  "For citizen science occurrence data, use iNaturalist (inaturalist). " +
-  "For conservation status and imperilment ranks, use NatureServe (natureserve). " +
-  "For regional species-specific botanical profile URLs, use Go Botany (gobotany) for New England, " +
-  "Illinois Wildflowers (illinois-wildflowers) for Illinois, Minnesota Wildflowers (minnesota-wildflowers) for Minnesota, " +
-  "Missouri Plants (missouri-plants) for Missouri.";
+  "USDA PLANTS is the federal nomenclatural authority for US plant taxonomy, operated by NRCS.";
 
 export const USDA_PLANTS_TECHNICAL_DETAILS =
   "Source: https://plants.usda.gov. Operated by USDA Natural Resources Conservation Service (NRCS). " +
@@ -42,14 +34,7 @@ export const USDA_PLANTS_TECHNICAL_DETAILS =
   "the returned URL requires a browser to display results. " +
   "No DB table — URL is constructed at query time (direct_construction); no data is persisted. " +
   "Coverage: US and territories; all land plants (vascular plants, mosses, liverworts, hornworts, lichens). " +
-  "Overlap with other FERNS sources: GBIF (gbif) and BONAP (bonap-napa) both draw on USDA PLANTS-derived taxonomy — " +
-  "name agreement across these FERNS sources is not independent corroboration. " +
-  "For Michigan county-level distribution, use Michigan Flora (miflora). " +
-  "For citizen science occurrence data, use iNaturalist (inaturalist). " +
-  "For conservation status, use NatureServe (natureserve). " +
-  "For regional species-specific botanical profile URLs, use Go Botany (gobotany) for New England, " +
-  "Illinois Wildflowers (illinois-wildflowers) for Illinois, Minnesota Wildflowers (minnesota-wildflowers) for Minnesota, " +
-  "Missouri Plants (missouri-plants) for Missouri.";
+  "Note: USDA PLANTS symbol-based profile URLs (e.g., ?symbol=ACRU) cannot be derived from the scientific name alone — FERNS therefore returns a search URL.";
 
 export const USDA_PLANTS_REGISTRY_ENTRY = {
   source_id: USDA_PLANTS_SOURCE_ID,

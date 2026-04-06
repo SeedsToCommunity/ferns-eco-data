@@ -1,11 +1,12 @@
 import React from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 export function Layout({ children }: LayoutProps) {
+  const [location] = useLocation();
   return (
     <div className="min-h-screen flex flex-col bg-background relative selection:bg-primary/20 selection:text-primary">
       {/* Decorative Background Pattern */}
@@ -38,6 +39,16 @@ export function Layout({ children }: LayoutProps) {
             </div>
             
             <nav className="flex items-center gap-6">
+              <Link
+                href="/source-relationships"
+                className={`text-sm font-medium transition-colors ${
+                  location === "/source-relationships"
+                    ? "text-primary"
+                    : "text-muted-foreground hover:text-primary"
+                }`}
+              >
+                Relationships
+              </Link>
               <a href="/api/v1/sources" target="_blank" rel="noreferrer" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
                 Raw API
               </a>

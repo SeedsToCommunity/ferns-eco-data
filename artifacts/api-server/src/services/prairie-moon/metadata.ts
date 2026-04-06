@@ -17,14 +17,7 @@ export const PRAIRIE_MOON_GENERAL_SUMMARY =
   "to the Prairie Moon plant page if a match exists. " +
   "The data reflects the time of the last import, not live nursery stock. " +
   "Prairie Moon covers nursery availability and growing information only — it is not a scientific taxonomic source " +
-  "and does not include distribution data, nativity status, or conservation rankings. " +
-  "For plant scientific name verification and synonym resolution, use GBIF (gbif). " +
-  "For regional distribution in Michigan, use Michigan Flora (miflora). " +
-  "For North American distribution and nativity status, use BONAP (bonap-napa). " +
-  "For C-values and ecological quality assessment, use Universal FQA (universal-fqa). " +
-  "Prairie Moon overlaps in geographic scope with Illinois Wildflowers (illinois-wildflowers) and " +
-  "Minnesota Wildflowers (minnesota-wildflowers), but Prairie Moon's value is nursery availability — " +
-  "use regional wildflower references for identification, and Prairie Moon for sourcing.";
+  "and does not include distribution data, nativity status, or conservation rankings.";
 
 export const PRAIRIE_MOON_TECHNICAL_DETAILS =
   "Primary source: https://www.prairiemoon.com/sitemap.xml. Operator: Prairie Moon Nursery, Winona, MN (prairiemoon.com). " +
@@ -44,13 +37,7 @@ export const PRAIRIE_MOON_TECHNICAL_DETAILS =
   "Known limitation: URL slug spelling may not match current accepted taxonomy — synonyms and older names not yet updated " +
   "on the Prairie Moon site will not match. " +
   "Prairie Moon is a nursery catalog, not a scientific taxonomic authority. It does not provide distribution data, " +
-  "nativity status, conservation status, or C-values. " +
-  "Overlap with other FERNS sources: For taxonomy verification, use GBIF (gbif). " +
-  "For Michigan county-level distribution, use Michigan Flora (miflora). " +
-  "For North American distribution and nativity status, use BONAP (bonap-napa). " +
-  "For C-values and ecological quality assessment, use Universal FQA (universal-fqa). " +
-  "For floristic plant references in Illinois, use Illinois Wildflowers (illinois-wildflowers). " +
-  "For Minnesota plant references, use Minnesota Wildflowers (minnesota-wildflowers).";
+  "nativity status, conservation status, or C-values.";
 
 export const PRAIRIE_MOON_REGISTRY_ENTRY = {
   source_id: PRAIRIE_MOON_SOURCE_ID,

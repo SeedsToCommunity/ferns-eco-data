@@ -40,6 +40,7 @@ import type {
   GetMifloraImagesParams,
   GetMifloraSpeciesParams,
   GetS2CSpeciesByYearParams,
+  GetSourceRelationshipsParams,
   GetUniversalFqaAssessmentsParams,
   GetUniversalFqaSpeciesParams,
   GetWetlandIndicatorByCodeParams,
@@ -62,6 +63,7 @@ import type {
   MifloraSpeciesResponse,
   S2CSpeciesResponse,
   S2CYearsResponse,
+  SourceRelationshipsResponse,
   SourcesIndexResponse,
   SourcesMetadataResponse,
   UniversalFqaAssessmentResponse,
@@ -3951,6 +3953,111 @@ export function useGetSourcesMetadata<
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetSourcesMetadataQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns all documented relationships between FERNS sources — overlaps, conflicts, and complementary pairings. Optionally filter by source_id to get only relationships involving a specific source. Use this endpoint to understand whether two sources double-count data, disagree on terminology, or cover the same domain from different methodologies. Individual source metadata does not contain cross-source information; this endpoint is the canonical location for all inter-source knowledge.
+
+ * @summary List cross-source relationships (overlaps, conflicts, complements)
+ */
+export const getGetSourceRelationshipsUrl = (
+  params?: GetSourceRelationshipsParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/v1/source-relationships?${stringifiedParams}`
+    : `/api/v1/source-relationships`;
+};
+
+export const getSourceRelationships = async (
+  params?: GetSourceRelationshipsParams,
+  options?: RequestInit,
+): Promise<SourceRelationshipsResponse> => {
+  return customFetch<SourceRelationshipsResponse>(
+    getGetSourceRelationshipsUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetSourceRelationshipsQueryKey = (
+  params?: GetSourceRelationshipsParams,
+) => {
+  return [`/api/v1/source-relationships`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetSourceRelationshipsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getSourceRelationships>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetSourceRelationshipsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getSourceRelationships>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetSourceRelationshipsQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getSourceRelationships>>
+  > = ({ signal }) =>
+    getSourceRelationships(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getSourceRelationships>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetSourceRelationshipsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getSourceRelationships>>
+>;
+export type GetSourceRelationshipsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List cross-source relationships (overlaps, conflicts, complements)
+ */
+
+export function useGetSourceRelationships<
+  TData = Awaited<ReturnType<typeof getSourceRelationships>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetSourceRelationshipsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getSourceRelationships>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetSourceRelationshipsQueryOptions(params, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

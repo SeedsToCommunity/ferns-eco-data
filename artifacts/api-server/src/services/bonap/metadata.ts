@@ -171,12 +171,7 @@ export const BONAP_GENERAL_SUMMARY =
   "A query returns the map URL, full color-key vocabulary with hex codes, data vintage, and the complete " +
   "attribution and copyright notice required by BONAP. " +
   "Maps were published as a batch in December 2014 and have not been updated since; no automated update mechanism exists. " +
-  "BONAP requires advance written permission for any public deployment of these maps. " +
-  "BONAP and GBIF both draw on overlapping North American plant taxonomic sources — name agreement between " +
-  "these two FERNS services is not independent corroboration of plant identity. " +
-  "For Michigan county-level distribution with richer floristic detail and botanical descriptions, use Michigan Flora (miflora) — Michigan Flora is limited to Michigan but includes nativity and botanical context BONAP does not. " +
-  "For citizen science occurrence data, phenology, and continuously updated sightings, use iNaturalist (inaturalist) — iNaturalist provides community-contributed observations; BONAP provides vetted historical distribution from herbarium specimens. " +
-  "For conservation status and imperilment ranks, use NatureServe (natureserve).";
+  "BONAP requires advance written permission for any public deployment of these maps.";
 
 export const BONAP_TECHNICAL_DETAILS =
   "Source: Kartesz, J.T., The Biota of North America Program (BONAP). 2015. North American Plant Atlas. " +
@@ -191,11 +186,7 @@ export const BONAP_TECHNICAL_DETAILS =
   "batch in December 2014. Method: api_fetch (HTTP GET to BONAP MapGallery URL; image presence verified " +
   "by Content-Type: image/png in HTTP response). Copyright: All materials copyrighted by BONAP; advance " +
   "written permission required for reproduction. Permission not yet granted. " +
-  "DB table: bonap_maps (columns: cache_key unique, genus, species, map_type, species_stripped boolean, map_url, source_url, status, expires_at, fetched_at, method, upstream_url). Results are cached between requests. " +
-  "Overlap with other FERNS sources: GBIF (gbif) and BONAP draw on overlapping North American plant taxonomic sources — name agreement is not independent corroboration. " +
-  "For Michigan county-level distribution with botanical descriptions and nativity context, use Michigan Flora (miflora). " +
-  "For citizen science occurrence data and phenology, use iNaturalist (inaturalist) — iNaturalist provides continuously updated observations; BONAP provides vetted 2014 distribution from herbarium specimens. " +
-  "For conservation status and imperilment ranks, use NatureServe (natureserve).";
+  "DB table: bonap_maps (columns: cache_key unique, genus, species, map_type, species_stripped boolean, map_url, source_url, status, expires_at, fetched_at, method, upstream_url). Results are cached between requests.";
 
 export const BONAP_REGISTRY_ENTRY = {
   source_id: BONAP_SOURCE_ID,

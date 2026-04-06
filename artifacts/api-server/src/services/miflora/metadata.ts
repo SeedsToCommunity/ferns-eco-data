@@ -27,15 +27,9 @@ export const MIFLORA_GENERAL_SUMMARY =
   "A species query returns family, common name, native or adventive status, botanical description text, a primary plant image, synonyms, and county-level occurrence records. " +
   "Each species record also carries three ecological metrics: a Coefficient of Conservatism (C-value, 0–10 for native species, '*' for adventive species), " +
   "a Coefficient of Wetness (W-value, −5 to +5), and a Wetland Indicator Status code (OBL/FACW/FAC/FACU/UPL). " +
-  "The C-values come from the Reznicek et al. 2014 Michigan Floristic Quality Assessment Database — the same dataset available as Universal FQA (universalfqa.org) database ID 50 — " +
-  "so querying Michigan Flora and Universal FQA ID 50 for the same species will return consistent C-values for Michigan flora. " +
+  "The C-values come from the Reznicek et al. 2014 Michigan Floristic Quality Assessment Database. " +
   "The content is static (published 2011, no update mechanism in the API); county coverage is comprehensive for all 83 Michigan counties. " +
-  "Notable source quirks: adventive species names are returned ALL-CAPS by the API, and the native/adventive status field uses the literal string 'NULL' (not a JSON null) for unknown or absent status. " +
-  "For scientific name verification and synonym resolution, use GBIF. " +
-  "For North American county- and state-level distribution beyond Michigan, use BONAP. " +
-  "For observation photos, phenology (flowering and fruiting timing), and citizen science occurrence data, use iNaturalist. " +
-  "For Michigan species conservation status and imperilment ranks, use NatureServe. " +
-  "For natural community classification and county-level element data in Michigan, use MNFI.";
+  "Notable source quirks: adventive species names are returned ALL-CAPS by the API, and the native/adventive status field uses the literal string 'NULL' (not a JSON null) for unknown or absent status.";
 
 export const MIFLORA_TECHNICAL_DETAILS =
   "Source: Michigan Flora REST API v1.0 (https://michiganflora.net/api/v1.0). " +
@@ -54,7 +48,6 @@ export const MIFLORA_TECHNICAL_DETAILS =
   "c: Coefficient of Conservatism (C-value, Swink & Wilhelm 1994 methodology). Always a string. " +
   "Per-species Michigan C-values sourced from: Reznicek, A.A., M.R. Penskar, B.S. Walters, and B.S. Slaughter. 2014. " +
   "Michigan Floristic Quality Assessment Database. University of Michigan Herbarium and Michigan Natural Features Inventory. " +
-  "Same dataset as Universal FQA (universalfqa.org) database ID 50. " +
   "Values: '0' (cosmopolitan, weedy, highly tolerant of disturbance) through '10' (restricted to pristine habitats). " +
   "'*' = non-native/adventive; no C-value assigned. Never parseInt. " +
   "Distinct from: w (Coefficient of Wetness, -5 to +5 scale), wet (WIS categorical code), WUCOLS (VL/L/M/H irrigation scale). " +
@@ -78,13 +71,7 @@ export const MIFLORA_TECHNICAL_DETAILS =
   "Other quirks: scientific names are inconsistently cased — adventive species names returned ALL-CAPS by the API. " +
   "synonyms endpoint returns {synonyms:[...]} when synonyms exist, or {message:'No synonyms found'} when none — both shapes passed through. " +
   "flora_search_sp may return multiple records (subspecies, varieties) for one query — all records included in search_records. " +
-  "Method: api_fetch. Results are cached between requests. " +
-  "Overlap with other FERNS sources: For scientific name verification and synonym resolution, use GBIF (gbif). " +
-  "For North American county- and state-level distribution across all 50 states, use BONAP (bonap-napa) — BONAP covers 28,000 taxa through 2014 vs. Michigan Flora's Michigan-only 2011 data. " +
-  "For observation photos, phenology (flowering and fruiting timing), and continuously updated citizen science occurrence data, use iNaturalist (inaturalist). " +
-  "For Michigan species conservation status and imperilment ranks (G/N/S), use NatureServe (natureserve). " +
-  "For Michigan natural community classification and county-level element occurrence records, use MNFI (mnfi). " +
-  "For the complete Reznicek 2014 Michigan C-value database with full FQA assessment tools and site inventories, use Universal FQA (universal-fqa) database ID 50 — it shares the same C-value assignments as this source.";
+  "Method: api_fetch. Results are cached between requests.";
 
 export const MIFLORA_REGISTRY_ENTRY = {
   source_id: MIFLORA_SOURCE_ID,

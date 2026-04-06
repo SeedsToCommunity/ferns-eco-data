@@ -27,41 +27,30 @@ export const INAT_GENERAL_SUMMARY =
   "species appearance data (representative photos, Wikipedia summaries, common names, conservation status, and native/introduced status); " +
   "and month-by-month phenology derived from community-added annotations showing what stage a species is typically in (flowering, budding, or fruiting). " +
   "Geographic scope: global; taxonomic scope: all organisms (FERNS uses it for vascular plants). " +
-  "iNaturalist maintains its own taxonomic backbone independently of GBIF, BONAP, and Michigan Flora — " +
-  "name divergence across FERNS sources is expected. " +
+  "iNaturalist maintains its own taxonomic backbone — name divergence across external sources is expected. " +
   "All data accessed through the iNaturalist v1 REST API and cached between requests. " +
   "A species query returns photos, Wikipedia description, common names, conservation status, native status, " +
   "global observation count, and month-by-month phenological stage breakdowns. " +
   "Phenological annotation coverage is uneven — many species have sparse or no stage annotations. " +
-  "iNaturalist research-grade observations are published to GBIF — occurrence counts from FERNS's iNaturalist " +
-  "and GBIF services therefore overlap; treat them as complementary views, not independent datasets. " +
-  "For Michigan county-level distribution backed by herbarium specimens, use Michigan Flora (miflora). " +
-  "For North American distribution from vetted herbarium specimens, use BONAP (bonap-napa) — BONAP provides historical vetted distribution; iNaturalist provides continuously updated citizen science observations. " +
-  "For authoritative conservation status ranks (G/N/S), use NatureServe (natureserve).";
+  "iNaturalist research-grade observations are published to GBIF.";
 
 export const INAT_TECHNICAL_DETAILS =
   "Source: iNaturalist (https://api.inaturalist.org/v1). " +
   "Place lookup: GET /places/autocomplete — returns iNaturalist place IDs from US Census TIGER and similar boundaries. " +
   "Species appearance: two-step fetch via GET /taxa?q={name}&rank=species then GET /taxa/{id}. " +
-  "iNaturalist maintains its own taxonomic backbone independently of GBIF, BONAP, and Michigan Flora. " +
-  "Name divergence across sources is expected and should not be treated as error. " +
+  "iNaturalist maintains its own taxonomic backbone. " +
+  "Name divergence across external sources is expected and should not be treated as error. " +
   "Phenology: GET /observations/histogram (interval=month_of_year) for total counts by month, " +
   "and GET /observations/popular_field_values (verifiable=true) for stage-stratified counts. " +
   "Stage labels from popular_field_values: Flowers, Flower Buds, Fruits or Seeds, No Flowers or Fruits " +
   "(for plants); Green Leaves, Colored Leaves, No Live Leaves, Breaking Leaf Buds (leaf phenology). " +
   "Phenological annotations added voluntarily — coverage is uneven, often sparse or absent. " +
-  "Research Grade observations (community-confirmed, open license) are published to GBIF; " +
-  "overlap with FERNS GBIF service is expected and is an application-layer concern. " +
+  "Research Grade observations (community-confirmed, open license) are published to GBIF. " +
   "Method: api_fetch. Results are cached between requests. " +
   "DB tables: inat_places (columns: cache_key unique, query, results jsonb, found, expires_at, fetched_at, method, upstream_url); " +
   "inat_species (columns: cache_key unique, inat_taxon_id, inat_name, match_type, preferred_common_name, common_names jsonb, wikipedia_summary, wikipedia_url, default_photo_url, conservation_status jsonb, native_status jsonb, observations_count, source_url, raw_response jsonb, found, expires_at); " +
   "inat_histogram (columns: cache_key unique, taxon_id, place_ids integer[], raw_response jsonb, expires_at); " +
-  "inat_field_values (columns: cache_key unique, taxon_id, place_ids integer[], verifiable, raw_response jsonb, expires_at). " +
-  "Overlap with other FERNS sources: iNaturalist research-grade observations are published to GBIF (gbif) — occurrence counts from both services overlap and must not be double-counted. " +
-  "For Michigan county-level distribution backed by herbarium specimens, use Michigan Flora (miflora). " +
-  "For North American county- and state-level distribution from herbarium specimens, use BONAP (bonap-napa) — BONAP provides vetted historical distribution; iNaturalist provides continuously updated citizen science observations. " +
-  "For authoritative conservation status ranks (G/N/S) and COSEWIC assessments, use NatureServe (natureserve) — iNaturalist's conservation_status field reflects IUCN categories but may lag NatureServe reassessments. " +
-  "For C-values and ecological quality assessment, use Universal FQA (universal-fqa) or Michigan Flora (miflora).";
+  "inat_field_values (columns: cache_key unique, taxon_id, place_ids integer[], verifiable, raw_response jsonb, expires_at).";
 
 export const INAT_REGISTRY_ENTRY = {
   source_id: INAT_SOURCE_ID,
