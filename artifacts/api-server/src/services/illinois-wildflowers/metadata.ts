@@ -20,9 +20,7 @@ export const ILLINOIS_WILDFLOWERS_GENERAL_SUMMARY =
   "returns multiple records, one per section; link text format is 'Scientific Name (Common Name)'. " +
   "The index reflects the site at the time of the last admin-triggered import. " +
   "Nomenclature follows the site's own taxonomy, which may differ from current accepted names. " +
-  "Illinois Wildflowers covers Illinois only — for New England, Go Botany in FERNS provides a comparable " +
-  "resource; for Minnesota, Minnesota Wildflowers; for Missouri, Missouri Plants; " +
-  "for North America-wide references, use Lady Bird Johnson Wildflower Center or USDA PLANTS.";
+  "Geographic scope: Illinois only.";
 
 export const ILLINOIS_WILDFLOWERS_TECHNICAL_DETAILS =
   "Primary sources: eight habitat section indexes at https://www.illinoiswildflowers.info/{section}/{index}: " +

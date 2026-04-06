@@ -20,9 +20,7 @@ export const MISSOURI_PLANTS_GENERAL_SUMMARY =
   "synonym genera and are not derivable from scientific names alone — the species list is authoritative. " +
   "The index reflects the site at the time of the last admin-triggered import; ~1,464 species at last import. " +
   "Exact genus + species match required (case-insensitive); subspecies and varieties not individually listed. " +
-  "Missouri Plants covers Missouri only — for Illinois coverage, Illinois Wildflowers in FERNS provides " +
-  "a comparable resource; for Minnesota, Minnesota Wildflowers; for New England, Go Botany; " +
-  "for North America-wide references, use Lady Bird Johnson Wildflower Center or USDA PLANTS.";
+  "Geographic scope: Missouri only.";
 
 export const MISSOURI_PLANTS_TECHNICAL_DETAILS =
   "Primary source: missouriplants.com/All_Species_list.html. Maintained by Paul Wycoff. " +

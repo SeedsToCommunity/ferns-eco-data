@@ -18,10 +18,7 @@ export const GOBOTANY_GENERAL_SUMMARY =
   "a 200 HTTP response confirms the species is in the Go Botany database. " +
   "URLs are validated at query time; the Go Botany database is updated periodically by Native Plant Trust staff. " +
   "Taxonomic synonyms not recognized by Go Botany will return 404 even if the species occurs in New England. " +
-  "Go Botany covers New England only — for comparable regional references within FERNS, " +
-  "use Illinois Wildflowers (illinois-wildflowers) for Illinois, Minnesota Wildflowers (minnesota-wildflowers) for Minnesota, " +
-  "Missouri Plants (missouri-plants) for Missouri, or Prairie Moon (prairie-moon) for Midwest nursery availability. " +
-  "For North America-wide plant reference, use Lady Bird Johnson Wildflower Center (lady-bird-johnson) or USDA PLANTS (usda-plants).";
+  "Geographic scope: New England (CT, MA, ME, NH, RI, VT) only.";
 
 export const GOBOTANY_TECHNICAL_DETAILS =
   "Source: gobotany.nativeplanttrust.org. Maintained by Native Plant Trust, Framingham, MA. " +

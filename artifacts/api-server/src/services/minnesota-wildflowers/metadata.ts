@@ -21,9 +21,7 @@ export const MINNESOTA_WILDFLOWERS_GENERAL_SUMMARY =
   "URLs use common-name slugs not derivable from scientific names — the species list index is authoritative. " +
   "The index reflects the site at the time of the last admin-triggered import. " +
   "Exact binomial match required (case-insensitive); subspecies and varieties follow site taxonomy. " +
-  "Minnesota Wildflowers covers Minnesota only — for Illinois coverage, Illinois Wildflowers in FERNS " +
-  "provides a comparable resource; for Missouri, Missouri Plants; for New England, Go Botany; " +
-  "for North America-wide references, use Lady Bird Johnson Wildflower Center or USDA PLANTS.";
+  "Geographic scope: Minnesota only.";
 
 export const MINNESOTA_WILDFLOWERS_TECHNICAL_DETAILS =
   "Primary source: https://www.minnesotawildflowers.info/page/plants-by-name. " +

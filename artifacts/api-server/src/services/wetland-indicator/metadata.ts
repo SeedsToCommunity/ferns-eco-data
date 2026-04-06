@@ -16,12 +16,8 @@ export const WETLAND_INDICATOR_GENERAL_SUMMARY =
   "A query returns the full definition for a WIS code or W-value: occurrence frequency range, ecological " +
   "meaning, W-value companion, authority, and disambiguation from other metrics. " +
   "Definitions do not change; this source is perpetually current. " +
-  "Per-species WIS codes and W-values are provided by Michigan Flora (wet and w fields); " +
-  "this vocabulary reference defines the classification system those fields belong to — " +
-  "consult Michigan Flora for species-level data, this source for system-level definitions. " +
-  "WIS (this source) is NOT WUCOLS (landscape irrigation ratings, VL/L/M/H), which is a separate FERNS " +
-  "vocabulary reference, and NOT the Coefficient of Conservatism (C-value, 0–10), which measures " +
-  "ecological fidelity rather than wetland affinity.";
+  "WIS is NOT WUCOLS (landscape irrigation ratings, VL/L/M/H), and NOT the Coefficient of Conservatism " +
+  "(C-value, 0–10), which measures ecological fidelity rather than wetland affinity.";
 
 export const WETLAND_INDICATOR_TECHNICAL_DETAILS =
   "Source: Static reference data. " +
