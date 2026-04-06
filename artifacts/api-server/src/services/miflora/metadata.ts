@@ -50,10 +50,10 @@ export const MIFLORA_TECHNICAL_DETAILS =
   "Michigan Floristic Quality Assessment Database. University of Michigan Herbarium and Michigan Natural Features Inventory. " +
   "Values: '0' (cosmopolitan, weedy, highly tolerant of disturbance) through '10' (restricted to pristine habitats). " +
   "'*' = non-native/adventive; no C-value assigned. Never parseInt. " +
-  "Distinct from: w (Coefficient of Wetness, -5 to +5 scale), wet (WIS categorical code), WUCOLS (VL/L/M/H irrigation scale). " +
+  "Distinct from: w (Coefficient of Wetness, -5 to +5 scale) and wet (WIS categorical code). " +
   "w: Coefficient of Wetness (Swink & Wilhelm FQA). Numeric, -5 to +5. " +
   "Fixed W values by WIS category: OBL = -5; FACW = -3; FAC = 0; FACU = +3; UPL = +5. " +
-  "Distinct from: c (Coefficient of Conservatism, 0–10 fidelity scale), wet (categorical WIS string), WUCOLS (irrigation). " +
+  "Distinct from: c (Coefficient of Conservatism, 0–10 fidelity scale) and wet (categorical WIS string). " +
   "wet: Wetland Indicator Status (WIS). String. Authority: USDA NRCS National Wetland Plant List (NWPL). " +
   "OBL (Obligate Wetland, W=-5): >99% occurrence in wetlands; " +
   "FACW (Facultative Wetland, W=-3): 67–99%; " +
@@ -61,7 +61,6 @@ export const MIFLORA_TECHNICAL_DETAILS =
   "FACU (Facultative Upland, W=+3): 1–33%; " +
   "UPL (Upland, W=+5): <1%. " +
   "Source may return compound values like 'FACU/UPL' for regionally variable species; pass through as-is. " +
-  "Distinct from WUCOLS (VL/L/M/H scale for managed landscape irrigation, UC Cooperative Extension). " +
   "st: Status string. 'native' = indigenous to Michigan per Michigan Flora. 'adventive' = introduced non-native. " +
   "Literal string 'NULL' (not JSON null) = absent from Michigan or status unknown; source API quirk, not a JSON null value. " +
   "phys: Physiognomy (plant life form). Free-text string from source. Typical values: 'Tree', 'Shrub', 'Shrub-tree', " +

@@ -32,8 +32,7 @@ export const GBIF_GENERAL_SUMMARY =
   "Backbone updated approximately annually; occurrence index updated continuously. " +
   "Consumers must inspect match_type in every response: HIGHERRANK means the name resolved only to genus " +
   "or family level and must not be treated as a species-level confirmation; DOUBTFUL status means the name " +
-  "exists in the backbone but its standing is uncertain. " +
-  "iNaturalist research-grade observations are published to GBIF — account for this when combining occurrence counts from multiple sources.";
+  "exists in the backbone but its standing is uncertain.";
 
 export const GBIF_TECHNICAL_DETAILS =
   "Source: GBIF.org. Data licensed CC BY 4.0. " +
@@ -52,7 +51,6 @@ export const GBIF_TECHNICAL_DETAILS =
   "COORDINATE_INVALID, COUNTRY_COORDINATE_MISMATCH. Does NOT exclude: high coordinate " +
   "uncertainty, gridded datasets, centroid records (identifiable by coordinateUncertaintyInMeters " +
   "values 301, 3036, 999, 9999). " +
-  "iNaturalist publishes its observations to GBIF; GBIF occurrence counts include iNaturalist records. " +
   "Method: api_fetch. Results are cached between requests. " +
   "DB tables: gbif_name_matches (columns: cache_key unique, canonical_name, usage_key, accepted_usage_key, accepted_canonical_name, rank, status, confidence, match_type, kingdom through species hierarchy + corresponding keys, matched_input, expires_at); " +
   "gbif_synonyms (columns: cache_key unique, usage_key, synonyms jsonb, synonym_count); " +

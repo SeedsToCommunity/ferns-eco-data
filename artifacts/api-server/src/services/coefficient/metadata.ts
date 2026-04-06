@@ -18,11 +18,7 @@ export const COEFFICIENT_GENERAL_SUMMARY =
   "A query returns the full definition for a given C-value: short label, ecological meaning, " +
   "scientific description, authority, and disambiguation from related metrics. " +
   "Definitions do not change; this source is perpetually current. " +
-  "Per-species C-values are not stored here — they are accessed from Michigan Flora (c field) " +
-  "or Universal FQA regional databases; this source defines the 0–10 scale those services apply. " +
-  "C-value (this source) is NOT the Coefficient of Wetness (W, -5 to +5) defined by Wetland Indicator " +
-  "Status, NOT a Wetland Indicator Status code (OBL/FACW etc.), and NOT a WUCOLS irrigation rating — " +
-  "all three of these are separate FERNS vocabulary references covering distinct ecological dimensions.";
+  "Per-species C-values are not stored here — this source defines the methodology and scale only.";
 
 export const COEFFICIENT_TECHNICAL_DETAILS =
   "Source: Static reference data. Methodology: Swink, F. and G. Wilhelm. 1994. " +
@@ -30,13 +26,9 @@ export const COEFFICIENT_TECHNICAL_DETAILS =
   "C-value assignment: integer 0–10, assigned by regional botanical authorities to native species based on ecological fidelity. " +
   "Non-native (adventive) species receive '*' and are excluded from FQA calculations. " +
   "Floristic Quality Index (FQI) = mean C-value × sqrt(species count); this source defines C-values only, not FQI. " +
-  "Values defined here reflect the general Swink & Wilhelm scale used by Michigan Flora. " +
+  "Values defined here reflect the general Swink & Wilhelm scale. " +
   "Regional calibration: C-values are assigned independently by regional authorities; " +
   "the same species may have different C-values in different state or regional FQA databases. " +
-  "Distinct from: " +
-  "W (Coefficient of Wetness, Swink & Wilhelm): -5 to +5 numeric scale measuring wetland affinity. " +
-  "WIS (Wetland Indicator Status, USDA NRCS NWPL): OBL/FACW/FAC/FACU/UPL categorical codes. " +
-  "WUCOLS (UC Cooperative Extension): VL/L/M/H scale for managed landscape irrigation planning. " +
   "Method: static_data. No upstream API. No cache TTL — data is in-memory reference.";
 
 export const COEFFICIENT_REGISTRY_ENTRY = {

@@ -31,8 +31,7 @@ export const INAT_GENERAL_SUMMARY =
   "All data accessed through the iNaturalist v1 REST API and cached between requests. " +
   "A species query returns photos, Wikipedia description, common names, conservation status, native status, " +
   "global observation count, and month-by-month phenological stage breakdowns. " +
-  "Phenological annotation coverage is uneven — many species have sparse or no stage annotations. " +
-  "iNaturalist research-grade observations are published to GBIF.";
+  "Phenological annotation coverage is uneven — many species have sparse or no stage annotations.";
 
 export const INAT_TECHNICAL_DETAILS =
   "Source: iNaturalist (https://api.inaturalist.org/v1). " +
@@ -45,7 +44,6 @@ export const INAT_TECHNICAL_DETAILS =
   "Stage labels from popular_field_values: Flowers, Flower Buds, Fruits or Seeds, No Flowers or Fruits " +
   "(for plants); Green Leaves, Colored Leaves, No Live Leaves, Breaking Leaf Buds (leaf phenology). " +
   "Phenological annotations added voluntarily — coverage is uneven, often sparse or absent. " +
-  "Research Grade observations (community-confirmed, open license) are published to GBIF. " +
   "Method: api_fetch. Results are cached between requests. " +
   "DB tables: inat_places (columns: cache_key unique, query, results jsonb, found, expires_at, fetched_at, method, upstream_url); " +
   "inat_species (columns: cache_key unique, inat_taxon_id, inat_name, match_type, preferred_common_name, common_names jsonb, wikipedia_summary, wikipedia_url, default_photo_url, conservation_status jsonb, native_status jsonb, observations_count, source_url, raw_response jsonb, found, expires_at); " +

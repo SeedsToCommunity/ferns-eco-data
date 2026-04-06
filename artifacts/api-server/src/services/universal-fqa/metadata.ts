@@ -49,10 +49,10 @@ export const UNIVERSAL_FQA_TECHNICAL_DETAILS =
   "0 = cosmopolitan or highly tolerant of disturbance; 10 = restricted to high-quality, undisturbed habitats, per Swink & Wilhelm methodology. " +
   "Assigned by regional botanists for each database; the same species may have different C-values in different regional databases. " +
   "Some databases assign '*' (string) to non-native species instead of an integer. Never parse as integer without handling '*'. " +
-  "Distinct from: w (Coefficient of Wetness, a separate metric on a −5 to +5 numeric scale); WUCOLS water-use classification (VL/L/M/H, for managed landscape irrigation). " +
+  "Distinct from: w (Coefficient of Wetness, a separate metric on a −5 to +5 numeric scale). " +
   "w: Coefficient of Wetness (W-value). String representation of a numeric value, following Swink & Wilhelm fixed assignments by Wetland Indicator Status category: " +
   "OBL (Obligate Wetland) = −5; FACW (Facultative Wetland) = −3; FAC (Facultative) = 0; FACU (Facultative Upland) = +3; UPL (Upland) = +5. " +
-  "Expresses wetland affinity numerically. Distinct from: c (Coefficient of Conservatism, a habitat-fidelity metric on a 0–10 scale); WUCOLS (irrigation guide). " +
+  "Expresses wetland affinity numerically. Distinct from: c (Coefficient of Conservatism, a habitat-fidelity metric on a 0–10 scale). " +
   "physiognomy: Plant life form. Lowercase string. Observed values: 'tree', 'shrub', 'vine', 'forb', 'grass', 'sedge', 'rush', 'fern', 'bryophyte'. Pass through as-is; vocabulary may vary by database. " +
   "duration: Life cycle. Lowercase string. Observed values: 'annual', 'biennial', 'perennial'. Pass through as-is. " +
   "common_name: Common name as listed in the regional database. String. " +

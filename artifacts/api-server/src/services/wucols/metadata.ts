@@ -16,12 +16,7 @@ export const WUCOLS_GENERAL_SUMMARY =
   "A query returns the full definition for a WUCOLS code: ETo percentage range, irrigation frequency " +
   "description, scientific rationale, and authority. " +
   "Definitions do not change; this source is perpetually current. " +
-  "Per-species WUCOLS ratings are not stored here; the UC WUCOLS database contains species-level ratings " +
-  "but is not integrated into FERNS — this source defines only the classification system itself. " +
-  "WUCOLS (this source) describes managed landscape irrigation needs — it is NOT the Wetland Indicator " +
-  "Status (WIS, OBL/FACW/FAC/FACU/UPL), which classifies natural wetland habitat occurrence, nor the " +
-  "Coefficient of Wetness (W, -5 to +5) or Coefficient of Conservatism (C-value, 0–10) — " +
-  "all of which are separate FERNS vocabulary references covering ecological, not horticultural, dimensions.";
+  "Per-species WUCOLS ratings are not stored here — this source defines only the four-level classification system (VL/L/M/H).";
 
 export const WUCOLS_TECHNICAL_DETAILS =
   "Source: Static reference data. " +
@@ -38,10 +33,6 @@ export const WUCOLS_TECHNICAL_DETAILS =
   "Regional note: WUCOLS ratings are calibrated for California climate zones. " +
   "The same species may have different ratings in different California climate regions (e.g., coastal vs. inland vs. desert). " +
   "This source defines the classification system; species-level ratings are outside scope. " +
-  "Distinct from: " +
-  "WIS (USDA NRCS NWPL): OBL/FACW/FAC/FACU/UPL — ecological classification of natural wetland habitat occurrence. Unrelated to irrigation. " +
-  "W (Swink & Wilhelm FQA): -5 to +5 numeric wetland affinity scale; companion to WIS. Unrelated to irrigation. " +
-  "C-value (Swink & Wilhelm FQA): 0–10 ecological fidelity scale. Unrelated to irrigation. " +
   "Method: static_data. No upstream API. No cache TTL — data is in-memory reference.";
 
 export const WUCOLS_REGISTRY_ENTRY = {

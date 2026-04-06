@@ -162,8 +162,7 @@ export const BONAP_GENERAL_SUMMARY =
   "FERNS provides access to BONAP's North American Plant Atlas (NAPA) county- and state-level distribution maps, " +
   "covering approximately 28,000 plant species. " +
   "County presence is coded by native status and rarity: native and indigenous to the state; present and not rare; " +
-  "present and rare; adventive (native to North America but introduced to this specific state from elsewhere on the continent — " +
-  "note this differs from how 'adventive' is used in Michigan Flora and MNFI, where it means introduced from outside North America entirely); " +
+  "present and rare; adventive (native to North America but not indigenous to this specific state; naturalized without deliberate planting, originating elsewhere on the continent); " +
   "exotic (not native to North America); extirpated (historically present, now gone from the county); " +
   "waif (occasionally found but not established); or extinct. " +
   "FERNS constructs the map image URL from genus, species, and map type, then verifies it resolves to an image; " +
