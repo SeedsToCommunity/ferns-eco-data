@@ -1,7 +1,5 @@
 import { useState, useMemo } from "react";
-import { Link } from "wouter";
-import { SourceMetadataPanel } from "@/components/SourceMetadataPanel";
-import { SourceSummary } from "@/components/SourceSummary";
+import { SourceExplorerLayout } from "@/components/SourceExplorerLayout";
 import {
   useGetS2CYears,
   useGetS2CSpeciesByYear,
@@ -9,7 +7,6 @@ import {
   type GetS2CSpeciesByYearYear,
 } from "@workspace/api-client-react";
 import {
-  ArrowLeft,
   Sprout,
   ChevronDown,
   ChevronUp,
@@ -85,40 +82,8 @@ export function S2CPage() {
   const apiBase = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>All Sources</span>
-        </Link>
-
-        <div className="space-y-1">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center shrink-0">
-              <Sprout className="w-5 h-5 text-green-700 dark:text-green-400" />
-            </div>
-            <h1 className="text-2xl font-bold text-foreground tracking-tight">
-              Seeds to Community Washtenaw
-            </h1>
-          </div>
-          <SourceSummary
-            metadataApiPath="/api/s2c/metadata"
-            fallback="Annual native plant species availability — Washtenaw County, MI"
-            className="text-sm text-muted-foreground pl-12"
-          />
-          <div className="pl-12">
-            <a
-              href="/source/s2c/metadata"
-              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
-            >
-              <ExternalLink className="w-3 h-3" />
-              API Metadata
-            </a>
-          </div>
-        </div>
+    <SourceExplorerLayout sourceId="seeds-to-community-washtenaw">
+      <div className="space-y-6">
 
         <div className="bg-card border border-border rounded-xl p-5 space-y-4">
           <div>
@@ -286,12 +251,8 @@ export function S2CPage() {
         <RawPanel title="Raw API response — /api/s2c?year=…" data={speciesRes} />
         <RawPanel title="Raw API response — /api/s2c/years" data={yearsRes} />
 
-        <div className="border-t border-border mt-12 pt-10 pb-12">
-          <h2 className="text-xl font-bold text-foreground mb-6">About This Source</h2>
-          <SourceMetadataPanel metadataApiPath="/api/s2c/metadata" />
-        </div>
       </div>
-    </div>
+    </SourceExplorerLayout>
   );
 }
 

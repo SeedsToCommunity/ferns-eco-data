@@ -1,9 +1,7 @@
 import { useState } from "react";
-import { Link } from "wouter";
 import { useGetMifloraSpecies, useGetMifloraCounties, useGetMifloraImages, getGetMifloraSpeciesQueryKey, getGetMifloraCountiesQueryKey, getGetMifloraImagesQueryKey } from "@workspace/api-client-react";
-import { SourceMetadataPanel } from "@/components/SourceMetadataPanel";
-import { SourceSummary } from "@/components/SourceSummary";
-import { Leaf, Search, Loader2, AlertCircle, MapPin, ExternalLink, Database, Code, ChevronDown, ChevronUp, ArrowLeft, FileJson, Camera, ImageOff } from "lucide-react";
+import { SourceExplorerLayout } from "@/components/SourceExplorerLayout";
+import { Leaf, Search, Loader2, AlertCircle, MapPin, ExternalLink, Database, Code, ChevronDown, ChevronUp, Camera, ImageOff } from "lucide-react";
 import { stripHtml } from "@/lib/utils";
 import type { MifloraImageRecord } from "@workspace/api-client-react";
 
@@ -180,45 +178,8 @@ export function MifloraPage() {
   const hasResult = !!speciesRes;
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-5">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <Link href="/" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mr-1">
-                <ArrowLeft className="w-4 h-4" />
-                <span className="hidden sm:inline">All Sources</span>
-              </Link>
-              <span className="text-muted-foreground/40">|</span>
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Leaf className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-lg font-display font-bold text-foreground leading-tight">
-                  Michigan Flora Explorer
-                </h1>
-                <p className="text-xs text-muted-foreground">
-                  FERNS passthrough API · michiganflora.net · University of Michigan
-                </p>
-              </div>
-            </div>
-            <a
-              href="/source/miflora/metadata"
-              className="hidden sm:inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors border border-border rounded-md px-2.5 py-1.5 bg-muted/50 hover:bg-muted"
-            >
-              <FileJson className="w-3 h-3" />
-              API Metadata
-            </a>
-          </div>
-        </div>
-      </header>
-
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-        <SourceSummary
-          metadataApiPath="/api/miflora/metadata"
-          fallback="Michigan Flora (michiganflora.net) is the University of Michigan's comprehensive vascular plant checklist and county-level distribution database for Michigan, covering over 3,000 species."
-          className="text-sm text-muted-foreground leading-relaxed"
-        />
+    <SourceExplorerLayout sourceId="michigan-flora">
+      <div className="space-y-6">
         <div className="bg-card border border-border rounded-xl p-6">
           <form onSubmit={handleSubmit} className="flex gap-2">
             <input
@@ -424,12 +385,8 @@ export function MifloraPage() {
           </div>
         )}
 
-        <div className="border-t border-border mt-12 pt-10 pb-12">
-          <h2 className="text-xl font-bold text-foreground mb-6">About This Source</h2>
-          <SourceMetadataPanel metadataApiPath="/api/miflora/metadata" />
-        </div>
       </div>
-    </div>
+    </SourceExplorerLayout>
   );
 }
 

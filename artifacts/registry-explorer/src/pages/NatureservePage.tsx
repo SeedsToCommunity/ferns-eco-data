@@ -1,9 +1,6 @@
 import { useState, type FormEvent } from "react";
-import { Link } from "wouter";
-import { SourceMetadataPanel } from "@/components/SourceMetadataPanel";
-import { SourceSummary } from "@/components/SourceSummary";
+import { SourceExplorerLayout } from "@/components/SourceExplorerLayout";
 import {
-  ArrowLeft,
   Shield,
   Search,
   ExternalLink,
@@ -388,55 +385,8 @@ export function NatureservePage() {
   };
 
   return (
-    <div className="min-h-screen pb-32">
-      <header className="bg-gradient-to-b from-primary/10 to-background pt-6 pb-12 px-4 sm:px-6 lg:px-8 border-b border-border">
-        <div className="max-w-5xl mx-auto">
-          <div className="flex items-center gap-3 mb-4">
-            <Link href="/" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
-              <ArrowLeft className="w-4 h-4" />
-              <span className="hidden sm:inline">All Sources</span>
-            </Link>
-          </div>
-          <div className="flex items-start justify-between gap-4 mb-4">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-primary text-primary-foreground rounded-2xl shadow-lg shadow-primary/20">
-                <Shield className="w-8 h-8" />
-              </div>
-              <div>
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground">NatureServe Explorer</h1>
-                <p className="text-primary font-medium flex items-center gap-2 mt-1">
-                  <Globe className="w-4 h-4" /> Conservation Status &amp; Ecological Systems
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <Link
-                href="/source/natureserve/metadata"
-                className="hidden sm:inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors border border-border rounded-md px-2.5 py-1.5 bg-muted/50 hover:bg-muted"
-              >
-                <ExternalLink className="w-3 h-3" />
-                API Metadata
-              </Link>
-              <a
-                href="https://explorer.natureserve.org"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <ExternalLink className="w-4 h-4" />
-                <span className="hidden sm:inline">NatureServe Explorer</span>
-              </a>
-            </div>
-          </div>
-          <SourceSummary
-            metadataApiPath="/api/natureserve/metadata"
-            fallback="NatureServe is the authoritative global conservation status authority for species and ecosystems across the Americas. Data from 80+ Natural Heritage Programs. G-ranks, N-ranks, S-ranks, IUCN Red List, and US ESA status for species; global ecological systems classification for natural communities."
-            className="text-muted-foreground max-w-2xl text-sm leading-relaxed"
-          />
-        </div>
-      </header>
-
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <SourceExplorerLayout sourceId="natureserve">
+      <div className="space-y-6">
         <div className="flex gap-1 p-1 bg-muted rounded-xl w-fit">
           <button
             onClick={() => { setActiveTab("species"); setNameInput(""); setError(null); }}
@@ -554,12 +504,7 @@ export function NatureservePage() {
             </p>
           </div>
         )}
-
-        <div className="border-t border-border mt-12 pt-10 pb-12">
-          <h2 className="text-xl font-bold text-foreground mb-6">About This Source</h2>
-          <SourceMetadataPanel metadataApiPath="/api/natureserve/metadata" />
-        </div>
-      </main>
-    </div>
+      </div>
+    </SourceExplorerLayout>
   );
 }

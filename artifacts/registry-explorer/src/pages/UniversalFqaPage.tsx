@@ -1,7 +1,5 @@
 import { useState, useMemo } from "react";
-import { Link } from "wouter";
-import { SourceMetadataPanel } from "@/components/SourceMetadataPanel";
-import { SourceSummary } from "@/components/SourceSummary";
+import { SourceExplorerLayout } from "@/components/SourceExplorerLayout";
 import {
   useGetUniversalFqaDatabases,
   getGetUniversalFqaDatabasesQueryKey,
@@ -18,7 +16,6 @@ import {
   type UniversalFqaSpeciesRecord,
 } from "@workspace/api-client-react";
 import {
-  ArrowLeft,
   Database,
   ChevronDown,
   ChevronUp,
@@ -297,49 +294,8 @@ export function UniversalFqaPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>All Sources</span>
-        </Link>
-
-        <div className="space-y-1">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
-              <Database className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
-            </div>
-            <h1 className="text-2xl font-bold text-foreground tracking-tight">
-              Universal FQA
-            </h1>
-          </div>
-          <SourceSummary
-            metadataApiPath="/api/universal-fqa/metadata"
-            fallback="93 regional FQA databases · per-species C & W values · public site assessments"
-            className="text-sm text-muted-foreground pl-12"
-          />
-          <div className="pl-12 flex items-center gap-3">
-            <a
-              href="/source/universal-fqa/metadata"
-              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
-            >
-              <ExternalLink className="w-3 h-3" />
-              API Metadata
-            </a>
-            <a
-              href="https://universalfqa.org"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
-            >
-              <ExternalLink className="w-3 h-3" />
-              universalfqa.org
-            </a>
-          </div>
-        </div>
+    <SourceExplorerLayout sourceId="universal-fqa">
+      <div className="space-y-6">
 
         <div className="flex gap-1 border-b border-border">
           {tabs.map((tab) => (
@@ -1190,12 +1146,7 @@ export function UniversalFqaPage() {
           </div>
         )}
       </div>
-
-      <div className="border-t border-border mt-12 pt-10 pb-12 px-4 sm:px-6 lg:px-8">
-        <h2 className="text-xl font-bold text-foreground mb-6">About This Source</h2>
-        <SourceMetadataPanel metadataApiPath="/api/universal-fqa/metadata" />
-      </div>
-    </div>
+    </SourceExplorerLayout>
   );
 }
 

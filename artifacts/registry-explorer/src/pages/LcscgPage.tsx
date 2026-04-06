@@ -1,8 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
-import { Link } from "wouter";
-import { ArrowLeft, Leaf, ChevronDown, ChevronUp, Code, ExternalLink, Search, BookOpen, Image } from "lucide-react";
-import { SourceMetadataPanel } from "@/components/SourceMetadataPanel";
-import { SourceSummary } from "@/components/SourceSummary";
+import { SourceExplorerLayout } from "@/components/SourceExplorerLayout";
+import { Leaf, ChevronDown, ChevronUp, Code, ExternalLink, Search, BookOpen, Image } from "lucide-react";
 
 interface LcscgGuide {
   guide_id: number;
@@ -306,49 +304,8 @@ export function LcscgPage() {
   }, [guideDetail, searchName, mode]);
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>All Sources</span>
-        </Link>
-
-        <div className="space-y-1">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center shrink-0">
-              <Leaf className="w-5 h-5 text-green-700 dark:text-green-400" />
-            </div>
-            <h1 className="text-2xl font-bold text-foreground tracking-tight">
-              Lake County Seed Collection Guides
-            </h1>
-          </div>
-          <SourceSummary
-            metadataApiPath="/api/lcscg/metadata"
-            fallback="Native seed identification & collection — Lake County, Illinois"
-            className="text-sm text-muted-foreground pl-12"
-          />
-          <div className="pl-12 flex gap-3">
-            <a
-              href="/source/lcscg/metadata"
-              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
-            >
-              <ExternalLink className="w-3 h-3" />
-              API Metadata
-            </a>
-            <a
-              href="https://fieldguides.fieldmuseum.org/guides/guide/1271"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
-            >
-              <ExternalLink className="w-3 h-3" />
-              Field Museum
-            </a>
-          </div>
-        </div>
+    <SourceExplorerLayout sourceId="lcscg">
+      <div className="space-y-6">
 
         <div className="flex gap-2">
           <button
@@ -536,12 +493,8 @@ export function LcscgPage() {
           </div>
         )}
 
-        <div className="border-t border-border mt-12 pt-10 pb-12">
-          <h2 className="text-xl font-bold text-foreground mb-6">About This Source</h2>
-          <SourceMetadataPanel metadataApiPath="/api/lcscg/metadata" />
-        </div>
       </div>
-    </div>
+    </SourceExplorerLayout>
   );
 }
 

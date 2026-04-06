@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { Link, useLocation } from "wouter";
+import { useLocation } from "wouter";
 import { useGetSourcesIndex, getGetSourcesIndexQueryKey } from "@workspace/api-client-react";
 import {
-  ArrowLeft,
   Search,
   ExternalLink,
   ChevronDown,
@@ -14,22 +13,11 @@ import {
   BookOpen,
   Info,
 } from "lucide-react";
-import { SourceSummary } from "@/components/SourceSummary";
-import { SourceMetadataPanel } from "@/components/SourceMetadataPanel";
+import { SourceExplorerLayout } from "@/components/SourceExplorerLayout";
 
 const BASE_URL = import.meta.env.BASE_URL.replace(/\/$/, "");
 const API_BASE = `${BASE_URL}/api`;
 
-const SOURCE_EXTERNAL_URLS: Record<string, string> = {
-  "gobotany": "https://gobotany.nativeplanttrust.org",
-  "google-images": "https://images.google.com",
-  "illinois-wildflowers": "https://www.illinoiswildflowers.info",
-  "lady-bird-johnson": "https://www.wildflower.org/plants",
-  "minnesota-wildflowers": "https://www.minnesotawildflowers.info",
-  "missouri-plants": "https://www.missouriplants.com",
-  "prairie-moon": "https://www.prairiemoon.com",
-  "usda-plants": "https://plants.usda.gov",
-};
 
 interface StandardResult {
   species: string;
@@ -212,9 +200,6 @@ export default function BotanicalRefSourcePage() {
   });
   const sourceEntry = sourcesData?.data?.sources?.find((s) => s.source_id === sourceId);
   const sourceName = sourceEntry?.name ?? sourceId;
-  const externalUrl = SOURCE_EXTERNAL_URLS[sourceId ?? ""];
-
-  const metadataApiPath = `/api/${sourceId}/metadata`;
 
   const [species, setSpecies] = useState("");
   const [result, setResult] = useState<FernsResponse | null>(null);
@@ -247,55 +232,8 @@ export default function BotanicalRefSourcePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="max-w-3xl mx-auto px-4 py-8 space-y-8">
-
-        {/* Header */}
-        <div className="space-y-4">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to registry
-          </Link>
-
-          <div className="flex items-start justify-between gap-4 flex-wrap">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10 shrink-0">
-                <BookOpen className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold">{sourceName}</h1>
-                <p className="text-xs text-muted-foreground font-mono mt-0.5">{sourceId}</p>
-              </div>
-            </div>
-            <div className="flex gap-2 shrink-0">
-              {externalUrl && (
-                <a
-                  href={externalUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg border border-border/60 hover:bg-muted/50 transition-colors"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                  Visit Site
-                </a>
-              )}
-              <Link
-                href={`/source/${sourceId}/metadata`}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg border border-border/60 hover:bg-muted/50 transition-colors"
-              >
-                Metadata
-              </Link>
-            </div>
-          </div>
-
-          <SourceSummary
-            metadataApiPath={metadataApiPath}
-            className="text-sm text-muted-foreground max-w-2xl"
-          />
-        </div>
+    <SourceExplorerLayout sourceId={sourceId ?? ""}>
+      <div className="space-y-8">
 
         {/* Species Lookup */}
         <div className="bg-card border border-border rounded-2xl p-6 space-y-5">
@@ -349,9 +287,7 @@ export default function BotanicalRefSourcePage() {
           {!!rawResult && !loading && <RawPanel data={rawResult} />}
         </div>
 
-        {/* Metadata panel */}
-        <SourceMetadataPanel metadataApiPath={metadataApiPath} />
       </div>
-    </div>
+    </SourceExplorerLayout>
   );
 }

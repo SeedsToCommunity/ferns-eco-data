@@ -1,9 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
-import { Link } from "wouter";
-import { SourceMetadataPanel } from "@/components/SourceMetadataPanel";
-import { SourceSummary } from "@/components/SourceSummary";
+import { SourceExplorerLayout } from "@/components/SourceExplorerLayout";
 import {
-  ArrowLeft,
   TreePine,
   ChevronDown,
   ChevronUp,
@@ -331,51 +328,8 @@ export default function MnfiPage() {
   const sortedClasses = CLASS_ORDER.filter((cls) => groupedCommunities.has(cls));
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
-        {/* Header */}
-        <div className="space-y-4">
-          <Link href="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-            <ArrowLeft className="w-4 h-4" />
-            Back to registry
-          </Link>
-
-          <div className="flex items-start justify-between gap-4">
-            <div className="space-y-2">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-green-500/10">
-                  <TreePine className="w-5 h-5 text-green-400" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold">Michigan Natural Features Inventory</h1>
-                  <p className="text-sm text-muted-foreground">Natural Community Classification · Plant Lists · County Element Data</p>
-                </div>
-              </div>
-              <SourceSummary
-                metadataApiPath="/api/mnfi/metadata"
-                fallback="Michigan's authoritative classification of 77 natural community types across 5 ecological classes, maintained by MNFI at Michigan State University Extension. Includes full community descriptions, characteristic plant species lists, and conservation ranks following NatureServe methodology."
-                className="text-sm text-muted-foreground max-w-2xl"
-              />
-            </div>
-            <div className="flex gap-2 shrink-0">
-              <a
-                href="https://mnfi.anr.msu.edu/communities/classification"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg border border-border/60 hover:bg-muted/50 transition-colors"
-              >
-                <ExternalLink className="w-3.5 h-3.5" />
-                MNFI Website
-              </a>
-              <Link
-                href="/source/mnfi/metadata"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg border border-border/60 hover:bg-muted/50 transition-colors"
-              >
-                Metadata
-              </Link>
-            </div>
-          </div>
-        </div>
+    <SourceExplorerLayout sourceId="mnfi">
+      <div className="space-y-8">
 
         {/* Community Browser */}
         <div className="space-y-4">
@@ -697,11 +651,6 @@ export default function MnfiPage() {
           )}
         </div>
       </div>
-
-      <div className="border-t border-border mt-12 pt-10 pb-12 px-4 sm:px-6 lg:px-8">
-        <h2 className="text-xl font-bold text-foreground mb-6">About This Source</h2>
-        <SourceMetadataPanel metadataApiPath="/api/mnfi/metadata" />
-      </div>
-    </div>
+    </SourceExplorerLayout>
   );
 }
