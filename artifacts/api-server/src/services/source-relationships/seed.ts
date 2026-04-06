@@ -9,40 +9,36 @@ let seeded = false;
 export async function ensureSourceRelationships(): Promise<void> {
   if (seeded) return;
 
-  try {
-    for (const rel of SOURCE_RELATIONSHIPS) {
-      await db
-        .insert(sourceRelationshipsTable)
-        .values({
-          source_id_a: rel.source_id_a,
-          source_id_b: rel.source_id_b,
+  for (const rel of SOURCE_RELATIONSHIPS) {
+    await db
+      .insert(sourceRelationshipsTable)
+      .values({
+        source_id_a: rel.source_id_a,
+        source_id_b: rel.source_id_b,
+        relationship_type: rel.relationship_type,
+        scope: rel.scope,
+        severity: rel.severity,
+        description: rel.description,
+        technical_note: rel.technical_note,
+      })
+      .onConflictDoUpdate({
+        target: [
+          sourceRelationshipsTable.source_id_a,
+          sourceRelationshipsTable.source_id_b,
+          sourceRelationshipsTable.scope,
+        ],
+        set: {
           relationship_type: rel.relationship_type,
-          scope: rel.scope,
           severity: rel.severity,
           description: rel.description,
           technical_note: rel.technical_note,
-        })
-        .onConflictDoUpdate({
-          target: [
-            sourceRelationshipsTable.source_id_a,
-            sourceRelationshipsTable.source_id_b,
-            sourceRelationshipsTable.scope,
-          ],
-          set: {
-            relationship_type: rel.relationship_type,
-            severity: rel.severity,
-            description: rel.description,
-            technical_note: rel.technical_note,
-            updated_at: new Date(),
-          },
-        });
-    }
-
-    seeded = true;
-    logger.info({ count: SOURCE_RELATIONSHIPS.length }, "Source relationships seeded");
-  } catch (err) {
-    logger.error({ err }, "Failed to seed source relationships");
+          updated_at: new Date(),
+        },
+      });
   }
+
+  seeded = true;
+  logger.info({ count: SOURCE_RELATIONSHIPS.length }, "Source relationships seeded");
 }
 
 export async function querySourceRelationships(sourceId?: string) {

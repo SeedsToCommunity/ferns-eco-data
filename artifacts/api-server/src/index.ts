@@ -47,84 +47,12 @@ app.listen(port, (err) => {
 
   logger.info({ port }, "Server listening");
 
-  ensureBonapRegistryEntry().catch((seedErr) => {
-    logger.error({ err: seedErr }, "Failed to seed BONAP registry entry at startup");
-  });
-
-  ensureInatRegistryEntry().catch((seedErr) => {
-    logger.error({ err: seedErr }, "Failed to seed iNaturalist registry entry at startup");
-  });
-
-  ensureMifloraRegistryEntry().catch((seedErr) => {
-    logger.error({ err: seedErr }, "Failed to seed Michigan Flora registry entry at startup");
-  });
-
-  ensureCoefficientRegistryEntry().catch((seedErr) => {
-    logger.error({ err: seedErr }, "Failed to seed Coefficient of Conservatism registry entry at startup");
-  });
-
-  ensureWetlandIndicatorRegistryEntry().catch((seedErr) => {
-    logger.error({ err: seedErr }, "Failed to seed Wetland Indicator Status registry entry at startup");
-  });
-
-  ensureWucolsRegistryEntry().catch((seedErr) => {
-    logger.error({ err: seedErr }, "Failed to seed WUCOLS registry entry at startup");
-  });
-
-  ensureGbifRegistryEntry().catch((seedErr) => {
-    logger.error({ err: seedErr }, "Failed to seed GBIF registry entry at startup");
-  });
-
-  ensureS2CRegistryEntry().catch((seedErr) => {
-    logger.error({ err: seedErr }, "Failed to seed Seeds to Community Washtenaw registry entry at startup");
-  });
-
-  ensureUniversalFqaRegistryEntry().catch((seedErr) => {
-    logger.error({ err: seedErr }, "Failed to seed Universal FQA registry entry at startup");
-  });
-
   autoImportMnfiIfEmpty(port).catch((err) => {
     logger.error({ err }, "MNFI auto-import check failed at startup");
   });
 
-  ensureLcscgRegistryEntry().catch((seedErr) => {
-    logger.error({ err: seedErr }, "Failed to seed LCSCG registry entry at startup");
-  });
-
   seedLcscgData().catch((seedErr) => {
     logger.error({ err: seedErr }, "Failed to seed LCSCG data at startup");
-  });
-
-  ensureGobotanyRegistryEntry().catch((seedErr) => {
-    logger.error({ err: seedErr }, "Failed to seed Go Botany registry entry at startup");
-  });
-
-  ensureGoogleImagesRegistryEntry().catch((seedErr) => {
-    logger.error({ err: seedErr }, "Failed to seed Google Images registry entry at startup");
-  });
-
-  ensureMissouriPlantsRegistryEntry().catch((seedErr) => {
-    logger.error({ err: seedErr }, "Failed to seed Missouri Plants registry entry at startup");
-  });
-
-  ensureMinnesotaWildflowersRegistryEntry().catch((seedErr) => {
-    logger.error({ err: seedErr }, "Failed to seed Minnesota Wildflowers registry entry at startup");
-  });
-
-  ensureIllinoisWildflowersRegistryEntry().catch((seedErr) => {
-    logger.error({ err: seedErr }, "Failed to seed Illinois Wildflowers registry entry at startup");
-  });
-
-  ensurePrairieMoonRegistryEntry().catch((seedErr) => {
-    logger.error({ err: seedErr }, "Failed to seed Prairie Moon registry entry at startup");
-  });
-
-  ensureUsdaPlantsRegistryEntry().catch((seedErr) => {
-    logger.error({ err: seedErr }, "Failed to seed USDA PLANTS registry entry at startup");
-  });
-
-  ensureLadyBirdJohnsonRegistryEntry().catch((seedErr) => {
-    logger.error({ err: seedErr }, "Failed to seed Lady Bird Johnson registry entry at startup");
   });
 
   autoImportMissouriPlantsIfEmpty().catch((err) => {
@@ -143,7 +71,28 @@ app.listen(port, (err) => {
     logger.error({ err }, "Prairie Moon auto-import check failed at startup");
   });
 
-  ensureSourceRelationships().catch((err) => {
-    logger.error({ err }, "Failed to seed source relationships at startup");
-  });
+  Promise.all([
+    ensureBonapRegistryEntry(),
+    ensureInatRegistryEntry(),
+    ensureMifloraRegistryEntry(),
+    ensureCoefficientRegistryEntry(),
+    ensureWetlandIndicatorRegistryEntry(),
+    ensureWucolsRegistryEntry(),
+    ensureGbifRegistryEntry(),
+    ensureS2CRegistryEntry(),
+    ensureUniversalFqaRegistryEntry(),
+    ensureLcscgRegistryEntry(),
+    ensureGobotanyRegistryEntry(),
+    ensureGoogleImagesRegistryEntry(),
+    ensureMissouriPlantsRegistryEntry(),
+    ensureMinnesotaWildflowersRegistryEntry(),
+    ensureIllinoisWildflowersRegistryEntry(),
+    ensurePrairieMoonRegistryEntry(),
+    ensureUsdaPlantsRegistryEntry(),
+    ensureLadyBirdJohnsonRegistryEntry(),
+  ])
+    .then(() => ensureSourceRelationships())
+    .catch((err) => {
+      logger.error({ err }, "Failed to seed source relationships at startup");
+    });
 });
