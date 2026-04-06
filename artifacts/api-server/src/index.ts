@@ -71,27 +71,39 @@ app.listen(port, (err) => {
     logger.error({ err }, "Prairie Moon auto-import check failed at startup");
   });
 
-  Promise.all([
-    ensureBonapRegistryEntry(),
-    ensureInatRegistryEntry(),
-    ensureMifloraRegistryEntry(),
-    ensureCoefficientRegistryEntry(),
-    ensureWetlandIndicatorRegistryEntry(),
-    ensureWucolsRegistryEntry(),
-    ensureGbifRegistryEntry(),
-    ensureS2CRegistryEntry(),
-    ensureUniversalFqaRegistryEntry(),
-    ensureLcscgRegistryEntry(),
-    ensureGobotanyRegistryEntry(),
-    ensureGoogleImagesRegistryEntry(),
-    ensureMissouriPlantsRegistryEntry(),
-    ensureMinnesotaWildflowersRegistryEntry(),
-    ensureIllinoisWildflowersRegistryEntry(),
-    ensurePrairieMoonRegistryEntry(),
-    ensureUsdaPlantsRegistryEntry(),
-    ensureLadyBirdJohnsonRegistryEntry(),
-  ])
-    .then(() => ensureSourceRelationships())
+  const registrySeedLabels = [
+    ["BONAP", ensureBonapRegistryEntry()],
+    ["iNaturalist", ensureInatRegistryEntry()],
+    ["Michigan Flora", ensureMifloraRegistryEntry()],
+    ["Coefficient of Conservatism", ensureCoefficientRegistryEntry()],
+    ["Wetland Indicator Status", ensureWetlandIndicatorRegistryEntry()],
+    ["WUCOLS", ensureWucolsRegistryEntry()],
+    ["GBIF", ensureGbifRegistryEntry()],
+    ["Seeds to Community Washtenaw", ensureS2CRegistryEntry()],
+    ["Universal FQA", ensureUniversalFqaRegistryEntry()],
+    ["LCSCG", ensureLcscgRegistryEntry()],
+    ["Go Botany", ensureGobotanyRegistryEntry()],
+    ["Google Images", ensureGoogleImagesRegistryEntry()],
+    ["Missouri Plants", ensureMissouriPlantsRegistryEntry()],
+    ["Minnesota Wildflowers", ensureMinnesotaWildflowersRegistryEntry()],
+    ["Illinois Wildflowers", ensureIllinoisWildflowersRegistryEntry()],
+    ["Prairie Moon", ensurePrairieMoonRegistryEntry()],
+    ["USDA PLANTS", ensureUsdaPlantsRegistryEntry()],
+    ["Lady Bird Johnson", ensureLadyBirdJohnsonRegistryEntry()],
+  ] as const;
+
+  Promise.allSettled(registrySeedLabels.map(([, p]) => p))
+    .then((results) => {
+      results.forEach((result, i) => {
+        if (result.status === "rejected") {
+          logger.error(
+            { err: result.reason },
+            `Failed to seed ${registrySeedLabels[i][0]} registry entry at startup`,
+          );
+        }
+      });
+      return ensureSourceRelationships();
+    })
     .catch((err) => {
       logger.error({ err }, "Failed to seed source relationships at startup");
     });
