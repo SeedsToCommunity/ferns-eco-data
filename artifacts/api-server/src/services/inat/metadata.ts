@@ -37,8 +37,7 @@ export const INAT_GENERAL_SUMMARY =
   "and GBIF services therefore overlap; treat them as complementary views, not independent datasets. " +
   "For Michigan county-level distribution backed by herbarium specimens, use Michigan Flora (miflora). " +
   "For North American distribution from vetted herbarium specimens, use BONAP (bonap-napa) — BONAP provides historical vetted distribution; iNaturalist provides continuously updated citizen science observations. " +
-  "For authoritative conservation status ranks (G/N/S), use NatureServe (natureserve). " +
-  "iNaturalist is the only FERNS source for species phenology (flowering and fruiting timing by month) and Wikipedia species summaries.";
+  "For authoritative conservation status ranks (G/N/S), use NatureServe (natureserve).";
 
 export const INAT_TECHNICAL_DETAILS =
   "Source: iNaturalist (https://api.inaturalist.org/v1). " +
@@ -62,8 +61,7 @@ export const INAT_TECHNICAL_DETAILS =
   "For Michigan county-level distribution backed by herbarium specimens, use Michigan Flora (miflora). " +
   "For North American county- and state-level distribution from herbarium specimens, use BONAP (bonap-napa) — BONAP provides vetted historical distribution; iNaturalist provides continuously updated citizen science observations. " +
   "For authoritative conservation status ranks (G/N/S) and COSEWIC assessments, use NatureServe (natureserve) — iNaturalist's conservation_status field reflects IUCN categories but may lag NatureServe reassessments. " +
-  "For C-values and ecological quality assessment, use Universal FQA (universal-fqa) or Michigan Flora (miflora). " +
-  "iNaturalist is the only FERNS source for species phenology (flowering and fruiting timing) and Wikipedia species summaries.";
+  "For C-values and ecological quality assessment, use Universal FQA (universal-fqa) or Michigan Flora (miflora).";
 
 export const INAT_REGISTRY_ENTRY = {
   source_id: INAT_SOURCE_ID,

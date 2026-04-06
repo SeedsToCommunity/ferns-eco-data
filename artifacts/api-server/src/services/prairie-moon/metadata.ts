@@ -50,9 +50,7 @@ export const PRAIRIE_MOON_TECHNICAL_DETAILS =
   "For North American distribution and nativity status, use BONAP (bonap-napa). " +
   "For C-values and ecological quality assessment, use Universal FQA (universal-fqa). " +
   "For floristic plant references in Illinois, use Illinois Wildflowers (illinois-wildflowers). " +
-  "For Minnesota plant references, use Minnesota Wildflowers (minnesota-wildflowers). " +
-  "Prairie Moon is the only FERNS source for nursery commercial availability confirmation and direct plant page " +
-  "URLs for Midwest and Great Plains native species.";
+  "For Minnesota plant references, use Minnesota Wildflowers (minnesota-wildflowers).";
 
 export const PRAIRIE_MOON_REGISTRY_ENTRY = {
   source_id: PRAIRIE_MOON_SOURCE_ID,

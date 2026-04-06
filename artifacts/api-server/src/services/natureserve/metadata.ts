@@ -40,8 +40,7 @@ export const NATURESERVE_GENERAL_SUMMARY =
   "detailed community descriptions and county distribution maps for Michigan, while NatureServe provides " +
   "broader Americas-scale conservation context; both services may be combined for a complete picture. " +
   "GBIF also surfaces IUCN Red List categories through its taxonomic backbone, but NatureServe's element-based G/N/S ranking system is independently assessed and is the authoritative conservation rank source in FERNS. " +
-  "iNaturalist also returns a conservation_status field per species, but it sources that data from third-party databases and may lag NatureServe's current assessments — use NatureServe for authoritative conservation ranks. " +
-  "NatureServe is the only FERNS source for Americas-wide G/N/S conservation ranks, CITES trade restriction status, and COSEWIC Canadian conservation assessments.";
+  "iNaturalist also returns a conservation_status field per species, but it sources that data from third-party databases and may lag NatureServe's current assessments — use NatureServe for authoritative conservation ranks.";
 
 export const NATURESERVE_TECHNICAL_DETAILS =
   "Source: NatureServe Explorer API (https://explorer.natureserve.org/api/data). " +
@@ -64,8 +63,7 @@ export const NATURESERVE_TECHNICAL_DETAILS =
   "Overlap with other FERNS sources: For Michigan natural community descriptions, characteristic plant lists, and county distribution maps, use MNFI (mnfi) — MNFI provides Michigan field-level detail (community descriptions, characteristic plants, county maps) that NatureServe's national classification does not. " +
   "GBIF (gbif) surfaces IUCN Red List categories through its taxonomic backbone, but NatureServe's G/N/S element-based ranking system is independently assessed and is the authoritative conservation rank source in FERNS. " +
   "iNaturalist (inaturalist) returns a conservation_status field per species, but that field sources from third-party IUCN data and may lag NatureServe reassessments — use NatureServe for authoritative ranks. " +
-  "For geographic distribution of NatureServe-tracked species, use Michigan Flora (miflora) for Michigan or BONAP (bonap-napa) for North America. " +
-  "NatureServe is the only FERNS source for Americas-wide G/N/S conservation ranks, CITES trade restriction status, and COSEWIC Canadian conservation assessments.";
+  "For geographic distribution of NatureServe-tracked species, use Michigan Flora (miflora) for Michigan or BONAP (bonap-napa) for North America.";
 
 export const NATURESERVE_REGISTRY_ENTRY = {
   source_id: NATURESERVE_SOURCE_ID,

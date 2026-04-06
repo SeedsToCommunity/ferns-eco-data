@@ -42,9 +42,7 @@ export const ILLINOIS_WILDFLOWERS_TECHNICAL_DETAILS =
   "Missouri Plants (missouri-plants) for Missouri, Go Botany (gobotany) for New England. " +
   "For North America-wide plant reference, use Lady Bird Johnson Wildflower Center (lady-bird-johnson) or USDA PLANTS (usda-plants). " +
   "For plant scientific name verification, use GBIF (gbif). For county-level distribution, use BONAP (bonap-napa). " +
-  "For nursery availability of Midwest species, use Prairie Moon (prairie-moon). " +
-  "Illinois Wildflowers is the only FERNS source for Illinois habitat-specific botanical profile URLs, " +
-  "with species organized across eight ecological habitat sections.";
+  "For nursery availability of Midwest species, use Prairie Moon (prairie-moon).";
 
 export const ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY = {
   source_id: ILLINOIS_WILDFLOWERS_SOURCE_ID,

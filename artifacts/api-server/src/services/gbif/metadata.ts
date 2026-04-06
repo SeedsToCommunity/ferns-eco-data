@@ -37,8 +37,7 @@ export const GBIF_GENERAL_SUMMARY =
   "with FERNS's iNaturalist service; treat simultaneous queries to both as complementary views, not independent datasets. " +
   "BONAP (bonap-napa) and GBIF draw on overlapping North American plant taxonomic sources — name agreement between them is not independent corroboration. " +
   "For Michigan county-level distribution with nativity and botanical context, use Michigan Flora (miflora). " +
-  "For authoritative conservation status ranks (G/N/S), use NatureServe (natureserve) — GBIF surfaces IUCN categories through its backbone, but NatureServe's element-based ranking is independently assessed. " +
-  "GBIF is the only FERNS source for global taxonomic backbone lookups, accepted-name verification across all kingdoms, and worldwide occurrence record aggregation across nearly 2,000 institutions.";
+  "For authoritative conservation status ranks (G/N/S), use NatureServe (natureserve) — GBIF surfaces IUCN categories through its backbone, but NatureServe's element-based ranking is independently assessed.";
 
 export const GBIF_TECHNICAL_DETAILS =
   "Source: GBIF.org. Data licensed CC BY 4.0. " +
@@ -70,8 +69,7 @@ export const GBIF_TECHNICAL_DETAILS =
   "iNaturalist (inaturalist) research-grade observations are published to GBIF — occurrence counts overlap and must not be double-counted. " +
   "For Michigan county-level distribution with nativity and botanical context, use Michigan Flora (miflora). " +
   "For conservation status and imperilment ranks, use NatureServe (natureserve) — NatureServe's G/N/S ranking system is independent of GBIF's IUCN backbone data. " +
-  "For FQA ecological quality assessment, use Universal FQA (universal-fqa). " +
-  "GBIF is the only FERNS source for global taxonomic backbone lookups, synonym chains, and worldwide occurrence record aggregation across nearly 2,000 institutions.";
+  "For FQA ecological quality assessment, use Universal FQA (universal-fqa).";
 
 export const GBIF_VOCABULARIES = {
   basisOfRecord: [

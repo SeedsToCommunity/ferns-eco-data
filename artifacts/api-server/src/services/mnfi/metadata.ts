@@ -29,8 +29,7 @@ export const MNFI_GENERAL_SUMMARY =
   "Community description and characteristic plant list data is imported at server startup; if a deployment has just been initialized, descriptions may take a short time to populate. Geographic scope is Michigan only. " +
   "For scientific name verification of species in MNFI characteristic plant lists, use GBIF. " +
   "For vascular plant county occurrence data in Michigan, use Michigan Flora (miflora) — Michigan Flora provides botanical descriptions and distributional context MNFI does not. " +
-  "For citizen science occurrence data for MNFI-tracked species, use iNaturalist (inaturalist). " +
-  "MNFI is the only FERNS source for Michigan natural community types, the ecological class and group hierarchy, community descriptions, and county element occurrence records for MNFI-tracked species.";
+  "For citizen science occurrence data for MNFI-tracked species, use iNaturalist (inaturalist).";
 
 export const MNFI_TECHNICAL_DETAILS =
   "Primary source: Michigan Natural Features Inventory Natural Community Classification " +
@@ -62,8 +61,7 @@ export const MNFI_TECHNICAL_DETAILS =
   "Overlap with other FERNS sources: For Americas-wide conservation ranks (G/N/S) of the same community types, use NatureServe (natureserve) — NatureServe provides the national classification framework; MNFI provides Michigan-specific field detail, characteristic plant lists, and county distribution maps not in NatureServe. " +
   "For vascular plant county occurrence data in Michigan, use Michigan Flora (miflora) — Michigan Flora covers county distribution for all Michigan vascular plants at the species level; MNFI county element data covers MNFI-tracked taxa (vascular and non-vascular plants, animals, and communities). " +
   "For scientific name verification of species in MNFI characteristic plant lists, use GBIF (gbif). " +
-  "For citizen science occurrence data for MNFI-tracked species, use iNaturalist (inaturalist). " +
-  "MNFI is the only FERNS source for Michigan natural community types, the ecological class and group hierarchy, community descriptions, and county element occurrence records for MNFI-tracked taxa.";
+  "For citizen science occurrence data for MNFI-tracked species, use iNaturalist (inaturalist).";
 
 export const MNFI_REGISTRY_ENTRY = {
   source_id: MNFI_SOURCE_ID,

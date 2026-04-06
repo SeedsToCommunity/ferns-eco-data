@@ -40,8 +40,7 @@ export const UNIVERSAL_FQA_GENERAL_SUMMARY =
   "For scientific name verification of species found in a database, use GBIF. " +
   "For geographic distribution of FQA-assessed species in Michigan, use Michigan Flora; for all of North America, use BONAP. " +
   "For natural community classification that provides habitat context for FQA assessments in Michigan, use MNFI. " +
-  "For conservation status of species in FQA databases, use NatureServe. " +
-  "Universal FQA is the only FERNS source for quantitative FQI metrics and publicly contributed site assessment inventories.";
+  "For conservation status of species in FQA databases, use NatureServe.";
 
 export const UNIVERSAL_FQA_TECHNICAL_DETAILS =
   "Source: universalfqa.org public REST API. Developed and maintained by the University of Michigan. " +
@@ -100,8 +99,7 @@ export const UNIVERSAL_FQA_TECHNICAL_DETAILS =
   "For scientific name verification of species found in a database, use GBIF (gbif). " +
   "For geographic distribution of FQA-assessed species in Michigan, use Michigan Flora (miflora); for North America, use BONAP (bonap-napa). " +
   "For natural community classification that provides FQA habitat context in Michigan, use MNFI (mnfi). " +
-  "For conservation status of species in FQA databases, use NatureServe (natureserve). " +
-  "Universal FQA is the only FERNS source for quantitative FQI metrics, mean C-value scores, and publicly contributed site assessment inventories.";
+  "For conservation status of species in FQA databases, use NatureServe (natureserve).";
 
 export const UNIVERSAL_FQA_REGISTRY_ENTRY = {
   source_id: UNIVERSAL_FQA_SOURCE_ID,

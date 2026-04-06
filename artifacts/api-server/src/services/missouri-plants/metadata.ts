@@ -40,8 +40,7 @@ export const MISSOURI_PLANTS_TECHNICAL_DETAILS =
   "Minnesota Wildflowers (minnesota-wildflowers) for Minnesota, Go Botany (gobotany) for New England. " +
   "For North America-wide plant reference, use Lady Bird Johnson Wildflower Center (lady-bird-johnson) or USDA PLANTS (usda-plants). " +
   "For plant scientific name verification, use GBIF (gbif). For county-level distribution, use BONAP (bonap-napa). " +
-  "For nursery availability of Midwest species, use Prairie Moon (prairie-moon). " +
-  "Missouri Plants is the only FERNS source for Missouri species-specific botanical profile URLs.";
+  "For nursery availability of Midwest species, use Prairie Moon (prairie-moon).";
 
 export const MISSOURI_PLANTS_REGISTRY_ENTRY = {
   source_id: MISSOURI_PLANTS_SOURCE_ID,

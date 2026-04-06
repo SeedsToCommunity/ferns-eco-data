@@ -20,8 +20,7 @@ export const GOOGLE_IMAGES_GENERAL_SUMMARY =
   "Google Images provides no structured ecological data and should not be used as a data source — " +
   "it complements FERNS sources such as iNaturalist (inaturalist — species photos with provenance and location), " +
   "Michigan Flora (miflora — botanical illustrations), and LCSCG (lcscg — guide photographs organized by season and habitat) " +
-  "by offering a quick, unfiltered visual overview when those sources return no image or when an unfamiliar taxon needs rapid visual confirmation. " +
-  "Google Images is the only FERNS source for broad aggregated web image search with no geographic or institutional restriction.";
+  "by offering a quick, unfiltered visual overview when those sources return no image or when an unfamiliar taxon needs rapid visual confirmation.";
 
 export const GOOGLE_IMAGES_TECHNICAL_DETAILS =
   "Source: google.com/images. Operated by Google LLC. " +
@@ -34,8 +33,7 @@ export const GOOGLE_IMAGES_TECHNICAL_DETAILS =
   "Coverage: unlimited — Google Images indexes the global public web. " +
   "Overlap with other FERNS sources: For scientific species photographs with provenance and geographic metadata, use iNaturalist (inaturalist). " +
   "For botanical illustration photographs from Michigan herbarium records, use Michigan Flora (miflora). " +
-  "For illustrated seed harvest guide photographs organized by season and habitat, use LCSCG (lcscg). " +
-  "Google Images is the only FERNS source for broad aggregated web image search with no geographic or institutional restriction.";
+  "For illustrated seed harvest guide photographs organized by season and habitat, use LCSCG (lcscg).";
 
 export const GOOGLE_IMAGES_REGISTRY_ENTRY = {
   source_id: GOOGLE_IMAGES_SOURCE_ID,

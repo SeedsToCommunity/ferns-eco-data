@@ -28,9 +28,7 @@ export const USDA_PLANTS_GENERAL_SUMMARY =
   "For conservation status and imperilment ranks, use NatureServe (natureserve). " +
   "For regional species-specific botanical profile URLs, use Go Botany (gobotany) for New England, " +
   "Illinois Wildflowers (illinois-wildflowers) for Illinois, Minnesota Wildflowers (minnesota-wildflowers) for Minnesota, " +
-  "Missouri Plants (missouri-plants) for Missouri. " +
-  "USDA PLANTS is the only FERNS source for federal legal status, US government wetland indicator ratings by NRCS, " +
-  "and coverage of all US and territory land plants including mosses, liverworts, hornworts, and lichens.";
+  "Missouri Plants (missouri-plants) for Missouri.";
 
 export const USDA_PLANTS_TECHNICAL_DETAILS =
   "Source: https://plants.usda.gov. Operated by USDA Natural Resources Conservation Service (NRCS). " +
@@ -51,9 +49,7 @@ export const USDA_PLANTS_TECHNICAL_DETAILS =
   "For conservation status, use NatureServe (natureserve). " +
   "For regional species-specific botanical profile URLs, use Go Botany (gobotany) for New England, " +
   "Illinois Wildflowers (illinois-wildflowers) for Illinois, Minnesota Wildflowers (minnesota-wildflowers) for Minnesota, " +
-  "Missouri Plants (missouri-plants) for Missouri. " +
-  "USDA PLANTS is the only FERNS source for federal legal status and coverage of all US and territory land plants " +
-  "including mosses, liverworts, hornworts, and lichens.";
+  "Missouri Plants (missouri-plants) for Missouri.";
 
 export const USDA_PLANTS_REGISTRY_ENTRY = {
   source_id: USDA_PLANTS_SOURCE_ID,

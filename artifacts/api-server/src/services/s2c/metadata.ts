@@ -38,9 +38,7 @@ export const S2C_TECHNICAL_DETAILS =
   "For Michigan county occurrence data, use Michigan Flora (miflora) or BONAP (bonap-napa) for North America-wide distribution. " +
   "For conservation status of S2C-listed species, use NatureServe (natureserve). " +
   "For seed harvest guidance for species that overlap with the Chicago region, use LCSCG (lcscg) — " +
-  "LCSCG covers Lake County, Illinois species and includes season and habitat photographs; S2C and LCSCG may share species. " +
-  "S2C is the only FERNS source for Washtenaw County, Michigan native plant workshop availability records, " +
-  "including the 'Neat & Tidy' and 'Sweet & Simple' suitability flags.";
+  "LCSCG covers Lake County, Illinois species and includes season and habitat photographs; S2C and LCSCG may share species.";
 
 export const S2C_REGISTRY_ENTRY = {
   source_id: S2C_SOURCE_ID,

@@ -24,9 +24,7 @@ export const LADY_BIRD_JOHNSON_GENERAL_SUMMARY =
   "for regional-specialist references within FERNS, use Go Botany (gobotany) for New England, " +
   "Illinois Wildflowers (illinois-wildflowers) for Illinois, Minnesota Wildflowers (minnesota-wildflowers) for Minnesota, " +
   "Missouri Plants (missouri-plants) for Missouri, and Prairie Moon (prairie-moon) for Midwest nursery availability. " +
-  "USDA PLANTS (usda-plants) provides the authoritative federal taxonomy across all US and territory species. " +
-  "Lady Bird Johnson Wildflower Center is the only FERNS source for a broad North American native plant growing reference " +
-  "with wildlife value, bloom time, regional suitability, and habitat information.";
+  "USDA PLANTS (usda-plants) provides the authoritative federal taxonomy across all US and territory species.";
 
 export const LADY_BIRD_JOHNSON_TECHNICAL_DETAILS =
   "Source: https://www.wildflower.org/plants/. " +
@@ -45,9 +43,7 @@ export const LADY_BIRD_JOHNSON_TECHNICAL_DETAILS =
   "Missouri Plants (missouri-plants) for Missouri, Prairie Moon (prairie-moon) for Midwest nursery availability. " +
   "For federal nomenclatural authority, use USDA PLANTS (usda-plants). " +
   "For plant scientific name verification and synonym resolution, use GBIF (gbif). " +
-  "For conservation status, use NatureServe (natureserve). " +
-  "Lady Bird Johnson Wildflower Center is the only FERNS source for a broad North American native plant growing reference " +
-  "with wildlife value, bloom time, regional suitability, and habitat information.";
+  "For conservation status, use NatureServe (natureserve).";
 
 export const LADY_BIRD_JOHNSON_REGISTRY_ENTRY = {
   source_id: LADY_BIRD_JOHNSON_SOURCE_ID,

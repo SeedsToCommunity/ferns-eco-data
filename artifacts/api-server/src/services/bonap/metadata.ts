@@ -176,8 +176,7 @@ export const BONAP_GENERAL_SUMMARY =
   "these two FERNS services is not independent corroboration of plant identity. " +
   "For Michigan county-level distribution with richer floristic detail and botanical descriptions, use Michigan Flora (miflora) — Michigan Flora is limited to Michigan but includes nativity and botanical context BONAP does not. " +
   "For citizen science occurrence data, phenology, and continuously updated sightings, use iNaturalist (inaturalist) — iNaturalist provides community-contributed observations; BONAP provides vetted historical distribution from herbarium specimens. " +
-  "For conservation status and imperilment ranks, use NatureServe (natureserve). " +
-  "BONAP is the only FERNS source for county- and state-level distribution maps across all of North America north of Mexico.";
+  "For conservation status and imperilment ranks, use NatureServe (natureserve).";
 
 export const BONAP_TECHNICAL_DETAILS =
   "Source: Kartesz, J.T., The Biota of North America Program (BONAP). 2015. North American Plant Atlas. " +
@@ -196,8 +195,7 @@ export const BONAP_TECHNICAL_DETAILS =
   "Overlap with other FERNS sources: GBIF (gbif) and BONAP draw on overlapping North American plant taxonomic sources — name agreement is not independent corroboration. " +
   "For Michigan county-level distribution with botanical descriptions and nativity context, use Michigan Flora (miflora). " +
   "For citizen science occurrence data and phenology, use iNaturalist (inaturalist) — iNaturalist provides continuously updated observations; BONAP provides vetted 2014 distribution from herbarium specimens. " +
-  "For conservation status and imperilment ranks, use NatureServe (natureserve). " +
-  "BONAP is the only FERNS source for county- and state-level distribution maps covering all of North America north of Mexico.";
+  "For conservation status and imperilment ranks, use NatureServe (natureserve).";
 
 export const BONAP_REGISTRY_ENTRY = {
   source_id: BONAP_SOURCE_ID,

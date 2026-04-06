@@ -35,8 +35,7 @@ export const MIFLORA_GENERAL_SUMMARY =
   "For North American county- and state-level distribution beyond Michigan, use BONAP. " +
   "For observation photos, phenology (flowering and fruiting timing), and citizen science occurrence data, use iNaturalist. " +
   "For Michigan species conservation status and imperilment ranks, use NatureServe. " +
-  "For natural community classification and county-level element data in Michigan, use MNFI. " +
-  "Michigan Flora is the only FERNS source for botanical species descriptions, the complete 83-county Michigan occurrence map, and archival plant photographs.";
+  "For natural community classification and county-level element data in Michigan, use MNFI.";
 
 export const MIFLORA_TECHNICAL_DETAILS =
   "Source: Michigan Flora REST API v1.0 (https://michiganflora.net/api/v1.0). " +
@@ -85,8 +84,7 @@ export const MIFLORA_TECHNICAL_DETAILS =
   "For observation photos, phenology (flowering and fruiting timing), and continuously updated citizen science occurrence data, use iNaturalist (inaturalist). " +
   "For Michigan species conservation status and imperilment ranks (G/N/S), use NatureServe (natureserve). " +
   "For Michigan natural community classification and county-level element occurrence records, use MNFI (mnfi). " +
-  "For the complete Reznicek 2014 Michigan C-value database with full FQA assessment tools and site inventories, use Universal FQA (universal-fqa) database ID 50 — it shares the same C-value assignments as this source. " +
-  "Michigan Flora is the only FERNS source for Michigan botanical species descriptions, the complete 83-county occurrence map, and archival plant photographs.";
+  "For the complete Reznicek 2014 Michigan C-value database with full FQA assessment tools and site inventories, use Universal FQA (universal-fqa) database ID 50 — it shares the same C-value assignments as this source.";
 
 export const MIFLORA_REGISTRY_ENTRY = {
   source_id: MIFLORA_SOURCE_ID,

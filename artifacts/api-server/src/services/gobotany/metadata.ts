@@ -21,8 +21,7 @@ export const GOBOTANY_GENERAL_SUMMARY =
   "Go Botany covers New England only — for comparable regional references within FERNS, " +
   "use Illinois Wildflowers (illinois-wildflowers) for Illinois, Minnesota Wildflowers (minnesota-wildflowers) for Minnesota, " +
   "Missouri Plants (missouri-plants) for Missouri, or Prairie Moon (prairie-moon) for Midwest nursery availability. " +
-  "For North America-wide plant reference, use Lady Bird Johnson Wildflower Center (lady-bird-johnson) or USDA PLANTS (usda-plants). " +
-  "Go Botany is the only FERNS source for New England species-specific botanical profile pages with identification keys and distribution maps.";
+  "For North America-wide plant reference, use Lady Bird Johnson Wildflower Center (lady-bird-johnson) or USDA PLANTS (usda-plants).";
 
 export const GOBOTANY_TECHNICAL_DETAILS =
   "Source: gobotany.nativeplanttrust.org. Maintained by Native Plant Trust, Framingham, MA. " +
