@@ -20,8 +20,7 @@ export const LCSCG_GENERAL_SUMMARY =
   "A species query returns scientific name, common name, plant family, guide and habitat section, seed dispersal " +
   "category, harvest technique description, photo date (timing proxy), and image URLs. " +
   "Data is static with no update cycle; not all records are native — non-native comparison species " +
-  "marked 'Do Not Collect' are included; no Floristic Quality Assessment C-values (a measure of a plant's fidelity to undisturbed habitat) " +
-  "or wetland status codes are provided. " +
+  "marked 'Do Not Collect' are included. " +
   "LCSCG species names follow Flora of the Chicago Region (Wilhelm & Rericha 2017).";
 
 export const LCSCG_TECHNICAL_DETAILS =
@@ -46,8 +45,7 @@ export const LCSCG_TECHNICAL_DETAILS =
   "image_urls (JSONB array of Cloudinary CDN URLs). " +
   "494 total records, all unique by scientific name. " +
   "Non-native Do Not Collect species included: Daucus carota, Cirsium vulgare, Phleum pratense, " +
-  "Abutilon theophrasti, Dianthus armeria, others. " +
-  "LCSCG provides no C-values or wetland status codes.";
+  "Abutilon theophrasti, Dianthus armeria, others.";
 
 export const LCSCG_REGISTRY_ENTRY = {
   source_id: LCSCG_SOURCE_ID,
