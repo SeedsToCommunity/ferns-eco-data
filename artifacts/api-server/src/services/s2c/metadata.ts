@@ -8,8 +8,8 @@ export const S2C_PERMISSION_STATUS =
 
 export const S2C_GENERAL_SUMMARY =
   "Species availability records for Seeds to Community Washtenaw, a native plant seed-growing program " +
-  "run by a Washtenaw County, Michigan community organization; permission to serve this data via FERNS " +
-  "has been explicitly granted by the program organizer. " +
+  "run by a Washtenaw County, Michigan community organization; FERNS serves this data with the " +
+  "program organizer's permission. " +
   "Data type: the list of botanical names offered for growing in each annual workshop series, " +
   "extracted from program documents (PDFs and Google Sheets). " +
   "Geographic scope: Washtenaw County, Michigan; taxonomic scope: native plants suitable for " +
@@ -48,11 +48,10 @@ export const S2C_REGISTRY_ENTRY = {
   knowledge_type: "source_wrapper",
   status: "live",
   description:
-    "Species availability records for Seeds to Community Washtenaw, a native plant seed-growing program " +
-    "in Washtenaw County, Michigan. Covers program years 2023–2026. " +
-    "Each record is the list of botanical names offered for growing in that year's January–March workshops. " +
-    "Where tracked, includes 'Neat & Tidy' flags (species suitable for formal garden settings) " +
-    "and 'Sweet & Simple' flags (beginner-friendly selections, introduced 2026).",
+    "Annual lists of native plant botanical names offered at Washtenaw County, Michigan seed-growing workshops, " +
+    "covering program years 2023–2026, with optional suitability flags: 'Neat & Tidy' for formal garden settings " +
+    "and 'Sweet & Simple' for beginners (available from 2026 onward). " +
+    "From Seeds to Community Washtenaw, a community seed-growing program in Washtenaw County, Michigan.",
   input_summary: "Program year (2023–2026)",
   output_summary:
     "List of botanical names offered that year, with optional neat_and_tidy and sweet_and_simple metadata flags where tracked",

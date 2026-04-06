@@ -51,7 +51,7 @@ export const WETLAND_INDICATOR_REGISTRY_ENTRY = {
   description:
     "Authoritative reference for the Wetland Indicator Status (WIS) codes (OBL, FACW, FAC, FACU, UPL) and their companion " +
     "Coefficient of Wetness (W) values (-5 to +5). Codes are defined by the USDA NRCS National Wetland Plant List (NWPL) " +
-    "under USACE authority. Includes explicit disambiguation from WUCOLS (a landscape irrigation system, not an ecological classifier) " +
+    "under U.S. Army Corps of Engineers (USACE) authority. Includes explicit disambiguation from WUCOLS (a landscape irrigation system, not an ecological classifier) " +
     "and from the Coefficient of Conservatism (a habitat quality metric, not a wetness measure).",
   input_summary:
     "WIS code (OBL, FACW, FAC, FACU, or UPL) or numeric W-value (-5, -3, 0, 3, or 5)",
