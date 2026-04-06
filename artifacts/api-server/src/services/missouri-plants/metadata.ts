@@ -19,8 +19,7 @@ export const MISSOURI_PLANTS_GENERAL_SUMMARY =
   "A query returns the direct species profile URL or found: false; URL filenames may use historical " +
   "synonym genera and are not derivable from scientific names alone — the species list is authoritative. " +
   "The index reflects the site at the time of the last admin-triggered import; ~1,464 species at last import. " +
-  "Exact genus + species match required (case-insensitive); subspecies and varieties not individually listed. " +
-  "Geographic scope: Missouri only.";
+  "Exact genus + species match required (case-insensitive); subspecies and varieties not individually listed.";
 
 export const MISSOURI_PLANTS_TECHNICAL_DETAILS =
   "Primary source: missouriplants.com/All_Species_list.html. Maintained by Paul Wycoff. " +

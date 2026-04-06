@@ -15,9 +15,7 @@ export const WETLAND_INDICATOR_GENERAL_SUMMARY =
   "Scope: national (US) classification system; per-species ratings may vary regionally. " +
   "A query returns the full definition for a WIS code or W-value: occurrence frequency range, ecological " +
   "meaning, W-value companion, authority, and disambiguation from other metrics. " +
-  "Definitions do not change; this source is perpetually current. " +
-  "WIS is NOT WUCOLS (landscape irrigation ratings, VL/L/M/H), and NOT the Coefficient of Conservatism " +
-  "(C-value, 0–10), which measures ecological fidelity rather than wetland affinity.";
+  "Definitions do not change; this source is perpetually current.";
 
 export const WETLAND_INDICATOR_TECHNICAL_DETAILS =
   "Source: Static reference data. " +
@@ -33,10 +31,7 @@ export const WETLAND_INDICATOR_TECHNICAL_DETAILS =
   "W values are fixed by WIS code; they are not independently assigned. " +
   "Mean W-value for a plant community is calculated as the arithmetic mean of W-values of all species present. " +
   "Regional variation: USDA NRCS assigns regional ratings for species with geographically variable wetland affinity; " +
-  "source data (e.g., Michigan Flora) may return compound codes such as 'FACU/UPL' reflecting regional disagreement. " +
-  "Distinct from: " +
-  "C-value (Swink & Wilhelm): 0–10 ecological fidelity scale; measures disturbance tolerance, not wetland affinity. " +
-  "WUCOLS (UC Cooperative Extension): VL/L/M/H scale for supplemental irrigation in managed landscapes; unrelated to natural wetland ecology. " +
+  "compound codes such as 'FACU/UPL' reflect regional disagreement and are valid WIS values. " +
   "Method: static_data. No upstream API. No cache TTL — data is in-memory reference.";
 
 export const WETLAND_INDICATOR_REGISTRY_ENTRY = {

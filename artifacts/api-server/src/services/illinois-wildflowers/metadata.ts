@@ -19,8 +19,7 @@ export const ILLINOIS_WILDFLOWERS_GENERAL_SUMMARY =
   "A query returns the direct species profile URL(s) — a species appearing in multiple habitat sections " +
   "returns multiple records, one per section; link text format is 'Scientific Name (Common Name)'. " +
   "The index reflects the site at the time of the last admin-triggered import. " +
-  "Nomenclature follows the site's own taxonomy, which may differ from current accepted names. " +
-  "Geographic scope: Illinois only.";
+  "Nomenclature follows the site's own taxonomy, which may differ from current accepted names.";
 
 export const ILLINOIS_WILDFLOWERS_TECHNICAL_DETAILS =
   "Primary sources: eight habitat section indexes at https://www.illinoiswildflowers.info/{section}/{index}: " +

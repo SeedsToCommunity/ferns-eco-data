@@ -20,8 +20,7 @@ export const MINNESOTA_WILDFLOWERS_GENERAL_SUMMARY =
   "A query returns the direct species profile URL or found: false; " +
   "URLs use common-name slugs not derivable from scientific names — the species list index is authoritative. " +
   "The index reflects the site at the time of the last admin-triggered import. " +
-  "Exact binomial match required (case-insensitive); subspecies and varieties follow site taxonomy. " +
-  "Geographic scope: Minnesota only.";
+  "Exact binomial match required (case-insensitive); subspecies and varieties follow site taxonomy.";
 
 export const MINNESOTA_WILDFLOWERS_TECHNICAL_DETAILS =
   "Primary source: https://www.minnesotawildflowers.info/page/plants-by-name. " +

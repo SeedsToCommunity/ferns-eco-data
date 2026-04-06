@@ -17,8 +17,7 @@ export const GOBOTANY_GENERAL_SUMMARY =
   "A query returns the direct species profile URL and found/not-found status; " +
   "a 200 HTTP response confirms the species is in the Go Botany database. " +
   "URLs are validated at query time; the Go Botany database is updated periodically by Native Plant Trust staff. " +
-  "Taxonomic synonyms not recognized by Go Botany will return 404 even if the species occurs in New England. " +
-  "Geographic scope: New England (CT, MA, ME, NH, RI, VT) only.";
+  "Taxonomic synonyms not recognized by Go Botany will return 404 even if the species occurs in New England.";
 
 export const GOBOTANY_TECHNICAL_DETAILS =
   "Source: gobotany.nativeplanttrust.org. Maintained by Native Plant Trust, Framingham, MA. " +
