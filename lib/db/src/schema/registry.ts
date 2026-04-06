@@ -34,8 +34,8 @@ export const sourceRelationshipsTable = pgTable(
   "source_relationships",
   {
     id: serial("id").primaryKey(),
-    source_id_a: text("source_id_a").notNull(),
-    source_id_b: text("source_id_b").notNull(),
+    source_id_a: text("source_id_a").notNull().references(() => fernsSourcesTable.source_id),
+    source_id_b: text("source_id_b").notNull().references(() => fernsSourcesTable.source_id),
     relationship_type: text("relationship_type").notNull(),
     scope: text("scope").notNull(),
     severity: text("severity").notNull(),

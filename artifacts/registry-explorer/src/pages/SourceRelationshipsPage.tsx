@@ -29,24 +29,30 @@ const SEVERITY_CONFIG: Record<
   },
 };
 
-const TYPE_CONFIG: Record<string, { label: string; className: string }> = {
+const TYPE_CONFIG: Record<string, { label: string; className: string; description: string }> = {
   overlap: {
     label: "Overlap",
     className: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800",
+    description: "Two sources cover the same data domain.",
   },
   conflict: {
     label: "Conflict",
     className: "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/30 dark:text-red-400 dark:border-red-800",
+    description: "Sources may return contradictory values for the same query.",
   },
   complements: {
     label: "Complements",
     className: "bg-green-50 text-green-700 border-green-200 dark:bg-green-950/30 dark:text-green-400 dark:border-green-800",
+    description: "Sources are designed to be used together.",
   },
   supersedes: {
     label: "Supersedes",
     className: "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-950/30 dark:text-violet-400 dark:border-violet-800",
+    description: "One source is preferred over another for a given scope.",
   },
 };
+
+const TYPE_ORDER = ["conflict", "overlap", "supersedes", "complements"];
 
 const SEVERITY_ORDER: Record<string, number> = {
   blocking: 0,
@@ -95,7 +101,7 @@ function RelationshipCard({ rel, index }: { rel: SourceRelationship; index: numb
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.025 }}
+      transition={{ delay: index * 0.02 }}
       className="rounded-xl border border-border bg-card p-5 space-y-3"
     >
       <div className="flex flex-wrap items-center gap-2">
@@ -103,7 +109,6 @@ function RelationshipCard({ rel, index }: { rel: SourceRelationship; index: numb
         <ArrowLeftRight className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
         <SourceIdChip id={rel.source_id_b} />
         <div className="ml-auto flex flex-wrap items-center gap-2">
-          <TypeBadge type={rel.relationship_type} />
           <SeverityBadge severity={rel.severity} />
         </div>
       </div>
@@ -112,9 +117,7 @@ function RelationshipCard({ rel, index }: { rel: SourceRelationship; index: numb
         <span className="text-xs text-muted-foreground uppercase tracking-wider font-medium">
           Scope:
         </span>
-        <code className="text-xs font-mono text-foreground">
-          {rel.scope.replace(/_/g, "_")}
-        </code>
+        <code className="text-xs font-mono text-foreground">{rel.scope}</code>
       </div>
 
       <p className="text-sm text-foreground leading-relaxed">{rel.description}</p>
@@ -138,6 +141,49 @@ function RelationshipCard({ rel, index }: { rel: SourceRelationship; index: numb
   );
 }
 
+function TypeSection({
+  type,
+  relationships,
+  baseIndex,
+}: {
+  type: string;
+  relationships: SourceRelationship[];
+  baseIndex: number;
+}) {
+  const config = TYPE_CONFIG[type] ?? {
+    label: type,
+    className: "bg-muted text-muted-foreground border-border",
+    description: "",
+  };
+
+  const sorted = [...relationships].sort(
+    (a, b) =>
+      (SEVERITY_ORDER[a.severity] ?? 99) - (SEVERITY_ORDER[b.severity] ?? 99),
+  );
+
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: baseIndex * 0.05 }}
+      className="space-y-3"
+    >
+      <div className="flex items-center gap-3 pb-1 border-b border-border">
+        <TypeBadge type={type} />
+        <span className="text-sm text-muted-foreground">{config.description}</span>
+        <span className="ml-auto text-xs text-muted-foreground">
+          {sorted.length} {sorted.length === 1 ? "relationship" : "relationships"}
+        </span>
+      </div>
+      <div className="space-y-3">
+        {sorted.map((rel, i) => (
+          <RelationshipCard key={rel.id} rel={rel} index={i} />
+        ))}
+      </div>
+    </motion.section>
+  );
+}
+
 export default function SourceRelationshipsPage() {
   const [filterInput, setFilterInput] = useState("");
   const [activeFilter, setActiveFilter] = useState<string | undefined>(undefined);
@@ -155,10 +201,22 @@ export default function SourceRelationshipsPage() {
 
   const relationships = data?.data?.relationships ?? [];
 
-  const sorted = [...relationships].sort(
-    (a, b) =>
-      (SEVERITY_ORDER[a.severity] ?? 99) - (SEVERITY_ORDER[b.severity] ?? 99),
-  );
+  const grouped = TYPE_ORDER.reduce<Record<string, SourceRelationship[]>>((acc, type) => {
+    const matching = relationships.filter((r) => r.relationship_type === type);
+    if (matching.length > 0) acc[type] = matching;
+    return acc;
+  }, {});
+
+  const unknownTypes = relationships
+    .filter((r) => !TYPE_ORDER.includes(r.relationship_type))
+    .reduce<Record<string, SourceRelationship[]>>((acc, r) => {
+      acc[r.relationship_type] = acc[r.relationship_type] ?? [];
+      acc[r.relationship_type].push(r);
+      return acc;
+    }, {});
+
+  const allGroups = { ...grouped, ...unknownTypes };
+  const groupKeys = Object.keys(allGroups);
 
   function applyFilter() {
     const trimmed = filterInput.trim();
@@ -244,23 +302,26 @@ export default function SourceRelationshipsPage() {
           </div>
         )}
 
-        {!isLoading && !isError && sorted.length === 0 && (
+        {!isLoading && !isError && relationships.length === 0 && (
           <div className="text-center py-24 text-muted-foreground">
             No relationships found{activeFilter ? ` for source "${activeFilter}"` : ""}.
           </div>
         )}
 
-        {!isLoading && !isError && sorted.length > 0 && (
-          <div className="space-y-4">
+        {!isLoading && !isError && relationships.length > 0 && (
+          <div className="space-y-8">
             <p className="text-sm text-muted-foreground">
-              {sorted.length} relationship{sorted.length !== 1 ? "s" : ""}
-              {activeFilter ? ` involving ${activeFilter}` : " total"}, sorted by severity
+              {relationships.length} relationship{relationships.length !== 1 ? "s" : ""}
+              {activeFilter ? ` involving ${activeFilter}` : " total"}, grouped by type
             </p>
-            <div className="space-y-3">
-              {sorted.map((rel, i) => (
-                <RelationshipCard key={rel.id} rel={rel} index={i} />
-              ))}
-            </div>
+            {groupKeys.map((type, i) => (
+              <TypeSection
+                key={type}
+                type={type}
+                relationships={allGroups[type]}
+                baseIndex={i}
+              />
+            ))}
           </div>
         )}
       </div>
