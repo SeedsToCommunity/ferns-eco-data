@@ -81,11 +81,7 @@ export function SourceExplorerLayout({ sourceId, children }: SourceExplorerLayou
               <ArrowLeft className="w-4 h-4" />
               <span className="hidden sm:inline">All Sources</span>
             </Link>
-            <span className="text-muted-foreground/30 shrink-0">|</span>
-            <span className="font-semibold text-foreground text-sm truncate flex-1 min-w-0">
-              {isLoading ? "…" : (source?.name ?? sourceId)}
-            </span>
-            <div className="flex items-center gap-1.5 shrink-0">
+            <div className="flex items-center gap-1.5 shrink-0 ml-auto">
               {source?.knowledge_type && (
                 <span className="hidden md:inline text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 uppercase tracking-wide whitespace-nowrap">
                   {source.knowledge_type.replace(/_/g, " ")}
@@ -141,8 +137,15 @@ export function SourceExplorerLayout({ sourceId, children }: SourceExplorerLayou
             </div>
           )}
 
-          {/* Section 2: Description */}
+          {/* Section 1b: Source name */}
           <div className="pt-2">
+            <h1 className="text-3xl font-bold text-foreground tracking-tight">
+              {source.name}
+            </h1>
+          </div>
+
+          {/* Section 2: Description */}
+          <div>
             <p className="text-xl text-foreground leading-relaxed max-w-3xl">
               {source.description}
             </p>
