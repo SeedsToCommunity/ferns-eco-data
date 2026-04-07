@@ -32,8 +32,7 @@ export const MISSOURI_PLANTS_TECHNICAL_DETAILS =
   "Lookup method: ILIKE match on stored scientific_name (case-insensitive exact match preferred). " +
   "Method: species_list_scrape with DB lookup. No HTTP validation at query time. " +
   "DB table: botanical_species_lists (columns: id serial PK, site_id text, scientific_name text, url text, section text, imported_at; " +
-  "unique on (site_id, scientific_name, section)). Coverage: ~1,464 species at last import. " +
-  "Missouri Plants does not provide distribution data, conservation ranks, C-values, or nursery availability.";
+  "unique on (site_id, scientific_name, section)). Coverage: ~1,464 species at last import.";
 
 export const MISSOURI_PLANTS_REGISTRY_ENTRY = {
   source_id: MISSOURI_PLANTS_SOURCE_ID,

@@ -29,7 +29,6 @@ export const GOBOTANY_TECHNICAL_DETAILS =
   "Subspecies and varieties are not individually keyed — only binomials are supported. " +
   "No DB table — URL is constructed at query time and validated via HTTP GET; no data is persisted. " +
   "Coverage: New England vascular plants (native and naturalized) across the six states; Go Botany does not publish a fixed species count. " +
-  "Go Botany does not provide distribution data, conservation ranks, C-values, or phenology. " +
   "Method: direct_construction with HTTP validation.";
 
 export const GOBOTANY_REGISTRY_ENTRY = {
