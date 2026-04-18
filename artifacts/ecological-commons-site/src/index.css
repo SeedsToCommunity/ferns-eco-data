@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 @layer base {
   :root {
@@ -24,5 +25,58 @@
     -moz-osx-font-smoothing: grayscale;
     background-color: var(--color-bg);
     color: var(--color-text);
+  }
+
+  .prose {
+    --tw-prose-body: var(--color-text);
+    --tw-prose-headings: var(--color-text);
+    --tw-prose-links: var(--color-link);
+    --tw-prose-bold: var(--color-text);
+    --tw-prose-captions: var(--color-text-muted);
+    --tw-prose-hr: var(--color-border);
+    --tw-prose-quotes: var(--color-text);
+    --tw-prose-quote-borders: var(--color-border);
+    --tw-prose-counters: var(--color-text-muted);
+    --tw-prose-bullets: var(--color-text-muted);
+    font-family: "Lora", Georgia, "Times New Roman", serif;
+    line-height: 1.7;
+  }
+
+  .prose h1 {
+    font-size: 1.875rem;
+    font-weight: 600;
+    line-height: 1.25;
+    margin-bottom: 1.5rem;
+  }
+
+  .prose h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 0.5rem;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .prose h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .prose a {
+    color: var(--color-link);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .prose a:hover {
+    color: var(--color-link-hover);
+  }
+
+  .prose-worksheet li {
+    line-height: 1.55;
+    margin-bottom: 0.2rem;
   }
 }
