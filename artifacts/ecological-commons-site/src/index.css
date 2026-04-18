@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-text: #1a1a18;
+    --color-text-muted: #4a4a44;
+    --color-bg: #faf9f6;
+    --color-bg-nav: #f4f2ed;
+    --color-border: #dedad2;
+    --color-link: #2d5a3d;
+    --color-link-hover: #1a3a26;
+  }
+
+  html {
+    font-size: 18px;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+  }
+
+  body {
+    font-family: "Lora", Georgia, "Times New Roman", serif;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+  }
+}

@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/ecological-commons-site/"
+title = "An Ecological Commons"
+version = "1.0.0"
+id = "artifacts/ecological-commons-site"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/ecological-commons-site/" ]
+localPort = 18478
+
+[services.development]
+run = "pnpm --filter @workspace/ecological-commons-site run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/ecological-commons-site", "run", "build" ]
+publicDir = "artifacts/ecological-commons-site/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18478"
+BASE_PATH = "/ecological-commons-site/"
