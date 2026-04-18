@@ -1,0 +1,3026 @@
+{
+  "id": "49b23a3a-d76c-497d-a544-d3a571ea4b0c",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.bonap_maps": {
+      "name": "bonap_maps",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "cache_key": {
+          "name": "cache_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "genus": {
+          "name": "genus",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "species": {
+          "name": "species",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "map_type": {
+          "name": "map_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "species_stripped": {
+          "name": "species_stripped",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "map_url": {
+          "name": "map_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_url": {
+          "name": "source_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_id": {
+          "name": "source_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'bonap-napa'"
+        },
+        "fetched_at": {
+          "name": "fetched_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "method": {
+          "name": "method",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'api_fetch'"
+        },
+        "upstream_url": {
+          "name": "upstream_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "general_summary": {
+          "name": "general_summary",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "technical_details": {
+          "name": "technical_details",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "bonap_maps_cache_key_unique": {
+          "name": "bonap_maps_cache_key_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "cache_key"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ferns_sources": {
+      "name": "ferns_sources",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "source_id": {
+          "name": "source_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "knowledge_type": {
+          "name": "knowledge_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'live'"
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "input_summary": {
+          "name": "input_summary",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "output_summary": {
+          "name": "output_summary",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dependencies": {
+          "name": "dependencies",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "update_frequency": {
+          "name": "update_frequency",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "known_limitations": {
+          "name": "known_limitations",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "metadata_url": {
+          "name": "metadata_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "explorer_url": {
+          "name": "explorer_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "permission_granted": {
+          "name": "permission_granted",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "permission_status": {
+          "name": "permission_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "general_summary": {
+          "name": "general_summary",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "technical_details": {
+          "name": "technical_details",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "ferns_sources_source_id_unique": {
+          "name": "ferns_sources_source_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "source_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.source_relationships": {
+      "name": "source_relationships",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "source_id_a": {
+          "name": "source_id_a",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_id_b": {
+          "name": "source_id_b",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "relationship_type": {
+          "name": "relationship_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "scope": {
+          "name": "scope",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "severity": {
+          "name": "severity",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "technical_note": {
+          "name": "technical_note",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "source_relationships_source_id_a_ferns_sources_source_id_fk": {
+          "name": "source_relationships_source_id_a_ferns_sources_source_id_fk",
+          "tableFrom": "source_relationships",
+          "tableTo": "ferns_sources",
+          "columnsFrom": [
+            "source_id_a"
+          ],
+          "columnsTo": [
+            "source_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "source_relationships_source_id_b_ferns_sources_source_id_fk": {
+          "name": "source_relationships_source_id_b_ferns_sources_source_id_fk",
+          "tableFrom": "source_relationships",
+          "tableTo": "ferns_sources",
+          "columnsFrom": [
+            "source_id_b"
+          ],
+          "columnsTo": [
+            "source_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "source_relationships_pair_scope_unique": {
+          "name": "source_relationships_pair_scope_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "source_id_a",
+            "source_id_b",
+            "scope"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.gbif_name_matches": {
+      "name": "gbif_name_matches",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "cache_key": {
+          "name": "cache_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "canonical_name": {
+          "name": "canonical_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "scientific_name": {
+          "name": "scientific_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "usage_key": {
+          "name": "usage_key",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "accepted_usage_key": {
+          "name": "accepted_usage_key",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "accepted_canonical_name": {
+          "name": "accepted_canonical_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rank": {
+          "name": "rank",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "confidence": {
+          "name": "confidence",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "match_type": {
+          "name": "match_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kingdom": {
+          "name": "kingdom",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "phylum": {
+          "name": "phylum",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "class_": {
+          "name": "class_",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "order_": {
+          "name": "order_",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "family": {
+          "name": "family",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "genus": {
+          "name": "genus",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "species": {
+          "name": "species",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "kingdom_key": {
+          "name": "kingdom_key",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "phylum_key": {
+          "name": "phylum_key",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "class_key": {
+          "name": "class_key",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "order_key": {
+          "name": "order_key",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "family_key": {
+          "name": "family_key",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "genus_key": {
+          "name": "genus_key",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "species_key": {
+          "name": "species_key",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_url": {
+          "name": "source_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "matched_input": {
+          "name": "matched_input",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_id": {
+          "name": "source_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'gbif'"
+        },
+        "fetched_at": {
+          "name": "fetched_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "method": {
+          "name": "method",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'api_fetch'"
+        },
+        "upstream_url": {
+          "name": "upstream_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "general_summary": {
+          "name": "general_summary",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "technical_details": {
+          "name": "technical_details",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "gbif_name_matches_cache_key_unique": {
+          "name": "gbif_name_matches_cache_key_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "cache_key"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.gbif_occurrences": {
+      "name": "gbif_occurrences",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "cache_key": {
+          "name": "cache_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "usage_key": {
+          "name": "usage_key",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "geography_mode": {
+          "name": "geography_mode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "geography_params": {
+          "name": "geography_params",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "occurrence_count": {
+          "name": "occurrence_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "occurrence_count_us": {
+          "name": "occurrence_count_us",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "recent_occurrences": {
+          "name": "recent_occurrences",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
+        "source_url": {
+          "name": "source_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "occurrence_last_fetched": {
+          "name": "occurrence_last_fetched",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_id": {
+          "name": "source_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'gbif'"
+        },
+        "fetched_at": {
+          "name": "fetched_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "method": {
+          "name": "method",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'api_fetch'"
+        },
+        "upstream_url": {
+          "name": "upstream_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "general_summary": {
+          "name": "general_summary",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "technical_details": {
+          "name": "technical_details",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "gbif_occurrences_cache_key_unique": {
+          "name": "gbif_occurrences_cache_key_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "cache_key"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.gbif_synonyms": {
+      "name": "gbif_synonyms",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "cache_key": {
+          "name": "cache_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "usage_key": {
+          "name": "usage_key",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "synonyms": {
+          "name": "synonyms",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
+        "synonym_count": {
+          "name": "synonym_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_id": {
+          "name": "source_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'gbif'"
+        },
+        "fetched_at": {
+          "name": "fetched_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "method": {
+          "name": "method",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'api_fetch'"
+        },
+        "upstream_url": {
+          "name": "upstream_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "general_summary": {
+          "name": "general_summary",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "technical_details": {
+          "name": "technical_details",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "gbif_synonyms_cache_key_unique": {
+          "name": "gbif_synonyms_cache_key_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "cache_key"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.gbif_vernacular_names": {
+      "name": "gbif_vernacular_names",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "cache_key": {
+          "name": "cache_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "usage_key": {
+          "name": "usage_key",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "vernacular_names": {
+          "name": "vernacular_names",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
+        "vernacular_name_primary": {
+          "name": "vernacular_name_primary",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "vernacular_name_count": {
+          "name": "vernacular_name_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_id": {
+          "name": "source_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'gbif'"
+        },
+        "fetched_at": {
+          "name": "fetched_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "method": {
+          "name": "method",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'api_fetch'"
+        },
+        "upstream_url": {
+          "name": "upstream_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "general_summary": {
+          "name": "general_summary",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "technical_details": {
+          "name": "technical_details",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "gbif_vernacular_names_cache_key_unique": {
+          "name": "gbif_vernacular_names_cache_key_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "cache_key"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.inat_field_values": {
+      "name": "inat_field_values",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "cache_key": {
+          "name": "cache_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "taxon_id": {
+          "name": "taxon_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "place_ids": {
+          "name": "place_ids",
+          "type": "integer[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'"
+        },
+        "verifiable": {
+          "name": "verifiable",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "raw_response": {
+          "name": "raw_response",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        },
+        "source_url": {
+          "name": "source_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "found": {
+          "name": "found",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_id": {
+          "name": "source_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'inaturalist'"
+        },
+        "fetched_at": {
+          "name": "fetched_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "method": {
+          "name": "method",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'api_fetch'"
+        },
+        "upstream_url": {
+          "name": "upstream_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "general_summary": {
+          "name": "general_summary",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "technical_details": {
+          "name": "technical_details",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "inat_field_values_cache_key_unique": {
+          "name": "inat_field_values_cache_key_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "cache_key"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.inat_histogram": {
+      "name": "inat_histogram",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "cache_key": {
+          "name": "cache_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "taxon_id": {
+          "name": "taxon_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "place_ids": {
+          "name": "place_ids",
+          "type": "integer[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'"
+        },
+        "raw_response": {
+          "name": "raw_response",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        },
+        "source_url": {
+          "name": "source_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "found": {
+          "name": "found",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_id": {
+          "name": "source_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'inaturalist'"
+        },
+        "fetched_at": {
+          "name": "fetched_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "method": {
+          "name": "method",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'api_fetch'"
+        },
+        "upstream_url": {
+          "name": "upstream_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "general_summary": {
+          "name": "general_summary",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "technical_details": {
+          "name": "technical_details",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "inat_histogram_cache_key_unique": {
+          "name": "inat_histogram_cache_key_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "cache_key"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.inat_places": {
+      "name": "inat_places",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "cache_key": {
+          "name": "cache_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "query": {
+          "name": "query",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "results": {
+          "name": "results",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
+        "found": {
+          "name": "found",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_id": {
+          "name": "source_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'inaturalist'"
+        },
+        "fetched_at": {
+          "name": "fetched_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "method": {
+          "name": "method",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'api_fetch'"
+        },
+        "upstream_url": {
+          "name": "upstream_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "general_summary": {
+          "name": "general_summary",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "technical_details": {
+          "name": "technical_details",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "inat_places_cache_key_unique": {
+          "name": "inat_places_cache_key_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "cache_key"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.inat_species": {
+      "name": "inat_species",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "cache_key": {
+          "name": "cache_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "inat_taxon_id": {
+          "name": "inat_taxon_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "inat_name": {
+          "name": "inat_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "match_type": {
+          "name": "match_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "preferred_common_name": {
+          "name": "preferred_common_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "common_names": {
+          "name": "common_names",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
+        "wikipedia_summary": {
+          "name": "wikipedia_summary",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "wikipedia_url": {
+          "name": "wikipedia_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "default_photo_url": {
+          "name": "default_photo_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "conservation_status": {
+          "name": "conservation_status",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "native_status": {
+          "name": "native_status",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
+        "observations_count": {
+          "name": "observations_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_url": {
+          "name": "source_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "raw_response": {
+          "name": "raw_response",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "found": {
+          "name": "found",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_id": {
+          "name": "source_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'inaturalist'"
+        },
+        "fetched_at": {
+          "name": "fetched_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "method": {
+          "name": "method",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'api_fetch'"
+        },
+        "upstream_url": {
+          "name": "upstream_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "general_summary": {
+          "name": "general_summary",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "technical_details": {
+          "name": "technical_details",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "inat_species_cache_key_unique": {
+          "name": "inat_species_cache_key_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "cache_key"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.miflora_counties_cache": {
+      "name": "miflora_counties_cache",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "cache_key": {
+          "name": "cache_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "queried_name": {
+          "name": "queried_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "plant_id": {
+          "name": "plant_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "raw_response": {
+          "name": "raw_response",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "found": {
+          "name": "found",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_id": {
+          "name": "source_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'michigan-flora'"
+        },
+        "fetched_at": {
+          "name": "fetched_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "method": {
+          "name": "method",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'api_fetch'"
+        },
+        "upstream_url": {
+          "name": "upstream_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_url": {
+          "name": "source_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "general_summary": {
+          "name": "general_summary",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "technical_details": {
+          "name": "technical_details",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "miflora_counties_cache_cache_key_unique": {
+          "name": "miflora_counties_cache_cache_key_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "cache_key"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.miflora_images_cache": {
+      "name": "miflora_images_cache",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "cache_key": {
+          "name": "cache_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "queried_name": {
+          "name": "queried_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "plant_id": {
+          "name": "plant_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "raw_response": {
+          "name": "raw_response",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "found": {
+          "name": "found",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_id": {
+          "name": "source_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'michigan-flora'"
+        },
+        "fetched_at": {
+          "name": "fetched_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "method": {
+          "name": "method",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'api_fetch'"
+        },
+        "upstream_url": {
+          "name": "upstream_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_url": {
+          "name": "source_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "general_summary": {
+          "name": "general_summary",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "technical_details": {
+          "name": "technical_details",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "miflora_images_cache_cache_key_unique": {
+          "name": "miflora_images_cache_cache_key_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "cache_key"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.miflora_species_cache": {
+      "name": "miflora_species_cache",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "cache_key": {
+          "name": "cache_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "queried_name": {
+          "name": "queried_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "plant_id": {
+          "name": "plant_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "raw_response": {
+          "name": "raw_response",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "found": {
+          "name": "found",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_id": {
+          "name": "source_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'michigan-flora'"
+        },
+        "fetched_at": {
+          "name": "fetched_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "method": {
+          "name": "method",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'api_fetch'"
+        },
+        "upstream_url": {
+          "name": "upstream_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_url": {
+          "name": "source_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "general_summary": {
+          "name": "general_summary",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "technical_details": {
+          "name": "technical_details",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "miflora_species_cache_cache_key_unique": {
+          "name": "miflora_species_cache_cache_key_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "cache_key"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.universal_fqa_databases": {
+      "name": "universal_fqa_databases",
+      "schema": "",
+      "columns": {
+        "database_id": {
+          "name": "database_id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "region": {
+          "name": "region",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "year": {
+          "name": "year",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "citation": {
+          "name": "citation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "total_species": {
+          "name": "total_species",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "native_species": {
+          "name": "native_species",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "non_native_species": {
+          "name": "non_native_species",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "total_mean_c": {
+          "name": "total_mean_c",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "native_mean_c": {
+          "name": "native_mean_c",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cached_at": {
+          "name": "cached_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.universal_fqa_species": {
+      "name": "universal_fqa_species",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "database_id": {
+          "name": "database_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "scientific_name": {
+          "name": "scientific_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "family": {
+          "name": "family",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "acronym": {
+          "name": "acronym",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "native": {
+          "name": "native",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "c": {
+          "name": "c",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "w": {
+          "name": "w",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "physiognomy": {
+          "name": "physiognomy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "duration": {
+          "name": "duration",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "common_name": {
+          "name": "common_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "cached_at": {
+          "name": "cached_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "universal_fqa_species_db_name_idx": {
+          "name": "universal_fqa_species_db_name_idx",
+          "columns": [
+            {
+              "expression": "database_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "scientific_name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.lcscg_guides": {
+      "name": "lcscg_guides",
+      "schema": "",
+      "columns": {
+        "guide_id": {
+          "name": "guide_id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "subtitle": {
+          "name": "subtitle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "season": {
+          "name": "season",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "habitat_type": {
+          "name": "habitat_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "authors": {
+          "name": "authors",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "license": {
+          "name": "license",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "attribution_text": {
+          "name": "attribution_text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "harvest_notes": {
+          "name": "harvest_notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "version": {
+          "name": "version",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "field_museum_url": {
+          "name": "field_museum_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cloudinary_folder": {
+          "name": "cloudinary_folder",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'live'"
+        },
+        "imported_at": {
+          "name": "imported_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.lcscg_species": {
+      "name": "lcscg_species",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "guide_id": {
+          "name": "guide_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "species_id": {
+          "name": "species_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "scientific_name": {
+          "name": "scientific_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "common_name": {
+          "name": "common_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "family": {
+          "name": "family",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "photo_date": {
+          "name": "photo_date",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "seed_group_names": {
+          "name": "seed_group_names",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "seed_group_details": {
+          "name": "seed_group_details",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "image_filenames": {
+          "name": "image_filenames",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "image_urls": {
+          "name": "image_urls",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "page_number": {
+          "name": "page_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "imported_at": {
+          "name": "imported_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "lcscg_species_guide_id_lcscg_guides_guide_id_fk": {
+          "name": "lcscg_species_guide_id_lcscg_guides_guide_id_fk",
+          "tableFrom": "lcscg_species",
+          "tableTo": "lcscg_guides",
+          "columnsFrom": [
+            "guide_id"
+          ],
+          "columnsTo": [
+            "guide_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "lcscg_species_guide_species_unique": {
+          "name": "lcscg_species_guide_species_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "guide_id",
+            "species_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.mnfi_communities": {
+      "name": "mnfi_communities",
+      "schema": "",
+      "columns": {
+        "community_id": {
+          "name": "community_id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "community_class": {
+          "name": "community_class",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "community_group": {
+          "name": "community_group",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "global_rank": {
+          "name": "global_rank",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "state_rank": {
+          "name": "state_rank",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "overview": {
+          "name": "overview",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "landscape_context": {
+          "name": "landscape_context",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "soils_description": {
+          "name": "soils_description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "natural_processes": {
+          "name": "natural_processes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "vegetation": {
+          "name": "vegetation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "similar_communities": {
+          "name": "similar_communities",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "management_notes": {
+          "name": "management_notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "mnfi_url": {
+          "name": "mnfi_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "county_map_url": {
+          "name": "county_map_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "description_fetched_at": {
+          "name": "description_fetched_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "imported_at": {
+          "name": "imported_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "mnfi_communities_slug_unique": {
+          "name": "mnfi_communities_slug_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "slug"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.mnfi_community_plants": {
+      "name": "mnfi_community_plants",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "community_id": {
+          "name": "community_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "life_form": {
+          "name": "life_form",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "common_name": {
+          "name": "common_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "scientific_names": {
+          "name": "scientific_names",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "imported_at": {
+          "name": "imported_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "mnfi_community_plants_community_id_mnfi_communities_community_id_fk": {
+          "name": "mnfi_community_plants_community_id_mnfi_communities_community_id_fk",
+          "tableFrom": "mnfi_community_plants",
+          "tableTo": "mnfi_communities",
+          "columnsFrom": [
+            "community_id"
+          ],
+          "columnsTo": [
+            "community_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.mnfi_county_elements": {
+      "name": "mnfi_county_elements",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "county": {
+          "name": "county",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "element_id": {
+          "name": "element_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "element_name": {
+          "name": "element_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "element_type": {
+          "name": "element_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "scientific_name": {
+          "name": "scientific_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "common_name": {
+          "name": "common_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "federal_status": {
+          "name": "federal_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "state_status": {
+          "name": "state_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "global_rank": {
+          "name": "global_rank",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "state_rank": {
+          "name": "state_rank",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "g_rank_description": {
+          "name": "g_rank_description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "s_rank_description": {
+          "name": "s_rank_description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "species_category": {
+          "name": "species_category",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "occurrences_in_county": {
+          "name": "occurrences_in_county",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_observed": {
+          "name": "last_observed",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "imported_at": {
+          "name": "imported_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "mnfi_county_element_unique": {
+          "name": "mnfi_county_element_unique",
+          "columns": [
+            {
+              "expression": "county",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "element_type",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "element_name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.natureserve_ecosystems_cache": {
+      "name": "natureserve_ecosystems_cache",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "cache_key": {
+          "name": "cache_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "results": {
+          "name": "results",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
+        "result_count": {
+          "name": "result_count",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_id": {
+          "name": "source_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'natureserve'"
+        },
+        "fetched_at": {
+          "name": "fetched_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "method": {
+          "name": "method",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'api_fetch'"
+        },
+        "upstream_url": {
+          "name": "upstream_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "general_summary": {
+          "name": "general_summary",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "technical_details": {
+          "name": "technical_details",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "natureserve_ecosystems_cache_cache_key_unique": {
+          "name": "natureserve_ecosystems_cache_cache_key_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "cache_key"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.natureserve_species_cache": {
+      "name": "natureserve_species_cache",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "cache_key": {
+          "name": "cache_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "scientific_name": {
+          "name": "scientific_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "common_name": {
+          "name": "common_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "global_rank": {
+          "name": "global_rank",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rounded_global_rank": {
+          "name": "rounded_global_rank",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "national_rank": {
+          "name": "national_rank",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rounded_national_rank": {
+          "name": "rounded_national_rank",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "state_code": {
+          "name": "state_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "state_rank": {
+          "name": "state_rank",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rounded_state_rank": {
+          "name": "rounded_state_rank",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "iucn_category": {
+          "name": "iucn_category",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "iucn_description": {
+          "name": "iucn_description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "federal_status": {
+          "name": "federal_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "federal_status_description": {
+          "name": "federal_status_description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "state_status": {
+          "name": "state_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cites_description": {
+          "name": "cites_description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cosewic_code": {
+          "name": "cosewic_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cosewic_description": {
+          "name": "cosewic_description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "natureserve_url": {
+          "name": "natureserve_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "element_global_id": {
+          "name": "element_global_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "raw_summary": {
+          "name": "raw_summary",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'{}'::jsonb"
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_id": {
+          "name": "source_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'natureserve'"
+        },
+        "fetched_at": {
+          "name": "fetched_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "method": {
+          "name": "method",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'api_fetch'"
+        },
+        "upstream_url": {
+          "name": "upstream_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "general_summary": {
+          "name": "general_summary",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "technical_details": {
+          "name": "technical_details",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "natureserve_species_cache_cache_key_unique": {
+          "name": "natureserve_species_cache_cache_key_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "cache_key"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.botanical_species_lists": {
+      "name": "botanical_species_lists",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "site_id": {
+          "name": "site_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "scientific_name": {
+          "name": "scientific_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "url": {
+          "name": "url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "section": {
+          "name": "section",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "imported_at": {
+          "name": "imported_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "botanical_species_lists_site_name_section_uniq": {
+          "name": "botanical_species_lists_site_name_section_uniq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "site_id",
+            "scientific_name",
+            "section"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.botanical_web_refs_cache": {
+      "name": "botanical_web_refs_cache",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "site_id": {
+          "name": "site_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "scientific_name": {
+          "name": "scientific_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "url": {
+          "name": "url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "found": {
+          "name": "found",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "validation_method": {
+          "name": "validation_method",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cached_at": {
+          "name": "cached_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "botanical_web_refs_cache_site_name_uniq": {
+          "name": "botanical_web_refs_cache_site_name_uniq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "site_id",
+            "scientific_name"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

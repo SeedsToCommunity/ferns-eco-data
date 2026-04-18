@@ -1,5 +1,6 @@
 import app from "./app";
 import { logger } from "./lib/logger";
+import { runMigrations } from "@workspace/db/migrate";
 import { ensureBonapRegistryEntry } from "./services/bonap/seed.js";
 import { autoImportMnfiIfEmpty } from "./services/mnfi/seed.js";
 import { ensureGbifRegistryEntry } from "./services/gbif/seed.js";
@@ -39,73 +40,84 @@ if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
 
-app.listen(port, (err) => {
-  if (err) {
-    logger.error({ err }, "Error listening on port");
-    process.exit(1);
-  }
+async function main() {
+  logger.info("Running database migrations...");
+  await runMigrations();
+  logger.info("Database migrations complete.");
 
-  logger.info({ port }, "Server listening");
+  app.listen(port, (err) => {
+    if (err) {
+      logger.error({ err }, "Error listening on port");
+      process.exit(1);
+    }
 
-  autoImportMnfiIfEmpty(port).catch((err) => {
-    logger.error({ err }, "MNFI auto-import check failed at startup");
-  });
+    logger.info({ port }, "Server listening");
 
-  seedLcscgData().catch((seedErr) => {
-    logger.error({ err: seedErr }, "Failed to seed LCSCG data at startup");
-  });
-
-  autoImportMissouriPlantsIfEmpty().catch((err) => {
-    logger.error({ err }, "Missouri Plants auto-import check failed at startup");
-  });
-
-  autoImportMinnesotaWildflowersIfEmpty().catch((err) => {
-    logger.error({ err }, "Minnesota Wildflowers auto-import check failed at startup");
-  });
-
-  autoImportIllinoisWildflowersIfEmpty().catch((err) => {
-    logger.error({ err }, "Illinois Wildflowers auto-import check failed at startup");
-  });
-
-  autoImportPrairieMoonIfEmpty().catch((err) => {
-    logger.error({ err }, "Prairie Moon auto-import check failed at startup");
-  });
-
-  const registrySeedLabels = [
-    ["BONAP", ensureBonapRegistryEntry()],
-    ["iNaturalist", ensureInatRegistryEntry()],
-    ["Michigan Flora", ensureMifloraRegistryEntry()],
-    ["Coefficient of Conservatism", ensureCoefficientRegistryEntry()],
-    ["Wetland Indicator Status", ensureWetlandIndicatorRegistryEntry()],
-    ["WUCOLS", ensureWucolsRegistryEntry()],
-    ["GBIF", ensureGbifRegistryEntry()],
-    ["Seeds to Community Washtenaw", ensureS2CRegistryEntry()],
-    ["Universal FQA", ensureUniversalFqaRegistryEntry()],
-    ["LCSCG", ensureLcscgRegistryEntry()],
-    ["Go Botany", ensureGobotanyRegistryEntry()],
-    ["Google Images", ensureGoogleImagesRegistryEntry()],
-    ["Missouri Plants", ensureMissouriPlantsRegistryEntry()],
-    ["Minnesota Wildflowers", ensureMinnesotaWildflowersRegistryEntry()],
-    ["Illinois Wildflowers", ensureIllinoisWildflowersRegistryEntry()],
-    ["Prairie Moon", ensurePrairieMoonRegistryEntry()],
-    ["USDA PLANTS", ensureUsdaPlantsRegistryEntry()],
-    ["Lady Bird Johnson", ensureLadyBirdJohnsonRegistryEntry()],
-    ["Source Relationships", ensureSourceRelationshipsRegistryEntry()],
-  ] as const;
-
-  Promise.allSettled(registrySeedLabels.map(([, p]) => p))
-    .then((results) => {
-      results.forEach((result, i) => {
-        if (result.status === "rejected") {
-          logger.error(
-            { err: result.reason },
-            `Failed to seed ${registrySeedLabels[i][0]} registry entry at startup`,
-          );
-        }
-      });
-      return ensureSourceRelationships();
-    })
-    .catch((err) => {
-      logger.error({ err }, "Failed to seed source relationships at startup");
+    autoImportMnfiIfEmpty(port).catch((err) => {
+      logger.error({ err }, "MNFI auto-import check failed at startup");
     });
+
+    seedLcscgData().catch((seedErr) => {
+      logger.error({ err: seedErr }, "Failed to seed LCSCG data at startup");
+    });
+
+    autoImportMissouriPlantsIfEmpty().catch((err) => {
+      logger.error({ err }, "Missouri Plants auto-import check failed at startup");
+    });
+
+    autoImportMinnesotaWildflowersIfEmpty().catch((err) => {
+      logger.error({ err }, "Minnesota Wildflowers auto-import check failed at startup");
+    });
+
+    autoImportIllinoisWildflowersIfEmpty().catch((err) => {
+      logger.error({ err }, "Illinois Wildflowers auto-import check failed at startup");
+    });
+
+    autoImportPrairieMoonIfEmpty().catch((err) => {
+      logger.error({ err }, "Prairie Moon auto-import check failed at startup");
+    });
+
+    const registrySeedLabels = [
+      ["BONAP", ensureBonapRegistryEntry()],
+      ["iNaturalist", ensureInatRegistryEntry()],
+      ["Michigan Flora", ensureMifloraRegistryEntry()],
+      ["Coefficient of Conservatism", ensureCoefficientRegistryEntry()],
+      ["Wetland Indicator Status", ensureWetlandIndicatorRegistryEntry()],
+      ["WUCOLS", ensureWucolsRegistryEntry()],
+      ["GBIF", ensureGbifRegistryEntry()],
+      ["Seeds to Community Washtenaw", ensureS2CRegistryEntry()],
+      ["Universal FQA", ensureUniversalFqaRegistryEntry()],
+      ["LCSCG", ensureLcscgRegistryEntry()],
+      ["Go Botany", ensureGobotanyRegistryEntry()],
+      ["Google Images", ensureGoogleImagesRegistryEntry()],
+      ["Missouri Plants", ensureMissouriPlantsRegistryEntry()],
+      ["Minnesota Wildflowers", ensureMinnesotaWildflowersRegistryEntry()],
+      ["Illinois Wildflowers", ensureIllinoisWildflowersRegistryEntry()],
+      ["Prairie Moon", ensurePrairieMoonRegistryEntry()],
+      ["USDA PLANTS", ensureUsdaPlantsRegistryEntry()],
+      ["Lady Bird Johnson", ensureLadyBirdJohnsonRegistryEntry()],
+      ["Source Relationships", ensureSourceRelationshipsRegistryEntry()],
+    ] as const;
+
+    Promise.allSettled(registrySeedLabels.map(([, p]) => p))
+      .then((results) => {
+        results.forEach((result, i) => {
+          if (result.status === "rejected") {
+            logger.error(
+              { err: result.reason },
+              `Failed to seed ${registrySeedLabels[i][0]} registry entry at startup`,
+            );
+          }
+        });
+        return ensureSourceRelationships();
+      })
+      .catch((err) => {
+        logger.error({ err }, "Failed to seed source relationships at startup");
+      });
+  });
+}
+
+main().catch((err) => {
+  logger.error({ err }, "Fatal startup error");
+  process.exit(1);
 });
