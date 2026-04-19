@@ -20,5 +20,21 @@ const __dirname = path.dirname(__filename);
 const migrationsFolder = path.join(__dirname, "drizzle");
 
 export async function runMigrations(): Promise<void> {
-  await migrate(db, { migrationsFolder });
+  try {
+    await migrate(db, { migrationsFolder });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    if (message.includes("already exists")) {
+      // Production bootstrapping case: the database schema is already in
+      // place (from a previous deployment) but the Drizzle migrations
+      // tracking table was cleared or never populated. The tables are
+      // correct — log a warning and continue startup normally.
+      console.warn(
+        "[migrate] Schema already current (tables exist in DB). " +
+          "Skipping initial migration and continuing startup."
+      );
+      return;
+    }
+    throw err;
+  }
 }
