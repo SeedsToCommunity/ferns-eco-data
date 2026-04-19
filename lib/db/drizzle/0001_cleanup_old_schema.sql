@@ -1,0 +1,171 @@
+-- Migration 0001: clean up old column names and stale tables
+-- Safe to run on any state of the production database:
+--   - Drops derivation_summary / derivation_scientific if they still exist
+--     (they may have already been renamed by Replit DB sync)
+--   - Drops the old registry_entries table
+--   - Creates source_relationships, botanical_species_lists,
+--     botanical_web_refs_cache IF NOT EXISTS (in case Replit DB sync
+--     didn't create them)
+
+DO $$ BEGIN
+  IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='bonap_maps' AND column_name='derivation_summary') THEN
+    ALTER TABLE bonap_maps DROP COLUMN derivation_summary;
+  END IF;
+  IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='bonap_maps' AND column_name='derivation_scientific') THEN
+    ALTER TABLE bonap_maps DROP COLUMN derivation_scientific;
+  END IF;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='gbif_name_matches' AND column_name='derivation_summary') THEN
+    ALTER TABLE gbif_name_matches DROP COLUMN derivation_summary;
+  END IF;
+  IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='gbif_name_matches' AND column_name='derivation_scientific') THEN
+    ALTER TABLE gbif_name_matches DROP COLUMN derivation_scientific;
+  END IF;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='gbif_occurrences' AND column_name='derivation_summary') THEN
+    ALTER TABLE gbif_occurrences DROP COLUMN derivation_summary;
+  END IF;
+  IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='gbif_occurrences' AND column_name='derivation_scientific') THEN
+    ALTER TABLE gbif_occurrences DROP COLUMN derivation_scientific;
+  END IF;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='gbif_synonyms' AND column_name='derivation_summary') THEN
+    ALTER TABLE gbif_synonyms DROP COLUMN derivation_summary;
+  END IF;
+  IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='gbif_synonyms' AND column_name='derivation_scientific') THEN
+    ALTER TABLE gbif_synonyms DROP COLUMN derivation_scientific;
+  END IF;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='gbif_vernacular_names' AND column_name='derivation_summary') THEN
+    ALTER TABLE gbif_vernacular_names DROP COLUMN derivation_summary;
+  END IF;
+  IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='gbif_vernacular_names' AND column_name='derivation_scientific') THEN
+    ALTER TABLE gbif_vernacular_names DROP COLUMN derivation_scientific;
+  END IF;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='inat_field_values' AND column_name='derivation_summary') THEN
+    ALTER TABLE inat_field_values DROP COLUMN derivation_summary;
+  END IF;
+  IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='inat_field_values' AND column_name='derivation_scientific') THEN
+    ALTER TABLE inat_field_values DROP COLUMN derivation_scientific;
+  END IF;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='inat_histogram' AND column_name='derivation_summary') THEN
+    ALTER TABLE inat_histogram DROP COLUMN derivation_summary;
+  END IF;
+  IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='inat_histogram' AND column_name='derivation_scientific') THEN
+    ALTER TABLE inat_histogram DROP COLUMN derivation_scientific;
+  END IF;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='inat_places' AND column_name='derivation_summary') THEN
+    ALTER TABLE inat_places DROP COLUMN derivation_summary;
+  END IF;
+  IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='inat_places' AND column_name='derivation_scientific') THEN
+    ALTER TABLE inat_places DROP COLUMN derivation_scientific;
+  END IF;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='inat_species' AND column_name='derivation_summary') THEN
+    ALTER TABLE inat_species DROP COLUMN derivation_summary;
+  END IF;
+  IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='inat_species' AND column_name='derivation_scientific') THEN
+    ALTER TABLE inat_species DROP COLUMN derivation_scientific;
+  END IF;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='miflora_counties_cache' AND column_name='derivation_summary') THEN
+    ALTER TABLE miflora_counties_cache DROP COLUMN derivation_summary;
+  END IF;
+  IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='miflora_counties_cache' AND column_name='derivation_scientific') THEN
+    ALTER TABLE miflora_counties_cache DROP COLUMN derivation_scientific;
+  END IF;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='miflora_images_cache' AND column_name='derivation_summary') THEN
+    ALTER TABLE miflora_images_cache DROP COLUMN derivation_summary;
+  END IF;
+  IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='miflora_images_cache' AND column_name='derivation_scientific') THEN
+    ALTER TABLE miflora_images_cache DROP COLUMN derivation_scientific;
+  END IF;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='miflora_species_cache' AND column_name='derivation_summary') THEN
+    ALTER TABLE miflora_species_cache DROP COLUMN derivation_summary;
+  END IF;
+  IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='miflora_species_cache' AND column_name='derivation_scientific') THEN
+    ALTER TABLE miflora_species_cache DROP COLUMN derivation_scientific;
+  END IF;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='natureserve_ecosystems_cache' AND column_name='derivation_summary') THEN
+    ALTER TABLE natureserve_ecosystems_cache DROP COLUMN derivation_summary;
+  END IF;
+  IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='natureserve_ecosystems_cache' AND column_name='derivation_scientific') THEN
+    ALTER TABLE natureserve_ecosystems_cache DROP COLUMN derivation_scientific;
+  END IF;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='natureserve_species_cache' AND column_name='derivation_summary') THEN
+    ALTER TABLE natureserve_species_cache DROP COLUMN derivation_summary;
+  END IF;
+  IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='natureserve_species_cache' AND column_name='derivation_scientific') THEN
+    ALTER TABLE natureserve_species_cache DROP COLUMN derivation_scientific;
+  END IF;
+END $$;
+--> statement-breakpoint
+DROP TABLE IF EXISTS "registry_entries";
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "source_relationships" (
+        "id" serial PRIMARY KEY NOT NULL,
+        "source_id_a" text NOT NULL,
+        "source_id_b" text NOT NULL,
+        "relationship_type" text NOT NULL,
+        "scope" text NOT NULL,
+        "severity" text NOT NULL,
+        "description" text NOT NULL,
+        "technical_note" text NOT NULL,
+        "created_at" timestamp with time zone DEFAULT now() NOT NULL,
+        "updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+        CONSTRAINT "source_relationships_pair_scope_unique" UNIQUE("source_id_a","source_id_b","scope")
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "botanical_species_lists" (
+        "id" serial PRIMARY KEY NOT NULL,
+        "site_id" text NOT NULL,
+        "scientific_name" text NOT NULL,
+        "url" text NOT NULL,
+        "section" text DEFAULT '' NOT NULL,
+        "imported_at" timestamp with time zone DEFAULT now() NOT NULL,
+        CONSTRAINT "botanical_species_lists_site_name_section_uniq" UNIQUE("site_id","scientific_name","section")
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "botanical_web_refs_cache" (
+        "id" serial PRIMARY KEY NOT NULL,
+        "site_id" text NOT NULL,
+        "scientific_name" text NOT NULL,
+        "url" text,
+        "found" boolean NOT NULL,
+        "validation_method" text NOT NULL,
+        "cached_at" timestamp with time zone DEFAULT now() NOT NULL,
+        CONSTRAINT "botanical_web_refs_cache_site_name_uniq" UNIQUE("site_id","scientific_name")
+);
