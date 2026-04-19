@@ -35,6 +35,7 @@ FERNS fetches, caches, and exposes ecological and environmental data from author
 | `artifacts/registry-explorer` | `/` | FERNS Data Layer explorer — browse all registered sources |
 | `artifacts/api-server` | API (port 8080) | FERNS REST API server |
 | `artifacts/ecological-commons-site` | `/ecological-commons-site/` | Public-facing ecologicalcommons.org website — 6 content pages rendered from markdown |
+| `artifacts/mcp-server` | stdio | FERNS MCP Server — 48 tools (1:1 with REST endpoints) for Claude Desktop / Cursor |
 | `artifacts/mockup-sandbox` | `/__mockup` | UI component preview sandbox (internal dev only) |
 
 **ecological-commons-site** is a React + Vite + Tailwind static site using Lora serif / Inter sans typography. Content lives in `src/content/*.md` as raw imports rendered by `react-markdown` + `remark-gfm`. Routing via `wouter`. No backend — pure static site. Intended to be deployed to `ecologicalcommons.org` once the user points the domain.
@@ -135,6 +136,9 @@ Add a comparator or health check in `lib/ferns-audit/src/`. For API/scrape sourc
 
 **Step 12: Post-Task Summary**
 Write the mandatory post-task summary (see User Preferences). Include the verbatim text of `description`, `general_summary`, and `technical_details` so the user can verify them. Done when the summary is complete and presented.
+
+**Step 13: MCP Tool Wiring**
+Add a new tool (or tools) to `artifacts/mcp-server/src/index.ts` for each new source endpoint. Follow the `{source_id}__{action}` naming convention (hyphens → underscores, double-underscore separator). One REST endpoint = one MCP tool; no aggregation. Define `inputSchema` covering all required and optional query parameters, matching the route handler in `artifacts/api-server/src/routes/{source-id}.ts`. For path-parameter endpoints, build the URL in the handler directly (e.g., `` fernsGet(`/lcscg/guide/${Number(args["guideId"])}`) ``). Update the tool table in `artifacts/mcp-server/README.md`. Done when `tools/list` on the MCP server includes the new tool(s) and the README table is up to date.
 
 ---
 
