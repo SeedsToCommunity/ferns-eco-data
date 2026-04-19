@@ -1778,8 +1778,8 @@ export const getGetCoefficientByValueUrl = (
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/coefficient?${stringifiedParams}`
-    : `/api/coefficient`;
+    ? `/api/coefficient-of-conservatism?${stringifiedParams}`
+    : `/api/coefficient-of-conservatism`;
 };
 
 export const getCoefficientByValue = async (
@@ -1795,7 +1795,10 @@ export const getCoefficientByValue = async (
 export const getGetCoefficientByValueQueryKey = (
   params?: GetCoefficientByValueParams,
 ) => {
-  return [`/api/coefficient`, ...(params ? [params] : [])] as const;
+  return [
+    `/api/coefficient-of-conservatism`,
+    ...(params ? [params] : []),
+  ] as const;
 };
 
 export const getGetCoefficientByValueQueryOptions = <
@@ -1867,7 +1870,7 @@ export function useGetCoefficientByValue<
  * @summary Get all C-value definitions
  */
 export const getGetAllCoefficientValuesUrl = () => {
-  return `/api/coefficient/all`;
+  return `/api/coefficient-of-conservatism/all`;
 };
 
 export const getAllCoefficientValues = async (
@@ -1880,7 +1883,7 @@ export const getAllCoefficientValues = async (
 };
 
 export const getGetAllCoefficientValuesQueryKey = () => {
-  return [`/api/coefficient/all`] as const;
+  return [`/api/coefficient-of-conservatism/all`] as const;
 };
 
 export const getGetAllCoefficientValuesQueryOptions = <
@@ -1945,7 +1948,7 @@ export function useGetAllCoefficientValues<
  * @summary Coefficient of Conservatism service metadata
  */
 export const getGetCoefficientMetadataUrl = () => {
-  return `/api/coefficient/metadata`;
+  return `/api/coefficient-of-conservatism/metadata`;
 };
 
 export const getCoefficientMetadata = async (
@@ -1961,7 +1964,7 @@ export const getCoefficientMetadata = async (
 };
 
 export const getGetCoefficientMetadataQueryKey = () => {
-  return [`/api/coefficient/metadata`] as const;
+  return [`/api/coefficient-of-conservatism/metadata`] as const;
 };
 
 export const getGetCoefficientMetadataQueryOptions = <

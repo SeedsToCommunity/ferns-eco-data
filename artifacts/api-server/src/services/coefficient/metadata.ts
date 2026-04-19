@@ -51,7 +51,7 @@ export const COEFFICIENT_REGISTRY_ENTRY = {
     "C-values are calibrated regionally. This source reflects the general Swink & Wilhelm methodology. " +
     "Some states assign different C-values to the same species. Per-species C-value lookup is outside scope — " +
     "species-level values are provided by individual flora sources (e.g., Michigan Flora).",
-  metadata_url: "/api/coefficient/metadata",
+  metadata_url: "/api/coefficient-of-conservatism/metadata",
   explorer_url: "/vocabulary/coefficient",
   permission_granted: COEFFICIENT_PERMISSION_GRANTED,
   permission_status: COEFFICIENT_PERMISSION_STATUS,

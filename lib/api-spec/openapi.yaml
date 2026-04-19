@@ -743,7 +743,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/MifloraMetadataResponse"
 
-  /coefficient:
+  /coefficient-of-conservatism:
     get:
       operationId: getCoefficientByValue
       tags: [coefficient]
@@ -775,7 +775,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /coefficient/all:
+  /coefficient-of-conservatism/all:
     get:
       operationId: getAllCoefficientValues
       tags: [coefficient]
@@ -791,7 +791,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/CoefficientAllResponse"
 
-  /coefficient/metadata:
+  /coefficient-of-conservatism/metadata:
     get:
       operationId: getCoefficientMetadata
       tags: [coefficient]

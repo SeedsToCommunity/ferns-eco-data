@@ -18,13 +18,13 @@ function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
     source_id: COEFFICIENT_SOURCE_ID,
     fetched_at: new Date(),
     method: "static_data",
-    upstream_url: resolveUrl(req, "/api/coefficient/all"),
+    upstream_url: resolveUrl(req, "/api/coefficient-of-conservatism/all"),
     general_summary: COEFFICIENT_GENERAL_SUMMARY,
     technical_details: COEFFICIENT_TECHNICAL_DETAILS,
   };
 }
 
-router.get("/coefficient", (req, res) => {
+router.get("/coefficient-of-conservatism", (req, res) => {
   const value = req.query["value"];
   if (typeof value !== "string" || value.trim() === "") {
     res.status(400).json({ error: "invalid_input", message: "value query parameter is required" });
@@ -38,7 +38,7 @@ router.get("/coefficient", (req, res) => {
     found,
     cache_status: "miss",
     queried_at: new Date(),
-    source_url: resolveUrl(req, "/api/coefficient/all"),
+    source_url: resolveUrl(req, "/api/coefficient-of-conservatism/all"),
     provenance: {
       ...buildProvenance(req),
       matched_input: value.trim(),
@@ -47,18 +47,18 @@ router.get("/coefficient", (req, res) => {
   });
 });
 
-router.get("/coefficient/all", (req, res) => {
+router.get("/coefficient-of-conservatism/all", (req, res) => {
   res.json({
     found: true,
     cache_status: "miss",
     queried_at: new Date(),
-    source_url: resolveUrl(req, "/api/coefficient/all"),
+    source_url: resolveUrl(req, "/api/coefficient-of-conservatism/all"),
     provenance: buildProvenance(req),
     data: COEFFICIENT_DATA,
   });
 });
 
-router.get("/coefficient/metadata", async (req, res) => {
+router.get("/coefficient-of-conservatism/metadata", async (req, res) => {
   await ensureCoefficientRegistryEntry();
   const queriedAt = new Date();
 
@@ -75,7 +75,7 @@ router.get("/coefficient/metadata", async (req, res) => {
     queried_at: queriedAt,
     provenance: {
       ...buildProvenance(req),
-      upstream_url: resolveUrl(req, "/api/coefficient/metadata"),
+      upstream_url: resolveUrl(req, "/api/coefficient-of-conservatism/metadata"),
       method: "static_metadata",
     },
   });

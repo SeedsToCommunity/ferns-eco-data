@@ -201,7 +201,7 @@ const VOCAB_CONFIG: Record<string, { title: string; subtitle: string; apiPath: s
   coefficient: {
     title: "Coefficient of Conservatism",
     subtitle: "C-value reference — Floristic Quality Assessment (Swink & Wilhelm 1994)",
-    apiPath: "/api/coefficient/all",
+    apiPath: "/api/coefficient-of-conservatism/all",
     component: CoefficientTable,
   },
   "wetland-indicator": {

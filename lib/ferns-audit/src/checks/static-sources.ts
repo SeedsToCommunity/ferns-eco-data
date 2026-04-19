@@ -116,7 +116,7 @@ export async function runCoefficientChecks(
 ): Promise<EndpointComparison[]> {
   const allCheck = await checkEndpoint(
     "coefficient",
-    "/api/coefficient/all",
+    "/api/coefficient-of-conservatism/all",
     "Coefficient of Conservatism — full lookup table",
     fernsBase,
     (envelope) => {
@@ -144,7 +144,7 @@ export async function runCoefficientChecks(
     corpusEntries.map((entry) =>
       checkEndpoint(
         "coefficient",
-        `/api/coefficient?value=${encodeURIComponent(entry.key)}`,
+        `/api/coefficient-of-conservatism?value=${encodeURIComponent(entry.key)}`,
         `Coefficient of Conservatism — value lookup (C=${entry.key})`,
         fernsBase,
         (envelope) => {
