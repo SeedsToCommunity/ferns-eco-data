@@ -1,12 +1,53 @@
--- Migration 0001: clean up old column names and stale tables
--- Safe to run on any state of the production database:
---   - Drops derivation_summary / derivation_scientific if they still exist
---     (they may have already been renamed by Replit DB sync)
---   - Drops the old registry_entries table
---   - Creates source_relationships, botanical_species_lists,
---     botanical_web_refs_cache IF NOT EXISTS (in case Replit DB sync
---     didn't create them)
+-- Migration 0001: fix schema carried over from earlier deployments
+--
+-- Safe to run in any state:
+--   • Renames ferns_sources_source_id_key → ferns_sources_source_id_unique
+--     (prevents Replit's DB sync from dropping+recreating it mid-transaction,
+--      which would break foreign key creation for source_relationships)
+--   • Adds columns that ferns_sources was missing in production
+--   • Drops old derivation_summary / derivation_scientific columns from all
+--     cache tables (they may have been renamed by Replit DB sync already)
+--   • Drops the obsolete registry_entries table
+--   • Creates source_relationships, botanical_species_lists,
+--     botanical_web_refs_cache IF NOT EXISTS
 
+-- 1. Rename the unique constraint on ferns_sources.source_id so its name
+--    matches what Drizzle expects. Without this, Replit DB sync drops it
+--    and recreates it in the same transaction as the FK addition, causing
+--    "no unique constraint matching given keys" errors.
+DO $$ BEGIN
+  IF EXISTS(
+    SELECT 1 FROM pg_constraint
+    WHERE conname = 'ferns_sources_source_id_key'
+      AND conrelid = 'ferns_sources'::regclass
+  ) AND NOT EXISTS(
+    SELECT 1 FROM pg_constraint
+    WHERE conname = 'ferns_sources_source_id_unique'
+      AND conrelid = 'ferns_sources'::regclass
+  ) THEN
+    ALTER TABLE ferns_sources RENAME CONSTRAINT ferns_sources_source_id_key TO ferns_sources_source_id_unique;
+  END IF;
+END $$;
+--> statement-breakpoint
+
+-- 2. Add columns that were missing from the original ferns_sources table
+DO $$ BEGIN
+  IF NOT EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='ferns_sources' AND column_name='permission_granted') THEN
+    ALTER TABLE ferns_sources ADD COLUMN permission_granted boolean;
+  END IF;
+  IF NOT EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='ferns_sources' AND column_name='permission_status') THEN
+    ALTER TABLE ferns_sources ADD COLUMN permission_status text;
+  END IF;
+  IF NOT EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='ferns_sources' AND column_name='general_summary') THEN
+    ALTER TABLE ferns_sources ADD COLUMN general_summary text;
+  END IF;
+  IF NOT EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='ferns_sources' AND column_name='technical_details') THEN
+    ALTER TABLE ferns_sources ADD COLUMN technical_details text;
+  END IF;
+END $$;
+--> statement-breakpoint
+
+-- 3. Drop old column names from cache tables (idempotent)
 DO $$ BEGIN
   IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='bonap_maps' AND column_name='derivation_summary') THEN
     ALTER TABLE bonap_maps DROP COLUMN derivation_summary;
@@ -133,8 +174,12 @@ DO $$ BEGIN
   END IF;
 END $$;
 --> statement-breakpoint
+
+-- 4. Drop the obsolete registry_entries table
 DROP TABLE IF EXISTS "registry_entries";
 --> statement-breakpoint
+
+-- 5. Create new tables that may be missing from production (IF NOT EXISTS = safe no-op)
 CREATE TABLE IF NOT EXISTS "source_relationships" (
         "id" serial PRIMARY KEY NOT NULL,
         "source_id_a" text NOT NULL,
