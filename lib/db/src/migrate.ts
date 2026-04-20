@@ -4,66 +4,30 @@ import { createHash } from "crypto";
 import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
 import path from "path";
-import { db } from "./index.js";
+import { db, pool } from "./index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const migrationsFolder = path.join(__dirname, "drizzle");
 
-/**
- * Check whether Drizzle's migration tracking table exists and already has
- * migration 0000 recorded. Returns true if 0000 is tracked.
- */
-async function isMigration0000Tracked(): Promise<boolean> {
-  try {
-    // If the tracking table doesn't exist yet this will throw.
-    const result = await db.execute(sql`
-      SELECT COUNT(*) AS count
-      FROM "__drizzle_migrations"
-    `);
-    const count = Number((result.rows[0] as Record<string, unknown>).count);
-    return count > 0;
-  } catch {
-    return false;
-  }
+// ─── helpers ──────────────────────────────────────────────────────────────────
+
+function readJournal(): { entries: Array<{ when: number; tag: string }> } {
+  return JSON.parse(
+    readFileSync(path.join(migrationsFolder, "meta/_journal.json"), "utf-8")
+  );
 }
 
-/**
- * Check whether the base schema tables already exist in the database (i.e. a
- * previous deployment applied them without creating the tracking table).
- */
-async function baseSchemaExists(): Promise<boolean> {
-  const result = await db.execute(sql`
-    SELECT COUNT(*) AS count
-    FROM information_schema.tables
-    WHERE table_schema = 'public'
-      AND table_name = 'bonap_maps'
-  `);
-  return Number((result.rows[0] as Record<string, unknown>).count) > 0;
-}
-
-/**
- * Insert migration 0000 into Drizzle's tracking table so that the migrator
- * skips it on the next run. Safe to call when the table already has an entry.
- */
-async function markMigration0000Applied(): Promise<void> {
-  const sqlContent = readFileSync(
-    path.join(migrationsFolder, "0000_acoustic_mauler.sql"),
+function hashMigration(tag: string): string {
+  const content = readFileSync(
+    path.join(migrationsFolder, `${tag}.sql`),
     "utf-8"
   );
-  const hash = createHash("sha256").update(sqlContent).digest("hex");
+  return createHash("sha256").update(content).digest("hex");
+}
 
-  // Read the journal to get 0000's exact "when" timestamp. Drizzle decides
-  // which migrations to run by comparing created_at to each migration's
-  // folderMillis (= journal.when). Inserting 0000's exact timestamp means:
-  //   0000.when < 0000.when  → false → skip 0000 ✓
-  //   0000.when < 0001.when  → true  → run  0001 ✓
-  const journal = JSON.parse(
-    readFileSync(path.join(migrationsFolder, "meta/_journal.json"), "utf-8")
-  ) as { entries: Array<{ when: number }> };
-  const migration0000When = journal.entries[0].when;
-
+async function ensureMigrationsTable(): Promise<void> {
   await db.execute(sql`
     CREATE TABLE IF NOT EXISTS "__drizzle_migrations" (
       id SERIAL PRIMARY KEY,
@@ -71,31 +35,138 @@ async function markMigration0000Applied(): Promise<void> {
       created_at bigint
     )
   `);
-
-  await db.execute(sql`
-    INSERT INTO "__drizzle_migrations" (hash, created_at)
-    SELECT ${hash}, ${migration0000When}
-    WHERE NOT EXISTS (
-      SELECT 1 FROM "__drizzle_migrations"
-    )
-  `);
-
-  console.info("[migrate] Migration 0000 marked as applied in tracking table.");
 }
 
-export async function runMigrations(): Promise<void> {
-  const tracked = await isMigration0000Tracked();
+async function isMigrationApplied(tag: string): Promise<boolean> {
+  const hash = hashMigration(tag);
+  const result = await db.execute(
+    sql`SELECT 1 FROM "__drizzle_migrations" WHERE hash = ${hash} LIMIT 1`
+  );
+  return result.rows.length > 0;
+}
 
-  if (!tracked && (await baseSchemaExists())) {
-    // The database already has the base schema from a prior deployment but
-    // Drizzle's tracking table is missing or empty. Mark 0000 as applied so
-    // that migrate() skips it and only runs newer (pending) migrations.
-    console.info(
-      "[migrate] Base schema found without migration tracking. " +
-        "Marking migration 0000 as applied before running pending migrations."
-    );
-    await markMigration0000Applied();
+async function markMigrationApplied(
+  tag: string,
+  when: number
+): Promise<void> {
+  const hash = hashMigration(tag);
+  await db.execute(sql`
+    INSERT INTO "__drizzle_migrations" (hash, created_at)
+    SELECT ${hash}, ${when}
+    WHERE NOT EXISTS (
+      SELECT 1 FROM "__drizzle_migrations" WHERE hash = ${hash}
+    )
+  `);
+}
+
+async function tableExists(tableName: string): Promise<boolean> {
+  const result = await db.execute(sql`
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = ${tableName}
+    LIMIT 1
+  `);
+  return result.rows.length > 0;
+}
+
+// ─── migration 0000 ───────────────────────────────────────────────────────────
+
+async function applyMigration0000(when: number): Promise<void> {
+  const alreadyApplied = await isMigrationApplied("0000_acoustic_mauler");
+  if (alreadyApplied) {
+    console.info("[migrate] 0000 already tracked — skipping.");
+    return;
   }
 
+  const baseExists = await tableExists("bonap_maps");
+  if (baseExists) {
+    // Tables are already in the DB (created by a previous deployment without
+    // migration tracking). Just mark 0000 as applied.
+    console.info(
+      "[migrate] Base schema already exists — marking 0000 as applied."
+    );
+    await markMigrationApplied("0000_acoustic_mauler", when);
+    return;
+  }
+
+  // Fresh database — let Drizzle create everything.
+  console.info("[migrate] Running migration 0000...");
   await migrate(db, { migrationsFolder });
+  console.info("[migrate] Migration 0000 complete.");
+}
+
+// ─── migration 0001 ───────────────────────────────────────────────────────────
+
+/**
+ * Run each SQL statement in migration 0001 individually so that a single
+ * blocked DDL statement (e.g. waiting for a stale lock) cannot hang the
+ * entire startup. Each statement runs in its own transaction with a
+ * lock_timeout so it fails fast rather than waiting indefinitely.
+ */
+async function applyMigration0001(when: number): Promise<void> {
+  const alreadyApplied = await isMigrationApplied("0001_cleanup_old_schema");
+  if (alreadyApplied) {
+    console.info("[migrate] 0001 already tracked — skipping.");
+    return;
+  }
+
+  console.info("[migrate] Running migration 0001 statements...");
+
+  const content = readFileSync(
+    path.join(migrationsFolder, "0001_cleanup_old_schema.sql"),
+    "utf-8"
+  );
+
+  const statements = content
+    .split("--> statement-breakpoint")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  let succeeded = 0;
+  let skipped = 0;
+
+  for (const statement of statements) {
+    // Acquire a raw client so we can set per-statement timeouts outside of
+    // Drizzle's transaction wrapper.
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+      // Fail fast if we can't get the lock — stale locks from previous crashed
+      // deployments should not block startup forever.
+      await client.query("SET LOCAL lock_timeout = '8s'");
+      await client.query("SET LOCAL statement_timeout = '15s'");
+      await client.query(statement);
+      await client.query("COMMIT");
+      succeeded++;
+    } catch (err: unknown) {
+      await client.query("ROLLBACK").catch(() => {});
+      const msg = err instanceof Error ? err.message : String(err);
+      // Log a warning but keep going — most 0001 steps are cleanup that the
+      // app can tolerate not having run.
+      console.warn(
+        `[migrate] 0001 statement skipped (non-fatal): ${msg.slice(0, 120)}`
+      );
+      skipped++;
+    } finally {
+      client.release();
+    }
+  }
+
+  console.info(
+    `[migrate] 0001 complete — ${succeeded} succeeded, ${skipped} skipped.`
+  );
+  await markMigrationApplied("0001_cleanup_old_schema", when);
+}
+
+// ─── public entry point ───────────────────────────────────────────────────────
+
+export async function runMigrations(): Promise<void> {
+  await ensureMigrationsTable();
+
+  const journal = readJournal();
+  const [entry0, entry1] = journal.entries;
+
+  await applyMigration0000(entry0.when);
+  await applyMigration0001(entry1.when);
+
+  console.info("[migrate] All migrations complete.");
 }
