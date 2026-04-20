@@ -1,19 +1,19 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import {
-  CallToolRequestSchema,
-  ListToolsRequestSchema,
-  type Tool,
-} from "@modelcontextprotocol/sdk/types.js";
-import { fernsGet } from "./client.js";
+  import {
+    CallToolRequestSchema,
+    ListToolsRequestSchema,
+    type Tool,
+  } from "@modelcontextprotocol/sdk/types.js";
+  import { fernsGet } from "./client.js";
 
-type ToolHandler = (args: Record<string, unknown>) => Promise<unknown>;
+  type ToolHandler = (args: Record<string, unknown>) => Promise<unknown>;
 
-interface ToolDef {
-  tool: Tool;
-  handler: ToolHandler;
-}
+  interface ToolDef {
+    tool: Tool;
+    handler: ToolHandler;
+  }
 
-const tools: ToolDef[] = [
+  const tools: ToolDef[] = [
 
   // ── bonap-napa ──────────────────────────────────────────────────────────
   {
@@ -584,7 +584,7 @@ const tools: ToolDef[] = [
     tool: {
       name: "google_images__search",
       description:
-        "Returns a Google Images search URL for a plant species, useful as a quick visual reference or identification aid.",
+        "Returns a Google Images search result page URL for a plant species. Useful for quickly retrieving a visual reference or confirming plant identification through image search.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -602,7 +602,7 @@ const tools: ToolDef[] = [
     tool: {
       name: "illinois_wildflowers__species",
       description:
-        "Returns the Illinois Wildflowers species page URL for a plant, with descriptions, photos, and ecological notes for Illinois flora.",
+        "Returns the Illinois Wildflowers species page URL for a plant, linking to detailed descriptions, photos, and ecological notes focused on the Illinois flora.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -620,7 +620,7 @@ const tools: ToolDef[] = [
     tool: {
       name: "lady_bird_johnson__species",
       description:
-        "Returns the Lady Bird Johnson Wildflower Center search URL for a plant — one of the largest native plant databases in the US.",
+        "Returns the Lady Bird Johnson Wildflower Center species search URL for a plant. The center maintains one of the most comprehensive databases of native plants of North America.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -638,7 +638,7 @@ const tools: ToolDef[] = [
     tool: {
       name: "minnesota_wildflowers__species",
       description:
-        "Returns the Minnesota Wildflowers species page URL for a plant, with photos, bloom times, habitat info, and Minnesota distribution.",
+        "Returns the Minnesota Wildflowers species page URL for a plant, providing photos, bloom times, habitat information, and distribution within Minnesota.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -656,7 +656,7 @@ const tools: ToolDef[] = [
     tool: {
       name: "missouri_plants__species",
       description:
-        "Returns the Missouri Plants species page URL for a plant, with photographs, descriptions, and habitat notes for Missouri flora.",
+        "Returns the Missouri Plants species page URL for a plant, covering the flora of Missouri with photographs, descriptions, and habitat notes.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -669,18 +669,18 @@ const tools: ToolDef[] = [
       fernsGet("/missouri-plants", { species: String(args["species"]) }),
   },
 
-  // ── mnfi ────────────────────────────────────────────────────────────────
+  // ── mnfi ─────────────────────────────────────────────────────────────────
   {
     tool: {
       name: "mnfi__communities",
       description:
-        "Returns Michigan natural community types from the Michigan Natural Features Inventory (MNFI), optionally filtered by class, group, or name. Each community has a NatureServe global rank and Michigan state rank.",
+        "Returns Michigan natural community types from the MNFI classification system, optionally filtered by ecological class, group, or name. Use this to discover natural community IDs for the other mnfi tools.",
       inputSchema: {
         type: "object" as const,
         properties: {
-          class: { type: "string", description: "Filter by ecological class (e.g. Upland Forest)" },
-          group: { type: "string", description: "Filter by community group (e.g. Dry-Mesic Oak)" },
-          name:  { type: "string", description: "Filter by community name (partial match)" },
+          class: { type: "string", description: "Ecological class filter (e.g. Upland)" },
+          group: { type: "string", description: "Ecological group filter (e.g. Oak Openings)" },
+          name:  { type: "string", description: "Community name filter (partial match)" },
         },
         required: [],
       },
@@ -728,12 +728,12 @@ const tools: ToolDef[] = [
     tool: {
       name: "mnfi__county_elements",
       description:
-        "Returns rare species and natural community occurrences tracked by MNFI for a Michigan county, with conservation status codes and last observation year.",
+        "Returns rare species and natural community element occurrences tracked by MNFI for a Michigan county, optionally filtered by element type.",
       inputSchema: {
         type: "object" as const,
         properties: {
           county: { type: "string", description: "Michigan county name (e.g. Washtenaw)" },
-          type:   { type: "string", enum: ["species", "community"], description: "Filter to species or community elements only" },
+          type:   { type: "string", description: "Element type filter (e.g. plant, community)" },
         },
         required: [],
       },
@@ -750,13 +750,13 @@ const tools: ToolDef[] = [
     tool: {
       name: "natureserve__species",
       description:
-        "Returns NatureServe G-rank and S-rank conservation status for a species, optionally filtered by US state. G-ranks express global imperilment (G1=critically imperiled, G5=secure); S-ranks are state-level.",
+        "Returns NatureServe global (G-rank) and state (S-rank) conservation status for a species, optionally filtered to a specific US state. Ranks reflect the relative rarity and vulnerability of the species.",
       inputSchema: {
         type: "object" as const,
         properties: {
-          name:    { type: "string", description: "Scientific name to look up (e.g. Trillium grandiflorum)" },
-          state:   { type: "string", description: "Two-letter US state code to filter S-rank (e.g. MI)" },
-          refresh: { type: "boolean", description: "Bypass cache and re-fetch from NatureServe" },
+          name:    { type: "string", description: "Scientific name (e.g. Trillium grandiflorum)" },
+          state:   { type: "string", description: "Two-letter US state code (e.g. MI)" },
+          refresh: { type: "boolean", description: "Bypass cache" },
         },
         required: ["name"],
       },
@@ -772,12 +772,12 @@ const tools: ToolDef[] = [
     tool: {
       name: "natureserve__ecosystems",
       description:
-        "Returns NatureServe ecological system records matching a name, including system codes, descriptions, and associated species assemblages.",
+        "Returns NatureServe ecological system records matching a name query, including classification codes, descriptions, and associated species assemblages.",
       inputSchema: {
         type: "object" as const,
         properties: {
-          name:    { type: "string", description: "Ecological system name to search (e.g. Great Lakes Wet-Mesic Lakeplain Forest)" },
-          refresh: { type: "boolean", description: "Bypass cache and re-fetch from NatureServe" },
+          name:    { type: "string", description: "Ecosystem name query" },
+          refresh: { type: "boolean", description: "Bypass cache" },
         },
         required: ["name"],
       },
@@ -789,12 +789,12 @@ const tools: ToolDef[] = [
       }),
   },
 
-  // ── prairie-moon ────────────────────────────────────────────────────────
+  // ── prairie-moon ─────────────────────────────────────────────────────────
   {
     tool: {
       name: "prairie_moon__species",
       description:
-        "Returns the Prairie Moon Nursery catalog entry for a plant species, including availability status and product page link.",
+        "Returns the Prairie Moon Nursery catalog entry for a species, including availability status and a link to the product page. Prairie Moon is a leading native plant nursery specializing in prairie and woodland species.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -812,7 +812,7 @@ const tools: ToolDef[] = [
     tool: {
       name: "usda_plants__species",
       description:
-        "Returns the USDA Plants Database record for a species: USDA symbol, accepted name, nativity status, and profile link.",
+        "Returns the USDA Plants Database record for a species, including the USDA symbol, accepted name, nativity status, and a link to the full USDA Plants profile. Covers the complete vascular flora of the United States.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -825,12 +825,12 @@ const tools: ToolDef[] = [
       fernsGet("/usda-plants", { species: String(args["species"]) }),
   },
 
-  // ── botanical-refs ────────────────────────────────────────────────────────
+  // ── botanical-refs ───────────────────────────────────────────────────────
   {
     tool: {
       name: "botanical_refs__lookup",
       description:
-        "Queries 8 botanical reference websites simultaneously for a species and returns each site's URL in one call. Covers Go Botany, Illinois Wildflowers, Lady Bird Johnson, Minnesota Wildflowers, Missouri Plants, Prairie Moon Nursery, USDA Plants, and Google Images.",
+        "Queries Go Botany, Google Images, Missouri Plants, Minnesota Wildflowers, Illinois Wildflowers, Prairie Moon, USDA Plants, and Lady Bird Johnson simultaneously for a species and returns each source's found status and URL in one response. A convenience shortcut when you want cross-site presence for a species without calling each source individually.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -846,7 +846,7 @@ const tools: ToolDef[] = [
     tool: {
       name: "botanical_refs__sites",
       description:
-        "Returns the list of botanical reference websites covered by botanical_refs__lookup, including each site's lookup strategy.",
+        "Returns the list of botanical reference websites covered by the botanical-refs endpoint, with each site's ID, name, and strategy used to resolve species URLs.",
       inputSchema: {
         type: "object" as const,
         properties: {},
@@ -856,12 +856,12 @@ const tools: ToolDef[] = [
     handler: async () => fernsGet("/botanical-refs/sites"),
   },
 
-  // ── ferns ────────────────────────────────────────────────────────────────
+  // ── ferns (meta) ─────────────────────────────────────────────────────────
   {
     tool: {
       name: "ferns__list_sources",
       description:
-        "Returns the full registry of all FERNS data sources: IDs, names, descriptions, capabilities, and status.",
+        "Returns the full registry of all FERNS data sources with each source's ID, display name, description, capabilities, and current status. Use this to discover what sources are available.",
       inputSchema: {
         type: "object" as const,
         properties: {},
@@ -890,40 +890,41 @@ const tools: ToolDef[] = [
   },
 ];
 
-const toolMap = new Map<string, ToolHandler>(tools.map((t) => [t.tool.name, t.handler]));
+  const toolMap = new Map<string, ToolHandler>(tools.map((t) => [t.tool.name, t.handler]));
 
-export function createMcpServer(): Server {
-  const server = new Server(
-    { name: "ferns-mcp", version: "1.0.0" },
-    { capabilities: { tools: {} } },
-  );
+  export function createMcpServer(): Server {
+    const server = new Server(
+      { name: "ferns-mcp", version: "1.0.0" },
+      { capabilities: { tools: {} } },
+    );
 
-  server.setRequestHandler(ListToolsRequestSchema, async () => ({
-    tools: tools.map((t) => t.tool),
-  }));
+    server.setRequestHandler(ListToolsRequestSchema, async () => ({
+      tools: tools.map((t) => t.tool),
+    }));
 
-  server.setRequestHandler(CallToolRequestSchema, async (request) => {
-    const { name, arguments: args = {} } = request.params;
-    const handler = toolMap.get(name);
-    if (!handler) {
-      return {
-        content: [{ type: "text" as const, text: `Unknown tool: ${name}` }],
-        isError: true,
-      };
-    }
-    try {
-      const result = await handler(args as Record<string, unknown>);
-      return {
-        content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }],
-      };
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      return {
-        content: [{ type: "text" as const, text: `Error: ${message}` }],
-        isError: true,
-      };
-    }
-  });
+    server.setRequestHandler(CallToolRequestSchema, async (request) => {
+      const { name, arguments: args = {} } = request.params;
+      const handler = toolMap.get(name);
+      if (!handler) {
+        return {
+          content: [{ type: "text" as const, text: `Unknown tool: ${name}` }],
+          isError: true,
+        };
+      }
+      try {
+        const result = await handler(args as Record<string, unknown>);
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }],
+        };
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        return {
+          content: [{ type: "text" as const, text: `Error: ${message}` }],
+          isError: true,
+        };
+      }
+    });
 
-  return server;
-}
+    return server;
+  }
+  
