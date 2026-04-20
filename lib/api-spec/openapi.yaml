@@ -34,6 +34,24 @@ tags:
     description: Michigan Natural Features Inventory — Natural Community Types and County Element Occurrences
   - name: natureserve
     description: NatureServe Explorer — Species Conservation Status and Ecological Systems
+  - name: gobotany
+    description: Go Botany — Native Plant Trust Species Pages
+  - name: google-images
+    description: Google Images — Species Photo Search URLs
+  - name: illinois-wildflowers
+    description: Illinois Wildflowers — Species Reference Pages
+  - name: minnesota-wildflowers
+    description: Minnesota Wildflowers — Species Reference Pages
+  - name: missouri-plants
+    description: Missouri Plants — Species Reference Pages
+  - name: prairie-moon
+    description: Prairie Moon Nursery — Native Seed and Plant Catalog
+  - name: usda-plants
+    description: USDA PLANTS Database — Official Federal Plant Data
+  - name: lady-bird-johnson
+    description: Lady Bird Johnson Wildflower Center — Native Plant Information
+  - name: botanical-refs
+    description: Botanical References — Aggregated URL Lookup Across All Reference Sources
   - name: registry
     description: FERNS Service Registry
 paths:
@@ -1171,7 +1189,7 @@ paths:
       tags: [universal-fqa]
       summary: List all Universal FQA regional databases
       description: >
-        Returns all 93 regional FQA databases available on universalfqa.org.
+        Returns all regional FQA databases available on universalfqa.org.
         Each entry contains an id, region name, year, and full citation string.
         The region and citation fields together describe geographic scope, ecoregion
         coverage, institutional source, and methodology — read both in full to
@@ -1688,6 +1706,440 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+
+  /gobotany:
+    get:
+      operationId: getGobotany
+      tags: [gobotany]
+      summary: Look up a Go Botany species page URL
+      description: >
+        Constructs and validates the Go Botany (Native Plant Trust) species page URL
+        for a given scientific name. The URL is constructed from the genus and species
+        epithet and validated with a live HTTP GET request (HTTP 200 = found). Results
+        are cached 7 days. The species parameter must be a binomial name (genus + epithet);
+        partial names return 400.
+      parameters:
+        - name: species
+          in: query
+          required: true
+          description: >
+            Binomial scientific name (e.g. Acer rubrum). Genus and species epithet required.
+            Both components must contain only letters.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: URL lookup result (found or not-found — check the found field)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BotanicalWebRefResponse"
+        "400":
+          description: Missing or invalid species parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /gobotany/metadata:
+    get:
+      operationId: getGobotanyMetadata
+      tags: [gobotany]
+      summary: Go Botany service metadata
+      description: >
+        Returns service identity, URL construction strategy, attribution, and the
+        full registry entry for the Go Botany (Native Plant Trust) service.
+      responses:
+        "200":
+          description: Go Botany service metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BotanicalWebRefMetadataResponse"
+
+  /google-images:
+    get:
+      operationId: getGoogleImages
+      tags: [google-images]
+      summary: Construct a Google Images search URL for a species
+      description: >
+        Constructs a Google Images search URL for a given scientific name. This
+        endpoint always returns found=true and a direct Google Images URL —
+        no validation is performed. The URL is constructed from the species
+        parameter and is not cached. Useful for quickly providing a visual
+        reference link without requiring an image database.
+      parameters:
+        - name: species
+          in: query
+          required: true
+          description: Scientific name to search for (e.g. Acer rubrum)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Google Images search URL for the species
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BotanicalWebRefResponse"
+        "400":
+          description: Missing species parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /google-images/metadata:
+    get:
+      operationId: getGoogleImagesMetadata
+      tags: [google-images]
+      summary: Google Images service metadata
+      description: >
+        Returns service identity, URL construction strategy, attribution, and the
+        full registry entry for the Google Images species search service.
+      responses:
+        "200":
+          description: Google Images service metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BotanicalWebRefMetadataResponse"
+
+  /illinois-wildflowers:
+    get:
+      operationId: getIllinoisWildflowers
+      tags: [illinois-wildflowers]
+      summary: Look up an Illinois Wildflowers species page URL
+      description: >
+        Looks up the Illinois Wildflowers (illinoiswildflowers.info) page URL for a
+        given scientific name. Illinois Wildflowers organizes some species across
+        multiple sections; multiple URLs may be returned in the data.results array.
+        Species list is imported from the site and served from FERNS's local database.
+        Results cached per database import cycle.
+      parameters:
+        - name: species
+          in: query
+          required: true
+          description: Scientific name (e.g. Acer rubrum)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: URL lookup result (found or not-found — check the found field)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BotanicalWebRefResponse"
+        "400":
+          description: Missing species parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /illinois-wildflowers/metadata:
+    get:
+      operationId: getIllinoisWildflowersMetadata
+      tags: [illinois-wildflowers]
+      summary: Illinois Wildflowers service metadata
+      description: >
+        Returns service identity, species count, import strategy, attribution, and
+        the full registry entry for the Illinois Wildflowers service.
+      responses:
+        "200":
+          description: Illinois Wildflowers service metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BotanicalWebRefMetadataResponse"
+
+  /minnesota-wildflowers:
+    get:
+      operationId: getMinnesotaWildflowers
+      tags: [minnesota-wildflowers]
+      summary: Look up a Minnesota Wildflowers species page URL
+      description: >
+        Looks up the Minnesota Wildflowers (minnesotawildflowers.info) species page
+        URL for a given scientific name. Species list is imported from the site and
+        served from FERNS's local database — no live upstream call at query time.
+      parameters:
+        - name: species
+          in: query
+          required: true
+          description: Scientific name (e.g. Acer rubrum)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: URL lookup result (found or not-found — check the found field)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BotanicalWebRefResponse"
+        "400":
+          description: Missing species parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /minnesota-wildflowers/metadata:
+    get:
+      operationId: getMinnesotaWildflowersMetadata
+      tags: [minnesota-wildflowers]
+      summary: Minnesota Wildflowers service metadata
+      description: >
+        Returns service identity, species count, import strategy, attribution, and
+        the full registry entry for the Minnesota Wildflowers service.
+      responses:
+        "200":
+          description: Minnesota Wildflowers service metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BotanicalWebRefMetadataResponse"
+
+  /missouri-plants:
+    get:
+      operationId: getMissouriPlants
+      tags: [missouri-plants]
+      summary: Look up a Missouri Plants species page URL
+      description: >
+        Looks up the Missouri Plants (missouriplants.com) species page URL for a
+        given scientific name. Species list is imported from the site and served from
+        FERNS's local database — no live upstream call at query time.
+      parameters:
+        - name: species
+          in: query
+          required: true
+          description: Scientific name (e.g. Acer rubrum)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: URL lookup result (found or not-found — check the found field)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BotanicalWebRefResponse"
+        "400":
+          description: Missing species parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /missouri-plants/metadata:
+    get:
+      operationId: getMissouriPlantsMetadata
+      tags: [missouri-plants]
+      summary: Missouri Plants service metadata
+      description: >
+        Returns service identity, species count, import strategy, attribution, and
+        the full registry entry for the Missouri Plants service.
+      responses:
+        "200":
+          description: Missouri Plants service metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BotanicalWebRefMetadataResponse"
+
+  /prairie-moon:
+    get:
+      operationId: getPrairieMoon
+      tags: [prairie-moon]
+      summary: Look up a Prairie Moon Nursery species page URL
+      description: >
+        Looks up the Prairie Moon Nursery (prairiemoon.com) species catalog URL for
+        a given scientific name. Species list is imported from the Prairie Moon
+        sitemap and served from FERNS's local database. Returns the direct product
+        page URL when found. No live upstream call at query time.
+      parameters:
+        - name: species
+          in: query
+          required: true
+          description: Scientific name (e.g. Acer rubrum)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: URL lookup result (found or not-found — check the found field)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BotanicalWebRefResponse"
+        "400":
+          description: Missing species parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /prairie-moon/metadata:
+    get:
+      operationId: getPrairieMoonMetadata
+      tags: [prairie-moon]
+      summary: Prairie Moon Nursery service metadata
+      description: >
+        Returns service identity, indexed species count, sitemap import strategy,
+        attribution, and the full registry entry for the Prairie Moon Nursery service.
+      responses:
+        "200":
+          description: Prairie Moon service metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BotanicalWebRefMetadataResponse"
+
+  /usda-plants:
+    get:
+      operationId: getUsdaPlants
+      tags: [usda-plants]
+      summary: Construct a USDA PLANTS search URL for a species
+      description: >
+        Constructs a USDA PLANTS Database search URL for a given scientific name.
+        Direct species profile URLs require a USDA symbol code (e.g. ASYT) that cannot
+        be derived from the scientific name alone, so FERNS provides a search URL
+        instead. The response always returns found=false with a search_url in the data
+        object. Applications should use the search_url to link users to USDA PLANTS.
+      parameters:
+        - name: species
+          in: query
+          required: true
+          description: Scientific name (e.g. Acer rubrum)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: USDA PLANTS search URL (found is always false — profile URLs require a symbol code not derivable from scientific name)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BotanicalWebRefResponse"
+        "400":
+          description: Missing species parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /usda-plants/metadata:
+    get:
+      operationId: getUsdaPlantsMetadata
+      tags: [usda-plants]
+      summary: USDA PLANTS Database service metadata
+      description: >
+        Returns service identity, URL construction strategy, attribution, and the
+        full registry entry for the USDA PLANTS Database service.
+      responses:
+        "200":
+          description: USDA PLANTS service metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BotanicalWebRefMetadataResponse"
+
+  /lady-bird-johnson:
+    get:
+      operationId: getLadyBirdJohnson
+      tags: [lady-bird-johnson]
+      summary: Construct a Lady Bird Johnson Wildflower Center search URL for a species
+      description: >
+        Constructs a Lady Bird Johnson Wildflower Center (wildflower.org) search URL
+        for a given scientific name. Direct species profile URLs require an internal
+        LBJWC plant ID not derivable from scientific names, so FERNS provides a search
+        URL scoped by genus and species instead. The response returns found=false with
+        a search_url in the data object — use search_url to link users to the LBJWC.
+      parameters:
+        - name: species
+          in: query
+          required: true
+          description: Scientific name (e.g. Acer rubrum)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Lady Bird Johnson search URL (found is always false — profile URLs require an internal plant ID)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BotanicalWebRefResponse"
+        "400":
+          description: Missing species parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /lady-bird-johnson/metadata:
+    get:
+      operationId: getLadyBirdJohnsonMetadata
+      tags: [lady-bird-johnson]
+      summary: Lady Bird Johnson Wildflower Center service metadata
+      description: >
+        Returns service identity, URL construction strategy, attribution, and the
+        full registry entry for the Lady Bird Johnson Wildflower Center service.
+      responses:
+        "200":
+          description: Lady Bird Johnson service metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BotanicalWebRefMetadataResponse"
+
+  /botanical-refs:
+    get:
+      operationId: getBotanicalRefs
+      tags: [botanical-refs]
+      summary: Look up a species across all botanical reference sources at once
+      description: >
+        Fans out a species query to all configured botanical reference sources
+        simultaneously: Go Botany, Google Images, Missouri Plants, Minnesota
+        Wildflowers, Illinois Wildflowers, Prairie Moon Nursery, USDA PLANTS, and
+        Lady Bird Johnson Wildflower Center. Returns a unified response with one
+        entry per source. Sources that cannot resolve a direct profile URL (USDA
+        PLANTS, Lady Bird Johnson) return found=false with a search_url instead.
+        Go Botany validation requires a live HTTP GET — expect slightly higher
+        latency for this endpoint.
+      parameters:
+        - name: species
+          in: query
+          required: true
+          description: Scientific name (e.g. Acer rubrum)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Per-source URL lookup results across all botanical reference sources
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BotanicalRefsResponse"
+        "400":
+          description: Missing species parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /botanical-refs/sites:
+    get:
+      operationId: getBotanicalRefsSites
+      tags: [botanical-refs]
+      summary: List all botanical reference sites configured in FERNS
+      description: >
+        Returns metadata about all botanical reference sources that are aggregated
+        by the /botanical-refs endpoint. Each entry includes the site ID, display
+        name, URL lookup strategy, and direct query and metadata URLs for the
+        individual source endpoint.
+      responses:
+        "200":
+          description: List of configured botanical reference sources
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BotanicalRefsSitesResponse"
 
 components:
   schemas:
@@ -4898,3 +5350,203 @@ components:
               enum: [hit, miss, bypassed]
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
+
+    BotanicalWebRefResponse:
+      type: object
+      description: >
+        Standard response shape for botanical web reference source lookups
+        (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers,
+        missouri-plants, prairie-moon, usda-plants, lady-bird-johnson).
+      required:
+        - found
+        - queried_at
+      properties:
+        found:
+          type: boolean
+          description: >
+            True if a direct species page URL was resolved. False for sources
+            that cannot resolve a profile URL (usda-plants, lady-bird-johnson),
+            which return a search_url instead.
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          nullable: true
+          type: object
+          description: Present when found=true (or when a search_url is returned). Null when not found.
+          properties:
+            species:
+              type: string
+              description: The species name as queried
+            url:
+              type: string
+              nullable: true
+              description: Direct species page URL. Null when only a search URL is available.
+            search_url:
+              type: string
+              description: >
+                Search URL when a direct profile URL cannot be constructed
+                (usda-plants, lady-bird-johnson). Present instead of url for these sources.
+            validation_method:
+              type: string
+              description: "How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable"
+            note:
+              type: string
+              description: Explanatory note when validation_method is not_resolvable
+
+    BotanicalWebRefMetadataResponse:
+      type: object
+      description: Service metadata response for botanical web reference sources.
+      required:
+        - service_id
+        - service_name
+      properties:
+        service_id:
+          type: string
+        service_name:
+          type: string
+        permission_granted:
+          type: boolean
+        permission_status:
+          type: string
+        url_strategy:
+          type: string
+          description: "URL construction strategy: direct_construction | sitemap_scrape | species_list_scrape"
+        url_pattern:
+          type: string
+          description: URL template pattern used for direct construction sources
+        validation:
+          type: string
+          description: "Validation method for constructed URLs: http_get | none | not_resolvable"
+        indexed_species_count:
+          type: integer
+          description: Number of species indexed in FERNS's local database (scrape-based sources only)
+        registry_entry:
+          type: object
+          additionalProperties: true
+        queried_at:
+          type: string
+          format: date-time
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    BotanicalRefsSiteEntry:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Source ID (e.g. gobotany, prairie-moon)
+        name:
+          type: string
+          description: Human-readable source name
+        strategy:
+          type: string
+          description: "URL lookup strategy: direct_construction | species_list_scrape | sitemap_scrape"
+        query_url:
+          type: string
+          description: FERNS API URL for querying this source directly
+        metadata_url:
+          type: string
+          description: FERNS API URL for this source's metadata endpoint
+
+    BotanicalRefsSitesResponse:
+      type: object
+      required:
+        - source_id
+        - queried_at
+        - data
+      properties:
+        source_id:
+          type: string
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+        data:
+          type: object
+          properties:
+            site_count:
+              type: integer
+            sites:
+              type: array
+              items:
+                $ref: "#/components/schemas/BotanicalRefsSiteEntry"
+
+    BotanicalRefsSourceResult:
+      type: object
+      description: Per-source result within the /botanical-refs aggregated response.
+      properties:
+        found:
+          type: boolean
+        url:
+          type: string
+          nullable: true
+        search_url:
+          type: string
+          description: Search URL when a direct profile URL cannot be resolved
+        validation:
+          type: string
+        results:
+          type: array
+          description: Additional result entries (e.g. multiple Illinois Wildflowers sections)
+          items:
+            type: object
+            additionalProperties: true
+        note:
+          type: string
+          nullable: true
+        http_status:
+          type: integer
+          nullable: true
+
+    BotanicalRefsResponse:
+      type: object
+      description: Aggregated response from the /botanical-refs endpoint — one entry per source.
+      required:
+        - found
+        - queried_at
+        - data
+      properties:
+        found:
+          type: boolean
+          description: True if at least one source returned a direct species page URL
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+        provenance:
+          type: object
+          properties:
+            source_id:
+              type: string
+            fetched_at:
+              type: string
+              format: date-time
+            method:
+              type: string
+            sites_queried:
+              type: integer
+        data:
+          type: object
+          properties:
+            species:
+              type: string
+            sites_found:
+              type: integer
+              description: Number of sources that returned a direct species page URL
+            sites_search_only:
+              type: integer
+              description: Number of sources that returned a search URL but not a direct profile URL
+            sites_total:
+              type: integer
+            results:
+              type: object
+              description: Keyed by source ID. Each value is a BotanicalRefsSourceResult.
+              additionalProperties:
+                $ref: "#/components/schemas/BotanicalRefsSourceResult"

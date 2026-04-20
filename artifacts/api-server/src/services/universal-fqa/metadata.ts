@@ -23,9 +23,9 @@ export const UNIVERSAL_FQA_GENERAL_SUMMARY =
   "FQA is an ecological method (Swink & Wilhelm, 1979/1994) that evaluates plant community quality using " +
   "Coefficient of Conservatism (C-value) scores — integers 0–10 assigned to native species by regional " +
   "botanical authorities reflecting ecological fidelity to intact habitats. " +
-  "As of 2025, the platform hosts 93 regional databases (1993–2025) covering US states, EPA ecoregions " +
+  "The platform hosts regional databases spanning US states, EPA ecoregions " +
   "(geographically defined ecological zones used by the US Environmental Protection Agency), " +
-  "and Canadian provinces, plus thousands of publicly shared site assessment inventories. " +
+  "and Canadian provinces (1993–present), plus thousands of publicly shared site assessment inventories. " +
   "Geographic and taxonomic scope varies by database; Michigan databases (IDs 50 and 267) cover all " +
   "Michigan vascular plants. " +
   "All data accessed via the universalfqa.org public REST API; species databases are cached locally after the first request and reused for subsequent queries; assessments are fetched live per request. " +
@@ -96,8 +96,8 @@ export const UNIVERSAL_FQA_REGISTRY_ENTRY = {
   knowledge_type: "source_wrapper",
   status: "live",
   description:
-    "Access to 93 regional plant quality databases — each rating native species on a 0-to-10 ecological sensitivity scale — " +
-    "plus thousands of ecologist-submitted field survey inventories spanning 1993 to 2025, covering the US, Canada, and other regions. " +
+    "Access to regional plant quality databases spanning US states, EPA ecoregions, and Canadian provinces — each rating native species on a 0-to-10 ecological sensitivity scale — " +
+    "plus thousands of ecologist-submitted field survey inventories, covering the US, Canada, and other regions. " +
     "From the Universal FQA platform, developed and maintained at the University of Michigan.",
   input_summary:
     "Database selection: read region + citation fields to determine relevance. " +
