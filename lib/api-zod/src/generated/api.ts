@@ -3035,7 +3035,7 @@ export const GetSourcesIndexResponse = zod.object({
         knowledge_type: zod
           .string()
           .describe(
-            "source_wrapper | derived_synthesis | aggregation | system",
+            "source_wrapper | derived_synthesis | aggregation | system | vocabulary_reference",
           ),
         status: zod.string().describe("live | draft | deprecated"),
         description: zod
@@ -3185,7 +3185,7 @@ export const GetUniversalFqaMetadataResponse = zod.object({
 });
 
 /**
- * Returns all 93 regional FQA databases available on universalfqa.org. Each entry contains an id, region name, year, and full citation string. The region and citation fields together describe geographic scope, ecoregion coverage, institutional source, and methodology — read both in full to determine relevance for a given project or location.
+ * Returns all regional FQA databases available on universalfqa.org. Each entry contains an id, region name, year, and full citation string. The region and citation fields together describe geographic scope, ecoregion coverage, institutional source, and methodology — read both in full to determine relevance for a given project or location.
 
  * @summary List all Universal FQA regional databases
  */
@@ -3787,7 +3787,9 @@ export const GetSourcesMetadataResponse = zod.object({
     name: zod.string().describe("Human-readable service name"),
     knowledge_type: zod
       .string()
-      .describe("source_wrapper | derived_synthesis | aggregation | system"),
+      .describe(
+        "source_wrapper | derived_synthesis | aggregation | system | vocabulary_reference",
+      ),
     status: zod.string().describe("live | draft | deprecated"),
     description: zod
       .string()
@@ -3975,4 +3977,2124 @@ export const GetSourceRelationshipsResponse = zod.object({
     .describe(
       "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
     ),
+});
+
+/**
+ * Returns service identity, attribution, permission status, community class counts, county coverage, and cache statistics for the Michigan Natural Features Inventory (MNFI) service. Also seeds the MNFI entry in the FERNS source registry. Use this to populate 'About this data' panels in any application displaying MNFI community or county element data.
+
+ * @summary MNFI service metadata
+ */
+export const GetMnfiMetadataResponse = zod.object({
+  service_id: zod.string().describe("Stable identifier for the MNFI service"),
+  service_name: zod.string(),
+  found: zod.boolean(),
+  community_count: zod
+    .number()
+    .optional()
+    .describe("Total number of natural community types loaded into FERNS"),
+  county_element_count: zod
+    .number()
+    .optional()
+    .describe("Total number of county element occurrence records loaded"),
+  plant_count: zod
+    .number()
+    .optional()
+    .describe("Total number of characteristic plant records loaded"),
+  class_summary: zod
+    .array(
+      zod.object({
+        community_class: zod.string().optional(),
+        count: zod.number().optional(),
+      }),
+    )
+    .optional()
+    .describe("Community counts grouped by community class"),
+  counties_with_data: zod
+    .array(zod.string())
+    .optional()
+    .describe("List of Michigan counties with at least one element occurrence"),
+  permission_granted: zod.boolean().optional(),
+  permission_status: zod.string().optional(),
+  attribution: zod.string().optional(),
+  registry_entry: zod.record(zod.string(), zod.unknown()).optional(),
+});
+
+/**
+ * Returns all Michigan Natural Features Inventory (MNFI) natural community types. Optionally filter by community class, group, or name substring (case-insensitive ILIKE match). All data is served from FERNS's local database seeded from the MNFI website — no upstream API call is made at query time. Returns community records sorted by class and name.
+
+ * @summary List MNFI natural community types
+ */
+export const GetMnfiCommunitiesQueryParams = zod.object({
+  class: zod.coerce
+    .string()
+    .optional()
+    .describe("Filter by community class (substring match, e.g. Terrestrial)"),
+  group: zod.coerce
+    .string()
+    .optional()
+    .describe("Filter by community group (substring match, e.g. Forest)"),
+  name: zod.coerce
+    .string()
+    .optional()
+    .describe("Filter by community name (substring match, e.g. oak savanna)"),
+});
+
+export const GetMnfiCommunitiesResponse = zod.object({
+  found: zod.boolean(),
+  queried_at: zod.date(),
+  source_url: zod.string().optional(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      general_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      technical_details: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .optional()
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+    ),
+  data: zod.object({
+    community_count: zod.number().optional(),
+    filters: zod
+      .object({
+        class: zod.string().nullish(),
+        group: zod.string().nullish(),
+        name: zod.string().nullish(),
+      })
+      .optional(),
+    communities: zod.array(zod.record(zod.string(), zod.unknown())).optional(),
+  }),
+});
+
+/**
+ * Returns the full profile for a single MNFI natural community type, including description, acreage estimates, and all characteristic plants grouped by life form. The {id} path parameter accepts either the numeric community_id (e.g. 1234) or the URL slug (e.g. southern-dry-chestnut-oak-forest). Plant lists are included inline — characteristic_plants.by_life_form groups species by life form (tree, shrub, herb, etc.).
+
+ * @summary Get a single MNFI community by ID or slug
+ */
+export const GetMnfiCommunityParams = zod.object({
+  id: zod.coerce
+    .string()
+    .describe("Numeric community_id or URL slug for the community"),
+});
+
+export const GetMnfiCommunityResponse = zod.object({
+  found: zod.boolean(),
+  queried_at: zod.date(),
+  source_url: zod.string().optional(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      general_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      technical_details: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .optional()
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+    ),
+  data: zod
+    .object({
+      community_id: zod.number().optional(),
+      name: zod.string().optional(),
+      slug: zod.string().optional(),
+      community_class: zod.string().optional(),
+      community_group: zod.string().optional(),
+      description: zod.string().nullish(),
+      characteristic_plants: zod
+        .object({
+          total_entries: zod.number().optional(),
+          plant_list_url: zod.string().optional(),
+          by_life_form: zod
+            .record(
+              zod.string(),
+              zod.array(
+                zod.object({
+                  common_name: zod.string().optional(),
+                  scientific_names: zod.array(zod.string()).optional(),
+                }),
+              ),
+            )
+            .optional(),
+        })
+        .optional(),
+    })
+    .nullish()
+    .describe(
+      "Community record with characteristic plants, or null if not found",
+    ),
+});
+
+/**
+ * Returns the characteristic plant list for an MNFI natural community, grouped by life form (tree, shrub, herb, graminoid, vine, etc.). The {id} path parameter accepts either the numeric community_id or the URL slug. This is the same plant data included inline in the community detail endpoint, exposed as a dedicated endpoint for applications that only need plant lists.
+
+ * @summary Get characteristic plants for an MNFI community
+ */
+export const GetMnfiCommunityPlantsParams = zod.object({
+  id: zod.coerce
+    .string()
+    .describe("Numeric community_id or URL slug for the community"),
+});
+
+export const GetMnfiCommunityPlantsResponse = zod.object({
+  found: zod.boolean(),
+  queried_at: zod.date(),
+  source_url: zod.string().optional(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      general_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      technical_details: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .optional()
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+    ),
+  data: zod
+    .object({
+      community_id: zod.number().optional(),
+      community_name: zod.string().optional(),
+      slug: zod.string().optional(),
+      plant_list_url: zod.string().optional(),
+      total_entries: zod.number().optional(),
+      plants_imported: zod.boolean().optional(),
+      by_life_form: zod
+        .record(
+          zod.string(),
+          zod.array(
+            zod.object({
+              common_name: zod.string().optional(),
+              scientific_names: zod.array(zod.string()).optional(),
+            }),
+          ),
+        )
+        .optional()
+        .describe(
+          "Plants grouped by life form (tree, shrub, herb, graminoid, vine, etc.)",
+        ),
+    })
+    .optional(),
+});
+
+/**
+ * Returns MNFI Element Occurrence records for a given Michigan county. These records document where significant natural features (rare species, natural communities) have been observed. The county parameter is required; all 83 Michigan county names are accepted (case-insensitive). Optionally filter to only species or community element types with the type parameter. Data is served from FERNS's local database seeded from the MNFI county element download — no upstream API call at query time.
+
+ * @summary Get MNFI significant natural features for a Michigan county
+ */
+export const GetMnfiCountyElementsQueryParams = zod.object({
+  county: zod.coerce
+    .string()
+    .describe(
+      "Michigan county name (e.g. Washtenaw, Leelanau). Case-insensitive. All 83 Michigan county names are accepted.\n",
+    ),
+  type: zod
+    .enum(["species", "community"])
+    .optional()
+    .describe(
+      "Filter by element type. Must be 'species' or 'community' when provided. When omitted, both types are returned.\n",
+    ),
+});
+
+export const GetMnfiCountyElementsResponse = zod.object({
+  found: zod.boolean(),
+  queried_at: zod.date(),
+  source_url: zod.string().optional(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      general_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      technical_details: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .optional()
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+    ),
+  data: zod.object({
+    county: zod.string().optional(),
+    element_count: zod.number().optional(),
+    filters: zod
+      .object({
+        type: zod.string().nullish(),
+      })
+      .optional(),
+    elements: zod.array(zod.record(zod.string(), zod.unknown())).optional(),
+  }),
+});
+
+/**
+ * Returns service identity, attribution, permission status, cache statistics, and the full registry entry for the NatureServe Explorer service. Use this to populate 'About this data' panels in any application displaying NatureServe conservation status or ecosystem data. Also seeds the NatureServe entry in the FERNS source registry.
+
+ * @summary NatureServe service metadata
+ */
+export const GetNatureserveMetadataResponse = zod.object({
+  found: zod.boolean(),
+  source_url: zod.string().optional(),
+  service_id: zod.string(),
+  service_name: zod.string(),
+  permission_granted: zod.boolean().optional(),
+  permission_status: zod.string().optional(),
+  attribution: zod.string().optional(),
+  cache_stats: zod
+    .object({
+      species_cached: zod.number().optional(),
+      ecosystems_cached: zod.number().optional(),
+      ttl_days: zod.number().optional(),
+    })
+    .optional(),
+  registry_entry: zod.record(zod.string(), zod.unknown()).optional(),
+  queried_at: zod.date().optional(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      general_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      technical_details: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .optional()
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+    ),
+});
+
+/**
+ * Queries NatureServe Explorer for conservation status data for a given scientific name, optionally scoped to a US state. Returns global rank (G-rank), national rank (N-rank), state rank (S-rank), IUCN category, federal status, state status, and a direct NatureServe Explorer URL for the species. Ranks follow NatureServe standard notation (e.g. G3, N2N3, S1). State rank is derived from NatureServe S-rank and reflects rarity status — it is not a formal statutory state listing. Results cached 30 days per name+state combination.
+
+ * @summary Look up species conservation status from NatureServe Explorer
+ */
+export const getNatureserveSpeciesQueryStateDefault = `MI`;
+export const getNatureserveSpeciesQueryRefreshDefault = false;
+
+export const GetNatureserveSpeciesQueryParams = zod.object({
+  name: zod.coerce
+    .string()
+    .describe("Scientific name to look up (e.g. Asclepias tuberosa)"),
+  state: zod.coerce
+    .string()
+    .default(getNatureserveSpeciesQueryStateDefault)
+    .describe(
+      "Two-letter US state code to scope the state rank (e.g. MI, WI, OH). Defaults to MI (Michigan) when omitted. Must be a valid 2-letter code.\n",
+    ),
+  refresh: zod.coerce
+    .boolean()
+    .default(getNatureserveSpeciesQueryRefreshDefault)
+    .describe(
+      "If true, bypasses cache and fetches fresh from NatureServe Explorer",
+    ),
+});
+
+export const GetNatureserveSpeciesResponse = zod.object({
+  source_url: zod.string().optional(),
+  found: zod.boolean(),
+  attribution: zod.string().optional(),
+  data: zod
+    .object({
+      scientific_name: zod.string().nullish(),
+      common_name: zod.string().nullish(),
+      global_rank: zod
+        .string()
+        .nullish()
+        .describe("NatureServe G-rank (e.g. G4, G3G4)"),
+      rounded_global_rank: zod.string().nullish(),
+      national_rank: zod
+        .string()
+        .nullish()
+        .describe("NatureServe N-rank for the US (e.g. N3, N4)"),
+      rounded_national_rank: zod.string().nullish(),
+      state_code: zod
+        .string()
+        .optional()
+        .describe("Two-letter US state code this rank is scoped to"),
+      state_rank: zod
+        .string()
+        .nullish()
+        .describe("NatureServe S-rank for the queried state (e.g. S1, S2)"),
+      rounded_state_rank: zod.string().nullish(),
+      iucn_category: zod.string().nullish(),
+      iucn_description: zod.string().nullish(),
+      federal_status: zod.string().nullish(),
+      federal_status_description: zod.string().nullish(),
+      state_status: zod.string().nullish(),
+      state_status_note: zod
+        .string()
+        .nullish()
+        .describe(
+          "Clarifying note when state_status is present: the value is derived from the NatureServe S-rank and reflects rarity status, not a formal statutory state listing.\n",
+        ),
+      cites_description: zod.string().nullish(),
+      cosewic_code: zod.string().nullish(),
+      cosewic_description: zod.string().nullish(),
+      natureserve_url: zod.string().nullish(),
+      element_global_id: zod.string().nullish(),
+      cache_status: zod.enum(["hit", "miss", "bypassed"]).optional(),
+    })
+    .optional(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      general_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      technical_details: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .optional()
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+    ),
+});
+
+/**
+ * Queries NatureServe Explorer for ecological systems matching a name or description. Returns a list of matching NatureServe ecological system records including NatureServe identifier, name, and classification details. Results cached 30 days per query string. Useful for identifying NatureServe ecosystem types corresponding to MNFI natural community types or other ecological classification systems.
+
+ * @summary Look up ecological systems from NatureServe Explorer
+ */
+export const getNatureserveEcosystemsQueryRefreshDefault = false;
+
+export const GetNatureserveEcosystemsQueryParams = zod.object({
+  name: zod.coerce
+    .string()
+    .describe(
+      "Ecosystem name or keyword to search (e.g. oak savanna, wet prairie)",
+    ),
+  refresh: zod.coerce
+    .boolean()
+    .default(getNatureserveEcosystemsQueryRefreshDefault)
+    .describe(
+      "If true, bypasses cache and fetches fresh from NatureServe Explorer",
+    ),
+});
+
+export const GetNatureserveEcosystemsResponse = zod.object({
+  source_url: zod.string().optional(),
+  found: zod.boolean(),
+  attribution: zod.string().optional(),
+  data: zod
+    .object({
+      ecosystems: zod.array(zod.record(zod.string(), zod.unknown())).optional(),
+      result_count: zod.number().optional(),
+      total_ecosystem_results: zod.number().optional(),
+      total_results_all_types: zod.number().optional(),
+      cache_status: zod.enum(["hit", "miss", "bypassed"]).optional(),
+    })
+    .optional(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      general_summary: zod
+        .string()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      technical_details: zod
+        .string()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .optional()
+    .describe(
+      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+    ),
+});
+
+/**
+ * Constructs and validates the Go Botany (Native Plant Trust) species page URL for a given scientific name. The URL is constructed from the genus and species epithet and validated with a live HTTP GET request (HTTP 200 = found). Results are cached 7 days. The species parameter must be a binomial name (genus + epithet); partial names return 400.
+
+ * @summary Look up a Go Botany species page URL
+ */
+export const GetGobotanyQueryParams = zod.object({
+  species: zod.coerce
+    .string()
+    .describe(
+      "Binomial scientific name (e.g. Acer rubrum). Genus and species epithet required. Both components must contain only letters.\n",
+    ),
+});
+
+export const GetGobotanyResponse = zod
+  .object({
+    found: zod
+      .boolean()
+      .describe(
+        "True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants, lady-bird-johnson), which return a search_url instead.\n",
+      ),
+    queried_at: zod.date(),
+    source_url: zod.string().optional(),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+        fetched_at: zod
+          .date()
+          .describe("When this record was obtained from the source"),
+        method: zod
+          .string()
+          .describe(
+            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+          ),
+        upstream_url: zod
+          .string()
+          .describe(
+            "Where this data came from (API endpoint, file path, or registry entry)",
+          ),
+        general_summary: zod
+          .string()
+          .describe(
+            "Plain language description readable by a homeowner or community member",
+          ),
+        technical_details: zod
+          .string()
+          .describe(
+            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+          ),
+        matched_input: zod
+          .string()
+          .optional()
+          .describe(
+            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+          ),
+      })
+      .optional()
+      .describe(
+        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      ),
+    data: zod
+      .object({
+        species: zod
+          .string()
+          .optional()
+          .describe("The species name as queried"),
+        url: zod
+          .string()
+          .nullish()
+          .describe(
+            "Direct species page URL. Null when only a search URL is available.",
+          ),
+        search_url: zod
+          .string()
+          .optional()
+          .describe(
+            "Search URL when a direct profile URL cannot be constructed (usda-plants, lady-bird-johnson). Present instead of url for these sources.\n",
+          ),
+        validation_method: zod
+          .string()
+          .optional()
+          .describe(
+            "How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable",
+          ),
+        note: zod
+          .string()
+          .optional()
+          .describe(
+            "Explanatory note when validation_method is not_resolvable",
+          ),
+      })
+      .nullish()
+      .describe(
+        "Present when found=true (or when a search_url is returned). Null when not found.",
+      ),
+  })
+  .describe(
+    "Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants, lady-bird-johnson).\n",
+  );
+
+/**
+ * Returns service identity, URL construction strategy, attribution, and the full registry entry for the Go Botany (Native Plant Trust) service.
+
+ * @summary Go Botany service metadata
+ */
+export const GetGobotanyMetadataResponse = zod
+  .object({
+    service_id: zod.string(),
+    service_name: zod.string(),
+    permission_granted: zod.boolean().optional(),
+    permission_status: zod.string().optional(),
+    url_strategy: zod
+      .string()
+      .optional()
+      .describe(
+        "URL construction strategy: direct_construction | sitemap_scrape | species_list_scrape",
+      ),
+    url_pattern: zod
+      .string()
+      .optional()
+      .describe("URL template pattern used for direct construction sources"),
+    validation: zod
+      .string()
+      .optional()
+      .describe(
+        "Validation method for constructed URLs: http_get | none | not_resolvable",
+      ),
+    indexed_species_count: zod
+      .number()
+      .optional()
+      .describe(
+        "Number of species indexed in FERNS's local database (scrape-based sources only)",
+      ),
+    registry_entry: zod.record(zod.string(), zod.unknown()).optional(),
+    queried_at: zod.date().optional(),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+        fetched_at: zod
+          .date()
+          .describe("When this record was obtained from the source"),
+        method: zod
+          .string()
+          .describe(
+            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+          ),
+        upstream_url: zod
+          .string()
+          .describe(
+            "Where this data came from (API endpoint, file path, or registry entry)",
+          ),
+        general_summary: zod
+          .string()
+          .describe(
+            "Plain language description readable by a homeowner or community member",
+          ),
+        technical_details: zod
+          .string()
+          .describe(
+            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+          ),
+        matched_input: zod
+          .string()
+          .optional()
+          .describe(
+            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+          ),
+      })
+      .optional()
+      .describe(
+        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      ),
+  })
+  .describe("Service metadata response for botanical web reference sources.");
+
+/**
+ * Constructs a Google Images search URL for a given scientific name. This endpoint always returns found=true and a direct Google Images URL — no validation is performed. The URL is constructed from the species parameter and is not cached. Useful for quickly providing a visual reference link without requiring an image database.
+
+ * @summary Construct a Google Images search URL for a species
+ */
+export const GetGoogleImagesQueryParams = zod.object({
+  species: zod.coerce
+    .string()
+    .describe("Scientific name to search for (e.g. Acer rubrum)"),
+});
+
+export const GetGoogleImagesResponse = zod
+  .object({
+    found: zod
+      .boolean()
+      .describe(
+        "True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants, lady-bird-johnson), which return a search_url instead.\n",
+      ),
+    queried_at: zod.date(),
+    source_url: zod.string().optional(),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+        fetched_at: zod
+          .date()
+          .describe("When this record was obtained from the source"),
+        method: zod
+          .string()
+          .describe(
+            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+          ),
+        upstream_url: zod
+          .string()
+          .describe(
+            "Where this data came from (API endpoint, file path, or registry entry)",
+          ),
+        general_summary: zod
+          .string()
+          .describe(
+            "Plain language description readable by a homeowner or community member",
+          ),
+        technical_details: zod
+          .string()
+          .describe(
+            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+          ),
+        matched_input: zod
+          .string()
+          .optional()
+          .describe(
+            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+          ),
+      })
+      .optional()
+      .describe(
+        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      ),
+    data: zod
+      .object({
+        species: zod
+          .string()
+          .optional()
+          .describe("The species name as queried"),
+        url: zod
+          .string()
+          .nullish()
+          .describe(
+            "Direct species page URL. Null when only a search URL is available.",
+          ),
+        search_url: zod
+          .string()
+          .optional()
+          .describe(
+            "Search URL when a direct profile URL cannot be constructed (usda-plants, lady-bird-johnson). Present instead of url for these sources.\n",
+          ),
+        validation_method: zod
+          .string()
+          .optional()
+          .describe(
+            "How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable",
+          ),
+        note: zod
+          .string()
+          .optional()
+          .describe(
+            "Explanatory note when validation_method is not_resolvable",
+          ),
+      })
+      .nullish()
+      .describe(
+        "Present when found=true (or when a search_url is returned). Null when not found.",
+      ),
+  })
+  .describe(
+    "Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants, lady-bird-johnson).\n",
+  );
+
+/**
+ * Returns service identity, URL construction strategy, attribution, and the full registry entry for the Google Images species search service.
+
+ * @summary Google Images service metadata
+ */
+export const GetGoogleImagesMetadataResponse = zod
+  .object({
+    service_id: zod.string(),
+    service_name: zod.string(),
+    permission_granted: zod.boolean().optional(),
+    permission_status: zod.string().optional(),
+    url_strategy: zod
+      .string()
+      .optional()
+      .describe(
+        "URL construction strategy: direct_construction | sitemap_scrape | species_list_scrape",
+      ),
+    url_pattern: zod
+      .string()
+      .optional()
+      .describe("URL template pattern used for direct construction sources"),
+    validation: zod
+      .string()
+      .optional()
+      .describe(
+        "Validation method for constructed URLs: http_get | none | not_resolvable",
+      ),
+    indexed_species_count: zod
+      .number()
+      .optional()
+      .describe(
+        "Number of species indexed in FERNS's local database (scrape-based sources only)",
+      ),
+    registry_entry: zod.record(zod.string(), zod.unknown()).optional(),
+    queried_at: zod.date().optional(),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+        fetched_at: zod
+          .date()
+          .describe("When this record was obtained from the source"),
+        method: zod
+          .string()
+          .describe(
+            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+          ),
+        upstream_url: zod
+          .string()
+          .describe(
+            "Where this data came from (API endpoint, file path, or registry entry)",
+          ),
+        general_summary: zod
+          .string()
+          .describe(
+            "Plain language description readable by a homeowner or community member",
+          ),
+        technical_details: zod
+          .string()
+          .describe(
+            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+          ),
+        matched_input: zod
+          .string()
+          .optional()
+          .describe(
+            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+          ),
+      })
+      .optional()
+      .describe(
+        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      ),
+  })
+  .describe("Service metadata response for botanical web reference sources.");
+
+/**
+ * Looks up the Illinois Wildflowers (illinoiswildflowers.info) page URL for a given scientific name. Illinois Wildflowers organizes some species across multiple sections; multiple URLs may be returned in the data.results array. Species list is imported from the site and served from FERNS's local database. Results cached per database import cycle.
+
+ * @summary Look up an Illinois Wildflowers species page URL
+ */
+export const GetIllinoisWildflowersQueryParams = zod.object({
+  species: zod.coerce.string().describe("Scientific name (e.g. Acer rubrum)"),
+});
+
+export const GetIllinoisWildflowersResponse = zod
+  .object({
+    found: zod
+      .boolean()
+      .describe(
+        "True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants, lady-bird-johnson), which return a search_url instead.\n",
+      ),
+    queried_at: zod.date(),
+    source_url: zod.string().optional(),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+        fetched_at: zod
+          .date()
+          .describe("When this record was obtained from the source"),
+        method: zod
+          .string()
+          .describe(
+            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+          ),
+        upstream_url: zod
+          .string()
+          .describe(
+            "Where this data came from (API endpoint, file path, or registry entry)",
+          ),
+        general_summary: zod
+          .string()
+          .describe(
+            "Plain language description readable by a homeowner or community member",
+          ),
+        technical_details: zod
+          .string()
+          .describe(
+            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+          ),
+        matched_input: zod
+          .string()
+          .optional()
+          .describe(
+            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+          ),
+      })
+      .optional()
+      .describe(
+        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      ),
+    data: zod
+      .object({
+        species: zod
+          .string()
+          .optional()
+          .describe("The species name as queried"),
+        url: zod
+          .string()
+          .nullish()
+          .describe(
+            "Direct species page URL. Null when only a search URL is available.",
+          ),
+        search_url: zod
+          .string()
+          .optional()
+          .describe(
+            "Search URL when a direct profile URL cannot be constructed (usda-plants, lady-bird-johnson). Present instead of url for these sources.\n",
+          ),
+        validation_method: zod
+          .string()
+          .optional()
+          .describe(
+            "How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable",
+          ),
+        note: zod
+          .string()
+          .optional()
+          .describe(
+            "Explanatory note when validation_method is not_resolvable",
+          ),
+      })
+      .nullish()
+      .describe(
+        "Present when found=true (or when a search_url is returned). Null when not found.",
+      ),
+  })
+  .describe(
+    "Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants, lady-bird-johnson).\n",
+  );
+
+/**
+ * Returns service identity, species count, import strategy, attribution, and the full registry entry for the Illinois Wildflowers service.
+
+ * @summary Illinois Wildflowers service metadata
+ */
+export const GetIllinoisWildflowersMetadataResponse = zod
+  .object({
+    service_id: zod.string(),
+    service_name: zod.string(),
+    permission_granted: zod.boolean().optional(),
+    permission_status: zod.string().optional(),
+    url_strategy: zod
+      .string()
+      .optional()
+      .describe(
+        "URL construction strategy: direct_construction | sitemap_scrape | species_list_scrape",
+      ),
+    url_pattern: zod
+      .string()
+      .optional()
+      .describe("URL template pattern used for direct construction sources"),
+    validation: zod
+      .string()
+      .optional()
+      .describe(
+        "Validation method for constructed URLs: http_get | none | not_resolvable",
+      ),
+    indexed_species_count: zod
+      .number()
+      .optional()
+      .describe(
+        "Number of species indexed in FERNS's local database (scrape-based sources only)",
+      ),
+    registry_entry: zod.record(zod.string(), zod.unknown()).optional(),
+    queried_at: zod.date().optional(),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+        fetched_at: zod
+          .date()
+          .describe("When this record was obtained from the source"),
+        method: zod
+          .string()
+          .describe(
+            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+          ),
+        upstream_url: zod
+          .string()
+          .describe(
+            "Where this data came from (API endpoint, file path, or registry entry)",
+          ),
+        general_summary: zod
+          .string()
+          .describe(
+            "Plain language description readable by a homeowner or community member",
+          ),
+        technical_details: zod
+          .string()
+          .describe(
+            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+          ),
+        matched_input: zod
+          .string()
+          .optional()
+          .describe(
+            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+          ),
+      })
+      .optional()
+      .describe(
+        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      ),
+  })
+  .describe("Service metadata response for botanical web reference sources.");
+
+/**
+ * Looks up the Minnesota Wildflowers (minnesotawildflowers.info) species page URL for a given scientific name. Species list is imported from the site and served from FERNS's local database — no live upstream call at query time.
+
+ * @summary Look up a Minnesota Wildflowers species page URL
+ */
+export const GetMinnesotaWildflowersQueryParams = zod.object({
+  species: zod.coerce.string().describe("Scientific name (e.g. Acer rubrum)"),
+});
+
+export const GetMinnesotaWildflowersResponse = zod
+  .object({
+    found: zod
+      .boolean()
+      .describe(
+        "True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants, lady-bird-johnson), which return a search_url instead.\n",
+      ),
+    queried_at: zod.date(),
+    source_url: zod.string().optional(),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+        fetched_at: zod
+          .date()
+          .describe("When this record was obtained from the source"),
+        method: zod
+          .string()
+          .describe(
+            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+          ),
+        upstream_url: zod
+          .string()
+          .describe(
+            "Where this data came from (API endpoint, file path, or registry entry)",
+          ),
+        general_summary: zod
+          .string()
+          .describe(
+            "Plain language description readable by a homeowner or community member",
+          ),
+        technical_details: zod
+          .string()
+          .describe(
+            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+          ),
+        matched_input: zod
+          .string()
+          .optional()
+          .describe(
+            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+          ),
+      })
+      .optional()
+      .describe(
+        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      ),
+    data: zod
+      .object({
+        species: zod
+          .string()
+          .optional()
+          .describe("The species name as queried"),
+        url: zod
+          .string()
+          .nullish()
+          .describe(
+            "Direct species page URL. Null when only a search URL is available.",
+          ),
+        search_url: zod
+          .string()
+          .optional()
+          .describe(
+            "Search URL when a direct profile URL cannot be constructed (usda-plants, lady-bird-johnson). Present instead of url for these sources.\n",
+          ),
+        validation_method: zod
+          .string()
+          .optional()
+          .describe(
+            "How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable",
+          ),
+        note: zod
+          .string()
+          .optional()
+          .describe(
+            "Explanatory note when validation_method is not_resolvable",
+          ),
+      })
+      .nullish()
+      .describe(
+        "Present when found=true (or when a search_url is returned). Null when not found.",
+      ),
+  })
+  .describe(
+    "Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants, lady-bird-johnson).\n",
+  );
+
+/**
+ * Returns service identity, species count, import strategy, attribution, and the full registry entry for the Minnesota Wildflowers service.
+
+ * @summary Minnesota Wildflowers service metadata
+ */
+export const GetMinnesotaWildflowersMetadataResponse = zod
+  .object({
+    service_id: zod.string(),
+    service_name: zod.string(),
+    permission_granted: zod.boolean().optional(),
+    permission_status: zod.string().optional(),
+    url_strategy: zod
+      .string()
+      .optional()
+      .describe(
+        "URL construction strategy: direct_construction | sitemap_scrape | species_list_scrape",
+      ),
+    url_pattern: zod
+      .string()
+      .optional()
+      .describe("URL template pattern used for direct construction sources"),
+    validation: zod
+      .string()
+      .optional()
+      .describe(
+        "Validation method for constructed URLs: http_get | none | not_resolvable",
+      ),
+    indexed_species_count: zod
+      .number()
+      .optional()
+      .describe(
+        "Number of species indexed in FERNS's local database (scrape-based sources only)",
+      ),
+    registry_entry: zod.record(zod.string(), zod.unknown()).optional(),
+    queried_at: zod.date().optional(),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+        fetched_at: zod
+          .date()
+          .describe("When this record was obtained from the source"),
+        method: zod
+          .string()
+          .describe(
+            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+          ),
+        upstream_url: zod
+          .string()
+          .describe(
+            "Where this data came from (API endpoint, file path, or registry entry)",
+          ),
+        general_summary: zod
+          .string()
+          .describe(
+            "Plain language description readable by a homeowner or community member",
+          ),
+        technical_details: zod
+          .string()
+          .describe(
+            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+          ),
+        matched_input: zod
+          .string()
+          .optional()
+          .describe(
+            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+          ),
+      })
+      .optional()
+      .describe(
+        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      ),
+  })
+  .describe("Service metadata response for botanical web reference sources.");
+
+/**
+ * Looks up the Missouri Plants (missouriplants.com) species page URL for a given scientific name. Species list is imported from the site and served from FERNS's local database — no live upstream call at query time.
+
+ * @summary Look up a Missouri Plants species page URL
+ */
+export const GetMissouriPlantsQueryParams = zod.object({
+  species: zod.coerce.string().describe("Scientific name (e.g. Acer rubrum)"),
+});
+
+export const GetMissouriPlantsResponse = zod
+  .object({
+    found: zod
+      .boolean()
+      .describe(
+        "True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants, lady-bird-johnson), which return a search_url instead.\n",
+      ),
+    queried_at: zod.date(),
+    source_url: zod.string().optional(),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+        fetched_at: zod
+          .date()
+          .describe("When this record was obtained from the source"),
+        method: zod
+          .string()
+          .describe(
+            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+          ),
+        upstream_url: zod
+          .string()
+          .describe(
+            "Where this data came from (API endpoint, file path, or registry entry)",
+          ),
+        general_summary: zod
+          .string()
+          .describe(
+            "Plain language description readable by a homeowner or community member",
+          ),
+        technical_details: zod
+          .string()
+          .describe(
+            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+          ),
+        matched_input: zod
+          .string()
+          .optional()
+          .describe(
+            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+          ),
+      })
+      .optional()
+      .describe(
+        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      ),
+    data: zod
+      .object({
+        species: zod
+          .string()
+          .optional()
+          .describe("The species name as queried"),
+        url: zod
+          .string()
+          .nullish()
+          .describe(
+            "Direct species page URL. Null when only a search URL is available.",
+          ),
+        search_url: zod
+          .string()
+          .optional()
+          .describe(
+            "Search URL when a direct profile URL cannot be constructed (usda-plants, lady-bird-johnson). Present instead of url for these sources.\n",
+          ),
+        validation_method: zod
+          .string()
+          .optional()
+          .describe(
+            "How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable",
+          ),
+        note: zod
+          .string()
+          .optional()
+          .describe(
+            "Explanatory note when validation_method is not_resolvable",
+          ),
+      })
+      .nullish()
+      .describe(
+        "Present when found=true (or when a search_url is returned). Null when not found.",
+      ),
+  })
+  .describe(
+    "Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants, lady-bird-johnson).\n",
+  );
+
+/**
+ * Returns service identity, species count, import strategy, attribution, and the full registry entry for the Missouri Plants service.
+
+ * @summary Missouri Plants service metadata
+ */
+export const GetMissouriPlantsMetadataResponse = zod
+  .object({
+    service_id: zod.string(),
+    service_name: zod.string(),
+    permission_granted: zod.boolean().optional(),
+    permission_status: zod.string().optional(),
+    url_strategy: zod
+      .string()
+      .optional()
+      .describe(
+        "URL construction strategy: direct_construction | sitemap_scrape | species_list_scrape",
+      ),
+    url_pattern: zod
+      .string()
+      .optional()
+      .describe("URL template pattern used for direct construction sources"),
+    validation: zod
+      .string()
+      .optional()
+      .describe(
+        "Validation method for constructed URLs: http_get | none | not_resolvable",
+      ),
+    indexed_species_count: zod
+      .number()
+      .optional()
+      .describe(
+        "Number of species indexed in FERNS's local database (scrape-based sources only)",
+      ),
+    registry_entry: zod.record(zod.string(), zod.unknown()).optional(),
+    queried_at: zod.date().optional(),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+        fetched_at: zod
+          .date()
+          .describe("When this record was obtained from the source"),
+        method: zod
+          .string()
+          .describe(
+            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+          ),
+        upstream_url: zod
+          .string()
+          .describe(
+            "Where this data came from (API endpoint, file path, or registry entry)",
+          ),
+        general_summary: zod
+          .string()
+          .describe(
+            "Plain language description readable by a homeowner or community member",
+          ),
+        technical_details: zod
+          .string()
+          .describe(
+            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+          ),
+        matched_input: zod
+          .string()
+          .optional()
+          .describe(
+            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+          ),
+      })
+      .optional()
+      .describe(
+        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      ),
+  })
+  .describe("Service metadata response for botanical web reference sources.");
+
+/**
+ * Looks up the Prairie Moon Nursery (prairiemoon.com) species catalog URL for a given scientific name. Species list is imported from the Prairie Moon sitemap and served from FERNS's local database. Returns the direct product page URL when found. No live upstream call at query time.
+
+ * @summary Look up a Prairie Moon Nursery species page URL
+ */
+export const GetPrairieMoonQueryParams = zod.object({
+  species: zod.coerce.string().describe("Scientific name (e.g. Acer rubrum)"),
+});
+
+export const GetPrairieMoonResponse = zod
+  .object({
+    found: zod
+      .boolean()
+      .describe(
+        "True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants, lady-bird-johnson), which return a search_url instead.\n",
+      ),
+    queried_at: zod.date(),
+    source_url: zod.string().optional(),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+        fetched_at: zod
+          .date()
+          .describe("When this record was obtained from the source"),
+        method: zod
+          .string()
+          .describe(
+            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+          ),
+        upstream_url: zod
+          .string()
+          .describe(
+            "Where this data came from (API endpoint, file path, or registry entry)",
+          ),
+        general_summary: zod
+          .string()
+          .describe(
+            "Plain language description readable by a homeowner or community member",
+          ),
+        technical_details: zod
+          .string()
+          .describe(
+            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+          ),
+        matched_input: zod
+          .string()
+          .optional()
+          .describe(
+            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+          ),
+      })
+      .optional()
+      .describe(
+        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      ),
+    data: zod
+      .object({
+        species: zod
+          .string()
+          .optional()
+          .describe("The species name as queried"),
+        url: zod
+          .string()
+          .nullish()
+          .describe(
+            "Direct species page URL. Null when only a search URL is available.",
+          ),
+        search_url: zod
+          .string()
+          .optional()
+          .describe(
+            "Search URL when a direct profile URL cannot be constructed (usda-plants, lady-bird-johnson). Present instead of url for these sources.\n",
+          ),
+        validation_method: zod
+          .string()
+          .optional()
+          .describe(
+            "How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable",
+          ),
+        note: zod
+          .string()
+          .optional()
+          .describe(
+            "Explanatory note when validation_method is not_resolvable",
+          ),
+      })
+      .nullish()
+      .describe(
+        "Present when found=true (or when a search_url is returned). Null when not found.",
+      ),
+  })
+  .describe(
+    "Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants, lady-bird-johnson).\n",
+  );
+
+/**
+ * Returns service identity, indexed species count, sitemap import strategy, attribution, and the full registry entry for the Prairie Moon Nursery service.
+
+ * @summary Prairie Moon Nursery service metadata
+ */
+export const GetPrairieMoonMetadataResponse = zod
+  .object({
+    service_id: zod.string(),
+    service_name: zod.string(),
+    permission_granted: zod.boolean().optional(),
+    permission_status: zod.string().optional(),
+    url_strategy: zod
+      .string()
+      .optional()
+      .describe(
+        "URL construction strategy: direct_construction | sitemap_scrape | species_list_scrape",
+      ),
+    url_pattern: zod
+      .string()
+      .optional()
+      .describe("URL template pattern used for direct construction sources"),
+    validation: zod
+      .string()
+      .optional()
+      .describe(
+        "Validation method for constructed URLs: http_get | none | not_resolvable",
+      ),
+    indexed_species_count: zod
+      .number()
+      .optional()
+      .describe(
+        "Number of species indexed in FERNS's local database (scrape-based sources only)",
+      ),
+    registry_entry: zod.record(zod.string(), zod.unknown()).optional(),
+    queried_at: zod.date().optional(),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+        fetched_at: zod
+          .date()
+          .describe("When this record was obtained from the source"),
+        method: zod
+          .string()
+          .describe(
+            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+          ),
+        upstream_url: zod
+          .string()
+          .describe(
+            "Where this data came from (API endpoint, file path, or registry entry)",
+          ),
+        general_summary: zod
+          .string()
+          .describe(
+            "Plain language description readable by a homeowner or community member",
+          ),
+        technical_details: zod
+          .string()
+          .describe(
+            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+          ),
+        matched_input: zod
+          .string()
+          .optional()
+          .describe(
+            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+          ),
+      })
+      .optional()
+      .describe(
+        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      ),
+  })
+  .describe("Service metadata response for botanical web reference sources.");
+
+/**
+ * Constructs a USDA PLANTS Database search URL for a given scientific name. Direct species profile URLs require a USDA symbol code (e.g. ASYT) that cannot be derived from the scientific name alone, so FERNS provides a search URL instead. The response always returns found=false with a search_url in the data object. Applications should use the search_url to link users to USDA PLANTS.
+
+ * @summary Construct a USDA PLANTS search URL for a species
+ */
+export const GetUsdaPlantsQueryParams = zod.object({
+  species: zod.coerce.string().describe("Scientific name (e.g. Acer rubrum)"),
+});
+
+export const GetUsdaPlantsResponse = zod
+  .object({
+    found: zod
+      .boolean()
+      .describe(
+        "True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants, lady-bird-johnson), which return a search_url instead.\n",
+      ),
+    queried_at: zod.date(),
+    source_url: zod.string().optional(),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+        fetched_at: zod
+          .date()
+          .describe("When this record was obtained from the source"),
+        method: zod
+          .string()
+          .describe(
+            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+          ),
+        upstream_url: zod
+          .string()
+          .describe(
+            "Where this data came from (API endpoint, file path, or registry entry)",
+          ),
+        general_summary: zod
+          .string()
+          .describe(
+            "Plain language description readable by a homeowner or community member",
+          ),
+        technical_details: zod
+          .string()
+          .describe(
+            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+          ),
+        matched_input: zod
+          .string()
+          .optional()
+          .describe(
+            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+          ),
+      })
+      .optional()
+      .describe(
+        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      ),
+    data: zod
+      .object({
+        species: zod
+          .string()
+          .optional()
+          .describe("The species name as queried"),
+        url: zod
+          .string()
+          .nullish()
+          .describe(
+            "Direct species page URL. Null when only a search URL is available.",
+          ),
+        search_url: zod
+          .string()
+          .optional()
+          .describe(
+            "Search URL when a direct profile URL cannot be constructed (usda-plants, lady-bird-johnson). Present instead of url for these sources.\n",
+          ),
+        validation_method: zod
+          .string()
+          .optional()
+          .describe(
+            "How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable",
+          ),
+        note: zod
+          .string()
+          .optional()
+          .describe(
+            "Explanatory note when validation_method is not_resolvable",
+          ),
+      })
+      .nullish()
+      .describe(
+        "Present when found=true (or when a search_url is returned). Null when not found.",
+      ),
+  })
+  .describe(
+    "Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants, lady-bird-johnson).\n",
+  );
+
+/**
+ * Returns service identity, URL construction strategy, attribution, and the full registry entry for the USDA PLANTS Database service.
+
+ * @summary USDA PLANTS Database service metadata
+ */
+export const GetUsdaPlantsMetadataResponse = zod
+  .object({
+    service_id: zod.string(),
+    service_name: zod.string(),
+    permission_granted: zod.boolean().optional(),
+    permission_status: zod.string().optional(),
+    url_strategy: zod
+      .string()
+      .optional()
+      .describe(
+        "URL construction strategy: direct_construction | sitemap_scrape | species_list_scrape",
+      ),
+    url_pattern: zod
+      .string()
+      .optional()
+      .describe("URL template pattern used for direct construction sources"),
+    validation: zod
+      .string()
+      .optional()
+      .describe(
+        "Validation method for constructed URLs: http_get | none | not_resolvable",
+      ),
+    indexed_species_count: zod
+      .number()
+      .optional()
+      .describe(
+        "Number of species indexed in FERNS's local database (scrape-based sources only)",
+      ),
+    registry_entry: zod.record(zod.string(), zod.unknown()).optional(),
+    queried_at: zod.date().optional(),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+        fetched_at: zod
+          .date()
+          .describe("When this record was obtained from the source"),
+        method: zod
+          .string()
+          .describe(
+            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+          ),
+        upstream_url: zod
+          .string()
+          .describe(
+            "Where this data came from (API endpoint, file path, or registry entry)",
+          ),
+        general_summary: zod
+          .string()
+          .describe(
+            "Plain language description readable by a homeowner or community member",
+          ),
+        technical_details: zod
+          .string()
+          .describe(
+            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+          ),
+        matched_input: zod
+          .string()
+          .optional()
+          .describe(
+            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+          ),
+      })
+      .optional()
+      .describe(
+        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      ),
+  })
+  .describe("Service metadata response for botanical web reference sources.");
+
+/**
+ * Constructs a Lady Bird Johnson Wildflower Center (wildflower.org) search URL for a given scientific name. Direct species profile URLs require an internal LBJWC plant ID not derivable from scientific names, so FERNS provides a search URL scoped by genus and species instead. The response returns found=false with a search_url in the data object — use search_url to link users to the LBJWC.
+
+ * @summary Construct a Lady Bird Johnson Wildflower Center search URL for a species
+ */
+export const GetLadyBirdJohnsonQueryParams = zod.object({
+  species: zod.coerce.string().describe("Scientific name (e.g. Acer rubrum)"),
+});
+
+export const GetLadyBirdJohnsonResponse = zod
+  .object({
+    found: zod
+      .boolean()
+      .describe(
+        "True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants, lady-bird-johnson), which return a search_url instead.\n",
+      ),
+    queried_at: zod.date(),
+    source_url: zod.string().optional(),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+        fetched_at: zod
+          .date()
+          .describe("When this record was obtained from the source"),
+        method: zod
+          .string()
+          .describe(
+            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+          ),
+        upstream_url: zod
+          .string()
+          .describe(
+            "Where this data came from (API endpoint, file path, or registry entry)",
+          ),
+        general_summary: zod
+          .string()
+          .describe(
+            "Plain language description readable by a homeowner or community member",
+          ),
+        technical_details: zod
+          .string()
+          .describe(
+            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+          ),
+        matched_input: zod
+          .string()
+          .optional()
+          .describe(
+            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+          ),
+      })
+      .optional()
+      .describe(
+        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      ),
+    data: zod
+      .object({
+        species: zod
+          .string()
+          .optional()
+          .describe("The species name as queried"),
+        url: zod
+          .string()
+          .nullish()
+          .describe(
+            "Direct species page URL. Null when only a search URL is available.",
+          ),
+        search_url: zod
+          .string()
+          .optional()
+          .describe(
+            "Search URL when a direct profile URL cannot be constructed (usda-plants, lady-bird-johnson). Present instead of url for these sources.\n",
+          ),
+        validation_method: zod
+          .string()
+          .optional()
+          .describe(
+            "How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable",
+          ),
+        note: zod
+          .string()
+          .optional()
+          .describe(
+            "Explanatory note when validation_method is not_resolvable",
+          ),
+      })
+      .nullish()
+      .describe(
+        "Present when found=true (or when a search_url is returned). Null when not found.",
+      ),
+  })
+  .describe(
+    "Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants, lady-bird-johnson).\n",
+  );
+
+/**
+ * Returns service identity, URL construction strategy, attribution, and the full registry entry for the Lady Bird Johnson Wildflower Center service.
+
+ * @summary Lady Bird Johnson Wildflower Center service metadata
+ */
+export const GetLadyBirdJohnsonMetadataResponse = zod
+  .object({
+    service_id: zod.string(),
+    service_name: zod.string(),
+    permission_granted: zod.boolean().optional(),
+    permission_status: zod.string().optional(),
+    url_strategy: zod
+      .string()
+      .optional()
+      .describe(
+        "URL construction strategy: direct_construction | sitemap_scrape | species_list_scrape",
+      ),
+    url_pattern: zod
+      .string()
+      .optional()
+      .describe("URL template pattern used for direct construction sources"),
+    validation: zod
+      .string()
+      .optional()
+      .describe(
+        "Validation method for constructed URLs: http_get | none | not_resolvable",
+      ),
+    indexed_species_count: zod
+      .number()
+      .optional()
+      .describe(
+        "Number of species indexed in FERNS's local database (scrape-based sources only)",
+      ),
+    registry_entry: zod.record(zod.string(), zod.unknown()).optional(),
+    queried_at: zod.date().optional(),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+        fetched_at: zod
+          .date()
+          .describe("When this record was obtained from the source"),
+        method: zod
+          .string()
+          .describe(
+            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+          ),
+        upstream_url: zod
+          .string()
+          .describe(
+            "Where this data came from (API endpoint, file path, or registry entry)",
+          ),
+        general_summary: zod
+          .string()
+          .describe(
+            "Plain language description readable by a homeowner or community member",
+          ),
+        technical_details: zod
+          .string()
+          .describe(
+            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+          ),
+        matched_input: zod
+          .string()
+          .optional()
+          .describe(
+            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+          ),
+      })
+      .optional()
+      .describe(
+        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      ),
+  })
+  .describe("Service metadata response for botanical web reference sources.");
+
+/**
+ * Fans out a species query to all configured botanical reference sources simultaneously: Go Botany, Google Images, Missouri Plants, Minnesota Wildflowers, Illinois Wildflowers, Prairie Moon Nursery, USDA PLANTS, and Lady Bird Johnson Wildflower Center. Returns a unified response with one entry per source. Sources that cannot resolve a direct profile URL (USDA PLANTS, Lady Bird Johnson) return found=false with a search_url instead. Go Botany validation requires a live HTTP GET — expect slightly higher latency for this endpoint.
+
+ * @summary Look up a species across all botanical reference sources at once
+ */
+export const GetBotanicalRefsQueryParams = zod.object({
+  species: zod.coerce.string().describe("Scientific name (e.g. Acer rubrum)"),
+});
+
+export const GetBotanicalRefsResponse = zod
+  .object({
+    found: zod
+      .boolean()
+      .describe(
+        "True if at least one source returned a direct species page URL",
+      ),
+    queried_at: zod.date(),
+    source_url: zod.string().optional(),
+    provenance: zod
+      .object({
+        source_id: zod.string().optional(),
+        fetched_at: zod.date().optional(),
+        method: zod.string().optional(),
+        sites_queried: zod.number().optional(),
+      })
+      .optional(),
+    data: zod.object({
+      species: zod.string().optional(),
+      sites_found: zod
+        .number()
+        .optional()
+        .describe("Number of sources that returned a direct species page URL"),
+      sites_search_only: zod
+        .number()
+        .optional()
+        .describe(
+          "Number of sources that returned a search URL but not a direct profile URL",
+        ),
+      sites_total: zod.number().optional(),
+      results: zod
+        .record(
+          zod.string(),
+          zod
+            .object({
+              found: zod.boolean().optional(),
+              url: zod.string().nullish(),
+              search_url: zod
+                .string()
+                .optional()
+                .describe(
+                  "Search URL when a direct profile URL cannot be resolved",
+                ),
+              validation: zod.string().optional(),
+              results: zod
+                .array(zod.record(zod.string(), zod.unknown()))
+                .optional()
+                .describe(
+                  "Additional result entries (e.g. multiple Illinois Wildflowers sections)",
+                ),
+              note: zod.string().nullish(),
+              http_status: zod.number().nullish(),
+            })
+            .describe(
+              "Per-source result within the \/botanical-refs aggregated response.",
+            ),
+        )
+        .optional()
+        .describe(
+          "Keyed by source ID. Each value is a BotanicalRefsSourceResult.",
+        ),
+    }),
+  })
+  .describe(
+    "Aggregated response from the \/botanical-refs endpoint — one entry per source.",
+  );
+
+/**
+ * Returns metadata about all botanical reference sources that are aggregated by the /botanical-refs endpoint. Each entry includes the site ID, display name, URL lookup strategy, and direct query and metadata URLs for the individual source endpoint.
+
+ * @summary List all botanical reference sites configured in FERNS
+ */
+export const GetBotanicalRefsSitesResponse = zod.object({
+  source_id: zod.string(),
+  queried_at: zod.date(),
+  source_url: zod.string().optional(),
+  data: zod.object({
+    site_count: zod.number().optional(),
+    sites: zod
+      .array(
+        zod.object({
+          id: zod
+            .string()
+            .optional()
+            .describe("Source ID (e.g. gobotany, prairie-moon)"),
+          name: zod.string().optional().describe("Human-readable source name"),
+          strategy: zod
+            .string()
+            .optional()
+            .describe(
+              "URL lookup strategy: direct_construction | species_list_scrape | sitemap_scrape",
+            ),
+          query_url: zod
+            .string()
+            .optional()
+            .describe("FERNS API URL for querying this source directly"),
+          metadata_url: zod
+            .string()
+            .optional()
+            .describe("FERNS API URL for this source's metadata endpoint"),
+        }),
+      )
+      .optional(),
+  }),
 });

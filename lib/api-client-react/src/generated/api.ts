@@ -16,6 +16,10 @@ import type {
 import type {
   BonapMapResponse,
   BonapMetadataResponse,
+  BotanicalRefsResponse,
+  BotanicalRefsSitesResponse,
+  BotanicalWebRefMetadataResponse,
+  BotanicalWebRefResponse,
   CoefficientAllResponse,
   CoefficientResponse,
   ErrorResponse,
@@ -25,24 +29,37 @@ import type {
   GbifReconcileResponse,
   GbifSearchResponse,
   GetBonapMapParams,
+  GetBotanicalRefsParams,
   GetCoefficientByValueParams,
   GetGbifMatchParams,
   GetGbifOccurrencesParams,
   GetGbifReconcileParams,
   GetGbifSearchParams,
+  GetGobotanyParams,
+  GetGoogleImagesParams,
+  GetIllinoisWildflowersParams,
   GetInatFieldValuesParams,
   GetInatHistogramParams,
   GetInatObservationsParams,
   GetInatPlaceParams,
   GetInatSpeciesParams,
+  GetLadyBirdJohnsonParams,
   GetLcscgSpeciesParams,
   GetMifloraCountiesParams,
   GetMifloraImagesParams,
   GetMifloraSpeciesParams,
+  GetMinnesotaWildflowersParams,
+  GetMissouriPlantsParams,
+  GetMnfiCommunitiesParams,
+  GetMnfiCountyElementsParams,
+  GetNatureserveEcosystemsParams,
+  GetNatureserveSpeciesParams,
+  GetPrairieMoonParams,
   GetS2CSpeciesByYearParams,
   GetSourceRelationshipsParams,
   GetUniversalFqaAssessmentsParams,
   GetUniversalFqaSpeciesParams,
+  GetUsdaPlantsParams,
   GetWetlandIndicatorByCodeParams,
   GetWetlandIndicatorByWParams,
   GetWucolsByCodeParams,
@@ -61,6 +78,14 @@ import type {
   MifloraImagesResponse,
   MifloraMetadataResponse,
   MifloraSpeciesResponse,
+  MnfiCommunitiesResponse,
+  MnfiCommunityPlantsResponse,
+  MnfiCommunityResponse,
+  MnfiCountyElementsResponse,
+  MnfiMetadataResponse,
+  NatureserveEcosystemsResponse,
+  NatureserveMetadataResponse,
+  NatureserveSpeciesResponse,
   S2CSpeciesResponse,
   S2CYearsResponse,
   SourceRelationshipsResponse,
@@ -3403,7 +3428,7 @@ export function useGetUniversalFqaMetadata<
 }
 
 /**
- * Returns all 93 regional FQA databases available on universalfqa.org. Each entry contains an id, region name, year, and full citation string. The region and citation fields together describe geographic scope, ecoregion coverage, institutional source, and methodology — read both in full to determine relevance for a given project or location.
+ * Returns all regional FQA databases available on universalfqa.org. Each entry contains an id, region name, year, and full citation string. The region and citation fields together describe geographic scope, ecoregion coverage, institutional source, and methodology — read both in full to determine relevance for a given project or location.
 
  * @summary List all Universal FQA regional databases
  */
@@ -4061,6 +4086,2385 @@ export function useGetSourceRelationships<
   },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetSourceRelationshipsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns service identity, attribution, permission status, community class counts, county coverage, and cache statistics for the Michigan Natural Features Inventory (MNFI) service. Also seeds the MNFI entry in the FERNS source registry. Use this to populate 'About this data' panels in any application displaying MNFI community or county element data.
+
+ * @summary MNFI service metadata
+ */
+export const getGetMnfiMetadataUrl = () => {
+  return `/api/mnfi/metadata`;
+};
+
+export const getMnfiMetadata = async (
+  options?: RequestInit,
+): Promise<MnfiMetadataResponse> => {
+  return customFetch<MnfiMetadataResponse>(getGetMnfiMetadataUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetMnfiMetadataQueryKey = () => {
+  return [`/api/mnfi/metadata`] as const;
+};
+
+export const getGetMnfiMetadataQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMnfiMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getMnfiMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetMnfiMetadataQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getMnfiMetadata>>> = ({
+    signal,
+  }) => getMnfiMetadata({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMnfiMetadata>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMnfiMetadataQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMnfiMetadata>>
+>;
+export type GetMnfiMetadataQueryError = ErrorType<unknown>;
+
+/**
+ * @summary MNFI service metadata
+ */
+
+export function useGetMnfiMetadata<
+  TData = Awaited<ReturnType<typeof getMnfiMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getMnfiMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMnfiMetadataQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns all Michigan Natural Features Inventory (MNFI) natural community types. Optionally filter by community class, group, or name substring (case-insensitive ILIKE match). All data is served from FERNS's local database seeded from the MNFI website — no upstream API call is made at query time. Returns community records sorted by class and name.
+
+ * @summary List MNFI natural community types
+ */
+export const getGetMnfiCommunitiesUrl = (params?: GetMnfiCommunitiesParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/mnfi/communities?${stringifiedParams}`
+    : `/api/mnfi/communities`;
+};
+
+export const getMnfiCommunities = async (
+  params?: GetMnfiCommunitiesParams,
+  options?: RequestInit,
+): Promise<MnfiCommunitiesResponse> => {
+  return customFetch<MnfiCommunitiesResponse>(
+    getGetMnfiCommunitiesUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetMnfiCommunitiesQueryKey = (
+  params?: GetMnfiCommunitiesParams,
+) => {
+  return [`/api/mnfi/communities`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetMnfiCommunitiesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMnfiCommunities>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetMnfiCommunitiesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMnfiCommunities>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetMnfiCommunitiesQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getMnfiCommunities>>
+  > = ({ signal }) => getMnfiCommunities(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMnfiCommunities>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMnfiCommunitiesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMnfiCommunities>>
+>;
+export type GetMnfiCommunitiesQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List MNFI natural community types
+ */
+
+export function useGetMnfiCommunities<
+  TData = Awaited<ReturnType<typeof getMnfiCommunities>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetMnfiCommunitiesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMnfiCommunities>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMnfiCommunitiesQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns the full profile for a single MNFI natural community type, including description, acreage estimates, and all characteristic plants grouped by life form. The {id} path parameter accepts either the numeric community_id (e.g. 1234) or the URL slug (e.g. southern-dry-chestnut-oak-forest). Plant lists are included inline — characteristic_plants.by_life_form groups species by life form (tree, shrub, herb, etc.).
+
+ * @summary Get a single MNFI community by ID or slug
+ */
+export const getGetMnfiCommunityUrl = (id: string) => {
+  return `/api/mnfi/communities/${id}`;
+};
+
+export const getMnfiCommunity = async (
+  id: string,
+  options?: RequestInit,
+): Promise<MnfiCommunityResponse> => {
+  return customFetch<MnfiCommunityResponse>(getGetMnfiCommunityUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetMnfiCommunityQueryKey = (id: string) => {
+  return [`/api/mnfi/communities/${id}`] as const;
+};
+
+export const getGetMnfiCommunityQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMnfiCommunity>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMnfiCommunity>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetMnfiCommunityQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getMnfiCommunity>>
+  > = ({ signal }) => getMnfiCommunity(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMnfiCommunity>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMnfiCommunityQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMnfiCommunity>>
+>;
+export type GetMnfiCommunityQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get a single MNFI community by ID or slug
+ */
+
+export function useGetMnfiCommunity<
+  TData = Awaited<ReturnType<typeof getMnfiCommunity>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMnfiCommunity>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMnfiCommunityQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns the characteristic plant list for an MNFI natural community, grouped by life form (tree, shrub, herb, graminoid, vine, etc.). The {id} path parameter accepts either the numeric community_id or the URL slug. This is the same plant data included inline in the community detail endpoint, exposed as a dedicated endpoint for applications that only need plant lists.
+
+ * @summary Get characteristic plants for an MNFI community
+ */
+export const getGetMnfiCommunityPlantsUrl = (id: string) => {
+  return `/api/mnfi/communities/${id}/plants`;
+};
+
+export const getMnfiCommunityPlants = async (
+  id: string,
+  options?: RequestInit,
+): Promise<MnfiCommunityPlantsResponse> => {
+  return customFetch<MnfiCommunityPlantsResponse>(
+    getGetMnfiCommunityPlantsUrl(id),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetMnfiCommunityPlantsQueryKey = (id: string) => {
+  return [`/api/mnfi/communities/${id}/plants`] as const;
+};
+
+export const getGetMnfiCommunityPlantsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMnfiCommunityPlants>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMnfiCommunityPlants>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetMnfiCommunityPlantsQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getMnfiCommunityPlants>>
+  > = ({ signal }) => getMnfiCommunityPlants(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMnfiCommunityPlants>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMnfiCommunityPlantsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMnfiCommunityPlants>>
+>;
+export type GetMnfiCommunityPlantsQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get characteristic plants for an MNFI community
+ */
+
+export function useGetMnfiCommunityPlants<
+  TData = Awaited<ReturnType<typeof getMnfiCommunityPlants>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMnfiCommunityPlants>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMnfiCommunityPlantsQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns MNFI Element Occurrence records for a given Michigan county. These records document where significant natural features (rare species, natural communities) have been observed. The county parameter is required; all 83 Michigan county names are accepted (case-insensitive). Optionally filter to only species or community element types with the type parameter. Data is served from FERNS's local database seeded from the MNFI county element download — no upstream API call at query time.
+
+ * @summary Get MNFI significant natural features for a Michigan county
+ */
+export const getGetMnfiCountyElementsUrl = (
+  params: GetMnfiCountyElementsParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/mnfi/county-elements?${stringifiedParams}`
+    : `/api/mnfi/county-elements`;
+};
+
+export const getMnfiCountyElements = async (
+  params: GetMnfiCountyElementsParams,
+  options?: RequestInit,
+): Promise<MnfiCountyElementsResponse> => {
+  return customFetch<MnfiCountyElementsResponse>(
+    getGetMnfiCountyElementsUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetMnfiCountyElementsQueryKey = (
+  params?: GetMnfiCountyElementsParams,
+) => {
+  return [`/api/mnfi/county-elements`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetMnfiCountyElementsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMnfiCountyElements>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetMnfiCountyElementsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMnfiCountyElements>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetMnfiCountyElementsQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getMnfiCountyElements>>
+  > = ({ signal }) =>
+    getMnfiCountyElements(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMnfiCountyElements>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMnfiCountyElementsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMnfiCountyElements>>
+>;
+export type GetMnfiCountyElementsQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get MNFI significant natural features for a Michigan county
+ */
+
+export function useGetMnfiCountyElements<
+  TData = Awaited<ReturnType<typeof getMnfiCountyElements>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetMnfiCountyElementsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMnfiCountyElements>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMnfiCountyElementsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns service identity, attribution, permission status, cache statistics, and the full registry entry for the NatureServe Explorer service. Use this to populate 'About this data' panels in any application displaying NatureServe conservation status or ecosystem data. Also seeds the NatureServe entry in the FERNS source registry.
+
+ * @summary NatureServe service metadata
+ */
+export const getGetNatureserveMetadataUrl = () => {
+  return `/api/natureserve/metadata`;
+};
+
+export const getNatureserveMetadata = async (
+  options?: RequestInit,
+): Promise<NatureserveMetadataResponse> => {
+  return customFetch<NatureserveMetadataResponse>(
+    getGetNatureserveMetadataUrl(),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetNatureserveMetadataQueryKey = () => {
+  return [`/api/natureserve/metadata`] as const;
+};
+
+export const getGetNatureserveMetadataQueryOptions = <
+  TData = Awaited<ReturnType<typeof getNatureserveMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getNatureserveMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetNatureserveMetadataQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getNatureserveMetadata>>
+  > = ({ signal }) => getNatureserveMetadata({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getNatureserveMetadata>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetNatureserveMetadataQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getNatureserveMetadata>>
+>;
+export type GetNatureserveMetadataQueryError = ErrorType<unknown>;
+
+/**
+ * @summary NatureServe service metadata
+ */
+
+export function useGetNatureserveMetadata<
+  TData = Awaited<ReturnType<typeof getNatureserveMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getNatureserveMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetNatureserveMetadataQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Queries NatureServe Explorer for conservation status data for a given scientific name, optionally scoped to a US state. Returns global rank (G-rank), national rank (N-rank), state rank (S-rank), IUCN category, federal status, state status, and a direct NatureServe Explorer URL for the species. Ranks follow NatureServe standard notation (e.g. G3, N2N3, S1). State rank is derived from NatureServe S-rank and reflects rarity status — it is not a formal statutory state listing. Results cached 30 days per name+state combination.
+
+ * @summary Look up species conservation status from NatureServe Explorer
+ */
+export const getGetNatureserveSpeciesUrl = (
+  params: GetNatureserveSpeciesParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/natureserve/species?${stringifiedParams}`
+    : `/api/natureserve/species`;
+};
+
+export const getNatureserveSpecies = async (
+  params: GetNatureserveSpeciesParams,
+  options?: RequestInit,
+): Promise<NatureserveSpeciesResponse> => {
+  return customFetch<NatureserveSpeciesResponse>(
+    getGetNatureserveSpeciesUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetNatureserveSpeciesQueryKey = (
+  params?: GetNatureserveSpeciesParams,
+) => {
+  return [`/api/natureserve/species`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetNatureserveSpeciesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getNatureserveSpecies>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetNatureserveSpeciesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getNatureserveSpecies>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetNatureserveSpeciesQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getNatureserveSpecies>>
+  > = ({ signal }) =>
+    getNatureserveSpecies(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getNatureserveSpecies>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetNatureserveSpeciesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getNatureserveSpecies>>
+>;
+export type GetNatureserveSpeciesQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Look up species conservation status from NatureServe Explorer
+ */
+
+export function useGetNatureserveSpecies<
+  TData = Awaited<ReturnType<typeof getNatureserveSpecies>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetNatureserveSpeciesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getNatureserveSpecies>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetNatureserveSpeciesQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Queries NatureServe Explorer for ecological systems matching a name or description. Returns a list of matching NatureServe ecological system records including NatureServe identifier, name, and classification details. Results cached 30 days per query string. Useful for identifying NatureServe ecosystem types corresponding to MNFI natural community types or other ecological classification systems.
+
+ * @summary Look up ecological systems from NatureServe Explorer
+ */
+export const getGetNatureserveEcosystemsUrl = (
+  params: GetNatureserveEcosystemsParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/natureserve/ecosystems?${stringifiedParams}`
+    : `/api/natureserve/ecosystems`;
+};
+
+export const getNatureserveEcosystems = async (
+  params: GetNatureserveEcosystemsParams,
+  options?: RequestInit,
+): Promise<NatureserveEcosystemsResponse> => {
+  return customFetch<NatureserveEcosystemsResponse>(
+    getGetNatureserveEcosystemsUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetNatureserveEcosystemsQueryKey = (
+  params?: GetNatureserveEcosystemsParams,
+) => {
+  return [`/api/natureserve/ecosystems`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetNatureserveEcosystemsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getNatureserveEcosystems>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetNatureserveEcosystemsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getNatureserveEcosystems>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetNatureserveEcosystemsQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getNatureserveEcosystems>>
+  > = ({ signal }) =>
+    getNatureserveEcosystems(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getNatureserveEcosystems>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetNatureserveEcosystemsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getNatureserveEcosystems>>
+>;
+export type GetNatureserveEcosystemsQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Look up ecological systems from NatureServe Explorer
+ */
+
+export function useGetNatureserveEcosystems<
+  TData = Awaited<ReturnType<typeof getNatureserveEcosystems>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetNatureserveEcosystemsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getNatureserveEcosystems>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetNatureserveEcosystemsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Constructs and validates the Go Botany (Native Plant Trust) species page URL for a given scientific name. The URL is constructed from the genus and species epithet and validated with a live HTTP GET request (HTTP 200 = found). Results are cached 7 days. The species parameter must be a binomial name (genus + epithet); partial names return 400.
+
+ * @summary Look up a Go Botany species page URL
+ */
+export const getGetGobotanyUrl = (params: GetGobotanyParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/gobotany?${stringifiedParams}`
+    : `/api/gobotany`;
+};
+
+export const getGobotany = async (
+  params: GetGobotanyParams,
+  options?: RequestInit,
+): Promise<BotanicalWebRefResponse> => {
+  return customFetch<BotanicalWebRefResponse>(getGetGobotanyUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetGobotanyQueryKey = (params?: GetGobotanyParams) => {
+  return [`/api/gobotany`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetGobotanyQueryOptions = <
+  TData = Awaited<ReturnType<typeof getGobotany>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetGobotanyParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getGobotany>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetGobotanyQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getGobotany>>> = ({
+    signal,
+  }) => getGobotany(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getGobotany>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetGobotanyQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getGobotany>>
+>;
+export type GetGobotanyQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Look up a Go Botany species page URL
+ */
+
+export function useGetGobotany<
+  TData = Awaited<ReturnType<typeof getGobotany>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetGobotanyParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getGobotany>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetGobotanyQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns service identity, URL construction strategy, attribution, and the full registry entry for the Go Botany (Native Plant Trust) service.
+
+ * @summary Go Botany service metadata
+ */
+export const getGetGobotanyMetadataUrl = () => {
+  return `/api/gobotany/metadata`;
+};
+
+export const getGobotanyMetadata = async (
+  options?: RequestInit,
+): Promise<BotanicalWebRefMetadataResponse> => {
+  return customFetch<BotanicalWebRefMetadataResponse>(
+    getGetGobotanyMetadataUrl(),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetGobotanyMetadataQueryKey = () => {
+  return [`/api/gobotany/metadata`] as const;
+};
+
+export const getGetGobotanyMetadataQueryOptions = <
+  TData = Awaited<ReturnType<typeof getGobotanyMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getGobotanyMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetGobotanyMetadataQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getGobotanyMetadata>>
+  > = ({ signal }) => getGobotanyMetadata({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getGobotanyMetadata>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetGobotanyMetadataQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getGobotanyMetadata>>
+>;
+export type GetGobotanyMetadataQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Go Botany service metadata
+ */
+
+export function useGetGobotanyMetadata<
+  TData = Awaited<ReturnType<typeof getGobotanyMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getGobotanyMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetGobotanyMetadataQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Constructs a Google Images search URL for a given scientific name. This endpoint always returns found=true and a direct Google Images URL — no validation is performed. The URL is constructed from the species parameter and is not cached. Useful for quickly providing a visual reference link without requiring an image database.
+
+ * @summary Construct a Google Images search URL for a species
+ */
+export const getGetGoogleImagesUrl = (params: GetGoogleImagesParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/google-images?${stringifiedParams}`
+    : `/api/google-images`;
+};
+
+export const getGoogleImages = async (
+  params: GetGoogleImagesParams,
+  options?: RequestInit,
+): Promise<BotanicalWebRefResponse> => {
+  return customFetch<BotanicalWebRefResponse>(getGetGoogleImagesUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetGoogleImagesQueryKey = (params?: GetGoogleImagesParams) => {
+  return [`/api/google-images`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetGoogleImagesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getGoogleImages>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetGoogleImagesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getGoogleImages>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetGoogleImagesQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getGoogleImages>>> = ({
+    signal,
+  }) => getGoogleImages(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getGoogleImages>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetGoogleImagesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getGoogleImages>>
+>;
+export type GetGoogleImagesQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Construct a Google Images search URL for a species
+ */
+
+export function useGetGoogleImages<
+  TData = Awaited<ReturnType<typeof getGoogleImages>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetGoogleImagesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getGoogleImages>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetGoogleImagesQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns service identity, URL construction strategy, attribution, and the full registry entry for the Google Images species search service.
+
+ * @summary Google Images service metadata
+ */
+export const getGetGoogleImagesMetadataUrl = () => {
+  return `/api/google-images/metadata`;
+};
+
+export const getGoogleImagesMetadata = async (
+  options?: RequestInit,
+): Promise<BotanicalWebRefMetadataResponse> => {
+  return customFetch<BotanicalWebRefMetadataResponse>(
+    getGetGoogleImagesMetadataUrl(),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetGoogleImagesMetadataQueryKey = () => {
+  return [`/api/google-images/metadata`] as const;
+};
+
+export const getGetGoogleImagesMetadataQueryOptions = <
+  TData = Awaited<ReturnType<typeof getGoogleImagesMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getGoogleImagesMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetGoogleImagesMetadataQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getGoogleImagesMetadata>>
+  > = ({ signal }) => getGoogleImagesMetadata({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getGoogleImagesMetadata>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetGoogleImagesMetadataQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getGoogleImagesMetadata>>
+>;
+export type GetGoogleImagesMetadataQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Google Images service metadata
+ */
+
+export function useGetGoogleImagesMetadata<
+  TData = Awaited<ReturnType<typeof getGoogleImagesMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getGoogleImagesMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetGoogleImagesMetadataQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Looks up the Illinois Wildflowers (illinoiswildflowers.info) page URL for a given scientific name. Illinois Wildflowers organizes some species across multiple sections; multiple URLs may be returned in the data.results array. Species list is imported from the site and served from FERNS's local database. Results cached per database import cycle.
+
+ * @summary Look up an Illinois Wildflowers species page URL
+ */
+export const getGetIllinoisWildflowersUrl = (
+  params: GetIllinoisWildflowersParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/illinois-wildflowers?${stringifiedParams}`
+    : `/api/illinois-wildflowers`;
+};
+
+export const getIllinoisWildflowers = async (
+  params: GetIllinoisWildflowersParams,
+  options?: RequestInit,
+): Promise<BotanicalWebRefResponse> => {
+  return customFetch<BotanicalWebRefResponse>(
+    getGetIllinoisWildflowersUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetIllinoisWildflowersQueryKey = (
+  params?: GetIllinoisWildflowersParams,
+) => {
+  return [`/api/illinois-wildflowers`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetIllinoisWildflowersQueryOptions = <
+  TData = Awaited<ReturnType<typeof getIllinoisWildflowers>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetIllinoisWildflowersParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getIllinoisWildflowers>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetIllinoisWildflowersQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getIllinoisWildflowers>>
+  > = ({ signal }) =>
+    getIllinoisWildflowers(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getIllinoisWildflowers>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetIllinoisWildflowersQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getIllinoisWildflowers>>
+>;
+export type GetIllinoisWildflowersQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Look up an Illinois Wildflowers species page URL
+ */
+
+export function useGetIllinoisWildflowers<
+  TData = Awaited<ReturnType<typeof getIllinoisWildflowers>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetIllinoisWildflowersParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getIllinoisWildflowers>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetIllinoisWildflowersQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns service identity, species count, import strategy, attribution, and the full registry entry for the Illinois Wildflowers service.
+
+ * @summary Illinois Wildflowers service metadata
+ */
+export const getGetIllinoisWildflowersMetadataUrl = () => {
+  return `/api/illinois-wildflowers/metadata`;
+};
+
+export const getIllinoisWildflowersMetadata = async (
+  options?: RequestInit,
+): Promise<BotanicalWebRefMetadataResponse> => {
+  return customFetch<BotanicalWebRefMetadataResponse>(
+    getGetIllinoisWildflowersMetadataUrl(),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetIllinoisWildflowersMetadataQueryKey = () => {
+  return [`/api/illinois-wildflowers/metadata`] as const;
+};
+
+export const getGetIllinoisWildflowersMetadataQueryOptions = <
+  TData = Awaited<ReturnType<typeof getIllinoisWildflowersMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getIllinoisWildflowersMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetIllinoisWildflowersMetadataQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getIllinoisWildflowersMetadata>>
+  > = ({ signal }) =>
+    getIllinoisWildflowersMetadata({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getIllinoisWildflowersMetadata>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetIllinoisWildflowersMetadataQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getIllinoisWildflowersMetadata>>
+>;
+export type GetIllinoisWildflowersMetadataQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Illinois Wildflowers service metadata
+ */
+
+export function useGetIllinoisWildflowersMetadata<
+  TData = Awaited<ReturnType<typeof getIllinoisWildflowersMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getIllinoisWildflowersMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetIllinoisWildflowersMetadataQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Looks up the Minnesota Wildflowers (minnesotawildflowers.info) species page URL for a given scientific name. Species list is imported from the site and served from FERNS's local database — no live upstream call at query time.
+
+ * @summary Look up a Minnesota Wildflowers species page URL
+ */
+export const getGetMinnesotaWildflowersUrl = (
+  params: GetMinnesotaWildflowersParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/minnesota-wildflowers?${stringifiedParams}`
+    : `/api/minnesota-wildflowers`;
+};
+
+export const getMinnesotaWildflowers = async (
+  params: GetMinnesotaWildflowersParams,
+  options?: RequestInit,
+): Promise<BotanicalWebRefResponse> => {
+  return customFetch<BotanicalWebRefResponse>(
+    getGetMinnesotaWildflowersUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetMinnesotaWildflowersQueryKey = (
+  params?: GetMinnesotaWildflowersParams,
+) => {
+  return [`/api/minnesota-wildflowers`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetMinnesotaWildflowersQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMinnesotaWildflowers>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetMinnesotaWildflowersParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMinnesotaWildflowers>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetMinnesotaWildflowersQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getMinnesotaWildflowers>>
+  > = ({ signal }) =>
+    getMinnesotaWildflowers(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMinnesotaWildflowers>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMinnesotaWildflowersQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMinnesotaWildflowers>>
+>;
+export type GetMinnesotaWildflowersQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Look up a Minnesota Wildflowers species page URL
+ */
+
+export function useGetMinnesotaWildflowers<
+  TData = Awaited<ReturnType<typeof getMinnesotaWildflowers>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetMinnesotaWildflowersParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMinnesotaWildflowers>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMinnesotaWildflowersQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns service identity, species count, import strategy, attribution, and the full registry entry for the Minnesota Wildflowers service.
+
+ * @summary Minnesota Wildflowers service metadata
+ */
+export const getGetMinnesotaWildflowersMetadataUrl = () => {
+  return `/api/minnesota-wildflowers/metadata`;
+};
+
+export const getMinnesotaWildflowersMetadata = async (
+  options?: RequestInit,
+): Promise<BotanicalWebRefMetadataResponse> => {
+  return customFetch<BotanicalWebRefMetadataResponse>(
+    getGetMinnesotaWildflowersMetadataUrl(),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetMinnesotaWildflowersMetadataQueryKey = () => {
+  return [`/api/minnesota-wildflowers/metadata`] as const;
+};
+
+export const getGetMinnesotaWildflowersMetadataQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMinnesotaWildflowersMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getMinnesotaWildflowersMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetMinnesotaWildflowersMetadataQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getMinnesotaWildflowersMetadata>>
+  > = ({ signal }) =>
+    getMinnesotaWildflowersMetadata({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMinnesotaWildflowersMetadata>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMinnesotaWildflowersMetadataQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMinnesotaWildflowersMetadata>>
+>;
+export type GetMinnesotaWildflowersMetadataQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Minnesota Wildflowers service metadata
+ */
+
+export function useGetMinnesotaWildflowersMetadata<
+  TData = Awaited<ReturnType<typeof getMinnesotaWildflowersMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getMinnesotaWildflowersMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMinnesotaWildflowersMetadataQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Looks up the Missouri Plants (missouriplants.com) species page URL for a given scientific name. Species list is imported from the site and served from FERNS's local database — no live upstream call at query time.
+
+ * @summary Look up a Missouri Plants species page URL
+ */
+export const getGetMissouriPlantsUrl = (params: GetMissouriPlantsParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/missouri-plants?${stringifiedParams}`
+    : `/api/missouri-plants`;
+};
+
+export const getMissouriPlants = async (
+  params: GetMissouriPlantsParams,
+  options?: RequestInit,
+): Promise<BotanicalWebRefResponse> => {
+  return customFetch<BotanicalWebRefResponse>(getGetMissouriPlantsUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetMissouriPlantsQueryKey = (
+  params?: GetMissouriPlantsParams,
+) => {
+  return [`/api/missouri-plants`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetMissouriPlantsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMissouriPlants>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetMissouriPlantsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMissouriPlants>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetMissouriPlantsQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getMissouriPlants>>
+  > = ({ signal }) => getMissouriPlants(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMissouriPlants>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMissouriPlantsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMissouriPlants>>
+>;
+export type GetMissouriPlantsQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Look up a Missouri Plants species page URL
+ */
+
+export function useGetMissouriPlants<
+  TData = Awaited<ReturnType<typeof getMissouriPlants>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetMissouriPlantsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMissouriPlants>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMissouriPlantsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns service identity, species count, import strategy, attribution, and the full registry entry for the Missouri Plants service.
+
+ * @summary Missouri Plants service metadata
+ */
+export const getGetMissouriPlantsMetadataUrl = () => {
+  return `/api/missouri-plants/metadata`;
+};
+
+export const getMissouriPlantsMetadata = async (
+  options?: RequestInit,
+): Promise<BotanicalWebRefMetadataResponse> => {
+  return customFetch<BotanicalWebRefMetadataResponse>(
+    getGetMissouriPlantsMetadataUrl(),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetMissouriPlantsMetadataQueryKey = () => {
+  return [`/api/missouri-plants/metadata`] as const;
+};
+
+export const getGetMissouriPlantsMetadataQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMissouriPlantsMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getMissouriPlantsMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetMissouriPlantsMetadataQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getMissouriPlantsMetadata>>
+  > = ({ signal }) => getMissouriPlantsMetadata({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMissouriPlantsMetadata>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMissouriPlantsMetadataQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMissouriPlantsMetadata>>
+>;
+export type GetMissouriPlantsMetadataQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Missouri Plants service metadata
+ */
+
+export function useGetMissouriPlantsMetadata<
+  TData = Awaited<ReturnType<typeof getMissouriPlantsMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getMissouriPlantsMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMissouriPlantsMetadataQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Looks up the Prairie Moon Nursery (prairiemoon.com) species catalog URL for a given scientific name. Species list is imported from the Prairie Moon sitemap and served from FERNS's local database. Returns the direct product page URL when found. No live upstream call at query time.
+
+ * @summary Look up a Prairie Moon Nursery species page URL
+ */
+export const getGetPrairieMoonUrl = (params: GetPrairieMoonParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/prairie-moon?${stringifiedParams}`
+    : `/api/prairie-moon`;
+};
+
+export const getPrairieMoon = async (
+  params: GetPrairieMoonParams,
+  options?: RequestInit,
+): Promise<BotanicalWebRefResponse> => {
+  return customFetch<BotanicalWebRefResponse>(getGetPrairieMoonUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetPrairieMoonQueryKey = (params?: GetPrairieMoonParams) => {
+  return [`/api/prairie-moon`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetPrairieMoonQueryOptions = <
+  TData = Awaited<ReturnType<typeof getPrairieMoon>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetPrairieMoonParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getPrairieMoon>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetPrairieMoonQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getPrairieMoon>>> = ({
+    signal,
+  }) => getPrairieMoon(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getPrairieMoon>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetPrairieMoonQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getPrairieMoon>>
+>;
+export type GetPrairieMoonQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Look up a Prairie Moon Nursery species page URL
+ */
+
+export function useGetPrairieMoon<
+  TData = Awaited<ReturnType<typeof getPrairieMoon>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetPrairieMoonParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getPrairieMoon>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetPrairieMoonQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns service identity, indexed species count, sitemap import strategy, attribution, and the full registry entry for the Prairie Moon Nursery service.
+
+ * @summary Prairie Moon Nursery service metadata
+ */
+export const getGetPrairieMoonMetadataUrl = () => {
+  return `/api/prairie-moon/metadata`;
+};
+
+export const getPrairieMoonMetadata = async (
+  options?: RequestInit,
+): Promise<BotanicalWebRefMetadataResponse> => {
+  return customFetch<BotanicalWebRefMetadataResponse>(
+    getGetPrairieMoonMetadataUrl(),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetPrairieMoonMetadataQueryKey = () => {
+  return [`/api/prairie-moon/metadata`] as const;
+};
+
+export const getGetPrairieMoonMetadataQueryOptions = <
+  TData = Awaited<ReturnType<typeof getPrairieMoonMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getPrairieMoonMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetPrairieMoonMetadataQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getPrairieMoonMetadata>>
+  > = ({ signal }) => getPrairieMoonMetadata({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getPrairieMoonMetadata>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetPrairieMoonMetadataQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getPrairieMoonMetadata>>
+>;
+export type GetPrairieMoonMetadataQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Prairie Moon Nursery service metadata
+ */
+
+export function useGetPrairieMoonMetadata<
+  TData = Awaited<ReturnType<typeof getPrairieMoonMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getPrairieMoonMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetPrairieMoonMetadataQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Constructs a USDA PLANTS Database search URL for a given scientific name. Direct species profile URLs require a USDA symbol code (e.g. ASYT) that cannot be derived from the scientific name alone, so FERNS provides a search URL instead. The response always returns found=false with a search_url in the data object. Applications should use the search_url to link users to USDA PLANTS.
+
+ * @summary Construct a USDA PLANTS search URL for a species
+ */
+export const getGetUsdaPlantsUrl = (params: GetUsdaPlantsParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/usda-plants?${stringifiedParams}`
+    : `/api/usda-plants`;
+};
+
+export const getUsdaPlants = async (
+  params: GetUsdaPlantsParams,
+  options?: RequestInit,
+): Promise<BotanicalWebRefResponse> => {
+  return customFetch<BotanicalWebRefResponse>(getGetUsdaPlantsUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetUsdaPlantsQueryKey = (params?: GetUsdaPlantsParams) => {
+  return [`/api/usda-plants`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetUsdaPlantsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getUsdaPlants>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetUsdaPlantsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getUsdaPlants>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetUsdaPlantsQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getUsdaPlants>>> = ({
+    signal,
+  }) => getUsdaPlants(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getUsdaPlants>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetUsdaPlantsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getUsdaPlants>>
+>;
+export type GetUsdaPlantsQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Construct a USDA PLANTS search URL for a species
+ */
+
+export function useGetUsdaPlants<
+  TData = Awaited<ReturnType<typeof getUsdaPlants>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetUsdaPlantsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getUsdaPlants>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetUsdaPlantsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns service identity, URL construction strategy, attribution, and the full registry entry for the USDA PLANTS Database service.
+
+ * @summary USDA PLANTS Database service metadata
+ */
+export const getGetUsdaPlantsMetadataUrl = () => {
+  return `/api/usda-plants/metadata`;
+};
+
+export const getUsdaPlantsMetadata = async (
+  options?: RequestInit,
+): Promise<BotanicalWebRefMetadataResponse> => {
+  return customFetch<BotanicalWebRefMetadataResponse>(
+    getGetUsdaPlantsMetadataUrl(),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetUsdaPlantsMetadataQueryKey = () => {
+  return [`/api/usda-plants/metadata`] as const;
+};
+
+export const getGetUsdaPlantsMetadataQueryOptions = <
+  TData = Awaited<ReturnType<typeof getUsdaPlantsMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getUsdaPlantsMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetUsdaPlantsMetadataQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getUsdaPlantsMetadata>>
+  > = ({ signal }) => getUsdaPlantsMetadata({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getUsdaPlantsMetadata>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetUsdaPlantsMetadataQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getUsdaPlantsMetadata>>
+>;
+export type GetUsdaPlantsMetadataQueryError = ErrorType<unknown>;
+
+/**
+ * @summary USDA PLANTS Database service metadata
+ */
+
+export function useGetUsdaPlantsMetadata<
+  TData = Awaited<ReturnType<typeof getUsdaPlantsMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getUsdaPlantsMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetUsdaPlantsMetadataQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Constructs a Lady Bird Johnson Wildflower Center (wildflower.org) search URL for a given scientific name. Direct species profile URLs require an internal LBJWC plant ID not derivable from scientific names, so FERNS provides a search URL scoped by genus and species instead. The response returns found=false with a search_url in the data object — use search_url to link users to the LBJWC.
+
+ * @summary Construct a Lady Bird Johnson Wildflower Center search URL for a species
+ */
+export const getGetLadyBirdJohnsonUrl = (params: GetLadyBirdJohnsonParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/lady-bird-johnson?${stringifiedParams}`
+    : `/api/lady-bird-johnson`;
+};
+
+export const getLadyBirdJohnson = async (
+  params: GetLadyBirdJohnsonParams,
+  options?: RequestInit,
+): Promise<BotanicalWebRefResponse> => {
+  return customFetch<BotanicalWebRefResponse>(
+    getGetLadyBirdJohnsonUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetLadyBirdJohnsonQueryKey = (
+  params?: GetLadyBirdJohnsonParams,
+) => {
+  return [`/api/lady-bird-johnson`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetLadyBirdJohnsonQueryOptions = <
+  TData = Awaited<ReturnType<typeof getLadyBirdJohnson>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetLadyBirdJohnsonParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getLadyBirdJohnson>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetLadyBirdJohnsonQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getLadyBirdJohnson>>
+  > = ({ signal }) => getLadyBirdJohnson(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getLadyBirdJohnson>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetLadyBirdJohnsonQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getLadyBirdJohnson>>
+>;
+export type GetLadyBirdJohnsonQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Construct a Lady Bird Johnson Wildflower Center search URL for a species
+ */
+
+export function useGetLadyBirdJohnson<
+  TData = Awaited<ReturnType<typeof getLadyBirdJohnson>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetLadyBirdJohnsonParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getLadyBirdJohnson>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetLadyBirdJohnsonQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns service identity, URL construction strategy, attribution, and the full registry entry for the Lady Bird Johnson Wildflower Center service.
+
+ * @summary Lady Bird Johnson Wildflower Center service metadata
+ */
+export const getGetLadyBirdJohnsonMetadataUrl = () => {
+  return `/api/lady-bird-johnson/metadata`;
+};
+
+export const getLadyBirdJohnsonMetadata = async (
+  options?: RequestInit,
+): Promise<BotanicalWebRefMetadataResponse> => {
+  return customFetch<BotanicalWebRefMetadataResponse>(
+    getGetLadyBirdJohnsonMetadataUrl(),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetLadyBirdJohnsonMetadataQueryKey = () => {
+  return [`/api/lady-bird-johnson/metadata`] as const;
+};
+
+export const getGetLadyBirdJohnsonMetadataQueryOptions = <
+  TData = Awaited<ReturnType<typeof getLadyBirdJohnsonMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getLadyBirdJohnsonMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetLadyBirdJohnsonMetadataQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getLadyBirdJohnsonMetadata>>
+  > = ({ signal }) => getLadyBirdJohnsonMetadata({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getLadyBirdJohnsonMetadata>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetLadyBirdJohnsonMetadataQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getLadyBirdJohnsonMetadata>>
+>;
+export type GetLadyBirdJohnsonMetadataQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Lady Bird Johnson Wildflower Center service metadata
+ */
+
+export function useGetLadyBirdJohnsonMetadata<
+  TData = Awaited<ReturnType<typeof getLadyBirdJohnsonMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getLadyBirdJohnsonMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetLadyBirdJohnsonMetadataQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Fans out a species query to all configured botanical reference sources simultaneously: Go Botany, Google Images, Missouri Plants, Minnesota Wildflowers, Illinois Wildflowers, Prairie Moon Nursery, USDA PLANTS, and Lady Bird Johnson Wildflower Center. Returns a unified response with one entry per source. Sources that cannot resolve a direct profile URL (USDA PLANTS, Lady Bird Johnson) return found=false with a search_url instead. Go Botany validation requires a live HTTP GET — expect slightly higher latency for this endpoint.
+
+ * @summary Look up a species across all botanical reference sources at once
+ */
+export const getGetBotanicalRefsUrl = (params: GetBotanicalRefsParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/botanical-refs?${stringifiedParams}`
+    : `/api/botanical-refs`;
+};
+
+export const getBotanicalRefs = async (
+  params: GetBotanicalRefsParams,
+  options?: RequestInit,
+): Promise<BotanicalRefsResponse> => {
+  return customFetch<BotanicalRefsResponse>(getGetBotanicalRefsUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetBotanicalRefsQueryKey = (
+  params?: GetBotanicalRefsParams,
+) => {
+  return [`/api/botanical-refs`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetBotanicalRefsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getBotanicalRefs>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetBotanicalRefsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getBotanicalRefs>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetBotanicalRefsQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getBotanicalRefs>>
+  > = ({ signal }) => getBotanicalRefs(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getBotanicalRefs>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetBotanicalRefsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getBotanicalRefs>>
+>;
+export type GetBotanicalRefsQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Look up a species across all botanical reference sources at once
+ */
+
+export function useGetBotanicalRefs<
+  TData = Awaited<ReturnType<typeof getBotanicalRefs>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetBotanicalRefsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getBotanicalRefs>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetBotanicalRefsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns metadata about all botanical reference sources that are aggregated by the /botanical-refs endpoint. Each entry includes the site ID, display name, URL lookup strategy, and direct query and metadata URLs for the individual source endpoint.
+
+ * @summary List all botanical reference sites configured in FERNS
+ */
+export const getGetBotanicalRefsSitesUrl = () => {
+  return `/api/botanical-refs/sites`;
+};
+
+export const getBotanicalRefsSites = async (
+  options?: RequestInit,
+): Promise<BotanicalRefsSitesResponse> => {
+  return customFetch<BotanicalRefsSitesResponse>(
+    getGetBotanicalRefsSitesUrl(),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetBotanicalRefsSitesQueryKey = () => {
+  return [`/api/botanical-refs/sites`] as const;
+};
+
+export const getGetBotanicalRefsSitesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getBotanicalRefsSites>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getBotanicalRefsSites>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetBotanicalRefsSitesQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getBotanicalRefsSites>>
+  > = ({ signal }) => getBotanicalRefsSites({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getBotanicalRefsSites>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetBotanicalRefsSitesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getBotanicalRefsSites>>
+>;
+export type GetBotanicalRefsSitesQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List all botanical reference sites configured in FERNS
+ */
+
+export function useGetBotanicalRefsSites<
+  TData = Awaited<ReturnType<typeof getBotanicalRefsSites>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getBotanicalRefsSites>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetBotanicalRefsSitesQueryOptions(options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

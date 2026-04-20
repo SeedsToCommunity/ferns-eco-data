@@ -11,7 +11,7 @@ export interface SourceSummary {
   source_id: string;
   /** Human-readable service name */
   name: string;
-  /** source_wrapper | derived_synthesis | aggregation | system */
+  /** source_wrapper | derived_synthesis | aggregation | system | vocabulary_reference */
   knowledge_type: string;
   /** live | draft | deprecated */
   status: string;

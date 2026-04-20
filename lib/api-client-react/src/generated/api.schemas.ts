@@ -615,7 +615,7 @@ export interface SourceSummary {
   source_id: string;
   /** Human-readable service name */
   name: string;
-  /** source_wrapper | derived_synthesis | aggregation | system */
+  /** source_wrapper | derived_synthesis | aggregation | system | vocabulary_reference */
   knowledge_type: string;
   /** live | draft | deprecated */
   status: string;
@@ -1509,6 +1509,385 @@ export interface SourceRelationshipsResponse {
   provenance: FernsProvenance;
 }
 
+export type MnfiMetadataResponseClassSummaryItem = {
+  community_class?: string;
+  count?: number;
+};
+
+export type MnfiMetadataResponseRegistryEntry = { [key: string]: unknown };
+
+export interface MnfiMetadataResponse {
+  /** Stable identifier for the MNFI service */
+  service_id: string;
+  service_name: string;
+  found: boolean;
+  /** Total number of natural community types loaded into FERNS */
+  community_count?: number;
+  /** Total number of county element occurrence records loaded */
+  county_element_count?: number;
+  /** Total number of characteristic plant records loaded */
+  plant_count?: number;
+  /** Community counts grouped by community class */
+  class_summary?: MnfiMetadataResponseClassSummaryItem[];
+  /** List of Michigan counties with at least one element occurrence */
+  counties_with_data?: string[];
+  permission_granted?: boolean;
+  permission_status?: string;
+  attribution?: string;
+  registry_entry?: MnfiMetadataResponseRegistryEntry;
+}
+
+export type MnfiCommunitiesResponseDataFilters = {
+  class?: string | null;
+  group?: string | null;
+  name?: string | null;
+};
+
+export type MnfiCommunitiesResponseDataCommunitiesItem = {
+  [key: string]: unknown;
+};
+
+export type MnfiCommunitiesResponseData = {
+  community_count?: number;
+  filters?: MnfiCommunitiesResponseDataFilters;
+  communities?: MnfiCommunitiesResponseDataCommunitiesItem[];
+};
+
+export interface MnfiCommunitiesResponse {
+  found: boolean;
+  queried_at: string;
+  source_url?: string;
+  provenance?: FernsProvenance;
+  data: MnfiCommunitiesResponseData;
+}
+
+export type MnfiCommunityResponseDataCharacteristicPlantsByLifeFormItem = {
+  common_name?: string;
+  scientific_names?: string[];
+};
+
+export type MnfiCommunityResponseDataCharacteristicPlantsByLifeForm = {
+  [key: string]: MnfiCommunityResponseDataCharacteristicPlantsByLifeFormItem[];
+};
+
+export type MnfiCommunityResponseDataCharacteristicPlants = {
+  total_entries?: number;
+  plant_list_url?: string;
+  by_life_form?: MnfiCommunityResponseDataCharacteristicPlantsByLifeForm;
+};
+
+/**
+ * Community record with characteristic plants, or null if not found
+ */
+export type MnfiCommunityResponseData = {
+  community_id?: number;
+  name?: string;
+  slug?: string;
+  community_class?: string;
+  community_group?: string;
+  description?: string | null;
+  characteristic_plants?: MnfiCommunityResponseDataCharacteristicPlants;
+} | null;
+
+export interface MnfiCommunityResponse {
+  found: boolean;
+  queried_at: string;
+  source_url?: string;
+  provenance?: FernsProvenance;
+  /** Community record with characteristic plants, or null if not found */
+  data?: MnfiCommunityResponseData;
+}
+
+export type MnfiCommunityPlantsResponseDataByLifeFormItem = {
+  common_name?: string;
+  scientific_names?: string[];
+};
+
+/**
+ * Plants grouped by life form (tree, shrub, herb, graminoid, vine, etc.)
+ */
+export type MnfiCommunityPlantsResponseDataByLifeForm = {
+  [key: string]: MnfiCommunityPlantsResponseDataByLifeFormItem[];
+};
+
+export type MnfiCommunityPlantsResponseData = {
+  community_id?: number;
+  community_name?: string;
+  slug?: string;
+  plant_list_url?: string;
+  total_entries?: number;
+  plants_imported?: boolean;
+  /** Plants grouped by life form (tree, shrub, herb, graminoid, vine, etc.) */
+  by_life_form?: MnfiCommunityPlantsResponseDataByLifeForm;
+};
+
+export interface MnfiCommunityPlantsResponse {
+  found: boolean;
+  queried_at: string;
+  source_url?: string;
+  provenance?: FernsProvenance;
+  data?: MnfiCommunityPlantsResponseData;
+}
+
+export type MnfiCountyElementsResponseDataFilters = {
+  type?: string | null;
+};
+
+export type MnfiCountyElementsResponseDataElementsItem = {
+  [key: string]: unknown;
+};
+
+export type MnfiCountyElementsResponseData = {
+  county?: string;
+  element_count?: number;
+  filters?: MnfiCountyElementsResponseDataFilters;
+  elements?: MnfiCountyElementsResponseDataElementsItem[];
+};
+
+export interface MnfiCountyElementsResponse {
+  found: boolean;
+  queried_at: string;
+  source_url?: string;
+  provenance?: FernsProvenance;
+  data: MnfiCountyElementsResponseData;
+}
+
+export type NatureserveMetadataResponseCacheStats = {
+  species_cached?: number;
+  ecosystems_cached?: number;
+  ttl_days?: number;
+};
+
+export type NatureserveMetadataResponseRegistryEntry = {
+  [key: string]: unknown;
+};
+
+export interface NatureserveMetadataResponse {
+  found: boolean;
+  source_url?: string;
+  service_id: string;
+  service_name: string;
+  permission_granted?: boolean;
+  permission_status?: string;
+  attribution?: string;
+  cache_stats?: NatureserveMetadataResponseCacheStats;
+  registry_entry?: NatureserveMetadataResponseRegistryEntry;
+  queried_at?: string;
+  provenance?: FernsProvenance;
+}
+
+export type NatureserveSpeciesResponseDataCacheStatus =
+  (typeof NatureserveSpeciesResponseDataCacheStatus)[keyof typeof NatureserveSpeciesResponseDataCacheStatus];
+
+export const NatureserveSpeciesResponseDataCacheStatus = {
+  hit: "hit",
+  miss: "miss",
+  bypassed: "bypassed",
+} as const;
+
+export type NatureserveSpeciesResponseData = {
+  scientific_name?: string | null;
+  common_name?: string | null;
+  /** NatureServe G-rank (e.g. G4, G3G4) */
+  global_rank?: string | null;
+  rounded_global_rank?: string | null;
+  /** NatureServe N-rank for the US (e.g. N3, N4) */
+  national_rank?: string | null;
+  rounded_national_rank?: string | null;
+  /** Two-letter US state code this rank is scoped to */
+  state_code?: string;
+  /** NatureServe S-rank for the queried state (e.g. S1, S2) */
+  state_rank?: string | null;
+  rounded_state_rank?: string | null;
+  iucn_category?: string | null;
+  iucn_description?: string | null;
+  federal_status?: string | null;
+  federal_status_description?: string | null;
+  state_status?: string | null;
+  /** Clarifying note when state_status is present: the value is derived from the NatureServe S-rank and reflects rarity status, not a formal statutory state listing.
+   */
+  state_status_note?: string | null;
+  cites_description?: string | null;
+  cosewic_code?: string | null;
+  cosewic_description?: string | null;
+  natureserve_url?: string | null;
+  element_global_id?: string | null;
+  cache_status?: NatureserveSpeciesResponseDataCacheStatus;
+};
+
+export interface NatureserveSpeciesResponse {
+  source_url?: string;
+  found: boolean;
+  attribution?: string;
+  data?: NatureserveSpeciesResponseData;
+  provenance?: FernsProvenance;
+}
+
+export type NatureserveEcosystemsResponseDataEcosystemsItem = {
+  [key: string]: unknown;
+};
+
+export type NatureserveEcosystemsResponseDataCacheStatus =
+  (typeof NatureserveEcosystemsResponseDataCacheStatus)[keyof typeof NatureserveEcosystemsResponseDataCacheStatus];
+
+export const NatureserveEcosystemsResponseDataCacheStatus = {
+  hit: "hit",
+  miss: "miss",
+  bypassed: "bypassed",
+} as const;
+
+export type NatureserveEcosystemsResponseData = {
+  ecosystems?: NatureserveEcosystemsResponseDataEcosystemsItem[];
+  result_count?: number;
+  total_ecosystem_results?: number;
+  total_results_all_types?: number;
+  cache_status?: NatureserveEcosystemsResponseDataCacheStatus;
+};
+
+export interface NatureserveEcosystemsResponse {
+  source_url?: string;
+  found: boolean;
+  attribution?: string;
+  data?: NatureserveEcosystemsResponseData;
+  provenance?: FernsProvenance;
+}
+
+/**
+ * Present when found=true (or when a search_url is returned). Null when not found.
+ */
+export type BotanicalWebRefResponseData = {
+  /** The species name as queried */
+  species?: string;
+  /** Direct species page URL. Null when only a search URL is available. */
+  url?: string | null;
+  /** Search URL when a direct profile URL cannot be constructed (usda-plants, lady-bird-johnson). Present instead of url for these sources.
+   */
+  search_url?: string;
+  /** How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable */
+  validation_method?: string;
+  /** Explanatory note when validation_method is not_resolvable */
+  note?: string;
+} | null;
+
+/**
+ * Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants, lady-bird-johnson).
+
+ */
+export interface BotanicalWebRefResponse {
+  /** True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants, lady-bird-johnson), which return a search_url instead.
+   */
+  found: boolean;
+  queried_at: string;
+  source_url?: string;
+  provenance?: FernsProvenance;
+  /** Present when found=true (or when a search_url is returned). Null when not found. */
+  data?: BotanicalWebRefResponseData;
+}
+
+export type BotanicalWebRefMetadataResponseRegistryEntry = {
+  [key: string]: unknown;
+};
+
+/**
+ * Service metadata response for botanical web reference sources.
+ */
+export interface BotanicalWebRefMetadataResponse {
+  service_id: string;
+  service_name: string;
+  permission_granted?: boolean;
+  permission_status?: string;
+  /** URL construction strategy: direct_construction | sitemap_scrape | species_list_scrape */
+  url_strategy?: string;
+  /** URL template pattern used for direct construction sources */
+  url_pattern?: string;
+  /** Validation method for constructed URLs: http_get | none | not_resolvable */
+  validation?: string;
+  /** Number of species indexed in FERNS's local database (scrape-based sources only) */
+  indexed_species_count?: number;
+  registry_entry?: BotanicalWebRefMetadataResponseRegistryEntry;
+  queried_at?: string;
+  provenance?: FernsProvenance;
+}
+
+export interface BotanicalRefsSiteEntry {
+  /** Source ID (e.g. gobotany, prairie-moon) */
+  id?: string;
+  /** Human-readable source name */
+  name?: string;
+  /** URL lookup strategy: direct_construction | species_list_scrape | sitemap_scrape */
+  strategy?: string;
+  /** FERNS API URL for querying this source directly */
+  query_url?: string;
+  /** FERNS API URL for this source's metadata endpoint */
+  metadata_url?: string;
+}
+
+export type BotanicalRefsSitesResponseData = {
+  site_count?: number;
+  sites?: BotanicalRefsSiteEntry[];
+};
+
+export interface BotanicalRefsSitesResponse {
+  source_id: string;
+  queried_at: string;
+  source_url?: string;
+  data: BotanicalRefsSitesResponseData;
+}
+
+export type BotanicalRefsSourceResultResultsItem = { [key: string]: unknown };
+
+/**
+ * Per-source result within the /botanical-refs aggregated response.
+ */
+export interface BotanicalRefsSourceResult {
+  found?: boolean;
+  url?: string | null;
+  /** Search URL when a direct profile URL cannot be resolved */
+  search_url?: string;
+  validation?: string;
+  /** Additional result entries (e.g. multiple Illinois Wildflowers sections) */
+  results?: BotanicalRefsSourceResultResultsItem[];
+  note?: string | null;
+  http_status?: number | null;
+}
+
+export type BotanicalRefsResponseProvenance = {
+  source_id?: string;
+  fetched_at?: string;
+  method?: string;
+  sites_queried?: number;
+};
+
+/**
+ * Keyed by source ID. Each value is a BotanicalRefsSourceResult.
+ */
+export type BotanicalRefsResponseDataResults = {
+  [key: string]: BotanicalRefsSourceResult;
+};
+
+export type BotanicalRefsResponseData = {
+  species?: string;
+  /** Number of sources that returned a direct species page URL */
+  sites_found?: number;
+  /** Number of sources that returned a search URL but not a direct profile URL */
+  sites_search_only?: number;
+  sites_total?: number;
+  /** Keyed by source ID. Each value is a BotanicalRefsSourceResult. */
+  results?: BotanicalRefsResponseDataResults;
+};
+
+/**
+ * Aggregated response from the /botanical-refs endpoint — one entry per source.
+ */
+export interface BotanicalRefsResponse {
+  /** True if at least one source returned a direct species page URL */
+  found: boolean;
+  queried_at: string;
+  source_url?: string;
+  provenance?: BotanicalRefsResponseProvenance;
+  data: BotanicalRefsResponseData;
+}
+
 export type GetBonapMapParams = {
   /**
  * Genus name. First letter capitalized, remainder lowercase (e.g. Asclepias). The service normalizes to title case before URL construction.
@@ -1817,4 +2196,131 @@ export type GetSourceRelationshipsParams = {
 
  */
   source_id?: string;
+};
+
+export type GetMnfiCommunitiesParams = {
+  /**
+   * Filter by community class (substring match, e.g. Terrestrial)
+   */
+  class?: string;
+  /**
+   * Filter by community group (substring match, e.g. Forest)
+   */
+  group?: string;
+  /**
+   * Filter by community name (substring match, e.g. oak savanna)
+   */
+  name?: string;
+};
+
+export type GetMnfiCountyElementsParams = {
+  /**
+ * Michigan county name (e.g. Washtenaw, Leelanau). Case-insensitive. All 83 Michigan county names are accepted.
+
+ */
+  county: string;
+  /**
+ * Filter by element type. Must be 'species' or 'community' when provided. When omitted, both types are returned.
+
+ */
+  type?: GetMnfiCountyElementsType;
+};
+
+export type GetMnfiCountyElementsType =
+  (typeof GetMnfiCountyElementsType)[keyof typeof GetMnfiCountyElementsType];
+
+export const GetMnfiCountyElementsType = {
+  species: "species",
+  community: "community",
+} as const;
+
+export type GetNatureserveSpeciesParams = {
+  /**
+   * Scientific name to look up (e.g. Asclepias tuberosa)
+   */
+  name: string;
+  /**
+ * Two-letter US state code to scope the state rank (e.g. MI, WI, OH). Defaults to MI (Michigan) when omitted. Must be a valid 2-letter code.
+
+ */
+  state?: string;
+  /**
+   * If true, bypasses cache and fetches fresh from NatureServe Explorer
+   */
+  refresh?: boolean;
+};
+
+export type GetNatureserveEcosystemsParams = {
+  /**
+   * Ecosystem name or keyword to search (e.g. oak savanna, wet prairie)
+   */
+  name: string;
+  /**
+   * If true, bypasses cache and fetches fresh from NatureServe Explorer
+   */
+  refresh?: boolean;
+};
+
+export type GetGobotanyParams = {
+  /**
+ * Binomial scientific name (e.g. Acer rubrum). Genus and species epithet required. Both components must contain only letters.
+
+ */
+  species: string;
+};
+
+export type GetGoogleImagesParams = {
+  /**
+   * Scientific name to search for (e.g. Acer rubrum)
+   */
+  species: string;
+};
+
+export type GetIllinoisWildflowersParams = {
+  /**
+   * Scientific name (e.g. Acer rubrum)
+   */
+  species: string;
+};
+
+export type GetMinnesotaWildflowersParams = {
+  /**
+   * Scientific name (e.g. Acer rubrum)
+   */
+  species: string;
+};
+
+export type GetMissouriPlantsParams = {
+  /**
+   * Scientific name (e.g. Acer rubrum)
+   */
+  species: string;
+};
+
+export type GetPrairieMoonParams = {
+  /**
+   * Scientific name (e.g. Acer rubrum)
+   */
+  species: string;
+};
+
+export type GetUsdaPlantsParams = {
+  /**
+   * Scientific name (e.g. Acer rubrum)
+   */
+  species: string;
+};
+
+export type GetLadyBirdJohnsonParams = {
+  /**
+   * Scientific name (e.g. Acer rubrum)
+   */
+  species: string;
+};
+
+export type GetBotanicalRefsParams = {
+  /**
+   * Scientific name (e.g. Acer rubrum)
+   */
+  species: string;
 };
