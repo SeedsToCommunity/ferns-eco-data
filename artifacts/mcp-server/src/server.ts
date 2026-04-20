@@ -1,19 +1,19 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-  import {
-    CallToolRequestSchema,
-    ListToolsRequestSchema,
-    type Tool,
-  } from "@modelcontextprotocol/sdk/types.js";
-  import { fernsGet } from "./client.js";
+import {
+  CallToolRequestSchema,
+  ListToolsRequestSchema,
+  type Tool,
+} from "@modelcontextprotocol/sdk/types.js";
+import { fernsGet } from "./client.js";
 
-  type ToolHandler = (args: Record<string, unknown>) => Promise<unknown>;
+type ToolHandler = (args: Record<string, unknown>) => Promise<unknown>;
 
-  interface ToolDef {
-    tool: Tool;
-    handler: ToolHandler;
-  }
+interface ToolDef {
+  tool: Tool;
+  handler: ToolHandler;
+}
 
-  const tools: ToolDef[] = [
+const tools: ToolDef[] = [
 
   // ── bonap-napa ──────────────────────────────────────────────────────────
   {
