@@ -61,10 +61,13 @@ if (process.env.NODE_ENV === "production") {
   );
 
   app.use((req, res, next) => {
-    const host =
+    const rawHost =
       (req.headers["x-forwarded-host"] as string | undefined) ??
       req.headers.host ??
       "";
+    // Lowercase and take only the first value — X-Forwarded-Host can be
+    // comma-separated when passing through multiple proxies.
+    const host = rawHost.split(",")[0].trim().toLowerCase();
     const dir = host.startsWith("data.") ? dataExplorerDir : publicSiteDir;
 
     express.static(dir, { index: "index.html" })(req, res, () => {
