@@ -32,7 +32,9 @@ async function buildAll() {
   execSync("pnpm --filter @workspace/registry-explorer run build", {
     stdio: "inherit",
     cwd: workspaceRoot,
-    env: { ...process.env, BASE_PATH: "/" },
+    // PORT is required by vite.config.ts validation; any valid value works for
+    // a build (no server binds to it — Vite only reads it for dev server mode).
+    env: { ...process.env, BASE_PATH: "/", PORT: "23478" },
   });
 
   await rm(distDir, { recursive: true, force: true });

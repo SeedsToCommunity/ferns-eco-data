@@ -39,6 +39,12 @@ app.use("/api", (_req, res, next) => {
 
 app.use("/api", router);
 
+// Unmatched /api/* routes should return 404, not fall through to the static
+// site handler. Without this, a missing endpoint would serve index.html (200).
+app.use("/api", (_req, res) => {
+  res.status(404).json({ error: "Not found" });
+});
+
 // Production-only: serve the appropriate static site based on the Host header.
 // Requests reach here only if no /api route matched (non-API paths).
 //
