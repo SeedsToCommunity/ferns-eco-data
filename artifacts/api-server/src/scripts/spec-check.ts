@@ -15,6 +15,13 @@ const RED = "\x1b[31m";
 const YELLOW = "\x1b[33m";
 const RESET = "\x1b[0m";
 
+// Parser assumptions:
+// - Route paths must be string literals passed directly to router.get/post/etc.
+//   Non-literal expressions (e.g. router.get(PATH_CONST, ...)) are not detected.
+// - Only scans top-level src/routes/*.ts files; nested route subdirectories
+//   would need to be added to extractRoutePaths if the routing structure changes.
+// - Only GET routes are checked — admin POST endpoints are intentionally excluded from the spec.
+
 // Routes that exist in code but are intentionally absent from the spec.
 // The spec-serving routes document the spec itself — circular to document.
 const INTENTIONAL_OMISSIONS = new Set(["/openapi.yaml", "/openapi.json"]);
