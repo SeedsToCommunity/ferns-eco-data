@@ -17,14 +17,11 @@ localPort = 23478
 [services.development]
 run = "pnpm --filter @workspace/registry-explorer run dev"
 
-[services.production]
-build = [ "pnpm", "--filter", "@workspace/registry-explorer", "run", "build" ]
-publicDir = "artifacts/registry-explorer/dist/public"
-serve = "static"
-
-[[services.production.rewrites]]
-from = "/*"
-to = "/index.html"
+# Production: built and served by the api-server (Host-header routing).
+# The api-server's build.mjs triggers this build with BASE_PATH=/ before
+# bundling Express. Static files live at artifacts/registry-explorer/dist/public.
+# In production the site is served at the root of data.ecologicalcommons.org,
+# so BASE_PATH=/ (set by the build script) -- not /ferns/.
 
 [services.env]
 PORT = "23478"

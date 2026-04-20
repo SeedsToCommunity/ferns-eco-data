@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { build as esbuild } from "esbuild";
 import esbuildPluginPino from "esbuild-plugin-pino";
 import { rm, cp } from "node:fs/promises";
+import { execSync } from "node:child_process";
 
 // Plugins (e.g. 'esbuild-plugin-pino') may use `require` to resolve dependencies
 globalThis.require = createRequire(import.meta.url);
@@ -12,9 +13,30 @@ const artifactDir = path.dirname(fileURLToPath(import.meta.url));
 
 async function buildAll() {
   const distDir = path.resolve(artifactDir, "dist");
+
+  // Build both static sites before bundling the server.
+  // Express serves them in production using Host-header routing:
+  //   data.*                → artifacts/registry-explorer/dist/public
+  //   ecologicalcommons.org → artifacts/ecological-commons-site/dist/public
+  // Both are built with BASE_PATH=/ so all asset references are root-relative.
+  const workspaceRoot = path.resolve(artifactDir, "../..");
+
+  console.log("Building ecological-commons-site...");
+  execSync("pnpm --filter @workspace/ecological-commons-site run build", {
+    stdio: "inherit",
+    cwd: workspaceRoot,
+    env: { ...process.env, BASE_PATH: "/" },
+  });
+
+  console.log("Building registry-explorer...");
+  execSync("pnpm --filter @workspace/registry-explorer run build", {
+    stdio: "inherit",
+    cwd: workspaceRoot,
+    env: { ...process.env, BASE_PATH: "/" },
+  });
+
   await rm(distDir, { recursive: true, force: true });
 
-  const workspaceRoot = path.resolve(artifactDir, "../..");
   const migrationsSource = path.join(workspaceRoot, "lib/db/drizzle");
   const migrationsDest = path.join(distDir, "drizzle");
 

@@ -1,6 +1,7 @@
 import express, { type Express } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
+import path from "path";
 import router from "./routes";
 import { logger } from "./lib/logger";
 
@@ -37,5 +38,35 @@ app.use("/api", (_req, res, next) => {
 });
 
 app.use("/api", router);
+
+// Production-only: serve the appropriate static site based on the Host header.
+// Requests reach here only if no /api route matched (non-API paths).
+//
+// data.ecologicalcommons.org  →  FERNS registry explorer
+// ecologicalcommons.org (or any other host)  →  public website
+//
+// In development each site runs its own Vite dev server; this block is skipped.
+if (process.env.NODE_ENV === "production") {
+  const dataExplorerDir = path.resolve(
+    "artifacts/registry-explorer/dist/public",
+  );
+  const publicSiteDir = path.resolve(
+    "artifacts/ecological-commons-site/dist/public",
+  );
+
+  app.use((req, res, next) => {
+    const host =
+      (req.headers["x-forwarded-host"] as string | undefined) ??
+      req.headers.host ??
+      "";
+    const dir = host.startsWith("data.") ? dataExplorerDir : publicSiteDir;
+
+    express.static(dir, { index: "index.html" })(req, res, () => {
+      // SPA fallback: any unmatched path serves index.html so client-side
+      // routing handles it rather than returning a 404.
+      res.sendFile(path.join(dir, "index.html"));
+    });
+  });
+}
 
 export default app;

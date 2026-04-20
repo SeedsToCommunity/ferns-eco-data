@@ -17,14 +17,9 @@ localPort = 18478
 [services.development]
 run = "pnpm --filter @workspace/ecological-commons-site run dev"
 
-[services.production]
-build = [ "pnpm", "--filter", "@workspace/ecological-commons-site", "run", "build" ]
-publicDir = "artifacts/ecological-commons-site/dist/public"
-serve = "static"
-
-[[services.production.rewrites]]
-from = "/*"
-to = "/index.html"
+# Production: built and served by the api-server (Host-header routing).
+# The api-server's build.mjs triggers this build with BASE_PATH=/ before
+# bundling Express. Static files live at artifacts/ecological-commons-site/dist/public.
 
 [services.env]
 PORT = "18478"
