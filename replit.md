@@ -32,9 +32,9 @@ FERNS fetches, caches, and exposes ecological and environmental data from author
 
 | Artifact | Path | Purpose |
 |---|---|---|
-| `artifacts/registry-explorer` | `/` | FERNS Data Layer explorer — browse all registered sources |
-| `artifacts/api-server` | API (port 8080) | FERNS REST API server |
-| `artifacts/ecological-commons-site` | `/ecological-commons-site/` | Public-facing ecologicalcommons.org website — 6 content pages rendered from markdown |
+| `artifacts/ecological-commons-site` | `/` | Public-facing ecologicalcommons.org website — 6 content pages rendered from markdown |
+| `artifacts/registry-explorer` | `/ferns/` | FERNS Data Layer explorer — browse all registered sources |
+| `artifacts/api-server` | `/api` (port 8080) | FERNS REST API server |
 | `artifacts/mcp-server` | stdio | FERNS MCP Server — 48 tools (1:1 with REST endpoints) for Claude Desktop / Cursor |
 | `artifacts/mockup-sandbox` | `/__mockup` | UI component preview sandbox (internal dev only) |
 
