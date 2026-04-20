@@ -35,7 +35,7 @@ FERNS fetches, caches, and exposes ecological and environmental data from author
 | `artifacts/ecological-commons-site` | `/` | `ecologicalcommons.org/` | Public-facing website — 6 content pages rendered from markdown |
 | `artifacts/registry-explorer` | `/ferns/` | `data.ecologicalcommons.org/` | FERNS Data Layer explorer — browse all registered sources |
 | `artifacts/api-server` | `/api` (port 8080) | `data.ecologicalcommons.org/api/` | FERNS REST API server — handles ALL production routes via Host-header routing |
-| `artifacts/mcp-server` | stdio | stdio | FERNS MCP Server — 48 tools (1:1 with REST endpoints) for Claude Desktop / Cursor |
+| `artifacts/mcp-server` | stdio (dev) | `data.ecologicalcommons.org/mcp` | FERNS MCP Server — 48 tools via Streamable HTTP; stdio fallback for local dev |
 | `artifacts/mockup-sandbox` | `/__mockup` | — | UI component preview sandbox (internal dev only) |
 
 **ecological-commons-site** is a React + Vite + Tailwind static site using Lora serif / Inter sans typography. Content lives in `src/content/*.md` as raw imports rendered by `react-markdown` + `remark-gfm`. Routing via `wouter`. No backend — pure static site. Intended to be deployed to `ecologicalcommons.org` once the user points the domain.

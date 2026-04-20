@@ -3,6 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "exports": {
+    "./src/server.js": "./src/server.ts",
+    "./src/client.js": "./src/client.ts"
+  },
   "scripts": {
     "build": "node build.mjs",
     "start": "node dist/index.mjs",

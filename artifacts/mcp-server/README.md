@@ -4,23 +4,69 @@ The FERNS MCP Server exposes every public [FERNS](https://data.ecologicalcommons
 
 One REST endpoint = one MCP tool. No aggregation, no magic — each tool is a faithful 1:1 proxy of its underlying FERNS route.
 
-## Quick start
+## Connecting to the remote MCP server
+
+The MCP server runs as part of the FERNS API at `https://data.ecologicalcommons.org/mcp`. No local installation required.
+
+### Claude Desktop (remote)
+
+Add the following block to your `claude_desktop_config.json` (macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "ferns": {
+      "type": "http",
+      "url": "https://data.ecologicalcommons.org/mcp"
+    }
+  }
+}
+```
+
+### Cursor (remote)
+
+Add to `.cursor/mcp.json` in your project root:
+
+```json
+{
+  "mcpServers": {
+    "ferns": {
+      "type": "http",
+      "url": "https://data.ecologicalcommons.org/mcp"
+    }
+  }
+}
+```
+
+### Other MCP clients
+
+The endpoint accepts HTTP POST to `https://data.ecologicalcommons.org/mcp` with:
+
+- `Content-Type: application/json`
+- `Accept: application/json, text/event-stream`
+- Body: JSON-RPC 2.0 message
+
+Responses are streamed as Server-Sent Events (SSE). The server operates in stateless mode — no session management required.
+
+---
+
+## Local / stdio mode (development only)
+
+If you want to run the server locally against a local FERNS API instance:
 
 ### Requirements
 
 - Node 18+ (`node --version`)
 - `FERNS_API_BASE` env var pointing at a running FERNS API (default: `http://localhost:8080`)
 
-### Build the compiled binary (required before first use)
+### Build the compiled binary
 
 ```bash
 pnpm --filter @workspace/mcp-server run build
 # Produces: artifacts/mcp-server/dist/index.mjs
 ```
 
-### Claude Desktop configuration
-
-Add the following block to your `claude_desktop_config.json` (macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`):
+### Claude Desktop configuration (local stdio)
 
 ```json
 {
@@ -38,39 +84,23 @@ Add the following block to your `claude_desktop_config.json` (macOS: `~/Library/
 
 Replace `/absolute/path/to/` with the actual path to this repository on your machine.
 
-> **Tip:** If you are running FERNS locally, set `FERNS_API_BASE` to `http://localhost:8080` (the default) and omit the `env` block entirely.
-
-### Cursor configuration
-
-Add to `.cursor/mcp.json` in your project root:
-
-```json
-{
-  "mcpServers": {
-    "ferns": {
-      "command": "node",
-      "args": ["/absolute/path/to/artifacts/mcp-server/dist/index.mjs"],
-      "env": {
-        "FERNS_API_BASE": "https://data.ecologicalcommons.org"
-      }
-    }
-  }
-}
-```
-
 ### Development (no build step)
 
 ```bash
 pnpm --filter @workspace/mcp-server run dev
 ```
 
-This runs the server directly from TypeScript source using `tsx`, without compiling first. Useful for iterating during development.
+This runs the server directly from TypeScript source using `tsx`, without compiling first.
+
+---
 
 ## Environment variables
 
 | Variable | Default | Description |
 |---|---|---|
-| `FERNS_API_BASE` | `http://localhost:8080` | Base URL of the FERNS REST API. Trailing slash is stripped automatically. |
+| `FERNS_API_BASE` | `http://localhost:8080` | Base URL of the FERNS REST API (stdio mode only). Trailing slash stripped automatically. |
+
+---
 
 ## Tool inventory (48 tools)
 
@@ -234,10 +264,13 @@ Tool names follow `{source_id}__{action}` (hyphens → underscores, double-under
 | `ferns__list_sources` | GET /v1/sources | — | — | Full registry of all FERNS data sources: IDs, names, descriptions, capabilities, and status |
 | `ferns__source_relationships` | GET /v1/source-relationships | — | source_id | Relationship graph between FERNS data sources, optionally filtered to one source |
 
+---
+
 ## Design notes
 
+- **Streamable HTTP transport (primary).** The server runs as part of the FERNS API at `data.ecologicalcommons.org/mcp`, using the MCP Streamable HTTP transport. Responses are SSE-formatted. No session management (stateless mode).
+- **Stdio transport (development fallback).** `artifacts/mcp-server/src/index.ts` runs a stdio-based MCP server for local integration with Claude Desktop or Cursor when you prefer not to rely on the deployed endpoint.
 - **Strict 1:1 mapping.** Every MCP tool corresponds to exactly one FERNS REST endpoint. No aggregation, no fan-out.
-- **Stdio transport.** The server communicates over stdin/stdout, the standard transport for local MCP servers.
 - **Read-only.** No write or admin endpoints are exposed.
 - **Error passthrough.** If the FERNS API returns an error, the tool returns `isError: true` with the status and body in the content.
-- **Adding a new source.** Add one or more tool definitions to `src/index.ts` following the `{source_id}__{action}` convention, rebuild (`pnpm run build`), and update this README table.
+- **Adding a new source.** Add tool definitions to `artifacts/mcp-server/src/server.ts` following the `{source_id}__{action}` convention, then update this README table.

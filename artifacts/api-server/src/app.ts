@@ -3,6 +3,7 @@ import cors from "cors";
 import pinoHttp from "pino-http";
 import path from "path";
 import router from "./routes";
+import mcpRouter from "./routes/mcp";
 import { logger } from "./lib/logger";
 
 const app: Express = express();
@@ -31,6 +32,8 @@ app.options(/(.*)/, cors({ origin: "*" }));
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(mcpRouter);
 
 app.use("/api", (_req, res, next) => {
   res.setHeader("Cache-Control", "no-store");
