@@ -30,6 +30,10 @@ tags:
     description: Universal FQA — Federated Floristic Quality Assessment Databases
   - name: lcscg
     description: Lake County Seed Collection Guides — Native Seed Identification and Collection
+  - name: mnfi
+    description: Michigan Natural Features Inventory — Natural Community Types and County Element Occurrences
+  - name: natureserve
+    description: NatureServe Explorer — Species Conservation Status and Ecological Systems
   - name: registry
     description: FERNS Service Registry
 paths:
@@ -1396,6 +1400,295 @@ paths:
               schema:
                 $ref: "#/components/schemas/SourceRelationshipsResponse"
 
+  /mnfi/metadata:
+    get:
+      operationId: getMnfiMetadata
+      tags: [mnfi]
+      summary: MNFI service metadata
+      description: >
+        Returns service identity, attribution, permission status, community class
+        counts, county coverage, and cache statistics for the Michigan Natural
+        Features Inventory (MNFI) service. Also seeds the MNFI entry in the FERNS
+        source registry. Use this to populate 'About this data' panels in any
+        application displaying MNFI community or county element data.
+      responses:
+        "200":
+          description: MNFI service metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MnfiMetadataResponse"
+
+  /mnfi/communities:
+    get:
+      operationId: getMnfiCommunities
+      tags: [mnfi]
+      summary: List MNFI natural community types
+      description: >
+        Returns all Michigan Natural Features Inventory (MNFI) natural community
+        types. Optionally filter by community class, group, or name substring
+        (case-insensitive ILIKE match). All data is served from FERNS's local
+        database seeded from the MNFI website — no upstream API call is made at
+        query time. Returns community records sorted by class and name.
+      parameters:
+        - name: class
+          in: query
+          required: false
+          description: Filter by community class (substring match, e.g. Terrestrial)
+          schema:
+            type: string
+        - name: group
+          in: query
+          required: false
+          description: Filter by community group (substring match, e.g. Forest)
+          schema:
+            type: string
+        - name: name
+          in: query
+          required: false
+          description: Filter by community name (substring match, e.g. oak savanna)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of MNFI natural community types (found or empty)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MnfiCommunitiesResponse"
+
+  /mnfi/communities/{id}:
+    get:
+      operationId: getMnfiCommunity
+      tags: [mnfi]
+      summary: Get a single MNFI community by ID or slug
+      description: >
+        Returns the full profile for a single MNFI natural community type,
+        including description, acreage estimates, and all characteristic plants
+        grouped by life form. The {id} path parameter accepts either the numeric
+        community_id (e.g. 1234) or the URL slug (e.g. southern-dry-chestnut-oak-forest).
+        Plant lists are included inline — characteristic_plants.by_life_form groups
+        species by life form (tree, shrub, herb, etc.).
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Numeric community_id or URL slug for the community
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Community profile (found or not-found — check the found field)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MnfiCommunityResponse"
+        "404":
+          description: No community found with the given id or slug
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /mnfi/communities/{id}/plants:
+    get:
+      operationId: getMnfiCommunityPlants
+      tags: [mnfi]
+      summary: Get characteristic plants for an MNFI community
+      description: >
+        Returns the characteristic plant list for an MNFI natural community,
+        grouped by life form (tree, shrub, herb, graminoid, vine, etc.). The
+        {id} path parameter accepts either the numeric community_id or the URL slug.
+        This is the same plant data included inline in the community detail endpoint,
+        exposed as a dedicated endpoint for applications that only need plant lists.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Numeric community_id or URL slug for the community
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Plant list for this community grouped by life form (found or not-found — check found field)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MnfiCommunityPlantsResponse"
+        "404":
+          description: No community found with the given id or slug
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /mnfi/county-elements:
+    get:
+      operationId: getMnfiCountyElements
+      tags: [mnfi]
+      summary: Get MNFI significant natural features for a Michigan county
+      description: >
+        Returns MNFI Element Occurrence records for a given Michigan county.
+        These records document where significant natural features (rare species,
+        natural communities) have been observed. The county parameter is required;
+        all 83 Michigan county names are accepted (case-insensitive). Optionally
+        filter to only species or community element types with the type parameter.
+        Data is served from FERNS's local database seeded from the MNFI county
+        element download — no upstream API call at query time.
+      parameters:
+        - name: county
+          in: query
+          required: true
+          description: >
+            Michigan county name (e.g. Washtenaw, Leelanau). Case-insensitive.
+            All 83 Michigan county names are accepted.
+          schema:
+            type: string
+        - name: type
+          in: query
+          required: false
+          description: >
+            Filter by element type. Must be 'species' or 'community' when provided.
+            When omitted, both types are returned.
+          schema:
+            type: string
+            enum: [species, community]
+      responses:
+        "200":
+          description: County element occurrences (found or empty — check the found field)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MnfiCountyElementsResponse"
+        "400":
+          description: Missing county parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /natureserve/metadata:
+    get:
+      operationId: getNatureserveMetadata
+      tags: [natureserve]
+      summary: NatureServe service metadata
+      description: >
+        Returns service identity, attribution, permission status, cache statistics,
+        and the full registry entry for the NatureServe Explorer service. Use this
+        to populate 'About this data' panels in any application displaying NatureServe
+        conservation status or ecosystem data. Also seeds the NatureServe entry in
+        the FERNS source registry.
+      responses:
+        "200":
+          description: NatureServe service metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NatureserveMetadataResponse"
+
+  /natureserve/species:
+    get:
+      operationId: getNatureserveSpecies
+      tags: [natureserve]
+      summary: Look up species conservation status from NatureServe Explorer
+      description: >
+        Queries NatureServe Explorer for conservation status data for a given
+        scientific name, optionally scoped to a US state. Returns global rank
+        (G-rank), national rank (N-rank), state rank (S-rank), IUCN category,
+        federal status, state status, and a direct NatureServe Explorer URL for
+        the species. Ranks follow NatureServe standard notation (e.g. G3, N2N3,
+        S1). State rank is derived from NatureServe S-rank and reflects rarity
+        status — it is not a formal statutory state listing. Results cached 30
+        days per name+state combination.
+      parameters:
+        - name: name
+          in: query
+          required: true
+          description: Scientific name to look up (e.g. Asclepias tuberosa)
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: false
+          description: >
+            Two-letter US state code to scope the state rank (e.g. MI, WI, OH).
+            Defaults to MI (Michigan) when omitted. Must be a valid 2-letter code.
+          schema:
+            type: string
+            default: MI
+        - name: refresh
+          in: query
+          required: false
+          description: If true, bypasses cache and fetches fresh from NatureServe Explorer
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Conservation status result (found or not-found — check the found field)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NatureserveSpeciesResponse"
+        "400":
+          description: Missing or invalid name or state parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: NatureServe Explorer API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /natureserve/ecosystems:
+    get:
+      operationId: getNatureserveEcosystems
+      tags: [natureserve]
+      summary: Look up ecological systems from NatureServe Explorer
+      description: >
+        Queries NatureServe Explorer for ecological systems matching a name or
+        description. Returns a list of matching NatureServe ecological system
+        records including NatureServe identifier, name, and classification details.
+        Results cached 30 days per query string. Useful for identifying NatureServe
+        ecosystem types corresponding to MNFI natural community types or other
+        ecological classification systems.
+      parameters:
+        - name: name
+          in: query
+          required: true
+          description: Ecosystem name or keyword to search (e.g. oak savanna, wet prairie)
+          schema:
+            type: string
+        - name: refresh
+          in: query
+          required: false
+          description: If true, bypasses cache and fetches fresh from NatureServe Explorer
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Ecosystem search results (found or empty — check the found field)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NatureserveEcosystemsResponse"
+        "400":
+          description: Missing or invalid name parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: NatureServe Explorer API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -2516,7 +2809,7 @@ components:
           description: Human-readable service name
         knowledge_type:
           type: string
-          description: "source_wrapper | derived_synthesis | aggregation | system"
+          description: "source_wrapper | derived_synthesis | aggregation | system | vocabulary_reference"
         status:
           type: string
           description: "live | draft | deprecated"
@@ -4225,5 +4518,383 @@ components:
             filtered_by_source_id:
               type: string
               nullable: true
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    MnfiMetadataResponse:
+      type: object
+      required:
+        - service_id
+        - service_name
+        - found
+      properties:
+        service_id:
+          type: string
+          description: Stable identifier for the MNFI service
+        service_name:
+          type: string
+        found:
+          type: boolean
+        community_count:
+          type: integer
+          description: Total number of natural community types loaded into FERNS
+        county_element_count:
+          type: integer
+          description: Total number of county element occurrence records loaded
+        plant_count:
+          type: integer
+          description: Total number of characteristic plant records loaded
+        class_summary:
+          type: array
+          description: Community counts grouped by community class
+          items:
+            type: object
+            properties:
+              community_class:
+                type: string
+              count:
+                type: integer
+        counties_with_data:
+          type: array
+          description: List of Michigan counties with at least one element occurrence
+          items:
+            type: string
+        permission_granted:
+          type: boolean
+        permission_status:
+          type: string
+        attribution:
+          type: string
+        registry_entry:
+          type: object
+          additionalProperties: true
+
+    MnfiCommunitiesResponse:
+      type: object
+      required:
+        - found
+        - queried_at
+        - data
+      properties:
+        found:
+          type: boolean
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          type: object
+          properties:
+            community_count:
+              type: integer
+            filters:
+              type: object
+              properties:
+                class:
+                  type: string
+                  nullable: true
+                group:
+                  type: string
+                  nullable: true
+                name:
+                  type: string
+                  nullable: true
+            communities:
+              type: array
+              items:
+                type: object
+                additionalProperties: true
+
+    MnfiCommunityResponse:
+      type: object
+      required:
+        - found
+        - queried_at
+      properties:
+        found:
+          type: boolean
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          description: Community record with characteristic plants, or null if not found
+          nullable: true
+          type: object
+          properties:
+            community_id:
+              type: integer
+            name:
+              type: string
+            slug:
+              type: string
+            community_class:
+              type: string
+            community_group:
+              type: string
+            description:
+              type: string
+              nullable: true
+            characteristic_plants:
+              type: object
+              properties:
+                total_entries:
+                  type: integer
+                plant_list_url:
+                  type: string
+                by_life_form:
+                  type: object
+                  additionalProperties:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        common_name:
+                          type: string
+                        scientific_names:
+                          type: array
+                          items:
+                            type: string
+
+    MnfiCommunityPlantsResponse:
+      type: object
+      required:
+        - found
+        - queried_at
+      properties:
+        found:
+          type: boolean
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          type: object
+          properties:
+            community_id:
+              type: integer
+            community_name:
+              type: string
+            slug:
+              type: string
+            plant_list_url:
+              type: string
+            total_entries:
+              type: integer
+            plants_imported:
+              type: boolean
+            by_life_form:
+              type: object
+              description: Plants grouped by life form (tree, shrub, herb, graminoid, vine, etc.)
+              additionalProperties:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    common_name:
+                      type: string
+                    scientific_names:
+                      type: array
+                      items:
+                        type: string
+
+    MnfiCountyElementsResponse:
+      type: object
+      required:
+        - found
+        - queried_at
+        - data
+      properties:
+        found:
+          type: boolean
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          type: object
+          properties:
+            county:
+              type: string
+            element_count:
+              type: integer
+            filters:
+              type: object
+              properties:
+                type:
+                  type: string
+                  nullable: true
+            elements:
+              type: array
+              items:
+                type: object
+                additionalProperties: true
+
+    NatureserveMetadataResponse:
+      type: object
+      required:
+        - found
+        - service_id
+        - service_name
+      properties:
+        found:
+          type: boolean
+        source_url:
+          type: string
+        service_id:
+          type: string
+        service_name:
+          type: string
+        permission_granted:
+          type: boolean
+        permission_status:
+          type: string
+        attribution:
+          type: string
+        cache_stats:
+          type: object
+          properties:
+            species_cached:
+              type: integer
+            ecosystems_cached:
+              type: integer
+            ttl_days:
+              type: integer
+        registry_entry:
+          type: object
+          additionalProperties: true
+        queried_at:
+          type: string
+          format: date-time
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    NatureserveSpeciesResponse:
+      type: object
+      required:
+        - found
+      properties:
+        source_url:
+          type: string
+        found:
+          type: boolean
+        attribution:
+          type: string
+        data:
+          type: object
+          properties:
+            scientific_name:
+              type: string
+              nullable: true
+            common_name:
+              type: string
+              nullable: true
+            global_rank:
+              type: string
+              nullable: true
+              description: NatureServe G-rank (e.g. G4, G3G4)
+            rounded_global_rank:
+              type: string
+              nullable: true
+            national_rank:
+              type: string
+              nullable: true
+              description: NatureServe N-rank for the US (e.g. N3, N4)
+            rounded_national_rank:
+              type: string
+              nullable: true
+            state_code:
+              type: string
+              description: Two-letter US state code this rank is scoped to
+            state_rank:
+              type: string
+              nullable: true
+              description: NatureServe S-rank for the queried state (e.g. S1, S2)
+            rounded_state_rank:
+              type: string
+              nullable: true
+            iucn_category:
+              type: string
+              nullable: true
+            iucn_description:
+              type: string
+              nullable: true
+            federal_status:
+              type: string
+              nullable: true
+            federal_status_description:
+              type: string
+              nullable: true
+            state_status:
+              type: string
+              nullable: true
+            state_status_note:
+              type: string
+              nullable: true
+              description: >
+                Clarifying note when state_status is present: the value is
+                derived from the NatureServe S-rank and reflects rarity status,
+                not a formal statutory state listing.
+            cites_description:
+              type: string
+              nullable: true
+            cosewic_code:
+              type: string
+              nullable: true
+            cosewic_description:
+              type: string
+              nullable: true
+            natureserve_url:
+              type: string
+              nullable: true
+            element_global_id:
+              type: string
+              nullable: true
+            cache_status:
+              type: string
+              enum: [hit, miss, bypassed]
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    NatureserveEcosystemsResponse:
+      type: object
+      required:
+        - found
+      properties:
+        source_url:
+          type: string
+        found:
+          type: boolean
+        attribution:
+          type: string
+        data:
+          type: object
+          properties:
+            ecosystems:
+              type: array
+              items:
+                type: object
+                additionalProperties: true
+            result_count:
+              type: integer
+            total_ecosystem_results:
+              type: integer
+            total_results_all_types:
+              type: integer
+            cache_status:
+              type: string
+              enum: [hit, miss, bypassed]
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
