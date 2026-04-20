@@ -10,6 +10,7 @@ export type GetGobotanyParams = {
   /**
  * Binomial scientific name (e.g. Acer rubrum). Genus and species epithet required. Both components must contain only letters.
 
+ * @minLength 1
  */
   species: string;
 };

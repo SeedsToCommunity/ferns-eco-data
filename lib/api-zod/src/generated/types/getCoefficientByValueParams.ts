@@ -10,6 +10,7 @@ export type GetCoefficientByValueParams = {
   /**
  * C-value to look up. Must be a string: '0'–'10' for native species, or '*' for non-native/adventive species.
 
+ * @minLength 1
  */
   value: string;
 };

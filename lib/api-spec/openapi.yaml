@@ -88,6 +88,7 @@ paths:
             The service normalizes to title case before URL construction.
           schema:
             type: string
+            minLength: 1
         - name: species
           in: query
           required: false
@@ -165,6 +166,7 @@ paths:
           description: Scientific name to match (e.g. Asclepias tuberosa)
           schema:
             type: string
+            minLength: 1
         - name: refresh
           in: query
           required: false
@@ -302,6 +304,7 @@ paths:
           description: Common name search string (e.g. butterfly milkweed)
           schema:
             type: string
+            minLength: 1
       responses:
         "200":
           description: List of candidate species matching the common name query
@@ -351,6 +354,7 @@ paths:
           description: Place name to search (e.g. Washtenaw County, Michigan, Sleeping Bear Dunes)
           schema:
             type: string
+            minLength: 1
         - name: refresh
           in: query
           required: false
@@ -399,6 +403,7 @@ paths:
           description: Scientific name to look up (e.g. Asclepias tuberosa)
           schema:
             type: string
+            minLength: 1
         - name: refresh
           in: query
           required: false
@@ -626,6 +631,7 @@ paths:
           description: Scientific name to look up (e.g. Asclepias tuberosa)
           schema:
             type: string
+            minLength: 1
         - name: refresh
           in: query
           required: false
@@ -672,6 +678,7 @@ paths:
           description: Scientific name to look up county records for (e.g. Asclepias tuberosa)
           schema:
             type: string
+            minLength: 1
         - name: refresh
           in: query
           required: false
@@ -720,6 +727,7 @@ paths:
           description: Scientific name to look up (e.g. Asclepias tuberosa)
           schema:
             type: string
+            minLength: 1
         - name: refresh
           in: query
           required: false
@@ -783,6 +791,7 @@ paths:
             C-value to look up. Must be a string: '0'–'10' for native species, or '*' for non-native/adventive species.
           schema:
             type: string
+            minLength: 1
       responses:
         "200":
           description: C-value definition or not-found response
@@ -1135,6 +1144,7 @@ paths:
             Scientific or common name to search (partial match, case-insensitive).
           schema:
             type: string
+            minLength: 1
       responses:
         "200":
           description: Matching species records
@@ -1268,6 +1278,7 @@ paths:
           description: Scientific name to look up (e.g. Lobelia cardinalis)
           schema:
             type: string
+            minLength: 1
         - name: database_id
           in: query
           required: true
@@ -1494,6 +1505,7 @@ paths:
           description: Numeric community_id or URL slug for the community
           schema:
             type: string
+            minLength: 1
       responses:
         "200":
           description: Community profile (found or not-found — check the found field)
@@ -1526,6 +1538,7 @@ paths:
           description: Numeric community_id or URL slug for the community
           schema:
             type: string
+            minLength: 1
       responses:
         "200":
           description: Plant list for this community grouped by life form (found or not-found — check found field)
@@ -1562,6 +1575,7 @@ paths:
             All 83 Michigan county names are accepted.
           schema:
             type: string
+            minLength: 1
         - name: type
           in: query
           required: false
@@ -1625,6 +1639,7 @@ paths:
           description: Scientific name to look up (e.g. Asclepias tuberosa)
           schema:
             type: string
+            minLength: 1
         - name: state
           in: query
           required: false
@@ -1680,6 +1695,7 @@ paths:
           description: Ecosystem name or keyword to search (e.g. oak savanna, wet prairie)
           schema:
             type: string
+            minLength: 1
         - name: refresh
           in: query
           required: false
@@ -1727,6 +1743,7 @@ paths:
             Both components must contain only letters.
           schema:
             type: string
+            minLength: 1
       responses:
         "200":
           description: URL lookup result (found or not-found — check the found field)
@@ -1775,6 +1792,7 @@ paths:
           description: Scientific name to search for (e.g. Acer rubrum)
           schema:
             type: string
+            minLength: 1
       responses:
         "200":
           description: Google Images search URL for the species
@@ -1823,6 +1841,7 @@ paths:
           description: Scientific name (e.g. Acer rubrum)
           schema:
             type: string
+            minLength: 1
       responses:
         "200":
           description: URL lookup result (found or not-found — check the found field)
@@ -1869,6 +1888,7 @@ paths:
           description: Scientific name (e.g. Acer rubrum)
           schema:
             type: string
+            minLength: 1
       responses:
         "200":
           description: URL lookup result (found or not-found — check the found field)
@@ -1915,6 +1935,7 @@ paths:
           description: Scientific name (e.g. Acer rubrum)
           schema:
             type: string
+            minLength: 1
       responses:
         "200":
           description: URL lookup result (found or not-found — check the found field)
@@ -1962,6 +1983,7 @@ paths:
           description: Scientific name (e.g. Acer rubrum)
           schema:
             type: string
+            minLength: 1
       responses:
         "200":
           description: URL lookup result (found or not-found — check the found field)
@@ -2010,6 +2032,7 @@ paths:
           description: Scientific name (e.g. Acer rubrum)
           schema:
             type: string
+            minLength: 1
       responses:
         "200":
           description: USDA PLANTS search URL (found is always false — profile URLs require a symbol code not derivable from scientific name)
@@ -2058,6 +2081,7 @@ paths:
           description: Scientific name (e.g. Acer rubrum)
           schema:
             type: string
+            minLength: 1
       responses:
         "200":
           description: Lady Bird Johnson search URL (found is always false — profile URLs require an internal plant ID)
@@ -2109,6 +2133,7 @@ paths:
           description: Scientific name (e.g. Acer rubrum)
           schema:
             type: string
+            minLength: 1
       responses:
         "200":
           description: Per-source URL lookup results across all botanical reference sources

@@ -1892,6 +1892,7 @@ export type GetBonapMapParams = {
   /**
  * Genus name. First letter capitalized, remainder lowercase (e.g. Asclepias). The service normalizes to title case before URL construction.
 
+ * @minLength 1
  */
   genus: string;
   /**
@@ -1921,6 +1922,7 @@ export const GetBonapMapMapType = {
 export type GetGbifMatchParams = {
   /**
    * Scientific name to match (e.g. Asclepias tuberosa)
+   * @minLength 1
    */
   name: string;
   /**
@@ -1978,6 +1980,7 @@ export const GetGbifOccurrencesContinent = {
 export type GetGbifSearchParams = {
   /**
    * Common name search string (e.g. butterfly milkweed)
+   * @minLength 1
    */
   q: string;
 };
@@ -1985,6 +1988,7 @@ export type GetGbifSearchParams = {
 export type GetInatPlaceParams = {
   /**
    * Place name to search (e.g. Washtenaw County, Michigan, Sleeping Bear Dunes)
+   * @minLength 1
    */
   q: string;
   /**
@@ -1996,6 +2000,7 @@ export type GetInatPlaceParams = {
 export type GetInatSpeciesParams = {
   /**
    * Scientific name to look up (e.g. Asclepias tuberosa)
+   * @minLength 1
    */
   name: string;
   /**
@@ -2055,6 +2060,7 @@ export type GetInatObservationsParams = {
 export type GetMifloraSpeciesParams = {
   /**
    * Scientific name to look up (e.g. Asclepias tuberosa)
+   * @minLength 1
    */
   name: string;
   /**
@@ -2066,6 +2072,7 @@ export type GetMifloraSpeciesParams = {
 export type GetMifloraCountiesParams = {
   /**
    * Scientific name to look up county records for (e.g. Asclepias tuberosa)
+   * @minLength 1
    */
   name: string;
   /**
@@ -2077,6 +2084,7 @@ export type GetMifloraCountiesParams = {
 export type GetMifloraImagesParams = {
   /**
    * Scientific name to look up (e.g. Asclepias tuberosa)
+   * @minLength 1
    */
   name: string;
   /**
@@ -2089,6 +2097,7 @@ export type GetCoefficientByValueParams = {
   /**
  * C-value to look up. Must be a string: '0'–'10' for native species, or '*' for non-native/adventive species.
 
+ * @minLength 1
  */
   value: string;
 };
@@ -2167,6 +2176,7 @@ export type GetLcscgSpeciesParams = {
   /**
  * Scientific or common name to search (partial match, case-insensitive).
 
+ * @minLength 1
  */
   name: string;
 };
@@ -2174,6 +2184,7 @@ export type GetLcscgSpeciesParams = {
 export type GetUniversalFqaSpeciesParams = {
   /**
    * Scientific name to look up (e.g. Lobelia cardinalis)
+   * @minLength 1
    */
   name: string;
   /**
@@ -2217,6 +2228,7 @@ export type GetMnfiCountyElementsParams = {
   /**
  * Michigan county name (e.g. Washtenaw, Leelanau). Case-insensitive. All 83 Michigan county names are accepted.
 
+ * @minLength 1
  */
   county: string;
   /**
@@ -2237,6 +2249,7 @@ export const GetMnfiCountyElementsType = {
 export type GetNatureserveSpeciesParams = {
   /**
    * Scientific name to look up (e.g. Asclepias tuberosa)
+   * @minLength 1
    */
   name: string;
   /**
@@ -2253,6 +2266,7 @@ export type GetNatureserveSpeciesParams = {
 export type GetNatureserveEcosystemsParams = {
   /**
    * Ecosystem name or keyword to search (e.g. oak savanna, wet prairie)
+   * @minLength 1
    */
   name: string;
   /**
@@ -2265,6 +2279,7 @@ export type GetGobotanyParams = {
   /**
  * Binomial scientific name (e.g. Acer rubrum). Genus and species epithet required. Both components must contain only letters.
 
+ * @minLength 1
  */
   species: string;
 };
@@ -2272,6 +2287,7 @@ export type GetGobotanyParams = {
 export type GetGoogleImagesParams = {
   /**
    * Scientific name to search for (e.g. Acer rubrum)
+   * @minLength 1
    */
   species: string;
 };
@@ -2279,6 +2295,7 @@ export type GetGoogleImagesParams = {
 export type GetIllinoisWildflowersParams = {
   /**
    * Scientific name (e.g. Acer rubrum)
+   * @minLength 1
    */
   species: string;
 };
@@ -2286,6 +2303,7 @@ export type GetIllinoisWildflowersParams = {
 export type GetMinnesotaWildflowersParams = {
   /**
    * Scientific name (e.g. Acer rubrum)
+   * @minLength 1
    */
   species: string;
 };
@@ -2293,6 +2311,7 @@ export type GetMinnesotaWildflowersParams = {
 export type GetMissouriPlantsParams = {
   /**
    * Scientific name (e.g. Acer rubrum)
+   * @minLength 1
    */
   species: string;
 };
@@ -2300,6 +2319,7 @@ export type GetMissouriPlantsParams = {
 export type GetPrairieMoonParams = {
   /**
    * Scientific name (e.g. Acer rubrum)
+   * @minLength 1
    */
   species: string;
 };
@@ -2307,6 +2327,7 @@ export type GetPrairieMoonParams = {
 export type GetUsdaPlantsParams = {
   /**
    * Scientific name (e.g. Acer rubrum)
+   * @minLength 1
    */
   species: string;
 };
@@ -2314,6 +2335,7 @@ export type GetUsdaPlantsParams = {
 export type GetLadyBirdJohnsonParams = {
   /**
    * Scientific name (e.g. Acer rubrum)
+   * @minLength 1
    */
   species: string;
 };
@@ -2321,6 +2343,7 @@ export type GetLadyBirdJohnsonParams = {
 export type GetBotanicalRefsParams = {
   /**
    * Scientific name (e.g. Acer rubrum)
+   * @minLength 1
    */
   species: string;
 };

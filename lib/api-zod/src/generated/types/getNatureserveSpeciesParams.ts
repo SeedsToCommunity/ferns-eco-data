@@ -9,6 +9,7 @@
 export type GetNatureserveSpeciesParams = {
   /**
    * Scientific name to look up (e.g. Asclepias tuberosa)
+   * @minLength 1
    */
   name: string;
   /**

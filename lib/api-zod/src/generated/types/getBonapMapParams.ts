@@ -11,6 +11,7 @@ export type GetBonapMapParams = {
   /**
  * Genus name. First letter capitalized, remainder lowercase (e.g. Asclepias). The service normalizes to title case before URL construction.
 
+ * @minLength 1
  */
   genus: string;
   /**

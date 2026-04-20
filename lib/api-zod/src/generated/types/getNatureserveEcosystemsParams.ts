@@ -9,6 +9,7 @@
 export type GetNatureserveEcosystemsParams = {
   /**
    * Ecosystem name or keyword to search (e.g. oak savanna, wet prairie)
+   * @minLength 1
    */
   name: string;
   /**

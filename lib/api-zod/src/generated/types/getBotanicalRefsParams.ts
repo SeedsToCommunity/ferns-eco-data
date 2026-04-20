@@ -9,6 +9,7 @@
 export type GetBotanicalRefsParams = {
   /**
    * Scientific name (e.g. Acer rubrum)
+   * @minLength 1
    */
   species: string;
 };

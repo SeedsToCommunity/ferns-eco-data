@@ -20,16 +20,18 @@ export const HealthCheckResponse = zod.object({
 
  * @summary Get BONAP distribution map
  */
+
 export const getBonapMapQueryMapTypeDefault = `county_species`;
 export const getBonapMapQueryRefreshDefault = false;
 
 export const GetBonapMapQueryParams = zod.object({
-  genus: zod.coerce
+  genus: zod
     .string()
+    .min(1)
     .describe(
       "Genus name. First letter capitalized, remainder lowercase (e.g. Asclepias). The service normalizes to title case before URL construction.\n",
     ),
-  species: zod.coerce
+  species: zod
     .string()
     .optional()
     .describe(
@@ -256,11 +258,13 @@ export const GetBonapMetadataResponse = zod.object({
 
  * @summary Match a scientific name against the GBIF backbone taxonomy
  */
+
 export const getGbifMatchQueryRefreshDefault = false;
 
 export const GetGbifMatchQueryParams = zod.object({
-  name: zod.coerce
+  name: zod
     .string()
+    .min(1)
     .describe("Scientific name to match (e.g. Asclepias tuberosa)"),
   refresh: zod.coerce
     .boolean()
@@ -460,7 +464,7 @@ export const getGbifOccurrencesQueryRefreshDefault = false;
 
 export const GetGbifOccurrencesQueryParams = zod.object({
   usageKey: zod.coerce.number().describe("GBIF backbone usageKey"),
-  countries: zod.coerce
+  countries: zod
     .string()
     .optional()
     .describe(
@@ -480,7 +484,7 @@ export const GetGbifOccurrencesQueryParams = zod.object({
     .describe(
       "GBIF continent value. One of AFRICA, ANTARCTICA, ASIA, EUROPE, NORTH_AMERICA, OCEANIA, SOUTH_AMERICA. Mutually exclusive with countries and bbox.\n",
     ),
-  bbox: zod.coerce
+  bbox: zod
     .string()
     .optional()
     .describe(
@@ -575,9 +579,11 @@ export const GetGbifOccurrencesResponse = zod.object({
 
  * @summary Search GBIF species by common (vernacular) name
  */
+
 export const GetGbifSearchQueryParams = zod.object({
-  q: zod.coerce
+  q: zod
     .string()
+    .min(1)
     .describe("Common name search string (e.g. butterfly milkweed)"),
 });
 
@@ -762,11 +768,13 @@ export const GetGbifMetadataResponse = zod.object({
 
  * @summary Look up an iNaturalist place by name
  */
+
 export const getInatPlaceQueryRefreshDefault = false;
 
 export const GetInatPlaceQueryParams = zod.object({
-  q: zod.coerce
+  q: zod
     .string()
+    .min(1)
     .describe(
       "Place name to search (e.g. Washtenaw County, Michigan, Sleeping Bear Dunes)",
     ),
@@ -863,11 +871,13 @@ export const GetInatPlaceResponse = zod.object({
 
  * @summary Look up species appearance data from iNaturalist
  */
+
 export const getInatSpeciesQueryRefreshDefault = false;
 
 export const GetInatSpeciesQueryParams = zod.object({
-  name: zod.coerce
+  name: zod
     .string()
+    .min(1)
     .describe("Scientific name to look up (e.g. Asclepias tuberosa)"),
   refresh: zod.coerce
     .boolean()
@@ -940,7 +950,7 @@ export const GetInatHistogramQueryParams = zod.object({
   taxon_id: zod.coerce
     .number()
     .describe("iNaturalist numeric taxon ID (from the species endpoint)"),
-  place_id: zod.coerce
+  place_id: zod
     .string()
     .optional()
     .describe(
@@ -1018,7 +1028,7 @@ export const GetInatFieldValuesQueryParams = zod.object({
   taxon_id: zod.coerce
     .number()
     .describe("iNaturalist numeric taxon ID (from the species endpoint)"),
-  place_id: zod.coerce
+  place_id: zod
     .string()
     .optional()
     .describe(
@@ -1249,11 +1259,13 @@ export const GetInatMetadataResponse = zod.object({
 
  * @summary Look up a species in Michigan Flora
  */
+
 export const getMifloraSpeciesQueryRefreshDefault = false;
 
 export const GetMifloraSpeciesQueryParams = zod.object({
-  name: zod.coerce
+  name: zod
     .string()
+    .min(1)
     .describe("Scientific name to look up (e.g. Asclepias tuberosa)"),
   refresh: zod.coerce
     .boolean()
@@ -1330,11 +1342,13 @@ export const GetMifloraSpeciesResponse = zod
 
  * @summary Get county-level occurrence records for a Michigan Flora species by name
  */
+
 export const getMifloraCountiesQueryRefreshDefault = false;
 
 export const GetMifloraCountiesQueryParams = zod.object({
-  name: zod.coerce
+  name: zod
     .string()
+    .min(1)
     .describe(
       "Scientific name to look up county records for (e.g. Asclepias tuberosa)",
     ),
@@ -1411,11 +1425,13 @@ export const GetMifloraCountiesResponse = zod
 
  * @summary Get the full photo gallery for a Michigan Flora species
  */
+
 export const getMifloraImagesQueryRefreshDefault = false;
 
 export const GetMifloraImagesQueryParams = zod.object({
-  name: zod.coerce
+  name: zod
     .string()
+    .min(1)
     .describe("Scientific name to look up (e.g. Asclepias tuberosa)"),
   refresh: zod.coerce
     .boolean()
@@ -1601,9 +1617,11 @@ export const GetMifloraMetadataResponse = zod.object({
 
  * @summary Look up a Coefficient of Conservatism value
  */
+
 export const GetCoefficientByValueQueryParams = zod.object({
-  value: zod.coerce
+  value: zod
     .string()
+    .min(1)
     .describe(
       "C-value to look up. Must be a string: '0'–'10' for native species, or '\*' for non-native\/adventive species.\n",
     ),
@@ -2885,9 +2903,11 @@ export const GetLcscgGuideResponse = zod.object({
 
  * @summary Search Lake County Seed Collection Guides species by name
  */
+
 export const GetLcscgSpeciesQueryParams = zod.object({
-  name: zod.coerce
+  name: zod
     .string()
+    .min(1)
     .describe(
       "Scientific or common name to search (partial match, case-insensitive).\n",
     ),
@@ -3395,9 +3415,11 @@ export const GetUniversalFqaDatabaseResponse = zod.object({
 
  * @summary Look up a species by scientific name in a Universal FQA database
  */
+
 export const GetUniversalFqaSpeciesQueryParams = zod.object({
-  name: zod.coerce
+  name: zod
     .string()
+    .min(1)
     .describe("Scientific name to look up (e.g. Lobelia cardinalis)"),
   database_id: zod.coerce
     .number()
@@ -3886,7 +3908,7 @@ export const GetSourcesMetadataResponse = zod.object({
  * @summary List cross-source relationships (overlaps, conflicts, complements)
  */
 export const GetSourceRelationshipsQueryParams = zod.object({
-  source_id: zod.coerce
+  source_id: zod
     .string()
     .optional()
     .describe(
@@ -4025,15 +4047,15 @@ export const GetMnfiMetadataResponse = zod.object({
  * @summary List MNFI natural community types
  */
 export const GetMnfiCommunitiesQueryParams = zod.object({
-  class: zod.coerce
+  class: zod
     .string()
     .optional()
     .describe("Filter by community class (substring match, e.g. Terrestrial)"),
-  group: zod.coerce
+  group: zod
     .string()
     .optional()
     .describe("Filter by community group (substring match, e.g. Forest)"),
-  name: zod.coerce
+  name: zod
     .string()
     .optional()
     .describe("Filter by community name (substring match, e.g. oak savanna)"),
@@ -4100,9 +4122,11 @@ export const GetMnfiCommunitiesResponse = zod.object({
 
  * @summary Get a single MNFI community by ID or slug
  */
+
 export const GetMnfiCommunityParams = zod.object({
-  id: zod.coerce
+  id: zod
     .string()
+    .min(1)
     .describe("Numeric community_id or URL slug for the community"),
 });
 
@@ -4186,9 +4210,11 @@ export const GetMnfiCommunityResponse = zod.object({
 
  * @summary Get characteristic plants for an MNFI community
  */
+
 export const GetMnfiCommunityPlantsParams = zod.object({
-  id: zod.coerce
+  id: zod
     .string()
+    .min(1)
     .describe("Numeric community_id or URL slug for the community"),
 });
 
@@ -4266,9 +4292,11 @@ export const GetMnfiCommunityPlantsResponse = zod.object({
 
  * @summary Get MNFI significant natural features for a Michigan county
  */
+
 export const GetMnfiCountyElementsQueryParams = zod.object({
-  county: zod.coerce
+  county: zod
     .string()
+    .min(1)
     .describe(
       "Michigan county name (e.g. Washtenaw, Leelanau). Case-insensitive. All 83 Michigan county names are accepted.\n",
     ),
@@ -4403,14 +4431,16 @@ export const GetNatureserveMetadataResponse = zod.object({
 
  * @summary Look up species conservation status from NatureServe Explorer
  */
+
 export const getNatureserveSpeciesQueryStateDefault = `MI`;
 export const getNatureserveSpeciesQueryRefreshDefault = false;
 
 export const GetNatureserveSpeciesQueryParams = zod.object({
-  name: zod.coerce
+  name: zod
     .string()
+    .min(1)
     .describe("Scientific name to look up (e.g. Asclepias tuberosa)"),
-  state: zod.coerce
+  state: zod
     .string()
     .default(getNatureserveSpeciesQueryStateDefault)
     .describe(
@@ -4516,11 +4546,13 @@ export const GetNatureserveSpeciesResponse = zod.object({
 
  * @summary Look up ecological systems from NatureServe Explorer
  */
+
 export const getNatureserveEcosystemsQueryRefreshDefault = false;
 
 export const GetNatureserveEcosystemsQueryParams = zod.object({
-  name: zod.coerce
+  name: zod
     .string()
+    .min(1)
     .describe(
       "Ecosystem name or keyword to search (e.g. oak savanna, wet prairie)",
     ),
@@ -4591,9 +4623,11 @@ export const GetNatureserveEcosystemsResponse = zod.object({
 
  * @summary Look up a Go Botany species page URL
  */
+
 export const GetGobotanyQueryParams = zod.object({
-  species: zod.coerce
+  species: zod
     .string()
+    .min(1)
     .describe(
       "Binomial scientific name (e.g. Acer rubrum). Genus and species epithet required. Both components must contain only letters.\n",
     ),
@@ -4769,9 +4803,11 @@ export const GetGobotanyMetadataResponse = zod
 
  * @summary Construct a Google Images search URL for a species
  */
+
 export const GetGoogleImagesQueryParams = zod.object({
-  species: zod.coerce
+  species: zod
     .string()
+    .min(1)
     .describe("Scientific name to search for (e.g. Acer rubrum)"),
 });
 
@@ -4945,8 +4981,9 @@ export const GetGoogleImagesMetadataResponse = zod
 
  * @summary Look up an Illinois Wildflowers species page URL
  */
+
 export const GetIllinoisWildflowersQueryParams = zod.object({
-  species: zod.coerce.string().describe("Scientific name (e.g. Acer rubrum)"),
+  species: zod.string().min(1).describe("Scientific name (e.g. Acer rubrum)"),
 });
 
 export const GetIllinoisWildflowersResponse = zod
@@ -5119,8 +5156,9 @@ export const GetIllinoisWildflowersMetadataResponse = zod
 
  * @summary Look up a Minnesota Wildflowers species page URL
  */
+
 export const GetMinnesotaWildflowersQueryParams = zod.object({
-  species: zod.coerce.string().describe("Scientific name (e.g. Acer rubrum)"),
+  species: zod.string().min(1).describe("Scientific name (e.g. Acer rubrum)"),
 });
 
 export const GetMinnesotaWildflowersResponse = zod
@@ -5293,8 +5331,9 @@ export const GetMinnesotaWildflowersMetadataResponse = zod
 
  * @summary Look up a Missouri Plants species page URL
  */
+
 export const GetMissouriPlantsQueryParams = zod.object({
-  species: zod.coerce.string().describe("Scientific name (e.g. Acer rubrum)"),
+  species: zod.string().min(1).describe("Scientific name (e.g. Acer rubrum)"),
 });
 
 export const GetMissouriPlantsResponse = zod
@@ -5467,8 +5506,9 @@ export const GetMissouriPlantsMetadataResponse = zod
 
  * @summary Look up a Prairie Moon Nursery species page URL
  */
+
 export const GetPrairieMoonQueryParams = zod.object({
-  species: zod.coerce.string().describe("Scientific name (e.g. Acer rubrum)"),
+  species: zod.string().min(1).describe("Scientific name (e.g. Acer rubrum)"),
 });
 
 export const GetPrairieMoonResponse = zod
@@ -5641,8 +5681,9 @@ export const GetPrairieMoonMetadataResponse = zod
 
  * @summary Construct a USDA PLANTS search URL for a species
  */
+
 export const GetUsdaPlantsQueryParams = zod.object({
-  species: zod.coerce.string().describe("Scientific name (e.g. Acer rubrum)"),
+  species: zod.string().min(1).describe("Scientific name (e.g. Acer rubrum)"),
 });
 
 export const GetUsdaPlantsResponse = zod
@@ -5815,8 +5856,9 @@ export const GetUsdaPlantsMetadataResponse = zod
 
  * @summary Construct a Lady Bird Johnson Wildflower Center search URL for a species
  */
+
 export const GetLadyBirdJohnsonQueryParams = zod.object({
-  species: zod.coerce.string().describe("Scientific name (e.g. Acer rubrum)"),
+  species: zod.string().min(1).describe("Scientific name (e.g. Acer rubrum)"),
 });
 
 export const GetLadyBirdJohnsonResponse = zod
@@ -5989,8 +6031,9 @@ export const GetLadyBirdJohnsonMetadataResponse = zod
 
  * @summary Look up a species across all botanical reference sources at once
  */
+
 export const GetBotanicalRefsQueryParams = zod.object({
-  species: zod.coerce.string().describe("Scientific name (e.g. Acer rubrum)"),
+  species: zod.string().min(1).describe("Scientific name (e.g. Acer rubrum)"),
 });
 
 export const GetBotanicalRefsResponse = zod

@@ -9,6 +9,7 @@
 export type GetIllinoisWildflowersParams = {
   /**
    * Scientific name (e.g. Acer rubrum)
+   * @minLength 1
    */
   species: string;
 };

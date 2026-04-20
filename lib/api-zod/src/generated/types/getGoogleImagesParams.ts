@@ -9,6 +9,7 @@
 export type GetGoogleImagesParams = {
   /**
    * Scientific name to search for (e.g. Acer rubrum)
+   * @minLength 1
    */
   species: string;
 };

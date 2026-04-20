@@ -11,6 +11,7 @@ export type GetMnfiCountyElementsParams = {
   /**
  * Michigan county name (e.g. Washtenaw, Leelanau). Case-insensitive. All 83 Michigan county names are accepted.
 
+ * @minLength 1
  */
   county: string;
   /**

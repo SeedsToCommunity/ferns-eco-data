@@ -9,6 +9,7 @@
 export type GetUniversalFqaSpeciesParams = {
   /**
    * Scientific name to look up (e.g. Lobelia cardinalis)
+   * @minLength 1
    */
   name: string;
   /**

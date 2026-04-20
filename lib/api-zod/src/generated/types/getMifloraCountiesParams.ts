@@ -9,6 +9,7 @@
 export type GetMifloraCountiesParams = {
   /**
    * Scientific name to look up county records for (e.g. Asclepias tuberosa)
+   * @minLength 1
    */
   name: string;
   /**

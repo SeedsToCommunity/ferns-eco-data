@@ -9,6 +9,7 @@
 export type GetGbifMatchParams = {
   /**
    * Scientific name to match (e.g. Asclepias tuberosa)
+   * @minLength 1
    */
   name: string;
   /**

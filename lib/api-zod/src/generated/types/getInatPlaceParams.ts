@@ -9,6 +9,7 @@
 export type GetInatPlaceParams = {
   /**
    * Place name to search (e.g. Washtenaw County, Michigan, Sleeping Bear Dunes)
+   * @minLength 1
    */
   q: string;
   /**
