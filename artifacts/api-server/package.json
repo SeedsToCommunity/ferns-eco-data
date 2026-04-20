@@ -9,7 +9,8 @@
     "build:prod": "node ../../lib/db/scripts/run-prod-migrations.mjs && node ./build.mjs",
     "start": "node --enable-source-maps ./dist/index.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "import-lcscg": "tsx src/services/lcscg/import.ts"
+    "import-lcscg": "tsx src/services/lcscg/import.ts",
+    "spec:check": "tsx src/scripts/spec-check.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
