@@ -696,33 +696,33 @@ const tools: ToolDef[] = [
     tool: {
       name: "mnfi__community",
       description:
-        "Returns the full MNFI natural community profile by ID: description, landscape context, soils, natural processes, vegetation, management notes, characteristic plant list, and MNFI URL.",
+        "Returns the full MNFI natural community profile for a specific community by ID, including description, associated species, and disturbance regime.",
       inputSchema: {
         type: "object" as const,
         properties: {
-          id: { type: "number", description: "MNFI community ID (integer)" },
+          id: { type: "string", description: "MNFI community ID (e.g. A1)" },
         },
         required: ["id"],
       },
     },
     handler: async (args) =>
-      fernsGet(`/mnfi/communities/${Number(args["id"])}`),
+      fernsGet(`/mnfi/communities/${encodeURIComponent(String(args["id"]))}`),
   },
   {
     tool: {
       name: "mnfi__community_plants",
       description:
-        "Returns the characteristic plant species associated with a specific MNFI natural community.",
+        "Returns the list of plant species associated with a specific MNFI natural community, useful for understanding community composition.",
       inputSchema: {
         type: "object" as const,
         properties: {
-          id: { type: "number", description: "MNFI community ID (integer)" },
+          id: { type: "string", description: "MNFI community ID (e.g. A1)" },
         },
         required: ["id"],
       },
     },
     handler: async (args) =>
-      fernsGet(`/mnfi/communities/${Number(args["id"])}/plants`),
+      fernsGet(`/mnfi/communities/${encodeURIComponent(String(args["id"]))}/plants`),
   },
   {
     tool: {
