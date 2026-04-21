@@ -894,7 +894,7 @@ const tools: ToolDef[] = [
 
   export function createMcpServer(): Server {
     const server = new Server(
-      { name: "ferns-mcp", version: "1.0.0" },
+      { name: "ecological-commons", version: "1.0.0" },
       { capabilities: { tools: {} } },
     );
 
