@@ -2,6 +2,7 @@ import express, { type Express } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
 import path from "path";
+import http from "http";
 import router from "./routes";
 import mcpRouter from "./routes/mcp";
 import { logger } from "./lib/logger";
@@ -47,6 +48,36 @@ app.use("/api", router);
 app.use("/api", (_req, res) => {
   res.status(404).json({ error: "Not found" });
 });
+
+// Production-only: serve the appropriate static site based on the Host header.
+// Requests reach here only if no /api route matched (non-API paths).
+//
+// data.ecologicalcommons.org  →  FERNS registry explorer
+// ecologicalcommons.org (or any other host)  →  public website
+//
+// Development-only: proxy non-API requests to the Astro dev server so the
+// Replit preview (which routes all traffic through this server) can serve
+// the public site. In production the block below handles static files.
+if (process.env.NODE_ENV !== "production") {
+  const SITE_PORT = Number(process.env.ECOLOGICAL_COMMONS_PORT ?? "18478");
+  app.use((req, res) => {
+    const options = {
+      hostname: "localhost",
+      port: SITE_PORT,
+      path: req.url,
+      method: req.method,
+      headers: { ...req.headers, host: `localhost:${SITE_PORT}` },
+    };
+    const proxy = http.request(options, (proxyRes) => {
+      res.writeHead(proxyRes.statusCode ?? 502, proxyRes.headers as Record<string, string>);
+      proxyRes.pipe(res, { end: true });
+    });
+    proxy.on("error", () => {
+      res.status(502).send("Astro dev server not available — start the ecological-commons-site workflow");
+    });
+    req.pipe(proxy, { end: true });
+  });
+}
 
 // Production-only: serve the appropriate static site based on the Host header.
 // Requests reach here only if no /api route matched (non-API paths).

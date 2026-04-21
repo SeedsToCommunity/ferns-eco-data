@@ -29,6 +29,9 @@ export default defineConfig({
   outDir: "./dist/public",
   vite: {
     plugins: [tailwindcss()],
+    server: {
+      allowedHosts: true,
+    },
   },
   markdown: {
     rehypePlugins: [
@@ -42,11 +45,9 @@ export default defineConfig({
   server: {
     port: Number(process.env.PORT) || 4321,
     host: "0.0.0.0",
-    allowedHosts: true,
   },
   preview: {
     port: Number(process.env.PORT) || 4321,
     host: "0.0.0.0",
-    allowedHosts: true,
   },
 });
