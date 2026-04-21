@@ -50,7 +50,7 @@ const TABS = [
     </header>
 
     <main>
-      <section id="section-home" class="tab-section">
+      <section id="home" class="tab-section">
         <div style="max-width: 720px; margin: 0 auto; padding: 3rem 1.5rem;">
           <article class="prose max-w-none">
             <HomeContent />
@@ -58,7 +58,7 @@ const TABS = [
         </div>
       </section>
 
-      <section id="section-idea" class="tab-section">
+      <section id="idea" class="tab-section">
         <div style="max-width: 720px; margin: 0 auto; padding: 3rem 1.5rem;">
           <article class="prose max-w-none">
             <IdeaContent />
@@ -72,7 +72,7 @@ const TABS = [
         </div>
       </section>
 
-      <section id="section-built" class="tab-section">
+      <section id="built" class="tab-section">
         <div style="max-width: 720px; margin: 0 auto; padding: 3rem 1.5rem;">
           <article class="prose max-w-none">
             <BuiltContent />
@@ -80,7 +80,7 @@ const TABS = [
         </div>
       </section>
 
-      <section id="section-worksheet" class="tab-section">
+      <section id="worksheet" class="tab-section">
         <div style="max-width: 720px; margin: 0 auto; padding: 3rem 1.5rem;">
           <article class="prose max-w-none prose-worksheet">
             <WorksheetContent />
@@ -97,7 +97,7 @@ const TABS = [
           if (!TABS.includes(id)) id = "home";
 
           TABS.forEach(function (tab) {
-            const section = document.getElementById("section-" + tab);
+            const section = document.getElementById(tab);
             const link = document.querySelector<HTMLElement>('[data-tab="' + tab + '"]');
             if (section) {
               section.style.display = tab === id ? "block" : "none";
