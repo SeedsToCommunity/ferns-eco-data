@@ -1,0 +1,133 @@
+---
+import { Content as HomeContent } from "../content/index.md";
+import { Content as IdeaContent } from "../content/idea.md";
+import { Content as InfoFrontierContent } from "../content/information-frontier.md";
+import { Content as ComputingFrontierContent } from "../content/computing-frontier.md";
+import { Content as BuiltContent } from "../content/built.md";
+import { Content as WorksheetContent } from "../content/worksheet.md";
+import "../styles/global.css";
+
+const TABS = [
+  { id: "home", label: "Home" },
+  { id: "idea", label: "The Idea" },
+  { id: "built", label: "What's Built" },
+  { id: "worksheet", label: "Worksheet" },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>An Ecological Commons</title>
+    <meta
+      name="description"
+      content="A shared practice of describing, registering, and reaching ecological knowledge, so that anyone who needs it can find it and work with it honestly."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header
+      style="border-bottom: 1px solid var(--color-border); background-color: var(--color-bg-nav);"
+    >
+      <div style="max-width: 720px; margin: 0 auto; padding: 1rem 1.5rem;">
+        <nav style="display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; align-items: center;">
+          {
+            TABS.map(({ id, label }) => (
+              <a href={`#${id}`} class="tab-link" data-tab={id} data-active="false">
+                {label}
+              </a>
+            ))
+          }
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section id="section-home" class="tab-section">
+        <div style="max-width: 720px; margin: 0 auto; padding: 3rem 1.5rem;">
+          <article class="prose max-w-none">
+            <HomeContent />
+          </article>
+        </div>
+      </section>
+
+      <section id="section-idea" class="tab-section">
+        <div style="max-width: 720px; margin: 0 auto; padding: 3rem 1.5rem;">
+          <article class="prose max-w-none">
+            <IdeaContent />
+            <div id="information-frontier">
+              <InfoFrontierContent />
+            </div>
+            <div id="computing-frontier">
+              <ComputingFrontierContent />
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="section-built" class="tab-section">
+        <div style="max-width: 720px; margin: 0 auto; padding: 3rem 1.5rem;">
+          <article class="prose max-w-none">
+            <BuiltContent />
+          </article>
+        </div>
+      </section>
+
+      <section id="section-worksheet" class="tab-section">
+        <div style="max-width: 720px; margin: 0 auto; padding: 3rem 1.5rem;">
+          <article class="prose max-w-none prose-worksheet">
+            <WorksheetContent />
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      (function () {
+        const TABS = ["home", "idea", "built", "worksheet"];
+
+        function activate(id: string) {
+          if (!TABS.includes(id)) id = "home";
+
+          TABS.forEach(function (tab) {
+            const section = document.getElementById("section-" + tab);
+            const link = document.querySelector<HTMLElement>('[data-tab="' + tab + '"]');
+            if (section) {
+              section.style.display = tab === id ? "block" : "none";
+            }
+            if (link) {
+              link.setAttribute("data-active", tab === id ? "true" : "false");
+            }
+          });
+        }
+
+        const hash = window.location.hash.slice(1);
+        const initial = TABS.includes(hash) ? hash : "home";
+        activate(initial);
+
+        TABS.forEach(function (tab) {
+          const link = document.querySelector('[data-tab="' + tab + '"]');
+          if (link) {
+            link.addEventListener("click", function (e) {
+              e.preventDefault();
+              activate(tab);
+              history.pushState(null, "", "#" + tab);
+            });
+          }
+        });
+
+        window.addEventListener("hashchange", function () {
+          const h = window.location.hash.slice(1);
+          if (TABS.includes(h)) activate(h);
+        });
+      })();
+    </script>
+  </body>
+</html>

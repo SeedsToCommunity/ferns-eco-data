@@ -32,13 +32,13 @@ FERNS fetches, caches, and exposes ecological and environmental data from author
 
 | Artifact | Dev path | Production domain | Purpose |
 |---|---|---|---|
-| `artifacts/ecological-commons-site` | `/` | `ecologicalcommons.org/` | Public-facing website — 6 content pages rendered from markdown |
+| `artifacts/ecological-commons-site` | `/` | `ecologicalcommons.org/` | Public-facing website — single Astro page, 6 content sections in HTML, JavaScript tabs for human navigation |
 | `artifacts/registry-explorer` | `/ferns/` | `data.ecologicalcommons.org/` | FERNS Data Layer explorer — browse all registered sources |
 | `artifacts/api-server` | `/api` (port 8080) | `data.ecologicalcommons.org/api/` | FERNS REST API server — handles ALL production routes via Host-header routing |
 | `artifacts/mcp-server` | stdio (dev) | `data.ecologicalcommons.org/mcp` | FERNS MCP Server — 48 tools via Streamable HTTP; stdio fallback for local dev |
 | `artifacts/mockup-sandbox` | `/__mockup` | — | UI component preview sandbox (internal dev only) |
 
-**ecological-commons-site** is a React + Vite + Tailwind static site using Lora serif / Inter sans typography. Content lives in `src/content/*.md` as raw imports rendered by `react-markdown` + `remark-gfm`. Routing via `wouter`. No backend — pure static site. Intended to be deployed to `ecologicalcommons.org` once the user points the domain.
+**ecological-commons-site** is an Astro static site using Lora serif / Inter sans typography and Tailwind 4 via the Vite plugin. All six content sections (Home, The Idea, Information Frontier, Computing Frontier, What's Built, Worksheet) are consolidated into a **single page** at the root URL. Content lives in `src/content/*.md` — each file is imported as an Astro Content component and rendered to HTML at build time. The page uses JavaScript tabs for human navigation (hash-based: `#home`, `#idea`, `#built`, `#worksheet`); the no-JS fallback displays all sections sequentially. All HTML content is present in the server-rendered response, so bots and AI tools see every section in one request. Rehype plugins handle: (1) external links → `target="_blank" rel="noopener noreferrer"`, (2) internal cross-section links → in-page `#` anchors. No backend — pure static site. Intended to be deployed to `ecologicalcommons.org` once the user points the domain. Build output: `dist/public/` (matches the API server production build expectation).
 
 ## URL and API Architecture
 
