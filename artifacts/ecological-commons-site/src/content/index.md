@@ -1,32 +1,34 @@
 # An Ecological Commons
 
-Ecological knowledge lives all around us. In published research. In careful spreadsheets. In seed records, survey notes, species lists, restoration logs. Some of it is rigorously produced. Some of it is quietly maintained by one person who has been watching the same place for twenty years. Both kinds have value. Much of it is hard to find and harder to connect.
+Ecological knowledge lives all around us: In published research, in careful spreadsheets, in seed records, survey notes, species lists, and restoration logs. Some of it is rigorously produced. Some of it is quietly maintained by one person who has been watching the same place for years. Much of it is hard to find and harder to connect.
 
-A commons is a way of holding something in common. Land, water, libraries, seed banks — shared resources that stay healthy when the community around them tends them with care. An ecological commons extends the same idea to ecological knowledge. Not a warehouse. A shared practice of describing, registering, and reaching what we each steward, so that anyone who needs it can find it and work with it honestly.
+shared resources, spaces, or assets managed collectively by a community, rather than being privately owned or state-controlled
+
+A commons is a place or a way of holding a resource, space or asset collectively as a community. Land, water, libraries, seed banks, for example, are shared resources that stay healthy when the community around them tends them with care. An ecological commons extends the same idea to ecological knowledge. Not a warehouse, but a shared practice of describing, registering, and reaching what we steward, so that anyone who needs it can find it and work with it honestly.
 
 ## What this is
 
-This site is the home for an ecological commons being built in the open. It holds the ideas behind the work, the infrastructure that supports it, and the community of people and organizations who are shaping what it becomes.
+This site is the beginnings of an idea, a home for an ecological commons being built in the open with as much careful intent as possible. It holds the ideas behind the work, the infrastructure that supports it, and a basis for a community of people and organizations to shape what it becomes.
 
-At its center is a simple commitment: knowledge enters the commons on its own terms. Attribution stays with the source. Each source is described honestly — what it is, who made it, how it was derived, what it does and does not cover. A researcher, a homeowner, a student, or a tool working on someone's behalf can all reach for it and know what they're holding.
+At its center is a simple commitment: knowledge enters the commons on its own terms. Attribution stays with the source. Each source is described honestly. A researcher, a homeowner, a student, or a tool working on someone's behalf can all reach for it and know what they're holding.
 
-## The pattern
+## The knowledge pattern
 
-The pattern is small and repeatable. A source honestly describes what it is — what it holds, who made it, how it came to be. That description is what makes it findable. A source that no one could find yesterday is reachable today.
+The pattern is small and repeatable. A source honestly describes what it is — what it holds, who made it, and how it came to be. That description is what makes it findable. A source that no one could find yesterday is integrated and made reachable.
 
-Sources that are integrated go further still. Integration means the data becomes navigable and reachable however it originally arrived — a spreadsheet, a file, a partner's system, a public API. Each integrated source gets its own explorer, a public way to see what's inside and understand what it means.
+Further, sources that are integrated become navigable and reachable, no matter the form they arrived (a spreadsheet, a file, a partner's system, a public API). Each integrated source gets its own explorer, a public way to glimpse what's inside and understand what it means.
 
 The pattern works at every scale. Local, regional, national. Each level is real in its own right, not a zoom on the others.
 
 ## Why honesty about sources matters
 
-Not all knowledge is the same kind of knowledge. Some was observed in the field. Some was compiled from many observations. Some was synthesized across sources using methods that themselves deserve scrutiny. A commons that flattens those differences does its users a disservice. A commons that makes them visible lets everyone who reaches for a fact know whose hands it passed through.
+Not all knowledge is the same kind of knowledge. Some was observed in the field. Some was compiled from many observations. Some was synthesized across sources using methods that themselves deserve careful description. A commons that flattens those differences does its users a disservice. A commons that makes them visible lets everyone who reaches for a fact know whose hands it passed through.
 
-That honesty is also what lets new kinds of tools trust what they find here. As tools emerge that help people build what they can imagine on demand, those tools will need ground to stand on. A commons that is honest about its sources is exactly the kind of ground that makes powerful tools safe.
+That honesty is also what lets a new tool trust what it finds here. As technological tools emerge that help people build, what they we can imagine might just be on demand. Those tools will need ground to stand on. A commons that is honest about its sources is exactly the kind of ground that helps a powerful tool be safe.
 
 ## What gets built on top
 
-What a commons enables is not bounded by what anyone predicted. Field guides that know your specific site. Restoration planning tools that show the gap between what grows there and what could. Classroom exercises where students explore ecological networks by adding species and watching the interactions emerge. Regional coordination between organizations that no longer have to rebuild the same data work separately.
+What a commons enables is not bounded by predictions or institutions. Field guides that know your specific site. Restoration planning tools that show the gap between what grows there and what could. Classroom exercises where students explore ecological networks by adding species and watching the interactions emerge. Regional coordination between organizations that no longer have to rebuild the same data work separately.
 
 And beyond any of that — whatever the people who use this commons find themselves able to imagine once the ground beneath them is trustworthy.
 
