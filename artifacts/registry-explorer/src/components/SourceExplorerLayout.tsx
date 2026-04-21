@@ -282,7 +282,7 @@ export function SourceExplorerLayout({ sourceId, children }: SourceExplorerLayou
             <div className="flex items-baseline gap-3 border-t border-border pt-6 mb-5">
               <h2 className="text-lg font-bold text-foreground">Try It</h2>
               <p className="text-sm text-muted-foreground">
-                Live queries through the FERNS {source.name} API.
+                Live queries through the {source.name} data source.
               </p>
             </div>
             {children}

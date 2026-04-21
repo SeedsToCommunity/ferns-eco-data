@@ -1,21 +1,21 @@
-# FERNS Partnership Letters
+# Ecological Commons Partnership Letters
 
 ---
 
 ## 1. Native Plant Trust (GoBotany)
 
 **To:** Native Plant Trust  
-**Re:** FERNS Partnership — GoBotany Integration
+**Re:** Ecological Commons Partnership — GoBotany Integration
 
 ---
 
 Dear Native Plant Trust Team,
 
-My name is [Your Name], and I am writing to introduce FERNS — the Federated Ecological Resource Network System — a federated data infrastructure project that aggregates ecological and botanical data from authoritative sources and exposes it through a unified, open REST API.
+My name is [Your Name], and I am writing to introduce Ecological Commons — a federated data infrastructure project that aggregates ecological and botanical data from authoritative sources and exposes it through a unified, open REST API.
 
-FERNS is designed to serve as the data layer beneath applications built for homeowners, restoration practitioners, students, educators, and researchers who need access to high-quality botanical information without integrating every source independently. The system is live at https://ferns-eco-data.replit.app.
+Ecological Commons is designed to serve as the data layer beneath applications built for homeowners, restoration practitioners, students, educators, and researchers who need access to high-quality botanical information without integrating every source independently. The system is live at https://data.ecologicalcommons.org.
 
-GoBotany is already integrated into FERNS as an authoritative reference source. When a user queries a plant species through FERNS, the system validates whether that species has a page on GoBotany and, if so, surfaces the direct URL to that page — crediting your organization as the source in every response.
+GoBotany is already integrated into the Ecological Commons data layer as an authoritative reference source. When a user queries a plant species through Ecological Commons, the system validates whether that species has a page on GoBotany and, if so, surfaces the direct URL to that page — crediting your organization as the source in every response.
 
 We would welcome the opportunity to formalize this relationship. A partnership with Native Plant Trust would allow us to:
 
@@ -30,24 +30,24 @@ If this is of interest, we would be glad to schedule a call or correspond by ema
 Warm regards,  
 [Your Name]  
 [Contact Information]  
-FERNS Project — https://ferns-eco-data.replit.app
+Ecological Commons — https://data.ecologicalcommons.org
 
 ---
 
 ## 2. Missouri Botanical Garden (Missouri Plants)
 
 **To:** Missouri Botanical Garden  
-**Re:** FERNS Partnership — Missouri Plants Integration
+**Re:** Ecological Commons Partnership — Missouri Plants Integration
 
 ---
 
 Dear Missouri Botanical Garden Team,
 
-I am writing to introduce FERNS (Federated Ecological Resource Network System), a data infrastructure project that aggregates botanical and ecological data from authoritative sources and makes it accessible through a unified REST API. The system is live at https://ferns-eco-data.replit.app.
+I am writing to introduce Ecological Commons, a data infrastructure project that aggregates botanical and ecological data from authoritative sources and makes it accessible through a unified REST API. The system is live at https://data.ecologicalcommons.org.
 
-FERNS is designed to serve as the data layer beneath applications built for homeowners, restoration practitioners, students, educators, and researchers — people who need access to high-quality botanical information without having to integrate each data source themselves.
+Ecological Commons is designed to serve as the data layer beneath applications built for homeowners, restoration practitioners, students, educators, and researchers — people who need access to high-quality botanical information without having to integrate each data source themselves.
 
-The Missouri Botanical Garden's plants of Missouri resource is integrated into FERNS as a reference source. We currently maintain a curated species list of 1,493 Missouri plant species sourced from the site, and when a user queries a species, FERNS surfaces the direct Missouri Plants profile URL, crediting the Missouri Botanical Garden as the source.
+The Missouri Botanical Garden's plants of Missouri resource is integrated into the Ecological Commons data layer as a reference source. We currently maintain a curated species list of 1,493 Missouri plant species sourced from the site, and when a user queries a species, the data layer surfaces the direct Missouri Plants profile URL, crediting the Missouri Botanical Garden as the source.
 
 We would welcome the opportunity to establish a formal partnership. This could include:
 
@@ -62,24 +62,24 @@ We would be glad to discuss what a partnership could look like. Thank you for yo
 With respect,  
 [Your Name]  
 [Contact Information]  
-FERNS Project — https://ferns-eco-data.replit.app
+Ecological Commons — https://data.ecologicalcommons.org
 
 ---
 
 ## 3. Minnesota Wildflowers
 
 **To:** Minnesota Wildflowers (mnwildflowers.com)  
-**Re:** FERNS Partnership — Minnesota Wildflowers Integration
+**Re:** Ecological Commons Partnership — Minnesota Wildflowers Integration
 
 ---
 
 Dear Minnesota Wildflowers Team,
 
-I am writing to introduce FERNS (Federated Ecological Resource Network System), a data infrastructure project that aggregates ecological and botanical data from authoritative sources and exposes it through a unified REST API. The system is live at https://ferns-eco-data.replit.app.
+I am writing to introduce Ecological Commons, a data infrastructure project that aggregates ecological and botanical data from authoritative sources and exposes it through a unified REST API. The system is live at https://data.ecologicalcommons.org.
 
-FERNS is built to serve as the data layer beneath applications used by homeowners, restoration practitioners, students, and educators — people who want access to reliable plant information without having to integrate multiple websites on their own.
+Ecological Commons is built to serve as the data layer beneath applications used by homeowners, restoration practitioners, students, and educators — people who want access to reliable plant information without having to integrate multiple websites on their own.
 
-Minnesota Wildflowers is integrated into FERNS as a reference source covering 1,853 species. When a user queries a plant species, FERNS checks whether Minnesota Wildflowers has a page for that species and, if so, returns the direct link — with your site credited as the source in every response.
+Minnesota Wildflowers is integrated into the Ecological Commons data layer as a reference source covering 1,853 species. When a user queries a plant species, we check whether Minnesota Wildflowers has a page for that species and, if so, return the direct link — with your site credited as the source in every response.
 
 We wanted to reach out for a few reasons:
 
@@ -94,24 +94,24 @@ Please do not hesitate to reach out if you have any questions or concerns. We wo
 Best regards,  
 [Your Name]  
 [Contact Information]  
-FERNS Project — https://ferns-eco-data.replit.app
+Ecological Commons — https://data.ecologicalcommons.org
 
 ---
 
 ## 4. Illinois Wildflowers
 
 **To:** Illinois Wildflowers (illinoiswildflowers.info)  
-**Re:** FERNS Partnership — Illinois Wildflowers Integration
+**Re:** Ecological Commons Partnership — Illinois Wildflowers Integration
 
 ---
 
 Dear Illinois Wildflowers Team,
 
-I am writing to introduce FERNS (Federated Ecological Resource Network System), a data infrastructure project that aggregates ecological and botanical data from authoritative sources through a unified REST API. The system is live at https://ferns-eco-data.replit.app.
+I am writing to introduce Ecological Commons, a data infrastructure project that aggregates ecological and botanical data from authoritative sources through a unified REST API. The system is live at https://data.ecologicalcommons.org.
 
-FERNS is designed to sit beneath applications built for homeowners, restoration practitioners, educators, and students who want access to authoritative plant information without integrating every data source themselves.
+Ecological Commons is designed to sit beneath applications built for homeowners, restoration practitioners, educators, and students who want access to authoritative plant information without integrating every data source themselves.
 
-Illinois Wildflowers is integrated into FERNS as a reference source. We index 1,459 species entries across eight habitat sections (prairies, savannas, woodlands, wetlands, weedy areas, grasses and sedges, trees and shrubs, and mosses and ferns). When a user queries a species, FERNS checks whether Illinois Wildflowers covers it and, if so, returns the direct page link, with your site credited as the source.
+Illinois Wildflowers is integrated into the Ecological Commons data layer as a reference source. We index 1,459 species entries across eight habitat sections (prairies, savannas, woodlands, wetlands, weedy areas, grasses and sedges, trees and shrubs, and mosses and ferns). When a user queries a species, we check whether Illinois Wildflowers covers it and, if so, returns the direct page link, with your site credited as the source.
 
 We wanted to reach out to:
 
@@ -126,24 +126,24 @@ Thank you for all the work that has gone into building and maintaining this reso
 Best regards,  
 [Your Name]  
 [Contact Information]  
-FERNS Project — https://ferns-eco-data.replit.app
+Ecological Commons — https://data.ecologicalcommons.org
 
 ---
 
 ## 5. Prairie Moon Nursery
 
 **To:** Prairie Moon Nursery  
-**Re:** FERNS Partnership — Prairie Moon Integration
+**Re:** Ecological Commons Partnership — Prairie Moon Integration
 
 ---
 
 Dear Prairie Moon Nursery Team,
 
-I am writing to introduce FERNS (Federated Ecological Resource Network System), a data infrastructure project that aggregates ecological and botanical data from authoritative sources through a unified REST API. The system is live at https://ferns-eco-data.replit.app.
+I am writing to introduce Ecological Commons, a data infrastructure project that aggregates ecological and botanical data from authoritative sources through a unified REST API. The system is live at https://data.ecologicalcommons.org.
 
-FERNS is designed to serve as the data layer beneath applications used by homeowners, restoration practitioners, educators, and researchers who want access to reliable plant information without having to integrate every data source independently.
+Ecological Commons is designed to serve as the data layer beneath applications used by homeowners, restoration practitioners, educators, and researchers who want access to reliable plant information without having to integrate every data source independently.
 
-Prairie Moon Nursery is integrated into FERNS as a reference source. We currently maintain a species list of 823 plants from your catalog, and when a user queries a species, FERNS checks whether Prairie Moon carries it and, if so, returns the direct plant page link — with Prairie Moon credited as the source in every response.
+Prairie Moon Nursery is integrated into the Ecological Commons data layer as a reference source. We currently maintain a species list of 823 plants from your catalog, and when a user queries a species, we check whether Prairie Moon carries it and, if so, returns the direct plant page link — with Prairie Moon credited as the source in every response.
 
 We are reaching out to:
 
@@ -151,37 +151,37 @@ We are reaching out to:
 - Ask whether there are attribution or usage guidelines you would like us to follow
 - Explore whether a more formal partnership might be of mutual interest — for example, ensuring our species data stays current as your catalog evolves
 
-Prairie Moon Nursery's catalog represents one of the most comprehensive commercially available native plant collections in the Midwest, and we consider it an important reference for practitioners and homeowners looking to source the species they are researching through FERNS.
+Prairie Moon Nursery's catalog represents one of the most comprehensive commercially available native plant collections in the Midwest, and we consider it an important reference for practitioners and homeowners looking to source the species they are researching.
 
 We would be glad to discuss this further at your convenience. Thank you for everything Prairie Moon does for native plant restoration.
 
 With appreciation,  
 [Your Name]  
 [Contact Information]  
-FERNS Project — https://ferns-eco-data.replit.app
+Ecological Commons — https://data.ecologicalcommons.org
 
 ---
 
 ## 6. USDA Natural Resources Conservation Service (USDA Plants)
 
 **To:** USDA NRCS — PLANTS Database Team  
-**Re:** FERNS Partnership — USDA PLANTS Integration and Species-URL Data Request
+**Re:** Ecological Commons Partnership — USDA PLANTS Integration and Species-URL Data Request
 
 ---
 
 Dear USDA NRCS PLANTS Database Team,
 
-I am writing to introduce FERNS (Federated Ecological Resource Network System), a data infrastructure project that aggregates ecological and botanical data from authoritative sources through a unified REST API, currently live at https://ferns-eco-data.replit.app.
+I am writing to introduce Ecological Commons, a data infrastructure project that aggregates ecological and botanical data from authoritative sources through a unified REST API, currently live at https://data.ecologicalcommons.org.
 
-FERNS is designed to serve as the data layer beneath applications used by homeowners, restoration practitioners, educators, students, and researchers who need access to high-quality, authoritative botanical information without integrating every data source independently. Each source in the FERNS network is credited by name in every response, with a link back to the originating institution.
+Ecological Commons is designed to serve as the data layer beneath applications used by homeowners, restoration practitioners, educators, students, and researchers who need access to high-quality, authoritative botanical information without integrating every data source independently. Each source in the Ecological Commons data layer is credited by name in every response, with a link back to the originating institution.
 
-The USDA PLANTS Database is integrated into FERNS as a reference source. At present, when a user queries a species, FERNS returns a search URL pointing to the USDA PLANTS search results for that species. We are unable to link directly to individual species profile pages because those URLs are constructed using an internal symbol code (e.g., ACRU for *Acer rubrum*) that is not publicly mappable from a scientific name alone without querying the site directly at scale.
+The USDA PLANTS Database is integrated into the Ecological Commons data layer as a reference source. At present, when a user queries a species, we return a search URL pointing to the USDA PLANTS search results for that species. We are unable to link directly to individual species profile pages because those URLs are constructed using an internal symbol code (e.g., ACRU for *Acer rubrum*) that is not publicly mappable from a scientific name alone without querying the site directly at scale.
 
 We are writing for two reasons:
 
 **1. Partnership interest.** We would welcome a formal relationship with the USDA NRCS PLANTS team — even an informal acknowledgment of our integration — to ensure our usage aligns with your guidelines and that we represent your data accurately and responsibly.
 
-**2. Data request.** We would like to respectfully request access to a mapping of scientific names to their corresponding PLANTS profile URLs (or symbol codes). Even a simple flat file — scientific name, symbol, and profile URL — would allow us to link users directly to the authoritative USDA species page rather than a generic search, significantly improving the value of the USDA reference within FERNS.
+**2. Data request.** We would like to respectfully request access to a mapping of scientific names to their corresponding PLANTS profile URLs (or symbol codes). Even a simple flat file — scientific name, symbol, and profile URL — would allow us to link users directly to the authoritative USDA species page rather than a generic search, significantly improving the value of the USDA reference within the Ecological Commons data layer.
 
 If such a dataset is not currently available, we understand. We would also be interested in discussing whether a data access agreement or API arrangement might be possible.
 
@@ -192,38 +192,38 @@ Thank you for your time and for the remarkable public resource your team maintai
 Respectfully,  
 [Your Name]  
 [Contact Information]  
-FERNS Project — https://ferns-eco-data.replit.app
+Ecological Commons — https://data.ecologicalcommons.org
 
 ---
 
 ## 7. Lady Bird Johnson Wildflower Center (UT Austin)
 
 **To:** Lady Bird Johnson Wildflower Center  
-**Re:** FERNS Partnership — Wildflower Center Integration and Species-URL Data Request
+**Re:** Ecological Commons Partnership — Wildflower Center Integration and Species-URL Data Request
 
 ---
 
 Dear Lady Bird Johnson Wildflower Center Team,
 
-I am writing to introduce FERNS (Federated Ecological Resource Network System), a data infrastructure project that aggregates ecological and botanical data from authoritative sources through a unified REST API, currently live at https://ferns-eco-data.replit.app.
+I am writing to introduce Ecological Commons, a data infrastructure project that aggregates ecological and botanical data from authoritative sources through a unified REST API, currently live at https://data.ecologicalcommons.org.
 
-FERNS is designed to sit beneath applications used by homeowners, restoration practitioners, educators, students, and researchers who need access to high-quality botanical data without integrating every data source themselves. Every source in the FERNS network is credited by name and linked back to the originating institution in each response.
+Ecological Commons is designed to sit beneath applications used by homeowners, restoration practitioners, educators, students, and researchers who need access to high-quality botanical data without integrating every data source themselves. Every source in the Ecological Commons data layer is credited by name and linked back to the originating institution in each response.
 
-The Lady Bird Johnson Wildflower Center's plant database is integrated into FERNS as a reference source. At present, when a user queries a species, FERNS returns a search URL pointing to the Wildflower Center's search results for that species name. We are currently unable to link directly to individual plant profile pages because those pages are identified by an internal numeric plant ID that cannot be derived from a scientific name alone without querying the site at scale.
+The Lady Bird Johnson Wildflower Center's plant database is integrated into the Ecological Commons data layer as a reference source. At present, when a user queries a species, we return a search URL pointing to the Wildflower Center's search results for that species name. We are currently unable to link directly to individual plant profile pages because those pages are identified by an internal numeric plant ID that cannot be derived from a scientific name alone without querying the site at scale.
 
 We are writing for two reasons:
 
 **1. Partnership interest.** We would welcome a formal or informal relationship with the Wildflower Center to ensure our usage of your data aligns with your guidelines and that we represent your exceptional work accurately and responsibly.
 
-**2. Data request.** We would like to respectfully request access to a mapping of scientific plant names to their corresponding Wildflower Center profile URLs (or internal plant IDs). A flat export — scientific name, common name, and profile URL — would allow us to link users directly to the authoritative Wildflower Center species page rather than a generic search result, meaningfully improving the quality of this reference within FERNS.
+**2. Data request.** We would like to respectfully request access to a mapping of scientific plant names to their corresponding Wildflower Center profile URLs (or internal plant IDs). A flat export — scientific name, common name, and profile URL — would allow us to link users directly to the authoritative Wildflower Center species page rather than a generic search result, meaningfully improving the quality of this reference within the Ecological Commons data layer.
 
 If a public data export is not available, we would be glad to discuss whether a data access agreement or API arrangement might be possible. We are also happy to abide by any attribution or usage requirements you set.
 
-The Lady Bird Johnson Wildflower Center is one of the most trusted native plant resources in North America, and we would be honored to represent it as a first-class, direct-linked source within FERNS.
+The Lady Bird Johnson Wildflower Center is one of the most trusted native plant resources in North America, and we would be honored to represent it as a first-class, direct-linked source within the Ecological Commons data layer.
 
 Thank you for your time, and for the extraordinary work your center does for native plant conservation and education.
 
 With great respect,  
 [Your Name]  
 [Contact Information]  
-FERNS Project — https://ferns-eco-data.replit.app
+Ecological Commons — https://data.ecologicalcommons.org

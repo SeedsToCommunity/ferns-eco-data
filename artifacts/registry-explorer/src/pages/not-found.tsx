@@ -12,7 +12,7 @@ export default function NotFound() {
         </div>
         <h1 className="text-4xl font-bold text-foreground mb-4 font-serif">Uncharted Territory</h1>
         <p className="text-lg text-muted-foreground mb-8 max-w-md">
-          The page you are looking for does not exist in the FERNS registry explorer.
+          The page you are looking for does not exist in the registry.
         </p>
         <Link href="/" className="px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-all hover:shadow-lg hover:-translate-y-0.5">
           Return to Registry

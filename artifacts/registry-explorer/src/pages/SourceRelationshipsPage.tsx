@@ -246,7 +246,7 @@ export default function SourceRelationshipsPage() {
             className="text-muted-foreground text-base leading-relaxed"
           >
             Documented cross-source overlaps, conflicts, and complementary pairings.
-            This is the canonical location for all inter-source guidance in FERNS.
+            This is the canonical location for all inter-source guidance in this registry.
             Individual source metadata does not repeat this information.
           </motion.p>
         </div>

@@ -6,7 +6,7 @@ An ecological commons begins with the infrastructure that makes knowledge findab
 
 The data layer holds descriptions of ecological data sources and, for integrated sources, makes the underlying data reachable through a consistent interface. It lives at **[data.ecologicalcommons.org](https://data.ecologicalcommons.org/)**.
 
-Each source in the data layer follows the same repeating pattern — a way of describing the source, storing what it holds, making it reachable through a consistent interface, and publishing an explorer where anyone can see what's inside. This pattern is called FERNS. It's the shape every source in the commons takes, so that people and tools working with the commons can find their footing regardless of which source they're reaching.
+Each source in the data layer follows the same repeating pattern — a way of describing the source, storing what it holds, making it reachable through a consistent interface, and publishing an explorer where anyone can see what's inside.
 
 The full list of currently registered sources, with descriptions and metadata for each, lives at [data.ecologicalcommons.org](https://data.ecologicalcommons.org/). Each source has its own explorer. New sources are added as they are described and integrated.
 

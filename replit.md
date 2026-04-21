@@ -33,9 +33,9 @@ FERNS fetches, caches, and exposes ecological and environmental data from author
 | Artifact | Dev path | Production domain | Purpose |
 |---|---|---|---|
 | `artifacts/ecological-commons-site` | `/` | `ecologicalcommons.org/` | Public-facing website — single Astro page, 6 content sections in HTML, JavaScript tabs for human navigation |
-| `artifacts/registry-explorer` | `/ferns/` | `data.ecologicalcommons.org/` | FERNS Data Layer explorer — browse all registered sources |
-| `artifacts/api-server` | `/api` (port 8080) | `data.ecologicalcommons.org/api/` | FERNS REST API server — handles ALL production routes via Host-header routing |
-| `artifacts/mcp-server` | stdio (dev) | `data.ecologicalcommons.org/mcp` | FERNS MCP Server — 48 tools via Streamable HTTP; stdio fallback for local dev |
+| `artifacts/registry-explorer` | `/ferns/` | `data.ecologicalcommons.org/` | Ecological Commons Data Layer explorer — browse all registered sources |
+| `artifacts/api-server` | `/api` (port 8080) | `data.ecologicalcommons.org/api/` | Ecological Commons REST API server — handles ALL production routes via Host-header routing |
+| `artifacts/mcp-server` | stdio (dev) | `data.ecologicalcommons.org/mcp` | Ecological Commons MCP Server — 48 tools via Streamable HTTP; stdio fallback for local dev |
 | `artifacts/mockup-sandbox` | `/__mockup` | — | UI component preview sandbox (internal dev only) |
 
 **Dev-mode routing note**: In development, the Replit proxy routes all root (`/`) traffic to the api-server (port 8080) because it is the primary registered artifact. The api-server has a dev-only passthrough proxy that forwards any non-`/api` request to the ecological-commons-site Astro dev server (port 18478). This means both workflows must be running for the preview to work. In production, the api-server serves static files directly. The Astro dev server's `allowedHosts` setting must be inside the `vite.server` block (not `server`) in `astro.config.mjs` — Astro's own `server` config does not forward that option to Vite.
@@ -75,7 +75,7 @@ GET /api/v1/sources/gbif/occurrences?subset=se-michigan
 ```
 This is the same API — a filter configuration on top of it. There is no `trust.ecologicalcommons.org/api/` or `subsets.ecologicalcommons.org/api/`.
 
-**FERNS is an internal name.** It appears once in `built.md` as the name of the per-source pattern. It does not appear in any public URL. The public-facing concept is "the data layer" at `data.ecologicalcommons.org`.
+**FERNS is an internal code name.** It does not appear in any public URL or public-facing surface. The public-facing concept is "the Ecological Commons data layer" at `data.ecologicalcommons.org`.
 
 ### Cautionary tale: Atlas of Living Australia (ALA)
 

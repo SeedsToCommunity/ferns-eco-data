@@ -26,7 +26,7 @@ export default function GenericSourcePage() {
           <ServerCrash className="w-10 h-10 text-destructive mx-auto mb-4" />
           <h2 className="text-xl font-bold text-destructive mb-2">Source not found</h2>
           <p className="text-muted-foreground">
-            No source with ID <code className="font-mono bg-muted px-1.5 py-0.5 rounded">{sourceId}</code> is registered in FERNS.
+            No source with ID <code className="font-mono bg-muted px-1.5 py-0.5 rounded">{sourceId}</code> is registered in this data layer.
           </p>
         </div>
       </div>

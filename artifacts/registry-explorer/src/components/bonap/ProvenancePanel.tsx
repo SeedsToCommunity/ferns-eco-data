@@ -70,7 +70,7 @@ export function ProvenancePanel({ response }: { response: BonapMapResponse }) {
 
       <div className="space-y-4 pt-6 border-t border-border/50">
         <h3 className="font-serif text-lg font-semibold text-foreground flex items-center gap-2">
-          <Info className="w-5 h-5 text-primary" /> FERNS Provenance
+          <Info className="w-5 h-5 text-primary" /> Provenance
         </h3>
         <div className="space-y-4 text-sm">
           <p className="text-muted-foreground leading-relaxed">

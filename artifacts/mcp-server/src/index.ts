@@ -8,6 +8,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error("FERNS MCP server failed to start:", err);
+  console.error("MCP server failed to start:", err);
   process.exit(1);
 });

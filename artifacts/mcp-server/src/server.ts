@@ -4,7 +4,7 @@ import {
   ListToolsRequestSchema,
   type Tool,
 } from "@modelcontextprotocol/sdk/types.js";
-import { fernsGet } from "./client.js";
+import { apiGet } from "./client.js";
 
 type ToolHandler = (args: Record<string, unknown>) => Promise<unknown>;
 
@@ -33,7 +33,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/bonap/map", {
+      apiGet("/bonap/map", {
         genus:    String(args["genus"]),
         species:  String(args["species"]),
         map_type: args["map_type"] !== undefined ? String(args["map_type"]) : undefined,
@@ -57,7 +57,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/gbif/match", {
+      apiGet("/gbif/match", {
         name:    String(args["name"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
       }),
@@ -76,7 +76,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/gbif/reconcile", { usageKey: Number(args["usageKey"]) }),
+      apiGet("/gbif/reconcile", { usageKey: Number(args["usageKey"]) }),
   },
   {
     tool: {
@@ -96,7 +96,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/gbif/occurrences", {
+      apiGet("/gbif/occurrences", {
         usageKey:  Number(args["usageKey"]),
         countries: args["countries"] !== undefined ? String(args["countries"]) : undefined,
         continent: args["continent"] !== undefined ? String(args["continent"]) : undefined,
@@ -118,7 +118,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/gbif/search", { q: String(args["q"]) }),
+      apiGet("/gbif/search", { q: String(args["q"]) }),
   },
 
   // ── inaturalist ─────────────────────────────────────────────────────────
@@ -137,7 +137,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/inat/place", {
+      apiGet("/inat/place", {
         q:       String(args["q"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
       }),
@@ -157,7 +157,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/inat/species", {
+      apiGet("/inat/species", {
         name:    String(args["name"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
       }),
@@ -178,7 +178,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/inat/histogram", {
+      apiGet("/inat/histogram", {
         taxon_id: Number(args["taxon_id"]),
         place_id: args["place_id"] !== undefined ? String(args["place_id"]) : undefined,
         refresh:  args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
@@ -201,7 +201,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/inat/field-values", {
+      apiGet("/inat/field-values", {
         taxon_id:   Number(args["taxon_id"]),
         place_id:   args["place_id"] !== undefined ? String(args["place_id"]) : undefined,
         verifiable: args["verifiable"] !== undefined ? String(args["verifiable"]) : undefined,
@@ -223,7 +223,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/inat/observations", {
+      apiGet("/inat/observations", {
         taxon_id: args["taxon_id"] !== undefined ? Number(args["taxon_id"]) : undefined,
         place_id: args["place_id"] !== undefined ? Number(args["place_id"]) : undefined,
       }),
@@ -245,7 +245,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/miflora/species", {
+      apiGet("/miflora/species", {
         name:    String(args["name"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
       }),
@@ -265,7 +265,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/miflora/counties", {
+      apiGet("/miflora/counties", {
         name:    String(args["name"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
       }),
@@ -285,7 +285,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/miflora/images", {
+      apiGet("/miflora/images", {
         name:    String(args["name"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
       }),
@@ -306,7 +306,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/coefficient-of-conservatism", { value: String(args["value"]) }),
+      apiGet("/coefficient-of-conservatism", { value: String(args["value"]) }),
   },
   {
     tool: {
@@ -319,7 +319,7 @@ const tools: ToolDef[] = [
         required: [],
       },
     },
-    handler: async () => fernsGet("/coefficient-of-conservatism/all"),
+    handler: async () => apiGet("/coefficient-of-conservatism/all"),
   },
 
   // ── wetland-indicator-status ────────────────────────────────────────────
@@ -337,7 +337,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/wetland-indicator", { code: String(args["code"]) }),
+      apiGet("/wetland-indicator", { code: String(args["code"]) }),
   },
   {
     tool: {
@@ -353,7 +353,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/wetland-indicator/w", { value: String(args["value"]) }),
+      apiGet("/wetland-indicator/w", { value: String(args["value"]) }),
   },
   {
     tool: {
@@ -366,7 +366,7 @@ const tools: ToolDef[] = [
         required: [],
       },
     },
-    handler: async () => fernsGet("/wetland-indicator/all"),
+    handler: async () => apiGet("/wetland-indicator/all"),
   },
 
   // ── wucols-water-use ────────────────────────────────────────────────────
@@ -384,7 +384,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/wucols", { code: String(args["code"]) }),
+      apiGet("/wucols", { code: String(args["code"]) }),
   },
   {
     tool: {
@@ -397,7 +397,7 @@ const tools: ToolDef[] = [
         required: [],
       },
     },
-    handler: async () => fernsGet("/wucols/all"),
+    handler: async () => apiGet("/wucols/all"),
   },
 
   // ── seeds-to-community-washtenaw ────────────────────────────────────────
@@ -415,7 +415,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/s2c", { year: Number(args["year"]) }),
+      apiGet("/s2c", { year: Number(args["year"]) }),
   },
   {
     tool: {
@@ -428,7 +428,7 @@ const tools: ToolDef[] = [
         required: [],
       },
     },
-    handler: async () => fernsGet("/s2c/years"),
+    handler: async () => apiGet("/s2c/years"),
   },
 
   // ── lcscg ───────────────────────────────────────────────────────────────
@@ -443,7 +443,7 @@ const tools: ToolDef[] = [
         required: [],
       },
     },
-    handler: async () => fernsGet("/lcscg/guides"),
+    handler: async () => apiGet("/lcscg/guides"),
   },
   {
     tool: {
@@ -459,7 +459,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet(`/lcscg/guide/${Number(args["guideId"])}`),
+      apiGet(`/lcscg/guide/${Number(args["guideId"])}`),
   },
   {
     tool: {
@@ -475,7 +475,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/lcscg/species", { name: String(args["name"]) }),
+      apiGet("/lcscg/species", { name: String(args["name"]) }),
   },
 
   // ── universal-fqa ───────────────────────────────────────────────────────
@@ -490,7 +490,7 @@ const tools: ToolDef[] = [
         required: [],
       },
     },
-    handler: async () => fernsGet("/universal-fqa/databases"),
+    handler: async () => apiGet("/universal-fqa/databases"),
   },
   {
     tool: {
@@ -506,7 +506,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet(`/universal-fqa/databases/${Number(args["id"])}`),
+      apiGet(`/universal-fqa/databases/${Number(args["id"])}`),
   },
   {
     tool: {
@@ -523,7 +523,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/universal-fqa/species", {
+      apiGet("/universal-fqa/species", {
         name:        String(args["name"]),
         database_id: Number(args["database_id"]),
       }),
@@ -542,7 +542,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/universal-fqa/assessments", { database_id: Number(args["database_id"]) }),
+      apiGet("/universal-fqa/assessments", { database_id: Number(args["database_id"]) }),
   },
   {
     tool: {
@@ -558,7 +558,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet(`/universal-fqa/assessment/${Number(args["id"])}`),
+      apiGet(`/universal-fqa/assessment/${Number(args["id"])}`),
   },
 
   // ── gobotany ────────────────────────────────────────────────────────────
@@ -576,7 +576,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/gobotany", { species: String(args["species"]) }),
+      apiGet("/gobotany", { species: String(args["species"]) }),
   },
 
   // ── google-images ────────────────────────────────────────────────────────
@@ -594,7 +594,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/google-images", { species: String(args["species"]) }),
+      apiGet("/google-images", { species: String(args["species"]) }),
   },
 
   // ── illinois-wildflowers ─────────────────────────────────────────────────
@@ -612,7 +612,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/illinois-wildflowers", { species: String(args["species"]) }),
+      apiGet("/illinois-wildflowers", { species: String(args["species"]) }),
   },
 
   // ── lady-bird-johnson ────────────────────────────────────────────────────
@@ -630,7 +630,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/lady-bird-johnson", { species: String(args["species"]) }),
+      apiGet("/lady-bird-johnson", { species: String(args["species"]) }),
   },
 
   // ── minnesota-wildflowers ────────────────────────────────────────────────
@@ -648,7 +648,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/minnesota-wildflowers", { species: String(args["species"]) }),
+      apiGet("/minnesota-wildflowers", { species: String(args["species"]) }),
   },
 
   // ── missouri-plants ──────────────────────────────────────────────────────
@@ -666,7 +666,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/missouri-plants", { species: String(args["species"]) }),
+      apiGet("/missouri-plants", { species: String(args["species"]) }),
   },
 
   // ── mnfi ─────────────────────────────────────────────────────────────────
@@ -686,7 +686,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/mnfi/communities", {
+      apiGet("/mnfi/communities", {
         class: args["class"] !== undefined ? String(args["class"]) : undefined,
         group: args["group"] !== undefined ? String(args["group"]) : undefined,
         name:  args["name"]  !== undefined ? String(args["name"])  : undefined,
@@ -706,7 +706,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet(`/mnfi/communities/${encodeURIComponent(String(args["id"]))}`),
+      apiGet(`/mnfi/communities/${encodeURIComponent(String(args["id"]))}`),
   },
   {
     tool: {
@@ -722,7 +722,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet(`/mnfi/communities/${encodeURIComponent(String(args["id"]))}/plants`),
+      apiGet(`/mnfi/communities/${encodeURIComponent(String(args["id"]))}/plants`),
   },
   {
     tool: {
@@ -739,7 +739,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/mnfi/county-elements", {
+      apiGet("/mnfi/county-elements", {
         county: args["county"] !== undefined ? String(args["county"]) : undefined,
         type:   args["type"]   !== undefined ? String(args["type"])   : undefined,
       }),
@@ -762,7 +762,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/natureserve/species", {
+      apiGet("/natureserve/species", {
         name:    String(args["name"]),
         state:   args["state"]   !== undefined ? String(args["state"])   : undefined,
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
@@ -783,7 +783,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/natureserve/ecosystems", {
+      apiGet("/natureserve/ecosystems", {
         name:    String(args["name"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
       }),
@@ -804,7 +804,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/prairie-moon", { species: String(args["species"]) }),
+      apiGet("/prairie-moon", { species: String(args["species"]) }),
   },
 
   // ── usda-plants ──────────────────────────────────────────────────────────
@@ -822,7 +822,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/usda-plants", { species: String(args["species"]) }),
+      apiGet("/usda-plants", { species: String(args["species"]) }),
   },
 
   // ── botanical-refs ───────────────────────────────────────────────────────
@@ -840,7 +840,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/botanical-refs", { species: String(args["species"]) }),
+      apiGet("/botanical-refs", { species: String(args["species"]) }),
   },
   {
     tool: {
@@ -853,28 +853,28 @@ const tools: ToolDef[] = [
         required: [],
       },
     },
-    handler: async () => fernsGet("/botanical-refs/sites"),
+    handler: async () => apiGet("/botanical-refs/sites"),
   },
 
-  // ── ferns (meta) ─────────────────────────────────────────────────────────
+  // ── registry (meta) ──────────────────────────────────────────────────────
   {
     tool: {
-      name: "ferns__list_sources",
+      name: "registry__list_sources",
       description:
-        "Returns the full registry of all FERNS data sources with each source's ID, display name, description, capabilities, and current status. Use this to discover what sources are available.",
+        "Returns the full registry of all Ecological Commons data sources with each source's ID, display name, description, capabilities, and current status. Use this to discover what sources are available.",
       inputSchema: {
         type: "object" as const,
         properties: {},
         required: [],
       },
     },
-    handler: async () => fernsGet("/v1/sources"),
+    handler: async () => apiGet("/v1/sources"),
   },
   {
     tool: {
-      name: "ferns__source_relationships",
+      name: "registry__source_relationships",
       description:
-        "Returns the relationship graph between FERNS data sources, optionally filtered to a specific source. Shows how sources overlap, complement, or supersede each other.",
+        "Returns the relationship graph between Ecological Commons data sources, optionally filtered to a specific source. Shows how sources overlap, complement, or supersede each other.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -884,7 +884,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      fernsGet("/v1/source-relationships", {
+      apiGet("/v1/source-relationships", {
         source_id: args["source_id"] !== undefined ? String(args["source_id"]) : undefined,
       }),
   },

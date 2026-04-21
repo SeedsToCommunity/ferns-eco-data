@@ -1,12 +1,12 @@
-# FERNS MCP Server
+# Ecological Commons MCP Server
 
-The FERNS MCP Server exposes every public [FERNS](https://data.ecologicalcommons.org) endpoint as a Model Context Protocol (MCP) tool, so any MCP-compatible AI assistant (Claude Desktop, Cursor, etc.) can query 22+ ecological data sources directly.
+The Ecological Commons MCP Server exposes every public [data layer](https://data.ecologicalcommons.org) endpoint as a Model Context Protocol (MCP) tool, so any MCP-compatible AI assistant (Claude Desktop, Cursor, etc.) can query 22+ ecological data sources directly.
 
-One REST endpoint = one MCP tool. No aggregation, no magic — each tool is a faithful 1:1 proxy of its underlying FERNS route.
+One REST endpoint = one MCP tool. No aggregation, no magic — each tool is a faithful 1:1 proxy of its underlying API route.
 
 ## Connecting to the remote MCP server
 
-The MCP server runs as part of the FERNS API at `https://data.ecologicalcommons.org/mcp`. No local installation required.
+The MCP server runs as part of the Ecological Commons data layer at `https://data.ecologicalcommons.org/mcp`. No local installation required.
 
 ### Claude Desktop (remote)
 
@@ -15,7 +15,7 @@ Add the following block to your `claude_desktop_config.json` (macOS: `~/Library/
 ```json
 {
   "mcpServers": {
-    "ferns": {
+    "ecological-commons": {
       "type": "http",
       "url": "https://data.ecologicalcommons.org/mcp"
     }
@@ -30,7 +30,7 @@ Add to `.cursor/mcp.json` in your project root:
 ```json
 {
   "mcpServers": {
-    "ferns": {
+    "ecological-commons": {
       "type": "http",
       "url": "https://data.ecologicalcommons.org/mcp"
     }
@@ -52,12 +52,12 @@ Responses are streamed as Server-Sent Events (SSE). The server operates in state
 
 ## Local / stdio mode (development only)
 
-If you want to run the server locally against a local FERNS API instance:
+If you want to run the server locally against a local API instance:
 
 ### Requirements
 
 - Node 18+ (`node --version`)
-- `FERNS_API_BASE` env var pointing at a running FERNS API (default: `http://localhost:8080`)
+- `API_BASE` env var pointing at a running API instance (default: `http://localhost:8080`)
 
 ### Build the compiled binary
 
@@ -71,11 +71,11 @@ pnpm --filter @workspace/mcp-server run build
 ```json
 {
   "mcpServers": {
-    "ferns": {
+    "ecological-commons": {
       "command": "node",
       "args": ["/absolute/path/to/artifacts/mcp-server/dist/index.mjs"],
       "env": {
-        "FERNS_API_BASE": "https://data.ecologicalcommons.org"
+        "API_BASE": "https://data.ecologicalcommons.org"
       }
     }
   }
@@ -98,7 +98,7 @@ This runs the server directly from TypeScript source using `tsx`, without compil
 
 | Variable | Default | Description |
 |---|---|---|
-| `FERNS_API_BASE` | `http://localhost:8080` | Base URL of the FERNS REST API (stdio mode only). Trailing slash stripped automatically. |
+| `API_BASE` | `http://localhost:8080` | Base URL of the Ecological Commons REST API (stdio mode only). Trailing slash stripped automatically. |
 
 ---
 
@@ -257,20 +257,20 @@ Tool names follow `{source_id}__{action}` (hyphens → underscores, double-under
 | `botanical_refs__lookup` | GET /botanical-refs | species | — | Queries 8 botanical websites simultaneously for a species and returns each site's URL in one call |
 | `botanical_refs__sites` | GET /botanical-refs/sites | — | — | The botanical reference websites covered by botanical_refs__lookup with each site's strategy |
 
-### ferns — FERNS Registry (meta)
+### registry — Ecological Commons Registry (meta)
 
 | Tool | Path | Required | Optional | Description |
 |---|---|---|---|---|
-| `ferns__list_sources` | GET /v1/sources | — | — | Full registry of all FERNS data sources: IDs, names, descriptions, capabilities, and status |
-| `ferns__source_relationships` | GET /v1/source-relationships | — | source_id | Relationship graph between FERNS data sources, optionally filtered to one source |
+| `registry__list_sources` | GET /v1/sources | — | — | Full registry of all Ecological Commons data sources: IDs, names, descriptions, capabilities, and status |
+| `registry__source_relationships` | GET /v1/source-relationships | — | source_id | Relationship graph between data sources, optionally filtered to one source |
 
 ---
 
 ## Design notes
 
-- **Streamable HTTP transport (primary).** The server runs as part of the FERNS API at `data.ecologicalcommons.org/mcp`, using the MCP Streamable HTTP transport. Responses are SSE-formatted. No session management (stateless mode).
+- **Streamable HTTP transport (primary).** The server runs as part of the Ecological Commons data layer at `data.ecologicalcommons.org/mcp`, using the MCP Streamable HTTP transport. Responses are SSE-formatted. No session management (stateless mode).
 - **Stdio transport (development fallback).** `artifacts/mcp-server/src/index.ts` runs a stdio-based MCP server for local integration with Claude Desktop or Cursor when you prefer not to rely on the deployed endpoint.
-- **Strict 1:1 mapping.** Every MCP tool corresponds to exactly one FERNS REST endpoint. No aggregation, no fan-out.
+- **Strict 1:1 mapping.** Every MCP tool corresponds to exactly one REST endpoint. No aggregation, no fan-out.
 - **Read-only.** No write or admin endpoints are exposed.
-- **Error passthrough.** If the FERNS API returns an error, the tool returns `isError: true` with the status and body in the content.
+- **Error passthrough.** If the API returns an error, the tool returns `isError: true` with the status and body in the content.
 - **Adding a new source.** Add tool definitions to `artifacts/mcp-server/src/server.ts` following the `{source_id}__{action}` convention, then update this README table.

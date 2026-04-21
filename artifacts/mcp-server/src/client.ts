@@ -1,6 +1,6 @@
-const BASE = (process.env["FERNS_API_BASE"] ?? "http://localhost:8080").replace(/\/$/, "");
+const BASE = (process.env["API_BASE"] ?? "http://localhost:8080").replace(/\/$/, "");
 
-export async function fernsGet(
+export async function apiGet(
   path: string,
   params?: Record<string, string | number | boolean | undefined>,
 ): Promise<unknown> {
@@ -15,11 +15,11 @@ export async function fernsGet(
   const res = await fetch(url.toString());
   const body = await res.text();
   if (!res.ok) {
-    throw new Error(`FERNS API error ${res.status}: ${body}`);
+    throw new Error(`API error ${res.status}: ${body}`);
   }
   try {
     return JSON.parse(body) as unknown;
   } catch {
-    throw new Error(`FERNS API returned non-JSON: ${body.slice(0, 200)}`);
+    throw new Error(`API returned non-JSON: ${body.slice(0, 200)}`);
   }
 }

@@ -402,7 +402,7 @@ export default function MetadataPage() {
                   <VocabularySection vocabularies={vocabularies} />
                 )}
 
-                {/* Provenance (FERNS envelope) */}
+                {/* Provenance envelope */}
                 {provenance && <ProvenanceSection provenance={provenance} />}
               </>
             )}

@@ -34,7 +34,7 @@ export function PermissionModal({ permissionGranted, permissionStatus, onAcknowl
               <strong className="text-foreground">BONAP (Biota of North America Program)</strong> requires advance written permission for reproduction or use of any materials on their website.
             </p>
             <p>
-              FERNS has not yet received written permission from BONAP. You may use this Explorer for review and development purposes, but data from this source must not be displayed in any public-facing application until permission is obtained.
+              We have not yet received written permission from BONAP. You may use this Explorer for review and development purposes, but data from this source must not be displayed in any public-facing application until permission is obtained.
             </p>
             <div className="bg-secondary/50 p-4 rounded-xl border border-secondary text-sm flex gap-3 items-start mt-6">
               <Info className="w-5 h-5 text-primary shrink-0 mt-0.5" />
