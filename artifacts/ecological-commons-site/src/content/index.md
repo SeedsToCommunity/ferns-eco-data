@@ -2,7 +2,7 @@
 
 Ecological knowledge lives all around us: In published research, in careful spreadsheets, in seed records, survey notes, species lists, and restoration logs. Some of it is rigorously produced. Some of it is quietly maintained by one person who has been watching the same place for years. Much of it is hard to find and harder to connect.
 
-A commons is a place or a way of holding a resource, space or asset collectively as a community. Land, water, libraries, seed banks, for example, are shared resources that stay healthy when the community around them tends them with care. An ecological commons extends the same idea to ecological knowledge. Not a warehouse, but a shared practice of describing, registering, and reaching what we steward, so that anyone who needs it can find it and work with it honestly.
+A commons is a shared space or a way of holding a resource collectively as a community. Land, water, libraries, and seed banks, for example, are shared resources that stay healthy when the community around them tends them with care. An ecological commons extends the same idea to ecological knowledge. Not a warehouse, but a shared practice of describing, registering, and reaching what we steward, so that anyone who needs it can find it and work with it honestly.
 
 ## What this is
 
@@ -42,4 +42,4 @@ If you build tools, design systems, or want to help shape this infrastructure, w
 
 We wonder about the feasibility of a gathering of data holders, regional organizations, and indigenous community members to help shape how this grows. If that sounds like something you'd want to be part of, get in touch.
 
-[seeds2community@gmail.com](mailto:seeds2community@gmail.com)
+[EcologicalCommons@gmail.com](mailto:EcologicalCommons@gmail.com)

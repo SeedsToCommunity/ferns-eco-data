@@ -1,6 +1,6 @@
 kind = "web"
-previewPath = "/ferns/"
-title = "FERNS Data Layer"
+previewPath = "/data/"
+title = "Ecological Commons Data Layer"
 version = "1.0.0"
 id = "artifacts/registry-explorer"
 router = "path"
@@ -11,7 +11,7 @@ version = "1.0.0"
 
 [[services]]
 name = "web"
-paths = [ "/ferns/" ]
+paths = [ "/data/" ]
 localPort = 23478
 
 [services.development]
@@ -21,8 +21,8 @@ run = "pnpm --filter @workspace/registry-explorer run dev"
 # The api-server's build.mjs triggers this build with BASE_PATH=/ before
 # bundling Express. Static files live at artifacts/registry-explorer/dist/public.
 # In production the site is served at the root of data.ecologicalcommons.org,
-# so BASE_PATH=/ (set by the build script) -- not /ferns/.
+# so BASE_PATH=/ (set by the build script) -- not /data/.
 
 [services.env]
 PORT = "23478"
-BASE_PATH = "/ferns/"
+BASE_PATH = "/data/"

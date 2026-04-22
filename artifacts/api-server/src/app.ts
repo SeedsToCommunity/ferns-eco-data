@@ -52,7 +52,7 @@ app.use("/api", (_req, res) => {
 // Production-only: serve the appropriate static site based on the Host header.
 // Requests reach here only if no /api route matched (non-API paths).
 //
-// data.ecologicalcommons.org  →  FERNS registry explorer
+// data.ecologicalcommons.org  →  Ecological Commons data layer explorer
 // ecologicalcommons.org (or any other host)  →  public website
 //
 // Development-only: proxy non-API requests to the Astro dev server so the
@@ -82,7 +82,7 @@ if (process.env.NODE_ENV !== "production") {
 // Production-only: serve the appropriate static site based on the Host header.
 // Requests reach here only if no /api route matched (non-API paths).
 //
-// data.ecologicalcommons.org  →  FERNS registry explorer
+// data.ecologicalcommons.org  →  Ecological Commons data layer explorer
 // ecologicalcommons.org (or any other host)  →  public website
 //
 // In development each site runs its own Vite dev server; this block is skipped.
