@@ -12,24 +12,28 @@ Above the data layer, both trust and application domains will reside. Trust doma
 
 ## Proof of concept
 
-An early proof-of-concept application demonstrated what can be built on the commons and one way of dealing with the challenge of trusting agentic systems. It has its own documentation and is available to explore: [s2c-species.replit.app](https://s2c-species.replit.app)
+An early proof-of-concept application demonstrated what can be built on the commons and one way of dealing with the challenge of trusting agentic systems. It has its own documentation and is available to explore: 
 
-A field report describing the concept and the early work, through January 2026: [Investigation PPT](https://drive.google.com/file/d/1dXNbnFLc8L_n3dwnZKdCzpqNorT-irXi/view?usp=drivesdk)
+- [s2c-species.replit.app](https://s2c-species.replit.app)
+
+A field report describing the concept and the early work, through January 2026: 
+
+- [Investigation PPT](https://drive.google.com/file/d/1dXNbnFLc8L_n3dwnZKdCzpqNorT-irXi/view?usp=drivesdk)
 
 ## For developers
 
-The commons data layer publishes a complete OpenAPI specification describing every endpoint and response shape:
+The OpenAPI specification describing every endpoint and response shape:
 
 - [OpenAPI (JSON)](https://data.ecologicalcommons.org/api/openapi.json)
 - [OpenAPI (YAML)](https://data.ecologicalcommons.org/api/openapi.yaml)
 
 The live source registry:
 
-[data.ecologicalcommons.org/api/v1/sources](https://data.ecologicalcommons.org/api/v1/sources).
+- [data.ecologicalcommons.org/api/v1/sources](https://data.ecologicalcommons.org/api/v1/sources).
 
-An MCP interface is at: 
+The MCP interface: 
 
-[data.ecologicalcommons.org/mcp](https://data.ecologicalcommons.org/mcp).
+- [data.ecologicalcommons.org/mcp](https://data.ecologicalcommons.org/mcp).
 
 ## What's next
 
