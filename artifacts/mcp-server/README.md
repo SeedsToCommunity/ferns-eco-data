@@ -50,6 +50,12 @@ Responses are streamed as Server-Sent Events (SSE). The server operates in state
 
 ---
 
+## Migration note
+
+If you have an existing local stdio config that sets `FERNS_API_BASE`, rename that env key to `API_BASE`. The old name is no longer recognised.
+
+---
+
 ## Local / stdio mode (development only)
 
 If you want to run the server locally against a local API instance:
