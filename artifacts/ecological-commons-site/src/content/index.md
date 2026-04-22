@@ -40,8 +40,8 @@ If you hold ecological data — a species list, a survey, a record of observatio
 
 If you lead an organization whose work depends on ecological knowledge — a land trust, a native plant society, a restoration program, a research program, a nursery, a university, an agency — there are ways to connect your work to the commons and benefit from what others have contributed. These organizations have different things to offer: data, expertise, staff time, space, reach, resources. A community activity asks each participant to bring what they can. If your organization wants to explore what that might look like, get in touch.
 
-If you build tools, design systems, or want to help shape what gets built on trustworthy ecological data, the data layer is open and the architecture is documented.
+If you build tools, design systems, or want to help shape thisinfrastructure, we are open to any level of colaboration.
 
-A community symposium is being imagined — a gathering of data holders, regional organizations, and indigenous community members to help shape how this grows. If that sounds like something you'd want to be part of, get in touch.
+We wonder about the feasability of a gathering of data holders, regional organizations, and indigenous community members to help shape how this grows. If that sounds like something you'd want to be part of, get in touch.
 
 [seeds2community@gmail.com](mailto:seeds2community@gmail.com)
