@@ -6,7 +6,7 @@ An ecological commons begins with the infrastructure that makes knowledge findab
 
 The data layer holds descriptions of ecological data sources and, for integrated sources, makes the underlying data reachable through a consistent interface. Each source in the data layer follows the same repeating pattern — a way of describing the source, storing what it holds, making it reachable through a consistent interface, and publishing an explorer where anyone can sample what's inside. New sources are added as they are described and integrated.
 
-The data layer browser lives at : **[data.ecologicalcommons.org](https://data.ecologicalcommons.org/)**.
+The data layer browser lives at: **[data.ecologicalcommons.org](https://data.ecologicalcommons.org/)**.
 
 Above the data layer, both trust and application domains will reside. Trust domains will capture human or expert judgement about which data sources are applicable for different objectives (regions, knowledge areas, or activity).
 
@@ -40,5 +40,5 @@ The MCP interface:
 - Integrating additional sources that have been identified.
 - Developing the first real Southeast Michigan applications.
 - Inviting community members to understand and collaborate.
-- Requesting data owners to discuss and shares their valuable products.
+- Requesting data owners to discuss and share their valuable products.
 - Discussing our shared approach to technical and governance topics.

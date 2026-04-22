@@ -22,7 +22,7 @@ The pattern works at every scale. Local, regional, national. Each level is real 
 
 Not all knowledge is the same kind of knowledge. Some was observed in the field. Some was compiled from many observations. Some was synthesized across sources using methods that themselves deserve careful description. A commons that flattens those differences does its users a disservice. A commons that makes them visible lets everyone who reaches for a fact know whose hands it passed through.
 
-That honesty is also what lets a new tool trust what it finds here. As technological tools emerge that help people build, what we can imagine might just be on demand. Those tools will need ground to stand on. A commons that is honest about its sources is exactly the kind of ground that helps a powerful tool be safe.
+That honesty is also what lets a new tool trust what it finds here. As technological tools emerge that help people build, what we can imagine might soon be within reach. Those tools will need ground to stand on. A commons that is honest about its sources is exactly the kind of ground that helps a powerful tool be safe.
 
 ## What gets built on top
 

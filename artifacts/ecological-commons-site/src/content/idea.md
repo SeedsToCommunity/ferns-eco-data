@@ -22,8 +22,8 @@ Building the infrastructure is the easier half. The harder half is everything th
 
 Two traditions of scholarship and practice have already done serious work on what this commons is trying to become. The information sciences — commons governance, data stewardship, boundary objects, knowledge infrastructures — have studied for decades what makes shared systems work or fail. The computing sciences — federated architectures, grounded synthesis, autonomous development — are active frontiers where the tools being built today will shape what an ecological commons can become. The lessons from both are available to be applied and this application, we think, holds some community-enhancing potential.
 
-- [An information frontier →](/idea/information-frontier)
-- [A computing frontier →](/idea/computing-frontier)
+- [An information frontier →](#information-frontier)
+- [A computing frontier →](#computing-frontier)
 
 ## What becomes possible
 
