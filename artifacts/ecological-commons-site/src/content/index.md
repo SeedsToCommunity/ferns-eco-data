@@ -2,8 +2,6 @@
 
 Ecological knowledge lives all around us: In published research, in careful spreadsheets, in seed records, survey notes, species lists, and restoration logs. Some of it is rigorously produced. Some of it is quietly maintained by one person who has been watching the same place for years. Much of it is hard to find and harder to connect.
 
-shared resources, spaces, or assets managed collectively by a community, rather than being privately owned or state-controlled
-
 A commons is a place or a way of holding a resource, space or asset collectively as a community. Land, water, libraries, seed banks, for example, are shared resources that stay healthy when the community around them tends them with care. An ecological commons extends the same idea to ecological knowledge. Not a warehouse, but a shared practice of describing, registering, and reaching what we steward, so that anyone who needs it can find it and work with it honestly.
 
 ## What this is
@@ -24,7 +22,7 @@ The pattern works at every scale. Local, regional, national. Each level is real 
 
 Not all knowledge is the same kind of knowledge. Some was observed in the field. Some was compiled from many observations. Some was synthesized across sources using methods that themselves deserve careful description. A commons that flattens those differences does its users a disservice. A commons that makes them visible lets everyone who reaches for a fact know whose hands it passed through.
 
-That honesty is also what lets a new tool trust what it finds here. As technological tools emerge that help people build, what they we can imagine might just be on demand. Those tools will need ground to stand on. A commons that is honest about its sources is exactly the kind of ground that helps a powerful tool be safe.
+That honesty is also what lets a new tool trust what it finds here. As technological tools emerge that help people build, what we can imagine might just be on demand. Those tools will need ground to stand on. A commons that is honest about its sources is exactly the kind of ground that helps a powerful tool be safe.
 
 ## What gets built on top
 
@@ -40,8 +38,8 @@ If you hold ecological data — a species list, a survey, a record of observatio
 
 If you lead an organization whose work depends on ecological knowledge — a land trust, a native plant society, a restoration program, a research program, a nursery, a university, an agency — there are ways to connect your work to the commons and benefit from what others have contributed. These organizations have different things to offer: data, expertise, staff time, space, reach, resources. A community activity asks each participant to bring what they can. If your organization wants to explore what that might look like, get in touch.
 
-If you build tools, design systems, or want to help shape thisinfrastructure, we are open to any level of colaboration.
+If you build tools, design systems, or want to help shape this infrastructure, we are open to any level of collaboration.
 
-We wonder about the feasability of a gathering of data holders, regional organizations, and indigenous community members to help shape how this grows. If that sounds like something you'd want to be part of, get in touch.
+We wonder about the feasibility of a gathering of data holders, regional organizations, and indigenous community members to help shape how this grows. If that sounds like something you'd want to be part of, get in touch.
 
 [seeds2community@gmail.com](mailto:seeds2community@gmail.com)
