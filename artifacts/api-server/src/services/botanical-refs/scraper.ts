@@ -48,6 +48,19 @@ function decodeEntities(html: string): string {
     .replace(/&#x([0-9a-fA-F]+);/g, (_, h) => String.fromCharCode(parseInt(h, 16)));
 }
 
+/**
+ * Remove entire <script>, <style>, <img>, and <noscript> blocks (including
+ * their inner content) so that stray JavaScript, CSS, or alt-text does not
+ * bleed into the extracted botanical prose.
+ */
+function removeNoiseBlocks(html: string): string {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<img[^>]*>/gi, " ")
+    .replace(/<noscript[\s\S]*?<\/noscript>/gi, " ");
+}
+
 function stripTags(html: string): string {
   return decodeEntities(html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
 }
@@ -271,10 +284,17 @@ function extractPrairieMoon(html: string): PageTextResult {
     if (paras.length) sections["Description"] = paras.join("\n\n");
   }
 
-  // Structured growing details as dl/dt/dd — filter commerce noise
+  // Structured growing details — scoped to the product-details container
+  // (.g-product-details or similar class) to avoid capturing page-level
+  // navigation or footer dl elements.
+  const detailsContainerM = html.match(
+    /<div[^>]*class=["'][^"']*(?:g-product-details|product[_-]?details)[^"']*["'][^>]*>([\s\S]*?)<\/div>/i,
+  );
+  const detailsScope = detailsContainerM ? detailsContainerM[1] : html;
+
   const dlPat = /<dl[^>]*>([\s\S]*?)<\/dl>/gi;
   let dlM: RegExpExecArray | null;
-  while ((dlM = dlPat.exec(html)) !== null) {
+  while ((dlM = dlPat.exec(detailsScope)) !== null) {
     const dtddPat = /<dt[^>]*>([\s\S]*?)<\/dt>\s*<dd[^>]*>([\s\S]*?)<\/dd>/gi;
     let dm: RegExpExecArray | null;
     while ((dm = dtddPat.exec(dlM[1])) !== null) {
@@ -400,12 +420,16 @@ export async function fetchAndCacheSpeciesText(
         charset === "iso-8859-1" || charset === "latin1" ? "iso-8859-1" : "utf-8",
       ).decode(buf);
 
+      // Strip script/style/img/noscript blocks before extraction so their
+      // inline content cannot bleed into the botanical prose sections.
+      const cleanHtml = removeNoiseBlocks(html);
+
       if (extractor) {
-        const extracted = extractor(html);
+        const extracted = extractor(cleanHtml);
         sections = Object.keys(extracted.sections).length ? extracted.sections : null;
         full_text = extracted.full_text || null;
       } else {
-        full_text = stripTags(html).slice(0, 20000) || null;
+        full_text = stripTags(cleanHtml).slice(0, 20000) || null;
       }
       found = true;
     } else if (resp.status === 404) {
