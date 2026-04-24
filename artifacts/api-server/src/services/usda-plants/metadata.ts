@@ -39,7 +39,7 @@ export const USDA_PLANTS_TECHNICAL_DETAILS =
 export const USDA_PLANTS_REGISTRY_ENTRY = {
   source_id: USDA_PLANTS_SOURCE_ID,
   name: "USDA PLANTS Database — Federal Plant Taxonomy and Occurrence Reference",
-  knowledge_type: "web_reference",
+  knowledge_type: "source_wrapper",
   status: "live",
   description:
     "Plant taxonomy, synonyms, state-level occurrence data, Wetland Indicator Status, and legal status for vascular plants, mosses, liverworts, and lichens across the United States and territories. " +

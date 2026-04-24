@@ -1,4 +1,4 @@
-import { pgTable, serial, text, timestamp, boolean, unique } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, timestamp, boolean, jsonb, unique } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -55,3 +55,31 @@ export const selectBotanicalWebRefsCacheSchema = createSelectSchema(botanicalWeb
 
 export type InsertBotanicalWebRefsCache = z.infer<typeof insertBotanicalWebRefsCacheSchema>;
 export type BotanicalWebRefsCache = typeof botanicalWebRefsCacheTable.$inferSelect;
+
+/**
+ * Cache for scraped species page text from botanical web reference sites.
+ * Stores structured sections + full text per (site_id, scientific_name).
+ * First request fetches and caches; repeat requests return cached content.
+ */
+export const speciesPageTextCacheTable = pgTable(
+  "species_page_text_cache",
+  {
+    id: serial("id").primaryKey(),
+    site_id: text("site_id").notNull(),
+    scientific_name: text("scientific_name").notNull(),
+    url: text("url"),
+    found: boolean("found").notNull(),
+    sections: jsonb("sections").$type<Record<string, string> | null>(),
+    full_text: text("full_text"),
+    scraped_at: timestamp("scraped_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    unique("species_page_text_cache_site_name_uniq").on(t.site_id, t.scientific_name),
+  ],
+);
+
+export const insertSpeciesPageTextCacheSchema = createInsertSchema(speciesPageTextCacheTable).omit({ id: true });
+export const selectSpeciesPageTextCacheSchema = createSelectSchema(speciesPageTextCacheTable);
+
+export type InsertSpeciesPageTextCache = z.infer<typeof insertSpeciesPageTextCacheSchema>;
+export type SpeciesPageTextCache = typeof speciesPageTextCacheTable.$inferSelect;

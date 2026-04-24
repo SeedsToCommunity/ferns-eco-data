@@ -1774,6 +1774,46 @@ paths:
               schema:
                 $ref: "#/components/schemas/BotanicalWebRefMetadataResponse"
 
+  /gobotany/species-text:
+    get:
+      operationId: getGobotanySpeciesText
+      tags: [gobotany]
+      summary: Scrape and return species page text from Go Botany
+      description: >
+        Fetches and caches botanical prose text from the Go Botany (Native Plant Trust)
+        species detail page. The URL is constructed directly from the binomial name.
+        Sections returned include Facts, Habitat, and Characteristics. First call
+        scrapes live; subsequent calls return the cached text. Use ?refresh=true to
+        force a re-scrape.
+      parameters:
+        - name: species
+          in: query
+          required: true
+          description: Binomial scientific name (e.g. Acer rubrum)
+          schema:
+            type: string
+            minLength: 1
+        - name: refresh
+          in: query
+          required: false
+          description: If "true", bypass cache and re-scrape the live page
+          schema:
+            type: string
+            enum: ["true", "false"]
+      responses:
+        "200":
+          description: Species page text result (found or not-found — check the found field)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpeciesTextResponse"
+        "400":
+          description: Missing or malformed species parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /google-images:
     get:
       operationId: getGoogleImages
@@ -1872,6 +1912,47 @@ paths:
               schema:
                 $ref: "#/components/schemas/BotanicalWebRefMetadataResponse"
 
+  /illinois-wildflowers/species-text:
+    get:
+      operationId: getIllinoisWildflowersSpeciesText
+      tags: [illinois-wildflowers]
+      summary: Scrape and return species page text from Illinois Wildflowers
+      description: >
+        Fetches and caches botanical prose text from the Illinois Wildflowers
+        (illinoiswildflowers.info) species detail page. The page URL is resolved
+        from the imported species list. Sections extracted include Description,
+        Cultivation, Range & Habitat, and Comments. First call scrapes live;
+        subsequent calls return the cached text. Use ?refresh=true to force a
+        re-scrape. Returns found=false when the species is not in the imported list.
+      parameters:
+        - name: species
+          in: query
+          required: true
+          description: Scientific name (e.g. Acer rubrum)
+          schema:
+            type: string
+            minLength: 1
+        - name: refresh
+          in: query
+          required: false
+          description: If "true", bypass cache and re-scrape the live page
+          schema:
+            type: string
+            enum: ["true", "false"]
+      responses:
+        "200":
+          description: Species page text result (found or not-found — check the found field)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpeciesTextResponse"
+        "400":
+          description: Missing species parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /minnesota-wildflowers:
     get:
       operationId: getMinnesotaWildflowers
@@ -1918,6 +1999,47 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BotanicalWebRefMetadataResponse"
+
+  /minnesota-wildflowers/species-text:
+    get:
+      operationId: getMinnesotaWildflowersSpeciesText
+      tags: [minnesota-wildflowers]
+      summary: Scrape and return species page text from Minnesota Wildflowers
+      description: >
+        Fetches and caches botanical prose text from the Minnesota Wildflowers
+        (minnesotawildflowers.info) species detail page. The page URL is resolved
+        from the imported species list. Sections include quick-facts table rows
+        and h4-delimited prose sections. First call scrapes live; subsequent calls
+        return cached text. Use ?refresh=true to force a re-scrape. Returns
+        found=false when the species is not in the imported list.
+      parameters:
+        - name: species
+          in: query
+          required: true
+          description: Scientific name (e.g. Acer rubrum)
+          schema:
+            type: string
+            minLength: 1
+        - name: refresh
+          in: query
+          required: false
+          description: If "true", bypass cache and re-scrape the live page
+          schema:
+            type: string
+            enum: ["true", "false"]
+      responses:
+        "200":
+          description: Species page text result (found or not-found — check the found field)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpeciesTextResponse"
+        "400":
+          description: Missing species parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /missouri-plants:
     get:
@@ -1966,6 +2088,47 @@ paths:
               schema:
                 $ref: "#/components/schemas/BotanicalWebRefMetadataResponse"
 
+  /missouri-plants/species-text:
+    get:
+      operationId: getMissouriPlantsSpeciesText
+      tags: [missouri-plants]
+      summary: Scrape and return species page text from Missouri Plants
+      description: >
+        Fetches and caches botanical prose text from the Missouri Plants
+        (missouriplants.com) species detail page. The page URL is resolved
+        from the imported species list. Sections are extracted from labeled
+        norm-class paragraphs. First call scrapes live; subsequent calls
+        return cached text. Use ?refresh=true to force a re-scrape. Returns
+        found=false when the species is not in the imported list.
+      parameters:
+        - name: species
+          in: query
+          required: true
+          description: Scientific name (e.g. Acer rubrum)
+          schema:
+            type: string
+            minLength: 1
+        - name: refresh
+          in: query
+          required: false
+          description: If "true", bypass cache and re-scrape the live page
+          schema:
+            type: string
+            enum: ["true", "false"]
+      responses:
+        "200":
+          description: Species page text result (found or not-found — check the found field)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpeciesTextResponse"
+        "400":
+          description: Missing species parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /prairie-moon:
     get:
       operationId: getPrairieMoon
@@ -2013,6 +2176,48 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BotanicalWebRefMetadataResponse"
+
+  /prairie-moon/species-text:
+    get:
+      operationId: getPrairieMoonSpeciesText
+      tags: [prairie-moon]
+      summary: Scrape and return species page text from Prairie Moon Nursery
+      description: >
+        Fetches and caches botanical prose text from the Prairie Moon Nursery
+        (prairiemoon.com) species catalog page. The page URL is resolved from
+        the imported sitemap-based species list. Sections include a product
+        description prose block and structured growing details. First call
+        scrapes live; subsequent calls return cached text. Use ?refresh=true
+        to force a re-scrape. Returns found=false when the species is not in
+        the imported list.
+      parameters:
+        - name: species
+          in: query
+          required: true
+          description: Scientific name (e.g. Acer rubrum)
+          schema:
+            type: string
+            minLength: 1
+        - name: refresh
+          in: query
+          required: false
+          description: If "true", bypass cache and re-scrape the live page
+          schema:
+            type: string
+            enum: ["true", "false"]
+      responses:
+        "200":
+          description: Species page text result (found or not-found — check the found field)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpeciesTextResponse"
+        "400":
+          description: Missing species parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /usda-plants:
     get:
@@ -5375,6 +5580,66 @@ components:
               enum: [hit, miss, bypassed]
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
+
+    SpeciesTextResponse:
+      type: object
+      description: >
+        Response shape for species page text scraping endpoints. Returned by
+        /gobotany/species-text, /illinois-wildflowers/species-text,
+        /minnesota-wildflowers/species-text, /missouri-plants/species-text,
+        and /prairie-moon/species-text.
+      required:
+        - found
+        - queried_at
+        - cache_status
+      properties:
+        found:
+          type: boolean
+          description: True if the species page was found and text was extracted.
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+          description: The API endpoint URL that served this response.
+        cache_status:
+          type: string
+          enum: [hit, miss, not_in_species_list]
+          description: >
+            "hit" — returned from cache. "miss" — live scrape performed and cached.
+            "not_in_species_list" — species URL not in the imported species list;
+            scrape skipped.
+        scraped_at:
+          type: string
+          format: date-time
+          description: Timestamp of when the text was originally scraped.
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          nullable: true
+          type: object
+          description: Present when found=true. Null when not found.
+          properties:
+            species:
+              type: string
+              description: The species name as queried.
+            url:
+              type: string
+              description: The page URL that was scraped.
+            sections:
+              type: object
+              nullable: true
+              additionalProperties:
+                type: string
+              description: >
+                Labeled prose sections extracted from the page (e.g.
+                Description, Cultivation, Facts, Habitat). Keys are section
+                names, values are plain text content.
+            full_text:
+              type: string
+              nullable: true
+              description: >
+                All sections concatenated as Label-colon-text blocks, separated by double newlines.
 
     BotanicalWebRefResponse:
       type: object

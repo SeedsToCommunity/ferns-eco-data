@@ -1753,6 +1753,61 @@ export interface NatureserveEcosystemsResponse {
 }
 
 /**
+ * "hit" — returned from cache. "miss" — live scrape performed and cached. "not_in_species_list" — species URL not in the imported species list; scrape skipped.
+
+ */
+export type SpeciesTextResponseCacheStatus =
+  (typeof SpeciesTextResponseCacheStatus)[keyof typeof SpeciesTextResponseCacheStatus];
+
+export const SpeciesTextResponseCacheStatus = {
+  hit: "hit",
+  miss: "miss",
+  not_in_species_list: "not_in_species_list",
+} as const;
+
+/**
+ * Labeled prose sections extracted from the page (e.g. Description, Cultivation, Facts, Habitat). Keys are section names, values are plain text content.
+
+ */
+export type SpeciesTextResponseDataSections = { [key: string]: string } | null;
+
+/**
+ * Present when found=true. Null when not found.
+ */
+export type SpeciesTextResponseData = {
+  /** The species name as queried. */
+  species?: string;
+  /** The page URL that was scraped. */
+  url?: string;
+  /** Labeled prose sections extracted from the page (e.g. Description, Cultivation, Facts, Habitat). Keys are section names, values are plain text content.
+   */
+  sections?: SpeciesTextResponseDataSections;
+  /** All sections concatenated as Label-colon-text blocks, separated by double newlines.
+   */
+  full_text?: string | null;
+} | null;
+
+/**
+ * Response shape for species page text scraping endpoints. Returned by /gobotany/species-text, /illinois-wildflowers/species-text, /minnesota-wildflowers/species-text, /missouri-plants/species-text, and /prairie-moon/species-text.
+
+ */
+export interface SpeciesTextResponse {
+  /** True if the species page was found and text was extracted. */
+  found: boolean;
+  queried_at: string;
+  /** The API endpoint URL that served this response. */
+  source_url?: string;
+  /** "hit" — returned from cache. "miss" — live scrape performed and cached. "not_in_species_list" — species URL not in the imported species list; scrape skipped.
+   */
+  cache_status: SpeciesTextResponseCacheStatus;
+  /** Timestamp of when the text was originally scraped. */
+  scraped_at?: string;
+  provenance?: FernsProvenance;
+  /** Present when found=true. Null when not found. */
+  data?: SpeciesTextResponseData;
+}
+
+/**
  * Present when found=true (or when a search_url is returned). Null when not found.
  */
 export type BotanicalWebRefResponseData = {
@@ -2284,6 +2339,26 @@ export type GetGobotanyParams = {
   species: string;
 };
 
+export type GetGobotanySpeciesTextParams = {
+  /**
+   * Binomial scientific name (e.g. Acer rubrum)
+   * @minLength 1
+   */
+  species: string;
+  /**
+   * If "true", bypass cache and re-scrape the live page
+   */
+  refresh?: GetGobotanySpeciesTextRefresh;
+};
+
+export type GetGobotanySpeciesTextRefresh =
+  (typeof GetGobotanySpeciesTextRefresh)[keyof typeof GetGobotanySpeciesTextRefresh];
+
+export const GetGobotanySpeciesTextRefresh = {
+  true: "true",
+  false: "false",
+} as const;
+
 export type GetGoogleImagesParams = {
   /**
    * Scientific name to search for (e.g. Acer rubrum)
@@ -2300,6 +2375,26 @@ export type GetIllinoisWildflowersParams = {
   species: string;
 };
 
+export type GetIllinoisWildflowersSpeciesTextParams = {
+  /**
+   * Scientific name (e.g. Acer rubrum)
+   * @minLength 1
+   */
+  species: string;
+  /**
+   * If "true", bypass cache and re-scrape the live page
+   */
+  refresh?: GetIllinoisWildflowersSpeciesTextRefresh;
+};
+
+export type GetIllinoisWildflowersSpeciesTextRefresh =
+  (typeof GetIllinoisWildflowersSpeciesTextRefresh)[keyof typeof GetIllinoisWildflowersSpeciesTextRefresh];
+
+export const GetIllinoisWildflowersSpeciesTextRefresh = {
+  true: "true",
+  false: "false",
+} as const;
+
 export type GetMinnesotaWildflowersParams = {
   /**
    * Scientific name (e.g. Acer rubrum)
@@ -2307,6 +2402,26 @@ export type GetMinnesotaWildflowersParams = {
    */
   species: string;
 };
+
+export type GetMinnesotaWildflowersSpeciesTextParams = {
+  /**
+   * Scientific name (e.g. Acer rubrum)
+   * @minLength 1
+   */
+  species: string;
+  /**
+   * If "true", bypass cache and re-scrape the live page
+   */
+  refresh?: GetMinnesotaWildflowersSpeciesTextRefresh;
+};
+
+export type GetMinnesotaWildflowersSpeciesTextRefresh =
+  (typeof GetMinnesotaWildflowersSpeciesTextRefresh)[keyof typeof GetMinnesotaWildflowersSpeciesTextRefresh];
+
+export const GetMinnesotaWildflowersSpeciesTextRefresh = {
+  true: "true",
+  false: "false",
+} as const;
 
 export type GetMissouriPlantsParams = {
   /**
@@ -2316,6 +2431,26 @@ export type GetMissouriPlantsParams = {
   species: string;
 };
 
+export type GetMissouriPlantsSpeciesTextParams = {
+  /**
+   * Scientific name (e.g. Acer rubrum)
+   * @minLength 1
+   */
+  species: string;
+  /**
+   * If "true", bypass cache and re-scrape the live page
+   */
+  refresh?: GetMissouriPlantsSpeciesTextRefresh;
+};
+
+export type GetMissouriPlantsSpeciesTextRefresh =
+  (typeof GetMissouriPlantsSpeciesTextRefresh)[keyof typeof GetMissouriPlantsSpeciesTextRefresh];
+
+export const GetMissouriPlantsSpeciesTextRefresh = {
+  true: "true",
+  false: "false",
+} as const;
+
 export type GetPrairieMoonParams = {
   /**
    * Scientific name (e.g. Acer rubrum)
@@ -2323,6 +2458,26 @@ export type GetPrairieMoonParams = {
    */
   species: string;
 };
+
+export type GetPrairieMoonSpeciesTextParams = {
+  /**
+   * Scientific name (e.g. Acer rubrum)
+   * @minLength 1
+   */
+  species: string;
+  /**
+   * If "true", bypass cache and re-scrape the live page
+   */
+  refresh?: GetPrairieMoonSpeciesTextRefresh;
+};
+
+export type GetPrairieMoonSpeciesTextRefresh =
+  (typeof GetPrairieMoonSpeciesTextRefresh)[keyof typeof GetPrairieMoonSpeciesTextRefresh];
+
+export const GetPrairieMoonSpeciesTextRefresh = {
+  true: "true",
+  false: "false",
+} as const;
 
 export type GetUsdaPlantsParams = {
   /**

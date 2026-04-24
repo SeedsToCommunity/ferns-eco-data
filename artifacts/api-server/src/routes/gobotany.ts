@@ -1,6 +1,7 @@
 import { Router, type IRouter } from "express";
 import { db, botanicalWebRefsCacheTable } from "@workspace/db";
 import { and, eq, gt } from "drizzle-orm";
+import { fetchAndCacheSpeciesText } from "../services/botanical-refs/scraper.js";
 import {
   GOBOTANY_SOURCE_ID,
   GOBOTANY_GENERAL_SUMMARY,
@@ -158,6 +159,52 @@ router.get("/gobotany", async (req, res) => {
           url,
           validation_method: validationMethod,
           http_status: httpStatus,
+        }
+      : null,
+  });
+});
+
+router.get("/gobotany/species-text", async (req, res) => {
+  await ensureGobotanyRegistryEntry();
+
+  const speciesParam = typeof req.query["species"] === "string" ? req.query["species"].trim() : null;
+  const refresh = req.query["refresh"] === "true";
+
+  if (!speciesParam) {
+    res.status(400).json({
+      error: "invalid_input",
+      message: "species query parameter is required (e.g. ?species=Acer+rubrum)",
+    });
+    return;
+  }
+
+  const parsed = parseSpecies(speciesParam);
+  if (!parsed) {
+    res.status(400).json({
+      error: "invalid_input",
+      message: "species must be a binomial name (genus + species epithet, e.g. Acer rubrum)",
+    });
+    return;
+  }
+
+  const { genus, species } = parsed;
+  const url = `${GOBOTANY_BASE}/species/${genus}/${species}/`;
+  const cacheKey = speciesParam.trim().toLowerCase();
+  const result = await fetchAndCacheSpeciesText(GOBOTANY_SOURCE_ID, cacheKey, url, refresh);
+
+  res.json({
+    found: result.found,
+    queried_at: new Date(),
+    source_url: resolveUrl(req, "/api/gobotany/species-text"),
+    cache_status: result.cache_status,
+    scraped_at: result.scraped_at,
+    provenance: { ...buildProvenance(req), matched_input: speciesParam },
+    data: result.found
+      ? {
+          species: speciesParam,
+          url: result.url,
+          sections: result.sections,
+          full_text: result.full_text,
         }
       : null,
   });

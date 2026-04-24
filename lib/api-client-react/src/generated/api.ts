@@ -36,8 +36,10 @@ import type {
   GetGbifReconcileParams,
   GetGbifSearchParams,
   GetGobotanyParams,
+  GetGobotanySpeciesTextParams,
   GetGoogleImagesParams,
   GetIllinoisWildflowersParams,
+  GetIllinoisWildflowersSpeciesTextParams,
   GetInatFieldValuesParams,
   GetInatHistogramParams,
   GetInatObservationsParams,
@@ -49,12 +51,15 @@ import type {
   GetMifloraImagesParams,
   GetMifloraSpeciesParams,
   GetMinnesotaWildflowersParams,
+  GetMinnesotaWildflowersSpeciesTextParams,
   GetMissouriPlantsParams,
+  GetMissouriPlantsSpeciesTextParams,
   GetMnfiCommunitiesParams,
   GetMnfiCountyElementsParams,
   GetNatureserveEcosystemsParams,
   GetNatureserveSpeciesParams,
   GetPrairieMoonParams,
+  GetPrairieMoonSpeciesTextParams,
   GetS2CSpeciesByYearParams,
   GetSourceRelationshipsParams,
   GetUniversalFqaAssessmentsParams,
@@ -91,6 +96,7 @@ import type {
   SourceRelationshipsResponse,
   SourcesIndexResponse,
   SourcesMetadataResponse,
+  SpeciesTextResponse,
   UniversalFqaAssessmentResponse,
   UniversalFqaAssessmentsResponse,
   UniversalFqaDatabaseDetailResponse,
@@ -5028,6 +5034,111 @@ export function useGetGobotanyMetadata<
 }
 
 /**
+ * Fetches and caches botanical prose text from the Go Botany (Native Plant Trust) species detail page. The URL is constructed directly from the binomial name. Sections returned include Facts, Habitat, and Characteristics. First call scrapes live; subsequent calls return the cached text. Use ?refresh=true to force a re-scrape.
+
+ * @summary Scrape and return species page text from Go Botany
+ */
+export const getGetGobotanySpeciesTextUrl = (
+  params: GetGobotanySpeciesTextParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/gobotany/species-text?${stringifiedParams}`
+    : `/api/gobotany/species-text`;
+};
+
+export const getGobotanySpeciesText = async (
+  params: GetGobotanySpeciesTextParams,
+  options?: RequestInit,
+): Promise<SpeciesTextResponse> => {
+  return customFetch<SpeciesTextResponse>(
+    getGetGobotanySpeciesTextUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetGobotanySpeciesTextQueryKey = (
+  params?: GetGobotanySpeciesTextParams,
+) => {
+  return [`/api/gobotany/species-text`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetGobotanySpeciesTextQueryOptions = <
+  TData = Awaited<ReturnType<typeof getGobotanySpeciesText>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetGobotanySpeciesTextParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getGobotanySpeciesText>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetGobotanySpeciesTextQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getGobotanySpeciesText>>
+  > = ({ signal }) =>
+    getGobotanySpeciesText(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getGobotanySpeciesText>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetGobotanySpeciesTextQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getGobotanySpeciesText>>
+>;
+export type GetGobotanySpeciesTextQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Scrape and return species page text from Go Botany
+ */
+
+export function useGetGobotanySpeciesText<
+  TData = Awaited<ReturnType<typeof getGobotanySpeciesText>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetGobotanySpeciesTextParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getGobotanySpeciesText>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetGobotanySpeciesTextQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
  * Constructs a Google Images search URL for a given scientific name. This endpoint always returns found=true and a direct Google Images URL — no validation is performed. The URL is constructed from the species parameter and is not cached. Useful for quickly providing a visual reference link without requiring an image database.
 
  * @summary Construct a Google Images search URL for a species
@@ -5392,6 +5503,119 @@ export function useGetIllinoisWildflowersMetadata<
 }
 
 /**
+ * Fetches and caches botanical prose text from the Illinois Wildflowers (illinoiswildflowers.info) species detail page. The page URL is resolved from the imported species list. Sections extracted include Description, Cultivation, Range & Habitat, and Comments. First call scrapes live; subsequent calls return the cached text. Use ?refresh=true to force a re-scrape. Returns found=false when the species is not in the imported list.
+
+ * @summary Scrape and return species page text from Illinois Wildflowers
+ */
+export const getGetIllinoisWildflowersSpeciesTextUrl = (
+  params: GetIllinoisWildflowersSpeciesTextParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/illinois-wildflowers/species-text?${stringifiedParams}`
+    : `/api/illinois-wildflowers/species-text`;
+};
+
+export const getIllinoisWildflowersSpeciesText = async (
+  params: GetIllinoisWildflowersSpeciesTextParams,
+  options?: RequestInit,
+): Promise<SpeciesTextResponse> => {
+  return customFetch<SpeciesTextResponse>(
+    getGetIllinoisWildflowersSpeciesTextUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetIllinoisWildflowersSpeciesTextQueryKey = (
+  params?: GetIllinoisWildflowersSpeciesTextParams,
+) => {
+  return [
+    `/api/illinois-wildflowers/species-text`,
+    ...(params ? [params] : []),
+  ] as const;
+};
+
+export const getGetIllinoisWildflowersSpeciesTextQueryOptions = <
+  TData = Awaited<ReturnType<typeof getIllinoisWildflowersSpeciesText>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetIllinoisWildflowersSpeciesTextParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getIllinoisWildflowersSpeciesText>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ??
+    getGetIllinoisWildflowersSpeciesTextQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getIllinoisWildflowersSpeciesText>>
+  > = ({ signal }) =>
+    getIllinoisWildflowersSpeciesText(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getIllinoisWildflowersSpeciesText>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetIllinoisWildflowersSpeciesTextQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getIllinoisWildflowersSpeciesText>>
+>;
+export type GetIllinoisWildflowersSpeciesTextQueryError =
+  ErrorType<ErrorResponse>;
+
+/**
+ * @summary Scrape and return species page text from Illinois Wildflowers
+ */
+
+export function useGetIllinoisWildflowersSpeciesText<
+  TData = Awaited<ReturnType<typeof getIllinoisWildflowersSpeciesText>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetIllinoisWildflowersSpeciesTextParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getIllinoisWildflowersSpeciesText>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetIllinoisWildflowersSpeciesTextQueryOptions(
+    params,
+    options,
+  );
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
  * Looks up the Minnesota Wildflowers (minnesotawildflowers.info) species page URL for a given scientific name. Species list is imported from the site and served from FERNS's local database — no live upstream call at query time.
 
  * @summary Look up a Minnesota Wildflowers species page URL
@@ -5570,6 +5794,119 @@ export function useGetMinnesotaWildflowersMetadata<
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetMinnesotaWildflowersMetadataQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Fetches and caches botanical prose text from the Minnesota Wildflowers (minnesotawildflowers.info) species detail page. The page URL is resolved from the imported species list. Sections include quick-facts table rows and h4-delimited prose sections. First call scrapes live; subsequent calls return cached text. Use ?refresh=true to force a re-scrape. Returns found=false when the species is not in the imported list.
+
+ * @summary Scrape and return species page text from Minnesota Wildflowers
+ */
+export const getGetMinnesotaWildflowersSpeciesTextUrl = (
+  params: GetMinnesotaWildflowersSpeciesTextParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/minnesota-wildflowers/species-text?${stringifiedParams}`
+    : `/api/minnesota-wildflowers/species-text`;
+};
+
+export const getMinnesotaWildflowersSpeciesText = async (
+  params: GetMinnesotaWildflowersSpeciesTextParams,
+  options?: RequestInit,
+): Promise<SpeciesTextResponse> => {
+  return customFetch<SpeciesTextResponse>(
+    getGetMinnesotaWildflowersSpeciesTextUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetMinnesotaWildflowersSpeciesTextQueryKey = (
+  params?: GetMinnesotaWildflowersSpeciesTextParams,
+) => {
+  return [
+    `/api/minnesota-wildflowers/species-text`,
+    ...(params ? [params] : []),
+  ] as const;
+};
+
+export const getGetMinnesotaWildflowersSpeciesTextQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMinnesotaWildflowersSpeciesText>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetMinnesotaWildflowersSpeciesTextParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMinnesotaWildflowersSpeciesText>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ??
+    getGetMinnesotaWildflowersSpeciesTextQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getMinnesotaWildflowersSpeciesText>>
+  > = ({ signal }) =>
+    getMinnesotaWildflowersSpeciesText(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMinnesotaWildflowersSpeciesText>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMinnesotaWildflowersSpeciesTextQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMinnesotaWildflowersSpeciesText>>
+>;
+export type GetMinnesotaWildflowersSpeciesTextQueryError =
+  ErrorType<ErrorResponse>;
+
+/**
+ * @summary Scrape and return species page text from Minnesota Wildflowers
+ */
+
+export function useGetMinnesotaWildflowersSpeciesText<
+  TData = Awaited<ReturnType<typeof getMinnesotaWildflowersSpeciesText>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetMinnesotaWildflowersSpeciesTextParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMinnesotaWildflowersSpeciesText>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMinnesotaWildflowersSpeciesTextQueryOptions(
+    params,
+    options,
+  );
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;
@@ -5759,6 +6096,117 @@ export function useGetMissouriPlantsMetadata<
 }
 
 /**
+ * Fetches and caches botanical prose text from the Missouri Plants (missouriplants.com) species detail page. The page URL is resolved from the imported species list. Sections are extracted from labeled norm-class paragraphs. First call scrapes live; subsequent calls return cached text. Use ?refresh=true to force a re-scrape. Returns found=false when the species is not in the imported list.
+
+ * @summary Scrape and return species page text from Missouri Plants
+ */
+export const getGetMissouriPlantsSpeciesTextUrl = (
+  params: GetMissouriPlantsSpeciesTextParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/missouri-plants/species-text?${stringifiedParams}`
+    : `/api/missouri-plants/species-text`;
+};
+
+export const getMissouriPlantsSpeciesText = async (
+  params: GetMissouriPlantsSpeciesTextParams,
+  options?: RequestInit,
+): Promise<SpeciesTextResponse> => {
+  return customFetch<SpeciesTextResponse>(
+    getGetMissouriPlantsSpeciesTextUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetMissouriPlantsSpeciesTextQueryKey = (
+  params?: GetMissouriPlantsSpeciesTextParams,
+) => {
+  return [
+    `/api/missouri-plants/species-text`,
+    ...(params ? [params] : []),
+  ] as const;
+};
+
+export const getGetMissouriPlantsSpeciesTextQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMissouriPlantsSpeciesText>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetMissouriPlantsSpeciesTextParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMissouriPlantsSpeciesText>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetMissouriPlantsSpeciesTextQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getMissouriPlantsSpeciesText>>
+  > = ({ signal }) =>
+    getMissouriPlantsSpeciesText(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMissouriPlantsSpeciesText>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMissouriPlantsSpeciesTextQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMissouriPlantsSpeciesText>>
+>;
+export type GetMissouriPlantsSpeciesTextQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Scrape and return species page text from Missouri Plants
+ */
+
+export function useGetMissouriPlantsSpeciesText<
+  TData = Awaited<ReturnType<typeof getMissouriPlantsSpeciesText>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetMissouriPlantsSpeciesTextParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMissouriPlantsSpeciesText>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMissouriPlantsSpeciesTextQueryOptions(
+    params,
+    options,
+  );
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
  * Looks up the Prairie Moon Nursery (prairiemoon.com) species catalog URL for a given scientific name. Species list is imported from the Prairie Moon sitemap and served from FERNS's local database. Returns the direct product page URL when found. No live upstream call at query time.
 
  * @summary Look up a Prairie Moon Nursery species page URL
@@ -5927,6 +6375,117 @@ export function useGetPrairieMoonMetadata<
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetPrairieMoonMetadataQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Fetches and caches botanical prose text from the Prairie Moon Nursery (prairiemoon.com) species catalog page. The page URL is resolved from the imported sitemap-based species list. Sections include a product description prose block and structured growing details. First call scrapes live; subsequent calls return cached text. Use ?refresh=true to force a re-scrape. Returns found=false when the species is not in the imported list.
+
+ * @summary Scrape and return species page text from Prairie Moon Nursery
+ */
+export const getGetPrairieMoonSpeciesTextUrl = (
+  params: GetPrairieMoonSpeciesTextParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/prairie-moon/species-text?${stringifiedParams}`
+    : `/api/prairie-moon/species-text`;
+};
+
+export const getPrairieMoonSpeciesText = async (
+  params: GetPrairieMoonSpeciesTextParams,
+  options?: RequestInit,
+): Promise<SpeciesTextResponse> => {
+  return customFetch<SpeciesTextResponse>(
+    getGetPrairieMoonSpeciesTextUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetPrairieMoonSpeciesTextQueryKey = (
+  params?: GetPrairieMoonSpeciesTextParams,
+) => {
+  return [
+    `/api/prairie-moon/species-text`,
+    ...(params ? [params] : []),
+  ] as const;
+};
+
+export const getGetPrairieMoonSpeciesTextQueryOptions = <
+  TData = Awaited<ReturnType<typeof getPrairieMoonSpeciesText>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetPrairieMoonSpeciesTextParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getPrairieMoonSpeciesText>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetPrairieMoonSpeciesTextQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getPrairieMoonSpeciesText>>
+  > = ({ signal }) =>
+    getPrairieMoonSpeciesText(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getPrairieMoonSpeciesText>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetPrairieMoonSpeciesTextQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getPrairieMoonSpeciesText>>
+>;
+export type GetPrairieMoonSpeciesTextQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Scrape and return species page text from Prairie Moon Nursery
+ */
+
+export function useGetPrairieMoonSpeciesText<
+  TData = Awaited<ReturnType<typeof getPrairieMoonSpeciesText>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetPrairieMoonSpeciesTextParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getPrairieMoonSpeciesText>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetPrairieMoonSpeciesTextQueryOptions(
+    params,
+    options,
+  );
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

@@ -1,6 +1,7 @@
 import { Router, type IRouter } from "express";
 import { db, botanicalSpeciesListsTable } from "@workspace/db";
 import { eq, ilike, and } from "drizzle-orm";
+import { fetchAndCacheSpeciesText } from "../services/botanical-refs/scraper.js";
 import {
   MISSOURI_PLANTS_SOURCE_ID,
   MISSOURI_PLANTS_GENERAL_SUMMARY,
@@ -84,6 +85,53 @@ router.get("/missouri-plants", async (req, res) => {
           url: rows[0].url,
           validation_method: "species_list_lookup",
           imported_at: rows[0].imported_at,
+        }
+      : null,
+  });
+});
+
+router.get("/missouri-plants/species-text", async (req, res) => {
+  await ensureMissouriPlantsRegistryEntry();
+
+  const speciesParam = typeof req.query["species"] === "string" ? req.query["species"].trim() : null;
+  const refresh = req.query["refresh"] === "true";
+
+  if (!speciesParam) {
+    res.status(400).json({
+      error: "invalid_input",
+      message: "species query parameter is required (e.g. ?species=Acer+rubrum)",
+    });
+    return;
+  }
+
+  const rows = await db
+    .select()
+    .from(botanicalSpeciesListsTable)
+    .where(
+      and(
+        eq(botanicalSpeciesListsTable.site_id, SITE_ID),
+        ilike(botanicalSpeciesListsTable.scientific_name, speciesParam),
+      ),
+    )
+    .limit(1);
+
+  const speciesUrl = rows.length > 0 ? rows[0].url : null;
+  const cacheKey = speciesParam.toLowerCase();
+  const result = await fetchAndCacheSpeciesText(SITE_ID, cacheKey, speciesUrl, refresh);
+
+  res.json({
+    found: result.found,
+    queried_at: new Date(),
+    source_url: resolveUrl(req, "/api/missouri-plants/species-text"),
+    cache_status: result.cache_status,
+    scraped_at: result.scraped_at,
+    provenance: { ...buildProvenance(req), matched_input: speciesParam },
+    data: result.found
+      ? {
+          species: speciesParam,
+          url: result.url,
+          sections: result.sections,
+          full_text: result.full_text,
         }
       : null,
   });

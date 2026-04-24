@@ -14,6 +14,7 @@ export async function ensureUsdaPlantsRegistryEntry(): Promise<void> {
         target: fernsSourcesTable.source_id,
         set: {
           name: USDA_PLANTS_REGISTRY_ENTRY.name,
+          knowledge_type: USDA_PLANTS_REGISTRY_ENTRY.knowledge_type,
           status: USDA_PLANTS_REGISTRY_ENTRY.status,
           description: USDA_PLANTS_REGISTRY_ENTRY.description,
           input_summary: USDA_PLANTS_REGISTRY_ENTRY.input_summary,
