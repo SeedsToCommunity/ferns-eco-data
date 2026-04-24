@@ -56,3 +56,4 @@ channel = "stable-25_05"
 
 [userenv.production]
 FERNS_API_BASE_URL = "https://ferns-eco-data.replit.app"
+DATA_EXPLORER_HOSTS = "ferns-eco-data.replit.app"

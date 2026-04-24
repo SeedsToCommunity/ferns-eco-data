@@ -94,6 +94,20 @@ if (process.env.NODE_ENV === "production") {
     "artifacts/ecological-commons-site/dist/public",
   );
 
+  // DATA_EXPLORER_HOSTS is a comma-separated list of hostnames that should
+  // serve the data explorer (registry-explorer). Falls back to a `data.`
+  // prefix check for the custom domain (data.ecologicalcommons.org).
+  const dataExplorerHosts = (process.env.DATA_EXPLORER_HOSTS ?? "")
+    .split(",")
+    .map((h) => h.trim().toLowerCase())
+    .filter(Boolean);
+
+  function isDataExplorerHost(host: string): boolean {
+    if (dataExplorerHosts.includes(host)) return true;
+    // Fallback: custom domain convention (data.ecologicalcommons.org, etc.)
+    return host.startsWith("data.");
+  }
+
   app.use((req, res, next) => {
     const rawHost =
       (req.headers["x-forwarded-host"] as string | undefined) ??
@@ -101,8 +115,11 @@ if (process.env.NODE_ENV === "production") {
       "";
     // Lowercase and take only the first value — X-Forwarded-Host can be
     // comma-separated when passing through multiple proxies.
-    const host = rawHost.split(",")[0].trim().toLowerCase();
-    const dir = host.startsWith("data.") ? dataExplorerDir : publicSiteDir;
+    // Strip any port suffix (e.g. "example.com:3000" → "example.com") so
+    // hostname-only matching in DATA_EXPLORER_HOSTS works correctly.
+    const rawFirstHost = rawHost.split(",")[0].trim().toLowerCase();
+    const host = rawFirstHost.replace(/:\d+$/, "");
+    const dir = isDataExplorerHost(host) ? dataExplorerDir : publicSiteDir;
 
     express.static(dir, { index: "index.html" })(req, res, () => {
       // SPA fallback: any unmatched path serves index.html so client-side
