@@ -4,10 +4,31 @@
  * Fetches each species page HTML, runs a site-specific extractor to pull
  * labeled prose sections, then stores the result in species_page_text_cache.
  * Cache is permanent (no TTL); use ?refresh=true to re-scrape.
+ *
+ * Rate limit: one request per upstream hostname per 400ms (same interval as
+ * the MNFI scraper). Limiter is in-process and resets on server restart.
  */
 
 import { db, speciesPageTextCacheTable } from "@workspace/db";
 import { and, eq } from "drizzle-orm";
+
+// ── Rate limiter ──────────────────────────────────────────────────────────────
+
+const RATE_LIMIT_MS = 400;
+const lastRequestByHost = new Map<string, number>();
+
+async function rateLimit(url: string): Promise<void> {
+  let host: string;
+  try {
+    host = new URL(url).hostname;
+  } catch {
+    return;
+  }
+  const last = lastRequestByHost.get(host) ?? 0;
+  const wait = RATE_LIMIT_MS - (Date.now() - last);
+  if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+  lastRequestByHost.set(host, Date.now());
+}
 
 // ── HTML utilities ────────────────────────────────────────────────────────────
 
@@ -39,19 +60,23 @@ export interface PageTextResult {
 }
 
 /**
- * Illinois Wildflowers — sections delimited by green-font bold labels.
- * Pages are ISO-8859-1; charset is handled by the fetch helper below.
- * Skips "Photographic Location" (camera/copyright text only).
+ * Illinois Wildflowers — sections delimited by green-font bold labels inside
+ * the <blockquote> content container. Pages use ISO-8859-1; charset is handled
+ * by the fetch helper. Skips "Photographic Location" (camera/copyright text).
  */
 function extractIllinoisWildflowers(html: string): PageTextResult {
   const sections: Record<string, string> = {};
   const SKIP = new Set(["Photographic Location"]);
 
-  // <b><font color="#33cc33">Label:</font></b> ... text ... (until next such label)
+  // Narrow to the <blockquote> content container first
+  const bqMatch = html.match(/<blockquote[^>]*>([\s\S]*?)<\/blockquote>/i);
+  const scope = bqMatch ? bqMatch[1] : html;
+
+  // <b><font color="#33cc33">Label:</font></b> … text … (until next such label)
   const labelPat =
     /<b>\s*<font[^>]*color=["']?#33cc33["']?[^>]*>\s*([^<:]+):?\s*<\/font>\s*<\/b>([\s\S]*?)(?=<b>\s*<font[^>]*color=["']?#33cc33["']?|$)/gi;
   let m: RegExpExecArray | null;
-  while ((m = labelPat.exec(html)) !== null) {
+  while ((m = labelPat.exec(scope)) !== null) {
     const label = m[1].trim();
     if (SKIP.has(label)) continue;
     const text = stripTags(m[2]).trim();
@@ -65,11 +90,13 @@ function extractIllinoisWildflowers(html: string): PageTextResult {
 }
 
 /**
- * Missouri Plants — `<p class="norm">` paragraphs, each optionally led by a `<b>Label</b>`.
+ * Missouri Plants — norm-class <p> paragraphs with optional bold label prefix,
+ * plus the structured <div class="stats"> block (CC/CW/MOC values).
  */
 function extractMissouriPlants(html: string): PageTextResult {
   const sections: Record<string, string> = {};
 
+  // Prose paragraphs: <p class="norm"> … </p>
   const normPat = /<p[^>]*class=["']norm["'][^>]*>([\s\S]*?)<\/p>/gi;
   let m: RegExpExecArray | null;
   while ((m = normPat.exec(html)) !== null) {
@@ -90,6 +117,21 @@ function extractMissouriPlants(html: string): PageTextResult {
     }
   }
 
+  // Stats block: <div class="stats"> … </div>  — CC, CW, MOC values
+  const statsMatch = html.match(/<div[^>]*class=["']stats["'][^>]*>([\s\S]*?)<\/div>/i);
+  if (statsMatch) {
+    // Each stat is a <b>Label</b>: value pattern within the block
+    const statPat = /<b[^>]*>([\s\S]*?)<\/b>\s*:?\s*([^<]+)/gi;
+    const statPairs: string[] = [];
+    let sm: RegExpExecArray | null;
+    while ((sm = statPat.exec(statsMatch[1])) !== null) {
+      const key = stripTags(sm[1]).replace(/:$/, "").trim();
+      const val = sm[2].trim();
+      if (key && val) statPairs.push(`${key}: ${val}`);
+    }
+    if (statPairs.length) sections["Stats"] = statPairs.join("; ");
+  }
+
   const full_text = Object.entries(sections)
     .map(([k, v]) => `${k}: ${v}`)
     .join("\n\n");
@@ -97,26 +139,30 @@ function extractMissouriPlants(html: string): PageTextResult {
 }
 
 /**
- * Minnesota Wildflowers — quick-facts table (`<th scope="row">`) plus
- * prose sections under `<h4>` headings inside the article.
+ * Minnesota Wildflowers — quick-facts table inside <article id="content">
+ * and h4-delimited prose sections within the same article container.
  */
 function extractMinnesotaWildflowers(html: string): PageTextResult {
   const sections: Record<string, string> = {};
 
-  // Quick facts
+  // Narrow to <article id="content">
+  const articleMatch = html.match(/<article[^>]*id=["']content["'][^>]*>([\s\S]*?)<\/article>/i);
+  const scope = articleMatch ? articleMatch[1] : html;
+
+  // Quick facts: <th scope="row">Label</th><td>Value</td>
   const rowPat =
     /<th[^>]*scope=["']row["'][^>]*>([\s\S]*?)<\/th>\s*<td[^>]*>([\s\S]*?)<\/td>/gi;
   let m: RegExpExecArray | null;
-  while ((m = rowPat.exec(html)) !== null) {
+  while ((m = rowPat.exec(scope)) !== null) {
     const label = stripTags(m[1]).trim();
     const val = stripTags(m[2]).trim();
     if (label && val) sections[label] = val;
   }
 
-  // Prose sections under <h4> headings
+  // Prose sections: <h4> heading followed by <p> content
   const h4Pat =
     /<h4[^>]*>([\s\S]*?)<\/h4>([\s\S]*?)(?=<h4|<\/article|$)/gi;
-  while ((m = h4Pat.exec(html)) !== null) {
+  while ((m = h4Pat.exec(scope)) !== null) {
     const label = stripTags(m[1]).trim();
     if (!label) continue;
     const block = m[2];
@@ -137,8 +183,8 @@ function extractMinnesotaWildflowers(html: string): PageTextResult {
 }
 
 /**
- * GoBotany — pulls Facts, Habitat, and Characteristics sections from the
- * Native Plant Trust species detail page.
+ * GoBotany — Facts, Habitat, and Characteristics sections from the
+ * Native Plant Trust species detail page. Scoped to known section h2 headings.
  */
 function extractGobotany(html: string): PageTextResult {
   const sections: Record<string, string> = {};
@@ -157,7 +203,7 @@ function extractGobotany(html: string): PageTextResult {
     if (t) sections["Habitat"] = t;
   }
 
-  // Characteristics dl/dt/dd block
+  // Characteristics: dl/dt/dd pairs inside a .characteristics div
   const charM = html.match(
     /<div[^>]*class=["'][^"']*characteristics[^"']*["'][^>]*>([\s\S]*?)<\/div>/i,
   );
@@ -180,13 +226,37 @@ function extractGobotany(html: string): PageTextResult {
   return { sections, full_text };
 }
 
+// Keys that are commercial/catalog metadata, not ecological information.
+// Excluded from Prairie Moon species text output.
+const PRAIRIE_MOON_COMMERCE_KEYS = new Set([
+  "Seeds/Packet",
+  "Seeds/Ounce",
+  "Price per Packet",
+  "Price/Packet",
+  "Price/lb",
+  "Price/oz",
+  "Availability",
+  "SKU",
+  "Item #",
+  "Item Number",
+  "Plug Size",
+  "Plug Tray Size",
+  "Plant Size",
+  "Ship As",
+  "Shipping",
+  "Stock",
+  "Add to Cart",
+  "Quantity",
+]);
+
 /**
- * Prairie Moon Nursery — product description prose and structured details.
+ * Prairie Moon Nursery — product description prose and structured growing
+ * details. Commerce fields (price, availability, SKU, etc.) are excluded.
  */
 function extractPrairieMoon(html: string): PageTextResult {
   const sections: Record<string, string> = {};
 
-  // Product description block (various class names across site versions)
+  // Product description — various class names across site versions
   const descM = html.match(
     /<div[^>]*class=["'][^"']*(?:product[_-]?description|g-product-description)[^"']*["'][^>]*>([\s\S]*?)<\/div>/i,
   );
@@ -201,7 +271,7 @@ function extractPrairieMoon(html: string): PageTextResult {
     if (paras.length) sections["Description"] = paras.join("\n\n");
   }
 
-  // Structured details as dl/dt/dd
+  // Structured growing details as dl/dt/dd — filter commerce noise
   const dlPat = /<dl[^>]*>([\s\S]*?)<\/dl>/gi;
   let dlM: RegExpExecArray | null;
   while ((dlM = dlPat.exec(html)) !== null) {
@@ -210,7 +280,9 @@ function extractPrairieMoon(html: string): PageTextResult {
     while ((dm = dtddPat.exec(dlM[1])) !== null) {
       const key = stripTags(dm[1]).replace(/:$/, "").trim();
       const val = stripTags(dm[2]).trim();
-      if (key && val) sections[key] = val;
+      if (key && val && !PRAIRIE_MOON_COMMERCE_KEYS.has(key)) {
+        sections[key] = val;
+      }
     }
   }
 
@@ -237,10 +309,17 @@ export interface SpeciesTextCacheEntry {
   full_text: string | null;
   scraped_at: Date;
   cache_status: "hit" | "miss" | "not_in_species_list";
+  fetch_error?: string;
 }
 
 /**
  * Look up cached species text, or scrape + cache on a miss.
+ *
+ * Transient fetch failures (network error, timeout, 5xx) are NOT cached —
+ * they return an entry with `found=false` and `fetch_error` set but do not
+ * write to the cache, so the next call will retry the live request.
+ * Only definitive outcomes (200 OK with extracted text, or 404 not-found)
+ * are written to cache.
  *
  * @param site_id          Botanical-ref source identifier.
  * @param scientific_name  Normalized cache key (lowercase, trimmed).
@@ -289,11 +368,15 @@ export async function fetchAndCacheSpeciesText(
     }
   }
 
-  // Live fetch
+  // Apply host-level rate limit before live fetch
+  await rateLimit(url);
+
   const extractor = SITE_EXTRACTORS[site_id];
   let found = false;
   let sections: Record<string, string> | null = null;
   let full_text: string | null = null;
+  let fetchError: string | undefined;
+  let definitiveOutcome = false; // true only for 200 or 404
 
   try {
     const resp = await fetch(url, {
@@ -307,6 +390,7 @@ export async function fetchAndCacheSpeciesText(
     });
 
     if (resp.ok) {
+      definitiveOutcome = true;
       // Honour the page's declared charset (Illinois Wildflowers uses ISO-8859-1)
       const contentType = resp.headers.get("content-type") ?? "";
       const charsetMatch = /charset=([^\s;]+)/i.exec(contentType);
@@ -324,18 +408,28 @@ export async function fetchAndCacheSpeciesText(
         full_text = stripTags(html).slice(0, 20000) || null;
       }
       found = true;
+    } else if (resp.status === 404) {
+      // Definitively absent — safe to cache
+      definitiveOutcome = true;
+      found = false;
+    } else {
+      // Transient server error (5xx, etc.) — do NOT cache
+      fetchError = `HTTP ${resp.status}`;
     }
-  } catch {
-    found = false;
+  } catch (err) {
+    // Network error, timeout, etc. — do NOT cache
+    fetchError = String(err);
   }
 
-  await db
-    .insert(speciesPageTextCacheTable)
-    .values({ site_id, scientific_name, url, found, sections, full_text })
-    .onConflictDoUpdate({
-      target: [speciesPageTextCacheTable.site_id, speciesPageTextCacheTable.scientific_name],
-      set: { url, found, sections, full_text, scraped_at: new Date() },
-    });
+  if (definitiveOutcome) {
+    await db
+      .insert(speciesPageTextCacheTable)
+      .values({ site_id, scientific_name, url, found, sections, full_text })
+      .onConflictDoUpdate({
+        target: [speciesPageTextCacheTable.site_id, speciesPageTextCacheTable.scientific_name],
+        set: { url, found, sections, full_text, scraped_at: new Date() },
+      });
+  }
 
   return {
     found,
@@ -344,5 +438,6 @@ export async function fetchAndCacheSpeciesText(
     full_text,
     scraped_at: new Date(),
     cache_status: "miss",
+    ...(fetchError ? { fetch_error: fetchError } : {}),
   };
 }

@@ -22,6 +22,9 @@ export interface SpeciesTextResponse {
   /** "hit" — returned from cache. "miss" — live scrape performed and cached. "not_in_species_list" — species URL not in the imported species list; scrape skipped.
    */
   cache_status: SpeciesTextResponseCacheStatus;
+  /** Present only when a transient upstream error (network failure, timeout, 5xx) prevented the scrape. The result was NOT cached in this case and the next call will retry the live request.
+   */
+  fetch_error?: string;
   /** Timestamp of when the text was originally scraped. */
   scraped_at?: Date;
   provenance?: FernsProvenance;

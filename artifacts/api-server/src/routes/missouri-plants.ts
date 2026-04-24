@@ -125,6 +125,7 @@ router.get("/missouri-plants/species-text", async (req, res) => {
     source_url: resolveUrl(req, "/api/missouri-plants/species-text"),
     cache_status: result.cache_status,
     scraped_at: result.scraped_at,
+    ...(result.fetch_error ? { fetch_error: result.fetch_error } : {}),
     provenance: { ...buildProvenance(req), matched_input: speciesParam },
     data: result.found
       ? {
