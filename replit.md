@@ -35,7 +35,7 @@ FERNS fetches, caches, and exposes ecological and environmental data from author
 | `artifacts/ecological-commons-site` | `/` | `ecologicalcommons.org/` | Public-facing website — single Astro page, 6 content sections in HTML, JavaScript tabs for human navigation |
 | `artifacts/registry-explorer` | `/ferns/` | `data.ecologicalcommons.org/` | Ecological Commons Data Layer explorer — browse all registered sources |
 | `artifacts/api-server` | `/api` (port 8080) | `data.ecologicalcommons.org/api/` | Ecological Commons REST API server — handles ALL production routes via Host-header routing |
-| `artifacts/mcp-server` | stdio (dev) | `data.ecologicalcommons.org/mcp` | Ecological Commons MCP Server — 48 tools via Streamable HTTP; stdio fallback for local dev |
+| `artifacts/mcp-server` | stdio (dev) | `data.ecologicalcommons.org/mcp` | Ecological Commons MCP Server — 53 tools via Streamable HTTP; stdio fallback for local dev |
 | `artifacts/mockup-sandbox` | `/__mockup` | — | UI component preview sandbox (internal dev only) |
 
 **Dev-mode routing note**: In development, the Replit proxy routes all root (`/`) traffic to the api-server (port 8080) because it is the primary registered artifact. The api-server has a dev-only passthrough proxy that forwards any non-`/api` request to the ecological-commons-site Astro dev server (port 18478). This means both workflows must be running for the preview to work. In production, the api-server serves static files directly. The Astro dev server's `allowedHosts` setting must be inside the `vite.server` block (not `server`) in `astro.config.mjs` — Astro's own `server` config does not forward that option to Vite.

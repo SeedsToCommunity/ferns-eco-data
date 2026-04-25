@@ -1000,3 +1000,112 @@ export async function runNatureserveChecks(fernsBase: string): Promise<EndpointC
 
   return [metadataCheck, speciesCheck, ecosystemsCheck];
 }
+
+// ─── Botanical Reference Species-Text Health Checks ──────────────────────────
+// Tests the /species-text scraping endpoint for each of the five botanical
+// reference sources that support it. Uses Asclepias tuberosa (butterfly milkweed)
+// — a common, widely documented native wildflower present on all five sites.
+// Verifies envelope contract: found, cache_status, scraped_at, expires_at,
+// and at least one section. Does not assert on section content (site-specific).
+
+export async function runBotanicalRefTextChecks(fernsBase: string): Promise<EndpointComparison[]> {
+  const TEST_SPECIES_NAME = "Asclepias tuberosa";
+  const encodedSpecies = encodeURIComponent(TEST_SPECIES_NAME);
+
+  function speciesTextChecks(source: string) {
+    return (envelope: Record<string, unknown>): FieldFinding[] => {
+      const findings: FieldFinding[] = [];
+      // found field
+      if (typeof envelope.found === "boolean") {
+        findings.push({ type: "ok", sourceField: "found", note: `found=${envelope.found}` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "found", note: "found field missing or not boolean" });
+      }
+      // cache_status
+      const validStatuses = ["hit", "fresh", "miss", "error"];
+      if (typeof envelope.cache_status === "string" && validStatuses.includes(envelope.cache_status)) {
+        findings.push({ type: "ok", sourceField: "cache_status", note: `cache_status=${envelope.cache_status}` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "cache_status", note: `cache_status missing or invalid: ${envelope.cache_status}` });
+      }
+      // scraped_at and expires_at only required when found=true
+      if (envelope.found === true) {
+        if (envelope.scraped_at) {
+          findings.push({ type: "ok", sourceField: "scraped_at", note: `scraped_at=${envelope.scraped_at}` });
+        } else {
+          findings.push({ type: "mismatch", sourceField: "scraped_at", note: "scraped_at missing when found=true" });
+        }
+        if (envelope.expires_at) {
+          findings.push({ type: "ok", sourceField: "expires_at", note: `expires_at=${envelope.expires_at}` });
+        } else {
+          findings.push({ type: "mismatch", sourceField: "expires_at", note: "expires_at missing when found=true" });
+        }
+        // sections array
+        const sections = envelope.sections;
+        if (Array.isArray(sections) && sections.length > 0) {
+          findings.push({ type: "ok", sourceField: "sections", note: `${sections.length} section(s) returned` });
+          const firstSection = sections[0] as Record<string, unknown> | undefined;
+          if (firstSection && typeof firstSection.heading === "string" && typeof firstSection.text === "string") {
+            findings.push({ type: "ok", sourceField: "sections[0]", note: `heading="${firstSection.heading}" present` });
+          } else {
+            findings.push({ type: "mismatch", sourceField: "sections[0]", note: "first section missing heading or text fields" });
+          }
+        } else if (Array.isArray(sections) && sections.length === 0) {
+          findings.push({ type: "gap", sourceField: "sections", note: `found=true but sections is empty — scraper may not have extracted any content` });
+        } else {
+          findings.push({ type: "mismatch", sourceField: "sections", note: "sections field missing or not an array" });
+        }
+      } else {
+        findings.push({ type: "ok", sourceField: "sections", note: `species not found on ${source} — sections check skipped` });
+      }
+      // provenance
+      const prov = envelope.provenance as Record<string, unknown> | null | undefined;
+      if (prov && prov.source_id) {
+        findings.push({ type: "ok", sourceField: "provenance.source_id", note: `${prov.source_id}` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "provenance", note: "provenance.source_id missing" });
+      }
+      return findings;
+    };
+  }
+
+  const [gobotanyCheck, illinoisCheck, minnesotaCheck, missouriCheck, prairieMoonCheck] = await Promise.all([
+    checkEndpoint(
+      "gobotany",
+      `/api/gobotany/species-text?species=${encodedSpecies}`,
+      `Go Botany — species-text (${TEST_SPECIES_NAME}: envelope contract, cache_status, sections)`,
+      fernsBase,
+      speciesTextChecks("Go Botany"),
+    ),
+    checkEndpoint(
+      "illinois-wildflowers",
+      `/api/illinois-wildflowers/species-text?species=${encodedSpecies}`,
+      `Illinois Wildflowers — species-text (${TEST_SPECIES_NAME}: envelope contract, cache_status, sections)`,
+      fernsBase,
+      speciesTextChecks("Illinois Wildflowers"),
+    ),
+    checkEndpoint(
+      "minnesota-wildflowers",
+      `/api/minnesota-wildflowers/species-text?species=${encodedSpecies}`,
+      `Minnesota Wildflowers — species-text (${TEST_SPECIES_NAME}: envelope contract, cache_status, sections)`,
+      fernsBase,
+      speciesTextChecks("Minnesota Wildflowers"),
+    ),
+    checkEndpoint(
+      "missouri-plants",
+      `/api/missouri-plants/species-text?species=${encodedSpecies}`,
+      `Missouri Plants — species-text (${TEST_SPECIES_NAME}: envelope contract, cache_status, sections)`,
+      fernsBase,
+      speciesTextChecks("Missouri Plants"),
+    ),
+    checkEndpoint(
+      "prairie-moon",
+      `/api/prairie-moon/species-text?species=${encodedSpecies}`,
+      `Prairie Moon — species-text (${TEST_SPECIES_NAME}: envelope contract, cache_status, sections)`,
+      fernsBase,
+      speciesTextChecks("Prairie Moon"),
+    ),
+  ]);
+
+  return [gobotanyCheck, illinoisCheck, minnesotaCheck, missouriCheck, prairieMoonCheck];
+}

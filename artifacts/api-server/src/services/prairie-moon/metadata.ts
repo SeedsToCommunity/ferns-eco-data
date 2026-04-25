@@ -17,7 +17,10 @@ export const PRAIRIE_MOON_GENERAL_SUMMARY =
   "to the Prairie Moon plant page if a match exists. " +
   "The data reflects the time of the last import, not live nursery stock. " +
   "Prairie Moon covers nursery availability and growing information only — it is not a scientific taxonomic source " +
-  "and does not include distribution data, nativity status, or conservation rankings.";
+  "and does not include distribution data, nativity status, or conservation rankings. " +
+  "FERNS also provides a species-text endpoint that fetches and parses the full Prairie Moon plant page HTML, " +
+  "extracting named prose sections (Description, Culture, Wildlife Value, Comments, and more) " +
+  "and caching the result for 7 days in the local database; the cache can be bypassed with refresh=true.";
 
 export const PRAIRIE_MOON_TECHNICAL_DETAILS =
   "Primary source: https://www.prairiemoon.com/sitemap.xml. Operator: Prairie Moon Nursery, Winona, MN (prairiemoon.com). " +
@@ -37,7 +40,12 @@ export const PRAIRIE_MOON_TECHNICAL_DETAILS =
   "Known limitation: URL slug spelling may not match current accepted taxonomy — synonyms and older names not yet updated " +
   "on the Prairie Moon site will not match. " +
   "Prairie Moon is a nursery catalog, not a scientific taxonomic authority. It does not provide distribution data, " +
-  "nativity status, conservation status, or C-values.";
+  "nativity status, conservation status, or C-values. " +
+  "Species-text endpoint: GET /api/prairie-moon/species-text?species={binomial}&refresh={bool}. " +
+  "Uses the stored Prairie Moon plant page URL to fetch HTML; extracts prose sections from the Prairie Moon product page layout. " +
+  "Cache: DB table species_page_text_cache (site_id, species_name, sections JSONB, full_text text, scraped_at, expires_at); " +
+  "TTL 7 days; refresh=true bypasses cache and re-scrapes. " +
+  "Returns: found, cache_status (hit|fresh|miss|error), scraped_at, expires_at, sections (array of {heading, text}).";
 
 export const PRAIRIE_MOON_REGISTRY_ENTRY = {
   source_id: PRAIRIE_MOON_SOURCE_ID,

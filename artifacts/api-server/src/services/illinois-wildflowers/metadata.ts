@@ -15,11 +15,14 @@ export const ILLINOIS_WILDFLOWERS_GENERAL_SUMMARY =
   "prairie, savanna, woodland, wetland, weeds, grasses, trees, and mosses. " +
   "Geographic scope: Illinois; taxonomic scope: wild vascular plants and mosses present in Illinois. " +
   "FERNS imports all eight section index pages, aggregating them into a unified lookup table; " +
-  "no live scraping occurs at query time. " +
+  "no live scraping occurs at query time for URL lookup. " +
   "A query returns the direct species profile URL(s) — a species appearing in multiple habitat sections " +
   "returns multiple records, one per section; link text format is 'Scientific Name (Common Name)'. " +
   "The index reflects the site at the time of the last admin-triggered import. " +
-  "Nomenclature follows the site's own taxonomy, which may differ from current accepted names.";
+  "Nomenclature follows the site's own taxonomy, which may differ from current accepted names. " +
+  "FERNS also provides a species-text endpoint that fetches and parses the full Illinois Wildflowers species page HTML, " +
+  "extracting named prose sections (Description, Habitat & Light, Origin, Faunal Associations, Photographic Location, and more) " +
+  "and caching the result for 7 days in the local database; the cache can be bypassed with refresh=true.";
 
 export const ILLINOIS_WILDFLOWERS_TECHNICAL_DETAILS =
   "Primary sources: eight habitat section indexes at https://www.illinoiswildflowers.info/{section}/{index}: " +
@@ -35,7 +38,12 @@ export const ILLINOIS_WILDFLOWERS_TECHNICAL_DETAILS =
   "DB table: botanical_species_lists (columns: id serial PK, site_id text, scientific_name text, url text, section text, imported_at; " +
   "unique on (site_id, scientific_name, section)). Coverage: ~1,459 entries across 8 habitat sections; " +
   "many species appear in multiple sections, yielding more DB rows than unique species. " +
-  "Illinois Wildflowers does not provide distribution data, conservation ranks, C-values, or nursery availability.";
+  "Illinois Wildflowers does not provide distribution data, conservation ranks, C-values, or nursery availability. " +
+  "Species-text endpoint: GET /api/illinois-wildflowers/species-text?species={binomial}&refresh={bool}. " +
+  "Uses the first stored URL for the species to fetch the page HTML; extracts prose sections from the Illinois Wildflowers page layout. " +
+  "Cache: DB table species_page_text_cache (site_id, species_name, sections JSONB, full_text text, scraped_at, expires_at); " +
+  "TTL 7 days; refresh=true bypasses cache and re-scrapes. " +
+  "Returns: found, cache_status (hit|fresh|miss|error), scraped_at, expires_at, sections (array of {heading, text}).";
 
 export const ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY = {
   source_id: ILLINOIS_WILDFLOWERS_SOURCE_ID,

@@ -13,11 +13,14 @@ export const GOBOTANY_GENERAL_SUMMARY =
   "characteristics, and links to related taxa; covers vascular plants native and naturalized in New England. " +
   "Geographic scope: New England (CT, MA, ME, NH, RI, VT) only; taxonomic scope: vascular plants " +
   "(mosses, lichens, and algae are not included; only binomials supported, not subspecies or varieties). " +
-  "FERNS constructs a URL from the plant scientific name and checks whether it exists on the Go Botany website; no data is stored locally. " +
+  "FERNS constructs a URL from the plant scientific name and checks whether it exists on the Go Botany website; no data is stored locally for URL lookup. " +
   "A query returns the direct species profile URL and found/not-found status; " +
   "a 200 HTTP response confirms the species is in the Go Botany database. " +
   "URLs are validated at query time; the Go Botany database is updated periodically by Native Plant Trust staff. " +
-  "Taxonomic synonyms not recognized by Go Botany will return 404 even if the species occurs in New England.";
+  "Taxonomic synonyms not recognized by Go Botany will return 404 even if the species occurs in New England. " +
+  "FERNS also provides a species-text endpoint that fetches and parses the full Go Botany species page HTML, " +
+  "extracting named prose sections (Facts, Native New England Distribution, Growing Conditions, Similar Plants, and more) " +
+  "and caching the result for 7 days in the local database; the cache can be bypassed with refresh=true.";
 
 export const GOBOTANY_TECHNICAL_DETAILS =
   "Source: gobotany.nativeplanttrust.org. Maintained by Native Plant Trust, Framingham, MA. " +
@@ -27,9 +30,15 @@ export const GOBOTANY_TECHNICAL_DETAILS =
   "Geographic scope: New England (CT, MA, ME, NH, RI, VT). " +
   "Covers vascular plants (native and naturalized); mosses, lichens, and algae are out of scope. " +
   "Subspecies and varieties are not individually keyed — only binomials are supported. " +
-  "No DB table — URL is constructed at query time and validated via HTTP GET; no data is persisted. " +
+  "No DB table for URL lookup — URL is constructed at query time and validated via HTTP GET; no data is persisted for the base endpoint. " +
   "Coverage: New England vascular plants (native and naturalized) across the six states; Go Botany does not publish a fixed species count. " +
-  "Method: direct_construction with HTTP validation.";
+  "Method: direct_construction with HTTP validation. " +
+  "Species-text endpoint: GET /api/gobotany/species-text?species={binomial}&refresh={bool}. " +
+  "Fetches the Go Botany species page HTML and extracts prose sections using CSS selectors; " +
+  "section headings are normalized from <h3> elements within the page body. " +
+  "Cache: DB table species_page_text_cache (site_id, species_name, sections JSONB, full_text text, scraped_at, expires_at); " +
+  "TTL 7 days; refresh=true bypasses cache and re-scrapes. " +
+  "Returns: found, cache_status (hit|fresh|miss|error), scraped_at, expires_at, sections (array of {heading, text}).";
 
 export const GOBOTANY_REGISTRY_ENTRY = {
   source_id: GOBOTANY_SOURCE_ID,

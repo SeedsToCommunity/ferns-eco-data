@@ -15,11 +15,14 @@ export const MISSOURI_PLANTS_GENERAL_SUMMARY =
   "covers over 1,400 species of Missouri flora. " +
   "Geographic scope: Missouri; taxonomic scope: vascular plants present in Missouri (native and non-native). " +
   "FERNS imports the authoritative species list from the site's All_Species_list.html and stores " +
-  "species-to-URL mappings in its local database; no live scraping occurs at query time. " +
+  "species-to-URL mappings in its local database; no live scraping occurs at query time for URL lookup. " +
   "A query returns the direct species profile URL or found: false; URL filenames may use historical " +
   "synonym genera and are not derivable from scientific names alone — the species list is authoritative. " +
   "The index reflects the site at the time of the last admin-triggered import; ~1,464 species at last import. " +
-  "Exact genus + species match required (case-insensitive); subspecies and varieties not individually listed.";
+  "Exact genus + species match required (case-insensitive); subspecies and varieties not individually listed. " +
+  "FERNS also provides a species-text endpoint that fetches and parses the full Missouri Plants species page HTML, " +
+  "extracting named prose sections (Description, Similar Species, Habitat, Origin, Uses, and more) " +
+  "and caching the result for 7 days in the local database; the cache can be bypassed with refresh=true.";
 
 export const MISSOURI_PLANTS_TECHNICAL_DETAILS =
   "Primary source: missouriplants.com/All_Species_list.html. Maintained by Paul Wycoff. " +
@@ -32,7 +35,12 @@ export const MISSOURI_PLANTS_TECHNICAL_DETAILS =
   "Lookup method: ILIKE match on stored scientific_name (case-insensitive exact match preferred). " +
   "Method: species_list_scrape with DB lookup. No HTTP validation at query time. " +
   "DB table: botanical_species_lists (columns: id serial PK, site_id text, scientific_name text, url text, section text, imported_at; " +
-  "unique on (site_id, scientific_name, section)). Coverage: ~1,464 species at last import.";
+  "unique on (site_id, scientific_name, section)). Coverage: ~1,464 species at last import. " +
+  "Species-text endpoint: GET /api/missouri-plants/species-text?species={binomial}&refresh={bool}. " +
+  "Uses the stored URL for the species to fetch the page HTML; extracts prose sections from the Missouri Plants page layout. " +
+  "Cache: DB table species_page_text_cache (site_id, species_name, sections JSONB, full_text text, scraped_at, expires_at); " +
+  "TTL 7 days; refresh=true bypasses cache and re-scrapes. " +
+  "Returns: found, cache_status (hit|fresh|miss|error), scraped_at, expires_at, sections (array of {heading, text}).";
 
 export const MISSOURI_PLANTS_REGISTRY_ENTRY = {
   source_id: MISSOURI_PLANTS_SOURCE_ID,

@@ -108,7 +108,7 @@ This runs the server directly from TypeScript source using `tsx`, without compil
 
 ---
 
-## Tool inventory (48 tools)
+## Tool inventory (53 tools)
 
 Tool names follow `{source_id}__{action}` (hyphens → underscores, double-underscore separator).
 
@@ -197,6 +197,7 @@ Tool names follow `{source_id}__{action}` (hyphens → underscores, double-under
 | Tool | Path | Required | Optional | Description |
 |---|---|---|---|---|
 | `gobotany__species` | GET /gobotany | species | — | Go Botany species page URL for a plant; covers vascular flora of New England with identification keys |
+| `gobotany__species_text` | GET /gobotany/species-text | species | refresh | Full parsed text from the Go Botany species page: named prose sections (Facts, Distribution, Growing Conditions, etc.), cache status, and scrape timestamp |
 
 ### google-images — Google Images
 
@@ -209,6 +210,7 @@ Tool names follow `{source_id}__{action}` (hyphens → underscores, double-under
 | Tool | Path | Required | Optional | Description |
 |---|---|---|---|---|
 | `illinois_wildflowers__species` | GET /illinois-wildflowers | species | — | Illinois Wildflowers species page URL: descriptions, photos, and ecological notes for Illinois flora |
+| `illinois_wildflowers__species_text` | GET /illinois-wildflowers/species-text | species | refresh | Full parsed text from the Illinois Wildflowers species page: named prose sections (Description, Habitat & Light, Origin, Faunal Associations, etc.), cache status, and scrape timestamp |
 
 ### lady-bird-johnson — Lady Bird Johnson Wildflower Center
 
@@ -221,12 +223,14 @@ Tool names follow `{source_id}__{action}` (hyphens → underscores, double-under
 | Tool | Path | Required | Optional | Description |
 |---|---|---|---|---|
 | `minnesota_wildflowers__species` | GET /minnesota-wildflowers | species | — | Minnesota Wildflowers species page URL: photos, bloom times, habitat info, and Minnesota distribution |
+| `minnesota_wildflowers__species_text` | GET /minnesota-wildflowers/species-text | species | refresh | Full parsed text from the Minnesota Wildflowers species page: named prose sections (Description, Habitat, Leaves, Flowers, Fruit, Notes, etc.), cache status, and scrape timestamp |
 
 ### missouri-plants — Missouri Plants
 
 | Tool | Path | Required | Optional | Description |
 |---|---|---|---|---|
 | `missouri_plants__species` | GET /missouri-plants | species | — | Missouri Plants species page URL: photographs, descriptions, and habitat notes for Missouri flora |
+| `missouri_plants__species_text` | GET /missouri-plants/species-text | species | refresh | Full parsed text from the Missouri Plants species page: named prose sections (Description, Similar Species, Habitat, Origin, Uses, etc.), cache status, and scrape timestamp |
 
 ### mnfi — Michigan Natural Features Inventory
 
@@ -249,6 +253,7 @@ Tool names follow `{source_id}__{action}` (hyphens → underscores, double-under
 | Tool | Path | Required | Optional | Description |
 |---|---|---|---|---|
 | `prairie_moon__species` | GET /prairie-moon | species | — | Prairie Moon Nursery catalog entry for a species: availability status and product page link |
+| `prairie_moon__species_text` | GET /prairie-moon/species-text | species | refresh | Full parsed text from the Prairie Moon plant page: named prose sections (Description, Culture, Wildlife Value, Comments, etc.), cache status, and scrape timestamp |
 
 ### usda-plants — USDA Plants Database
 
