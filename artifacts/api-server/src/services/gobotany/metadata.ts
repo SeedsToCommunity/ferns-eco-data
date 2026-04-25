@@ -51,7 +51,8 @@ export const GOBOTANY_REGISTRY_ENTRY = {
     "From Go Botany, a plant identification resource maintained by the Native Plant Trust in Framingham, Massachusetts.",
   input_summary: "Scientific name (binomial: genus + species epithet)",
   output_summary:
-    "Direct URL to the Go Botany species profile page, validation method, and found/not-found status",
+    "Direct URL to the Go Botany species profile page and found/not-found status (base endpoint); " +
+    "or parsed prose sections from the species page (species-text endpoint: found, cache_status, scraped_at, expires_at, sections[])",
   dependencies: [] as string[],
   update_frequency:
     "Live — URLs are validated at query time via HTTP. The Go Botany database is updated periodically by Native Plant Trust staff.",

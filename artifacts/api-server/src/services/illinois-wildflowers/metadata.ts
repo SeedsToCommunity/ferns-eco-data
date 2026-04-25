@@ -55,7 +55,8 @@ export const ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY = {
     "From Illinois Wildflowers, a photographic botanical reference maintained by John Hilty.",
   input_summary: "Scientific name (binomial: genus + species epithet)",
   output_summary:
-    "Direct URL(s) to Illinois Wildflowers species page(s), one per habitat section in which the species appears",
+    "Direct URL(s) to Illinois Wildflowers species page(s), one per habitat section in which the species appears (base endpoint); " +
+    "or parsed prose sections from the species page (species-text endpoint: found, cache_status, scraped_at, expires_at, sections[])",
   dependencies: [] as string[],
   update_frequency:
     "Manual re-import via admin endpoint. All eight section indexes are re-scraped when triggered.",

@@ -57,7 +57,8 @@ export const PRAIRIE_MOON_REGISTRY_ENTRY = {
     "From Prairie Moon Nursery, a leading native plant nursery and field reference resource for the region.",
   input_summary: "Scientific name (binomial or trinomial with subsp./var.)",
   output_summary:
-    "Direct URL to the Prairie Moon Nursery plant page, or found: false if not in the Prairie Moon catalog",
+    "Direct URL to the Prairie Moon Nursery plant page, or found: false if not in the catalog (base endpoint); " +
+    "or parsed prose sections from the plant page (species-text endpoint: found, cache_status, scraped_at, expires_at, sections[])",
   dependencies: [] as string[],
   update_frequency:
     "Manual re-import via admin endpoint. Sitemap re-parsed and database updated when triggered.",

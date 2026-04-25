@@ -54,7 +54,8 @@ export const MINNESOTA_WILDFLOWERS_REGISTRY_ENTRY = {
     "From Minnesota Wildflowers, a photographic botanical reference maintained by Sue Dingwell.",
   input_summary: "Scientific name (binomial: genus + species epithet)",
   output_summary:
-    "Direct URL to the Minnesota Wildflowers species page, or found: false if not indexed",
+    "Direct URL to the Minnesota Wildflowers species page, or found: false if not indexed (base endpoint); " +
+    "or parsed prose sections from the species page (species-text endpoint: found, cache_status, scraped_at, expires_at, sections[])",
   dependencies: [] as string[],
   update_frequency:
     "Manual re-import via admin endpoint. Species list re-scraped from the site when triggered.",

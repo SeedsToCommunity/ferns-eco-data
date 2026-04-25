@@ -52,7 +52,8 @@ export const MISSOURI_PLANTS_REGISTRY_ENTRY = {
     "From Missouri Plants, a botanical reference maintained by Paul Wycoff.",
   input_summary: "Scientific name (binomial: genus + species epithet)",
   output_summary:
-    "Direct URL to the Missouri Plants species page, or found: false if the species is not in the Missouri Plants database",
+    "Direct URL to the Missouri Plants species page, or found: false if not in the database (base endpoint); " +
+    "or parsed prose sections from the species page (species-text endpoint: found, cache_status, scraped_at, expires_at, sections[])",
   dependencies: [] as string[],
   update_frequency:
     "Manual re-import via admin endpoint. The species list is re-scraped and the database updated when triggered.",
