@@ -63,9 +63,14 @@ export default defineConfig({
     host: "0.0.0.0",
     allowedHosts: true,
     proxy: {
-      "/api": {
+      // The Vite dev server receives the full path including basePath prefix
+      // (e.g. "/data/api/...") because the Replit proxy forwards without
+      // stripping. We must match that full prefix and rewrite it back to
+      // "/api/..." before forwarding to the API server.
+      [`${basePath}api`]: {
         target: `http://localhost:${process.env.API_PORT ?? 8080}`,
         changeOrigin: true,
+        rewrite: (path) => path.replace(basePath.slice(0, -1), ""),
       },
     },
     fs: {
