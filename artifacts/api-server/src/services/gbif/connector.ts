@@ -328,7 +328,7 @@ export async function fetchReconcile(usageKey: number): Promise<GbifReconcileRes
 
   return {
     synonyms: synonymData.synonyms,
-    synonym_count: synonymData.total,
+    synonym_count: synonymData.synonyms.length,
     vernacular_names: vernacularNames,
     vernacular_name_primary: primaryEnglish,
     vernacular_name_count: (vernacularRaw.count as number) ?? vernacularNames.length,
