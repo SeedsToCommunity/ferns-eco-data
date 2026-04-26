@@ -54,6 +54,8 @@ export const GBIF_TECHNICAL_DETAILS =
   "Method: api_fetch. Results are cached between requests. " +
   "DB tables: gbif_name_matches (columns: cache_key unique, canonical_name, usage_key, accepted_usage_key, accepted_canonical_name, rank, status, confidence, match_type, kingdom through species hierarchy + corresponding keys, matched_input, expires_at); " +
   "gbif_synonyms (columns: cache_key unique, usage_key, synonyms jsonb, synonym_count); " +
+  "Note: the GBIF /species/{usageKey}/synonyms endpoint does not return a count field (response contains offset, limit, endOfRecords, and results only — no total). " +
+  "FERNS derives synonym_count from the length of the fetched results array after all pages are collected. " +
   "gbif_vernacular_names (columns: cache_key unique, usage_key, vernacular_names jsonb, vernacular_name_primary, vernacular_name_count); " +
   "gbif_occurrences (columns: cache_key unique, usage_key, geography_mode, geography_params, occurrence_count, occurrence_count_us, recent_occurrences jsonb, occurrence_last_fetched).";
 
