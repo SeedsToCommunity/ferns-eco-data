@@ -31,7 +31,8 @@ export const USDA_PLANTS_TECHNICAL_DETAILS =
   "Undocumented REST API at https://plantsservices.sc.egov.usda.gov/api/, reverse-engineered from Angular SPA bundle; " +
   "full discovery process and endpoint reference documented in docs/usda-plants-api.md. " +
   "Name lookup flow: GET /PlantSearch?searchText={URL-encoded name} returns autocomplete candidates; " +
-  "exact match on HTML-stripped ScientificName prefix selects the result; if no exact match, found=false. " +
+  "HTML italic tags are stripped from ScientificName; the first N words of the stripped name (where N = word count of the query) " +
+  "are extracted as the name-without-author and compared case-insensitively with the queried name; if no exact match, found=false. " +
   "Profile fetch: GET /PlantProfile?symbol={symbol}. " +
   "Search: POST /plants-search-results with JSON body {Text, Field, SortBy, Offset, FilterOptions, UnfilteredPlantIds, " +
   "Type, TaxonSearchCriteria, MasterId, pageNumber, allData}; Type='Basic' for scientific-name or common-name text search. " +
@@ -42,7 +43,8 @@ export const USDA_PLANTS_TECHNICAL_DETAILS =
   "?refresh=true forces re-fetch of both the name match and the profile for a given species query; search results are not cached. " +
   "Response normalization: all PlantProfile fields are passed through as-is; a profile_url field is constructed as " +
   "https://plants.sc.egov.usda.gov/?symbol={symbol} (not returned by the API itself); " +
-  "ScientificName fields include HTML <i> tags and are not stripped. " +
+  "the canonical_name in FERNS responses is the HTML-stripped ScientificName from the PlantSearch autocomplete item " +
+  "(HTML <i> tags removed); PlantProfile ScientificName fields are passed through with HTML intact. " +
   "Coded/enumerated values — NativeStatuses.Status: N=Native, I=Introduced. " +
   "NativeStatuses.Region: L48=contiguous 48 states, AK=Alaska, HI=Hawaii, PR=Puerto Rico, VI=US Virgin Islands, " +
   "CAN=Canada, GU=Guam, MP=Northern Mariana Islands, SPM=Saint-Pierre and Miquelon, UM=US Minor Outlying Islands. " +

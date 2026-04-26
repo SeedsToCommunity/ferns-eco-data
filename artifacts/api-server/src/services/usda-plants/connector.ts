@@ -39,6 +39,10 @@ function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, "").trim();
 }
 
+function extractNameWithoutAuthor(strippedSciName: string, wordCount: number): string {
+  return strippedSciName.split(/\s+/).slice(0, wordCount).join(" ");
+}
+
 async function usdaFetch(url: string, options?: RequestInit): Promise<unknown> {
   const resp = await fetch(url, {
     ...options,
@@ -77,12 +81,13 @@ export async function lookupByName(name: string): Promise<UsdaNameLookupResult> 
   }
 
   const inputLower = trimmed.toLowerCase();
+  const inputWordCount = trimmed.split(/\s+/).length;
 
   const match = raw.find((item) => {
     const sciName = item.Plant["ScientificName"] as string | null;
     if (!sciName) return false;
-    const stripped = stripHtml(sciName).toLowerCase();
-    return stripped === inputLower || stripped.startsWith(inputLower + " ") || stripped.startsWith(inputLower + ",");
+    const nameWithoutAuthor = extractNameWithoutAuthor(stripHtml(sciName), inputWordCount);
+    return nameWithoutAuthor.toLowerCase() === inputLower;
   });
 
   if (!match) {
