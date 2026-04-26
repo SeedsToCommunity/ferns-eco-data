@@ -1946,6 +1946,136 @@ export interface BotanicalRefsResponse {
   data: BotanicalRefsResponseData;
 }
 
+/**
+ * Nativity status for a US region.
+ */
+export interface UsdaPlantsNativeStatus {
+  /** Region code (L48, AK, HI, PR, VI, CAN, GU, MP, SPM, UM) */
+  Region?: string;
+  /** N=Native, I=Introduced */
+  Status?: string;
+  /** Native or Introduced */
+  Type?: string;
+}
+
+export type UsdaPlantsSpeciesDataWetlandDataItem = { [key: string]: unknown };
+
+export type UsdaPlantsSpeciesDataLegalStatusesItem = { [key: string]: unknown };
+
+export type UsdaPlantsSpeciesDataAncestorsItem = { [key: string]: unknown };
+
+export type UsdaPlantsSpeciesDataSynonymsItem = { [key: string]: unknown };
+
+export interface UsdaPlantsSpeciesData {
+  species?: string;
+  symbol?: string | null;
+  canonical_name?: string | null;
+  common_name?: string | null;
+  rank?: string | null;
+  usda_id?: number | null;
+  profile_url?: string | null;
+  native_statuses?: UsdaPlantsNativeStatus[] | null;
+  wetland_data?: UsdaPlantsSpeciesDataWetlandDataItem[] | null;
+  legal_statuses?: UsdaPlantsSpeciesDataLegalStatusesItem[] | null;
+  durations?: string[] | null;
+  growth_habits?: string[] | null;
+  group?: string | null;
+  /** Taxonomy hierarchy from Kingdom to parent rank */
+  ancestors?: UsdaPlantsSpeciesDataAncestorsItem[] | null;
+  synonyms?: UsdaPlantsSpeciesDataSynonymsItem[] | null;
+  fact_sheet_urls?: string[];
+  plant_guide_urls?: string[];
+  other_common_names?: string[] | null;
+  profile_image_filename?: string | null;
+  cache_status?: string;
+}
+
+export interface UsdaPlantsSpeciesResponse {
+  found: boolean;
+  queried_at: string;
+  source_url?: string;
+  provenance: FernsProvenance;
+  data: UsdaPlantsSpeciesData;
+}
+
+/**
+ * Raw PlantProfile object from the USDA PLANTS API
+ */
+export type UsdaPlantsProfileResponseDataProfile = { [key: string]: unknown };
+
+export type UsdaPlantsProfileResponseData = {
+  symbol?: string;
+  profile_url?: string;
+  /** Raw PlantProfile object from the USDA PLANTS API */
+  profile?: UsdaPlantsProfileResponseDataProfile;
+  cache_status?: string;
+};
+
+export interface UsdaPlantsProfileResponse {
+  found: boolean;
+  queried_at: string;
+  source_url?: string;
+  provenance: FernsProvenance;
+  data: UsdaPlantsProfileResponseData;
+}
+
+export type UsdaPlantsSearchResultLegalStatusesItem = {
+  [key: string]: unknown;
+};
+
+export type UsdaPlantsSearchResultWetlandDataItem = { [key: string]: unknown };
+
+export interface UsdaPlantsSearchResult {
+  id?: number;
+  symbol?: string;
+  accepted_symbol?: string | null;
+  is_synonym?: boolean;
+  /** Scientific name with HTML italic tags */
+  scientific_name?: string;
+  scientific_name_without_author?: string | null;
+  common_name?: string | null;
+  family_name?: string | null;
+  rank_id?: number | null;
+  num_images?: number;
+  profile_image_filename?: string | null;
+  fact_sheet_urls?: string[];
+  plant_guide_urls?: string[];
+  legal_statuses?: UsdaPlantsSearchResultLegalStatusesItem[];
+  wetland_data?: UsdaPlantsSearchResultWetlandDataItem[];
+}
+
+export type UsdaPlantsSearchResponseData = {
+  query?: string;
+  field?: string;
+  page?: number;
+  total?: number;
+  results?: UsdaPlantsSearchResult[];
+};
+
+export interface UsdaPlantsSearchResponse {
+  found: boolean;
+  queried_at: string;
+  source_url?: string;
+  provenance: FernsProvenance;
+  data: UsdaPlantsSearchResponseData;
+}
+
+export type UsdaPlantsMetadataResponseRegistryEntry = {
+  [key: string]: unknown;
+};
+
+export interface UsdaPlantsMetadataResponse {
+  service_id?: string;
+  service_name?: string;
+  permission_granted?: boolean;
+  permission_status?: string;
+  access_method?: string;
+  api_base?: string;
+  registry_entry?: UsdaPlantsMetadataResponseRegistryEntry;
+  queried_at?: string;
+  provenance?: FernsProvenance;
+}
+
 export type GetBonapMapParams = {
   /**
  * Genus name. First letter capitalized, remainder lowercase (e.g. Asclepias). The service normalizes to title case before URL construction.
@@ -2484,11 +2614,55 @@ export const GetPrairieMoonSpeciesTextRefresh = {
 
 export type GetUsdaPlantsParams = {
   /**
-   * Scientific name (e.g. Acer rubrum)
+   * Scientific name (e.g. Asclepias tuberosa)
    * @minLength 1
    */
   species: string;
+  /**
+   * If true, bypasses cache and fetches fresh from USDA PLANTS
+   */
+  refresh?: boolean;
 };
+
+export type GetUsdaPlantsProfileParams = {
+  /**
+   * USDA PLANTS symbol (e.g. ASTU)
+   * @minLength 1
+   */
+  symbol: string;
+  /**
+   * If true, bypasses cache and fetches fresh from USDA PLANTS
+   */
+  refresh?: boolean;
+};
+
+export type GetUsdaPlantsSearchParams = {
+  /**
+   * Search text (e.g. Trillium, butterfly milkweed)
+   * @minLength 1
+   */
+  q: string;
+  /**
+ * Field to search. One of Scientific Name, Common Name, Symbol, Family. Defaults to Scientific Name.
+
+ */
+  field?: GetUsdaPlantsSearchField;
+  /**
+   * 1-based page number (default 1)
+   * @minimum 1
+   */
+  page?: number;
+};
+
+export type GetUsdaPlantsSearchField =
+  (typeof GetUsdaPlantsSearchField)[keyof typeof GetUsdaPlantsSearchField];
+
+export const GetUsdaPlantsSearchField = {
+  Scientific_Name: "Scientific Name",
+  Common_Name: "Common Name",
+  Symbol: "Symbol",
+  Family: "Family",
+} as const;
 
 export type GetLadyBirdJohnsonParams = {
   /**

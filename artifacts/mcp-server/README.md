@@ -108,7 +108,7 @@ This runs the server directly from TypeScript source using `tsx`, without compil
 
 ---
 
-## Tool inventory (53 tools)
+## Tool inventory (55 tools)
 
 Tool names follow `{source_id}__{action}` (hyphens → underscores, double-underscore separator).
 
@@ -259,13 +259,15 @@ Tool names follow `{source_id}__{action}` (hyphens → underscores, double-under
 
 | Tool | Path | Required | Optional | Description |
 |---|---|---|---|---|
-| `usda_plants__species` | GET /usda-plants | species | — | USDA Plants Database record: USDA symbol, accepted name, nativity status, and profile link |
+| `usda_plants__species` | GET /usda-plants | species | refresh | Resolves a scientific name to a USDA symbol and returns the full plant profile: nativity per US region, taxonomy, synonyms, wetland data, legal statuses, and document links |
+| `usda_plants__profile` | GET /usda-plants/profile | symbol | refresh | Full USDA PLANTS profile for a known symbol (e.g. ASTU). Use when the symbol is already known |
+| `usda_plants__search` | GET /usda-plants/search | q | field, page | Search the USDA PLANTS database by Scientific Name, Common Name, Symbol, or Family |
 
 ### botanical-refs — Botanical Web References
 
 | Tool | Path | Required | Optional | Description |
 |---|---|---|---|---|
-| `botanical_refs__lookup` | GET /botanical-refs | species | — | Queries 8 botanical websites simultaneously for a species and returns each site's URL in one call |
+| `botanical_refs__lookup` | GET /botanical-refs | species | — | Queries 7 botanical websites simultaneously for a species and returns each site's URL in one call |
 | `botanical_refs__sites` | GET /botanical-refs/sites | — | — | The botanical reference websites covered by botanical_refs__lookup with each site's strategy |
 
 ### registry — Ecological Commons Registry (meta)

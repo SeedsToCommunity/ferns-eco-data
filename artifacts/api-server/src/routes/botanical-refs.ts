@@ -15,7 +15,6 @@ import { MISSOURI_PLANTS_SOURCE_ID, MISSOURI_PLANTS_REGISTRY_ENTRY } from "../se
 import { MINNESOTA_WILDFLOWERS_SOURCE_ID, MINNESOTA_WILDFLOWERS_REGISTRY_ENTRY } from "../services/minnesota-wildflowers/metadata.js";
 import { ILLINOIS_WILDFLOWERS_SOURCE_ID, ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY } from "../services/illinois-wildflowers/metadata.js";
 import { PRAIRIE_MOON_SOURCE_ID, PRAIRIE_MOON_REGISTRY_ENTRY } from "../services/prairie-moon/metadata.js";
-import { USDA_PLANTS_SOURCE_ID, USDA_PLANTS_REGISTRY_ENTRY } from "../services/usda-plants/metadata.js";
 import { LADY_BIRD_JOHNSON_SOURCE_ID, LADY_BIRD_JOHNSON_REGISTRY_ENTRY } from "../services/lady-bird-johnson/metadata.js";
 
 const router: IRouter = Router();
@@ -29,7 +28,6 @@ const SITES = [
   { id: MINNESOTA_WILDFLOWERS_SOURCE_ID, name: MINNESOTA_WILDFLOWERS_REGISTRY_ENTRY.name, strategy: "species_list_scrape" },
   { id: ILLINOIS_WILDFLOWERS_SOURCE_ID, name: ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY.name, strategy: "species_list_scrape" },
   { id: PRAIRIE_MOON_SOURCE_ID, name: PRAIRIE_MOON_REGISTRY_ENTRY.name, strategy: "sitemap_scrape" },
-  { id: USDA_PLANTS_SOURCE_ID, name: USDA_PLANTS_REGISTRY_ENTRY.name, strategy: "direct_construction" },
   { id: LADY_BIRD_JOHNSON_SOURCE_ID, name: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.name, strategy: "direct_construction" },
 ];
 
@@ -39,10 +37,6 @@ function buildGobotanyUrl(genus: string, species: string): string {
 
 function buildGoogleImagesUrl(speciesName: string): string {
   return `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(speciesName)}`;
-}
-
-function buildUsdaPlantsUrl(speciesName: string): string {
-  return `https://plants.usda.gov/home/basicSearchResults?nameSearch=${encodeURIComponent(speciesName)}`;
 }
 
 function buildLadyBirdJohnsonUrl(genus: string, species: string): string {
@@ -160,16 +154,6 @@ router.get("/botanical-refs", async (req, res) => {
       ...r,
       validation: "species_list_lookup",
     })),
-
-    // USDA PLANTS — profile URL not resolvable; provides search URL only
-    (async () => ({
-      siteId: USDA_PLANTS_SOURCE_ID,
-      found: false,
-      url: null,
-      search_url: buildUsdaPlantsUrl(speciesParam),
-      validation: "not_resolvable",
-      note: "Profile URLs require a USDA symbol code not derivable from scientific name; search URL provided.",
-    }))(),
 
     // Lady Bird Johnson — profile URL not resolvable; provides search URL only
     (async () => ({

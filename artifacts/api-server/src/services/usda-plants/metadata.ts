@@ -1,40 +1,52 @@
 export const USDA_PLANTS_SOURCE_ID = "usda-plants";
+export const USDA_PLANTS_API_BASE = "https://plantsservices.sc.egov.usda.gov/api";
 
 export const USDA_PLANTS_PERMISSION_GRANTED = true;
 
 export const USDA_PLANTS_PERMISSION_STATUS =
-  "OPEN — USDA PLANTS Database (plants.usda.gov) is a public-domain government resource maintained by the " +
+  "OPEN — USDA PLANTS Database (plants.sc.egov.usda.gov) is a public-domain government resource maintained by the " +
   "USDA Natural Resources Conservation Service (NRCS). " +
   "No authentication or API key is required. " +
-  "FERNS constructs a search URL from the scientific name; no USDA data is stored locally.";
+  "FERNS queries the USDA PLANTS REST API and caches results locally in two database tables.";
 
 export const USDA_PLANTS_GENERAL_SUMMARY =
-  "Authoritative federal plant taxonomy and occurrence database, maintained by the USDA Natural Resources " +
-  "Conservation Service (NRCS) at plants.usda.gov. " +
-  "Data type: species profile pages with taxonomy, synonyms, state-level occurrence data, Wetland Indicator " +
-  "Status, legal status, and related resources; covers vascular plants, mosses, liverworts, hornworts, " +
-  "and lichens in the United States and its territories. " +
-  "Geographic scope: US and territories; taxonomic scope: all land plants. " +
-  "FERNS constructs a plant search link from the scientific name at query time; no data is stored locally and no HTTP validation is performed. " +
-  "A query returns a search results URL; profile URLs require knowing the USDA symbol code " +
-  "(e.g., ACRU for Acer rubrum), which cannot be derived from the scientific name without a lookup. " +
-  "The search results page is JavaScript-rendered (React SPA) and requires a browser to display results. " +
-  "Live — URLs are constructed at query time; the USDA PLANTS database is updated continuously by NRCS. " +
-  "USDA PLANTS is the federal nomenclatural authority for US plant taxonomy, operated by NRCS.";
+  "The USDA PLANTS Database is operated by the USDA Natural Resources Conservation Service (NRCS) and is the official " +
+  "federal nomenclatural authority for plant taxonomy in the United States. " +
+  "It covers all vascular plants, mosses, liverworts, hornworts, and lichens documented in the US and territories — " +
+  "approximately 50,000 accepted names. " +
+  "FERNS queries the USDA PLANTS API to resolve a scientific name to a USDA symbol (a short alphanumeric code uniquely " +
+  "identifying each taxon) and retrieve the full plant profile; results are cached locally and reused for subsequent queries. " +
+  "A name lookup returns the USDA symbol, canonical name, primary common name, taxonomic rank, full hierarchical classification " +
+  "from Kingdom to species, nativity status per US region (Native or Introduced for the contiguous US, Alaska, Hawaii, Puerto " +
+  "Rico, Canada, and other territories), synonym list, wetland indicator data, legal status, and links to fact sheets and " +
+  "plant guides. " +
+  "A search query returns paginated records matching by scientific name, common name, symbol, or family. " +
+  "Known limitations: the USDA PLANTS API is undocumented; profile symbols may change when NRCS revises taxonomy; " +
+  "not all synonym names will match via autocomplete lookup; ScientificName fields returned by the API contain HTML italic tags.";
 
 export const USDA_PLANTS_TECHNICAL_DETAILS =
-  "Source: https://plants.usda.gov. Operated by USDA Natural Resources Conservation Service (NRCS). " +
-  "URL construction: https://plants.usda.gov/home/basicSearchResults?nameSearch={URL-encoded scientific name} " +
-  "where the scientific name is the exact binomial as provided. " +
-  "Note: USDA PLANTS uses symbol-based profile URLs (e.g., ?symbol=ACRU for Acer rubrum); " +
-  "the symbol cannot be derived from the scientific name without a lookup. " +
-  "FERNS therefore returns a search results URL rather than a direct profile URL. " +
-  "Method: direct_construction (no HTTP validation — search URL always valid). " +
-  "The search results page is JavaScript-rendered (React SPA); " +
-  "the returned URL requires a browser to display results. " +
-  "No DB table — URL is constructed at query time (direct_construction); no data is persisted. " +
-  "Coverage: US and territories; all land plants (vascular plants, mosses, liverworts, hornworts, lichens). " +
-  "Note: USDA PLANTS symbol-based profile URLs (e.g., ?symbol=ACRU) cannot be derived from the scientific name alone — FERNS therefore returns a search URL.";
+  "Source: https://plants.sc.egov.usda.gov. Operated by USDA Natural Resources Conservation Service (NRCS); " +
+  "public domain, no license restrictions. No formal citation — government database. " +
+  "Access method: api_fetch. " +
+  "Undocumented REST API at https://plantsservices.sc.egov.usda.gov/api/, reverse-engineered from Angular SPA bundle; " +
+  "full discovery process and endpoint reference documented in docs/usda-plants-api.md. " +
+  "Name lookup flow: GET /PlantSearch?searchText={URL-encoded name} returns autocomplete candidates; " +
+  "exact match on HTML-stripped ScientificName prefix selects the result; if no exact match, found=false. " +
+  "Profile fetch: GET /PlantProfile?symbol={symbol}. " +
+  "Search: POST /plants-search-results with JSON body {Text, Field, SortBy, Offset, FilterOptions, UnfilteredPlantIds, " +
+  "Type, TaxonSearchCriteria, MasterId, pageNumber, allData}; Type='Basic' for scientific-name or common-name text search. " +
+  "DB tables: usda_plants_name_matches (columns: id serial PK, cache_key text unique, input_name text, found boolean, " +
+  "symbol text, canonical_name text, common_name text, rank text, usda_id integer, expires_at timestamptz); " +
+  "usda_plants_profiles (columns: id serial PK, cache_key text unique, symbol text unique, profile jsonb, expires_at timestamptz). " +
+  "Caching: name matches cached 30 days for hits, 7 days for misses; profiles cached 30 days; " +
+  "?refresh=true forces re-fetch of both the name match and the profile for a given species query; search results are not cached. " +
+  "Response normalization: all PlantProfile fields are passed through as-is; a profile_url field is constructed as " +
+  "https://plants.sc.egov.usda.gov/?symbol={symbol} (not returned by the API itself); " +
+  "ScientificName fields include HTML <i> tags and are not stripped. " +
+  "Coded/enumerated values — NativeStatuses.Status: N=Native, I=Introduced. " +
+  "NativeStatuses.Region: L48=contiguous 48 states, AK=Alaska, HI=Hawaii, PR=Puerto Rico, VI=US Virgin Islands, " +
+  "CAN=Canada, GU=Guam, MP=Northern Mariana Islands, SPM=Saint-Pierre and Miquelon, UM=US Minor Outlying Islands. " +
+  "Rank values: Kingdom, Subkingdom, Superdivision, Division, Class, Subclass, Order, Family, Genus, Species, Subspecies, Variety.";
 
 export const USDA_PLANTS_REGISTRY_ENTRY = {
   source_id: USDA_PLANTS_SOURCE_ID,
@@ -42,18 +54,22 @@ export const USDA_PLANTS_REGISTRY_ENTRY = {
   knowledge_type: "source_wrapper",
   status: "live",
   description:
-    "Plant taxonomy, synonyms, state-level occurrence data, Wetland Indicator Status, and legal status for vascular plants, mosses, liverworts, and lichens across the United States and territories. " +
-    "From the USDA PLANTS Database, maintained by the USDA Natural Resources Conservation Service (NRCS).",
+    "Plant taxonomy, synonyms, nativity status, state-level occurrence data, wetland indicator status, legal status, " +
+    "morphological characteristics, and document references for all vascular plants, mosses, liverworts, hornworts, and " +
+    "lichens in the United States and territories. From the USDA PLANTS Database, maintained by the Natural Resources " +
+    "Conservation Service (NRCS), the federal nomenclatural authority for US plant taxonomy.",
   input_summary: "Scientific name (binomial or trinomial)",
   output_summary:
-    "USDA PLANTS search results URL for the queried scientific name",
+    "USDA symbol, canonical name, common name, rank, taxonomy hierarchy, nativity status by region, synonyms, " +
+    "wetland indicator data, legal status, fact sheets, and full plant profile",
   dependencies: [] as string[],
   update_frequency:
-    "Live — URLs are constructed at query time. The USDA PLANTS database is updated continuously by NRCS.",
+    "Cached locally 30 days per symbol; the USDA PLANTS database is updated continuously by NRCS. Use ?refresh=true to bypass cache.",
   known_limitations:
-    "Returns a search results page URL, not a direct species profile URL (profile URLs require the USDA symbol). " +
-    "The search results page is JavaScript-rendered; requires a browser. " +
-    "Synonyms may produce multiple search results; accepted name preferred for best results.",
+    "The USDA PLANTS API is undocumented and may change without notice. " +
+    "Profile symbols may change when NRCS revises taxonomy. " +
+    "Not all synonym names will match via the autocomplete lookup — accepted names yield the most reliable results. " +
+    "ScientificName fields returned by the API contain HTML italic tags.",
   metadata_url: "/api/usda-plants/metadata",
   explorer_url: "/source/usda-plants",
   permission_granted: USDA_PLANTS_PERMISSION_GRANTED,

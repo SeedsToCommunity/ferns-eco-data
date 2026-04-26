@@ -8,3 +8,4 @@ export * from "./lcscg";
 export * from "./mnfi";
 export * from "./natureserve";
 export * from "./botanical-refs";
+export * from "./usda-plants";

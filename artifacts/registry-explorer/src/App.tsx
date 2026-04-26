@@ -13,6 +13,7 @@ import LcscgPage from "@/pages/LcscgPage";
 import MnfiPage from "@/pages/MnfiPage";
 import { NatureservePage } from "@/pages/NatureservePage";
 import BotanicalRefSourcePage from "@/pages/BotanicalRefSourcePage";
+import UsdaPlantsPage from "@/pages/UsdaPlantsPage";
 import GenericSourcePage from "@/pages/GenericSourcePage";
 import SourceRelationshipsPage from "@/pages/SourceRelationshipsPage";
 import NotFound from "@/pages/not-found";
@@ -48,7 +49,7 @@ function Router() {
       <Route path="/source/minnesota-wildflowers" component={BotanicalRefSourcePage} />
       <Route path="/source/missouri-plants" component={BotanicalRefSourcePage} />
       <Route path="/source/prairie-moon" component={BotanicalRefSourcePage} />
-      <Route path="/source/usda-plants" component={BotanicalRefSourcePage} />
+      <Route path="/source/usda-plants" component={UsdaPlantsPage} />
       <Route path="/source-relationships" component={SourceRelationshipsPage} />
       <Route path="/source/:sourceId/metadata" component={MetadataPage} />
       {/* Generic fallback: any source not matched above gets the metadata page */}

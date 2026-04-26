@@ -6,12 +6,12 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetUsdaPlantsParams = {
+export type GetUsdaPlantsProfileParams = {
   /**
-   * Scientific name (e.g. Asclepias tuberosa)
+   * USDA PLANTS symbol (e.g. ASTU)
    * @minLength 1
    */
-  species: string;
+  symbol: string;
   /**
    * If true, bypasses cache and fetches fresh from USDA PLANTS
    */

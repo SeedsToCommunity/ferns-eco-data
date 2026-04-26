@@ -65,6 +65,8 @@ import type {
   GetUniversalFqaAssessmentsParams,
   GetUniversalFqaSpeciesParams,
   GetUsdaPlantsParams,
+  GetUsdaPlantsProfileParams,
+  GetUsdaPlantsSearchParams,
   GetWetlandIndicatorByCodeParams,
   GetWetlandIndicatorByWParams,
   GetWucolsByCodeParams,
@@ -103,6 +105,10 @@ import type {
   UniversalFqaDatabasesResponse,
   UniversalFqaMetadataResponse,
   UniversalFqaSpeciesResponse,
+  UsdaPlantsMetadataResponse,
+  UsdaPlantsProfileResponse,
+  UsdaPlantsSearchResponse,
+  UsdaPlantsSpeciesResponse,
   VocabularyMetadataResponse,
   WetlandIndicatorAllResponse,
   WetlandIndicatorResponse,
@@ -6495,9 +6501,9 @@ export function useGetPrairieMoonSpeciesText<
 }
 
 /**
- * Constructs a USDA PLANTS Database search URL for a given scientific name. Direct species profile URLs require a USDA symbol code (e.g. ASYT) that cannot be derived from the scientific name alone, so FERNS provides a search URL instead. The response always returns found=false with a search_url in the data object. Applications should use the search_url to link users to USDA PLANTS.
+ * Resolves a scientific name to a USDA symbol via the PlantSearch API, then fetches the full PlantProfile. Returns the symbol, canonical name, common name, taxonomic rank, nativity status per US region, wetland indicator data, legal statuses, taxonomy hierarchy (Ancestors), synonyms, fact sheets, and plant guide URLs. Name matches are cached 30 days for hits and 7 days for misses; profiles are cached 30 days. Use ?refresh=true to bypass both caches.
 
- * @summary Construct a USDA PLANTS search URL for a species
+ * @summary Look up a species in the USDA PLANTS Database by scientific name
  */
 export const getGetUsdaPlantsUrl = (params: GetUsdaPlantsParams) => {
   const normalizedParams = new URLSearchParams();
@@ -6518,8 +6524,8 @@ export const getGetUsdaPlantsUrl = (params: GetUsdaPlantsParams) => {
 export const getUsdaPlants = async (
   params: GetUsdaPlantsParams,
   options?: RequestInit,
-): Promise<BotanicalWebRefResponse> => {
-  return customFetch<BotanicalWebRefResponse>(getGetUsdaPlantsUrl(params), {
+): Promise<UsdaPlantsSpeciesResponse> => {
+  return customFetch<UsdaPlantsSpeciesResponse>(getGetUsdaPlantsUrl(params), {
     ...options,
     method: "GET",
   });
@@ -6564,7 +6570,7 @@ export type GetUsdaPlantsQueryResult = NonNullable<
 export type GetUsdaPlantsQueryError = ErrorType<ErrorResponse>;
 
 /**
- * @summary Construct a USDA PLANTS search URL for a species
+ * @summary Look up a species in the USDA PLANTS Database by scientific name
  */
 
 export function useGetUsdaPlants<
@@ -6591,7 +6597,217 @@ export function useGetUsdaPlants<
 }
 
 /**
- * Returns service identity, URL construction strategy, attribution, and the full registry entry for the USDA PLANTS Database service.
+ * Fetches the PlantProfile for a known USDA symbol (e.g. ASTU for Asclepias tuberosa). Returns the complete raw profile object as returned by the USDA PLANTS API. Profiles are cached 30 days. Use ?refresh=true to bypass the cache. Use the /usda-plants?species= endpoint to resolve a scientific name to a symbol if the symbol is not already known.
+
+ * @summary Fetch the full USDA PLANTS profile for a known symbol
+ */
+export const getGetUsdaPlantsProfileUrl = (
+  params: GetUsdaPlantsProfileParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/usda-plants/profile?${stringifiedParams}`
+    : `/api/usda-plants/profile`;
+};
+
+export const getUsdaPlantsProfile = async (
+  params: GetUsdaPlantsProfileParams,
+  options?: RequestInit,
+): Promise<UsdaPlantsProfileResponse> => {
+  return customFetch<UsdaPlantsProfileResponse>(
+    getGetUsdaPlantsProfileUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetUsdaPlantsProfileQueryKey = (
+  params?: GetUsdaPlantsProfileParams,
+) => {
+  return [`/api/usda-plants/profile`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetUsdaPlantsProfileQueryOptions = <
+  TData = Awaited<ReturnType<typeof getUsdaPlantsProfile>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetUsdaPlantsProfileParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getUsdaPlantsProfile>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetUsdaPlantsProfileQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getUsdaPlantsProfile>>
+  > = ({ signal }) =>
+    getUsdaPlantsProfile(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getUsdaPlantsProfile>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetUsdaPlantsProfileQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getUsdaPlantsProfile>>
+>;
+export type GetUsdaPlantsProfileQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Fetch the full USDA PLANTS profile for a known symbol
+ */
+
+export function useGetUsdaPlantsProfile<
+  TData = Awaited<ReturnType<typeof getUsdaPlantsProfile>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetUsdaPlantsProfileParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getUsdaPlantsProfile>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetUsdaPlantsProfileQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Performs a paginated text search against the USDA PLANTS plants-search-results endpoint. Supports searching by Scientific Name, Common Name, Symbol, or Family. Returns matching records with symbol, common name, family, wetland data, legal status, and image info. Search results are not cached — each call hits the USDA PLANTS API directly.
+
+ * @summary Search the USDA PLANTS Database with a text query
+ */
+export const getGetUsdaPlantsSearchUrl = (
+  params: GetUsdaPlantsSearchParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/usda-plants/search?${stringifiedParams}`
+    : `/api/usda-plants/search`;
+};
+
+export const getUsdaPlantsSearch = async (
+  params: GetUsdaPlantsSearchParams,
+  options?: RequestInit,
+): Promise<UsdaPlantsSearchResponse> => {
+  return customFetch<UsdaPlantsSearchResponse>(
+    getGetUsdaPlantsSearchUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetUsdaPlantsSearchQueryKey = (
+  params?: GetUsdaPlantsSearchParams,
+) => {
+  return [`/api/usda-plants/search`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetUsdaPlantsSearchQueryOptions = <
+  TData = Awaited<ReturnType<typeof getUsdaPlantsSearch>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetUsdaPlantsSearchParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getUsdaPlantsSearch>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetUsdaPlantsSearchQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getUsdaPlantsSearch>>
+  > = ({ signal }) =>
+    getUsdaPlantsSearch(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getUsdaPlantsSearch>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetUsdaPlantsSearchQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getUsdaPlantsSearch>>
+>;
+export type GetUsdaPlantsSearchQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Search the USDA PLANTS Database with a text query
+ */
+
+export function useGetUsdaPlantsSearch<
+  TData = Awaited<ReturnType<typeof getUsdaPlantsSearch>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetUsdaPlantsSearchParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getUsdaPlantsSearch>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetUsdaPlantsSearchQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns service identity, access method (api_fetch), attribution, permission status, and the full registry entry for the USDA PLANTS Database service.
 
  * @summary USDA PLANTS Database service metadata
  */
@@ -6601,8 +6817,8 @@ export const getGetUsdaPlantsMetadataUrl = () => {
 
 export const getUsdaPlantsMetadata = async (
   options?: RequestInit,
-): Promise<BotanicalWebRefMetadataResponse> => {
-  return customFetch<BotanicalWebRefMetadataResponse>(
+): Promise<UsdaPlantsMetadataResponse> => {
+  return customFetch<UsdaPlantsMetadataResponse>(
     getGetUsdaPlantsMetadataUrl(),
     {
       ...options,
@@ -6854,7 +7070,7 @@ export function useGetLadyBirdJohnsonMetadata<
 }
 
 /**
- * Fans out a species query to all configured botanical reference sources simultaneously: Go Botany, Google Images, Missouri Plants, Minnesota Wildflowers, Illinois Wildflowers, Prairie Moon Nursery, USDA PLANTS, and Lady Bird Johnson Wildflower Center. Returns a unified response with one entry per source. Sources that cannot resolve a direct profile URL (USDA PLANTS, Lady Bird Johnson) return found=false with a search_url instead. Go Botany validation requires a live HTTP GET — expect slightly higher latency for this endpoint.
+ * Fans out a species query to all configured botanical reference sources simultaneously: Go Botany, Google Images, Missouri Plants, Minnesota Wildflowers, Illinois Wildflowers, Prairie Moon Nursery, and Lady Bird Johnson Wildflower Center. Returns a unified response with one entry per source. Sources that cannot resolve a direct profile URL (Lady Bird Johnson) return found=false with a search_url instead. Go Botany validation requires a live HTTP GET — expect slightly higher latency for this endpoint.
 
  * @summary Look up a species across all botanical reference sources at once
  */

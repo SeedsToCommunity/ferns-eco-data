@@ -2223,30 +2223,147 @@ paths:
     get:
       operationId: getUsdaPlants
       tags: [usda-plants]
-      summary: Construct a USDA PLANTS search URL for a species
+      summary: Look up a species in the USDA PLANTS Database by scientific name
       description: >
-        Constructs a USDA PLANTS Database search URL for a given scientific name.
-        Direct species profile URLs require a USDA symbol code (e.g. ASYT) that cannot
-        be derived from the scientific name alone, so FERNS provides a search URL
-        instead. The response always returns found=false with a search_url in the data
-        object. Applications should use the search_url to link users to USDA PLANTS.
+        Resolves a scientific name to a USDA symbol via the PlantSearch API, then
+        fetches the full PlantProfile. Returns the symbol, canonical name, common name,
+        taxonomic rank, nativity status per US region, wetland indicator data, legal
+        statuses, taxonomy hierarchy (Ancestors), synonyms, fact sheets, and plant guide
+        URLs. Name matches are cached 30 days for hits and 7 days for misses; profiles
+        are cached 30 days. Use ?refresh=true to bypass both caches.
       parameters:
         - name: species
           in: query
           required: true
-          description: Scientific name (e.g. Acer rubrum)
+          description: Scientific name (e.g. Asclepias tuberosa)
           schema:
             type: string
             minLength: 1
+        - name: refresh
+          in: query
+          required: false
+          description: If true, bypasses cache and fetches fresh from USDA PLANTS
+          schema:
+            type: boolean
+            default: false
       responses:
         "200":
-          description: USDA PLANTS search URL (found is always false — profile URLs require a symbol code not derivable from scientific name)
+          description: USDA PLANTS lookup result (check found field)
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BotanicalWebRefResponse"
+                $ref: "#/components/schemas/UsdaPlantsSpeciesResponse"
         "400":
           description: Missing species parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: USDA PLANTS API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /usda-plants/profile:
+    get:
+      operationId: getUsdaPlantsProfile
+      tags: [usda-plants]
+      summary: Fetch the full USDA PLANTS profile for a known symbol
+      description: >
+        Fetches the PlantProfile for a known USDA symbol (e.g. ASTU for Asclepias
+        tuberosa). Returns the complete raw profile object as returned by the USDA
+        PLANTS API. Profiles are cached 30 days. Use ?refresh=true to bypass the cache.
+        Use the /usda-plants?species= endpoint to resolve a scientific name to a symbol
+        if the symbol is not already known.
+      parameters:
+        - name: symbol
+          in: query
+          required: true
+          description: USDA PLANTS symbol (e.g. ASTU)
+          schema:
+            type: string
+            minLength: 1
+        - name: refresh
+          in: query
+          required: false
+          description: If true, bypasses cache and fetches fresh from USDA PLANTS
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Full USDA PLANTS profile for the given symbol
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsdaPlantsProfileResponse"
+        "400":
+          description: Missing symbol parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: USDA PLANTS API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /usda-plants/search:
+    get:
+      operationId: getUsdaPlantsSearch
+      tags: [usda-plants]
+      summary: Search the USDA PLANTS Database with a text query
+      description: >
+        Performs a paginated text search against the USDA PLANTS plants-search-results
+        endpoint. Supports searching by Scientific Name, Common Name, Symbol, or Family.
+        Returns matching records with symbol, common name, family, wetland data, legal
+        status, and image info. Search results are not cached — each call hits the USDA
+        PLANTS API directly.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Search text (e.g. Trillium, butterfly milkweed)
+          schema:
+            type: string
+            minLength: 1
+        - name: field
+          in: query
+          required: false
+          description: >
+            Field to search. One of Scientific Name, Common Name, Symbol, Family.
+            Defaults to Scientific Name.
+          schema:
+            type: string
+            enum: [Scientific Name, Common Name, Symbol, Family]
+            default: Scientific Name
+        - name: page
+          in: query
+          required: false
+          description: 1-based page number (default 1)
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+      responses:
+        "200":
+          description: Paginated search results from USDA PLANTS
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsdaPlantsSearchResponse"
+        "400":
+          description: Missing q parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: USDA PLANTS API error
           content:
             application/json:
               schema:
@@ -2258,15 +2375,15 @@ paths:
       tags: [usda-plants]
       summary: USDA PLANTS Database service metadata
       description: >
-        Returns service identity, URL construction strategy, attribution, and the
-        full registry entry for the USDA PLANTS Database service.
+        Returns service identity, access method (api_fetch), attribution, permission
+        status, and the full registry entry for the USDA PLANTS Database service.
       responses:
         "200":
           description: USDA PLANTS service metadata
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BotanicalWebRefMetadataResponse"
+                $ref: "#/components/schemas/UsdaPlantsMetadataResponse"
 
   /lady-bird-johnson:
     get:
@@ -2325,12 +2442,11 @@ paths:
       description: >
         Fans out a species query to all configured botanical reference sources
         simultaneously: Go Botany, Google Images, Missouri Plants, Minnesota
-        Wildflowers, Illinois Wildflowers, Prairie Moon Nursery, USDA PLANTS, and
-        Lady Bird Johnson Wildflower Center. Returns a unified response with one
-        entry per source. Sources that cannot resolve a direct profile URL (USDA
-        PLANTS, Lady Bird Johnson) return found=false with a search_url instead.
-        Go Botany validation requires a live HTTP GET — expect slightly higher
-        latency for this endpoint.
+        Wildflowers, Illinois Wildflowers, Prairie Moon Nursery, and Lady Bird
+        Johnson Wildflower Center. Returns a unified response with one entry per
+        source. Sources that cannot resolve a direct profile URL (Lady Bird Johnson)
+        return found=false with a search_url instead. Go Botany validation requires
+        a live HTTP GET — expect slightly higher latency for this endpoint.
       parameters:
         - name: species
           in: query
@@ -5846,3 +5962,261 @@ components:
               description: Keyed by source ID. Each value is a BotanicalRefsSourceResult.
               additionalProperties:
                 $ref: "#/components/schemas/BotanicalRefsSourceResult"
+
+    UsdaPlantsNativeStatus:
+      type: object
+      description: Nativity status for a US region.
+      properties:
+        Region:
+          type: string
+          description: "Region code (L48, AK, HI, PR, VI, CAN, GU, MP, SPM, UM)"
+        Status:
+          type: string
+          description: "N=Native, I=Introduced"
+        Type:
+          type: string
+          description: "Native or Introduced"
+
+    UsdaPlantsSpeciesData:
+      type: object
+      properties:
+        species:
+          type: string
+        symbol:
+          type: string
+          nullable: true
+        canonical_name:
+          type: string
+          nullable: true
+        common_name:
+          type: string
+          nullable: true
+        rank:
+          type: string
+          nullable: true
+        usda_id:
+          type: integer
+          nullable: true
+        profile_url:
+          type: string
+          nullable: true
+        native_statuses:
+          type: array
+          nullable: true
+          items:
+            $ref: "#/components/schemas/UsdaPlantsNativeStatus"
+        wetland_data:
+          type: array
+          nullable: true
+          items:
+            type: object
+            additionalProperties: true
+        legal_statuses:
+          type: array
+          nullable: true
+          items:
+            type: object
+            additionalProperties: true
+        durations:
+          type: array
+          nullable: true
+          items:
+            type: string
+        growth_habits:
+          type: array
+          nullable: true
+          items:
+            type: string
+        group:
+          type: string
+          nullable: true
+        ancestors:
+          type: array
+          nullable: true
+          description: Taxonomy hierarchy from Kingdom to parent rank
+          items:
+            type: object
+            additionalProperties: true
+        synonyms:
+          type: array
+          nullable: true
+          items:
+            type: object
+            additionalProperties: true
+        fact_sheet_urls:
+          type: array
+          items:
+            type: string
+        plant_guide_urls:
+          type: array
+          items:
+            type: string
+        other_common_names:
+          type: array
+          nullable: true
+          items:
+            type: string
+        profile_image_filename:
+          type: string
+          nullable: true
+        cache_status:
+          type: string
+
+    UsdaPlantsSpeciesResponse:
+      type: object
+      required:
+        - found
+        - queried_at
+        - data
+        - provenance
+      properties:
+        found:
+          type: boolean
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          $ref: "#/components/schemas/UsdaPlantsSpeciesData"
+
+    UsdaPlantsProfileResponse:
+      type: object
+      required:
+        - found
+        - queried_at
+        - data
+        - provenance
+      properties:
+        found:
+          type: boolean
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          type: object
+          properties:
+            symbol:
+              type: string
+            profile_url:
+              type: string
+            profile:
+              type: object
+              description: Raw PlantProfile object from the USDA PLANTS API
+              additionalProperties: true
+            cache_status:
+              type: string
+
+    UsdaPlantsSearchResult:
+      type: object
+      properties:
+        id:
+          type: integer
+        symbol:
+          type: string
+        accepted_symbol:
+          type: string
+          nullable: true
+        is_synonym:
+          type: boolean
+        scientific_name:
+          type: string
+          description: Scientific name with HTML italic tags
+        scientific_name_without_author:
+          type: string
+          nullable: true
+        common_name:
+          type: string
+          nullable: true
+        family_name:
+          type: string
+          nullable: true
+        rank_id:
+          type: integer
+          nullable: true
+        num_images:
+          type: integer
+        profile_image_filename:
+          type: string
+          nullable: true
+        fact_sheet_urls:
+          type: array
+          items:
+            type: string
+        plant_guide_urls:
+          type: array
+          items:
+            type: string
+        legal_statuses:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        wetland_data:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+
+    UsdaPlantsSearchResponse:
+      type: object
+      required:
+        - found
+        - queried_at
+        - data
+        - provenance
+      properties:
+        found:
+          type: boolean
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          type: object
+          properties:
+            query:
+              type: string
+            field:
+              type: string
+            page:
+              type: integer
+            total:
+              type: integer
+            results:
+              type: array
+              items:
+                $ref: "#/components/schemas/UsdaPlantsSearchResult"
+
+    UsdaPlantsMetadataResponse:
+      type: object
+      properties:
+        service_id:
+          type: string
+        service_name:
+          type: string
+        permission_granted:
+          type: boolean
+        permission_status:
+          type: string
+        access_method:
+          type: string
+        api_base:
+          type: string
+        registry_entry:
+          type: object
+          additionalProperties: true
+        queried_at:
+          type: string
+          format: date-time
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"

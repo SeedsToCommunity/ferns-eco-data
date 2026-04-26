@@ -912,17 +912,66 @@ const tools: ToolDef[] = [
     tool: {
       name: "usda_plants__species",
       description:
-        "Returns the USDA Plants Database record for a species, including the USDA symbol, accepted name, nativity status, and a link to the full USDA Plants profile. Covers the complete vascular flora of the United States.",
+        "Resolves a scientific name to a USDA symbol via the USDA PLANTS API and returns the full plant profile: symbol, canonical name, common name, rank, nativity status per US region (L48, AK, HI, PR, VI, CAN, etc.), taxonomy hierarchy, synonyms, wetland indicator data, legal statuses, and links to fact sheets and plant guides. Results are cached 30 days. Covers the complete vascular flora of the United States and territories.",
       inputSchema: {
         type: "object" as const,
         properties: {
-          species: { type: "string", description: "Scientific name (e.g. Trillium grandiflorum)" },
+          species: { type: "string", description: "Scientific name (e.g. Asclepias tuberosa)" },
+          refresh: { type: "boolean", description: "Bypass cache and fetch fresh (default false)" },
         },
         required: ["species"],
       },
     },
     handler: async (args) =>
-      apiGet("/usda-plants", { species: String(args["species"]) }),
+      apiGet("/usda-plants", {
+        species: String(args["species"]),
+        refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+      }),
+  },
+  {
+    tool: {
+      name: "usda_plants__profile",
+      description:
+        "Returns the full USDA PLANTS profile for a known USDA symbol (e.g. ASTU for Asclepias tuberosa). Use this when the symbol is already known; use usda_plants__species to resolve a scientific name to a symbol first. Profiles are cached 30 days.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          symbol: { type: "string", description: "USDA PLANTS symbol (e.g. ASTU)" },
+          refresh: { type: "boolean", description: "Bypass cache and fetch fresh (default false)" },
+        },
+        required: ["symbol"],
+      },
+    },
+    handler: async (args) =>
+      apiGet("/usda-plants/profile", {
+        symbol: String(args["symbol"]),
+        refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+      }),
+  },
+  {
+    tool: {
+      name: "usda_plants__search",
+      description:
+        "Searches the USDA PLANTS database with a text query. Supports searching by Scientific Name, Common Name, Symbol, or Family. Returns paginated results with symbol, scientific name, common name, family, and wetland/legal data. Search results are not cached.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          q: { type: "string", description: "Search text (e.g. Trillium, butterfly milkweed)" },
+          field: {
+            type: "string",
+            description: "Field to search: Scientific Name (default), Common Name, Symbol, or Family",
+          },
+          page: { type: "number", description: "Page number (1-based, default 1)" },
+        },
+        required: ["q"],
+      },
+    },
+    handler: async (args) =>
+      apiGet("/usda-plants/search", {
+        q: String(args["q"]),
+        field: args["field"] !== undefined ? String(args["field"]) : undefined,
+        page: args["page"] !== undefined ? String(args["page"]) : undefined,
+      }),
   },
 
   // ── botanical-refs ───────────────────────────────────────────────────────
@@ -930,7 +979,7 @@ const tools: ToolDef[] = [
     tool: {
       name: "botanical_refs__lookup",
       description:
-        "Queries Go Botany, Google Images, Missouri Plants, Minnesota Wildflowers, Illinois Wildflowers, Prairie Moon, USDA Plants, and Lady Bird Johnson simultaneously for a species and returns each source's found status and URL in one response. A convenience shortcut when you want cross-site presence for a species without calling each source individually.",
+        "Queries Go Botany, Google Images, Missouri Plants, Minnesota Wildflowers, Illinois Wildflowers, Prairie Moon, and Lady Bird Johnson simultaneously for a species and returns each source's found status and URL in one response. A convenience shortcut when you want cross-site presence for a species without calling each source individually.",
       inputSchema: {
         type: "object" as const,
         properties: {

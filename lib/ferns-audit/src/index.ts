@@ -21,6 +21,7 @@ import { runInatComparators } from "./comparators/inat.js";
 import { runBonapComparators } from "./comparators/bonap.js";
 import { runMifloraComparators } from "./comparators/miflora.js";
 import { runUniversalFqaComparators } from "./comparators/universal-fqa.js";
+import { runUsdaPlantsComparators } from "./comparators/usda-plants.js";
 import { runCoefficientChecks, runWetlandIndicatorChecks, runWucolsChecks, runS2CChecks, runLcscgChecks, runMnfiChecks, runNatureserveChecks, runBotanicalRefTextChecks } from "./checks/static-sources.js";
 import { checkApiDocs, checkRegistry } from "./checks/docs.js";
 import { checkUrls } from "./checks/urls.js";
@@ -68,6 +69,9 @@ async function main(): Promise<void> {
   process.stderr.write("Running Universal FQA comparators (databases, species, assessments)...\n");
   const ufqaComparisons = await runUniversalFqaComparators(fernsBase, TEST_SPECIES, TEST_UFQA_ASSESSMENTS);
 
+  process.stderr.write("Running USDA PLANTS comparators (species lookup via api_fetch)...\n");
+  const usdaPlantsComparisons = await runUsdaPlantsComparators(fernsBase, TEST_SPECIES);
+
   process.stderr.write("Running static source health checks (Coefficient, Wetland Indicator, WUCOLS, S2C, LCSCG, MNFI, NatureServe, BotanicalRefText)...\n");
   const [coeffChecks, wetlandChecks, wucolsChecks, s2cChecks, lcscgChecks, mnfiChecks, natureserveChecks, botanicalRefTextChecks] = await Promise.all([
     runCoefficientChecks(fernsBase, TEST_COEFFICIENT_VALUES),
@@ -86,6 +90,7 @@ async function main(): Promise<void> {
     ...bonapComparisons,
     ...mifloraComparisons,
     ...ufqaComparisons,
+    ...usdaPlantsComparisons,
     ...coeffChecks,
     ...wetlandChecks,
     ...wucolsChecks,
