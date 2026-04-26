@@ -13,6 +13,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+function sanitizeItalicOnly(html: string): string {
+  return html.replace(/<(?!\/?(i)(?:\s|>|$))[^>]*>/gi, "");
+}
+
 const BASE_URL = import.meta.env.BASE_URL.replace(/\/$/, "");
 const API_BASE = `${BASE_URL}/api`;
 
@@ -243,7 +247,7 @@ function SearchResultsCard({ result }: { result: SearchEnvelope }) {
                   <span className="text-sm font-mono font-semibold">{r.symbol}</span>
                   {r.is_synonym && <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">synonym</span>}
                 </div>
-                <div className="text-xs text-muted-foreground italic">{r.scientific_name}</div>
+                <div className="text-xs text-muted-foreground italic" dangerouslySetInnerHTML={{ __html: sanitizeItalicOnly(r.scientific_name) }} />
                 {r.common_name && <div className="text-xs">{r.common_name}</div>}
                 {r.family_name && <div className="text-[10px] text-muted-foreground">{r.family_name}</div>}
               </div>

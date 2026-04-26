@@ -30,9 +30,10 @@ export const USDA_PLANTS_TECHNICAL_DETAILS =
   "Access method: api_fetch. " +
   "Undocumented REST API at https://plantsservices.sc.egov.usda.gov/api/, reverse-engineered from Angular SPA bundle; " +
   "full discovery process and endpoint reference documented in docs/usda-plants-api.md. " +
-  "Name lookup flow: GET /PlantSearch?searchText={URL-encoded name} returns autocomplete candidates; " +
-  "HTML italic tags are stripped from ScientificName; the first N words of the stripped name (where N = word count of the query) " +
-  "are extracted as the name-without-author and compared case-insensitively with the queried name; if no exact match, found=false. " +
+  "Name lookup flow: GET /PlantSearch?searchText={URL-encoded name} returns autocomplete candidates as [{Text, Plant}]; " +
+  "exact match is attempted on ScientificNameWithoutAuthor (case-insensitive); " +
+  "if ScientificNameWithoutAuthor is null (as in PlantSearch autocomplete responses), falls back to extracting the first N words " +
+  "(N = word count of the query) from the HTML-stripped ScientificName and comparing case-insensitively; if no match, found=false. " +
   "Profile fetch: GET /PlantProfile?symbol={symbol}. " +
   "Search: POST /plants-search-results with JSON body {Text, Field, SortBy, Offset, FilterOptions, UnfilteredPlantIds, " +
   "Type, TaxonSearchCriteria, MasterId, pageNumber, allData}; Type='Basic' for scientific-name or common-name text search. " +
@@ -43,8 +44,9 @@ export const USDA_PLANTS_TECHNICAL_DETAILS =
   "?refresh=true forces re-fetch of both the name match and the profile for a given species query; search results are not cached. " +
   "Response normalization: all PlantProfile fields are passed through as-is; a profile_url field is constructed as " +
   "https://plants.sc.egov.usda.gov/?symbol={symbol} (not returned by the API itself); " +
-  "the canonical_name in FERNS responses is the HTML-stripped ScientificName from the PlantSearch autocomplete item " +
-  "(HTML <i> tags removed); PlantProfile ScientificName fields are passed through with HTML intact. " +
+  "ScientificName fields from the upstream API contain HTML italic tags (e.g. <i>Trillium grandiflorum</i> (Michx.) Salisb.); " +
+  "FERNS strips HTML only for the canonical_name field (extracted from PlantSearch); " +
+  "search result scientific_name fields are passed through with HTML tags intact per the upstream format. " +
   "Coded/enumerated values — NativeStatuses.Status: N=Native, I=Introduced. " +
   "NativeStatuses.Region: L48=contiguous 48 states, AK=Alaska, HI=Hawaii, PR=Puerto Rico, VI=US Virgin Islands, " +
   "CAN=Canada, GU=Guam, MP=Northern Mariana Islands, SPM=Saint-Pierre and Miquelon, UM=US Minor Outlying Islands. " +
