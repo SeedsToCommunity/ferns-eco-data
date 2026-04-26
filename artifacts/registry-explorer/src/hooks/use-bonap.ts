@@ -9,6 +9,7 @@ import {
 
 export function useBonapExplorer() {
   const [searchParams, setSearchParams] = useState<GetBonapMapParams | null>(null);
+  const [submitCount, setSubmitCount] = useState(0);
 
   const effectiveParams: GetBonapMapParams = searchParams ?? { genus: "" };
 
@@ -16,7 +17,7 @@ export function useBonapExplorer() {
     effectiveParams,
     {
       query: {
-        queryKey: getGetBonapMapQueryKey(effectiveParams),
+        queryKey: [...getGetBonapMapQueryKey(effectiveParams), submitCount],
         enabled: !!searchParams?.genus,
         retry: false,
       }
@@ -32,6 +33,7 @@ export function useBonapExplorer() {
 
   const handleSearch = (params: GetBonapMapParams) => {
     setSearchParams(params);
+    setSubmitCount((c) => c + 1);
   };
 
   return {

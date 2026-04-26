@@ -1,6 +1,10 @@
-# FERNS — Agent Reference
+# Ecological Commons — Agent Reference
 
-## Overview
+## Ecological Commons Overview
+
+Web pages that describe this entire software system, the FERNS data layer (data source registration metadata package, source explorer graphical user interface, source data cache, and source interfaces (OpenAPI interface definition, REST API, MCP interface)), 
+
+## FERNS Overview
 
 FERNS (Federated Ecological Resource Network System) is a data infrastructure layer providing a federated REST API and an OpenAPI description for ecological and environmental data. It exposes data from independent authoritative sources through a consistent REST API, per-source Explorer web interfaces, and a central Registry. This system is designed to be the foundation for other applications.
 
