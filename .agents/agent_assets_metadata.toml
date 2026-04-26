@@ -6,3 +6,9 @@ id = "eS_smP6qbdUu6RlRqgWAq"
 uri = "file://letters/partnership-letters.md"
 type = "text"
 title = "FERNS Partnership Letters (7 Organizations)"
+
+[[outputs]]
+id = "J-jnIdip0tWGfLUCXOlsa"
+uri = "file://docs/usda-plants-api.md"
+type = "text"
+title = "USDA PLANTS Database API"
