@@ -287,7 +287,7 @@ These three fields are required on every FERNS source. They are structured deliv
 
 **Audience**: A general user — a developer, a citizen science app builder, a data program coordinator, a domain analyst — deciding whether this source aligns with their use case and domain.
 
-**Required content (all 8 points must be covered)**:
+**Required content (all 7 points must be covered)**:
 1. Who runs it and what institution it belongs to
 2. What the data is: type, content, scope
 3. Geographic and taxonomic coverage (specific — counts and regions)
@@ -295,21 +295,18 @@ These three fields are required on every FERNS source. They are structured deliv
 5. What a query to FERNS returns: what fields, what shape — in plain English
 6. How current the data is: live, cached, static, and what the refresh policy is
 7. Known limitations: what this source does not cover, edge cases, accuracy concerns
-8. How this source relates to other FERNS sources that cover similar ground — name all overlapping sources explicitly (not just the most obvious one); state when to use this one and when to use each of the others. If there is genuinely no overlap with any other FERNS source, say so explicitly.
 
-**Length**: As many sentences as needed to cover all 8 points. Typically 4–8 sentences.
+**Length**: As many sentences as needed to cover all 7 points. Typically 3–6 sentences.
 
 **Anti-patterns — do not include**:
-- Omitting any of the 8 required points
+- Omitting any of the 7 required points
 - Technical implementation details: DB column names, SQL, URL patterns, exact parse logic
 - Internal system terminology in point 4 (how FERNS accesses the data): "server memory", "JavaScript Map", "ILIKE", "cache key", "server restart" — describe caching in plain language only: "cached locally", "stored locally and reused for subsequent queries", "fetched live per request"
 - Unexplained ecological or botanical terminology
 - Vague non-statements ("provides data about plants", "contains useful information")
-- Treating the data as equivalent to another FERNS source without explicitly comparing them
-- Naming only the single most obvious overlapping FERNS source in point 8 — all overlapping sources must be named
 
 **Worked example (Woodland Sun)**:
-> "Woodland Sun Nursery (Winona, Minnesota) is a leading native plant supplier for the Upper Midwest and Great Plains. Their website lists roughly 970 native species — wildflowers, grasses, sedges, ferns, and woody plants — with growing notes, ecological context, and nursery availability. FERNS imports Woodland Sun's full plant catalog periodically and stores it locally; when you query by scientific name, FERNS looks it up in that local index and returns a direct link to the Woodland Sun plant page if a match exists. The data reflects the time of the last import, not live nursery stock. Woodland Sun covers nursery availability and growing information only — it is not a scientific taxonomic source and does not include distribution data, nativity status, or conservation rankings. For taxonomy, use the GBIF source. For regional distribution in Michigan, use Michigan Flora. For native status, use BONAP."
+> "Woodland Sun Nursery (Winona, Minnesota) is a leading native plant supplier for the Upper Midwest and Great Plains. Their website lists roughly 970 native species — wildflowers, grasses, sedges, ferns, and woody plants — with growing notes, ecological context, and nursery availability. FERNS imports Woodland Sun's full plant catalog periodically and stores it locally; when you query by scientific name, FERNS looks it up in that local index and returns a direct link to the Woodland Sun plant page if a match exists. The data reflects the time of the last import, not live nursery stock. Woodland Sun covers nursery availability and growing information only — it is not a scientific taxonomic source and does not include distribution data, nativity status, or conservation rankings."
 
 ---
 
@@ -317,7 +314,7 @@ These three fields are required on every FERNS source. They are structured deliv
 
 **Audience**: A graduate student, hardcore developer, botanist researcher, mathematician, or organizational data archivist who needs every technical and methodological detail without consulting any other document. This is the authoritative stop for everything precise.
 
-**Required content (all 12 points must be covered)**:
+**Required content (all 11 points must be covered)**:
 1. Full institution name, URL, and any relevant legal, publication, or licensing context
 2. Primary citation or authority: author, year, publication, if applicable
 3. Exact access method: URL patterns, API endpoints, sitemap path, scraping strategy, parsing logic — include all edge cases and known exceptions
@@ -328,19 +325,17 @@ These three fields are required on every FERNS source. They are structured deliv
 8. All coded or enumerated field values with their complete meaning (e.g. OBL = Obligate Wetland; C=10 = highest ecological fidelity to undisturbed habitat; W=−5 = most strongly wetland-affiliated)
 9. Coverage: record count, geographic region, taxonomic scope, date range if relevant — always use specific numbers
 10. Known limitations, edge cases, and accuracy concerns: taxonomy mismatches, missing coverage, encoding issues, unstable upstream identifiers
-11. Overlap with other FERNS sources: name them, state exactly what this source measures and what it does not, explain why a user would choose this source over the others — this is required for every source, even those with no apparent overlap
-12. Any non-standard conventions used by the source: undocumented scales, idiosyncratic field names, publisher-specific coding
+11. Any non-standard conventions used by the source: undocumented scales, idiosyncratic field names, publisher-specific coding
 
 **Length**: As long as needed. Do not abbreviate to fit a length target. This field must be complete.
 
 **Anti-patterns — do not include**:
-- Omitting any of the 12 required points
+- Omitting any of the 11 required points
 - Vague coverage statements — always use specific record counts and geographic boundaries
 - Unexplained coded values or abbreviations
-- Omitting point 11 (overlap / disambiguation) — this is required even for apparently unique sources
 
 **Worked example (Woodland Sun, excerpt)**:
-> "Primary source: https://www.prairiemoon.com/sitemap.xml. Operator: Woodland Sun Nursery, Winona, MN (prairiemoon.com). Access method: sitemap_scrape. Sitemap parsed at import time; plant URLs filtered from root-level paths matching {genus}-{species}-{common-name-slug}, excluding /category/, /cart/, and /info/ paths (~970 plant URLs at last import). Scientific name inference from URL slug: genus = parts[0] capitalized; species = parts[1] lowercase; trinomial recognized when parts[2] is 'subsp' or 'var' (infraspecific epithet = parts[3]). DB table: botanical_species_lists (columns: id, site_id, scientific_name, url, imported_at; unique on (site_id, scientific_name)). Caching: full import on demand via POST /api/prairie-moon/import (admin-protected); no TTL; data is permanent until re-imported. FERNS returns: found (bool), species (inferred scientific name string), url (direct plant page URL string), validation_method = 'species_list_lookup', imported_at (timestamp). Lookup: ILIKE match on scientific_name column — case-insensitive, no fuzzy matching, exact binomial required. Known limitation: URL slug spelling may not match current accepted taxonomy (synonyms, older names not yet updated on the Woodland Sun site). Woodland Sun is a nursery catalog, not a scientific taxonomic authority. It does not provide distribution data, nativity status, conservation status, or C-values. For taxonomy: use GBIF (`gbif`). For Michigan distribution: use Michigan Flora (`miflora`). For regional distribution: use BONAP (`bonap`). For C-values: use Universal FQA (`universal-fqa`). Woodland Sun is useful specifically when you need to confirm nursery availability or retrieve a direct plant page URL for a Midwest or Great Plains native species."
+> "Primary source: https://www.prairiemoon.com/sitemap.xml. Operator: Woodland Sun Nursery, Winona, MN (prairiemoon.com). Access method: sitemap_scrape. Sitemap parsed at import time; plant URLs filtered from root-level paths matching {genus}-{species}-{common-name-slug}, excluding /category/, /cart/, and /info/ paths (~970 plant URLs at last import). Scientific name inference from URL slug: genus = parts[0] capitalized; species = parts[1] lowercase; trinomial recognized when parts[2] is 'subsp' or 'var' (infraspecific epithet = parts[3]). DB table: botanical_species_lists (columns: id, site_id, scientific_name, url, imported_at; unique on (site_id, scientific_name)). Caching: full import on demand via POST /api/prairie-moon/import (admin-protected); no TTL; data is permanent until re-imported. FERNS returns: found (bool), species (inferred scientific name string), url (direct plant page URL string), validation_method = 'species_list_lookup', imported_at (timestamp). Lookup: ILIKE match on scientific_name column — case-insensitive, no fuzzy matching, exact binomial required. Known limitation: URL slug spelling may not match current accepted taxonomy (synonyms, older names not yet updated on the Woodland Sun site). Woodland Sun is a nursery catalog, not a scientific taxonomic authority. It does not provide distribution data, nativity status, conservation status, or C-values."
 
 ---
 
