@@ -160,7 +160,7 @@ export async function searchPlants(
     symbol: (r["Symbol"] as string) ?? "",
     accepted_symbol: (r["AcceptedSymbol"] as string) || null,
     is_synonym: (r["IsSynonym"] as boolean) ?? false,
-    scientific_name: (r["ScientificName"] as string) ?? "",
+    scientific_name: stripHtml((r["ScientificName"] as string) ?? ""),
     scientific_name_without_author: (r["ScientificNameWithoutAuthor"] as string) || null,
     common_name: (r["CommonName"] as string) || null,
     family_name: (r["FamilyName"] as string) || null,

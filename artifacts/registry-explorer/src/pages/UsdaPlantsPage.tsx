@@ -243,7 +243,7 @@ function SearchResultsCard({ result }: { result: SearchEnvelope }) {
                   <span className="text-sm font-mono font-semibold">{r.symbol}</span>
                   {r.is_synonym && <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">synonym</span>}
                 </div>
-                <div className="text-xs text-muted-foreground italic" dangerouslySetInnerHTML={{ __html: r.scientific_name }} />
+                <div className="text-xs text-muted-foreground italic">{r.scientific_name}</div>
                 {r.common_name && <div className="text-xs">{r.common_name}</div>}
                 {r.family_name && <div className="text-[10px] text-muted-foreground">{r.family_name}</div>}
               </div>

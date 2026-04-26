@@ -39,7 +39,7 @@ router.get("/usda-plants/metadata", async (req, res) => {
         explorer_url: resolveUrl(req, USDA_PLANTS_REGISTRY_ENTRY.explorer_url),
       },
       queried_at: new Date(),
-      provenance: buildProvenance(resolveUrl(req, "/api/usda-plants/metadata")),
+      provenance: buildProvenance("https://plantsservices.sc.egov.usda.gov/api/"),
     });
   } catch (err) {
     res.status(500).json({ error: "internal_error", message: String(err) });
