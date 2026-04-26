@@ -14,7 +14,9 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 function sanitizeItalicOnly(html: string): string {
-  return html.replace(/<(?!\/?(i)(?:\s|>|$))[^>]*>/gi, "");
+  return html
+    .replace(/<i\b[^>]*>/gi, "<i>")
+    .replace(/<(?!\/?i>)[^>]*>/gi, "");
 }
 
 const BASE_URL = import.meta.env.BASE_URL.replace(/\/$/, "");
