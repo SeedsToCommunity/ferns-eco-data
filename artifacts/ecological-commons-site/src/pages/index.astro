@@ -4,6 +4,7 @@ import { Content as IdeaContent } from "../content/idea.md";
 import { Content as InfoFrontierContent } from "../content/information-frontier.md";
 import { Content as ComputingFrontierContent } from "../content/computing-frontier.md";
 import { Content as BuiltContent } from "../content/built.md";
+import { Content as NamingLayerContent } from "../content/naming-layer.md";
 import { Content as WorksheetContent } from "../content/worksheet.md";
 import "../styles/global.css";
 
@@ -11,6 +12,7 @@ const TABS = [
   { id: "home", label: "Home" },
   { id: "idea", label: "The Idea" },
   { id: "built", label: "What's Built" },
+  { id: "naming-layer", label: "The Naming Layer" },
   { id: "worksheet", label: "Worksheet" },
 ];
 ---
@@ -80,6 +82,14 @@ const TABS = [
         </div>
       </section>
 
+      <section id="naming-layer" class="tab-section">
+        <div style="max-width: 720px; margin: 0 auto; padding: 3rem 1.5rem;">
+          <article class="prose max-w-none">
+            <NamingLayerContent />
+          </article>
+        </div>
+      </section>
+
       <section id="worksheet" class="tab-section">
         <div style="max-width: 720px; margin: 0 auto; padding: 3rem 1.5rem;">
           <article class="prose max-w-none prose-worksheet">
@@ -91,7 +101,7 @@ const TABS = [
 
     <script>
       (function () {
-        const TABS = ["home", "idea", "built", "worksheet"];
+        const TABS = ["home", "idea", "built", "naming-layer", "worksheet"];
 
         function activate(id: string) {
           if (!TABS.includes(id)) id = "home";
