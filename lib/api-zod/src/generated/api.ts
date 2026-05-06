@@ -4638,7 +4638,7 @@ export const GetGobotanyResponse = zod
     found: zod
       .boolean()
       .describe(
-        "True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants, lady-bird-johnson), which return a search_url instead.\n",
+        "True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants), which return a search_url instead.\n",
       ),
     queried_at: zod.date(),
     source_url: zod.string().optional(),
@@ -4697,7 +4697,7 @@ export const GetGobotanyResponse = zod
           .string()
           .optional()
           .describe(
-            "Search URL when a direct profile URL cannot be constructed (usda-plants, lady-bird-johnson). Present instead of url for these sources.\n",
+            "Search URL when a direct profile URL cannot be constructed (usda-plants). Present instead of url for these sources.\n",
           ),
         validation_method: zod
           .string()
@@ -4718,7 +4718,7 @@ export const GetGobotanyResponse = zod
       ),
   })
   .describe(
-    "Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants, lady-bird-johnson).\n",
+    "Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants).\n",
   );
 
 /**
@@ -4924,7 +4924,7 @@ export const GetGoogleImagesResponse = zod
     found: zod
       .boolean()
       .describe(
-        "True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants, lady-bird-johnson), which return a search_url instead.\n",
+        "True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants), which return a search_url instead.\n",
       ),
     queried_at: zod.date(),
     source_url: zod.string().optional(),
@@ -4983,7 +4983,7 @@ export const GetGoogleImagesResponse = zod
           .string()
           .optional()
           .describe(
-            "Search URL when a direct profile URL cannot be constructed (usda-plants, lady-bird-johnson). Present instead of url for these sources.\n",
+            "Search URL when a direct profile URL cannot be constructed (usda-plants). Present instead of url for these sources.\n",
           ),
         validation_method: zod
           .string()
@@ -5004,7 +5004,7 @@ export const GetGoogleImagesResponse = zod
       ),
   })
   .describe(
-    "Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants, lady-bird-johnson).\n",
+    "Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants).\n",
   );
 
 /**
@@ -5099,7 +5099,7 @@ export const GetIllinoisWildflowersResponse = zod
     found: zod
       .boolean()
       .describe(
-        "True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants, lady-bird-johnson), which return a search_url instead.\n",
+        "True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants), which return a search_url instead.\n",
       ),
     queried_at: zod.date(),
     source_url: zod.string().optional(),
@@ -5158,7 +5158,7 @@ export const GetIllinoisWildflowersResponse = zod
           .string()
           .optional()
           .describe(
-            "Search URL when a direct profile URL cannot be constructed (usda-plants, lady-bird-johnson). Present instead of url for these sources.\n",
+            "Search URL when a direct profile URL cannot be constructed (usda-plants). Present instead of url for these sources.\n",
           ),
         validation_method: zod
           .string()
@@ -5179,7 +5179,7 @@ export const GetIllinoisWildflowersResponse = zod
       ),
   })
   .describe(
-    "Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants, lady-bird-johnson).\n",
+    "Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants).\n",
   );
 
 /**
@@ -5379,7 +5379,7 @@ export const GetMinnesotaWildflowersResponse = zod
     found: zod
       .boolean()
       .describe(
-        "True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants, lady-bird-johnson), which return a search_url instead.\n",
+        "True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants), which return a search_url instead.\n",
       ),
     queried_at: zod.date(),
     source_url: zod.string().optional(),
@@ -5438,7 +5438,7 @@ export const GetMinnesotaWildflowersResponse = zod
           .string()
           .optional()
           .describe(
-            "Search URL when a direct profile URL cannot be constructed (usda-plants, lady-bird-johnson). Present instead of url for these sources.\n",
+            "Search URL when a direct profile URL cannot be constructed (usda-plants). Present instead of url for these sources.\n",
           ),
         validation_method: zod
           .string()
@@ -5459,7 +5459,7 @@ export const GetMinnesotaWildflowersResponse = zod
       ),
   })
   .describe(
-    "Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants, lady-bird-johnson).\n",
+    "Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants).\n",
   );
 
 /**
@@ -5659,7 +5659,7 @@ export const GetMissouriPlantsResponse = zod
     found: zod
       .boolean()
       .describe(
-        "True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants, lady-bird-johnson), which return a search_url instead.\n",
+        "True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants), which return a search_url instead.\n",
       ),
     queried_at: zod.date(),
     source_url: zod.string().optional(),
@@ -5718,7 +5718,7 @@ export const GetMissouriPlantsResponse = zod
           .string()
           .optional()
           .describe(
-            "Search URL when a direct profile URL cannot be constructed (usda-plants, lady-bird-johnson). Present instead of url for these sources.\n",
+            "Search URL when a direct profile URL cannot be constructed (usda-plants). Present instead of url for these sources.\n",
           ),
         validation_method: zod
           .string()
@@ -5739,7 +5739,7 @@ export const GetMissouriPlantsResponse = zod
       ),
   })
   .describe(
-    "Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants, lady-bird-johnson).\n",
+    "Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants).\n",
   );
 
 /**
@@ -5939,7 +5939,7 @@ export const GetPrairieMoonResponse = zod
     found: zod
       .boolean()
       .describe(
-        "True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants, lady-bird-johnson), which return a search_url instead.\n",
+        "True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants), which return a search_url instead.\n",
       ),
     queried_at: zod.date(),
     source_url: zod.string().optional(),
@@ -5998,7 +5998,7 @@ export const GetPrairieMoonResponse = zod
           .string()
           .optional()
           .describe(
-            "Search URL when a direct profile URL cannot be constructed (usda-plants, lady-bird-johnson). Present instead of url for these sources.\n",
+            "Search URL when a direct profile URL cannot be constructed (usda-plants). Present instead of url for these sources.\n",
           ),
         validation_method: zod
           .string()
@@ -6019,7 +6019,7 @@ export const GetPrairieMoonResponse = zod
       ),
   })
   .describe(
-    "Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants, lady-bird-johnson).\n",
+    "Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants).\n",
   );
 
 /**
@@ -6539,13 +6539,18 @@ export const GetUsdaPlantsMetadataResponse = zod.object({
 });
 
 /**
- * Constructs a Lady Bird Johnson Wildflower Center (wildflower.org) search URL for a given scientific name. Direct species profile URLs require an internal LBJWC plant ID not derivable from scientific names, so FERNS provides a search URL scoped by genus and species instead. The response returns found=false with a search_url in the data object — use search_url to link users to the LBJWC.
+ * Accepts a USDA Plants symbol (e.g. TRGI for Trillium grandiflorum) and returns a verified direct species profile URL at https://www.wildflower.org/plants/result.php?id_plant={SYMBOL}. Verification is performed via HTTP GET with redirect:manual and a browser-like User-Agent (required — the site returns 403 to generic agents). HTTP 200 = found; 3xx redirect = not_found; 5xx/network = unverified (not cached). Results are cached in lbj_url_cache (90-day TTL when found, 30-day when not_found). Obtain USDA Plants symbols via /usda-plants.
 
- * @summary Construct a Lady Bird Johnson Wildflower Center search URL for a species
+ * @summary Verify a Lady Bird Johnson Wildflower Center species profile URL from a USDA Plants symbol
  */
 
 export const GetLadyBirdJohnsonQueryParams = zod.object({
-  species: zod.string().min(1).describe("Scientific name (e.g. Acer rubrum)"),
+  usda_symbol: zod
+    .string()
+    .min(1)
+    .describe(
+      "USDA Plants symbol (e.g. TRGI for Trillium grandiflorum). Obtain via \/usda-plants.",
+    ),
 });
 
 export const GetLadyBirdJohnsonResponse = zod
@@ -6553,7 +6558,7 @@ export const GetLadyBirdJohnsonResponse = zod
     found: zod
       .boolean()
       .describe(
-        "True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants, lady-bird-johnson), which return a search_url instead.\n",
+        'True when HTTP 200 returned for the profile URL (status=\"found\").',
       ),
     queried_at: zod.date(),
     source_url: zod.string().optional(),
@@ -6598,46 +6603,163 @@ export const GetLadyBirdJohnsonResponse = zod
       ),
     data: zod
       .object({
-        species: zod
+        usda_symbol: zod
           .string()
           .optional()
-          .describe("The species name as queried"),
-        url: zod
+          .describe("USDA Plants symbol (uppercased)."),
+        profile_url: zod
           .string()
           .nullish()
           .describe(
-            "Direct species page URL. Null when only a search URL is available.",
+            "Direct profile URL when found; null when not_found or unverified.",
           ),
-        search_url: zod
-          .string()
+        status: zod
+          .enum(["found", "not_found", "unverified"])
           .optional()
           .describe(
-            "Search URL when a direct profile URL cannot be constructed (usda-plants, lady-bird-johnson). Present instead of url for these sources.\n",
+            '\"found\" — HTTP 200 returned. \"not_found\" — 3xx redirect or 4xx returned. \"unverified\" — 5xx or network error; result not cached.\n',
           ),
+        found: zod
+          .boolean()
+          .optional()
+          .describe('True when status is \"found\".'),
+        http_status: zod
+          .number()
+          .nullish()
+          .describe("HTTP status code returned by the verification request."),
         validation_method: zod
           .string()
           .optional()
+          .describe('Always \"http_get_manual_redirect\" for this endpoint.'),
+        verified_at: zod
+          .date()
+          .nullish()
           .describe(
-            "How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable",
+            'Timestamp when the verification HTTP request was made. Null when status is \"unverified\" (network\/5xx error prevented caching).\n',
           ),
-        note: zod
-          .string()
+        cache_hit: zod
+          .boolean()
           .optional()
-          .describe(
-            "Explanatory note when validation_method is not_resolvable",
-          ),
+          .describe("True if the result was served from lbj_url_cache."),
       })
-      .nullish()
-      .describe(
-        "Present when found=true (or when a search_url is returned). Null when not found.",
-      ),
+      .optional(),
   })
   .describe(
-    "Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants, lady-bird-johnson).\n",
+    "Response from \/lady-bird-johnson — profile URL verification result keyed by USDA Plants symbol.\n",
   );
 
 /**
- * Returns service identity, URL construction strategy, attribution, and the full registry entry for the Lady Bird Johnson Wildflower Center service.
+ * Fetches and caches botanical prose text from the Lady Bird Johnson Wildflower Center (wildflower.org/plants) species profile page identified by a USDA Plants symbol. Verification and scraping use a browser-like User-Agent (required — site returns 403 to generic agents) with redirect:manual to detect not-found responses (3xx redirect). Sections extracted include all h3-delimited prose; "Find Seeds or Plants" and "Mr. Smarty Plants says" sections are excluded. First call fetches live; subsequent calls return the cached text. Use ?refresh=true to force a re-scrape. Returns found=false when the symbol is not found on the Wildflower Center site. Obtain USDA Plants symbols via /usda-plants.
+
+ * @summary Scrape and return species page text from Lady Bird Johnson Wildflower Center
+ */
+
+export const GetLadyBirdJohnsonSpeciesTextQueryParams = zod.object({
+  usda_symbol: zod
+    .string()
+    .min(1)
+    .describe(
+      "USDA Plants symbol (e.g. TRGI for Trillium grandiflorum). Obtain via \/usda-plants.",
+    ),
+  refresh: zod
+    .enum(["true", "false"])
+    .optional()
+    .describe('If \"true\", bypass cache and re-scrape the live page'),
+});
+
+export const GetLadyBirdJohnsonSpeciesTextResponse = zod
+  .object({
+    found: zod
+      .boolean()
+      .describe("True if the species page was found and text was extracted."),
+    queried_at: zod.date(),
+    source_url: zod.string().optional(),
+    cache_status: zod
+      .enum(["hit", "miss"])
+      .describe(
+        '\"hit\" — returned from species_page_text_cache. \"miss\" — live fetch performed.\n',
+      ),
+    fetch_error: zod
+      .string()
+      .optional()
+      .describe(
+        "Present only when a transient upstream error prevented the scrape. Not cached.\n",
+      ),
+    scraped_at: zod
+      .date()
+      .optional()
+      .describe("Timestamp of when the text was originally scraped."),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+        fetched_at: zod
+          .date()
+          .describe("When this record was obtained from the source"),
+        method: zod
+          .string()
+          .describe(
+            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+          ),
+        upstream_url: zod
+          .string()
+          .describe(
+            "Where this data came from (API endpoint, file path, or registry entry)",
+          ),
+        general_summary: zod
+          .string()
+          .describe(
+            "Plain language description readable by a homeowner or community member",
+          ),
+        technical_details: zod
+          .string()
+          .describe(
+            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+          ),
+        matched_input: zod
+          .string()
+          .optional()
+          .describe(
+            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+          ),
+      })
+      .optional()
+      .describe(
+        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      ),
+    data: zod
+      .object({
+        usda_symbol: zod
+          .string()
+          .optional()
+          .describe("USDA Plants symbol (uppercased)."),
+        url: zod
+          .string()
+          .optional()
+          .describe("The profile URL that was scraped."),
+        sections: zod
+          .record(zod.string(), zod.string())
+          .nullish()
+          .describe(
+            'Labeled prose sections extracted from the page (h3-delimited). \"Find Seeds or Plants\" and \"Mr. Smarty Plants says\" sections are excluded.\n',
+          ),
+        full_text: zod
+          .string()
+          .nullish()
+          .describe(
+            "All sections concatenated as Label-colon-text blocks, separated by double newlines.",
+          ),
+      })
+      .nullish()
+      .describe("Present when found=true. Null when not found."),
+  })
+  .describe(
+    "Response from \/lady-bird-johnson\/species-text — scraped species page text keyed by USDA Plants symbol.\n",
+  );
+
+/**
+ * Returns service identity, URL verification strategy, cache configuration, attribution, and the full registry entry for the Lady Bird Johnson Wildflower Center service.
 
  * @summary Lady Bird Johnson Wildflower Center service metadata
  */
@@ -6712,119 +6834,3 @@ export const GetLadyBirdJohnsonMetadataResponse = zod
       ),
   })
   .describe("Service metadata response for botanical web reference sources.");
-
-/**
- * Fans out a species query to all configured botanical reference sources simultaneously: Go Botany, Google Images, Missouri Plants, Minnesota Wildflowers, Illinois Wildflowers, Prairie Moon Nursery, and Lady Bird Johnson Wildflower Center. Returns a unified response with one entry per source. Sources that cannot resolve a direct profile URL (Lady Bird Johnson) return found=false with a search_url instead. Go Botany validation requires a live HTTP GET — expect slightly higher latency for this endpoint.
-
- * @summary Look up a species across all botanical reference sources at once
- */
-
-export const GetBotanicalRefsQueryParams = zod.object({
-  species: zod.string().min(1).describe("Scientific name (e.g. Acer rubrum)"),
-});
-
-export const GetBotanicalRefsResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "True if at least one source returned a direct species page URL",
-      ),
-    queried_at: zod.date(),
-    source_url: zod.string().optional(),
-    provenance: zod
-      .object({
-        source_id: zod.string().optional(),
-        fetched_at: zod.date().optional(),
-        method: zod.string().optional(),
-        sites_queried: zod.number().optional(),
-      })
-      .optional(),
-    data: zod.object({
-      species: zod.string().optional(),
-      sites_found: zod
-        .number()
-        .optional()
-        .describe("Number of sources that returned a direct species page URL"),
-      sites_search_only: zod
-        .number()
-        .optional()
-        .describe(
-          "Number of sources that returned a search URL but not a direct profile URL",
-        ),
-      sites_total: zod.number().optional(),
-      results: zod
-        .record(
-          zod.string(),
-          zod
-            .object({
-              found: zod.boolean().optional(),
-              url: zod.string().nullish(),
-              search_url: zod
-                .string()
-                .optional()
-                .describe(
-                  "Search URL when a direct profile URL cannot be resolved",
-                ),
-              validation: zod.string().optional(),
-              results: zod
-                .array(zod.record(zod.string(), zod.unknown()))
-                .optional()
-                .describe(
-                  "Additional result entries (e.g. multiple Illinois Wildflowers sections)",
-                ),
-              note: zod.string().nullish(),
-              http_status: zod.number().nullish(),
-            })
-            .describe(
-              "Per-source result within the \/botanical-refs aggregated response.",
-            ),
-        )
-        .optional()
-        .describe(
-          "Keyed by source ID. Each value is a BotanicalRefsSourceResult.",
-        ),
-    }),
-  })
-  .describe(
-    "Aggregated response from the \/botanical-refs endpoint — one entry per source.",
-  );
-
-/**
- * Returns metadata about all botanical reference sources that are aggregated by the /botanical-refs endpoint. Each entry includes the site ID, display name, URL lookup strategy, and direct query and metadata URLs for the individual source endpoint.
-
- * @summary List all botanical reference sites configured in FERNS
- */
-export const GetBotanicalRefsSitesResponse = zod.object({
-  source_id: zod.string(),
-  queried_at: zod.date(),
-  source_url: zod.string().optional(),
-  data: zod.object({
-    site_count: zod.number().optional(),
-    sites: zod
-      .array(
-        zod.object({
-          id: zod
-            .string()
-            .optional()
-            .describe("Source ID (e.g. gobotany, prairie-moon)"),
-          name: zod.string().optional().describe("Human-readable source name"),
-          strategy: zod
-            .string()
-            .optional()
-            .describe(
-              "URL lookup strategy: direct_construction | species_list_scrape | sitemap_scrape",
-            ),
-          query_url: zod
-            .string()
-            .optional()
-            .describe("FERNS API URL for querying this source directly"),
-          metadata_url: zod
-            .string()
-            .optional()
-            .describe("FERNS API URL for this source's metadata endpoint"),
-        }),
-      )
-      .optional(),
-  }),
-});

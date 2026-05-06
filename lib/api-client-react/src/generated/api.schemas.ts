@@ -1811,6 +1811,110 @@ export interface SpeciesTextResponse {
 }
 
 /**
+ * "found" — HTTP 200 returned. "not_found" — 3xx redirect or 4xx returned. "unverified" — 5xx or network error; result not cached.
+
+ */
+export type LbjUrlCheckResponseDataStatus =
+  (typeof LbjUrlCheckResponseDataStatus)[keyof typeof LbjUrlCheckResponseDataStatus];
+
+export const LbjUrlCheckResponseDataStatus = {
+  found: "found",
+  not_found: "not_found",
+  unverified: "unverified",
+} as const;
+
+export type LbjUrlCheckResponseData = {
+  /** USDA Plants symbol (uppercased). */
+  usda_symbol?: string;
+  /** Direct profile URL when found; null when not_found or unverified. */
+  profile_url?: string | null;
+  /** "found" — HTTP 200 returned. "not_found" — 3xx redirect or 4xx returned. "unverified" — 5xx or network error; result not cached.
+   */
+  status?: LbjUrlCheckResponseDataStatus;
+  /** True when status is "found". */
+  found?: boolean;
+  /** HTTP status code returned by the verification request. */
+  http_status?: number | null;
+  /** Always "http_get_manual_redirect" for this endpoint. */
+  validation_method?: string;
+  /** Timestamp when the verification HTTP request was made. Null when status is "unverified" (network/5xx error prevented caching).
+   */
+  verified_at?: string | null;
+  /** True if the result was served from lbj_url_cache. */
+  cache_hit?: boolean;
+};
+
+/**
+ * Response from /lady-bird-johnson — profile URL verification result keyed by USDA Plants symbol.
+
+ */
+export interface LbjUrlCheckResponse {
+  /** True when HTTP 200 returned for the profile URL (status="found"). */
+  found: boolean;
+  queried_at: string;
+  source_url?: string;
+  provenance?: FernsProvenance;
+  data?: LbjUrlCheckResponseData;
+}
+
+/**
+ * "hit" — returned from species_page_text_cache. "miss" — live fetch performed.
+
+ */
+export type LbjSpeciesTextResponseCacheStatus =
+  (typeof LbjSpeciesTextResponseCacheStatus)[keyof typeof LbjSpeciesTextResponseCacheStatus];
+
+export const LbjSpeciesTextResponseCacheStatus = {
+  hit: "hit",
+  miss: "miss",
+} as const;
+
+/**
+ * Labeled prose sections extracted from the page (h3-delimited). "Find Seeds or Plants" and "Mr. Smarty Plants says" sections are excluded.
+
+ */
+export type LbjSpeciesTextResponseDataSections = {
+  [key: string]: string;
+} | null;
+
+/**
+ * Present when found=true. Null when not found.
+ */
+export type LbjSpeciesTextResponseData = {
+  /** USDA Plants symbol (uppercased). */
+  usda_symbol?: string;
+  /** The profile URL that was scraped. */
+  url?: string;
+  /** Labeled prose sections extracted from the page (h3-delimited). "Find Seeds or Plants" and "Mr. Smarty Plants says" sections are excluded.
+   */
+  sections?: LbjSpeciesTextResponseDataSections;
+  /** All sections concatenated as Label-colon-text blocks, separated by double newlines. */
+  full_text?: string | null;
+} | null;
+
+/**
+ * Response from /lady-bird-johnson/species-text — scraped species page text keyed by USDA Plants symbol.
+
+ */
+export interface LbjSpeciesTextResponse {
+  /** True if the species page was found and text was extracted. */
+  found: boolean;
+  queried_at: string;
+  source_url?: string;
+  /** "hit" — returned from species_page_text_cache. "miss" — live fetch performed.
+   */
+  cache_status: LbjSpeciesTextResponseCacheStatus;
+  /** Present only when a transient upstream error prevented the scrape. Not cached.
+   */
+  fetch_error?: string;
+  /** Timestamp of when the text was originally scraped. */
+  scraped_at?: string;
+  provenance?: FernsProvenance;
+  /** Present when found=true. Null when not found. */
+  data?: LbjSpeciesTextResponseData;
+}
+
+/**
  * Present when found=true (or when a search_url is returned). Null when not found.
  */
 export type BotanicalWebRefResponseData = {
@@ -1818,7 +1922,7 @@ export type BotanicalWebRefResponseData = {
   species?: string;
   /** Direct species page URL. Null when only a search URL is available. */
   url?: string | null;
-  /** Search URL when a direct profile URL cannot be constructed (usda-plants, lady-bird-johnson). Present instead of url for these sources.
+  /** Search URL when a direct profile URL cannot be constructed (usda-plants). Present instead of url for these sources.
    */
   search_url?: string;
   /** How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable */
@@ -1828,11 +1932,11 @@ export type BotanicalWebRefResponseData = {
 } | null;
 
 /**
- * Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants, lady-bird-johnson).
+ * Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants).
 
  */
 export interface BotanicalWebRefResponse {
-  /** True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants, lady-bird-johnson), which return a search_url instead.
+  /** True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants), which return a search_url instead.
    */
   found: boolean;
   queried_at: string;
@@ -1865,85 +1969,6 @@ export interface BotanicalWebRefMetadataResponse {
   registry_entry?: BotanicalWebRefMetadataResponseRegistryEntry;
   queried_at?: string;
   provenance?: FernsProvenance;
-}
-
-export interface BotanicalRefsSiteEntry {
-  /** Source ID (e.g. gobotany, prairie-moon) */
-  id?: string;
-  /** Human-readable source name */
-  name?: string;
-  /** URL lookup strategy: direct_construction | species_list_scrape | sitemap_scrape */
-  strategy?: string;
-  /** FERNS API URL for querying this source directly */
-  query_url?: string;
-  /** FERNS API URL for this source's metadata endpoint */
-  metadata_url?: string;
-}
-
-export type BotanicalRefsSitesResponseData = {
-  site_count?: number;
-  sites?: BotanicalRefsSiteEntry[];
-};
-
-export interface BotanicalRefsSitesResponse {
-  source_id: string;
-  queried_at: string;
-  source_url?: string;
-  data: BotanicalRefsSitesResponseData;
-}
-
-export type BotanicalRefsSourceResultResultsItem = { [key: string]: unknown };
-
-/**
- * Per-source result within the /botanical-refs aggregated response.
- */
-export interface BotanicalRefsSourceResult {
-  found?: boolean;
-  url?: string | null;
-  /** Search URL when a direct profile URL cannot be resolved */
-  search_url?: string;
-  validation?: string;
-  /** Additional result entries (e.g. multiple Illinois Wildflowers sections) */
-  results?: BotanicalRefsSourceResultResultsItem[];
-  note?: string | null;
-  http_status?: number | null;
-}
-
-export type BotanicalRefsResponseProvenance = {
-  source_id?: string;
-  fetched_at?: string;
-  method?: string;
-  sites_queried?: number;
-};
-
-/**
- * Keyed by source ID. Each value is a BotanicalRefsSourceResult.
- */
-export type BotanicalRefsResponseDataResults = {
-  [key: string]: BotanicalRefsSourceResult;
-};
-
-export type BotanicalRefsResponseData = {
-  species?: string;
-  /** Number of sources that returned a direct species page URL */
-  sites_found?: number;
-  /** Number of sources that returned a search URL but not a direct profile URL */
-  sites_search_only?: number;
-  sites_total?: number;
-  /** Keyed by source ID. Each value is a BotanicalRefsSourceResult. */
-  results?: BotanicalRefsResponseDataResults;
-};
-
-/**
- * Aggregated response from the /botanical-refs endpoint — one entry per source.
- */
-export interface BotanicalRefsResponse {
-  /** True if at least one source returned a direct species page URL */
-  found: boolean;
-  queried_at: string;
-  source_url?: string;
-  provenance?: BotanicalRefsResponseProvenance;
-  data: BotanicalRefsResponseData;
 }
 
 /**
@@ -2666,16 +2691,28 @@ export const GetUsdaPlantsSearchField = {
 
 export type GetLadyBirdJohnsonParams = {
   /**
-   * Scientific name (e.g. Acer rubrum)
+   * USDA Plants symbol (e.g. TRGI for Trillium grandiflorum). Obtain via /usda-plants.
    * @minLength 1
    */
-  species: string;
+  usda_symbol: string;
 };
 
-export type GetBotanicalRefsParams = {
+export type GetLadyBirdJohnsonSpeciesTextParams = {
   /**
-   * Scientific name (e.g. Acer rubrum)
+   * USDA Plants symbol (e.g. TRGI for Trillium grandiflorum). Obtain via /usda-plants.
    * @minLength 1
    */
-  species: string;
+  usda_symbol: string;
+  /**
+   * If "true", bypass cache and re-scrape the live page
+   */
+  refresh?: GetLadyBirdJohnsonSpeciesTextRefresh;
 };
+
+export type GetLadyBirdJohnsonSpeciesTextRefresh =
+  (typeof GetLadyBirdJohnsonSpeciesTextRefresh)[keyof typeof GetLadyBirdJohnsonSpeciesTextRefresh];
+
+export const GetLadyBirdJohnsonSpeciesTextRefresh = {
+  true: "true",
+  false: "false",
+} as const;

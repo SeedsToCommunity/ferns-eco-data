@@ -1003,37 +1003,6 @@ const tools: ToolDef[] = [
       }),
   },
 
-  // ── botanical-refs ───────────────────────────────────────────────────────
-  {
-    tool: {
-      name: "botanical_refs__lookup",
-      description:
-        "Queries Go Botany, Google Images, Missouri Plants, Minnesota Wildflowers, Illinois Wildflowers, Prairie Moon, and Lady Bird Johnson simultaneously for a species and returns each source's found status and URL in one response. A convenience shortcut when you want cross-site presence for a species without calling each source individually.",
-      inputSchema: {
-        type: "object" as const,
-        properties: {
-          species: { type: "string", description: "Scientific name (e.g. Trillium grandiflorum)" },
-        },
-        required: ["species"],
-      },
-    },
-    handler: async (args) =>
-      apiGet("/botanical-refs", { species: String(args["species"]) }),
-  },
-  {
-    tool: {
-      name: "botanical_refs__sites",
-      description:
-        "Returns the list of botanical reference websites covered by the botanical-refs endpoint, with each site's ID, name, and strategy used to resolve species URLs.",
-      inputSchema: {
-        type: "object" as const,
-        properties: {},
-        required: [],
-      },
-    },
-    handler: async () => apiGet("/botanical-refs/sites"),
-  },
-
   // ── registry (meta) ──────────────────────────────────────────────────────
   {
     tool: {

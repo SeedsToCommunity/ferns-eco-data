@@ -16,8 +16,6 @@ import type {
 import type {
   BonapMapResponse,
   BonapMetadataResponse,
-  BotanicalRefsResponse,
-  BotanicalRefsSitesResponse,
   BotanicalWebRefMetadataResponse,
   BotanicalWebRefResponse,
   CoefficientAllResponse,
@@ -29,7 +27,6 @@ import type {
   GbifReconcileResponse,
   GbifSearchResponse,
   GetBonapMapParams,
-  GetBotanicalRefsParams,
   GetCoefficientByValueParams,
   GetGbifMatchParams,
   GetGbifOccurrencesParams,
@@ -46,6 +43,7 @@ import type {
   GetInatPlaceParams,
   GetInatSpeciesParams,
   GetLadyBirdJohnsonParams,
+  GetLadyBirdJohnsonSpeciesTextParams,
   GetLcscgSpeciesParams,
   GetMifloraCountiesParams,
   GetMifloraImagesParams,
@@ -77,6 +75,8 @@ import type {
   InatObservationsResponse,
   InatPlaceResponse,
   InatSpeciesResponse,
+  LbjSpeciesTextResponse,
+  LbjUrlCheckResponse,
   LcscgGuideResponse,
   LcscgGuidesResponse,
   LcscgMetadataResponse,
@@ -6887,9 +6887,9 @@ export function useGetUsdaPlantsMetadata<
 }
 
 /**
- * Constructs a Lady Bird Johnson Wildflower Center (wildflower.org) search URL for a given scientific name. Direct species profile URLs require an internal LBJWC plant ID not derivable from scientific names, so FERNS provides a search URL scoped by genus and species instead. The response returns found=false with a search_url in the data object — use search_url to link users to the LBJWC.
+ * Accepts a USDA Plants symbol (e.g. TRGI for Trillium grandiflorum) and returns a verified direct species profile URL at https://www.wildflower.org/plants/result.php?id_plant={SYMBOL}. Verification is performed via HTTP GET with redirect:manual and a browser-like User-Agent (required — the site returns 403 to generic agents). HTTP 200 = found; 3xx redirect = not_found; 5xx/network = unverified (not cached). Results are cached in lbj_url_cache (90-day TTL when found, 30-day when not_found). Obtain USDA Plants symbols via /usda-plants.
 
- * @summary Construct a Lady Bird Johnson Wildflower Center search URL for a species
+ * @summary Verify a Lady Bird Johnson Wildflower Center species profile URL from a USDA Plants symbol
  */
 export const getGetLadyBirdJohnsonUrl = (params: GetLadyBirdJohnsonParams) => {
   const normalizedParams = new URLSearchParams();
@@ -6910,14 +6910,11 @@ export const getGetLadyBirdJohnsonUrl = (params: GetLadyBirdJohnsonParams) => {
 export const getLadyBirdJohnson = async (
   params: GetLadyBirdJohnsonParams,
   options?: RequestInit,
-): Promise<BotanicalWebRefResponse> => {
-  return customFetch<BotanicalWebRefResponse>(
-    getGetLadyBirdJohnsonUrl(params),
-    {
-      ...options,
-      method: "GET",
-    },
-  );
+): Promise<LbjUrlCheckResponse> => {
+  return customFetch<LbjUrlCheckResponse>(getGetLadyBirdJohnsonUrl(params), {
+    ...options,
+    method: "GET",
+  });
 };
 
 export const getGetLadyBirdJohnsonQueryKey = (
@@ -6962,7 +6959,7 @@ export type GetLadyBirdJohnsonQueryResult = NonNullable<
 export type GetLadyBirdJohnsonQueryError = ErrorType<ErrorResponse>;
 
 /**
- * @summary Construct a Lady Bird Johnson Wildflower Center search URL for a species
+ * @summary Verify a Lady Bird Johnson Wildflower Center species profile URL from a USDA Plants symbol
  */
 
 export function useGetLadyBirdJohnson<
@@ -6989,7 +6986,118 @@ export function useGetLadyBirdJohnson<
 }
 
 /**
- * Returns service identity, URL construction strategy, attribution, and the full registry entry for the Lady Bird Johnson Wildflower Center service.
+ * Fetches and caches botanical prose text from the Lady Bird Johnson Wildflower Center (wildflower.org/plants) species profile page identified by a USDA Plants symbol. Verification and scraping use a browser-like User-Agent (required — site returns 403 to generic agents) with redirect:manual to detect not-found responses (3xx redirect). Sections extracted include all h3-delimited prose; "Find Seeds or Plants" and "Mr. Smarty Plants says" sections are excluded. First call fetches live; subsequent calls return the cached text. Use ?refresh=true to force a re-scrape. Returns found=false when the symbol is not found on the Wildflower Center site. Obtain USDA Plants symbols via /usda-plants.
+
+ * @summary Scrape and return species page text from Lady Bird Johnson Wildflower Center
+ */
+export const getGetLadyBirdJohnsonSpeciesTextUrl = (
+  params: GetLadyBirdJohnsonSpeciesTextParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/lady-bird-johnson/species-text?${stringifiedParams}`
+    : `/api/lady-bird-johnson/species-text`;
+};
+
+export const getLadyBirdJohnsonSpeciesText = async (
+  params: GetLadyBirdJohnsonSpeciesTextParams,
+  options?: RequestInit,
+): Promise<LbjSpeciesTextResponse> => {
+  return customFetch<LbjSpeciesTextResponse>(
+    getGetLadyBirdJohnsonSpeciesTextUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetLadyBirdJohnsonSpeciesTextQueryKey = (
+  params?: GetLadyBirdJohnsonSpeciesTextParams,
+) => {
+  return [
+    `/api/lady-bird-johnson/species-text`,
+    ...(params ? [params] : []),
+  ] as const;
+};
+
+export const getGetLadyBirdJohnsonSpeciesTextQueryOptions = <
+  TData = Awaited<ReturnType<typeof getLadyBirdJohnsonSpeciesText>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetLadyBirdJohnsonSpeciesTextParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getLadyBirdJohnsonSpeciesText>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetLadyBirdJohnsonSpeciesTextQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getLadyBirdJohnsonSpeciesText>>
+  > = ({ signal }) =>
+    getLadyBirdJohnsonSpeciesText(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getLadyBirdJohnsonSpeciesText>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetLadyBirdJohnsonSpeciesTextQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getLadyBirdJohnsonSpeciesText>>
+>;
+export type GetLadyBirdJohnsonSpeciesTextQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Scrape and return species page text from Lady Bird Johnson Wildflower Center
+ */
+
+export function useGetLadyBirdJohnsonSpeciesText<
+  TData = Awaited<ReturnType<typeof getLadyBirdJohnsonSpeciesText>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetLadyBirdJohnsonSpeciesTextParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getLadyBirdJohnsonSpeciesText>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetLadyBirdJohnsonSpeciesTextQueryOptions(
+    params,
+    options,
+  );
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns service identity, URL verification strategy, cache configuration, attribution, and the full registry entry for the Lady Bird Johnson Wildflower Center service.
 
  * @summary Lady Bird Johnson Wildflower Center service metadata
  */
@@ -7061,185 +7169,6 @@ export function useGetLadyBirdJohnsonMetadata<
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetLadyBirdJohnsonMetadataQueryOptions(options);
-
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-/**
- * Fans out a species query to all configured botanical reference sources simultaneously: Go Botany, Google Images, Missouri Plants, Minnesota Wildflowers, Illinois Wildflowers, Prairie Moon Nursery, and Lady Bird Johnson Wildflower Center. Returns a unified response with one entry per source. Sources that cannot resolve a direct profile URL (Lady Bird Johnson) return found=false with a search_url instead. Go Botany validation requires a live HTTP GET — expect slightly higher latency for this endpoint.
-
- * @summary Look up a species across all botanical reference sources at once
- */
-export const getGetBotanicalRefsUrl = (params: GetBotanicalRefsParams) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0
-    ? `/api/botanical-refs?${stringifiedParams}`
-    : `/api/botanical-refs`;
-};
-
-export const getBotanicalRefs = async (
-  params: GetBotanicalRefsParams,
-  options?: RequestInit,
-): Promise<BotanicalRefsResponse> => {
-  return customFetch<BotanicalRefsResponse>(getGetBotanicalRefsUrl(params), {
-    ...options,
-    method: "GET",
-  });
-};
-
-export const getGetBotanicalRefsQueryKey = (
-  params?: GetBotanicalRefsParams,
-) => {
-  return [`/api/botanical-refs`, ...(params ? [params] : [])] as const;
-};
-
-export const getGetBotanicalRefsQueryOptions = <
-  TData = Awaited<ReturnType<typeof getBotanicalRefs>>,
-  TError = ErrorType<ErrorResponse>,
->(
-  params: GetBotanicalRefsParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getBotanicalRefs>>,
-      TError,
-      TData
-    >;
-    request?: SecondParameter<typeof customFetch>;
-  },
-) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
-
-  const queryKey =
-    queryOptions?.queryKey ?? getGetBotanicalRefsQueryKey(params);
-
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getBotanicalRefs>>
-  > = ({ signal }) => getBotanicalRefs(params, { signal, ...requestOptions });
-
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getBotanicalRefs>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
-
-export type GetBotanicalRefsQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getBotanicalRefs>>
->;
-export type GetBotanicalRefsQueryError = ErrorType<ErrorResponse>;
-
-/**
- * @summary Look up a species across all botanical reference sources at once
- */
-
-export function useGetBotanicalRefs<
-  TData = Awaited<ReturnType<typeof getBotanicalRefs>>,
-  TError = ErrorType<ErrorResponse>,
->(
-  params: GetBotanicalRefsParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getBotanicalRefs>>,
-      TError,
-      TData
-    >;
-    request?: SecondParameter<typeof customFetch>;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getGetBotanicalRefsQueryOptions(params, options);
-
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-/**
- * Returns metadata about all botanical reference sources that are aggregated by the /botanical-refs endpoint. Each entry includes the site ID, display name, URL lookup strategy, and direct query and metadata URLs for the individual source endpoint.
-
- * @summary List all botanical reference sites configured in FERNS
- */
-export const getGetBotanicalRefsSitesUrl = () => {
-  return `/api/botanical-refs/sites`;
-};
-
-export const getBotanicalRefsSites = async (
-  options?: RequestInit,
-): Promise<BotanicalRefsSitesResponse> => {
-  return customFetch<BotanicalRefsSitesResponse>(
-    getGetBotanicalRefsSitesUrl(),
-    {
-      ...options,
-      method: "GET",
-    },
-  );
-};
-
-export const getGetBotanicalRefsSitesQueryKey = () => {
-  return [`/api/botanical-refs/sites`] as const;
-};
-
-export const getGetBotanicalRefsSitesQueryOptions = <
-  TData = Awaited<ReturnType<typeof getBotanicalRefsSites>>,
-  TError = ErrorType<unknown>,
->(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getBotanicalRefsSites>>,
-    TError,
-    TData
-  >;
-  request?: SecondParameter<typeof customFetch>;
-}) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
-
-  const queryKey = queryOptions?.queryKey ?? getGetBotanicalRefsSitesQueryKey();
-
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getBotanicalRefsSites>>
-  > = ({ signal }) => getBotanicalRefsSites({ signal, ...requestOptions });
-
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getBotanicalRefsSites>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
-
-export type GetBotanicalRefsSitesQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getBotanicalRefsSites>>
->;
-export type GetBotanicalRefsSitesQueryError = ErrorType<unknown>;
-
-/**
- * @summary List all botanical reference sites configured in FERNS
- */
-
-export function useGetBotanicalRefsSites<
-  TData = Awaited<ReturnType<typeof getBotanicalRefsSites>>,
-  TError = ErrorType<unknown>,
->(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getBotanicalRefsSites>>,
-    TError,
-    TData
-  >;
-  request?: SecondParameter<typeof customFetch>;
-}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getGetBotanicalRefsSitesQueryOptions(options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;
