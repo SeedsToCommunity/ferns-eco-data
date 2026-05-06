@@ -34,7 +34,7 @@ export const LADY_BIRD_JOHNSON_TECHNICAL_DETAILS =
   "  HTTP 3xx redirect → not_found (cached 30 days). " +
   "  HTTP 4xx → not_found (cached 30 days). " +
   "  HTTP 5xx or network error → unverified (not cached, retry on next call). " +
-  "Species page text: scraped via /lady-bird-johnson/species-text?symbol={SYMBOL}, " +
+  "Species page text: scraped via /lady-bird-johnson/species-text?usda_symbol={SYMBOL}, " +
   "stored in species_page_text_cache (site_id='lady-bird-johnson', scientific_name=SYMBOL_UPPER). " +
   "Permanent text cache (no TTL); use ?refresh=true to re-scrape. " +
   "Scraping uses a browser-like User-Agent (required — site returns 403 to generic UAs). " +
