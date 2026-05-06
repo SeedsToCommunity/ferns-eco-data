@@ -7,6 +7,8 @@ export const lbjUrlCacheTable = pgTable("lbj_url_cache", {
   cache_key: text("cache_key").notNull().unique(),
   usda_symbol: text("usda_symbol").notNull(),
   profile_url: text("profile_url"),
+  source_url: text("source_url"),
+  upstream_url: text("upstream_url"),
   status: text("status").notNull(),
   found: boolean("found"),
   http_status: integer("http_status"),

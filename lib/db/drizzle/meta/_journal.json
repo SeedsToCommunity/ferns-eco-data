@@ -43,6 +43,13 @@
       "when": 1746576001000,
       "tag": "0005_lbj_usda_symbol",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1746576002000,
+      "tag": "0006_lbj_provenance",
+      "breakpoints": true
     }
   ]
 }

@@ -58,7 +58,7 @@ interface VerifyResult {
   cacheHit: boolean;
 }
 
-async function verifySymbol(usdaSymbolUpper: string): Promise<VerifyResult> {
+async function verifySymbol(usdaSymbolUpper: string, fernsSourceUrl: string): Promise<VerifyResult> {
   const cacheKey = `lbj:${usdaSymbolUpper}`;
   const profileUrl = buildProfileUrl(usdaSymbolUpper);
 
@@ -86,7 +86,7 @@ async function verifySymbol(usdaSymbolUpper: string): Promise<VerifyResult> {
 
   let status: "found" | "not_found" | "unverified" = "unverified";
   let httpStatus: number | null = null;
-  let resolvedProfileUrl: string | null = profileUrl;
+  let resolvedProfileUrl: string | null = null;
   let expiresAt: Date | null = null;
   const verifiedAt = new Date();
 
@@ -101,6 +101,7 @@ async function verifySymbol(usdaSymbolUpper: string): Promise<VerifyResult> {
 
     if (resp.status === 200) {
       status = "found";
+      resolvedProfileUrl = profileUrl;
       expiresAt = new Date(Date.now() + LBJ_TTL_FOUND_MS);
     } else if (resp.status >= 300 && resp.status < 500) {
       status = "not_found";
@@ -108,6 +109,7 @@ async function verifySymbol(usdaSymbolUpper: string): Promise<VerifyResult> {
       expiresAt = new Date(Date.now() + LBJ_TTL_NOT_FOUND_MS);
     } else if (resp.status >= 500) {
       status = "unverified";
+      resolvedProfileUrl = null;
     }
   } catch {
     status = "unverified";
@@ -122,6 +124,8 @@ async function verifySymbol(usdaSymbolUpper: string): Promise<VerifyResult> {
         cache_key: cacheKey,
         usda_symbol: usdaSymbolUpper,
         profile_url: resolvedProfileUrl,
+        source_url: fernsSourceUrl,
+        upstream_url: profileUrl,
         status,
         found,
         http_status: httpStatus,
@@ -135,6 +139,8 @@ async function verifySymbol(usdaSymbolUpper: string): Promise<VerifyResult> {
         set: {
           usda_symbol: usdaSymbolUpper,
           profile_url: resolvedProfileUrl,
+          source_url: fernsSourceUrl,
+          upstream_url: profileUrl,
           status,
           found,
           http_status: httpStatus,
@@ -197,12 +203,13 @@ router.get("/lady-bird-johnson", async (req, res) => {
   }
 
   const usdaSymbolUpper = symbolParam.toUpperCase();
-  const verify = await verifySymbol(usdaSymbolUpper);
+  const fernsSourceUrl = resolveUrl(req, "/api/lady-bird-johnson");
+  const verify = await verifySymbol(usdaSymbolUpper, fernsSourceUrl);
 
   res.json({
     found: verify.found,
     queried_at: new Date(),
-    source_url: resolveUrl(req, "/api/lady-bird-johnson"),
+    source_url: fernsSourceUrl,
     provenance: { ...buildProvenance(req), matched_input: usdaSymbolUpper },
     data: {
       usda_symbol: usdaSymbolUpper,

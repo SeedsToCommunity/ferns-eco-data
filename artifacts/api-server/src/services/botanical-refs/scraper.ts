@@ -374,6 +374,10 @@ const SITE_EXTRACTORS: Record<string, (html: string) => PageTextResult> = {
   "minnesota-wildflowers": extractMinnesotaWildflowers,
   gobotany: extractGobotany,
   "prairie-moon": extractPrairieMoon,
+  // lady-bird-johnson is included for shared extractor registry consistency.
+  // Its route uses a browser UA and redirect:manual detection, so it bypasses
+  // the shared fetch orchestrator and calls extractLadyBirdJohnson directly.
+  "lady-bird-johnson": extractLadyBirdJohnson,
 };
 
 // ── Cache + fetch orchestration ───────────────────────────────────────────────
