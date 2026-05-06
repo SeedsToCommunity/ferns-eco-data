@@ -20,35 +20,47 @@ const LBJ_TTL_FOUND_MS = 90 * 24 * 60 * 60 * 1000;
 const LBJ_TTL_NOT_FOUND_MS = 30 * 24 * 60 * 60 * 1000;
 const LBJ_BROWSER_UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
+const LBJ_VERIFICATION_METHOD = "http_get_manual_redirect";
 
-function buildProfileUrl(symbol: string): string {
-  return `${LBJ_PROFILE_BASE}?id_plant=${encodeURIComponent(symbol)}`;
+function buildProfileUrl(usdaSymbol: string): string {
+  return `${LBJ_PROFILE_BASE}?id_plant=${encodeURIComponent(usdaSymbol)}`;
 }
 
 function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
   return {
     source_id: LADY_BIRD_JOHNSON_SOURCE_ID,
     fetched_at: new Date(),
-    method: "http_get_manual_redirect",
+    method: LBJ_VERIFICATION_METHOD,
     upstream_url: resolveUrl(req, "/api/lady-bird-johnson/metadata"),
     general_summary: LADY_BIRD_JOHNSON_GENERAL_SUMMARY,
     technical_details: LADY_BIRD_JOHNSON_TECHNICAL_DETAILS,
   };
 }
 
+function missingSymbolError() {
+  return {
+    error: "invalid_input",
+    message:
+      "usda_symbol query parameter is required (e.g. ?usda_symbol=TRGI). " +
+      "Obtain the USDA Plants symbol by querying the USDA PLANTS source at /api/usda-plants.",
+  };
+}
+
 // ── Symbol verification via lbj_url_cache ──────────────────────────────────────
 
 interface VerifyResult {
-  symbol: string;
+  usdaSymbol: string;
   profileUrl: string | null;
   status: "found" | "not_found" | "unverified";
+  found: boolean;
   httpStatus: number | null;
+  verifiedAt: Date | null;
   cacheHit: boolean;
 }
 
-async function verifySymbol(symbolUpper: string): Promise<VerifyResult> {
-  const cacheKey = `lbj:${symbolUpper}`;
-  const profileUrl = buildProfileUrl(symbolUpper);
+async function verifySymbol(usdaSymbolUpper: string): Promise<VerifyResult> {
+  const cacheKey = `lbj:${usdaSymbolUpper}`;
+  const profileUrl = buildProfileUrl(usdaSymbolUpper);
 
   const cached = await db
     .select()
@@ -59,11 +71,14 @@ async function verifySymbol(symbolUpper: string): Promise<VerifyResult> {
   if (cached.length > 0) {
     const hit = cached[0];
     if (!hit.expires_at || hit.expires_at > new Date()) {
+      const status = hit.status as "found" | "not_found" | "unverified";
       return {
-        symbol: symbolUpper,
+        usdaSymbol: usdaSymbolUpper,
         profileUrl: hit.profile_url,
-        status: hit.status as "found" | "not_found" | "unverified",
+        status,
+        found: status === "found",
         httpStatus: hit.http_status,
+        verifiedAt: hit.verified_at ?? hit.fetched_at,
         cacheHit: true,
       };
     }
@@ -73,6 +88,7 @@ async function verifySymbol(symbolUpper: string): Promise<VerifyResult> {
   let httpStatus: number | null = null;
   let resolvedProfileUrl: string | null = profileUrl;
   let expiresAt: Date | null = null;
+  const verifiedAt = new Date();
 
   try {
     const resp = await fetch(profileUrl, {
@@ -97,36 +113,46 @@ async function verifySymbol(symbolUpper: string): Promise<VerifyResult> {
     status = "unverified";
   }
 
+  const found = status === "found";
+
   if (status !== "unverified") {
     await db
       .insert(lbjUrlCacheTable)
       .values({
         cache_key: cacheKey,
-        symbol: symbolUpper,
+        usda_symbol: usdaSymbolUpper,
         profile_url: resolvedProfileUrl,
         status,
+        found,
         http_status: httpStatus,
+        method: LBJ_VERIFICATION_METHOD,
+        verified_at: verifiedAt,
         expires_at: expiresAt,
-        fetched_at: new Date(),
+        fetched_at: verifiedAt,
       })
       .onConflictDoUpdate({
         target: lbjUrlCacheTable.cache_key,
         set: {
-          symbol: symbolUpper,
+          usda_symbol: usdaSymbolUpper,
           profile_url: resolvedProfileUrl,
           status,
+          found,
           http_status: httpStatus,
+          method: LBJ_VERIFICATION_METHOD,
+          verified_at: verifiedAt,
           expires_at: expiresAt,
-          fetched_at: new Date(),
+          fetched_at: verifiedAt,
         },
       });
   }
 
   return {
-    symbol: symbolUpper,
+    usdaSymbol: usdaSymbolUpper,
     profileUrl: resolvedProfileUrl,
     status,
+    found,
     httpStatus,
+    verifiedAt: status !== "unverified" ? verifiedAt : null,
     cacheHit: false,
   };
 }
@@ -140,9 +166,12 @@ router.get("/lady-bird-johnson/metadata", async (req, res) => {
     service_name: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.name,
     permission_granted: LADY_BIRD_JOHNSON_PERMISSION_GRANTED,
     permission_status: LADY_BIRD_JOHNSON_PERMISSION_STATUS,
-    url_strategy: "http_get_manual_redirect",
-    url_pattern: `${LBJ_PROFILE_BASE}?id_plant={SYMBOL}`,
+    url_strategy: LBJ_VERIFICATION_METHOD,
+    url_pattern: `${LBJ_PROFILE_BASE}?id_plant={USDA_SYMBOL}`,
     validation: "http_get with redirect:manual (200=found, 3xx=not_found)",
+    input_note:
+      "Accepts USDA Plants symbols (e.g. TRGI for Trillium grandiflorum). " +
+      "Obtain symbols from /api/usda-plants.",
     cache_table: "lbj_url_cache",
     cache_ttl_found_days: 90,
     cache_ttl_not_found_days: 30,
@@ -160,29 +189,29 @@ router.get("/lady-bird-johnson/metadata", async (req, res) => {
 router.get("/lady-bird-johnson", async (req, res) => {
   await ensureLadyBirdJohnsonRegistryEntry();
 
-  const symbolParam = typeof req.query["symbol"] === "string" ? req.query["symbol"].trim() : null;
+  const symbolParam =
+    typeof req.query["usda_symbol"] === "string" ? req.query["usda_symbol"].trim() : null;
   if (!symbolParam) {
-    res.status(400).json({
-      error: "invalid_input",
-      message: "symbol query parameter is required (e.g. ?symbol=TRGI)",
-    });
+    res.status(400).json(missingSymbolError());
     return;
   }
 
-  const symbolUpper = symbolParam.toUpperCase();
-  const verify = await verifySymbol(symbolUpper);
+  const usdaSymbolUpper = symbolParam.toUpperCase();
+  const verify = await verifySymbol(usdaSymbolUpper);
 
   res.json({
-    found: verify.status === "found",
+    found: verify.found,
     queried_at: new Date(),
     source_url: resolveUrl(req, "/api/lady-bird-johnson"),
-    provenance: { ...buildProvenance(req), matched_input: symbolUpper },
+    provenance: { ...buildProvenance(req), matched_input: usdaSymbolUpper },
     data: {
-      symbol: symbolUpper,
+      usda_symbol: usdaSymbolUpper,
       profile_url: verify.profileUrl,
       status: verify.status,
+      found: verify.found,
       http_status: verify.httpStatus,
-      validation_method: "http_get_manual_redirect",
+      validation_method: LBJ_VERIFICATION_METHOD,
+      verified_at: verify.verifiedAt,
       cache_hit: verify.cacheHit,
     },
   });
@@ -191,18 +220,16 @@ router.get("/lady-bird-johnson", async (req, res) => {
 router.get("/lady-bird-johnson/species-text", async (req, res) => {
   await ensureLadyBirdJohnsonRegistryEntry();
 
-  const symbolParam = typeof req.query["symbol"] === "string" ? req.query["symbol"].trim() : null;
+  const symbolParam =
+    typeof req.query["usda_symbol"] === "string" ? req.query["usda_symbol"].trim() : null;
   if (!symbolParam) {
-    res.status(400).json({
-      error: "invalid_input",
-      message: "symbol query parameter is required (e.g. ?symbol=TRGI)",
-    });
+    res.status(400).json(missingSymbolError());
     return;
   }
 
-  const symbolUpper = symbolParam.toUpperCase();
+  const usdaSymbolUpper = symbolParam.toUpperCase();
   const refresh = req.query["refresh"] === "true";
-  const profileUrl = buildProfileUrl(symbolUpper);
+  const profileUrl = buildProfileUrl(usdaSymbolUpper);
 
   if (!refresh) {
     const cached = await db
@@ -211,7 +238,7 @@ router.get("/lady-bird-johnson/species-text", async (req, res) => {
       .where(
         and(
           eq(speciesPageTextCacheTable.site_id, LADY_BIRD_JOHNSON_SOURCE_ID),
-          eq(speciesPageTextCacheTable.scientific_name, symbolUpper),
+          eq(speciesPageTextCacheTable.scientific_name, usdaSymbolUpper),
         ),
       )
       .limit(1);
@@ -224,10 +251,10 @@ router.get("/lady-bird-johnson/species-text", async (req, res) => {
         scraped_at: hit.scraped_at,
         queried_at: new Date(),
         source_url: resolveUrl(req, "/api/lady-bird-johnson/species-text"),
-        provenance: { ...buildProvenance(req), matched_input: symbolUpper },
+        provenance: { ...buildProvenance(req), matched_input: usdaSymbolUpper },
         data: hit.found
           ? {
-              symbol: symbolUpper,
+              usda_symbol: usdaSymbolUpper,
               url: hit.url,
               sections: hit.sections as Record<string, string> | null,
               full_text: hit.full_text,
@@ -242,6 +269,7 @@ router.get("/lady-bird-johnson/species-text", async (req, res) => {
   let fullText: string | null = null;
   let fetchError: string | undefined;
   let definitiveOutcome = false;
+  const scrapedAt = new Date();
 
   try {
     const resp = await fetch(profileUrl, {
@@ -266,22 +294,28 @@ router.get("/lady-bird-johnson/species-text", async (req, res) => {
       await db
         .insert(lbjUrlCacheTable)
         .values({
-          cache_key: `lbj:${symbolUpper}`,
-          symbol: symbolUpper,
+          cache_key: `lbj:${usdaSymbolUpper}`,
+          usda_symbol: usdaSymbolUpper,
           profile_url: profileUrl,
           status: "found",
+          found: true,
           http_status: 200,
+          method: LBJ_VERIFICATION_METHOD,
+          verified_at: scrapedAt,
           expires_at: new Date(Date.now() + LBJ_TTL_FOUND_MS),
-          fetched_at: new Date(),
+          fetched_at: scrapedAt,
         })
         .onConflictDoUpdate({
           target: lbjUrlCacheTable.cache_key,
           set: {
             profile_url: profileUrl,
             status: "found",
+            found: true,
             http_status: 200,
+            method: LBJ_VERIFICATION_METHOD,
+            verified_at: scrapedAt,
             expires_at: new Date(Date.now() + LBJ_TTL_FOUND_MS),
-            fetched_at: new Date(),
+            fetched_at: scrapedAt,
           },
         });
     } else if (resp.status >= 300 && resp.status < 500) {
@@ -291,22 +325,28 @@ router.get("/lady-bird-johnson/species-text", async (req, res) => {
       await db
         .insert(lbjUrlCacheTable)
         .values({
-          cache_key: `lbj:${symbolUpper}`,
-          symbol: symbolUpper,
+          cache_key: `lbj:${usdaSymbolUpper}`,
+          usda_symbol: usdaSymbolUpper,
           profile_url: null,
           status: "not_found",
+          found: false,
           http_status: resp.status,
+          method: LBJ_VERIFICATION_METHOD,
+          verified_at: scrapedAt,
           expires_at: new Date(Date.now() + LBJ_TTL_NOT_FOUND_MS),
-          fetched_at: new Date(),
+          fetched_at: scrapedAt,
         })
         .onConflictDoUpdate({
           target: lbjUrlCacheTable.cache_key,
           set: {
             profile_url: null,
             status: "not_found",
+            found: false,
             http_status: resp.status,
+            method: LBJ_VERIFICATION_METHOD,
+            verified_at: scrapedAt,
             expires_at: new Date(Date.now() + LBJ_TTL_NOT_FOUND_MS),
-            fetched_at: new Date(),
+            fetched_at: scrapedAt,
           },
         });
     } else {
@@ -321,7 +361,7 @@ router.get("/lady-bird-johnson/species-text", async (req, res) => {
       .insert(speciesPageTextCacheTable)
       .values({
         site_id: LADY_BIRD_JOHNSON_SOURCE_ID,
-        scientific_name: symbolUpper,
+        scientific_name: usdaSymbolUpper,
         url: found ? profileUrl : null,
         found,
         sections: sections ?? null,
@@ -334,7 +374,7 @@ router.get("/lady-bird-johnson/species-text", async (req, res) => {
           found,
           sections: sections ?? null,
           full_text: fullText,
-          scraped_at: new Date(),
+          scraped_at: scrapedAt,
         },
       });
   }
@@ -342,14 +382,14 @@ router.get("/lady-bird-johnson/species-text", async (req, res) => {
   return res.json({
     found,
     cache_status: "miss",
-    scraped_at: new Date(),
+    scraped_at: scrapedAt,
     queried_at: new Date(),
     source_url: resolveUrl(req, "/api/lady-bird-johnson/species-text"),
-    provenance: { ...buildProvenance(req), matched_input: symbolUpper },
+    provenance: { ...buildProvenance(req), matched_input: usdaSymbolUpper },
     ...(fetchError ? { fetch_error: fetchError } : {}),
     data: found
       ? {
-          symbol: symbolUpper,
+          usda_symbol: usdaSymbolUpper,
           url: profileUrl,
           sections,
           full_text: fullText,

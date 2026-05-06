@@ -23,11 +23,13 @@ const API_BASE = `${BASE_URL}/api`;
 // ── Response type interfaces ──────────────────────────────────────────────────
 
 interface LbjUrlCheckData {
-  symbol: string;
+  usda_symbol: string;
   profile_url: string | null;
   status: "found" | "not_found" | "unverified";
+  found: boolean;
   http_status: number | null;
   validation_method: string;
+  verified_at: string | null;
   cache_hit: boolean;
 }
 
@@ -39,7 +41,7 @@ interface LbjUrlCheckResponse {
 }
 
 interface LbjSpeciesTextData {
-  symbol: string;
+  usda_symbol: string;
   url: string | null;
   sections: Record<string, string> | null;
   full_text: string | null;
@@ -165,7 +167,7 @@ function UrlCheckResult({ result }: { result: LbjUrlCheckResponse }) {
 
       {data.status === "not_found" && (
         <p className="text-sm text-muted-foreground">
-          Symbol <span className="font-mono font-medium">{data.symbol}</span> was not found on
+          Symbol <span className="font-mono font-medium">{data.usda_symbol}</span> was not found on
           the Lady Bird Johnson Wildflower Center site (redirect response — no profile page exists).
         </p>
       )}
@@ -249,7 +251,7 @@ function SpeciesTextResult({ result }: { result: LbjSpeciesTextResponse }) {
         <div className="flex items-center gap-2 min-w-0">
           <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />
           <span className="text-sm font-medium">
-            Found profile for <span className="font-mono">{data.symbol}</span>
+            Found profile for <span className="font-mono">{data.usda_symbol}</span>
           </span>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -335,7 +337,7 @@ export default function LbjPage() {
   const sourceEntry = sourcesData?.data?.sources?.find((s) => s.source_id === "lady-bird-johnson");
   const sourceName = sourceEntry?.name ?? "Lady Bird Johnson Wildflower Center";
 
-  const [symbol, setSymbol] = useState("");
+  const [usdaSymbol, setUsdaSymbol] = useState("");
   const [mode, setMode] = useState<"url" | "text">("url");
   const [refresh, setRefresh] = useState(false);
 
@@ -349,7 +351,7 @@ export default function LbjPage() {
 
   async function handleLookup(e: React.FormEvent) {
     e.preventDefault();
-    const trimmed = symbol.trim().toUpperCase();
+    const trimmed = usdaSymbol.trim().toUpperCase();
     if (!trimmed) return;
     setLoading(true);
     setError(null);
@@ -360,7 +362,7 @@ export default function LbjPage() {
 
     try {
       if (mode === "url") {
-        const res = await fetch(`${API_BASE}/lady-bird-johnson?symbol=${encodeURIComponent(trimmed)}`);
+        const res = await fetch(`${API_BASE}/lady-bird-johnson?usda_symbol=${encodeURIComponent(trimmed)}`);
         const json = await res.json();
         setUrlRaw(json);
         if (res.ok) {
@@ -369,7 +371,7 @@ export default function LbjPage() {
           setError((json as { message?: string }).message ?? `HTTP ${res.status}`);
         }
       } else {
-        const endpoint = `${API_BASE}/lady-bird-johnson/species-text?symbol=${encodeURIComponent(trimmed)}${refresh ? "&refresh=true" : ""}`;
+        const endpoint = `${API_BASE}/lady-bird-johnson/species-text?usda_symbol=${encodeURIComponent(trimmed)}${refresh ? "&refresh=true" : ""}`;
         const res = await fetch(endpoint);
         const json = await res.json();
         setTextRaw(json);
@@ -447,14 +449,14 @@ export default function LbjPage() {
             <div className="flex gap-2">
               <input
                 type="text"
-                value={symbol}
-                onChange={(e) => setSymbol(e.target.value.toUpperCase())}
+                value={usdaSymbol}
+                onChange={(e) => setUsdaSymbol(e.target.value.toUpperCase())}
                 placeholder="e.g. TRGI"
                 className="flex-1 px-3 py-2 text-sm bg-muted/40 border border-border/60 rounded-lg focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/50 font-mono uppercase"
               />
               <button
                 type="submit"
-                disabled={loading || !symbol.trim()}
+                disabled={loading || !usdaSymbol.trim()}
                 className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors flex items-center gap-2"
               >
                 {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}

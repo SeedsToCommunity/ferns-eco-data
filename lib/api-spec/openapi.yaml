@@ -2396,12 +2396,12 @@ paths:
         Verification is performed via HTTP GET with redirect:manual and a browser-like User-Agent
         (required — the site returns 403 to generic agents). HTTP 200 = found; 3xx redirect = not_found;
         5xx/network = unverified (not cached). Results are cached in lbj_url_cache (90-day TTL when
-        found, 30-day when not_found).
+        found, 30-day when not_found). Obtain USDA Plants symbols via /usda-plants.
       parameters:
-        - name: symbol
+        - name: usda_symbol
           in: query
           required: true
-          description: USDA Plants symbol (e.g. TRGI)
+          description: USDA Plants symbol (e.g. TRGI for Trillium grandiflorum). Obtain via /usda-plants.
           schema:
             type: string
             minLength: 1
@@ -2413,7 +2413,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/LbjUrlCheckResponse"
         "400":
-          description: Missing symbol parameter
+          description: Missing or invalid usda_symbol parameter
           content:
             application/json:
               schema:
@@ -2433,11 +2433,12 @@ paths:
         "Mr. Smarty Plants says" sections are excluded. First call fetches live; subsequent
         calls return the cached text. Use ?refresh=true to force a re-scrape. Returns
         found=false when the symbol is not found on the Wildflower Center site.
+        Obtain USDA Plants symbols via /usda-plants.
       parameters:
-        - name: symbol
+        - name: usda_symbol
           in: query
           required: true
-          description: USDA Plants symbol (e.g. TRGI)
+          description: USDA Plants symbol (e.g. TRGI for Trillium grandiflorum). Obtain via /usda-plants.
           schema:
             type: string
             minLength: 1
@@ -5829,7 +5830,7 @@ components:
         data:
           type: object
           properties:
-            symbol:
+            usda_symbol:
               type: string
               description: USDA Plants symbol (uppercased).
             profile_url:
@@ -5842,6 +5843,9 @@ components:
               description: >
                 "found" — HTTP 200 returned. "not_found" — 3xx redirect or 4xx returned.
                 "unverified" — 5xx or network error; result not cached.
+            found:
+              type: boolean
+              description: True when status is "found".
             http_status:
               type: integer
               nullable: true
@@ -5849,6 +5853,13 @@ components:
             validation_method:
               type: string
               description: Always "http_get_manual_redirect" for this endpoint.
+            verified_at:
+              type: string
+              format: date-time
+              nullable: true
+              description: >
+                Timestamp when the verification HTTP request was made.
+                Null when status is "unverified" (network/5xx error prevented caching).
             cache_hit:
               type: boolean
               description: True if the result was served from lbj_url_cache.
@@ -5890,7 +5901,7 @@ components:
           type: object
           description: Present when found=true. Null when not found.
           properties:
-            symbol:
+            usda_symbol:
               type: string
               description: USDA Plants symbol (uppercased).
             url:

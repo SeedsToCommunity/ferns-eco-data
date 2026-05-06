@@ -660,20 +660,46 @@ const tools: ToolDef[] = [
     tool: {
       name: "lady_bird_johnson__symbol",
       description:
-        "Verifies whether a Lady Bird Johnson Wildflower Center species profile exists for a given USDA Plants symbol, and returns the direct profile URL when found. " +
+        "Verifies whether a Lady Bird Johnson Wildflower Center species profile exists for a given USDA Plants symbol, and returns the direct verified profile URL when found. " +
         "The center maintains one of the most comprehensive databases of native plants of North America. " +
         "Input must be a USDA Plants symbol (e.g. TRGI for Trillium grandiflorum) — obtain the symbol via usda_plants__name_match first. " +
-        "Verification uses HTTP with redirect detection (200=found, 3xx=not_found). Results are cached.",
+        "Verification uses HTTP GET with redirect:manual (200=found, 3xx=not_found). Results are cached for 90 days (found) or 30 days (not found). " +
+        "Response includes verified_at timestamp and cache_hit flag.",
       inputSchema: {
         type: "object" as const,
         properties: {
-          symbol: { type: "string", description: "USDA Plants symbol (e.g. TRGI for Trillium grandiflorum)" },
+          usda_symbol: { type: "string", description: "USDA Plants symbol (e.g. TRGI for Trillium grandiflorum)" },
         },
-        required: ["symbol"],
+        required: ["usda_symbol"],
       },
     },
     handler: async (args) =>
-      apiGet("/lady-bird-johnson", { symbol: String(args["symbol"]) }),
+      apiGet("/lady-bird-johnson", { usda_symbol: String(args["usda_symbol"]) }),
+  },
+
+  {
+    tool: {
+      name: "lady_bird_johnson__species_text",
+      description:
+        "Fetches and caches botanical prose text from the Lady Bird Johnson Wildflower Center species profile page identified by a USDA Plants symbol. " +
+        "Sections extracted include all h3-delimited prose blocks (Habit, Bloom Information, Uses, Propagation, etc.); " +
+        "\"Find Seeds or Plants\" and \"Mr. Smarty Plants says\" sections are excluded. " +
+        "First call fetches live; subsequent calls return cached text (permanent cache). " +
+        "Use refresh=true to force a re-scrape. Returns found=false when the symbol is not found on the Wildflower Center site.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          usda_symbol: { type: "string", description: "USDA Plants symbol (e.g. TRGI for Trillium grandiflorum)" },
+          refresh: { type: "boolean", description: "If true, bypass cache and re-scrape the live page" },
+        },
+        required: ["usda_symbol"],
+      },
+    },
+    handler: async (args) =>
+      apiGet("/lady-bird-johnson/species-text", {
+        usda_symbol: String(args["usda_symbol"]),
+        ...(args["refresh"] !== undefined ? { refresh: String(args["refresh"]) } : {}),
+      }),
   },
 
   // ── minnesota-wildflowers ────────────────────────────────────────────────

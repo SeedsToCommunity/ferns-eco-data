@@ -1137,11 +1137,11 @@ export async function runLbjChecks(fernsBase: string): Promise<EndpointCompariso
     } else {
       findings.push({ type: "mismatch", sourceField: "data.status", note: `status missing or invalid: ${data?.status}` });
     }
-    // data.symbol
-    if (data && data.symbol === TEST_SYMBOL) {
-      findings.push({ type: "ok", sourceField: "data.symbol", note: `symbol=${data.symbol}` });
+    // data.usda_symbol
+    if (data && data.usda_symbol === TEST_SYMBOL) {
+      findings.push({ type: "ok", sourceField: "data.usda_symbol", note: `usda_symbol=${data.usda_symbol}` });
     } else {
-      findings.push({ type: "mismatch", sourceField: "data.symbol", note: `expected ${TEST_SYMBOL}, got ${data?.symbol}` });
+      findings.push({ type: "mismatch", sourceField: "data.usda_symbol", note: `expected ${TEST_SYMBOL}, got ${data?.usda_symbol}` });
     }
     // data.cache_hit boolean
     if (data && typeof data.cache_hit === "boolean") {
@@ -1155,6 +1155,12 @@ export async function runLbjChecks(fernsBase: string): Promise<EndpointCompariso
         findings.push({ type: "ok", sourceField: "data.profile_url", note: `profile_url contains ${TEST_SYMBOL}` });
       } else {
         findings.push({ type: "mismatch", sourceField: "data.profile_url", note: `profile_url missing or malformed: ${data?.profile_url}` });
+      }
+      // verified_at
+      if (data && data.verified_at) {
+        findings.push({ type: "ok", sourceField: "data.verified_at", note: `verified_at=${data.verified_at}` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.verified_at", note: "verified_at missing when found=true" });
       }
     } else {
       findings.push({ type: "ok", sourceField: "data.profile_url", note: `found=false — profile_url check skipped` });
@@ -1219,14 +1225,14 @@ export async function runLbjChecks(fernsBase: string): Promise<EndpointCompariso
   const [urlCheck, textCheck] = await Promise.all([
     checkEndpoint(
       "lady-bird-johnson",
-      `/api/lady-bird-johnson?symbol=${encodedSymbol}`,
-      `Lady Bird Johnson — URL verify (${TEST_SYMBOL}: envelope, status, profile_url, cache_hit)`,
+      `/api/lady-bird-johnson?usda_symbol=${encodedSymbol}`,
+      `Lady Bird Johnson — URL verify (${TEST_SYMBOL}: envelope, status, profile_url, verified_at, cache_hit)`,
       fernsBase,
       urlVerifyChecks,
     ),
     checkEndpoint(
       "lady-bird-johnson",
-      `/api/lady-bird-johnson/species-text?symbol=${encodedSymbol}`,
+      `/api/lady-bird-johnson/species-text?usda_symbol=${encodedSymbol}`,
       `Lady Bird Johnson — species-text (${TEST_SYMBOL}: envelope, cache_status, scraped_at, sections)`,
       fernsBase,
       speciesTextChecks,
