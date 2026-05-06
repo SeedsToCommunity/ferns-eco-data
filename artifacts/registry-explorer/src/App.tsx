@@ -13,6 +13,7 @@ import LcscgPage from "@/pages/LcscgPage";
 import MnfiPage from "@/pages/MnfiPage";
 import { NatureservePage } from "@/pages/NatureservePage";
 import BotanicalRefSourcePage from "@/pages/BotanicalRefSourcePage";
+import LbjPage from "@/pages/LbjPage";
 import UsdaPlantsPage from "@/pages/UsdaPlantsPage";
 import GenericSourcePage from "@/pages/GenericSourcePage";
 import SourceRelationshipsPage from "@/pages/SourceRelationshipsPage";
@@ -45,7 +46,7 @@ function Router() {
       <Route path="/source/gobotany" component={BotanicalRefSourcePage} />
       <Route path="/source/google-images" component={BotanicalRefSourcePage} />
       <Route path="/source/illinois-wildflowers" component={BotanicalRefSourcePage} />
-      <Route path="/source/lady-bird-johnson" component={BotanicalRefSourcePage} />
+      <Route path="/source/lady-bird-johnson" component={LbjPage} />
       <Route path="/source/minnesota-wildflowers" component={BotanicalRefSourcePage} />
       <Route path="/source/missouri-plants" component={BotanicalRefSourcePage} />
       <Route path="/source/prairie-moon" component={BotanicalRefSourcePage} />

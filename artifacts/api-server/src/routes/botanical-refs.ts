@@ -15,7 +15,6 @@ import { MISSOURI_PLANTS_SOURCE_ID, MISSOURI_PLANTS_REGISTRY_ENTRY } from "../se
 import { MINNESOTA_WILDFLOWERS_SOURCE_ID, MINNESOTA_WILDFLOWERS_REGISTRY_ENTRY } from "../services/minnesota-wildflowers/metadata.js";
 import { ILLINOIS_WILDFLOWERS_SOURCE_ID, ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY } from "../services/illinois-wildflowers/metadata.js";
 import { PRAIRIE_MOON_SOURCE_ID, PRAIRIE_MOON_REGISTRY_ENTRY } from "../services/prairie-moon/metadata.js";
-import { LADY_BIRD_JOHNSON_SOURCE_ID, LADY_BIRD_JOHNSON_REGISTRY_ENTRY } from "../services/lady-bird-johnson/metadata.js";
 
 const router: IRouter = Router();
 
@@ -28,7 +27,6 @@ const SITES = [
   { id: MINNESOTA_WILDFLOWERS_SOURCE_ID, name: MINNESOTA_WILDFLOWERS_REGISTRY_ENTRY.name, strategy: "species_list_scrape" },
   { id: ILLINOIS_WILDFLOWERS_SOURCE_ID, name: ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY.name, strategy: "species_list_scrape" },
   { id: PRAIRIE_MOON_SOURCE_ID, name: PRAIRIE_MOON_REGISTRY_ENTRY.name, strategy: "sitemap_scrape" },
-  { id: LADY_BIRD_JOHNSON_SOURCE_ID, name: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.name, strategy: "direct_construction" },
 ];
 
 function buildGobotanyUrl(genus: string, species: string): string {
@@ -37,11 +35,6 @@ function buildGobotanyUrl(genus: string, species: string): string {
 
 function buildGoogleImagesUrl(speciesName: string): string {
   return `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(speciesName)}`;
-}
-
-function buildLadyBirdJohnsonUrl(genus: string, species: string): string {
-  const params = new URLSearchParams({ search_field: "genus", genus, species });
-  return `https://www.wildflower.org/plants/search.php?${params.toString()}`;
 }
 
 async function lookupScrapeSite(siteId: string, speciesName: string) {
@@ -154,16 +147,6 @@ router.get("/botanical-refs", async (req, res) => {
       ...r,
       validation: "species_list_lookup",
     })),
-
-    // Lady Bird Johnson — profile URL not resolvable; provides search URL only
-    (async () => ({
-      siteId: LADY_BIRD_JOHNSON_SOURCE_ID,
-      found: false,
-      url: null,
-      search_url: buildLadyBirdJohnsonUrl(genus, species),
-      validation: "not_resolvable",
-      note: "Profile URLs require an internal LBJWC plant ID not derivable from scientific name; search URL provided.",
-    }))(),
   ]);
 
   for (const outcome of lookups) {
@@ -174,9 +157,6 @@ router.get("/botanical-refs", async (req, res) => {
   }
 
   const foundCount = Object.values(results).filter((r: unknown) => (r as { found: boolean }).found).length;
-  const searchOnlyCount = Object.values(results).filter(
-    (r: unknown) => !(r as { found: boolean }).found && (r as { search_url?: string }).search_url,
-  ).length;
 
   res.json({
     found: foundCount > 0,
@@ -191,7 +171,6 @@ router.get("/botanical-refs", async (req, res) => {
     data: {
       species: speciesParam,
       sites_found: foundCount,
-      sites_search_only: searchOnlyCount,
       sites_total: SITES.length,
       results,
     },

@@ -8,7 +8,8 @@ export type RelationshipScope =
   | "terminology"
   | "seed_harvest"
   | "community_classification"
-  | "occurrence";
+  | "occurrence"
+  | "usda_symbol_resolution";
 export type RelationshipSeverity = "blocking" | "cautionary" | "informational";
 
 export interface SourceRelationshipSeed {
@@ -185,5 +186,15 @@ export const SOURCE_RELATIONSHIPS: SourceRelationshipSeed[] = [
       "Both cover Michigan species occurrence at county level. Michigan Flora covers all Michigan vascular plants; MNFI covers MNFI-tracked taxa, which include vascular plants, non-vascular plants, animals, and community types.",
     technical_note:
       "For Michigan vascular plants, Michigan Flora's county occurrence data is more complete than MNFI's (which tracks only species of conservation concern or significance). MNFI adds community-level context and includes non-vascular taxa and animals that Michigan Flora does not.",
+  },
+  {
+    ...pair("lady-bird-johnson", "usda-plants"),
+    relationship_type: "complements",
+    scope: "usda_symbol_resolution",
+    severity: "informational",
+    description:
+      "The Lady Bird Johnson Wildflower Center profile URL uses the USDA Plants symbol as the id_plant parameter. USDA PLANTS symbol lookup must precede any LBJ profile retrieval — the symbol cannot be derived from a scientific name without a USDA PLANTS lookup.",
+    technical_note:
+      "LBJ profile URL pattern: https://www.wildflower.org/plants/result.php?id_plant={SYMBOL}. The SYMBOL value is the USDA Plants accepted symbol (e.g. TRGI for Trillium grandiflorum). FERNS chains USDA PLANTS name-match → LBJ profile URL; this chain makes LBJ verification dependent on USDA PLANTS symbol resolution.",
   },
 ];

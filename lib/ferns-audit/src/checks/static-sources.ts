@@ -1109,3 +1109,129 @@ export async function runBotanicalRefTextChecks(fernsBase: string): Promise<Endp
 
   return [gobotanyCheck, illinoisCheck, minnesotaCheck, missouriCheck, prairieMoonCheck];
 }
+
+// ─── Lady Bird Johnson Wildflower Center Health Checks ────────────────────────
+// Tests the /lady-bird-johnson (URL verify) and /lady-bird-johnson/species-text
+// endpoints. Uses Asclepias tuberosa — USDA symbol ASTU — as the test species.
+// Verifies: envelope contract (found, status, profile_url, cache_hit),
+// and species-text contract (found, cache_status, scraped_at, sections, provenance).
+// Does not assert on text content (site-specific).
+
+export async function runLbjChecks(fernsBase: string): Promise<EndpointComparison[]> {
+  const TEST_SYMBOL = "ASTU"; // Asclepias tuberosa
+  const encodedSymbol = encodeURIComponent(TEST_SYMBOL);
+
+  function urlVerifyChecks(envelope: Record<string, unknown>): FieldFinding[] {
+    const findings: FieldFinding[] = [];
+    // found
+    if (typeof envelope.found === "boolean") {
+      findings.push({ type: "ok", sourceField: "found", note: `found=${envelope.found}` });
+    } else {
+      findings.push({ type: "mismatch", sourceField: "found", note: "found field missing or not boolean" });
+    }
+    // data.status
+    const data = envelope.data as Record<string, unknown> | null | undefined;
+    const validStatuses = ["found", "not_found", "unverified"];
+    if (data && typeof data.status === "string" && validStatuses.includes(data.status)) {
+      findings.push({ type: "ok", sourceField: "data.status", note: `status=${data.status}` });
+    } else {
+      findings.push({ type: "mismatch", sourceField: "data.status", note: `status missing or invalid: ${data?.status}` });
+    }
+    // data.symbol
+    if (data && data.symbol === TEST_SYMBOL) {
+      findings.push({ type: "ok", sourceField: "data.symbol", note: `symbol=${data.symbol}` });
+    } else {
+      findings.push({ type: "mismatch", sourceField: "data.symbol", note: `expected ${TEST_SYMBOL}, got ${data?.symbol}` });
+    }
+    // data.cache_hit boolean
+    if (data && typeof data.cache_hit === "boolean") {
+      findings.push({ type: "ok", sourceField: "data.cache_hit", note: `cache_hit=${data.cache_hit}` });
+    } else {
+      findings.push({ type: "mismatch", sourceField: "data.cache_hit", note: "cache_hit field missing or not boolean" });
+    }
+    // data.profile_url present when found
+    if (envelope.found === true) {
+      if (data && typeof data.profile_url === "string" && data.profile_url.includes(TEST_SYMBOL)) {
+        findings.push({ type: "ok", sourceField: "data.profile_url", note: `profile_url contains ${TEST_SYMBOL}` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.profile_url", note: `profile_url missing or malformed: ${data?.profile_url}` });
+      }
+    } else {
+      findings.push({ type: "ok", sourceField: "data.profile_url", note: `found=false — profile_url check skipped` });
+    }
+    // provenance
+    const prov = envelope.provenance as Record<string, unknown> | null | undefined;
+    if (prov && prov.source_id) {
+      findings.push({ type: "ok", sourceField: "provenance.source_id", note: `${prov.source_id}` });
+    } else {
+      findings.push({ type: "mismatch", sourceField: "provenance", note: "provenance.source_id missing" });
+    }
+    return findings;
+  }
+
+  function speciesTextChecks(envelope: Record<string, unknown>): FieldFinding[] {
+    const findings: FieldFinding[] = [];
+    // found
+    if (typeof envelope.found === "boolean") {
+      findings.push({ type: "ok", sourceField: "found", note: `found=${envelope.found}` });
+    } else {
+      findings.push({ type: "mismatch", sourceField: "found", note: "found field missing or not boolean" });
+    }
+    // cache_status
+    const validStatuses = ["hit", "miss"];
+    if (typeof envelope.cache_status === "string" && validStatuses.includes(envelope.cache_status)) {
+      findings.push({ type: "ok", sourceField: "cache_status", note: `cache_status=${envelope.cache_status}` });
+    } else {
+      findings.push({ type: "mismatch", sourceField: "cache_status", note: `cache_status missing or invalid: ${envelope.cache_status}` });
+    }
+    if (envelope.found === true) {
+      // scraped_at
+      if (envelope.scraped_at) {
+        findings.push({ type: "ok", sourceField: "scraped_at", note: `scraped_at=${envelope.scraped_at}` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "scraped_at", note: "scraped_at missing when found=true" });
+      }
+      // data.sections
+      const data = envelope.data as Record<string, unknown> | null | undefined;
+      if (data && data.sections && typeof data.sections === "object" && !Array.isArray(data.sections)) {
+        const sectionKeys = Object.keys(data.sections as object);
+        if (sectionKeys.length > 0) {
+          findings.push({ type: "ok", sourceField: "data.sections", note: `${sectionKeys.length} section(s): ${sectionKeys.slice(0, 3).join(", ")}` });
+        } else {
+          findings.push({ type: "gap", sourceField: "data.sections", note: "found=true but sections object is empty — scraper may not have extracted content" });
+        }
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.sections", note: "data.sections missing or not an object when found=true" });
+      }
+    } else {
+      findings.push({ type: "ok", sourceField: "data.sections", note: "species not found — sections check skipped" });
+    }
+    // provenance
+    const prov = envelope.provenance as Record<string, unknown> | null | undefined;
+    if (prov && prov.source_id) {
+      findings.push({ type: "ok", sourceField: "provenance.source_id", note: `${prov.source_id}` });
+    } else {
+      findings.push({ type: "mismatch", sourceField: "provenance", note: "provenance.source_id missing" });
+    }
+    return findings;
+  }
+
+  const [urlCheck, textCheck] = await Promise.all([
+    checkEndpoint(
+      "lady-bird-johnson",
+      `/api/lady-bird-johnson?symbol=${encodedSymbol}`,
+      `Lady Bird Johnson — URL verify (${TEST_SYMBOL}: envelope, status, profile_url, cache_hit)`,
+      fernsBase,
+      urlVerifyChecks,
+    ),
+    checkEndpoint(
+      "lady-bird-johnson",
+      `/api/lady-bird-johnson/species-text?symbol=${encodedSymbol}`,
+      `Lady Bird Johnson — species-text (${TEST_SYMBOL}: envelope, cache_status, scraped_at, sections)`,
+      fernsBase,
+      speciesTextChecks,
+    ),
+  ]);
+
+  return [urlCheck, textCheck];
+}

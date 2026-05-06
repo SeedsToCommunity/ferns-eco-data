@@ -2389,30 +2389,74 @@ paths:
     get:
       operationId: getLadyBirdJohnson
       tags: [lady-bird-johnson]
-      summary: Construct a Lady Bird Johnson Wildflower Center search URL for a species
+      summary: Verify a Lady Bird Johnson Wildflower Center species profile URL from a USDA Plants symbol
       description: >
-        Constructs a Lady Bird Johnson Wildflower Center (wildflower.org) search URL
-        for a given scientific name. Direct species profile URLs require an internal
-        LBJWC plant ID not derivable from scientific names, so FERNS provides a search
-        URL scoped by genus and species instead. The response returns found=false with
-        a search_url in the data object — use search_url to link users to the LBJWC.
+        Accepts a USDA Plants symbol (e.g. TRGI for Trillium grandiflorum) and returns a verified
+        direct species profile URL at https://www.wildflower.org/plants/result.php?id_plant={SYMBOL}.
+        Verification is performed via HTTP GET with redirect:manual and a browser-like User-Agent
+        (required — the site returns 403 to generic agents). HTTP 200 = found; 3xx redirect = not_found;
+        5xx/network = unverified (not cached). Results are cached in lbj_url_cache (90-day TTL when
+        found, 30-day when not_found).
       parameters:
-        - name: species
+        - name: symbol
           in: query
           required: true
-          description: Scientific name (e.g. Acer rubrum)
+          description: USDA Plants symbol (e.g. TRGI)
           schema:
             type: string
             minLength: 1
       responses:
         "200":
-          description: Lady Bird Johnson search URL (found is always false — profile URLs require an internal plant ID)
+          description: Lady Bird Johnson profile URL verification result
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BotanicalWebRefResponse"
+                $ref: "#/components/schemas/LbjUrlCheckResponse"
         "400":
-          description: Missing species parameter
+          description: Missing symbol parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /lady-bird-johnson/species-text:
+    get:
+      operationId: getLadyBirdJohnsonSpeciesText
+      tags: [lady-bird-johnson]
+      summary: Scrape and return species page text from Lady Bird Johnson Wildflower Center
+      description: >
+        Fetches and caches botanical prose text from the Lady Bird Johnson Wildflower Center
+        (wildflower.org/plants) species profile page identified by a USDA Plants symbol.
+        Verification and scraping use a browser-like User-Agent (required — site returns 403
+        to generic agents) with redirect:manual to detect not-found responses (3xx redirect).
+        Sections extracted include all h3-delimited prose; "Find Seeds or Plants" and
+        "Mr. Smarty Plants says" sections are excluded. First call fetches live; subsequent
+        calls return the cached text. Use ?refresh=true to force a re-scrape. Returns
+        found=false when the symbol is not found on the Wildflower Center site.
+      parameters:
+        - name: symbol
+          in: query
+          required: true
+          description: USDA Plants symbol (e.g. TRGI)
+          schema:
+            type: string
+            minLength: 1
+        - name: refresh
+          in: query
+          required: false
+          description: If "true", bypass cache and re-scrape the live page
+          schema:
+            type: string
+            enum: ["true", "false"]
+      responses:
+        "200":
+          description: Species page text result (found or not-found — check the found field)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LbjSpeciesTextResponse"
+        "400":
+          description: Missing symbol parameter
           content:
             application/json:
               schema:
@@ -2424,7 +2468,7 @@ paths:
       tags: [lady-bird-johnson]
       summary: Lady Bird Johnson Wildflower Center service metadata
       description: >
-        Returns service identity, URL construction strategy, attribution, and the
+        Returns service identity, URL verification strategy, cache configuration, attribution, and the
         full registry entry for the Lady Bird Johnson Wildflower Center service.
       responses:
         "200":
@@ -2442,11 +2486,12 @@ paths:
       description: >
         Fans out a species query to all configured botanical reference sources
         simultaneously: Go Botany, Google Images, Missouri Plants, Minnesota
-        Wildflowers, Illinois Wildflowers, Prairie Moon Nursery, and Lady Bird
-        Johnson Wildflower Center. Returns a unified response with one entry per
-        source. Sources that cannot resolve a direct profile URL (Lady Bird Johnson)
-        return found=false with a search_url instead. Go Botany validation requires
-        a live HTTP GET — expect slightly higher latency for this endpoint.
+        Wildflowers, Illinois Wildflowers, and Prairie Moon Nursery. Returns a unified
+        response with one entry per source. Go Botany validation requires a live HTTP
+        GET — expect slightly higher latency for this endpoint. Note: Lady Bird Johnson
+        Wildflower Center is not included in this bundle because it requires a USDA
+        Plants symbol input rather than a scientific name — use /lady-bird-johnson
+        directly with a symbol obtained from /usda-plants.
       parameters:
         - name: species
           in: query
@@ -5763,12 +5808,113 @@ components:
               description: >
                 All sections concatenated as Label-colon-text blocks, separated by double newlines.
 
+    LbjUrlCheckResponse:
+      type: object
+      description: >
+        Response from /lady-bird-johnson — profile URL verification result keyed by USDA Plants symbol.
+      required:
+        - found
+        - queried_at
+      properties:
+        found:
+          type: boolean
+          description: True when HTTP 200 returned for the profile URL (status="found").
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          type: object
+          properties:
+            symbol:
+              type: string
+              description: USDA Plants symbol (uppercased).
+            profile_url:
+              type: string
+              nullable: true
+              description: Direct profile URL when found; null when not_found or unverified.
+            status:
+              type: string
+              enum: [found, not_found, unverified]
+              description: >
+                "found" — HTTP 200 returned. "not_found" — 3xx redirect or 4xx returned.
+                "unverified" — 5xx or network error; result not cached.
+            http_status:
+              type: integer
+              nullable: true
+              description: HTTP status code returned by the verification request.
+            validation_method:
+              type: string
+              description: Always "http_get_manual_redirect" for this endpoint.
+            cache_hit:
+              type: boolean
+              description: True if the result was served from lbj_url_cache.
+
+    LbjSpeciesTextResponse:
+      type: object
+      description: >
+        Response from /lady-bird-johnson/species-text — scraped species page text keyed by USDA Plants symbol.
+      required:
+        - found
+        - queried_at
+        - cache_status
+      properties:
+        found:
+          type: boolean
+          description: True if the species page was found and text was extracted.
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+        cache_status:
+          type: string
+          enum: [hit, miss]
+          description: >
+            "hit" — returned from species_page_text_cache. "miss" — live fetch performed.
+        fetch_error:
+          type: string
+          description: >
+            Present only when a transient upstream error prevented the scrape. Not cached.
+        scraped_at:
+          type: string
+          format: date-time
+          description: Timestamp of when the text was originally scraped.
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          nullable: true
+          type: object
+          description: Present when found=true. Null when not found.
+          properties:
+            symbol:
+              type: string
+              description: USDA Plants symbol (uppercased).
+            url:
+              type: string
+              description: The profile URL that was scraped.
+            sections:
+              type: object
+              nullable: true
+              additionalProperties:
+                type: string
+              description: >
+                Labeled prose sections extracted from the page (h3-delimited).
+                "Find Seeds or Plants" and "Mr. Smarty Plants says" sections are excluded.
+            full_text:
+              type: string
+              nullable: true
+              description: All sections concatenated as Label-colon-text blocks, separated by double newlines.
+
     BotanicalWebRefResponse:
       type: object
       description: >
         Standard response shape for botanical web reference source lookups
         (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers,
-        missouri-plants, prairie-moon, usda-plants, lady-bird-johnson).
+        missouri-plants, prairie-moon, usda-plants).
       required:
         - found
         - queried_at
@@ -5777,7 +5923,7 @@ components:
           type: boolean
           description: >
             True if a direct species page URL was resolved. False for sources
-            that cannot resolve a profile URL (usda-plants, lady-bird-johnson),
+            that cannot resolve a profile URL (usda-plants),
             which return a search_url instead.
         queried_at:
           type: string
@@ -5802,7 +5948,7 @@ components:
               type: string
               description: >
                 Search URL when a direct profile URL cannot be constructed
-                (usda-plants, lady-bird-johnson). Present instead of url for these sources.
+                (usda-plants). Present instead of url for these sources.
             validation_method:
               type: string
               description: "How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable"
@@ -5952,9 +6098,6 @@ components:
             sites_found:
               type: integer
               description: Number of sources that returned a direct species page URL
-            sites_search_only:
-              type: integer
-              description: Number of sources that returned a search URL but not a direct profile URL
             sites_total:
               type: integer
             results:

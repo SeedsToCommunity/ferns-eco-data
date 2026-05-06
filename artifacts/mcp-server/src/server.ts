@@ -658,19 +658,22 @@ const tools: ToolDef[] = [
   // ── lady-bird-johnson ────────────────────────────────────────────────────
   {
     tool: {
-      name: "lady_bird_johnson__species",
+      name: "lady_bird_johnson__symbol",
       description:
-        "Returns the Lady Bird Johnson Wildflower Center species search URL for a plant. The center maintains one of the most comprehensive databases of native plants of North America.",
+        "Verifies whether a Lady Bird Johnson Wildflower Center species profile exists for a given USDA Plants symbol, and returns the direct profile URL when found. " +
+        "The center maintains one of the most comprehensive databases of native plants of North America. " +
+        "Input must be a USDA Plants symbol (e.g. TRGI for Trillium grandiflorum) — obtain the symbol via usda_plants__name_match first. " +
+        "Verification uses HTTP with redirect detection (200=found, 3xx=not_found). Results are cached.",
       inputSchema: {
         type: "object" as const,
         properties: {
-          species: { type: "string", description: "Scientific name (e.g. Trillium grandiflorum)" },
+          symbol: { type: "string", description: "USDA Plants symbol (e.g. TRGI for Trillium grandiflorum)" },
         },
-        required: ["species"],
+        required: ["symbol"],
       },
     },
     handler: async (args) =>
-      apiGet("/lady-bird-johnson", { species: String(args["species"]) }),
+      apiGet("/lady-bird-johnson", { symbol: String(args["symbol"]) }),
   },
 
   // ── minnesota-wildflowers ────────────────────────────────────────────────

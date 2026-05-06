@@ -312,6 +312,62 @@ function extractPrairieMoon(html: string): PageTextResult {
   return { sections, full_text };
 }
 
+/**
+ * Lady Bird Johnson Wildflower Center — h3-delimited prose sections from the
+ * species profile page at result.php?id_plant={SYMBOL}.
+ * Skip sections "Find Seeds or Plants" and "Mr. Smarty Plants says".
+ */
+export function extractLadyBirdJohnson(html: string): PageTextResult {
+  const sections: Record<string, string> = {};
+  const SKIP = new Set(["Find Seeds or Plants", "Mr. Smarty Plants says"]);
+
+  const h3Pat =
+    /<h3[^>]*>([\s\S]*?)<\/h3>([\s\S]*?)(?=<h3|$)/gi;
+  let m: RegExpExecArray | null;
+  while ((m = h3Pat.exec(html)) !== null) {
+    const label = stripTags(m[1]).trim();
+    if (!label || SKIP.has(label)) continue;
+    const block = m[2];
+    const paras: string[] = [];
+
+    const pPat = /<p[^>]*>([\s\S]*?)<\/p>/gi;
+    let pm: RegExpExecArray | null;
+    while ((pm = pPat.exec(block)) !== null) {
+      const t = stripTags(pm[1]).trim();
+      if (t) paras.push(t);
+    }
+
+    if (!paras.length) {
+      const tdPat = /<td[^>]*>([\s\S]*?)<\/td>/gi;
+      let tm: RegExpExecArray | null;
+      while ((tm = tdPat.exec(block)) !== null) {
+        const t = stripTags(tm[1]).trim();
+        if (t && t.length > 2) paras.push(t);
+      }
+    }
+
+    if (!paras.length) {
+      const t = stripTags(block).trim();
+      if (t) paras.push(t);
+    }
+
+    const text = paras.join("\n\n").trim();
+    if (text) sections[label] = text;
+  }
+
+  const full_text = Object.entries(sections)
+    .map(([k, v]) => `${k}: ${v}`)
+    .join("\n\n");
+  return { sections, full_text };
+}
+
+/**
+ * Export removeNoiseBlocks so the lady-bird-johnson route can reuse it
+ * when scraping profile pages directly (bypasses the shared orchestrator
+ * since LBJ needs a browser UA and redirect:manual detection).
+ */
+export { removeNoiseBlocks };
+
 const SITE_EXTRACTORS: Record<string, (html: string) => PageTextResult> = {
   "illinois-wildflowers": extractIllinoisWildflowers,
   "missouri-plants": extractMissouriPlants,
