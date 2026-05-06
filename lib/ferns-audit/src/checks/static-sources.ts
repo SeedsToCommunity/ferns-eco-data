@@ -1001,14 +1001,14 @@ export async function runNatureserveChecks(fernsBase: string): Promise<EndpointC
   return [metadataCheck, speciesCheck, ecosystemsCheck];
 }
 
-// ─── Botanical Reference Species-Text Health Checks ──────────────────────────
+// ─── Species-Text Health Checks ───────────────────────────────────────────────
 // Tests the /species-text scraping endpoint for each of the five botanical
 // reference sources that support it. Uses Asclepias tuberosa (butterfly milkweed)
 // — a common, widely documented native wildflower present on all five sites.
 // Verifies envelope contract: found, cache_status, scraped_at, expires_at,
 // and at least one section. Does not assert on section content (site-specific).
 
-export async function runBotanicalRefTextChecks(fernsBase: string): Promise<EndpointComparison[]> {
+export async function runSpeciesTextChecks(fernsBase: string): Promise<EndpointComparison[]> {
   const TEST_SPECIES_NAME = "Asclepias tuberosa";
   const encodedSpecies = encodeURIComponent(TEST_SPECIES_NAME);
 

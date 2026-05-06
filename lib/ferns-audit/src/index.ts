@@ -22,7 +22,7 @@ import { runBonapComparators } from "./comparators/bonap.js";
 import { runMifloraComparators } from "./comparators/miflora.js";
 import { runUniversalFqaComparators } from "./comparators/universal-fqa.js";
 import { runUsdaPlantsComparators } from "./comparators/usda-plants.js";
-import { runCoefficientChecks, runWetlandIndicatorChecks, runWucolsChecks, runS2CChecks, runLcscgChecks, runMnfiChecks, runNatureserveChecks, runBotanicalRefTextChecks, runLbjChecks } from "./checks/static-sources.js";
+import { runCoefficientChecks, runWetlandIndicatorChecks, runWucolsChecks, runS2CChecks, runLcscgChecks, runMnfiChecks, runNatureserveChecks, runSpeciesTextChecks, runLbjChecks } from "./checks/static-sources.js";
 import { checkApiDocs, checkRegistry } from "./checks/docs.js";
 import { checkUrls } from "./checks/urls.js";
 import { printReport, printReportJson } from "./report.js";
@@ -72,8 +72,8 @@ async function main(): Promise<void> {
   process.stderr.write("Running USDA PLANTS comparators (species lookup via api_fetch)...\n");
   const usdaPlantsComparisons = await runUsdaPlantsComparators(fernsBase, TEST_SPECIES);
 
-  process.stderr.write("Running static source health checks (Coefficient, Wetland Indicator, WUCOLS, S2C, LCSCG, MNFI, NatureServe, BotanicalRefText, LBJ)...\n");
-  const [coeffChecks, wetlandChecks, wucolsChecks, s2cChecks, lcscgChecks, mnfiChecks, natureserveChecks, botanicalRefTextChecks, lbjChecks] = await Promise.all([
+  process.stderr.write("Running static source health checks (Coefficient, Wetland Indicator, WUCOLS, S2C, LCSCG, MNFI, NatureServe, SpeciesText, LBJ)...\n");
+  const [coeffChecks, wetlandChecks, wucolsChecks, s2cChecks, lcscgChecks, mnfiChecks, natureserveChecks, speciesTextChecks, lbjChecks] = await Promise.all([
     runCoefficientChecks(fernsBase, TEST_COEFFICIENT_VALUES),
     runWetlandIndicatorChecks(fernsBase, TEST_WETLAND_CODES, TEST_WETLAND_W_VALUES),
     runWucolsChecks(fernsBase, TEST_WUCOLS_CODES),
@@ -81,7 +81,7 @@ async function main(): Promise<void> {
     runLcscgChecks(fernsBase),
     runMnfiChecks(fernsBase),
     runNatureserveChecks(fernsBase),
-    runBotanicalRefTextChecks(fernsBase),
+    runSpeciesTextChecks(fernsBase),
     runLbjChecks(fernsBase),
   ]);
 
@@ -99,7 +99,7 @@ async function main(): Promise<void> {
     ...lcscgChecks,
     ...mnfiChecks,
     ...natureserveChecks,
-    ...botanicalRefTextChecks,
+    ...speciesTextChecks,
     ...lbjChecks,
   ];
 
