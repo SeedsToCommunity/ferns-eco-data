@@ -1,0 +1,14 @@
+The replit.md “External Dependencies” section contains per-source paragraphs covering operational details (URLs, endpoints, DB tables, cache policies, quirks, citations, etc.). The same kind of content is supposed to live in each source’s technical_details field in metadata.ts, per the Description Field Standards in the Source Onboarding Playbook.
+I want to determine whether External Dependencies is redundant with technical_details and can be removed, or whether it contains information that needs to be migrated first.
+Do not change any code or any file during this audit. This is a read-only assessment that produces a written report for me to review.
+For each source listed in the External Dependencies section of replit.md:
+	1.	Identify the source’s metadata.ts file and read its TECHNICAL_DETAILS constant.
+	2.	Compare the External Dependencies entry against TECHNICAL_DETAILS and classify the source into one of these buckets:
+	•	A. Fully covered: every meaningful fact in the External Dependencies entry already appears in TECHNICAL_DETAILS. Safe to delete the External Dependencies entry.
+	•	B. Partially covered: TECHNICAL_DETAILS covers most of it, but specific facts in External Dependencies are missing. List exactly what’s missing.
+	•	C. Mostly missing: TECHNICAL_DETAILS is significantly thinner than the External Dependencies entry. List what would need to be migrated.
+	•	D. Not yet integrated: source appears in External Dependencies but no metadata.ts exists. Flag separately.
+	3.	For buckets B and C, also check whether the missing facts conflict with the “11 required points” defined in the Description Field Standards — i.e., if TECHNICAL_DETAILS is incomplete, that’s a separate quality issue that should be flagged regardless of the deletion decision.
+Also assess the small infrastructure block at the bottom of External Dependencies (PostgreSQL, Drizzle, Express 5, Orval). Note whether it duplicates content already in the Technical Stack list under System Architecture.
+Deliverable: A report with one section per source containing the classification, the specific missing facts (if any), and whether TECHNICAL_DETAILS meets the Description Field Standards. End the report with a summary table and a recommendation on whether the section can be deleted, requires migration first, or should be retained for some reason I haven’t anticipated.
+Do not delete or modify the External Dependencies section. Do not modify any metadata.ts files. Just produce the report.

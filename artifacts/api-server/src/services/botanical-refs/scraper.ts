@@ -252,6 +252,7 @@ const PRAIRIE_MOON_COMMERCE_KEYS = new Set([
   "SKU",
   "Item #",
   "Item Number",
+  "Catalog Code",
   "Plug Size",
   "Plug Tray Size",
   "Plant Size",
@@ -265,43 +266,113 @@ const PRAIRIE_MOON_COMMERCE_KEYS = new Set([
 /**
  * Prairie Moon Nursery — product description prose and structured growing
  * details. Commerce fields (price, availability, SKU, etc.) are excluded.
+ *
+ * Current site design (2024+):
+ *   - Description lives in a tabcordion panel with id="panel-descrip". Content
+ *     is in nested <div> elements, not <p> tags. A shipping table may appear
+ *     after the prose; it is stripped before extraction.
+ *   - Growing details are individual <div class="g-product-details__item">
+ *     blocks each containing a <dt class="g-product-details__item-term"> and
+ *     <dd class="g-product-details__item-description[...]">. There is no
+ *     enclosing <dl> in the inline layout.
+ *
+ * Older site design (kept as fallback):
+ *   - Description in class="product-description" / "g-product-description" div
+ *     with <p> tag content.
+ *   - Details in <dl> inside class="g-product-details" / "product-details" div.
  */
 function extractPrairieMoon(html: string): PageTextResult {
   const sections: Record<string, string> = {};
 
-  // Product description — various class names across site versions
-  const descM = html.match(
-    /<div[^>]*class=["'][^"']*(?:product[_-]?description|g-product-description)[^"']*["'][^>]*>([\s\S]*?)<\/div>/i,
-  );
-  if (descM) {
-    const paras: string[] = [];
-    const pPat = /<p[^>]*>([\s\S]*?)<\/p>/gi;
-    let pm: RegExpExecArray | null;
-    while ((pm = pPat.exec(descM[1])) !== null) {
-      const t = stripTags(pm[1]).trim();
-      if (t) paras.push(t);
+  // ── Description ─────────────────────────────────────────────────────────────
+  // Current site: tabcordion panel with id="panel-descrip". We use a
+  // string-position approach to scope to the panel region without being tripped
+  // up by nested div closing tags. Shipping/planting tables within the panel
+  // are removed before stripping tags.
+  const panelDescStart = html.indexOf('id="panel-descrip"');
+  if (panelDescStart >= 0) {
+    // Skip to the end of the opening <div id="panel-descrip" ...> tag so we
+    // don't include its attribute text (role, aria-labelledby, etc.) in output.
+    const tagEnd = html.indexOf('>', panelDescStart);
+    const contentStart = tagEnd >= 0 ? tagEnd + 1 : panelDescStart + 18;
+    // Find the next sibling panel div by locating the opening tag
+    // (not just the id= attribute) so the boundary cut lands cleanly at '<'.
+    const nextPanelRel = html.slice(contentStart).search(/<[^>]+id="panel-[^"]+"/);
+    const panelContent = html.slice(
+      contentStart,
+      nextPanelRel >= 0 ? contentStart + nextPanelRel : undefined,
+    );
+    // Remove <table> blocks (shipping tables) and <button> elements (accordion
+    // navigation controls that Prairie Moon embeds at the end of each panel
+    // for mobile accordion mode, e.g. "Range Map", "Planting & Care").
+    const cleanPanel = panelContent
+      .replace(/<button[\s\S]*?<\/button>/gi, " ")
+      .replace(/<table[\s\S]*?<\/table>/gi, " ");
+    const panelText = stripTags(cleanPanel).trim();
+    if (panelText) sections["Description"] = panelText;
+  } else {
+    // Fallback: older site uses class="product-description" / "g-product-description"
+    // with <p> tag content.
+    const descM = html.match(
+      /<div[^>]*class=["'][^"']*(?:product[_-]?description|g-product-description)[^"']*["'][^>]*>([\s\S]*?)<\/div>/i,
+    );
+    if (descM) {
+      const paras: string[] = [];
+      const pPat = /<p[^>]*>([\s\S]*?)<\/p>/gi;
+      let pm: RegExpExecArray | null;
+      while ((pm = pPat.exec(descM[1])) !== null) {
+        const t = stripTags(pm[1]).trim();
+        if (t) paras.push(t);
+      }
+      if (paras.length) sections["Description"] = paras.join("\n\n");
     }
-    if (paras.length) sections["Description"] = paras.join("\n\n");
   }
 
-  // Structured growing details — scoped to the product-details container
-  // (.g-product-details or similar class) to avoid capturing page-level
-  // navigation or footer dl elements.
-  const detailsContainerM = html.match(
-    /<div[^>]*class=["'][^"']*(?:g-product-details|product[_-]?details)[^"']*["'][^>]*>([\s\S]*?)<\/div>/i,
-  );
-  const detailsScope = detailsContainerM ? detailsContainerM[1] : html;
+  // ── Growing details ──────────────────────────────────────────────────────────
+  // Current site: each detail is a <div class="g-product-details__item"> block
+  // containing <dt class="g-product-details__item-term"> and
+  // <dd class="g-product-details__item-description[...]">. Some dt elements
+  // wrap their label in a <span> (for tooltip decoration); stripTags handles
+  // that correctly. Some dd elements contain nested <div> children for
+  // multi-value fields (e.g. Germination Code); the lazy <\/dd> match captures
+  // through those nested divs cleanly because <dd> does not nest.
+  //
+  // We target the specific __item-term and __item-description class names
+  // directly — rather than first matching an outer container div — to avoid
+  // the nested-div truncation that a lazy <\/div> match would cause.
+  const itemTermPat =
+    /<dt[^>]*class=["'][^"']*g-product-details__item-term[^"']*["'][^>]*>([\s\S]*?)<\/dt>\s*<dd[^>]*class=["'][^"']*g-product-details__item-description[^"']*["'][^>]*>([\s\S]*?)<\/dd>/gi;
+  let im: RegExpExecArray | null;
+  let itemsFound = false;
+  while ((im = itemTermPat.exec(html)) !== null) {
+    const key = stripTags(im[1]).replace(/:$/, "").trim();
+    const val = stripTags(im[2]).trim();
+    if (key && val && !PRAIRIE_MOON_COMMERCE_KEYS.has(key)) {
+      sections[key] = val;
+      itemsFound = true;
+    }
+  }
 
-  const dlPat = /<dl[^>]*>([\s\S]*?)<\/dl>/gi;
-  let dlM: RegExpExecArray | null;
-  while ((dlM = dlPat.exec(detailsScope)) !== null) {
-    const dtddPat = /<dt[^>]*>([\s\S]*?)<\/dt>\s*<dd[^>]*>([\s\S]*?)<\/dd>/gi;
-    let dm: RegExpExecArray | null;
-    while ((dm = dtddPat.exec(dlM[1])) !== null) {
-      const key = stripTags(dm[1]).replace(/:$/, "").trim();
-      const val = stripTags(dm[2]).trim();
-      if (key && val && !PRAIRIE_MOON_COMMERCE_KEYS.has(key)) {
-        sections[key] = val;
+  if (!itemsFound) {
+    // Fallback: older site uses <dl> inside a product-details container div.
+    // Scoping to the container avoids capturing unrelated page-level dl elements,
+    // but the lazy <\/div> match may truncate if the container has nested divs —
+    // acceptable for the fallback path since the old site did not nest divs here.
+    const detailsContainerM = html.match(
+      /<div[^>]*class=["'][^"']*(?:g-product-details|product[_-]?details)[^"']*["'][^>]*>([\s\S]*?)<\/div>/i,
+    );
+    const detailsScope = detailsContainerM ? detailsContainerM[1] : html;
+    const dlPat = /<dl[^>]*>([\s\S]*?)<\/dl>/gi;
+    let dlM: RegExpExecArray | null;
+    while ((dlM = dlPat.exec(detailsScope)) !== null) {
+      const dtddPat = /<dt[^>]*>([\s\S]*?)<\/dt>\s*<dd[^>]*>([\s\S]*?)<\/dd>/gi;
+      let dm: RegExpExecArray | null;
+      while ((dm = dtddPat.exec(dlM[1])) !== null) {
+        const key = stripTags(dm[1]).replace(/:$/, "").trim();
+        const val = stripTags(dm[2]).trim();
+        if (key && val && !PRAIRIE_MOON_COMMERCE_KEYS.has(key)) {
+          sections[key] = val;
+        }
       }
     }
   }
