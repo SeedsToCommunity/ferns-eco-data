@@ -12,16 +12,10 @@ import { resolveUrl } from "../lib/resolve-url.js";
 import { importAllDescriptions, importAllPlantLists } from "../services/mnfi/scraper.js";
 import { importAllCountyElements } from "../services/mnfi/county-import.js";
 import { mnfiCommunityPlantsTable } from "@workspace/db";
+import { filterProvenance } from "../lib/provenance.js";
 
 const router: IRouter = Router();
 
-// ---------------------------------------------------------------------------
-// Admin guard — protects mutating import endpoints.
-// Set ADMIN_SECRET in the environment; callers must send:
-//   Authorization: Bearer <secret>
-// In production (NODE_ENV=production), ADMIN_SECRET must be set — requests are
-// rejected if it is missing. In development, the guard passes without a secret.
-// ---------------------------------------------------------------------------
 function requireAdmin(req: Request, res: Response): boolean {
   const secret = process.env["ADMIN_SECRET"];
   const isProd = process.env["NODE_ENV"] === "production";
@@ -30,7 +24,7 @@ function requireAdmin(req: Request, res: Response): boolean {
       res.status(503).json({ error: "misconfigured", message: "ADMIN_SECRET must be set in production to use import endpoints." });
       return false;
     }
-    return true; // dev mode — allow without secret
+    return true;
   }
   const auth = req.headers["authorization"] ?? "";
   if (auth === `Bearer ${secret}`) return true;
@@ -53,7 +47,6 @@ async function ensureAll() {
   await Promise.all([ensureMnfiRegistryEntry(), ensureMnfiCommunities()]);
 }
 
-// Helper to group plants by life form (used in community detail + plants endpoint)
 function groupPlantsByLifeForm(plants: Array<{ life_form: string; common_name: string; scientific_names: unknown }>) {
   const byLifeForm: Record<string, Array<{ common_name: string; scientific_names: string[] }>> = {};
   for (const p of plants) {
@@ -63,9 +56,6 @@ function groupPlantsByLifeForm(plants: Array<{ life_form: string; common_name: s
   return byLifeForm;
 }
 
-// ---------------------------------------------------------------------------
-// GET /api/mnfi/metadata
-// ---------------------------------------------------------------------------
 router.get("/mnfi/metadata", async (req, res) => {
   await ensureAll();
 
@@ -118,12 +108,10 @@ router.get("/mnfi/metadata", async (req, res) => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// GET /api/mnfi/communities
-// ---------------------------------------------------------------------------
 router.get("/mnfi/communities", async (req, res) => {
   await ensureAll();
 
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   const classFilter = typeof req.query["class"] === "string" ? req.query["class"] : null;
   const groupFilter = typeof req.query["group"] === "string" ? req.query["group"] : null;
   const nameFilter = typeof req.query["name"] === "string" ? req.query["name"] : null;
@@ -145,7 +133,7 @@ router.get("/mnfi/communities", async (req, res) => {
     found: communities.length > 0,
     queried_at: new Date(),
     source_url: resolveUrl(req, "/api/mnfi/communities"),
-    provenance: buildProvenance(req),
+    provenance: filterProvenance(buildProvenance(req), verbosity),
     data: {
       community_count: communities.length,
       filters: { class: classFilter, group: groupFilter, name: nameFilter },
@@ -154,13 +142,10 @@ router.get("/mnfi/communities", async (req, res) => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// GET /api/mnfi/communities/:id
-// Returns the full community profile including characteristic plants
-// ---------------------------------------------------------------------------
 router.get("/mnfi/communities/:id", async (req, res) => {
   await ensureAll();
 
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   const param = req.params["id"] ?? "";
   const numericId = parseInt(param, 10);
   const isNumeric = !isNaN(numericId) && String(numericId) === param;
@@ -182,14 +167,13 @@ router.get("/mnfi/communities/:id", async (req, res) => {
       found: false,
       queried_at: new Date(),
       source_url: resolveUrl(req, `/api/mnfi/communities/${param}`),
-      provenance: buildProvenance(req),
+      provenance: filterProvenance(buildProvenance(req), verbosity),
       data: null,
       error: `No community found with id/slug '${param}'`,
     });
     return;
   }
 
-  // Include characteristic plants inline so callers get the full profile in one request
   const plants = await db
     .select()
     .from(mnfiCommunityPlantsTable)
@@ -200,7 +184,7 @@ router.get("/mnfi/communities/:id", async (req, res) => {
     found: true,
     queried_at: new Date(),
     source_url: resolveUrl(req, `/api/mnfi/communities/${param}`),
-    provenance: buildProvenance(req),
+    provenance: filterProvenance(buildProvenance(req), verbosity),
     data: {
       ...community,
       characteristic_plants: {
@@ -212,12 +196,10 @@ router.get("/mnfi/communities/:id", async (req, res) => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// GET /api/mnfi/communities/:id/plants   (dedicated plants endpoint)
-// ---------------------------------------------------------------------------
 router.get("/mnfi/communities/:id/plants", async (req, res) => {
   await ensureAll();
 
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   const param = req.params["id"] ?? "";
   const numericId = parseInt(param, 10);
   const isNumeric = !isNaN(numericId) && String(numericId) === param;
@@ -241,10 +223,10 @@ router.get("/mnfi/communities/:id/plants", async (req, res) => {
     found: plants.length > 0,
     queried_at: new Date(),
     source_url: resolveUrl(req, `/api/mnfi/communities/${param}/plants`),
-    provenance: {
+    provenance: filterProvenance({
       ...buildProvenance(req),
       upstream_url: `https://mnfi.anr.msu.edu/communities/plant-list/${community.community_id}/${community.slug}`,
-    },
+    }, verbosity),
     data: {
       community_id: community.community_id,
       community_name: community.name,
@@ -257,13 +239,10 @@ router.get("/mnfi/communities/:id/plants", async (req, res) => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// GET /api/mnfi/county-elements
-// Query: ?county=<name>  &type=species|community
-// ---------------------------------------------------------------------------
 router.get("/mnfi/county-elements", async (req, res) => {
   await ensureAll();
 
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   const county = typeof req.query["county"] === "string" ? req.query["county"].trim() : null;
   const elementType = typeof req.query["type"] === "string" ? req.query["type"].trim() : null;
 
@@ -293,10 +272,10 @@ router.get("/mnfi/county-elements", async (req, res) => {
     found: elements.length > 0,
     queried_at: new Date(),
     source_url: resolveUrl(req, "/api/mnfi/county-elements"),
-    provenance: {
+    provenance: filterProvenance({
       ...buildProvenance(req),
       upstream_url: "https://mnfi.anr.msu.edu/resources/county-element-data",
-    },
+    }, verbosity),
     data: {
       county,
       element_type_filter: elementType,
@@ -307,9 +286,6 @@ router.get("/mnfi/county-elements", async (req, res) => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// POST /api/mnfi/import-communities  (admin-protected)
-// ---------------------------------------------------------------------------
 router.post("/mnfi/import-communities", async (req, res) => {
   if (!requireAdmin(req, res)) return;
   try {
@@ -325,10 +301,6 @@ router.post("/mnfi/import-communities", async (req, res) => {
   }
 });
 
-// ---------------------------------------------------------------------------
-// POST /api/mnfi/import-descriptions  (admin-protected)
-// Scrapes all 77 community description pages and upserts into mnfi_communities
-// ---------------------------------------------------------------------------
 router.post("/mnfi/import-descriptions", async (req, res) => {
   if (!requireAdmin(req, res)) return;
   try {
@@ -366,10 +338,6 @@ router.post("/mnfi/import-descriptions", async (req, res) => {
   }
 });
 
-// ---------------------------------------------------------------------------
-// POST /api/mnfi/import-plant-lists  (admin-protected)
-// Scrapes all 77 community plant list pages and replaces plant records in DB
-// ---------------------------------------------------------------------------
 router.post("/mnfi/import-plant-lists", async (req, res) => {
   if (!requireAdmin(req, res)) return;
   try {
@@ -399,17 +367,6 @@ router.post("/mnfi/import-plant-lists", async (req, res) => {
   }
 });
 
-// ---------------------------------------------------------------------------
-// POST /api/mnfi/import-county-elements  (admin-protected)
-// Fetches all 83 Michigan counties from the MNFI REST API and upserts
-// both species and community element records into mnfi_county_elements.
-//
-// Data source (public JSON API):
-//   https://mnfi.anr.msu.edu/resources/countyQuery?county={1..83}
-//   https://mnfi.anr.msu.edu/resources/countyCommunityQuery?county={1..83}
-//
-// County IDs 1–83 map to Michigan counties in alphabetical order.
-// ---------------------------------------------------------------------------
 router.post("/mnfi/import-county-elements", async (req, res) => {
   if (!requireAdmin(req, res)) return;
   try {
@@ -426,7 +383,6 @@ router.post("/mnfi/import-county-elements", async (req, res) => {
       return;
     }
 
-    // Clear previous data and bulk-insert all records
     await db.delete(mnfiCountyElementsTable);
 
     const BATCH = 500;

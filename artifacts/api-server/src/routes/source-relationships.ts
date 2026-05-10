@@ -1,6 +1,7 @@
 import { Router, type IRouter } from "express";
 import { ensureSourceRelationships, querySourceRelationships } from "../services/source-relationships/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
+import { filterProvenance } from "../lib/provenance.js";
 
 const router: IRouter = Router();
 
@@ -18,6 +19,7 @@ const TECHNICAL_DETAILS =
 router.get("/v1/source-relationships", async (req, res) => {
   await ensureSourceRelationships();
 
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   const sourceId = typeof req.query["source_id"] === "string" ? req.query["source_id"] : undefined;
 
   const rows = await querySourceRelationships(sourceId);
@@ -30,14 +32,14 @@ router.get("/v1/source-relationships", async (req, res) => {
       filtered_by_source_id: sourceId ?? null,
       relationships: rows,
     },
-    provenance: {
+    provenance: filterProvenance({
       source_id: "ferns-registry",
       fetched_at: new Date(),
       method: "system",
       upstream_url: "internal:source_relationships",
       general_summary: GENERAL_SUMMARY,
       technical_details: TECHNICAL_DETAILS,
-    },
+    }, verbosity),
   });
 });
 

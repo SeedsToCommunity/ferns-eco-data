@@ -45,6 +45,7 @@ import {
   GetInatObservationsResponse,
   GetInatMetadataResponse,
 } from "@workspace/api-zod";
+import { filterProvenance } from "../lib/provenance.js";
 
 const router: IRouter = Router();
 
@@ -57,12 +58,13 @@ router.get("/inat/place", async (req, res) => {
 
   const q = parsed.data.q;
   const refresh = parsed.data.refresh ?? false;
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   const cacheKey = buildPlaceCacheKey(q);
 
   if (!refresh) {
     const cached = await lookupPlace(cacheKey);
     if (cached) {
-      res.json(GetInatPlaceResponse.parse(buildPlaceResponse(cached, "hit")));
+      res.json(GetInatPlaceResponse.parse(buildPlaceResponse(cached, "hit", verbosity)));
       return;
     }
   }
@@ -70,7 +72,7 @@ router.get("/inat/place", async (req, res) => {
   try {
     const result = await fetchPlaces(q);
     const stored = await storePlace(cacheKey, result);
-    res.json(GetInatPlaceResponse.parse(buildPlaceResponse(stored, refresh ? "bypassed" : "miss")));
+    res.json(GetInatPlaceResponse.parse(buildPlaceResponse(stored, refresh ? "bypassed" : "miss", verbosity)));
   } catch (err) {
     req.log.error({ err }, "iNat place lookup failed");
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from iNaturalist API" });
@@ -90,6 +92,7 @@ function buildPlaceResponse(
     technical_details: string;
   },
   cache_status: "hit" | "miss" | "bypassed",
+  verbosity?: string,
 ) {
   const results = (row.results as Array<{
     id: number;
@@ -114,14 +117,14 @@ function buildPlaceResponse(
       resolved_at: row.fetched_at,
       cache_status,
     },
-    provenance: {
+    provenance: filterProvenance({
       source_id: row.source_id,
       fetched_at: row.fetched_at,
       method: row.method,
       upstream_url: row.upstream_url,
       general_summary: row.general_summary,
       technical_details: row.technical_details,
-    },
+    }, verbosity),
   };
 }
 
@@ -134,12 +137,13 @@ router.get("/inat/species", async (req, res) => {
 
   const name = parsed.data.name;
   const refresh = parsed.data.refresh ?? false;
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   const cacheKey = buildSpeciesCacheKey(name);
 
   if (!refresh) {
     const cached = await lookupSpecies(cacheKey);
     if (cached) {
-      res.json(GetInatSpeciesResponse.parse(buildSpeciesResponse(cached, "hit")));
+      res.json(GetInatSpeciesResponse.parse(buildSpeciesResponse(cached, "hit", verbosity)));
       return;
     }
   }
@@ -147,7 +151,7 @@ router.get("/inat/species", async (req, res) => {
   try {
     const result = await fetchSpecies(name);
     const stored = await storeSpecies(cacheKey, result);
-    res.json(GetInatSpeciesResponse.parse(buildSpeciesResponse(stored, refresh ? "bypassed" : "miss")));
+    res.json(GetInatSpeciesResponse.parse(buildSpeciesResponse(stored, refresh ? "bypassed" : "miss", verbosity)));
   } catch (err) {
     req.log.error({ err }, "iNat species lookup failed");
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from iNaturalist API" });
@@ -167,6 +171,7 @@ function buildSpeciesResponse(
     technical_details: string;
   },
   cache_status: "hit" | "miss" | "bypassed",
+  verbosity?: string,
 ) {
   return {
     source_url: row.source_url ?? null,
@@ -174,14 +179,14 @@ function buildSpeciesResponse(
     cache_status,
     queried_at: new Date(),
     data: row.found ? (row.raw_response ?? null) : null,
-    provenance: {
+    provenance: filterProvenance({
       source_id: row.source_id,
       fetched_at: row.fetched_at,
       method: row.method,
       upstream_url: row.upstream_url,
       general_summary: row.general_summary,
       technical_details: row.technical_details,
-    },
+    }, verbosity),
   };
 }
 
@@ -203,12 +208,13 @@ router.get("/inat/histogram", async (req, res) => {
 
   const sortedPlaceIds = sortPlaceIds(placeIds);
   const refresh = parsed.data.refresh ?? false;
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   const cacheKey = buildHistogramCacheKey(taxonId, sortedPlaceIds);
 
   if (!refresh) {
     const cached = await lookupHistogram(cacheKey);
     if (cached) {
-      res.json(GetInatHistogramResponse.parse(buildPassthroughResponse(cached, "hit")));
+      res.json(GetInatHistogramResponse.parse(buildPassthroughResponse(cached, "hit", verbosity)));
       return;
     }
   }
@@ -216,7 +222,7 @@ router.get("/inat/histogram", async (req, res) => {
   try {
     const result = await fetchHistogram(taxonId, sortedPlaceIds);
     const stored = await storeHistogram(cacheKey, result);
-    res.json(GetInatHistogramResponse.parse(buildPassthroughResponse(stored, refresh ? "bypassed" : "miss")));
+    res.json(GetInatHistogramResponse.parse(buildPassthroughResponse(stored, refresh ? "bypassed" : "miss", verbosity)));
   } catch (err) {
     req.log.error({ err }, "iNat histogram fetch failed");
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from iNaturalist API" });
@@ -247,12 +253,13 @@ router.get("/inat/field-values", async (req, res) => {
   const sortedPlaceIds = sortPlaceIds(placeIds);
   const verifiable = parsed.data.verifiable ?? true;
   const refresh = parsed.data.refresh ?? false;
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   const cacheKey = buildFieldValuesCacheKey(taxonId, sortedPlaceIds, verifiable);
 
   if (!refresh) {
     const cached = await lookupFieldValues(cacheKey);
     if (cached) {
-      res.json(GetInatFieldValuesResponse.parse(buildPassthroughResponse(cached, "hit")));
+      res.json(GetInatFieldValuesResponse.parse(buildPassthroughResponse(cached, "hit", verbosity)));
       return;
     }
   }
@@ -260,7 +267,7 @@ router.get("/inat/field-values", async (req, res) => {
   try {
     const result = await fetchFieldValues(taxonId, sortedPlaceIds, verifiable);
     const stored = await storeFieldValues(cacheKey, result);
-    res.json(GetInatFieldValuesResponse.parse(buildPassthroughResponse(stored, refresh ? "bypassed" : "miss")));
+    res.json(GetInatFieldValuesResponse.parse(buildPassthroughResponse(stored, refresh ? "bypassed" : "miss", verbosity)));
   } catch (err) {
     req.log.error({ err }, "iNat field values fetch failed");
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from iNaturalist API" });
@@ -280,6 +287,7 @@ function buildPassthroughResponse(
     technical_details: string;
   },
   cache_status: "hit" | "miss" | "bypassed",
+  verbosity?: string,
 ) {
   return {
     source_url: row.source_url,
@@ -287,14 +295,14 @@ function buildPassthroughResponse(
     cache_status,
     queried_at: new Date(),
     data: row.raw_response,
-    provenance: {
+    provenance: filterProvenance({
       source_id: row.source_id,
       fetched_at: row.fetched_at,
       method: row.method,
       upstream_url: row.upstream_url,
       general_summary: row.general_summary,
       technical_details: row.technical_details,
-    },
+    }, verbosity),
   };
 }
 
@@ -307,6 +315,7 @@ router.get("/inat/observations", (req, res) => {
 
   const taxonId = parsed.data.taxon_id ?? null;
   const placeId = parsed.data.place_id ?? null;
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
 
   const observations_by_species_url = taxonId
     ? `https://www.inaturalist.org/observations?taxon_id=${taxonId}`
@@ -337,14 +346,14 @@ router.get("/inat/observations", (req, res) => {
       api_observations_endpoint,
       queried_at: queriedAt,
     },
-    provenance: {
+    provenance: filterProvenance({
       source_id: prov.source_id,
       fetched_at: prov.fetched_at,
       method: prov.method,
       upstream_url: prov.upstream_url,
       general_summary: prov.general_summary,
       technical_details: prov.technical_details,
-    },
+    }, verbosity),
   }));
 });
 

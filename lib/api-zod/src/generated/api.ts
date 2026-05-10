@@ -176,11 +176,13 @@ export const GetBonapMapResponse = zod
           ),
         general_summary: zod
           .string()
+          .optional()
           .describe(
             "Plain language description readable by a homeowner or community member",
           ),
         technical_details: zod
           .string()
+          .optional()
           .describe(
             "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
           ),
@@ -346,11 +348,13 @@ export const GetGbifMatchResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -435,11 +439,13 @@ export const GetGbifReconcileResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -554,11 +560,13 @@ export const GetGbifOccurrencesResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -630,11 +638,13 @@ export const GetGbifSearchResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -743,11 +753,13 @@ export const GetGbifMetadataResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -846,11 +858,13 @@ export const GetInatPlaceResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -919,11 +933,13 @@ export const GetInatSpeciesResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -996,11 +1012,13 @@ export const GetInatHistogramResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -1080,11 +1098,13 @@ export const GetInatFieldValuesResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -1155,11 +1175,13 @@ export const GetInatObservationsResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -1234,11 +1256,13 @@ export const GetInatMetadataResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -1314,11 +1338,13 @@ export const GetMifloraSpeciesResponse = zod
           ),
         general_summary: zod
           .string()
+          .optional()
           .describe(
             "Plain language description readable by a homeowner or community member",
           ),
         technical_details: zod
           .string()
+          .optional()
           .describe(
             "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
           ),
@@ -1397,11 +1423,13 @@ export const GetMifloraCountiesResponse = zod
           ),
         general_summary: zod
           .string()
+          .optional()
           .describe(
             "Plain language description readable by a homeowner or community member",
           ),
         technical_details: zod
           .string()
+          .optional()
           .describe(
             "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
           ),
@@ -1514,11 +1542,13 @@ export const GetMifloraImagesResponse = zod
           ),
         general_summary: zod
           .string()
+          .optional()
           .describe(
             "Plain language description readable by a homeowner or community member",
           ),
         technical_details: zod
           .string()
+          .optional()
           .describe(
             "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
           ),
@@ -1592,11 +1622,13 @@ export const GetMifloraMetadataResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -1652,11 +1684,13 @@ export const GetCoefficientByValueResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -1723,11 +1757,13 @@ export const GetAllCoefficientValuesResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -1812,11 +1848,13 @@ export const GetCoefficientMetadataResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -1870,11 +1908,13 @@ export const GetWetlandIndicatorByCodeResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -1954,11 +1994,13 @@ export const GetWetlandIndicatorByWResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -2026,11 +2068,13 @@ export const GetAllWetlandIndicatorsResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -2116,11 +2160,13 @@ export const GetWetlandIndicatorMetadataResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -2174,11 +2220,13 @@ export const GetWucolsByCodeResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -2250,11 +2298,13 @@ export const GetAllWucolsResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -2344,11 +2394,13 @@ export const GetWucolsMetadataResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -2405,11 +2457,13 @@ export const GetS2CSpeciesByYearResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -2486,11 +2540,13 @@ export const GetS2CYearsResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -2572,11 +2628,13 @@ export const GetS2CMetadataResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -2626,11 +2684,13 @@ export const GetLcscgMetadataResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -2675,11 +2735,13 @@ export const GetLcscgGuidesResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -2769,11 +2831,13 @@ export const GetLcscgGuideResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -2937,11 +3001,13 @@ export const GetLcscgSpeciesResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -3131,11 +3197,13 @@ export const GetSourcesIndexResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -3184,11 +3252,13 @@ export const GetUniversalFqaMetadataResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -3234,11 +3304,13 @@ export const GetUniversalFqaDatabasesResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -3315,11 +3387,13 @@ export const GetUniversalFqaDatabaseResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -3453,11 +3527,13 @@ export const GetUniversalFqaSpeciesResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -3561,11 +3637,13 @@ export const GetUniversalFqaAssessmentsResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -3646,11 +3724,13 @@ export const GetUniversalFqaAssessmentResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -3882,11 +3962,13 @@ export const GetSourcesMetadataResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -3981,11 +4063,13 @@ export const GetSourceRelationshipsResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -4085,11 +4169,13 @@ export const GetMnfiCommunitiesResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -4154,11 +4240,13 @@ export const GetMnfiCommunityResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -4242,11 +4330,13 @@ export const GetMnfiCommunityPlantsResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -4332,11 +4422,13 @@ export const GetMnfiCountyElementsResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -4405,11 +4497,13 @@ export const GetNatureserveMetadataResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -4520,11 +4614,13 @@ export const GetNatureserveSpeciesResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -4597,11 +4693,13 @@ export const GetNatureserveEcosystemsResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -4662,11 +4760,13 @@ export const GetGobotanyResponse = zod
           ),
         general_summary: zod
           .string()
+          .optional()
           .describe(
             "Plain language description readable by a homeowner or community member",
           ),
         technical_details: zod
           .string()
+          .optional()
           .describe(
             "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
           ),
@@ -4776,11 +4876,13 @@ export const GetGobotanyMetadataResponse = zod
           ),
         general_summary: zod
           .string()
+          .optional()
           .describe(
             "Plain language description readable by a homeowner or community member",
           ),
         technical_details: zod
           .string()
+          .optional()
           .describe(
             "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
           ),
@@ -4860,11 +4962,13 @@ export const GetGobotanySpeciesTextResponse = zod
           ),
         general_summary: zod
           .string()
+          .optional()
           .describe(
             "Plain language description readable by a homeowner or community member",
           ),
         technical_details: zod
           .string()
+          .optional()
           .describe(
             "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
           ),
@@ -4948,11 +5052,13 @@ export const GetGoogleImagesResponse = zod
           ),
         general_summary: zod
           .string()
+          .optional()
           .describe(
             "Plain language description readable by a homeowner or community member",
           ),
         technical_details: zod
           .string()
+          .optional()
           .describe(
             "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
           ),
@@ -5062,11 +5168,13 @@ export const GetGoogleImagesMetadataResponse = zod
           ),
         general_summary: zod
           .string()
+          .optional()
           .describe(
             "Plain language description readable by a homeowner or community member",
           ),
         technical_details: zod
           .string()
+          .optional()
           .describe(
             "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
           ),
@@ -5123,11 +5231,13 @@ export const GetIllinoisWildflowersResponse = zod
           ),
         general_summary: zod
           .string()
+          .optional()
           .describe(
             "Plain language description readable by a homeowner or community member",
           ),
         technical_details: zod
           .string()
+          .optional()
           .describe(
             "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
           ),
@@ -5237,11 +5347,13 @@ export const GetIllinoisWildflowersMetadataResponse = zod
           ),
         general_summary: zod
           .string()
+          .optional()
           .describe(
             "Plain language description readable by a homeowner or community member",
           ),
         technical_details: zod
           .string()
+          .optional()
           .describe(
             "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
           ),
@@ -5318,11 +5430,13 @@ export const GetIllinoisWildflowersSpeciesTextResponse = zod
           ),
         general_summary: zod
           .string()
+          .optional()
           .describe(
             "Plain language description readable by a homeowner or community member",
           ),
         technical_details: zod
           .string()
+          .optional()
           .describe(
             "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
           ),
@@ -5403,11 +5517,13 @@ export const GetMinnesotaWildflowersResponse = zod
           ),
         general_summary: zod
           .string()
+          .optional()
           .describe(
             "Plain language description readable by a homeowner or community member",
           ),
         technical_details: zod
           .string()
+          .optional()
           .describe(
             "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
           ),
@@ -5517,11 +5633,13 @@ export const GetMinnesotaWildflowersMetadataResponse = zod
           ),
         general_summary: zod
           .string()
+          .optional()
           .describe(
             "Plain language description readable by a homeowner or community member",
           ),
         technical_details: zod
           .string()
+          .optional()
           .describe(
             "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
           ),
@@ -5598,11 +5716,13 @@ export const GetMinnesotaWildflowersSpeciesTextResponse = zod
           ),
         general_summary: zod
           .string()
+          .optional()
           .describe(
             "Plain language description readable by a homeowner or community member",
           ),
         technical_details: zod
           .string()
+          .optional()
           .describe(
             "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
           ),
@@ -5683,11 +5803,13 @@ export const GetMissouriPlantsResponse = zod
           ),
         general_summary: zod
           .string()
+          .optional()
           .describe(
             "Plain language description readable by a homeowner or community member",
           ),
         technical_details: zod
           .string()
+          .optional()
           .describe(
             "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
           ),
@@ -5797,11 +5919,13 @@ export const GetMissouriPlantsMetadataResponse = zod
           ),
         general_summary: zod
           .string()
+          .optional()
           .describe(
             "Plain language description readable by a homeowner or community member",
           ),
         technical_details: zod
           .string()
+          .optional()
           .describe(
             "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
           ),
@@ -5878,11 +6002,13 @@ export const GetMissouriPlantsSpeciesTextResponse = zod
           ),
         general_summary: zod
           .string()
+          .optional()
           .describe(
             "Plain language description readable by a homeowner or community member",
           ),
         technical_details: zod
           .string()
+          .optional()
           .describe(
             "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
           ),
@@ -5963,11 +6089,13 @@ export const GetPrairieMoonResponse = zod
           ),
         general_summary: zod
           .string()
+          .optional()
           .describe(
             "Plain language description readable by a homeowner or community member",
           ),
         technical_details: zod
           .string()
+          .optional()
           .describe(
             "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
           ),
@@ -6077,11 +6205,13 @@ export const GetPrairieMoonMetadataResponse = zod
           ),
         general_summary: zod
           .string()
+          .optional()
           .describe(
             "Plain language description readable by a homeowner or community member",
           ),
         technical_details: zod
           .string()
+          .optional()
           .describe(
             "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
           ),
@@ -6158,11 +6288,13 @@ export const GetPrairieMoonSpeciesTextResponse = zod
           ),
         general_summary: zod
           .string()
+          .optional()
           .describe(
             "Plain language description readable by a homeowner or community member",
           ),
         technical_details: zod
           .string()
+          .optional()
           .describe(
             "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
           ),
@@ -6247,11 +6379,13 @@ export const GetUsdaPlantsResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -6349,11 +6483,13 @@ export const GetUsdaPlantsProfileResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -6429,11 +6565,13 @@ export const GetUsdaPlantsSearchResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -6517,11 +6655,13 @@ export const GetUsdaPlantsMetadataResponse = zod.object({
         ),
       general_summary: zod
         .string()
+        .optional()
         .describe(
           "Plain language description readable by a homeowner or community member",
         ),
       technical_details: zod
         .string()
+        .optional()
         .describe(
           "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
         ),
@@ -6582,11 +6722,13 @@ export const GetLadyBirdJohnsonResponse = zod
           ),
         general_summary: zod
           .string()
+          .optional()
           .describe(
             "Plain language description readable by a homeowner or community member",
           ),
         technical_details: zod
           .string()
+          .optional()
           .describe(
             "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
           ),
@@ -6709,11 +6851,13 @@ export const GetLadyBirdJohnsonSpeciesTextResponse = zod
           ),
         general_summary: zod
           .string()
+          .optional()
           .describe(
             "Plain language description readable by a homeowner or community member",
           ),
         technical_details: zod
           .string()
+          .optional()
           .describe(
             "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
           ),
@@ -6813,11 +6957,13 @@ export const GetLadyBirdJohnsonMetadataResponse = zod
           ),
         general_summary: zod
           .string()
+          .optional()
           .describe(
             "Plain language description readable by a homeowner or community member",
           ),
         technical_details: zod
           .string()
+          .optional()
           .describe(
             "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
           ),

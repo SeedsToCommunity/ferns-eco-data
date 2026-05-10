@@ -13,6 +13,7 @@ import {
   BONAP_SOURCE_ID,
 } from "../services/bonap/metadata.js";
 import { ensureBonapRegistryEntry } from "../services/bonap/seed.js";
+import { filterProvenance } from "../lib/provenance.js";
 
 const router: IRouter = Router();
 
@@ -43,6 +44,7 @@ router.get("/bonap/map", async (req, res) => {
   }
 
   const { genus, species, map_type, refresh } = parsed.data;
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
 
   if (!species || species.trim() === "") {
     res.status(400).json({ error: "invalid_input", message: "species is required for all map types" });
@@ -55,7 +57,7 @@ router.get("/bonap/map", async (req, res) => {
   if (!refresh) {
     const cached = await lookupCache(cacheKey);
     if (cached) {
-      const response = GetBonapMapResponse.parse(buildMapResponse(cached, "hit"));
+      const response = GetBonapMapResponse.parse(buildMapResponse(cached, "hit", verbosity));
       res.json(response);
       return;
     }
@@ -64,7 +66,7 @@ router.get("/bonap/map", async (req, res) => {
   const result = await verifyMapExists(normalized);
   const provenance = buildProvenance(result);
   const stored = await storeCache(cacheKey, result, provenance);
-  const response = GetBonapMapResponse.parse(buildMapResponse(stored, refresh ? "bypassed" : "miss"));
+  const response = GetBonapMapResponse.parse(buildMapResponse(stored, refresh ? "bypassed" : "miss", verbosity));
   res.json(response);
 });
 
@@ -85,6 +87,7 @@ function buildMapResponse(
     technical_details: string;
   },
   cache_status: "hit" | "miss" | "bypassed",
+  verbosity?: string,
 ) {
   return {
     source_url: row.source_url,
@@ -109,14 +112,14 @@ function buildMapResponse(
         ? "Map URL could not be verified during cache population — BONAP's server did not return a definitive response. The map may or may not exist. Retry with ?refresh=true to attempt re-verification."
         : null,
     },
-    provenance: {
+    provenance: filterProvenance({
       source_id: row.source_id,
       fetched_at: row.fetched_at,
       method: row.method,
       upstream_url: row.upstream_url,
       general_summary: row.general_summary,
       technical_details: row.technical_details,
-    },
+    }, verbosity),
   };
 }
 

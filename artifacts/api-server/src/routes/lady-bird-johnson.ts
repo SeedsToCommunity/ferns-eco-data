@@ -12,6 +12,7 @@ import {
 import { ensureLadyBirdJohnsonRegistryEntry } from "../services/lady-bird-johnson/seed.js";
 import { extractLadyBirdJohnson, removeNoiseBlocks } from "../services/botanical-refs/scraper.js";
 import { resolveUrl } from "../lib/resolve-url.js";
+import { filterProvenance } from "../lib/provenance.js";
 
 const router: IRouter = Router();
 
@@ -195,6 +196,8 @@ router.get("/lady-bird-johnson/metadata", async (req, res) => {
 router.get("/lady-bird-johnson", async (req, res) => {
   await ensureLadyBirdJohnsonRegistryEntry();
 
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+
   const symbolParam =
     typeof req.query["usda_symbol"] === "string" ? req.query["usda_symbol"].trim() : null;
   if (!symbolParam) {
@@ -210,7 +213,7 @@ router.get("/lady-bird-johnson", async (req, res) => {
     found: verify.found,
     queried_at: new Date(),
     source_url: fernsSourceUrl,
-    provenance: { ...buildProvenance(req), matched_input: usdaSymbolUpper },
+    provenance: filterProvenance({ ...buildProvenance(req), matched_input: usdaSymbolUpper }, verbosity),
     data: {
       usda_symbol: usdaSymbolUpper,
       profile_url: verify.profileUrl,
@@ -226,6 +229,8 @@ router.get("/lady-bird-johnson", async (req, res) => {
 
 router.get("/lady-bird-johnson/species-text", async (req, res) => {
   await ensureLadyBirdJohnsonRegistryEntry();
+
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
 
   const symbolParam =
     typeof req.query["usda_symbol"] === "string" ? req.query["usda_symbol"].trim() : null;
@@ -258,7 +263,7 @@ router.get("/lady-bird-johnson/species-text", async (req, res) => {
         scraped_at: hit.scraped_at,
         queried_at: new Date(),
         source_url: resolveUrl(req, "/api/lady-bird-johnson/species-text"),
-        provenance: { ...buildProvenance(req), matched_input: usdaSymbolUpper },
+        provenance: filterProvenance({ ...buildProvenance(req), matched_input: usdaSymbolUpper }, verbosity),
         data: hit.found
           ? {
               usda_symbol: usdaSymbolUpper,
@@ -392,7 +397,7 @@ router.get("/lady-bird-johnson/species-text", async (req, res) => {
     scraped_at: scrapedAt,
     queried_at: new Date(),
     source_url: resolveUrl(req, "/api/lady-bird-johnson/species-text"),
-    provenance: { ...buildProvenance(req), matched_input: usdaSymbolUpper },
+    provenance: filterProvenance({ ...buildProvenance(req), matched_input: usdaSymbolUpper }, verbosity),
     ...(fetchError ? { fetch_error: fetchError } : {}),
     data: found
       ? {

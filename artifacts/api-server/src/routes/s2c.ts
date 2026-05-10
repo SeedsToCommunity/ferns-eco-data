@@ -14,6 +14,7 @@ import {
 } from "../services/s2c/data.js";
 import { ensureS2CRegistryEntry } from "../services/s2c/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
+import { filterProvenance } from "../lib/provenance.js";
 
 const router: IRouter = Router();
 
@@ -29,12 +30,13 @@ function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
 }
 
 router.get("/s2c/years", (req, res) => {
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   res.json({
     found: true,
     cache_status: "miss",
     queried_at: new Date(),
     source_url: resolveUrl(req, "/api/s2c/years"),
-    provenance: buildProvenance(req),
+    provenance: filterProvenance(buildProvenance(req), verbosity),
     data: {
       available_years: S2C_AVAILABLE_YEARS,
       years: S2C_YEARS.map((y) => ({
@@ -47,6 +49,7 @@ router.get("/s2c/years", (req, res) => {
 });
 
 router.get("/s2c", (req, res) => {
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   const yearParam = req.query["year"];
 
   if (yearParam === undefined || yearParam === "") {
@@ -74,10 +77,10 @@ router.get("/s2c", (req, res) => {
     cache_status: "miss",
     queried_at: new Date(),
     source_url: resolveUrl(req, "/api/s2c/years"),
-    provenance: {
+    provenance: filterProvenance({
       ...buildProvenance(req),
       matched_input: year,
-    },
+    }, verbosity),
     data: found
       ? {
           year: yearData.year,

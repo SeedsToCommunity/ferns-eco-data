@@ -10,6 +10,7 @@ import {
 import { COEFFICIENT_DATA, lookupByValue } from "../services/coefficient/data.js";
 import { ensureCoefficientRegistryEntry } from "../services/coefficient/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
+import { filterProvenance } from "../lib/provenance.js";
 
 const router: IRouter = Router();
 
@@ -25,6 +26,7 @@ function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
 }
 
 router.get("/coefficient-of-conservatism", (req, res) => {
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   const value = req.query["value"];
   if (typeof value !== "string" || value.trim() === "") {
     res.status(400).json({ error: "invalid_input", message: "value query parameter is required" });
@@ -39,21 +41,22 @@ router.get("/coefficient-of-conservatism", (req, res) => {
     cache_status: "miss",
     queried_at: new Date(),
     source_url: resolveUrl(req, "/api/coefficient-of-conservatism/all"),
-    provenance: {
+    provenance: filterProvenance({
       ...buildProvenance(req),
       matched_input: value.trim(),
-    },
+    }, verbosity),
     data: found ? entry : null,
   });
 });
 
 router.get("/coefficient-of-conservatism/all", (req, res) => {
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   res.json({
     found: true,
     cache_status: "miss",
     queried_at: new Date(),
     source_url: resolveUrl(req, "/api/coefficient-of-conservatism/all"),
-    provenance: buildProvenance(req),
+    provenance: filterProvenance(buildProvenance(req), verbosity),
     data: COEFFICIENT_DATA,
   });
 });

@@ -9,6 +9,7 @@ import {
 } from "../services/google-images/metadata.js";
 import { ensureGoogleImagesRegistryEntry } from "../services/google-images/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
+import { filterProvenance } from "../lib/provenance.js";
 
 const router: IRouter = Router();
 
@@ -46,6 +47,8 @@ router.get("/google-images/metadata", async (req, res) => {
 router.get("/google-images", async (req, res) => {
   await ensureGoogleImagesRegistryEntry();
 
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+
   const speciesParam = typeof req.query["species"] === "string" ? req.query["species"].trim() : null;
   if (!speciesParam) {
     res.status(400).json({
@@ -61,7 +64,7 @@ router.get("/google-images", async (req, res) => {
     found: true,
     queried_at: new Date(),
     source_url: resolveUrl(req, "/api/google-images"),
-    provenance: { ...buildProvenance(req), matched_input: speciesParam },
+    provenance: filterProvenance({ ...buildProvenance(req), matched_input: speciesParam }, verbosity),
     data: {
       species: speciesParam,
       url,

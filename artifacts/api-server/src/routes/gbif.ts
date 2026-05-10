@@ -34,6 +34,7 @@ import {
 } from "../services/gbif/metadata.js";
 import { ensureGbifRegistryEntry } from "../services/gbif/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
+import { filterProvenance } from "../lib/provenance.js";
 
 const router: IRouter = Router();
 
@@ -46,13 +47,14 @@ router.get("/gbif/match", async (req, res) => {
 
   const name = rawName.trim();
   const refresh = req.query.refresh === "true" || req.query.refresh === "1";
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
 
   const cacheKey = buildMatchCacheKey(name);
 
   if (!refresh) {
     const cached = await lookupNameMatch(cacheKey);
     if (cached) {
-      res.json(buildMatchResponse(cached, "hit"));
+      res.json(buildMatchResponse(cached, "hit", verbosity));
       return;
     }
   }
@@ -60,7 +62,7 @@ router.get("/gbif/match", async (req, res) => {
   try {
     const result = await fetchNameMatch(name);
     const stored = await storeNameMatch(cacheKey, result);
-    res.json(buildMatchResponse(stored, refresh ? "bypassed" : "miss"));
+    res.json(buildMatchResponse(stored, refresh ? "bypassed" : "miss", verbosity));
   } catch (err) {
     req.log.error({ err }, "GBIF match fetch failed");
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from GBIF API" });
@@ -102,6 +104,7 @@ function buildMatchResponse(
     technical_details: string;
   },
   cache_status: "hit" | "miss" | "bypassed",
+  verbosity?: string,
 ) {
   return {
     source_url: row.source_url ?? null,
@@ -133,7 +136,7 @@ function buildMatchResponse(
       source_url: row.source_url ?? null,
       cache_status,
     },
-    provenance: {
+    provenance: filterProvenance({
       source_id: row.source_id,
       fetched_at: row.fetched_at,
       method: row.method,
@@ -141,7 +144,7 @@ function buildMatchResponse(
       general_summary: row.general_summary,
       technical_details: row.technical_details,
       matched_input: row.matched_input,
-    },
+    }, verbosity),
   };
 }
 
@@ -154,9 +157,9 @@ router.get("/gbif/reconcile", async (req, res) => {
   }
 
   const refresh = req.query.refresh === "true" || req.query.refresh === "1";
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
 
   try {
-    // Auto-resolve: if caller passed a synonym usageKey, resolve to accepted key first
     const { resolvedKey, wasSynonym } = await resolveToAcceptedUsageKey(usageKey);
 
     const synKey = buildSynonymsCacheKey(resolvedKey);
@@ -169,7 +172,7 @@ router.get("/gbif/reconcile", async (req, res) => {
       ]);
 
       if (cachedSyn && cachedVern) {
-        res.json(buildReconcileResponse(resolvedKey, cachedSyn, cachedVern, wasSynonym ? usageKey : null));
+        res.json(buildReconcileResponse(resolvedKey, cachedSyn, cachedVern, wasSynonym ? usageKey : null, verbosity));
         return;
       }
     }
@@ -181,7 +184,7 @@ router.get("/gbif/reconcile", async (req, res) => {
       storeVernacular(vernKey, resolvedKey, result),
     ]);
 
-    res.json(buildReconcileResponse(resolvedKey, storedSyn, storedVern, wasSynonym ? usageKey : null));
+    res.json(buildReconcileResponse(resolvedKey, storedSyn, storedVern, wasSynonym ? usageKey : null, verbosity));
   } catch (err) {
     req.log.error({ err }, "GBIF reconcile fetch failed");
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from GBIF API" });
@@ -208,6 +211,7 @@ function buildReconcileResponse(
     upstream_url: string;
   },
   resolvedFromSynonymKey: number | null = null,
+  verbosity?: string,
 ) {
   return {
     source_url: `https://www.gbif.org/species/${usageKey}`,
@@ -223,14 +227,14 @@ function buildReconcileResponse(
       synonyms_fetched_at: syn.fetched_at,
       vernacular_fetched_at: vern.fetched_at,
     },
-    provenance: {
+    provenance: filterProvenance({
       source_id: syn.source_id,
       fetched_at: syn.fetched_at,
       method: syn.method,
       upstream_url: syn.upstream_url,
       general_summary: syn.general_summary,
       technical_details: syn.technical_details,
-    },
+    }, verbosity),
   };
 }
 
@@ -279,12 +283,13 @@ router.get("/gbif/occurrences", async (req, res) => {
   });
 
   const refresh = req.query.refresh === "true" || req.query.refresh === "1";
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   const cacheKey = buildOccurrencesCacheKey(usageKey, geo);
 
   if (!refresh) {
     const cached = await lookupOccurrences(cacheKey);
     if (cached) {
-      res.json(buildOccurrencesResponse(cached, "hit"));
+      res.json(buildOccurrencesResponse(cached, "hit", verbosity));
       return;
     }
   }
@@ -292,7 +297,7 @@ router.get("/gbif/occurrences", async (req, res) => {
   try {
     const result = await fetchOccurrences(usageKey, geo);
     const stored = await storeOccurrences(cacheKey, usageKey, geo, result);
-    res.json(buildOccurrencesResponse(stored, refresh ? "bypassed" : "miss"));
+    res.json(buildOccurrencesResponse(stored, refresh ? "bypassed" : "miss", verbosity));
   } catch (err) {
     req.log.error({ err }, "GBIF occurrences fetch failed");
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from GBIF API" });
@@ -317,6 +322,7 @@ function buildOccurrencesResponse(
     technical_details: string;
   },
   cache_status: "hit" | "miss" | "bypassed",
+  verbosity?: string,
 ) {
   return {
     source_url: row.source_url ?? null,
@@ -332,14 +338,14 @@ function buildOccurrencesResponse(
       source_url: row.source_url ?? null,
       cache_status,
     },
-    provenance: {
+    provenance: filterProvenance({
       source_id: row.source_id,
       fetched_at: row.fetched_at,
       method: row.method,
       upstream_url: row.upstream_url,
       general_summary: row.general_summary,
       technical_details: row.technical_details,
-    },
+    }, verbosity),
   };
 }
 
@@ -349,6 +355,8 @@ router.get("/gbif/search", async (req, res) => {
     res.status(400).json({ error: "invalid_input", message: "q is required and must be a non-empty string" });
     return;
   }
+
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
 
   try {
     const result = await fetchVernacularSearch(rawQ.trim());
@@ -362,14 +370,14 @@ router.get("/gbif/search", async (req, res) => {
         candidates: result.candidates,
         count: result.count,
       },
-      provenance: {
+      provenance: filterProvenance({
         source_id: provenance.source_id,
         fetched_at: provenance.fetched_at,
         method: provenance.method,
         upstream_url: provenance.upstream_url,
         general_summary: provenance.general_summary,
         technical_details: provenance.technical_details,
-      },
+      }, verbosity),
     });
   } catch (err) {
     req.log.error({ err }, "GBIF vernacular search failed");

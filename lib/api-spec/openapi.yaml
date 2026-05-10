@@ -2502,15 +2502,14 @@ components:
       type: object
       description: >
         Provenance block present on every FERNS API response.
-        Both derivation fields are required — general_summary for general audiences,
-        technical_details for researchers who need to evaluate and reproduce the data.
+        Identity fields (source_id, fetched_at, method, upstream_url) are always present.
+        Text fields (general_summary, technical_details) are conditionally present
+        based on the provenance_verbosity query parameter (full|summary|none).
       required:
         - source_id
         - fetched_at
         - method
         - upstream_url
-        - general_summary
-        - technical_details
       properties:
         source_id:
           type: string

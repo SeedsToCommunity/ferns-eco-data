@@ -11,6 +11,7 @@ import {
 } from "../services/lcscg/metadata.js";
 import { ensureLcscgRegistryEntry } from "../services/lcscg/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
+import { filterProvenance } from "../lib/provenance.js";
 
 const router: IRouter = Router();
 
@@ -55,9 +56,9 @@ router.get("/lcscg/metadata", async (req, res) => {
 });
 
 router.get("/lcscg/guides", async (req, res) => {
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   const guides = await db.select().from(lcscgGuidesTable).orderBy(lcscgGuidesTable.guide_id);
 
-  // Include per-guide species count for Explorer UI display
   const countRows = await db
     .select({ guide_id: lcscgSpeciesTable.guide_id, count: sql<number>`count(*)::int` })
     .from(lcscgSpeciesTable)
@@ -73,7 +74,7 @@ router.get("/lcscg/guides", async (req, res) => {
     found: true,
     queried_at: new Date(),
     source_url: resolveUrl(req, "/api/lcscg/guides"),
-    provenance: buildProvenance(req),
+    provenance: filterProvenance(buildProvenance(req), verbosity),
     data: {
       guide_count: guides.length,
       guides: guidesWithCounts,
@@ -82,6 +83,7 @@ router.get("/lcscg/guides", async (req, res) => {
 });
 
 router.get("/lcscg/guide/:guideId", async (req, res) => {
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   const rawId = parseInt(req.params["guideId"] ?? "", 10);
 
   if (isNaN(rawId)) {
@@ -103,7 +105,7 @@ router.get("/lcscg/guide/:guideId", async (req, res) => {
       found: false,
       queried_at: new Date(),
       source_url: resolveUrl(req, `/api/lcscg/guide/${rawId}`),
-      provenance: { ...buildProvenance(req), matched_input: rawId },
+      provenance: filterProvenance({ ...buildProvenance(req), matched_input: rawId }, verbosity),
       data: null,
     });
     return;
@@ -119,7 +121,7 @@ router.get("/lcscg/guide/:guideId", async (req, res) => {
     found: true,
     queried_at: new Date(),
     source_url: resolveUrl(req, `/api/lcscg/guide/${rawId}`),
-    provenance: { ...buildProvenance(req), matched_input: rawId },
+    provenance: filterProvenance({ ...buildProvenance(req), matched_input: rawId }, verbosity),
     data: {
       guide,
       species_count: species.length,
@@ -129,6 +131,7 @@ router.get("/lcscg/guide/:guideId", async (req, res) => {
 });
 
 router.get("/lcscg/species", async (req, res) => {
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   const nameParam = req.query["name"];
 
   if (!nameParam || typeof nameParam !== "string" || nameParam.trim() === "") {
@@ -176,7 +179,7 @@ router.get("/lcscg/species", async (req, res) => {
     found: records.length > 0,
     queried_at: new Date(),
     source_url: resolveUrl(req, `/api/lcscg/species`),
-    provenance: { ...buildProvenance(req), matched_input: name },
+    provenance: filterProvenance({ ...buildProvenance(req), matched_input: name }, verbosity),
     data: {
       queried_name: name,
       result_count: records.length,

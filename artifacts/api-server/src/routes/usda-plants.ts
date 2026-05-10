@@ -16,6 +16,7 @@ import {
   lookupProfile,
   storeProfile,
 } from "../services/usda-plants/cache.js";
+import { filterProvenance } from "../lib/provenance.js";
 
 const router: IRouter = Router();
 
@@ -49,6 +50,8 @@ router.get("/usda-plants/metadata", async (req, res) => {
 router.get("/usda-plants", async (req, res) => {
   try {
     await ensureUsdaPlantsRegistryEntry();
+
+    const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
 
     const speciesParam = typeof req.query["species"] === "string" ? req.query["species"].trim() : null;
     if (!speciesParam) {
@@ -85,7 +88,7 @@ router.get("/usda-plants", async (req, res) => {
         found: false,
         queried_at: new Date(),
         source_url: resolveUrl(req, "/api/usda-plants"),
-        provenance: buildProvenance(nameMatch.upstream_url),
+        provenance: filterProvenance(buildProvenance(nameMatch.upstream_url), verbosity),
         data: {
           species: speciesParam,
           cache_status: cacheStatus,
@@ -122,7 +125,7 @@ router.get("/usda-plants", async (req, res) => {
       found: true,
       queried_at: new Date(),
       source_url: resolveUrl(req, "/api/usda-plants"),
-      provenance: buildProvenance(nameMatch.upstream_url),
+      provenance: filterProvenance(buildProvenance(nameMatch.upstream_url), verbosity),
       data: {
         species: speciesParam,
         symbol,
@@ -154,6 +157,8 @@ router.get("/usda-plants", async (req, res) => {
 router.get("/usda-plants/profile", async (req, res) => {
   try {
     await ensureUsdaPlantsRegistryEntry();
+
+    const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
 
     const symbolParam = typeof req.query["symbol"] === "string" ? req.query["symbol"].trim().toUpperCase() : null;
     if (!symbolParam) {
@@ -193,7 +198,7 @@ router.get("/usda-plants/profile", async (req, res) => {
       found: hasData,
       queried_at: new Date(),
       source_url: resolveUrl(req, "/api/usda-plants/profile"),
-      provenance: buildProvenance(profileRow.upstream_url),
+      provenance: filterProvenance(buildProvenance(profileRow.upstream_url), verbosity),
       data: {
         symbol: symbolParam,
         profile_url: profileUrl(symbolParam),
@@ -209,6 +214,8 @@ router.get("/usda-plants/profile", async (req, res) => {
 router.get("/usda-plants/search", async (req, res) => {
   try {
     await ensureUsdaPlantsRegistryEntry();
+
+    const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
 
     const q = typeof req.query["q"] === "string" ? req.query["q"].trim() : null;
     if (!q) {
@@ -241,7 +248,7 @@ router.get("/usda-plants/search", async (req, res) => {
       found: searchResult.total > 0,
       queried_at: new Date(),
       source_url: resolveUrl(req, "/api/usda-plants/search"),
-      provenance: buildProvenance(searchResult.upstream_url),
+      provenance: filterProvenance(buildProvenance(searchResult.upstream_url), verbosity),
       data: {
         query: q,
         field,

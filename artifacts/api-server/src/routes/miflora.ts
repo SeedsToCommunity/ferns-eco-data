@@ -36,6 +36,7 @@ import {
   GetMifloraImagesResponse,
   GetMifloraMetadataResponse,
 } from "@workspace/api-zod";
+import { filterProvenance } from "../lib/provenance.js";
 
 const router: IRouter = Router();
 
@@ -48,12 +49,13 @@ router.get("/miflora/species", async (req, res) => {
 
   const name = parsed.data.name;
   const refresh = parsed.data.refresh ?? false;
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   const cacheKey = buildSpeciesCacheKey(name);
 
   if (!refresh) {
     const cached = await lookupSpecies(cacheKey);
     if (cached) {
-      res.json(GetMifloraSpeciesResponse.parse(buildSpeciesResponse(cached, "hit")));
+      res.json(GetMifloraSpeciesResponse.parse(buildSpeciesResponse(cached, "hit", verbosity)));
       return;
     }
   }
@@ -61,7 +63,7 @@ router.get("/miflora/species", async (req, res) => {
   try {
     const result = await fetchSpecies(name);
     const stored = await storeSpecies(cacheKey, name, result);
-    res.json(GetMifloraSpeciesResponse.parse(buildSpeciesResponse(stored, "miss")));
+    res.json(GetMifloraSpeciesResponse.parse(buildSpeciesResponse(stored, "miss", verbosity)));
   } catch (err) {
     req.log.error({ err }, "Michigan Flora species lookup failed");
     res.status(502).json(buildSpeciesResponse({
@@ -75,7 +77,7 @@ router.get("/miflora/species", async (req, res) => {
       general_summary: MIFLORA_GENERAL_SUMMARY,
       technical_details: MIFLORA_TECHNICAL_DETAILS,
       queried_name: name,
-    }, "error"));
+    }, "error", verbosity));
   }
 });
 
@@ -117,6 +119,7 @@ function buildSpeciesResponse(
     queried_name?: string;
   },
   cache_status: "hit" | "miss" | "error",
+  verbosity?: string,
 ) {
   const enriched = row.found ? enrichPimageInfo(row.raw_response) : null;
   return {
@@ -125,7 +128,7 @@ function buildSpeciesResponse(
     cache_status,
     queried_at: new Date(),
     data: enriched ?? null,
-    provenance: {
+    provenance: filterProvenance({
       source_id: row.source_id,
       fetched_at: row.fetched_at,
       method: row.method,
@@ -133,7 +136,7 @@ function buildSpeciesResponse(
       general_summary: row.general_summary,
       technical_details: row.technical_details,
       ...(row.queried_name ? { matched_input: row.queried_name } : {}),
-    },
+    }, verbosity),
   };
 }
 
@@ -146,12 +149,13 @@ router.get("/miflora/counties", async (req, res) => {
 
   const name = parsed.data.name;
   const refresh = parsed.data.refresh ?? false;
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   const cacheKey = buildCountiesCacheKey(name);
 
   if (!refresh) {
     const cached = await lookupCounties(cacheKey);
     if (cached) {
-      res.json(GetMifloraCountiesResponse.parse(buildCountiesResponse(cached, "hit")));
+      res.json(GetMifloraCountiesResponse.parse(buildCountiesResponse(cached, "hit", verbosity)));
       return;
     }
   }
@@ -159,7 +163,7 @@ router.get("/miflora/counties", async (req, res) => {
   try {
     const result = await fetchCounties(name);
     const stored = await storeCounties(cacheKey, name, result);
-    res.json(GetMifloraCountiesResponse.parse(buildCountiesResponse(stored, "miss")));
+    res.json(GetMifloraCountiesResponse.parse(buildCountiesResponse(stored, "miss", verbosity)));
   } catch (err) {
     req.log.error({ err }, "Michigan Flora counties lookup failed");
     res.status(502).json(buildCountiesResponse({
@@ -173,7 +177,7 @@ router.get("/miflora/counties", async (req, res) => {
       general_summary: MIFLORA_GENERAL_SUMMARY,
       technical_details: MIFLORA_TECHNICAL_DETAILS,
       queried_name: name,
-    }, "error"));
+    }, "error", verbosity));
   }
 });
 
@@ -191,6 +195,7 @@ function buildCountiesResponse(
     queried_name?: string;
   },
   cache_status: "hit" | "miss" | "error",
+  verbosity?: string,
 ) {
   return {
     source_url: row.source_url ?? null,
@@ -198,7 +203,7 @@ function buildCountiesResponse(
     cache_status,
     queried_at: new Date(),
     data: row.raw_response ?? null,
-    provenance: {
+    provenance: filterProvenance({
       source_id: row.source_id,
       fetched_at: row.fetched_at,
       method: row.method,
@@ -206,7 +211,7 @@ function buildCountiesResponse(
       general_summary: row.general_summary,
       technical_details: row.technical_details,
       ...(row.queried_name ? { matched_input: row.queried_name } : {}),
-    },
+    }, verbosity),
   };
 }
 
@@ -219,12 +224,13 @@ router.get("/miflora/images", async (req, res) => {
 
   const name = parsed.data.name;
   const refresh = parsed.data.refresh ?? false;
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   const cacheKey = buildImagesCacheKey(name);
 
   if (!refresh) {
     const cached = await lookupImages(cacheKey);
     if (cached) {
-      res.json(GetMifloraImagesResponse.parse(buildImagesResponse(cached, "hit")));
+      res.json(GetMifloraImagesResponse.parse(buildImagesResponse(cached, "hit", verbosity)));
       return;
     }
   }
@@ -232,7 +238,7 @@ router.get("/miflora/images", async (req, res) => {
   try {
     const result = await fetchImages(name);
     const stored = await storeImages(cacheKey, name, result);
-    res.json(GetMifloraImagesResponse.parse(buildImagesResponse(stored, "miss")));
+    res.json(GetMifloraImagesResponse.parse(buildImagesResponse(stored, "miss", verbosity)));
   } catch (err) {
     req.log.error({ err }, "Michigan Flora images lookup failed");
     res.status(502).json(buildImagesResponse({
@@ -247,7 +253,7 @@ router.get("/miflora/images", async (req, res) => {
       general_summary: MIFLORA_GENERAL_SUMMARY,
       technical_details: MIFLORA_TECHNICAL_DETAILS,
       queried_name: name,
-    }, "error"));
+    }, "error", verbosity));
   }
 });
 
@@ -266,6 +272,7 @@ function buildImagesResponse(
     queried_name?: string;
   },
   cache_status: "hit" | "miss" | "error",
+  verbosity?: string,
 ) {
   return {
     source_url: row.source_url ?? null,
@@ -273,7 +280,7 @@ function buildImagesResponse(
     cache_status,
     queried_at: new Date(),
     data: row.found ? (row.raw_response ?? null) : null,
-    provenance: {
+    provenance: filterProvenance({
       source_id: row.source_id,
       fetched_at: row.fetched_at,
       method: row.method,
@@ -281,7 +288,7 @@ function buildImagesResponse(
       general_summary: row.general_summary,
       technical_details: row.technical_details,
       ...(row.queried_name ? { matched_input: row.queried_name } : {}),
-    },
+    }, verbosity),
   };
 }
 

@@ -7,8 +7,9 @@
  */
 
 /**
- * Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.
-
+ * Provenance block present on every FERNS API response. Identity fields are always present.
+ * Text fields (general_summary, technical_details) are conditionally present based on
+ * the provenance_verbosity query parameter (full|summary|none).
  */
 export interface FernsProvenance {
   /** Stable identifier for this data source (e.g. bonap-napa) */
@@ -20,10 +21,10 @@ export interface FernsProvenance {
   /** Where this data came from (API endpoint, file path, or registry entry) */
   upstream_url: string;
   /** Plain language description readable by a homeowner or community member */
-  general_summary: string;
+  general_summary?: string;
   /** Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce
    */
-  technical_details: string;
+  technical_details?: string;
   /** The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.
    */
   matched_input?: string;

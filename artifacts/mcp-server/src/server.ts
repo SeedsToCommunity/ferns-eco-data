@@ -13,6 +13,18 @@ interface ToolDef {
   handler: ToolHandler;
 }
 
+const PV_PROP = {
+  provenance_verbosity: {
+    type: "string",
+    enum: ["full", "summary", "none"],
+    description: "Controls how much provenance text is returned. full (default) returns both general_summary and technical_details; summary returns general_summary only; none omits both.",
+  },
+} as const;
+
+function pv(args: Record<string, unknown>): string | undefined {
+  return args["provenance_verbosity"] !== undefined ? String(args["provenance_verbosity"]) : undefined;
+}
+
 const tools: ToolDef[] = [
 
   // ── bonap-napa ──────────────────────────────────────────────────────────
@@ -28,6 +40,7 @@ const tools: ToolDef[] = [
           species:    { type: "string", description: "Specific epithet (e.g. grandiflorum)" },
           map_type:   { type: "string", enum: ["county_species", "state_species"], description: "Map resolution (default: county_species)" },
           refresh:    { type: "boolean", description: "Bypass cache and re-fetch from BONAP" },
+          ...PV_PROP,
         },
         required: ["genus", "species"],
       },
@@ -38,6 +51,7 @@ const tools: ToolDef[] = [
         species:  String(args["species"]),
         map_type: args["map_type"] !== undefined ? String(args["map_type"]) : undefined,
         refresh:  args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        provenance_verbosity: pv(args),
       }),
   },
 
@@ -52,6 +66,7 @@ const tools: ToolDef[] = [
         properties: {
           name:    { type: "string", description: "Scientific name to match (e.g. Quercus alba)" },
           refresh: { type: "boolean", description: "Bypass cache and re-fetch from GBIF" },
+          ...PV_PROP,
         },
         required: ["name"],
       },
@@ -60,6 +75,7 @@ const tools: ToolDef[] = [
       apiGet("/gbif/match", {
         name:    String(args["name"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        provenance_verbosity: pv(args),
       }),
   },
   {
@@ -71,12 +87,16 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           usageKey: { type: "number", description: "GBIF usage key (integer)" },
+          ...PV_PROP,
         },
         required: ["usageKey"],
       },
     },
     handler: async (args) =>
-      apiGet("/gbif/reconcile", { usageKey: Number(args["usageKey"]) }),
+      apiGet("/gbif/reconcile", {
+        usageKey: Number(args["usageKey"]),
+        provenance_verbosity: pv(args),
+      }),
   },
   {
     tool: {
@@ -91,6 +111,7 @@ const tools: ToolDef[] = [
           continent: { type: "string", enum: ["AFRICA","ANTARCTICA","ASIA","EUROPE","NORTH_AMERICA","OCEANIA","SOUTH_AMERICA"], description: "Continent filter (mutually exclusive with countries and bbox)" },
           bbox:      { type: "string", description: "Bounding box as minLat,minLon,maxLat,maxLon (mutually exclusive with countries and continent)" },
           refresh:   { type: "boolean", description: "Bypass cache and re-fetch from GBIF" },
+          ...PV_PROP,
         },
         required: ["usageKey"],
       },
@@ -102,6 +123,7 @@ const tools: ToolDef[] = [
         continent: args["continent"] !== undefined ? String(args["continent"]) : undefined,
         bbox:      args["bbox"] !== undefined ? String(args["bbox"]) : undefined,
         refresh:   args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        provenance_verbosity: pv(args),
       }),
   },
   {
@@ -113,12 +135,16 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           q: { type: "string", description: "Search query (scientific or common name)" },
+          ...PV_PROP,
         },
         required: ["q"],
       },
     },
     handler: async (args) =>
-      apiGet("/gbif/search", { q: String(args["q"]) }),
+      apiGet("/gbif/search", {
+        q: String(args["q"]),
+        provenance_verbosity: pv(args),
+      }),
   },
 
   // ── inaturalist ─────────────────────────────────────────────────────────
@@ -132,6 +158,7 @@ const tools: ToolDef[] = [
         properties: {
           q:       { type: "string", description: "Place name to search (e.g. Washtenaw County)" },
           refresh: { type: "boolean", description: "Bypass cache" },
+          ...PV_PROP,
         },
         required: ["q"],
       },
@@ -140,6 +167,7 @@ const tools: ToolDef[] = [
       apiGet("/inat/place", {
         q:       String(args["q"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        provenance_verbosity: pv(args),
       }),
   },
   {
@@ -152,6 +180,7 @@ const tools: ToolDef[] = [
         properties: {
           name:    { type: "string", description: "Scientific name (e.g. Trillium grandiflorum)" },
           refresh: { type: "boolean", description: "Bypass cache" },
+          ...PV_PROP,
         },
         required: ["name"],
       },
@@ -160,6 +189,7 @@ const tools: ToolDef[] = [
       apiGet("/inat/species", {
         name:    String(args["name"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        provenance_verbosity: pv(args),
       }),
   },
   {
@@ -173,6 +203,7 @@ const tools: ToolDef[] = [
           taxon_id: { type: "number", description: "iNaturalist taxon ID (integer)" },
           place_id: { type: "string", description: "Comma-separated iNaturalist place IDs to filter by" },
           refresh:  { type: "boolean", description: "Bypass cache" },
+          ...PV_PROP,
         },
         required: ["taxon_id"],
       },
@@ -182,6 +213,7 @@ const tools: ToolDef[] = [
         taxon_id: Number(args["taxon_id"]),
         place_id: args["place_id"] !== undefined ? String(args["place_id"]) : undefined,
         refresh:  args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        provenance_verbosity: pv(args),
       }),
   },
   {
@@ -196,6 +228,7 @@ const tools: ToolDef[] = [
           place_id:   { type: "string", description: "Comma-separated iNaturalist place IDs to filter by" },
           verifiable: { type: "boolean", description: "Only include verifiable observations (default: true)" },
           refresh:    { type: "boolean", description: "Bypass cache" },
+          ...PV_PROP,
         },
         required: ["taxon_id"],
       },
@@ -206,6 +239,7 @@ const tools: ToolDef[] = [
         place_id:   args["place_id"] !== undefined ? String(args["place_id"]) : undefined,
         verifiable: args["verifiable"] !== undefined ? String(args["verifiable"]) : undefined,
         refresh:    args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        provenance_verbosity: pv(args),
       }),
   },
   {
@@ -218,6 +252,7 @@ const tools: ToolDef[] = [
         properties: {
           taxon_id: { type: "number", description: "iNaturalist taxon ID (integer)" },
           place_id: { type: "number", description: "iNaturalist place ID (integer)" },
+          ...PV_PROP,
         },
         required: [],
       },
@@ -226,6 +261,7 @@ const tools: ToolDef[] = [
       apiGet("/inat/observations", {
         taxon_id: args["taxon_id"] !== undefined ? Number(args["taxon_id"]) : undefined,
         place_id: args["place_id"] !== undefined ? Number(args["place_id"]) : undefined,
+        provenance_verbosity: pv(args),
       }),
   },
 
@@ -240,6 +276,7 @@ const tools: ToolDef[] = [
         properties: {
           name:    { type: "string", description: "Scientific name (e.g. Trillium grandiflorum)" },
           refresh: { type: "boolean", description: "Bypass cache" },
+          ...PV_PROP,
         },
         required: ["name"],
       },
@@ -248,6 +285,7 @@ const tools: ToolDef[] = [
       apiGet("/miflora/species", {
         name:    String(args["name"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        provenance_verbosity: pv(args),
       }),
   },
   {
@@ -260,6 +298,7 @@ const tools: ToolDef[] = [
         properties: {
           name:    { type: "string", description: "Scientific name (e.g. Trillium grandiflorum)" },
           refresh: { type: "boolean", description: "Bypass cache" },
+          ...PV_PROP,
         },
         required: ["name"],
       },
@@ -268,6 +307,7 @@ const tools: ToolDef[] = [
       apiGet("/miflora/counties", {
         name:    String(args["name"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        provenance_verbosity: pv(args),
       }),
   },
   {
@@ -280,6 +320,7 @@ const tools: ToolDef[] = [
         properties: {
           name:    { type: "string", description: "Scientific name (e.g. Trillium grandiflorum)" },
           refresh: { type: "boolean", description: "Bypass cache" },
+          ...PV_PROP,
         },
         required: ["name"],
       },
@@ -288,6 +329,7 @@ const tools: ToolDef[] = [
       apiGet("/miflora/images", {
         name:    String(args["name"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        provenance_verbosity: pv(args),
       }),
   },
 
@@ -301,12 +343,16 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           value: { type: "string", description: "C-value to look up (e.g. 0, 5, or 10)" },
+          ...PV_PROP,
         },
         required: ["value"],
       },
     },
     handler: async (args) =>
-      apiGet("/coefficient-of-conservatism", { value: String(args["value"]) }),
+      apiGet("/coefficient-of-conservatism", {
+        value: String(args["value"]),
+        provenance_verbosity: pv(args),
+      }),
   },
   {
     tool: {
@@ -315,11 +361,14 @@ const tools: ToolDef[] = [
         "Returns all defined C-value records (0–10) with their labels and descriptions. The complete reference table for the coefficient of conservatism scale.",
       inputSchema: {
         type: "object" as const,
-        properties: {},
+        properties: { ...PV_PROP },
         required: [],
       },
     },
-    handler: async () => apiGet("/coefficient-of-conservatism/all"),
+    handler: async (args) =>
+      apiGet("/coefficient-of-conservatism/all", {
+        provenance_verbosity: pv(args),
+      }),
   },
 
   // ── wetland-indicator-status ────────────────────────────────────────────
@@ -332,12 +381,16 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           code: { type: "string", enum: ["OBL", "FACW", "FAC", "FACU", "UPL"], description: "Wetland indicator code" },
+          ...PV_PROP,
         },
         required: ["code"],
       },
     },
     handler: async (args) =>
-      apiGet("/wetland-indicator", { code: String(args["code"]) }),
+      apiGet("/wetland-indicator", {
+        code: String(args["code"]),
+        provenance_verbosity: pv(args),
+      }),
   },
   {
     tool: {
@@ -348,12 +401,16 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           value: { type: "string", description: "W-value to look up (-5, -3, 0, 3, or 5)" },
+          ...PV_PROP,
         },
         required: ["value"],
       },
     },
     handler: async (args) =>
-      apiGet("/wetland-indicator/w", { value: String(args["value"]) }),
+      apiGet("/wetland-indicator/w", {
+        value: String(args["value"]),
+        provenance_verbosity: pv(args),
+      }),
   },
   {
     tool: {
@@ -362,11 +419,14 @@ const tools: ToolDef[] = [
         "Returns all five Wetland Indicator Status codes with their descriptions and corresponding W numeric values. The complete USDA NRCS wetland indicator reference table.",
       inputSchema: {
         type: "object" as const,
-        properties: {},
+        properties: { ...PV_PROP },
         required: [],
       },
     },
-    handler: async () => apiGet("/wetland-indicator/all"),
+    handler: async (args) =>
+      apiGet("/wetland-indicator/all", {
+        provenance_verbosity: pv(args),
+      }),
   },
 
   // ── wucols-water-use ────────────────────────────────────────────────────
@@ -379,12 +439,16 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           code: { type: "string", enum: ["H", "M", "L", "VL"], description: "WUCOLS water-use code" },
+          ...PV_PROP,
         },
         required: ["code"],
       },
     },
     handler: async (args) =>
-      apiGet("/wucols", { code: String(args["code"]) }),
+      apiGet("/wucols", {
+        code: String(args["code"]),
+        provenance_verbosity: pv(args),
+      }),
   },
   {
     tool: {
@@ -393,11 +457,14 @@ const tools: ToolDef[] = [
         "Returns all WUCOLS water-use classification codes with descriptions, covering High, Medium, Low, and Very Low categories.",
       inputSchema: {
         type: "object" as const,
-        properties: {},
+        properties: { ...PV_PROP },
         required: [],
       },
     },
-    handler: async () => apiGet("/wucols/all"),
+    handler: async (args) =>
+      apiGet("/wucols/all", {
+        provenance_verbosity: pv(args),
+      }),
   },
 
   // ── seeds-to-community-washtenaw ────────────────────────────────────────
@@ -410,12 +477,16 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           year: { type: "number", description: "Catalog year (integer)" },
+          ...PV_PROP,
         },
         required: ["year"],
       },
     },
     handler: async (args) =>
-      apiGet("/s2c", { year: Number(args["year"]) }),
+      apiGet("/s2c", {
+        year: Number(args["year"]),
+        provenance_verbosity: pv(args),
+      }),
   },
   {
     tool: {
@@ -424,11 +495,14 @@ const tools: ToolDef[] = [
         "Returns the list of years for which Seeds to Community Washtenaw seed availability data is available.",
       inputSchema: {
         type: "object" as const,
-        properties: {},
+        properties: { ...PV_PROP },
         required: [],
       },
     },
-    handler: async () => apiGet("/s2c/years"),
+    handler: async (args) =>
+      apiGet("/s2c/years", {
+        provenance_verbosity: pv(args),
+      }),
   },
 
   // ── lcscg ───────────────────────────────────────────────────────────────
@@ -439,11 +513,14 @@ const tools: ToolDef[] = [
         "Returns all 12 illustrated seed collection guides published by the Lake County Forest Preserve District Volunteer Stewardship Network, covering native plants of Lake County, Illinois organized by season and habitat. Includes guide IDs and titles.",
       inputSchema: {
         type: "object" as const,
-        properties: {},
+        properties: { ...PV_PROP },
         required: [],
       },
     },
-    handler: async () => apiGet("/lcscg/guides"),
+    handler: async (args) =>
+      apiGet("/lcscg/guides", {
+        provenance_verbosity: pv(args),
+      }),
   },
   {
     tool: {
@@ -454,12 +531,15 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           guideId: { type: "number", description: "Guide ID (integer, e.g. 1271–1282)" },
+          ...PV_PROP,
         },
         required: ["guideId"],
       },
     },
     handler: async (args) =>
-      apiGet(`/lcscg/guide/${Number(args["guideId"])}`),
+      apiGet(`/lcscg/guide/${Number(args["guideId"])}`, {
+        provenance_verbosity: pv(args),
+      }),
   },
   {
     tool: {
@@ -470,12 +550,16 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           name: { type: "string", description: "Scientific or common name to search (partial match supported)" },
+          ...PV_PROP,
         },
         required: ["name"],
       },
     },
     handler: async (args) =>
-      apiGet("/lcscg/species", { name: String(args["name"]) }),
+      apiGet("/lcscg/species", {
+        name: String(args["name"]),
+        provenance_verbosity: pv(args),
+      }),
   },
 
   // ── universal-fqa ───────────────────────────────────────────────────────
@@ -486,11 +570,14 @@ const tools: ToolDef[] = [
         "Returns all FQA databases registered in the Universal FQA Tool, each representing a regional C-value list.",
       inputSchema: {
         type: "object" as const,
-        properties: {},
+        properties: { ...PV_PROP },
         required: [],
       },
     },
-    handler: async () => apiGet("/universal-fqa/databases"),
+    handler: async (args) =>
+      apiGet("/universal-fqa/databases", {
+        provenance_verbosity: pv(args),
+      }),
   },
   {
     tool: {
@@ -501,12 +588,15 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           id: { type: "number", description: "FQA database ID (integer)" },
+          ...PV_PROP,
         },
         required: ["id"],
       },
     },
     handler: async (args) =>
-      apiGet(`/universal-fqa/databases/${Number(args["id"])}`),
+      apiGet(`/universal-fqa/databases/${Number(args["id"])}`, {
+        provenance_verbosity: pv(args),
+      }),
   },
   {
     tool: {
@@ -518,6 +608,7 @@ const tools: ToolDef[] = [
         properties: {
           name:        { type: "string", description: "Scientific name to look up" },
           database_id: { type: "number", description: "FQA database ID (integer)" },
+          ...PV_PROP,
         },
         required: ["name", "database_id"],
       },
@@ -526,6 +617,7 @@ const tools: ToolDef[] = [
       apiGet("/universal-fqa/species", {
         name:        String(args["name"]),
         database_id: Number(args["database_id"]),
+        provenance_verbosity: pv(args),
       }),
   },
   {
@@ -537,12 +629,16 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           database_id: { type: "number", description: "FQA database ID (integer)" },
+          ...PV_PROP,
         },
         required: ["database_id"],
       },
     },
     handler: async (args) =>
-      apiGet("/universal-fqa/assessments", { database_id: Number(args["database_id"]) }),
+      apiGet("/universal-fqa/assessments", {
+        database_id: Number(args["database_id"]),
+        provenance_verbosity: pv(args),
+      }),
   },
   {
     tool: {
@@ -553,12 +649,15 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           id: { type: "number", description: "FQA assessment ID (integer)" },
+          ...PV_PROP,
         },
         required: ["id"],
       },
     },
     handler: async (args) =>
-      apiGet(`/universal-fqa/assessment/${Number(args["id"])}`),
+      apiGet(`/universal-fqa/assessment/${Number(args["id"])}`, {
+        provenance_verbosity: pv(args),
+      }),
   },
 
   // ── gobotany ────────────────────────────────────────────────────────────
@@ -571,12 +670,16 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           species: { type: "string", description: "Scientific name (e.g. Trillium grandiflorum)" },
+          ...PV_PROP,
         },
         required: ["species"],
       },
     },
     handler: async (args) =>
-      apiGet("/gobotany", { species: String(args["species"]) }),
+      apiGet("/gobotany", {
+        species: String(args["species"]),
+        provenance_verbosity: pv(args),
+      }),
   },
   {
     tool: {
@@ -588,6 +691,7 @@ const tools: ToolDef[] = [
         properties: {
           species: { type: "string", description: "Scientific name (e.g. Trillium grandiflorum)" },
           refresh: { type: "boolean", description: "Bypass cache and re-scrape the live page" },
+          ...PV_PROP,
         },
         required: ["species"],
       },
@@ -596,6 +700,7 @@ const tools: ToolDef[] = [
       apiGet("/gobotany/species-text", {
         species: String(args["species"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        provenance_verbosity: pv(args),
       }),
   },
 
@@ -609,12 +714,16 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           species: { type: "string", description: "Scientific name (e.g. Trillium grandiflorum)" },
+          ...PV_PROP,
         },
         required: ["species"],
       },
     },
     handler: async (args) =>
-      apiGet("/google-images", { species: String(args["species"]) }),
+      apiGet("/google-images", {
+        species: String(args["species"]),
+        provenance_verbosity: pv(args),
+      }),
   },
 
   // ── illinois-wildflowers ─────────────────────────────────────────────────
@@ -627,12 +736,16 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           species: { type: "string", description: "Scientific name (e.g. Trillium grandiflorum)" },
+          ...PV_PROP,
         },
         required: ["species"],
       },
     },
     handler: async (args) =>
-      apiGet("/illinois-wildflowers", { species: String(args["species"]) }),
+      apiGet("/illinois-wildflowers", {
+        species: String(args["species"]),
+        provenance_verbosity: pv(args),
+      }),
   },
   {
     tool: {
@@ -644,6 +757,7 @@ const tools: ToolDef[] = [
         properties: {
           species: { type: "string", description: "Scientific name (e.g. Trillium grandiflorum)" },
           refresh: { type: "boolean", description: "Bypass cache and re-scrape the live page" },
+          ...PV_PROP,
         },
         required: ["species"],
       },
@@ -652,6 +766,7 @@ const tools: ToolDef[] = [
       apiGet("/illinois-wildflowers/species-text", {
         species: String(args["species"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        provenance_verbosity: pv(args),
       }),
   },
 
@@ -669,12 +784,16 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           usda_symbol: { type: "string", description: "USDA Plants symbol (e.g. TRGI for Trillium grandiflorum)" },
+          ...PV_PROP,
         },
         required: ["usda_symbol"],
       },
     },
     handler: async (args) =>
-      apiGet("/lady-bird-johnson", { usda_symbol: String(args["usda_symbol"]) }),
+      apiGet("/lady-bird-johnson", {
+        usda_symbol: String(args["usda_symbol"]),
+        provenance_verbosity: pv(args),
+      }),
   },
 
   {
@@ -691,6 +810,7 @@ const tools: ToolDef[] = [
         properties: {
           usda_symbol: { type: "string", description: "USDA Plants symbol (e.g. TRGI for Trillium grandiflorum)" },
           refresh: { type: "boolean", description: "If true, bypass cache and re-scrape the live page" },
+          ...PV_PROP,
         },
         required: ["usda_symbol"],
       },
@@ -699,6 +819,7 @@ const tools: ToolDef[] = [
       apiGet("/lady-bird-johnson/species-text", {
         usda_symbol: String(args["usda_symbol"]),
         ...(args["refresh"] !== undefined ? { refresh: String(args["refresh"]) } : {}),
+        provenance_verbosity: pv(args),
       }),
   },
 
@@ -712,12 +833,16 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           species: { type: "string", description: "Scientific name (e.g. Trillium grandiflorum)" },
+          ...PV_PROP,
         },
         required: ["species"],
       },
     },
     handler: async (args) =>
-      apiGet("/minnesota-wildflowers", { species: String(args["species"]) }),
+      apiGet("/minnesota-wildflowers", {
+        species: String(args["species"]),
+        provenance_verbosity: pv(args),
+      }),
   },
   {
     tool: {
@@ -729,6 +854,7 @@ const tools: ToolDef[] = [
         properties: {
           species: { type: "string", description: "Scientific name (e.g. Trillium grandiflorum)" },
           refresh: { type: "boolean", description: "Bypass cache and re-scrape the live page" },
+          ...PV_PROP,
         },
         required: ["species"],
       },
@@ -737,6 +863,7 @@ const tools: ToolDef[] = [
       apiGet("/minnesota-wildflowers/species-text", {
         species: String(args["species"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        provenance_verbosity: pv(args),
       }),
   },
 
@@ -750,12 +877,16 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           species: { type: "string", description: "Scientific name (e.g. Trillium grandiflorum)" },
+          ...PV_PROP,
         },
         required: ["species"],
       },
     },
     handler: async (args) =>
-      apiGet("/missouri-plants", { species: String(args["species"]) }),
+      apiGet("/missouri-plants", {
+        species: String(args["species"]),
+        provenance_verbosity: pv(args),
+      }),
   },
   {
     tool: {
@@ -767,6 +898,7 @@ const tools: ToolDef[] = [
         properties: {
           species: { type: "string", description: "Scientific name (e.g. Trillium grandiflorum)" },
           refresh: { type: "boolean", description: "Bypass cache and re-scrape the live page" },
+          ...PV_PROP,
         },
         required: ["species"],
       },
@@ -775,6 +907,7 @@ const tools: ToolDef[] = [
       apiGet("/missouri-plants/species-text", {
         species: String(args["species"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        provenance_verbosity: pv(args),
       }),
   },
 
@@ -790,6 +923,7 @@ const tools: ToolDef[] = [
           class: { type: "string", description: "Ecological class filter (e.g. Upland)" },
           group: { type: "string", description: "Ecological group filter (e.g. Oak Openings)" },
           name:  { type: "string", description: "Community name filter (partial match)" },
+          ...PV_PROP,
         },
         required: [],
       },
@@ -799,6 +933,7 @@ const tools: ToolDef[] = [
         class: args["class"] !== undefined ? String(args["class"]) : undefined,
         group: args["group"] !== undefined ? String(args["group"]) : undefined,
         name:  args["name"]  !== undefined ? String(args["name"])  : undefined,
+        provenance_verbosity: pv(args),
       }),
   },
   {
@@ -810,12 +945,15 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           id: { type: "string", description: "MNFI community ID (e.g. A1)" },
+          ...PV_PROP,
         },
         required: ["id"],
       },
     },
     handler: async (args) =>
-      apiGet(`/mnfi/communities/${encodeURIComponent(String(args["id"]))}`),
+      apiGet(`/mnfi/communities/${encodeURIComponent(String(args["id"]))}`, {
+        provenance_verbosity: pv(args),
+      }),
   },
   {
     tool: {
@@ -826,12 +964,15 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           id: { type: "string", description: "MNFI community ID (e.g. A1)" },
+          ...PV_PROP,
         },
         required: ["id"],
       },
     },
     handler: async (args) =>
-      apiGet(`/mnfi/communities/${encodeURIComponent(String(args["id"]))}/plants`),
+      apiGet(`/mnfi/communities/${encodeURIComponent(String(args["id"]))}/plants`, {
+        provenance_verbosity: pv(args),
+      }),
   },
   {
     tool: {
@@ -843,6 +984,7 @@ const tools: ToolDef[] = [
         properties: {
           county: { type: "string", description: "Michigan county name (e.g. Washtenaw)" },
           type:   { type: "string", description: "Element type filter (e.g. plant, community)" },
+          ...PV_PROP,
         },
         required: [],
       },
@@ -851,6 +993,7 @@ const tools: ToolDef[] = [
       apiGet("/mnfi/county-elements", {
         county: args["county"] !== undefined ? String(args["county"]) : undefined,
         type:   args["type"]   !== undefined ? String(args["type"])   : undefined,
+        provenance_verbosity: pv(args),
       }),
   },
 
@@ -866,6 +1009,7 @@ const tools: ToolDef[] = [
           name:    { type: "string", description: "Scientific name (e.g. Trillium grandiflorum)" },
           state:   { type: "string", description: "Two-letter US state code (e.g. MI)" },
           refresh: { type: "boolean", description: "Bypass cache" },
+          ...PV_PROP,
         },
         required: ["name"],
       },
@@ -875,6 +1019,7 @@ const tools: ToolDef[] = [
         name:    String(args["name"]),
         state:   args["state"]   !== undefined ? String(args["state"])   : undefined,
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        provenance_verbosity: pv(args),
       }),
   },
   {
@@ -887,6 +1032,7 @@ const tools: ToolDef[] = [
         properties: {
           name:    { type: "string", description: "Ecosystem name query" },
           refresh: { type: "boolean", description: "Bypass cache" },
+          ...PV_PROP,
         },
         required: ["name"],
       },
@@ -895,6 +1041,7 @@ const tools: ToolDef[] = [
       apiGet("/natureserve/ecosystems", {
         name:    String(args["name"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        provenance_verbosity: pv(args),
       }),
   },
 
@@ -908,12 +1055,16 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           species: { type: "string", description: "Scientific name (e.g. Trillium grandiflorum)" },
+          ...PV_PROP,
         },
         required: ["species"],
       },
     },
     handler: async (args) =>
-      apiGet("/prairie-moon", { species: String(args["species"]) }),
+      apiGet("/prairie-moon", {
+        species: String(args["species"]),
+        provenance_verbosity: pv(args),
+      }),
   },
   {
     tool: {
@@ -925,6 +1076,7 @@ const tools: ToolDef[] = [
         properties: {
           species: { type: "string", description: "Scientific name (e.g. Trillium grandiflorum)" },
           refresh: { type: "boolean", description: "Bypass cache and re-scrape the live page" },
+          ...PV_PROP,
         },
         required: ["species"],
       },
@@ -933,6 +1085,7 @@ const tools: ToolDef[] = [
       apiGet("/prairie-moon/species-text", {
         species: String(args["species"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        provenance_verbosity: pv(args),
       }),
   },
 
@@ -947,6 +1100,7 @@ const tools: ToolDef[] = [
         properties: {
           species: { type: "string", description: "Scientific name (e.g. Asclepias tuberosa)" },
           refresh: { type: "boolean", description: "Bypass cache and fetch fresh (default false)" },
+          ...PV_PROP,
         },
         required: ["species"],
       },
@@ -955,6 +1109,7 @@ const tools: ToolDef[] = [
       apiGet("/usda-plants", {
         species: String(args["species"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        provenance_verbosity: pv(args),
       }),
   },
   {
@@ -967,6 +1122,7 @@ const tools: ToolDef[] = [
         properties: {
           symbol: { type: "string", description: "USDA PLANTS symbol (e.g. ASTU)" },
           refresh: { type: "boolean", description: "Bypass cache and fetch fresh (default false)" },
+          ...PV_PROP,
         },
         required: ["symbol"],
       },
@@ -975,6 +1131,7 @@ const tools: ToolDef[] = [
       apiGet("/usda-plants/profile", {
         symbol: String(args["symbol"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        provenance_verbosity: pv(args),
       }),
   },
   {
@@ -991,6 +1148,7 @@ const tools: ToolDef[] = [
             description: "Field to search: Scientific Name (default), Common Name, Symbol, or Family",
           },
           page: { type: "number", description: "Page number (1-based, default 1)" },
+          ...PV_PROP,
         },
         required: ["q"],
       },
@@ -1000,6 +1158,7 @@ const tools: ToolDef[] = [
         q: String(args["q"]),
         field: args["field"] !== undefined ? String(args["field"]) : undefined,
         page: args["page"] !== undefined ? String(args["page"]) : undefined,
+        provenance_verbosity: pv(args),
       }),
   },
 
@@ -1026,6 +1185,7 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           source_id: { type: "string", description: "Filter relationships to a specific source ID (e.g. gbif)" },
+          ...PV_PROP,
         },
         required: [],
       },
@@ -1033,6 +1193,7 @@ const tools: ToolDef[] = [
     handler: async (args) =>
       apiGet("/v1/source-relationships", {
         source_id: args["source_id"] !== undefined ? String(args["source_id"]) : undefined,
+        provenance_verbosity: pv(args),
       }),
   },
 ];
@@ -1074,4 +1235,3 @@ const tools: ToolDef[] = [
 
     return server;
   }
-  

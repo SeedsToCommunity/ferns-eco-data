@@ -21,6 +21,7 @@ import {
 import { ensureUniversalFqaRegistryEntry } from "../services/universal-fqa/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
 import { logger } from "../lib/logger.js";
+import { filterProvenance } from "../lib/provenance.js";
 
 const router: IRouter = Router();
 
@@ -59,6 +60,7 @@ router.get("/universal-fqa/metadata", async (req, res) => {
 
 router.get("/universal-fqa/databases", async (req, res) => {
   const upstreamUrl = `${UNIVERSAL_FQA_API_BASE}/database/`;
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
 
   try {
     const databases = await fetchDatabaseList();
@@ -68,7 +70,7 @@ router.get("/universal-fqa/databases", async (req, res) => {
       cache_status: "miss",
       queried_at: new Date(),
       source_url: upstreamUrl,
-      provenance: buildProvenance(req, upstreamUrl),
+      provenance: filterProvenance(buildProvenance(req, upstreamUrl), verbosity),
       data: { databases },
     });
   } catch (err) {
@@ -94,6 +96,7 @@ router.get("/universal-fqa/databases/:id", async (req, res) => {
   }
 
   const upstreamUrl = `${UNIVERSAL_FQA_API_BASE}/database/${databaseId}`;
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
 
   try {
     const { detail, cache_hit } = await getOrFetchDatabase(databaseId);
@@ -103,7 +106,7 @@ router.get("/universal-fqa/databases/:id", async (req, res) => {
       cache_status: cache_hit ? "hit" : "miss",
       queried_at: new Date(),
       source_url: upstreamUrl,
-      provenance: buildProvenance(req, upstreamUrl),
+      provenance: filterProvenance(buildProvenance(req, upstreamUrl), verbosity),
       data: detail,
     });
   } catch (err) {
@@ -147,6 +150,7 @@ router.get("/universal-fqa/species", async (req, res) => {
 
   const scientificName = String(nameParam);
   const upstreamUrl = `${UNIVERSAL_FQA_API_BASE}/database/${databaseId}`;
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
 
   try {
     const result = await lookupSpeciesFromDb(databaseId, scientificName);
@@ -156,10 +160,10 @@ router.get("/universal-fqa/species", async (req, res) => {
       cache_status: result.cache_hit ? "hit" : "miss",
       queried_at: new Date(),
       source_url: upstreamUrl,
-      provenance: {
+      provenance: filterProvenance({
         ...buildProvenance(req, upstreamUrl),
         matched_input: scientificName,
-      },
+      }, verbosity),
       data: {
         database_id: databaseId,
         queried_name: scientificName,
@@ -198,6 +202,7 @@ router.get("/universal-fqa/assessments", async (req, res) => {
   }
 
   const upstreamUrl = `${UNIVERSAL_FQA_API_BASE}/database/${databaseId}/inventory`;
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
 
   try {
     const assessments = await fetchAssessmentList(databaseId);
@@ -207,7 +212,7 @@ router.get("/universal-fqa/assessments", async (req, res) => {
       cache_status: "miss",
       queried_at: new Date(),
       source_url: upstreamUrl,
-      provenance: buildProvenance(req, upstreamUrl),
+      provenance: filterProvenance(buildProvenance(req, upstreamUrl), verbosity),
       data: {
         database_id: databaseId,
         assessments,
@@ -236,6 +241,7 @@ router.get("/universal-fqa/assessment/:id", async (req, res) => {
   }
 
   const upstreamUrl = `${UNIVERSAL_FQA_API_BASE}/inventory/${assessmentId}`;
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
 
   try {
     const detail = await fetchAssessment(assessmentId);
@@ -245,7 +251,7 @@ router.get("/universal-fqa/assessment/:id", async (req, res) => {
       cache_status: "miss",
       queried_at: new Date(),
       source_url: upstreamUrl,
-      provenance: buildProvenance(req, upstreamUrl),
+      provenance: filterProvenance(buildProvenance(req, upstreamUrl), verbosity),
       data: detail,
     });
   } catch (err: unknown) {

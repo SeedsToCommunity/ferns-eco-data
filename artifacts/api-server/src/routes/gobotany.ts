@@ -12,6 +12,7 @@ import {
 } from "../services/gobotany/metadata.js";
 import { ensureGobotanyRegistryEntry } from "../services/gobotany/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
+import { filterProvenance } from "../lib/provenance.js";
 
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -62,6 +63,8 @@ router.get("/gobotany/metadata", async (req, res) => {
 router.get("/gobotany", async (req, res) => {
   await ensureGobotanyRegistryEntry();
 
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+
   const speciesParam = typeof req.query["species"] === "string" ? req.query["species"].trim() : null;
   if (!speciesParam) {
     res.status(400).json({
@@ -82,11 +85,9 @@ router.get("/gobotany", async (req, res) => {
 
   const { genus, species } = parsed;
   const url = `${GOBOTANY_BASE}/species/${genus}/${species}/`;
-  // Normalize for consistent cache key regardless of input casing/whitespace
   const cacheKey = speciesParam.trim().toLowerCase();
   const cacheThreshold = new Date(Date.now() - CACHE_TTL_MS);
 
-  // Check cache first
   const cached = await db
     .select()
     .from(botanicalWebRefsCacheTable)
@@ -105,7 +106,7 @@ router.get("/gobotany", async (req, res) => {
       found: hit.found,
       queried_at: new Date(),
       source_url: resolveUrl(req, "/api/gobotany"),
-      provenance: { ...buildProvenance(req), matched_input: speciesParam, cache_hit: true, cached_at: hit.cached_at },
+      provenance: filterProvenance({ ...buildProvenance(req), matched_input: speciesParam, cache_hit: true, cached_at: hit.cached_at }, verbosity),
       data: hit.found
         ? { species: speciesParam, url: hit.url, validation_method: hit.validation_method, cache_hit: true }
         : null,
@@ -113,7 +114,6 @@ router.get("/gobotany", async (req, res) => {
     return;
   }
 
-  // Cache miss — make live HTTP GET request
   let found = false;
   let validationMethod: string;
   let httpStatus: number | null = null;
@@ -133,7 +133,6 @@ router.get("/gobotany", async (req, res) => {
     found = false;
   }
 
-  // Write to cache (using normalized key)
   await db
     .insert(botanicalWebRefsCacheTable)
     .values({
@@ -152,7 +151,7 @@ router.get("/gobotany", async (req, res) => {
     found,
     queried_at: new Date(),
     source_url: resolveUrl(req, "/api/gobotany"),
-    provenance: { ...buildProvenance(req), matched_input: speciesParam, cache_hit: false },
+    provenance: filterProvenance({ ...buildProvenance(req), matched_input: speciesParam, cache_hit: false }, verbosity),
     data: found
       ? {
           species: speciesParam,
@@ -166,6 +165,8 @@ router.get("/gobotany", async (req, res) => {
 
 router.get("/gobotany/species-text", async (req, res) => {
   await ensureGobotanyRegistryEntry();
+
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
 
   const speciesParam = typeof req.query["species"] === "string" ? req.query["species"].trim() : null;
   const refresh = req.query["refresh"] === "true";
@@ -199,7 +200,7 @@ router.get("/gobotany/species-text", async (req, res) => {
     cache_status: result.cache_status,
     scraped_at: result.scraped_at,
     ...(result.fetch_error ? { fetch_error: result.fetch_error } : {}),
-    provenance: { ...buildProvenance(req), matched_input: speciesParam },
+    provenance: filterProvenance({ ...buildProvenance(req), matched_input: speciesParam }, verbosity),
     data: result.found
       ? {
           species: speciesParam,

@@ -25,6 +25,7 @@ import { ensureNatureserveRegistryEntry } from "../services/natureserve/seed.js"
 import { resolveUrl } from "../lib/resolve-url.js";
 import { db, natureserveSpeciesCacheTable, natureserveEcosystemsCacheTable } from "@workspace/db";
 import { count } from "drizzle-orm";
+import { filterProvenance } from "../lib/provenance.js";
 
 const router: IRouter = Router();
 
@@ -45,12 +46,13 @@ router.get("/natureserve/species", async (req, res) => {
   }
   const state = rawState;
   const refresh = req.query.refresh === "true" || req.query.refresh === "1";
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   const cacheKey = buildSpeciesCacheKey(name, state);
 
   if (!refresh) {
     const cached = await lookupSpeciesCache(cacheKey);
     if (cached) {
-      res.json(buildSpeciesResponse(cached, "hit"));
+      res.json(buildSpeciesResponse(cached, "hit", verbosity));
       return;
     }
   }
@@ -58,7 +60,7 @@ router.get("/natureserve/species", async (req, res) => {
   try {
     const result = await searchSpecies(name, state);
     const stored = await storeSpeciesCache(cacheKey, result, result.search_upstream_url);
-    res.json(buildSpeciesResponse(stored, refresh ? "bypassed" : "miss"));
+    res.json(buildSpeciesResponse(stored, refresh ? "bypassed" : "miss", verbosity));
   } catch (err) {
     req.log.error({ err }, "NatureServe species fetch failed");
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from NatureServe Explorer API" });
@@ -68,6 +70,7 @@ router.get("/natureserve/species", async (req, res) => {
 function buildSpeciesResponse(
   row: typeof natureserveSpeciesCacheTable.$inferSelect,
   cache_status: "hit" | "miss" | "bypassed",
+  verbosity?: string,
 ) {
   return {
     source_url: row.natureserve_url ?? null,
@@ -96,14 +99,14 @@ function buildSpeciesResponse(
       element_global_id: row.element_global_id ?? null,
       cache_status,
     },
-    provenance: {
+    provenance: filterProvenance({
       source_id: row.source_id,
       fetched_at: row.fetched_at,
       method: row.method,
       upstream_url: row.upstream_url,
       general_summary: row.general_summary,
       technical_details: row.technical_details,
-    },
+    }, verbosity),
   };
 }
 
@@ -116,12 +119,13 @@ router.get("/natureserve/ecosystems", async (req, res) => {
 
   const name = rawName.trim();
   const refresh = req.query.refresh === "true" || req.query.refresh === "1";
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   const cacheKey = buildEcosystemsCacheKey(name);
 
   if (!refresh) {
     const cached = await lookupEcosystemsCache(cacheKey);
     if (cached) {
-      res.json(buildEcosystemsResponse(cached, "hit"));
+      res.json(buildEcosystemsResponse(cached, "hit", verbosity));
       return;
     }
   }
@@ -129,7 +133,7 @@ router.get("/natureserve/ecosystems", async (req, res) => {
   try {
     const result = await searchEcosystems(name);
     const stored = await storeEcosystemsCache(cacheKey, result);
-    res.json(buildEcosystemsResponse(stored, refresh ? "bypassed" : "miss"));
+    res.json(buildEcosystemsResponse(stored, refresh ? "bypassed" : "miss", verbosity));
   } catch (err) {
     req.log.error({ err }, "NatureServe ecosystems fetch failed");
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from NatureServe Explorer API" });
@@ -139,6 +143,7 @@ router.get("/natureserve/ecosystems", async (req, res) => {
 function buildEcosystemsResponse(
   row: typeof natureserveEcosystemsCacheTable.$inferSelect,
   cache_status: "hit" | "miss" | "bypassed",
+  verbosity?: string,
 ) {
   const items = Array.isArray(row.results) ? row.results : [];
   return {
@@ -152,14 +157,14 @@ function buildEcosystemsResponse(
       total_results_all_types: row.result_count ? parseInt(row.result_count, 10) : items.length,
       cache_status,
     },
-    provenance: {
+    provenance: filterProvenance({
       source_id: row.source_id,
       fetched_at: row.fetched_at,
       method: row.method,
       upstream_url: row.upstream_url,
       general_summary: row.general_summary,
       technical_details: row.technical_details,
-    },
+    }, verbosity),
   };
 }
 

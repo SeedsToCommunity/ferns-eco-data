@@ -14,6 +14,7 @@ import {
 } from "../services/wetland-indicator/data.js";
 import { ensureWetlandIndicatorRegistryEntry } from "../services/wetland-indicator/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
+import { filterProvenance } from "../lib/provenance.js";
 
 const router: IRouter = Router();
 
@@ -29,6 +30,7 @@ function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
 }
 
 router.get("/wetland-indicator", (req, res) => {
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   const code = req.query["code"];
   if (typeof code !== "string" || code.trim() === "") {
     res.status(400).json({ error: "invalid_input", message: "code query parameter is required (OBL, FACW, FAC, FACU, or UPL)" });
@@ -43,15 +45,16 @@ router.get("/wetland-indicator", (req, res) => {
     cache_status: "miss",
     queried_at: new Date(),
     source_url: resolveUrl(req, "/api/wetland-indicator/all"),
-    provenance: {
+    provenance: filterProvenance({
       ...buildProvenance(req),
       matched_input: code.trim().toUpperCase(),
-    },
+    }, verbosity),
     data: found ? entry : null,
   });
 });
 
 router.get("/wetland-indicator/w", (req, res) => {
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   const rawValue = req.query["value"];
   if (typeof rawValue !== "string" || rawValue.trim() === "") {
     res.status(400).json({ error: "invalid_input", message: "value query parameter is required (-5, -3, 0, 3, or 5)" });
@@ -72,25 +75,26 @@ router.get("/wetland-indicator/w", (req, res) => {
     cache_status: "miss",
     queried_at: new Date(),
     source_url: resolveUrl(req, "/api/wetland-indicator/all"),
-    provenance: {
+    provenance: filterProvenance({
       ...buildProvenance(req),
       upstream_url: resolveUrl(req, "/api/wetland-indicator/all"),
       matched_input: String(w),
-    },
+    }, verbosity),
     data: found ? entry : null,
   });
 });
 
 router.get("/wetland-indicator/all", (req, res) => {
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   res.json({
     found: true,
     cache_status: "miss",
     queried_at: new Date(),
     source_url: resolveUrl(req, "/api/wetland-indicator/all"),
-    provenance: {
+    provenance: filterProvenance({
       ...buildProvenance(req),
       upstream_url: resolveUrl(req, "/api/wetland-indicator/all"),
-    },
+    }, verbosity),
     data: WETLAND_INDICATOR_DATA,
   });
 });

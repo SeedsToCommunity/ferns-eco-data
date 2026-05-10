@@ -14,6 +14,7 @@ import { ensurePrairieMoonRegistryEntry } from "../services/prairie-moon/seed.js
 import { importPrairieMoon } from "../services/botanical-refs/importers/prairie-moon.js";
 import { requireAdmin } from "../lib/admin-guard.js";
 import { resolveUrl } from "../lib/resolve-url.js";
+import { filterProvenance } from "../lib/provenance.js";
 
 const router: IRouter = Router();
 const SITE_ID = PRAIRIE_MOON_SOURCE_ID;
@@ -53,6 +54,8 @@ router.get("/prairie-moon/metadata", async (req, res) => {
 router.get("/prairie-moon", async (req, res) => {
   await ensurePrairieMoonRegistryEntry();
 
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+
   const speciesParam = typeof req.query["species"] === "string" ? req.query["species"].trim() : null;
   if (!speciesParam) {
     res.status(400).json({
@@ -78,7 +81,7 @@ router.get("/prairie-moon", async (req, res) => {
     found,
     queried_at: new Date(),
     source_url: resolveUrl(req, "/api/prairie-moon"),
-    provenance: { ...buildProvenance(req), matched_input: speciesParam },
+    provenance: filterProvenance({ ...buildProvenance(req), matched_input: speciesParam }, verbosity),
     data: found
       ? {
           species: rows[0].scientific_name,
@@ -92,6 +95,8 @@ router.get("/prairie-moon", async (req, res) => {
 
 router.get("/prairie-moon/species-text", async (req, res) => {
   await ensurePrairieMoonRegistryEntry();
+
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
 
   const speciesParam = typeof req.query["species"] === "string" ? req.query["species"].trim() : null;
   const refresh = req.query["refresh"] === "true";
@@ -126,7 +131,7 @@ router.get("/prairie-moon/species-text", async (req, res) => {
     cache_status: result.cache_status,
     scraped_at: result.scraped_at,
     ...(result.fetch_error ? { fetch_error: result.fetch_error } : {}),
-    provenance: { ...buildProvenance(req), matched_input: speciesParam },
+    provenance: filterProvenance({ ...buildProvenance(req), matched_input: speciesParam }, verbosity),
     data: result.found
       ? {
           species: speciesParam,
