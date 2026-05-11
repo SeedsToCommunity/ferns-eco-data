@@ -100,6 +100,10 @@ function CreateGroupForm({ onCancel }: { onCancel: () => void }) {
       setError("Name and slug are required.");
       return;
     }
+    if (!/^[a-z0-9][a-z0-9-]*$/.test(form.slug.trim())) {
+      setError("Slug may only contain lowercase letters, numbers, and hyphens, and must start with a letter or number.");
+      return;
+    }
     mutation.mutate({
       name: form.name.trim(),
       slug: form.slug.trim(),
@@ -136,7 +140,9 @@ function CreateGroupForm({ onCancel }: { onCancel: () => void }) {
               value={form.slug}
               onChange={(e) => handleSlugChange(e.target.value)}
               placeholder="research-partners"
-              pattern="[a-z0-9][a-z0-9\-]*"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
               required
             />
             <p className="text-xs text-muted-foreground">Lowercase letters, numbers, hyphens only</p>
