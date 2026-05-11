@@ -74,11 +74,18 @@ async function tableExists(tableName: string): Promise<boolean> {
  * Run a SQL migration file statement-by-statement (split on double-newline
  * between CREATE/ALTER statements). Each statement runs in its own transaction
  * with a lock_timeout so it fails fast rather than hanging startup.
+ *
+ * @param failFast - When true (default for schema-creating migrations), any
+ *   statement failure throws immediately and the migration is NOT marked as
+ *   applied, so the next startup will retry. When false (for cleanup/alter
+ *   migrations), failures are logged as warnings and the migration is still
+ *   marked applied so it is not retried.
  */
 async function runSqlMigration(
   tag: string,
   when: number,
-  label: string
+  label: string,
+  failFast = false
 ): Promise<void> {
   const alreadyApplied = await isMigrationApplied(tag);
   if (alreadyApplied) {
@@ -114,6 +121,10 @@ async function runSqlMigration(
     } catch (err: unknown) {
       await client.query("ROLLBACK").catch(() => {});
       const msg = err instanceof Error ? err.message : String(err);
+      if (failFast) {
+        // Do NOT mark the migration applied — allow retry on next startup.
+        throw new Error(`[migrate] ${label} failed (statement: ${msg.slice(0, 200)})`);
+      }
       console.warn(
         `[migrate] ${label} statement skipped (non-fatal): ${msg.slice(0, 120)}`
       );
@@ -236,7 +247,7 @@ export async function runMigrations(): Promise<void> {
   // before this custom runner was extended. The CREATE TABLE IF NOT EXISTS guards
   // in 0007 make it safe to re-run against any state.
   if (entry7) {
-    await runSqlMigration("0007_trust_layer", entry7.when, "0007 (trust layer)");
+    await runSqlMigration("0007_trust_layer", entry7.when, "0007 (trust layer)", true);
   }
 
   console.info("[migrate] All migrations complete.");
