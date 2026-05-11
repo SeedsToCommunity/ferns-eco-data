@@ -68,6 +68,67 @@ async function tableExists(tableName: string): Promise<boolean> {
   return result.rows.length > 0;
 }
 
+// ─── generic SQL migration runner ─────────────────────────────────────────────
+
+/**
+ * Run a SQL migration file statement-by-statement (split on double-newline
+ * between CREATE/ALTER statements). Each statement runs in its own transaction
+ * with a lock_timeout so it fails fast rather than hanging startup.
+ */
+async function runSqlMigration(
+  tag: string,
+  when: number,
+  label: string
+): Promise<void> {
+  const alreadyApplied = await isMigrationApplied(tag);
+  if (alreadyApplied) {
+    console.info(`[migrate] ${label} already tracked — skipping.`);
+    return;
+  }
+
+  console.info(`[migrate] Running migration ${label}...`);
+
+  const content = readFileSync(
+    path.join(migrationsFolder, `${tag}.sql`),
+    "utf-8"
+  );
+
+  // Split on statement-breakpoint markers OR on blank lines between statements.
+  const statements = content
+    .split(/-->[ \t]*statement-breakpoint|\n{2,}(?=\s*(?:CREATE|ALTER|DROP|INSERT|UPDATE|DELETE|GRANT|REVOKE))/i)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  let succeeded = 0;
+  let skipped = 0;
+
+  for (const statement of statements) {
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+      await client.query("SET LOCAL lock_timeout = '8s'");
+      await client.query("SET LOCAL statement_timeout = '15s'");
+      await client.query(statement);
+      await client.query("COMMIT");
+      succeeded++;
+    } catch (err: unknown) {
+      await client.query("ROLLBACK").catch(() => {});
+      const msg = err instanceof Error ? err.message : String(err);
+      console.warn(
+        `[migrate] ${label} statement skipped (non-fatal): ${msg.slice(0, 120)}`
+      );
+      skipped++;
+    } finally {
+      client.release();
+    }
+  }
+
+  console.info(
+    `[migrate] ${label} complete — ${succeeded} succeeded, ${skipped} skipped.`
+  );
+  await markMigrationApplied(tag, when);
+}
+
 // ─── migration 0000 ───────────────────────────────────────────────────────────
 
 async function applyMigration0000(when: number): Promise<void> {
@@ -163,10 +224,18 @@ export async function runMigrations(): Promise<void> {
   await ensureMigrationsTable();
 
   const journal = readJournal();
-  const [entry0, entry1] = journal.entries;
+  const [entry0, entry1, , , , , , entry7] = journal.entries;
 
   await applyMigration0000(entry0.when);
   await applyMigration0001(entry1.when);
+
+  // Migration 0007: trust layer tables (trust_groups, trust_tiers, trust_tier_members).
+  // Migrations 0002–0006 were applied to existing databases via drizzle-kit migrate
+  // before this custom runner was extended. The CREATE TABLE IF NOT EXISTS guards
+  // in 0007 make it safe to re-run against any state.
+  if (entry7) {
+    await runSqlMigration("0007_trust_layer", entry7.when, "0007 (trust layer)");
+  }
 
   console.info("[migrate] All migrations complete.");
 }

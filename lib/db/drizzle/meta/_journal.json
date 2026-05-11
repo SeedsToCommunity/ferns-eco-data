@@ -50,6 +50,13 @@
       "when": 1746576002000,
       "tag": "0006_lbj_provenance",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1747008000000,
+      "tag": "0007_trust_layer",
+      "breakpoints": true
     }
   ]
 }

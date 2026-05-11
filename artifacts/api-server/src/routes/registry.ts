@@ -7,6 +7,7 @@ import { ensureLcscgRegistryEntry } from "../services/lcscg/seed.js";
 import { ensureMnfiRegistryEntry } from "../services/mnfi/seed.js";
 import { ensureNatureserveRegistryEntry } from "../services/natureserve/seed.js";
 import { ensureRegistryEntry } from "../services/registry/seed.js";
+import { ensureDefaultTrustGroup } from "../services/trust/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
 
 const router: IRouter = Router();
@@ -38,6 +39,7 @@ async function seedAll(): Promise<void> {
     ensureNatureserveRegistryEntry(),
     ensureRegistryEntry(),
   ]);
+  await ensureDefaultTrustGroup();
 }
 
 const KNOWLEDGE_TYPE_ORDER: Record<string, number> = {

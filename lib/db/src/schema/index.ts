@@ -10,3 +10,4 @@ export * from "./natureserve";
 export * from "./botanical-refs";
 export * from "./usda-plants";
 export * from "./lbj";
+export * from "./trust";
