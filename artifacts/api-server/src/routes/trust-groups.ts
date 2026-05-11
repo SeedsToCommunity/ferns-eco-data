@@ -2,8 +2,18 @@ import { Router, type IRouter } from "express";
 import { db, trustGroupsTable, trustTiersTable, trustTierMembersTable, fernsSourcesTable } from "@workspace/db";
 import { eq, asc } from "drizzle-orm";
 import { resolveUrl } from "../lib/resolve-url.js";
+import { ensureDefaultTrustGroup } from "../services/trust/seed.js";
 
 const router: IRouter = Router();
+
+// Ensure the default group exists exactly once per process. Trust-group endpoints
+// are independent of the registry route, so seeding may not have happened yet.
+let defaultGroupSeeded = false;
+async function ensureSeeded(): Promise<void> {
+  if (defaultGroupSeeded) return;
+  await ensureDefaultTrustGroup();
+  defaultGroupSeeded = true;
+}
 
 const GENERAL_SUMMARY_LIST =
   "FERNS Trust Groups — catalog of all named trust perspectives registered in this FERNS instance. " +
@@ -60,6 +70,8 @@ function mapSourceRow(
 // GET /api/v1/trust-groups
 // Returns all trust groups with metadata (no tier or source details).
 router.get("/v1/trust-groups", async (req, res) => {
+  await ensureSeeded();
+
   const rows = await db
     .select()
     .from(trustGroupsTable)
@@ -95,6 +107,8 @@ router.get("/v1/trust-groups", async (req, res) => {
 // GET /api/v1/trust-groups/:slug
 // Returns group metadata and its ordered tier list.
 router.get("/v1/trust-groups/:slug", async (req, res) => {
+  await ensureSeeded();
+
   const { slug } = req.params;
 
   const [group] = await db
@@ -164,6 +178,8 @@ router.get("/v1/trust-groups/:slug", async (req, res) => {
 // Returns all sources in the group, organized by tier position.
 // Each source object is identical in shape to GET /api/v1/sources entries.
 router.get("/v1/trust-groups/:slug/sources", async (req, res) => {
+  await ensureSeeded();
+
   const { slug } = req.params;
 
   const [group] = await db
@@ -198,6 +214,8 @@ router.get("/v1/trust-groups/:slug/sources", async (req, res) => {
     .orderBy(asc(trustTiersTable.position));
 
   // Fetch all members with their source rows via a join.
+  // Order by tier position first, then by source registration id so intra-tier
+  // ordering is deterministic (matches registration order in ferns_sources).
   const memberRows = await db
     .select({
       tier_id: trustTierMembersTable.tier_id,
@@ -206,7 +224,8 @@ router.get("/v1/trust-groups/:slug/sources", async (req, res) => {
     .from(trustTierMembersTable)
     .innerJoin(fernsSourcesTable, eq(trustTierMembersTable.source_id, fernsSourcesTable.source_id))
     .innerJoin(trustTiersTable, eq(trustTierMembersTable.tier_id, trustTiersTable.tier_id))
-    .where(eq(trustTiersTable.group_id, group.group_id));
+    .where(eq(trustTiersTable.group_id, group.group_id))
+    .orderBy(asc(trustTiersTable.position), asc(fernsSourcesTable.id));
 
   // Group member rows by tier_id for fast lookup.
   const sourcesByTierId = new Map<string, ReturnType<typeof mapSourceRow>[]>();
