@@ -17,6 +17,8 @@ import LbjPage from "@/pages/LbjPage";
 import UsdaPlantsPage from "@/pages/UsdaPlantsPage";
 import GenericSourcePage from "@/pages/GenericSourcePage";
 import SourceRelationshipsPage from "@/pages/SourceRelationshipsPage";
+import TrustGroupsPage from "@/pages/TrustGroupsPage";
+import TrustGroupDetailPage from "@/pages/TrustGroupDetailPage";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -52,6 +54,8 @@ function Router() {
       <Route path="/source/prairie-moon" component={BotanicalRefSourcePage} />
       <Route path="/source/usda-plants" component={UsdaPlantsPage} />
       <Route path="/source-relationships" component={SourceRelationshipsPage} />
+      <Route path="/trust-groups" component={TrustGroupsPage} />
+      <Route path="/trust-groups/:slug" component={TrustGroupDetailPage} />
       <Route path="/source/:sourceId/metadata" component={MetadataPage} />
       {/* Generic fallback: any source not matched above gets the metadata page */}
       <Route path="/source/:sourceId" component={GenericSourcePage} />
