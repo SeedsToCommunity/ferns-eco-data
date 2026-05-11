@@ -180,7 +180,10 @@ function GroupMetadataSection({
         method: "PUT",
         body: JSON.stringify(updates),
       }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: getGroupKey(slug) }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: getGroupKey(slug) });
+      queryClient.invalidateQueries({ queryKey: ["trust-groups"] });
+    },
   });
 
   async function handleFieldSave(field: string, value: string) {

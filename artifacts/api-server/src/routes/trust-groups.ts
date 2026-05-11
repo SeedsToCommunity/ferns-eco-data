@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Response } from "express";
 import { db, trustGroupsTable, trustTiersTable, trustTierMembersTable, fernsSourcesTable } from "@workspace/db";
 import { eq, asc, and, max } from "drizzle-orm";
 import { resolveUrl } from "../lib/resolve-url.js";
@@ -273,10 +273,7 @@ router.get("/v1/trust-groups/:slug/sources", async (req, res) => {
 
 const PROTECTED_SLUG = "default";
 
-function rejectDefault(
-  slug: string,
-  res: Parameters<Parameters<typeof router.post>[1]>[1]
-): boolean {
+function rejectDefault(slug: string, res: Response): boolean {
   if (slug === PROTECTED_SLUG) {
     res.status(403).json({ error: "The system default trust group cannot be modified." });
     return true;
@@ -308,6 +305,7 @@ async function requireTier(
 // POST /api/v1/trust-groups
 // Create a new trust group.
 router.post("/v1/trust-groups", async (req, res) => {
+  await ensureSeeded();
   const { slug, name, owner_email, geographic_region, domain, description } = req.body ?? {};
 
   if (!slug || typeof slug !== "string" || !name || typeof name !== "string") {
@@ -345,6 +343,7 @@ router.post("/v1/trust-groups", async (req, res) => {
 // PUT /api/v1/trust-groups/:slug
 // Update trust group metadata.
 router.put("/v1/trust-groups/:slug", async (req, res) => {
+  await ensureSeeded();
   const { slug } = req.params;
   if (rejectDefault(slug, res)) return;
 
@@ -371,6 +370,7 @@ router.put("/v1/trust-groups/:slug", async (req, res) => {
 // DELETE /api/v1/trust-groups/:slug
 // Delete a trust group (cascades to tiers and members).
 router.delete("/v1/trust-groups/:slug", async (req, res) => {
+  await ensureSeeded();
   const { slug } = req.params;
   if (rejectDefault(slug, res)) return;
 
@@ -384,6 +384,7 @@ router.delete("/v1/trust-groups/:slug", async (req, res) => {
 // POST /api/v1/trust-groups/:slug/tiers
 // Add a new tier to a group. Position is auto-assigned as max + 1.
 router.post("/v1/trust-groups/:slug/tiers", async (req, res) => {
+  await ensureSeeded();
   const { slug } = req.params;
   if (rejectDefault(slug, res)) return;
 
@@ -415,6 +416,7 @@ router.post("/v1/trust-groups/:slug/tiers", async (req, res) => {
 // Rename and/or reorder a tier. Reorder swaps positions with the tier currently
 // at the requested position to maintain the unique (group_id, position) constraint.
 router.put("/v1/trust-groups/:slug/tiers/:tierId", async (req, res) => {
+  await ensureSeeded();
   const { slug, tierId } = req.params;
   if (rejectDefault(slug, res)) return;
 
@@ -481,6 +483,7 @@ router.put("/v1/trust-groups/:slug/tiers/:tierId", async (req, res) => {
 // DELETE /api/v1/trust-groups/:slug/tiers/:tierId
 // Delete a tier — only allowed if the tier has no source members.
 router.delete("/v1/trust-groups/:slug/tiers/:tierId", async (req, res) => {
+  await ensureSeeded();
   const { slug, tierId } = req.params;
   if (rejectDefault(slug, res)) return;
 
@@ -508,6 +511,7 @@ router.delete("/v1/trust-groups/:slug/tiers/:tierId", async (req, res) => {
 // POST /api/v1/trust-groups/:slug/tiers/:tierId/members
 // Add a source to a tier.
 router.post("/v1/trust-groups/:slug/tiers/:tierId/members", async (req, res) => {
+  await ensureSeeded();
   const { slug, tierId } = req.params;
   if (rejectDefault(slug, res)) return;
 
@@ -566,6 +570,7 @@ router.post("/v1/trust-groups/:slug/tiers/:tierId/members", async (req, res) => 
 // DELETE /api/v1/trust-groups/:slug/tiers/:tierId/members/:sourceId
 // Remove a source from a tier.
 router.delete("/v1/trust-groups/:slug/tiers/:tierId/members/:sourceId", async (req, res) => {
+  await ensureSeeded();
   const { slug, tierId, sourceId } = req.params;
   if (rejectDefault(slug, res)) return;
 
