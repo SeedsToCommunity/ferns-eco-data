@@ -224,7 +224,9 @@ export async function runMigrations(): Promise<void> {
   await ensureMigrationsTable();
 
   const journal = readJournal();
-  const [entry0, entry1, , , , , , entry7] = journal.entries;
+  const entry0 = journal.entries[0];
+  const entry1 = journal.entries[1];
+  const entry7 = journal.entries[7];
 
   await applyMigration0000(entry0.when);
   await applyMigration0001(entry1.when);

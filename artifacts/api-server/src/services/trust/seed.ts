@@ -23,6 +23,10 @@ export async function ensureDefaultTrustGroup(): Promise<void> {
         target: trustGroupsTable.slug,
         set: {
           name: DEFAULT_NAME,
+          owner_email: null,
+          geographic_region: null,
+          domain: null,
+          description: "System-defined group containing every registered FERNS source.",
           updated_at: new Date(),
         },
       })
