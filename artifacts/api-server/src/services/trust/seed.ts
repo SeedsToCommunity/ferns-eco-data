@@ -1,5 +1,4 @@
 import { db, fernsSourcesTable, trustGroupsTable, trustTiersTable, trustTierMembersTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
 import { logger } from "../../lib/logger.js";
 
 const DEFAULT_SLUG = "default";
