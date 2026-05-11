@@ -23,6 +23,7 @@ import prairieMoonRouter from "./prairie-moon.js";
 import usdaPlantsRouter from "./usda-plants.js";
 import ladyBirdJohnsonRouter from "./lady-bird-johnson.js";
 import sourceRelationshipsRouter from "./source-relationships.js";
+import trustGroupsRouter from "./trust-groups.js";
 
 const router: IRouter = Router();
 
@@ -48,6 +49,7 @@ router.use(prairieMoonRouter);
 router.use(usdaPlantsRouter);
 router.use(ladyBirdJohnsonRouter);
 router.use(sourceRelationshipsRouter);
+router.use(trustGroupsRouter);
 router.use(registryRouter);
 router.use(specRouter);
 
