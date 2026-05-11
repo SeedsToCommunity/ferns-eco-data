@@ -52,6 +52,8 @@ tags:
     description: Lady Bird Johnson Wildflower Center — Native Plant Information
   - name: registry
     description: FERNS Service Registry
+  - name: trust-groups
+    description: FERNS Trust Layer — curated source groups with tiered quality rankings
 paths:
   /healthz:
     get:
@@ -1174,6 +1176,87 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SourcesIndexResponse"
+
+  /v1/trust-groups:
+    get:
+      operationId: getTrustGroups
+      tags: [trust-groups]
+      summary: List all trust groups
+      description: >
+        Returns all trust groups with their metadata. Trust groups are curated
+        collections of FERNS data sources organized into named, ordered tiers.
+        Use GET /v1/trust-groups/{slug}/sources to retrieve the full tiered
+        source list for a specific group.
+      responses:
+        "200":
+          description: List of all trust groups
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrustGroupsListResponse"
+
+  /v1/trust-groups/{slug}:
+    get:
+      operationId: getTrustGroup
+      tags: [trust-groups]
+      summary: Get a trust group with its tier list
+      description: >
+        Returns group metadata and its ordered list of tiers. Tiers are ordered
+        by position (ascending); lower position = higher trust. To retrieve the
+        full source entries assigned to each tier, use
+        GET /v1/trust-groups/{slug}/sources.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          description: Trust group slug (e.g. default, research-partners)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Trust group detail with tier list, or not-found response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrustGroupDetailResponse"
+        "404":
+          description: Trust group not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /v1/trust-groups/{slug}/sources:
+    get:
+      operationId: getTrustGroupSources
+      tags: [trust-groups]
+      summary: Get the tiered source list for a trust group
+      description: >
+        Returns all sources assigned to a trust group, organized into their
+        respective tiers ordered by position (ascending). Each source entry is
+        identical in shape to entries returned by GET /v1/sources. This is the
+        primary endpoint for resolving which sources to query and in what
+        priority order for a given trust context.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          description: Trust group slug (e.g. default, research-partners)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Tiered source list for the trust group, or not-found response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrustGroupSourcesResponse"
+        "404":
+          description: Trust group not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /universal-fqa/metadata:
     get:
@@ -6201,5 +6284,185 @@ components:
         queried_at:
           type: string
           format: date-time
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    TrustGroupSummary:
+      type: object
+      required:
+        - group_id
+        - slug
+        - name
+        - created_at
+        - updated_at
+      properties:
+        group_id:
+          type: string
+          format: uuid
+          description: Stable internal identifier for the trust group
+        slug:
+          type: string
+          description: URL-safe unique identifier (e.g. default, research-partners)
+        name:
+          type: string
+          description: Human-readable display name
+        owner_email:
+          type: string
+          nullable: true
+          description: Email of the group owner, if set
+        geographic_region:
+          type: string
+          nullable: true
+          description: Geographic scope of the trust group, if set
+        domain:
+          type: string
+          nullable: true
+          description: Subject-matter domain of the trust group, if set
+        description:
+          type: string
+          nullable: true
+          description: Free-text description of the group's purpose
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    TrustTierSummary:
+      type: object
+      required:
+        - tier_id
+        - position
+        - name
+        - created_at
+      properties:
+        tier_id:
+          type: string
+          format: uuid
+        position:
+          type: integer
+          description: Ascending sort order; lower = higher trust priority
+        name:
+          type: string
+          description: Display name (e.g. Primary, Secondary, Tertiary)
+        created_at:
+          type: string
+          format: date-time
+
+    TrustTierWithSources:
+      type: object
+      required:
+        - tier_id
+        - position
+        - name
+        - sources
+      properties:
+        tier_id:
+          type: string
+          format: uuid
+        position:
+          type: integer
+          description: Ascending sort order; lower = higher trust priority
+        name:
+          type: string
+        sources:
+          type: array
+          items:
+            $ref: "#/components/schemas/SourceSummary"
+
+    TrustGroupsListResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+        found:
+          type: boolean
+        data:
+          type: object
+          required:
+            - groups
+          properties:
+            groups:
+              type: array
+              items:
+                $ref: "#/components/schemas/TrustGroupSummary"
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    TrustGroupDetailResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - provenance
+      properties:
+        source_url:
+          type: string
+        found:
+          type: boolean
+        message:
+          type: string
+          description: Present when found is false
+        data:
+          nullable: true
+          type: object
+          required:
+            - group
+            - tiers
+          properties:
+            group:
+              $ref: "#/components/schemas/TrustGroupSummary"
+            tiers:
+              type: array
+              items:
+                $ref: "#/components/schemas/TrustTierSummary"
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    TrustGroupSourcesResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - provenance
+      properties:
+        source_url:
+          type: string
+        found:
+          type: boolean
+        message:
+          type: string
+          description: Present when found is false
+        data:
+          nullable: true
+          type: object
+          required:
+            - group
+            - tiers
+          properties:
+            group:
+              type: object
+              required:
+                - group_id
+                - slug
+                - name
+              properties:
+                group_id:
+                  type: string
+                  format: uuid
+                slug:
+                  type: string
+                name:
+                  type: string
+            tiers:
+              type: array
+              items:
+                $ref: "#/components/schemas/TrustTierWithSources"
         provenance:
           $ref: "#/components/schemas/FernsProvenance"

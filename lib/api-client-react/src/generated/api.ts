@@ -99,6 +99,9 @@ import type {
   SourcesIndexResponse,
   SourcesMetadataResponse,
   SpeciesTextResponse,
+  TrustGroupDetailResponse,
+  TrustGroupSourcesResponse,
+  TrustGroupsListResponse,
   UniversalFqaAssessmentResponse,
   UniversalFqaAssessmentsResponse,
   UniversalFqaDatabaseDetailResponse,
@@ -3350,6 +3353,265 @@ export function useGetSourcesIndex<
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetSourcesIndexQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns all trust groups with their metadata. Trust groups are curated collections of FERNS data sources organized into named, ordered tiers. Use GET /v1/trust-groups/{slug}/sources to retrieve the full tiered source list for a specific group.
+
+ * @summary List all trust groups
+ */
+export const getGetTrustGroupsUrl = () => {
+  return `/api/v1/trust-groups`;
+};
+
+export const getTrustGroups = async (
+  options?: RequestInit,
+): Promise<TrustGroupsListResponse> => {
+  return customFetch<TrustGroupsListResponse>(getGetTrustGroupsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetTrustGroupsQueryKey = () => {
+  return [`/api/v1/trust-groups`] as const;
+};
+
+export const getGetTrustGroupsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getTrustGroups>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getTrustGroups>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetTrustGroupsQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getTrustGroups>>> = ({
+    signal,
+  }) => getTrustGroups({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getTrustGroups>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetTrustGroupsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getTrustGroups>>
+>;
+export type GetTrustGroupsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List all trust groups
+ */
+
+export function useGetTrustGroups<
+  TData = Awaited<ReturnType<typeof getTrustGroups>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getTrustGroups>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetTrustGroupsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns group metadata and its ordered list of tiers. Tiers are ordered by position (ascending); lower position = higher trust. To retrieve the full source entries assigned to each tier, use GET /v1/trust-groups/{slug}/sources.
+
+ * @summary Get a trust group with its tier list
+ */
+export const getGetTrustGroupUrl = (slug: string) => {
+  return `/api/v1/trust-groups/${slug}`;
+};
+
+export const getTrustGroup = async (
+  slug: string,
+  options?: RequestInit,
+): Promise<TrustGroupDetailResponse> => {
+  return customFetch<TrustGroupDetailResponse>(getGetTrustGroupUrl(slug), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetTrustGroupQueryKey = (slug: string) => {
+  return [`/api/v1/trust-groups/${slug}`] as const;
+};
+
+export const getGetTrustGroupQueryOptions = <
+  TData = Awaited<ReturnType<typeof getTrustGroup>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getTrustGroup>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetTrustGroupQueryKey(slug);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getTrustGroup>>> = ({
+    signal,
+  }) => getTrustGroup(slug, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!slug,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getTrustGroup>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetTrustGroupQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getTrustGroup>>
+>;
+export type GetTrustGroupQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get a trust group with its tier list
+ */
+
+export function useGetTrustGroup<
+  TData = Awaited<ReturnType<typeof getTrustGroup>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getTrustGroup>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetTrustGroupQueryOptions(slug, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns all sources assigned to a trust group, organized into their respective tiers ordered by position (ascending). Each source entry is identical in shape to entries returned by GET /v1/sources. This is the primary endpoint for resolving which sources to query and in what priority order for a given trust context.
+
+ * @summary Get the tiered source list for a trust group
+ */
+export const getGetTrustGroupSourcesUrl = (slug: string) => {
+  return `/api/v1/trust-groups/${slug}/sources`;
+};
+
+export const getTrustGroupSources = async (
+  slug: string,
+  options?: RequestInit,
+): Promise<TrustGroupSourcesResponse> => {
+  return customFetch<TrustGroupSourcesResponse>(
+    getGetTrustGroupSourcesUrl(slug),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetTrustGroupSourcesQueryKey = (slug: string) => {
+  return [`/api/v1/trust-groups/${slug}/sources`] as const;
+};
+
+export const getGetTrustGroupSourcesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getTrustGroupSources>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getTrustGroupSources>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetTrustGroupSourcesQueryKey(slug);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getTrustGroupSources>>
+  > = ({ signal }) => getTrustGroupSources(slug, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!slug,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getTrustGroupSources>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetTrustGroupSourcesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getTrustGroupSources>>
+>;
+export type GetTrustGroupSourcesQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get the tiered source list for a trust group
+ */
+
+export function useGetTrustGroupSources<
+  TData = Awaited<ReturnType<typeof getTrustGroupSources>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getTrustGroupSources>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetTrustGroupSourcesQueryOptions(slug, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

@@ -15,9 +15,8 @@ export interface ErrorResponse {
 }
 
 /**
- * Provenance block present on every FERNS API response. Identity fields are always present.
- * Text fields (general_summary, technical_details) are conditionally present based on
- * the provenance_verbosity query parameter (full|summary|none).
+ * Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).
+
  */
 export interface FernsProvenance {
   /** Stable identifier for this data source (e.g. bonap-napa) */
@@ -2100,6 +2099,87 @@ export interface UsdaPlantsMetadataResponse {
   registry_entry?: UsdaPlantsMetadataResponseRegistryEntry;
   queried_at?: string;
   provenance?: FernsProvenance;
+}
+
+export interface TrustGroupSummary {
+  /** Stable internal identifier for the trust group */
+  group_id: string;
+  /** URL-safe unique identifier (e.g. default, research-partners) */
+  slug: string;
+  /** Human-readable display name */
+  name: string;
+  /** Email of the group owner, if set */
+  owner_email?: string | null;
+  /** Geographic scope of the trust group, if set */
+  geographic_region?: string | null;
+  /** Subject-matter domain of the trust group, if set */
+  domain?: string | null;
+  /** Free-text description of the group's purpose */
+  description?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TrustTierSummary {
+  tier_id: string;
+  /** Ascending sort order; lower = higher trust priority */
+  position: number;
+  /** Display name (e.g. Primary, Secondary, Tertiary) */
+  name: string;
+  created_at: string;
+}
+
+export interface TrustTierWithSources {
+  tier_id: string;
+  /** Ascending sort order; lower = higher trust priority */
+  position: number;
+  name: string;
+  sources: SourceSummary[];
+}
+
+export type TrustGroupsListResponseData = {
+  groups: TrustGroupSummary[];
+};
+
+export interface TrustGroupsListResponse {
+  source_url: string;
+  found: boolean;
+  data: TrustGroupsListResponseData;
+  provenance: FernsProvenance;
+}
+
+export type TrustGroupDetailResponseData = {
+  group: TrustGroupSummary;
+  tiers: TrustTierSummary[];
+} | null;
+
+export interface TrustGroupDetailResponse {
+  source_url: string;
+  found: boolean;
+  /** Present when found is false */
+  message?: string;
+  data?: TrustGroupDetailResponseData;
+  provenance: FernsProvenance;
+}
+
+export type TrustGroupSourcesResponseDataGroup = {
+  group_id: string;
+  slug: string;
+  name: string;
+};
+
+export type TrustGroupSourcesResponseData = {
+  group: TrustGroupSourcesResponseDataGroup;
+  tiers: TrustTierWithSources[];
+} | null;
+
+export interface TrustGroupSourcesResponse {
+  source_url: string;
+  found: boolean;
+  /** Present when found is false */
+  message?: string;
+  data?: TrustGroupSourcesResponseData;
+  provenance: FernsProvenance;
 }
 
 export type GetBonapMapParams = {

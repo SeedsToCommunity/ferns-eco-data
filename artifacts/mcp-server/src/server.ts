@@ -1196,6 +1196,37 @@ const tools: ToolDef[] = [
         provenance_verbosity: pv(args),
       }),
   },
+
+  // ── trust groups ─────────────────────────────────────────────────────────
+  {
+    tool: {
+      name: "registry__trust_groups",
+      description:
+        "Returns all FERNS trust groups. Each trust group is a curated collection of data sources organized into named, ordered tiers (e.g. Primary, Secondary, Tertiary). Trust groups let consumers define which sources they consider authoritative and in what priority order. Use registry__trust_group_sources to retrieve the full tiered source list for a specific group.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {},
+        required: [],
+      },
+    },
+    handler: async () => apiGet("/v1/trust-groups"),
+  },
+  {
+    tool: {
+      name: "registry__trust_group_sources",
+      description:
+        "Returns the complete tiered source list for a specific trust group, identified by its slug. Each tier contains an ordered array of FERNS source entries identical in shape to those returned by registry__list_sources. Tiers are ordered by position (lowest = highest trust). Use this to resolve which sources to query — and in what priority — for a given trust context.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          slug: { type: "string", description: "Trust group slug (e.g. default, research-partners)" },
+        },
+        required: ["slug"],
+      },
+    },
+    handler: async (args) =>
+      apiGet(`/v1/trust-groups/${String(args["slug"])}/sources`),
+  },
 ];
 
   const toolMap = new Map<string, ToolHandler>(tools.map((t) => [t.tool.name, t.handler]));

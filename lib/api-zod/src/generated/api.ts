@@ -194,7 +194,7 @@ export const GetBonapMapResponse = zod
           ),
       })
       .describe(
-        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
       ),
   })
   .describe("Standard FERNS response envelope for BONAP map lookups");
@@ -366,7 +366,7 @@ export const GetGbifMatchResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
 });
 
@@ -457,7 +457,7 @@ export const GetGbifReconcileResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
 });
 
@@ -578,7 +578,7 @@ export const GetGbifOccurrencesResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
 });
 
@@ -656,7 +656,7 @@ export const GetGbifSearchResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
 });
 
@@ -771,7 +771,7 @@ export const GetGbifMetadataResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
 });
 
@@ -876,7 +876,7 @@ export const GetInatPlaceResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
 });
 
@@ -951,7 +951,7 @@ export const GetInatSpeciesResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
 });
 
@@ -1030,7 +1030,7 @@ export const GetInatHistogramResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
 });
 
@@ -1116,7 +1116,7 @@ export const GetInatFieldValuesResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
 });
 
@@ -1193,7 +1193,7 @@ export const GetInatObservationsResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
 });
 
@@ -1274,7 +1274,7 @@ export const GetInatMetadataResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
 });
 
@@ -1356,7 +1356,7 @@ export const GetMifloraSpeciesResponse = zod
           ),
       })
       .describe(
-        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
       ),
   })
   .describe(
@@ -1441,7 +1441,7 @@ export const GetMifloraCountiesResponse = zod
           ),
       })
       .describe(
-        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
       ),
   })
   .describe(
@@ -1560,7 +1560,7 @@ export const GetMifloraImagesResponse = zod
           ),
       })
       .describe(
-        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
       ),
   })
   .describe(
@@ -1640,7 +1640,7 @@ export const GetMifloraMetadataResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
 });
 
@@ -1702,7 +1702,7 @@ export const GetCoefficientByValueResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
   data: zod
     .object({
@@ -1775,7 +1775,7 @@ export const GetAllCoefficientValuesResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
   data: zod.array(
     zod.object({
@@ -1866,7 +1866,7 @@ export const GetCoefficientMetadataResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
 });
 
@@ -1926,7 +1926,7 @@ export const GetWetlandIndicatorByCodeResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
   data: zod
     .object({
@@ -2012,7 +2012,7 @@ export const GetWetlandIndicatorByWResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
   data: zod
     .object({
@@ -2086,7 +2086,7 @@ export const GetAllWetlandIndicatorsResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
   data: zod.array(
     zod.object({
@@ -2178,7 +2178,7 @@ export const GetWetlandIndicatorMetadataResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
 });
 
@@ -2238,7 +2238,7 @@ export const GetWucolsByCodeResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
   data: zod
     .object({
@@ -2316,7 +2316,7 @@ export const GetAllWucolsResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
   data: zod.array(
     zod.object({
@@ -2412,7 +2412,7 @@ export const GetWucolsMetadataResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
 });
 
@@ -2475,7 +2475,7 @@ export const GetS2CSpeciesByYearResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
   data: zod
     .union([
@@ -2558,7 +2558,7 @@ export const GetS2CYearsResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
   data: zod.object({
     available_years: zod
@@ -2646,7 +2646,7 @@ export const GetS2CMetadataResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
 });
 
@@ -2702,7 +2702,7 @@ export const GetLcscgMetadataResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
 });
 
@@ -2753,7 +2753,7 @@ export const GetLcscgGuidesResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
   data: zod
     .object({
@@ -2849,7 +2849,7 @@ export const GetLcscgGuideResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
   data: zod
     .union([
@@ -3019,7 +3019,7 @@ export const GetLcscgSpeciesResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
   data: zod
     .object({
@@ -3215,7 +3215,335 @@ export const GetSourcesIndexResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
+    ),
+});
+
+/**
+ * Returns all trust groups with their metadata. Trust groups are curated collections of FERNS data sources organized into named, ordered tiers. Use GET /v1/trust-groups/{slug}/sources to retrieve the full tiered source list for a specific group.
+
+ * @summary List all trust groups
+ */
+export const GetTrustGroupsResponse = zod.object({
+  source_url: zod.string(),
+  found: zod.boolean(),
+  data: zod.object({
+    groups: zod.array(
+      zod.object({
+        group_id: zod
+          .string()
+          .uuid()
+          .describe("Stable internal identifier for the trust group"),
+        slug: zod
+          .string()
+          .describe(
+            "URL-safe unique identifier (e.g. default, research-partners)",
+          ),
+        name: zod.string().describe("Human-readable display name"),
+        owner_email: zod
+          .string()
+          .nullish()
+          .describe("Email of the group owner, if set"),
+        geographic_region: zod
+          .string()
+          .nullish()
+          .describe("Geographic scope of the trust group, if set"),
+        domain: zod
+          .string()
+          .nullish()
+          .describe("Subject-matter domain of the trust group, if set"),
+        description: zod
+          .string()
+          .nullish()
+          .describe("Free-text description of the group's purpose"),
+        created_at: zod.date(),
+        updated_at: zod.date(),
+      }),
+    ),
+  }),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      general_summary: zod
+        .string()
+        .optional()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      technical_details: zod
+        .string()
+        .optional()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
+    ),
+});
+
+/**
+ * Returns group metadata and its ordered list of tiers. Tiers are ordered by position (ascending); lower position = higher trust. To retrieve the full source entries assigned to each tier, use GET /v1/trust-groups/{slug}/sources.
+
+ * @summary Get a trust group with its tier list
+ */
+export const GetTrustGroupParams = zod.object({
+  slug: zod
+    .string()
+    .describe("Trust group slug (e.g. default, research-partners)"),
+});
+
+export const GetTrustGroupResponse = zod.object({
+  source_url: zod.string(),
+  found: zod.boolean(),
+  message: zod.string().optional().describe("Present when found is false"),
+  data: zod
+    .object({
+      group: zod.object({
+        group_id: zod
+          .string()
+          .uuid()
+          .describe("Stable internal identifier for the trust group"),
+        slug: zod
+          .string()
+          .describe(
+            "URL-safe unique identifier (e.g. default, research-partners)",
+          ),
+        name: zod.string().describe("Human-readable display name"),
+        owner_email: zod
+          .string()
+          .nullish()
+          .describe("Email of the group owner, if set"),
+        geographic_region: zod
+          .string()
+          .nullish()
+          .describe("Geographic scope of the trust group, if set"),
+        domain: zod
+          .string()
+          .nullish()
+          .describe("Subject-matter domain of the trust group, if set"),
+        description: zod
+          .string()
+          .nullish()
+          .describe("Free-text description of the group's purpose"),
+        created_at: zod.date(),
+        updated_at: zod.date(),
+      }),
+      tiers: zod.array(
+        zod.object({
+          tier_id: zod.string().uuid(),
+          position: zod
+            .number()
+            .describe("Ascending sort order; lower = higher trust priority"),
+          name: zod
+            .string()
+            .describe("Display name (e.g. Primary, Secondary, Tertiary)"),
+          created_at: zod.date(),
+        }),
+      ),
+    })
+    .nullish(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      general_summary: zod
+        .string()
+        .optional()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      technical_details: zod
+        .string()
+        .optional()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
+    ),
+});
+
+/**
+ * Returns all sources assigned to a trust group, organized into their respective tiers ordered by position (ascending). Each source entry is identical in shape to entries returned by GET /v1/sources. This is the primary endpoint for resolving which sources to query and in what priority order for a given trust context.
+
+ * @summary Get the tiered source list for a trust group
+ */
+export const GetTrustGroupSourcesParams = zod.object({
+  slug: zod
+    .string()
+    .describe("Trust group slug (e.g. default, research-partners)"),
+});
+
+export const GetTrustGroupSourcesResponse = zod.object({
+  source_url: zod.string(),
+  found: zod.boolean(),
+  message: zod.string().optional().describe("Present when found is false"),
+  data: zod
+    .object({
+      group: zod.object({
+        group_id: zod.string().uuid(),
+        slug: zod.string(),
+        name: zod.string(),
+      }),
+      tiers: zod.array(
+        zod.object({
+          tier_id: zod.string().uuid(),
+          position: zod
+            .number()
+            .describe("Ascending sort order; lower = higher trust priority"),
+          name: zod.string(),
+          sources: zod.array(
+            zod.object({
+              source_id: zod
+                .string()
+                .describe(
+                  "Stable identifier for this service (e.g. bonap-napa, gbif)",
+                ),
+              name: zod.string().describe("Human-readable service name"),
+              knowledge_type: zod
+                .string()
+                .describe(
+                  "source_wrapper | derived_synthesis | aggregation | system | vocabulary_reference",
+                ),
+              status: zod.string().describe("live | draft | deprecated"),
+              description: zod
+                .string()
+                .describe(
+                  "Plain-English description readable by a homeowner or community member",
+                ),
+              input_summary: zod
+                .string()
+                .describe("What you send to query this service"),
+              output_summary: zod.string().describe("What you get back"),
+              dependencies: zod
+                .array(zod.string())
+                .describe("source_ids this service depends on"),
+              update_frequency: zod
+                .string()
+                .describe(
+                  "How often the underlying data changes (e.g. live, annual, static)",
+                ),
+              known_limitations: zod
+                .string()
+                .describe("Brief honest statement of gaps and caveats"),
+              metadata_url: zod
+                .string()
+                .describe("Link to this service's full \/metadata endpoint"),
+              explorer_url: zod
+                .string()
+                .describe("Link to this service's Source Explorer UI"),
+              permission_granted: zod
+                .boolean()
+                .nullish()
+                .describe(
+                  "Whether FERNS has verified that use of this source is explicitly permitted. true = permission confirmed; null = not yet evaluated.\n",
+                ),
+              permission_status: zod
+                .string()
+                .optional()
+                .describe(
+                  "Plain-English description of the permission situation for this source. Covers license type, access model, and any restrictions on use.\n",
+                ),
+              general_summary: zod
+                .string()
+                .optional()
+                .describe(
+                  "One-paragraph plain-English description of this source suitable for non-technical users, agents, and routing decisions.\n",
+                ),
+              technical_details: zod
+                .string()
+                .optional()
+                .describe(
+                  "Technical description of how this source works, including data model, method, upstream URL, caching behavior, and known edge cases.\n",
+                ),
+            }),
+          ),
+        }),
+      ),
+    })
+    .nullish(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      general_summary: zod
+        .string()
+        .optional()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      technical_details: zod
+        .string()
+        .optional()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
 });
 
@@ -3270,7 +3598,7 @@ export const GetUniversalFqaMetadataResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
 });
 
@@ -3322,7 +3650,7 @@ export const GetUniversalFqaDatabasesResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
   data: zod
     .union([
@@ -3405,7 +3733,7 @@ export const GetUniversalFqaDatabaseResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
   data: zod
     .union([
@@ -3545,7 +3873,7 @@ export const GetUniversalFqaSpeciesResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
   data: zod
     .union([
@@ -3655,7 +3983,7 @@ export const GetUniversalFqaAssessmentsResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
   data: zod
     .union([
@@ -3742,7 +4070,7 @@ export const GetUniversalFqaAssessmentResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
   data: zod
     .union([
@@ -3980,7 +4308,7 @@ export const GetSourcesMetadataResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
 });
 
@@ -4081,7 +4409,7 @@ export const GetSourceRelationshipsResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
 });
 
@@ -4188,7 +4516,7 @@ export const GetMnfiCommunitiesResponse = zod.object({
     })
     .optional()
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
   data: zod.object({
     community_count: zod.number().optional(),
@@ -4259,7 +4587,7 @@ export const GetMnfiCommunityResponse = zod.object({
     })
     .optional()
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
   data: zod
     .object({
@@ -4349,7 +4677,7 @@ export const GetMnfiCommunityPlantsResponse = zod.object({
     })
     .optional()
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
   data: zod
     .object({
@@ -4441,7 +4769,7 @@ export const GetMnfiCountyElementsResponse = zod.object({
     })
     .optional()
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
   data: zod.object({
     county: zod.string().optional(),
@@ -4516,7 +4844,7 @@ export const GetNatureserveMetadataResponse = zod.object({
     })
     .optional()
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
 });
 
@@ -4633,7 +4961,7 @@ export const GetNatureserveSpeciesResponse = zod.object({
     })
     .optional()
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
 });
 
@@ -4712,7 +5040,7 @@ export const GetNatureserveEcosystemsResponse = zod.object({
     })
     .optional()
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
 });
 
@@ -4779,7 +5107,7 @@ export const GetGobotanyResponse = zod
       })
       .optional()
       .describe(
-        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
       ),
     data: zod
       .object({
@@ -4895,7 +5223,7 @@ export const GetGobotanyMetadataResponse = zod
       })
       .optional()
       .describe(
-        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
       ),
   })
   .describe("Service metadata response for botanical web reference sources.");
@@ -4981,7 +5309,7 @@ export const GetGobotanySpeciesTextResponse = zod
       })
       .optional()
       .describe(
-        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
       ),
     data: zod
       .object({
@@ -5071,7 +5399,7 @@ export const GetGoogleImagesResponse = zod
       })
       .optional()
       .describe(
-        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
       ),
     data: zod
       .object({
@@ -5187,7 +5515,7 @@ export const GetGoogleImagesMetadataResponse = zod
       })
       .optional()
       .describe(
-        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
       ),
   })
   .describe("Service metadata response for botanical web reference sources.");
@@ -5250,7 +5578,7 @@ export const GetIllinoisWildflowersResponse = zod
       })
       .optional()
       .describe(
-        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
       ),
     data: zod
       .object({
@@ -5366,7 +5694,7 @@ export const GetIllinoisWildflowersMetadataResponse = zod
       })
       .optional()
       .describe(
-        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
       ),
   })
   .describe("Service metadata response for botanical web reference sources.");
@@ -5449,7 +5777,7 @@ export const GetIllinoisWildflowersSpeciesTextResponse = zod
       })
       .optional()
       .describe(
-        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
       ),
     data: zod
       .object({
@@ -5536,7 +5864,7 @@ export const GetMinnesotaWildflowersResponse = zod
       })
       .optional()
       .describe(
-        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
       ),
     data: zod
       .object({
@@ -5652,7 +5980,7 @@ export const GetMinnesotaWildflowersMetadataResponse = zod
       })
       .optional()
       .describe(
-        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
       ),
   })
   .describe("Service metadata response for botanical web reference sources.");
@@ -5735,7 +6063,7 @@ export const GetMinnesotaWildflowersSpeciesTextResponse = zod
       })
       .optional()
       .describe(
-        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
       ),
     data: zod
       .object({
@@ -5822,7 +6150,7 @@ export const GetMissouriPlantsResponse = zod
       })
       .optional()
       .describe(
-        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
       ),
     data: zod
       .object({
@@ -5938,7 +6266,7 @@ export const GetMissouriPlantsMetadataResponse = zod
       })
       .optional()
       .describe(
-        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
       ),
   })
   .describe("Service metadata response for botanical web reference sources.");
@@ -6021,7 +6349,7 @@ export const GetMissouriPlantsSpeciesTextResponse = zod
       })
       .optional()
       .describe(
-        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
       ),
     data: zod
       .object({
@@ -6108,7 +6436,7 @@ export const GetPrairieMoonResponse = zod
       })
       .optional()
       .describe(
-        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
       ),
     data: zod
       .object({
@@ -6224,7 +6552,7 @@ export const GetPrairieMoonMetadataResponse = zod
       })
       .optional()
       .describe(
-        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
       ),
   })
   .describe("Service metadata response for botanical web reference sources.");
@@ -6307,7 +6635,7 @@ export const GetPrairieMoonSpeciesTextResponse = zod
       })
       .optional()
       .describe(
-        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
       ),
     data: zod
       .object({
@@ -6397,7 +6725,7 @@ export const GetUsdaPlantsResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
   data: zod.object({
     species: zod.string().optional(),
@@ -6501,7 +6829,7 @@ export const GetUsdaPlantsProfileResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
   data: zod.object({
     symbol: zod.string().optional(),
@@ -6583,7 +6911,7 @@ export const GetUsdaPlantsSearchResponse = zod.object({
         ),
     })
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
   data: zod.object({
     query: zod.string().optional(),
@@ -6674,7 +7002,7 @@ export const GetUsdaPlantsMetadataResponse = zod.object({
     })
     .optional()
     .describe(
-      "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
 });
 
@@ -6741,7 +7069,7 @@ export const GetLadyBirdJohnsonResponse = zod
       })
       .optional()
       .describe(
-        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
       ),
     data: zod
       .object({
@@ -6870,7 +7198,7 @@ export const GetLadyBirdJohnsonSpeciesTextResponse = zod
       })
       .optional()
       .describe(
-        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
       ),
     data: zod
       .object({
@@ -6976,7 +7304,7 @@ export const GetLadyBirdJohnsonMetadataResponse = zod
       })
       .optional()
       .describe(
-        "Provenance block present on every FERNS API response. Both derivation fields are required — general_summary for general audiences, technical_details for researchers who need to evaluate and reproduce the data.\n",
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
       ),
   })
   .describe("Service metadata response for botanical web reference sources.");
