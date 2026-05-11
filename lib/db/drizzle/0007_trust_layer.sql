@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS "trust_tiers" (
 
 CREATE TABLE IF NOT EXISTS "trust_tier_members" (
   "tier_id" uuid NOT NULL REFERENCES "trust_tiers"("tier_id") ON DELETE CASCADE,
-  "source_id" text NOT NULL,
+  "source_id" text NOT NULL REFERENCES "ferns_sources"("source_id"),
   "added_at" timestamp with time zone DEFAULT now() NOT NULL,
   CONSTRAINT "trust_tier_members_pkey" PRIMARY KEY("tier_id", "source_id")
 );

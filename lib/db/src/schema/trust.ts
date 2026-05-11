@@ -1,6 +1,7 @@
 import { pgTable, text, integer, timestamp, uuid, primaryKey, unique } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod/v4";
+import { fernsSourcesTable } from "./registry.js";
 
 export const trustGroupsTable = pgTable("trust_groups", {
   group_id: uuid("group_id").defaultRandom().primaryKey(),
@@ -46,7 +47,9 @@ export const trustTierMembersTable = pgTable(
     tier_id: uuid("tier_id")
       .notNull()
       .references(() => trustTiersTable.tier_id, { onDelete: "cascade" }),
-    source_id: text("source_id").notNull(),
+    source_id: text("source_id")
+      .notNull()
+      .references(() => fernsSourcesTable.source_id),
     added_at: timestamp("added_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [primaryKey({ columns: [t.tier_id, t.source_id] })],
