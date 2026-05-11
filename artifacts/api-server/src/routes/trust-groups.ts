@@ -534,6 +534,27 @@ router.post("/v1/trust-groups/:slug/tiers/:tierId/members", async (req, res) => 
     return;
   }
 
+  // A source may only belong to one tier per group. Reject if it already
+  // appears in any tier of this group (including the current one).
+  const [alreadyInGroup] = await db
+    .select({ tier_id: trustTierMembersTable.tier_id })
+    .from(trustTierMembersTable)
+    .innerJoin(trustTiersTable, eq(trustTierMembersTable.tier_id, trustTiersTable.tier_id))
+    .where(
+      and(
+        eq(trustTiersTable.group_id, group.group_id),
+        eq(trustTierMembersTable.source_id, source_id),
+      )
+    )
+    .limit(1);
+
+  if (alreadyInGroup) {
+    res.status(409).json({
+      error: `Source '${source_id}' is already assigned to a tier in group '${slug}'. A source may only appear in one tier per group.`,
+    });
+    return;
+  }
+
   await db
     .insert(trustTierMembersTable)
     .values({ tier_id: tierId, source_id })

@@ -393,6 +393,7 @@ function TierCard({
   isLast,
   totalTiers,
   allSources,
+  usedInGroup,
 }: {
   tier: TierWithSources;
   slug: string;
@@ -401,15 +402,12 @@ function TierCard({
   isLast: boolean;
   totalTiers: number;
   allSources: SourceSummary[];
+  usedInGroup: Set<string>;
 }) {
   const queryClient = useQueryClient();
   const [showPicker, setShowPicker] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-
-  // Collect all source IDs already in any tier of this group (for picker deduplication)
-  // (We build this per-tier; the picker will filter only against what's already in this group.)
-  const usedInTier = new Set(tier.sources.map((s) => s.source_id));
 
   const renameMutation = useMutation({
     mutationFn: async (name: string) =>
@@ -570,7 +568,7 @@ function TierCard({
         <SourcePicker
           tierId={tier.tier_id}
           slug={slug}
-          usedSourceIds={usedInTier}
+          usedSourceIds={usedInGroup}
           allSources={allSources}
           onClose={() => setShowPicker(false)}
         />
@@ -687,6 +685,9 @@ export default function TrustGroupDetailPage() {
     sources: sourcesQuery.data?.find((ts) => ts.tier_id === t.tier_id)?.sources ?? [],
   }));
   const allSources = allSourcesQuery.data ?? [];
+  // All source IDs already assigned anywhere in this group (across all tiers).
+  // Passed to each TierCard so the picker filters them out group-wide.
+  const usedInGroup = new Set(tiersWithSources.flatMap((t) => t.sources.map((s) => s.source_id)));
 
   return (
     <Layout>
@@ -748,6 +749,7 @@ export default function TrustGroupDetailPage() {
                 isLast={i === tiersWithSources.length - 1}
                 totalTiers={tiersWithSources.length}
                 allSources={allSources}
+                usedInGroup={usedInGroup}
               />
             ))}
 
