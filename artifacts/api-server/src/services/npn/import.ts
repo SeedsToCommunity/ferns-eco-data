@@ -1,6 +1,20 @@
-// Scrapes nativeplant.com (Greg Vaclavek), uploads images to Cloudinary,
-// and populates npn_species + npn_name_aliases.
+// Imports nativeplant.com (Greg Vaclavek) data into npn_species + npn_name_aliases.
+//
+// Data strategy (discovered from live-site exploration):
+//   PRIMARY:  GET /plants/search/report  — Zope/MySQL report endpoint returns all
+//             130 species in ONE request with: latin name, common name, light,
+//             moisture, height, bloom time, flower color, physiography (plant type),
+//             numeric scores, notes, Michigan range, and price.
+//   SECONDARY: GET /plants/plant_page_template?Acronym=XXX (one per species) —
+//             used ONLY for images (full-size URLs) and Greg's latin synonyms
+//             (a.k.a. entries). All other fields come from the report.
+//
+// This means ~131 total HTTP requests (1 + 130) vs ~260 before (130 list + 130 detail).
+// Images are JPEG-validated and uploaded to Cloudinary; non-JPEG or failed uploads
+// are omitted entirely (no source-URL fallback).
+//
 // Triggered via POST /api/ann-arbor-npn/import (admin) or auto-runs at startup.
+
 import { db, npnSpeciesTable, npnNameAliasesTable, type NpnImage } from "@workspace/db";
 import { sql } from "drizzle-orm";
 import { logger } from "../../lib/logger.js";
@@ -10,11 +24,18 @@ const CLOUDINARY_API_KEY = process.env["CLOUDINARY_API_KEY"];
 const CLOUDINARY_API_SECRET = process.env["CLOUDINARY_API_SECRET"];
 
 const NPN_BASE_URL = "http://nativeplant.com";
-// Actual URL structure discovered from live site:
-//   List page:   /plants/list_plants  (links are relative: plant_page_template?Acronym=ACHMIL)
-//   Detail page: /plants/plant_page_template?Acronym=ACHMIL
-const NPN_SPECIES_LIST_URL = `${NPN_BASE_URL}/plants/list_plants`;
 const NPN_DETAIL_BASE_URL = `${NPN_BASE_URL}/plants/plant_page_template?Acronym=`;
+
+// Zope/MySQL report endpoint — returns all NPN species in one structured HTML table.
+// Parameters: check=1 (NPN plants only), all show_* flags enabled, no filters applied.
+const NPN_REPORT_URL =
+  `${NPN_BASE_URL}/plants/search/report` +
+  `?check=1&sel_region=&sortkey=Scientific_Name&searchstr=&flower_color=` +
+  `&Ssite=&Wsite=&C_Oper=gt&H_Oper=gt&W_Oper=gt&S_Oper=gt&HTSEL=0` +
+  `&S=&W=&C=&bloom_time=&Origin=&butt_req=&gdn_req=&rain_req=` +
+  `&show_height=1&show_region=1&show_price=1&show_Thumbs=0&Thumb_size=50` +
+  `&show_color=1&show_notes=1&show_Phys=1&show_acronym=1&show_blooms=1` +
+  `&show_common=1&show_latin=1&show_light=1&show_moisture=1&show_S=1&show_W=1&show_C=1`;
 
 const DELAY_MIN_MS = 300;
 const DELAY_RANGE_MS = 200;
@@ -22,6 +43,8 @@ const DELAY_RANGE_MS = 200;
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+// ─── Image utilities ──────────────────────────────────────────────────────────
 
 // Returns null if fetch fails, content is not JPEG (magic FFD8FF), or size < 512 bytes.
 async function fetchAndValidateJpeg(url: string): Promise<Buffer | null> {
@@ -103,6 +126,8 @@ function inferImageKind(caption: string): "photograph" | "drawing" {
   return "photograph";
 }
 
+// ─── Alias builder ────────────────────────────────────────────────────────────
+
 function buildAliases(
   acronym: string,
   latinName: string,
@@ -133,77 +158,141 @@ function buildAliases(
   return [...aliases];
 }
 
-interface RawSpeciesListItem {
-  acronym: string;
-  detail_url: string;
-}
+// ─── Report endpoint parser ───────────────────────────────────────────────────
 
-interface RawSpeciesDetail {
+interface ReportSpeciesRow {
   acronym: string;
   latin_name: string;
-  latin_synonym_greg: string | null;
   common_name: string;
   light: string | null;
   moisture: string | null;
   height: string | null;
   flowering_time: string | null;
-  habitat: string | null;
+  flower_color: string | null;
+  physiography: string | null;
   notes: string | null;
   range_michigan: string[];
   npn_price_sizes: string | null;
-  raw_images: Array<{ position: number; src: string; caption: string }>;
-  source_url: string;
+  detail_url: string;
 }
 
-async function fetchSpeciesList(): Promise<RawSpeciesListItem[]> {
-  const res = await fetch(NPN_SPECIES_LIST_URL, {
+// Strip all HTML tags and decode common entities from a raw td innerHTML string.
+function tdText(raw: string): string {
+  return raw
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function nullIfEmpty(s: string): string | null {
+  return s === "" || s.toLowerCase() === "n/a" ? null : s;
+}
+
+// Parse the Zope/MySQL report HTML table into structured species rows.
+// Column order (confirmed from live site with all show_* flags on):
+//   0: availability (*)
+//   1: thumbnail link  → contains Acronym=XXX
+//   2: acronym text
+//   3: latin name link
+//   4: common name
+//   5: light
+//   6: moisture
+//   7: height
+//   8: bloom time
+//   9: flower color
+//  10: physiography (Forb / Grass / Sedge / Shrub / Tree / Vine / Fern)
+//  11: S  (numeric light score)
+//  12: W  (numeric moisture score)
+//  13: C  (numeric color/companion score)
+//  14: notes
+//  15: region (SE,SW,NL,UP…)
+//  16: price (usually empty)
+function parseReportHtml(html: string): ReportSpeciesRow[] {
+  const rows: ReportSpeciesRow[] = [];
+
+  // Each data row contains a plant_page_template link in column 1.
+  // We split on <tr> and process rows that have an Acronym link.
+  const rowPattern = /<tr[\s\S]*?<\/tr>/gi;
+  let rowMatch: RegExpExecArray | null;
+
+  while ((rowMatch = rowPattern.exec(html)) !== null) {
+    const row = rowMatch[0]!;
+
+    // Skip rows without a species link
+    const acronymInLink = /Acronym=([A-Z0-9]+)/.exec(row);
+    if (!acronymInLink) continue;
+    const acronym = acronymInLink[1]!;
+
+    // Extract all <td>…</td> contents in order
+    const tds: string[] = [];
+    const tdPattern = /<td[^>]*>([\s\S]*?)<\/td>/gi;
+    let tdMatch: RegExpExecArray | null;
+    while ((tdMatch = tdPattern.exec(row)) !== null) {
+      tds.push(tdText(tdMatch[1]!));
+    }
+
+    // Require at least 16 columns (the price column may be absent in some rows)
+    if (tds.length < 15) continue;
+
+    const light     = nullIfEmpty(tds[5]  ?? "");
+    const moisture  = nullIfEmpty(tds[6]  ?? "");
+    const height    = nullIfEmpty(tds[7]  ?? "");
+    const bloomTime = nullIfEmpty(tds[8]  ?? "");
+    const flowerColor = nullIfEmpty(tds[9]  ?? "");
+    const physiography = nullIfEmpty(tds[10] ?? "");
+    const notes     = nullIfEmpty(tds[14] ?? "");
+    const regionRaw = tds[15] ?? "";
+    const priceRaw  = tds[16] ?? "";
+
+    const rangeMichigan = regionRaw
+      .split(/[,;]/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    rows.push({
+      acronym,
+      latin_name: nullIfEmpty(tds[3] ?? "") ?? acronym,
+      common_name: nullIfEmpty(tds[4] ?? "") ?? acronym,
+      light,
+      moisture,
+      height,
+      flowering_time: bloomTime,
+      flower_color: flowerColor,
+      physiography,
+      notes,
+      range_michigan: rangeMichigan,
+      npn_price_sizes: nullIfEmpty(priceRaw),
+      detail_url: `${NPN_DETAIL_BASE_URL}${acronym}`,
+    });
+  }
+
+  return rows;
+}
+
+// Fetch all NPN species in one request from the Zope/MySQL report endpoint.
+async function fetchAllSpeciesFromReport(): Promise<ReportSpeciesRow[]> {
+  const res = await fetch(NPN_REPORT_URL, {
     headers: { "User-Agent": "FERNS-Botanical-Data-Aggregator/1.0 (ecologicalcommons.org)" },
-    signal: AbortSignal.timeout(20000),
+    signal: AbortSignal.timeout(30000),
   });
   if (!res.ok) {
-    throw new Error(`Failed to fetch NPN species list: HTTP ${res.status}`);
+    throw new Error(`Failed to fetch NPN report: HTTP ${res.status}`);
   }
   const html = await res.text();
-
-  // List page at /plants/list_plants uses relative links:
-  //   href="plant_page_template?Acronym=ACHMIL"
-  // Detail pages are at /plants/plant_page_template?Acronym=ACHMIL
-  const items: RawSpeciesListItem[] = [];
-  const linkPattern = /href="plant_page_template\?Acronym=([A-Z0-9]+)"/g;
-  let match: RegExpExecArray | null;
-  const seen = new Set<string>();
-
-  while ((match = linkPattern.exec(html)) !== null) {
-    const acronym = match[1]!;
-    if (!seen.has(acronym)) {
-      seen.add(acronym);
-      items.push({ acronym, detail_url: `${NPN_DETAIL_BASE_URL}${acronym}` });
-    }
-  }
-
-  logger.info({ count: items.length }, "NPN species list parsed");
-  return items;
+  const rows = parseReportHtml(html);
+  logger.info({ count: rows.length }, "NPN report parsed");
+  return rows;
 }
 
-// Extracts value from inline bold-label pattern: <b>Label:</b>(?:&nbsp;)?\s*VALUE
-// Returns null when absent, empty, or "n/a".
-function extractInlineField(html: string, label: string): string | null {
-  const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  // Value runs to the next newline or tag
-  const pattern = new RegExp(`<b>${escaped}:?<\\/b>(?:&nbsp;)?\\s*([^\\n<]+)`, "i");
-  const m = pattern.exec(html);
-  if (!m) return null;
-  const val = m[1]!.replace(/&nbsp;/g, " ").trim();
-  if (!val || val.toLowerCase() === "n/a") return null;
-  return val;
-}
+// ─── Individual page parser (images + synonym only) ───────────────────────────
 
-function parseRange(raw: string | null): string[] {
-  if (!raw) return [];
-  return raw
-    .split(/[,;]/)
-    .map((s) => s.replace(/<[^>]+>/g, "").trim())
-    .filter(Boolean);
+interface ImageAndSynonymResult {
+  latin_synonym_greg: string | null;
+  raw_images: Array<{ position: number; src: string; caption: string }>;
 }
 
 // Extracts full-size plant images from nativeplant.com detail pages.
@@ -218,7 +307,6 @@ function extractImages(
   let position = 1;
   const seenSrcs = new Set<string>();
 
-  // Match each image block: <a href="/plant_images/...jpg">...<br>\n?<small>caption</small>
   const blockPattern =
     /<a href="(\/plant_images\/[^"]+\.jpg)"[^>]*>[\s\S]*?<\/a><br>\s*(?:<small>([^<]*)<\/small>)?/gi;
   let match: RegExpExecArray | null;
@@ -235,11 +323,12 @@ function extractImages(
   return results;
 }
 
-
-async function fetchSpeciesDetail(
+// Fetches an individual species page to extract images and Greg's latin synonym.
+// All other text data comes from the report endpoint.
+async function fetchImagesAndSynonym(
   acronym: string,
   detailUrl: string,
-): Promise<RawSpeciesDetail | null> {
+): Promise<ImageAndSynonymResult | null> {
   const res = await fetch(detailUrl, {
     headers: { "User-Agent": "FERNS-Botanical-Data-Aggregator/1.0 (ecologicalcommons.org)" },
     signal: AbortSignal.timeout(20000),
@@ -250,55 +339,17 @@ async function fetchSpeciesDetail(
   }
   const html = await res.text();
 
-  // Common name from <h1>Great Blue Lobelia </h1>
-  const h1Match = /<h1>([^<]+)<\/h1>/i.exec(html);
-  const commonName = h1Match ? h1Match[1]!.trim() : acronym;
-
-  // Latin name from <h2><i>Lobelia siphilitica</h2>
-  const h2Match = /<h2>(?:<i>)?([^<\n]+?)(?:<\/i>)?<\/h2>/i.exec(html);
-  const latinName = h2Match ? h2Match[1]!.trim() : acronym;
-
   // Latin synonym (Greg's nomenclature) from <h3>(a.k.a. Symphyotrichum cordifolium)</h3>
-  // Note: GENAND has a common name here ("Closed Gentian") — indexed anyway per task spec.
+  // Note: GENAND has "Closed Gentian" here (common name, not taxonomic) — indexed anyway.
   const h3Match = /<h3>\s*\(a\.k\.a\.\s*([^)<]+)\)/i.exec(html);
   const latinSynonymGreg = h3Match ? h3Match[1]!.trim() : null;
 
-  // Ecological fields — inline <b>Label:</b> value pattern
-  const light = extractInlineField(html, "Light");
-  const moisture = extractInlineField(html, "Moisture");
-  const height = extractInlineField(html, "Height");
-  const floweringTime = extractInlineField(html, "Flowering Time");
-  const notes = extractInlineField(html, "Notes");
+  const raw_images = extractImages(html);
 
-  // Range in Michigan: value appears on the next line after the <b> tag
-  // Pattern: <b>Range in Michigan: </b>\n\nSE,SW,NL,UP
-  const rangeMatch = /<b>Range in Michigan:\s*<\/b>\s*\n([\s\S]*?)(?:<\/p>|<br>|<b>)/i.exec(html);
-  const rangeRaw = rangeMatch ? rangeMatch[1]!.trim() : null;
-  const rangeMichigan = parseRange(rangeRaw);
-
-  // NPN prices/sizes: value (if any) follows the label on same or next line
-  // Most species show &nbsp; with no actual content — captured as null when empty.
-  const npnPriceSizes = extractInlineField(html, "NPN prices/ sizes");
-
-  const rawImages = extractImages(html);
-
-  return {
-    acronym,
-    latin_name: latinName,
-    latin_synonym_greg: latinSynonymGreg,
-    common_name: commonName,
-    light,
-    moisture,
-    height,
-    flowering_time: floweringTime,
-    habitat: null, // "Habitat:" is a section header on the page, not a data field
-    notes,
-    range_michigan: rangeMichigan,
-    npn_price_sizes: npnPriceSizes,
-    raw_images: rawImages,
-    source_url: detailUrl,
-  };
+  return { latin_synonym_greg: latinSynonymGreg, raw_images };
 }
+
+// ─── Main import ──────────────────────────────────────────────────────────────
 
 export interface NpnImportResult {
   speciesUpserted: number;
@@ -319,14 +370,16 @@ export async function importNpn(
     errors: [],
   };
 
-  let items = await fetchSpeciesList();
+  // Step 1: one request for all species text data
+  let rows = await fetchAllSpeciesFromReport();
   if (filterAcronyms && filterAcronyms.length > 0) {
     const filterSet = new Set(filterAcronyms.map((a) => a.toUpperCase()));
-    items = items.filter((i) => filterSet.has(i.acronym));
+    rows = rows.filter((r) => filterSet.has(r.acronym));
   }
 
-  for (let i = 0; i < items.length; i++) {
-    const item = items[i]!;
+  // Step 2: for each species, fetch individual page for images + synonym only
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i]!;
 
     // Polite inter-request delay (skip before first request)
     if (i > 0) {
@@ -334,32 +387,32 @@ export async function importNpn(
     }
 
     try {
-      logger.info({ acronym: item.acronym, progress: `${i + 1}/${items.length}` }, "NPN import: processing species");
+      logger.info(
+        { acronym: row.acronym, progress: `${i + 1}/${rows.length}` },
+        "NPN import: processing species",
+      );
 
-      const detail = await fetchSpeciesDetail(item.acronym, item.detail_url);
-      if (!detail) {
-        result.errors.push({ acronym: item.acronym, error: "Failed to fetch detail page" });
-        continue;
-      }
+      const detail = await fetchImagesAndSynonym(row.acronym, row.detail_url);
 
       // Upload images to Cloudinary. Only images that pass JPEG validation AND upload
       // successfully are included in the record. Non-JPEG responses and failed uploads
-      // are skipped entirely (imagesSkipped++) to avoid storing ephemeral source URLs.
+      // are skipped entirely to avoid storing ephemeral source URLs.
       const images: NpnImage[] = [];
-      for (const raw of detail.raw_images) {
-        const publicId = `ann-arbor-npn/${item.acronym.toLowerCase()}/${raw.position}`;
+      const rawImages = detail?.raw_images ?? [];
+      for (const raw of rawImages) {
+        const publicId = `ann-arbor-npn/${row.acronym.toLowerCase()}/${raw.position}`;
         const kind = inferImageKind(raw.caption);
 
         const imageBytes = await fetchAndValidateJpeg(raw.src);
         if (!imageBytes) {
-          logger.warn({ acronym: item.acronym, src: raw.src }, "Non-JPEG image skipped");
+          logger.warn({ acronym: row.acronym, src: raw.src }, "Non-JPEG image skipped");
           result.imagesSkipped++;
           continue;
         }
 
         const cloudUrl = await uploadToCloudinary(imageBytes, publicId, raw.caption);
         if (!cloudUrl) {
-          logger.warn({ acronym: item.acronym, src: raw.src }, "Cloudinary upload failed — image omitted");
+          logger.warn({ acronym: row.acronym, src: raw.src }, "Cloudinary upload failed — image omitted");
           result.imagesSkipped++;
           continue;
         }
@@ -368,41 +421,45 @@ export async function importNpn(
         result.imagesUploaded++;
       }
 
+      const latinSynonymGreg = detail?.latin_synonym_greg ?? null;
+
       // Upsert species record
       await db
         .insert(npnSpeciesTable)
         .values({
-          acronym: detail.acronym,
-          latin_name: detail.latin_name,
-          latin_synonym_greg: detail.latin_synonym_greg ?? undefined,
-          common_name: detail.common_name,
-          light: detail.light ?? undefined,
-          moisture: detail.moisture ?? undefined,
-          height: detail.height ?? undefined,
-          flowering_time: detail.flowering_time ?? undefined,
-          habitat: detail.habitat ?? undefined,
-          notes: detail.notes ?? undefined,
-          range_michigan: detail.range_michigan.length > 0 ? detail.range_michigan : undefined,
-          npn_price_sizes: detail.npn_price_sizes ?? undefined,
+          acronym: row.acronym,
+          latin_name: row.latin_name,
+          latin_synonym_greg: latinSynonymGreg ?? undefined,
+          common_name: row.common_name,
+          light: row.light ?? undefined,
+          moisture: row.moisture ?? undefined,
+          height: row.height ?? undefined,
+          flowering_time: row.flowering_time ?? undefined,
+          flower_color: row.flower_color ?? undefined,
+          physiography: row.physiography ?? undefined,
+          notes: row.notes ?? undefined,
+          range_michigan: row.range_michigan.length > 0 ? row.range_michigan : undefined,
+          npn_price_sizes: row.npn_price_sizes ?? undefined,
           images,
-          source_url: detail.source_url,
+          source_url: row.detail_url,
         })
         .onConflictDoUpdate({
           target: npnSpeciesTable.acronym,
           set: {
-            latin_name: detail.latin_name,
-            latin_synonym_greg: detail.latin_synonym_greg ?? null,
-            common_name: detail.common_name,
-            light: detail.light ?? null,
-            moisture: detail.moisture ?? null,
-            height: detail.height ?? null,
-            flowering_time: detail.flowering_time ?? null,
-            habitat: detail.habitat ?? null,
-            notes: detail.notes ?? null,
-            range_michigan: detail.range_michigan.length > 0 ? detail.range_michigan : null,
-            npn_price_sizes: detail.npn_price_sizes ?? null,
+            latin_name: row.latin_name,
+            latin_synonym_greg: latinSynonymGreg,
+            common_name: row.common_name,
+            light: row.light ?? null,
+            moisture: row.moisture ?? null,
+            height: row.height ?? null,
+            flowering_time: row.flowering_time ?? null,
+            flower_color: row.flower_color ?? null,
+            physiography: row.physiography ?? null,
+            notes: row.notes ?? null,
+            range_michigan: row.range_michigan.length > 0 ? row.range_michigan : null,
+            npn_price_sizes: row.npn_price_sizes ?? null,
             images,
-            source_url: detail.source_url,
+            source_url: row.detail_url,
             scraped_at: sql`now()`,
           },
         });
@@ -411,31 +468,31 @@ export async function importNpn(
 
       // Build and upsert aliases
       const aliases = buildAliases(
-        detail.acronym,
-        detail.latin_name,
-        detail.latin_synonym_greg,
-        detail.common_name,
+        row.acronym,
+        row.latin_name,
+        latinSynonymGreg,
+        row.common_name,
       );
 
       for (const alias of aliases) {
         await db
           .insert(npnNameAliasesTable)
-          .values({ alias, acronym: detail.acronym })
+          .values({ alias, acronym: row.acronym })
           .onConflictDoUpdate({
             target: npnNameAliasesTable.alias,
-            set: { acronym: detail.acronym },
+            set: { acronym: row.acronym },
           });
         result.aliasesUpserted++;
       }
 
       logger.info(
-        { acronym: item.acronym, aliases: aliases.length, images: images.length },
+        { acronym: row.acronym, aliases: aliases.length, images: images.length },
         "NPN import: species complete",
       );
     } catch (err) {
       const errMsg = err instanceof Error ? err.message : String(err);
-      logger.error({ err, acronym: item.acronym }, "NPN import: species failed");
-      result.errors.push({ acronym: item.acronym, error: errMsg });
+      logger.error({ err, acronym: row.acronym }, "NPN import: species failed");
+      result.errors.push({ acronym: row.acronym, error: errMsg });
     }
   }
 

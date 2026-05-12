@@ -240,6 +240,7 @@ export async function runMigrations(): Promise<void> {
   const entry7 = journal.entries[7];
   const entry8 = journal.entries[8];
   const entry9 = journal.entries[9];
+  const entry10 = journal.entries[10];
 
   await applyMigration0000(entry0.when);
   await applyMigration0001(entry1.when);
@@ -264,6 +265,13 @@ export async function runMigrations(): Promise<void> {
   // requires live network access to nativeplant.com).
   if (entry9) {
     await runSqlMigration("0009_npn_range_text_array", entry9.when, "0009 (npn range text[])", false);
+  }
+
+  // Migration 0010: add flower_color and physiography columns to npn_species.
+  // These fields come from the Zope/MySQL report endpoint (not individual pages).
+  // ADD COLUMN IF NOT EXISTS guards make it safe to re-run.
+  if (entry10) {
+    await runSqlMigration("0010_npn_flower_color_physiography", entry10.when, "0010 (npn flower_color + physiography)", false);
   }
 
   console.info("[migrate] All migrations complete.");

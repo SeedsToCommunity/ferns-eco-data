@@ -20,6 +20,8 @@ export const npnSpeciesTable = pgTable("npn_species", {
   height: text("height"),
   flowering_time: text("flowering_time"),
   habitat: text("habitat"),
+  flower_color: text("flower_color"),
+  physiography: text("physiography"),
   notes: text("notes"),
   range_michigan: text("range_michigan").array(),
   npn_price_sizes: text("npn_price_sizes"),
