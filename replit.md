@@ -8,7 +8,7 @@ Web pages that describe this entire software system, the FERNS data layer (data 
 
 FERNS (Federated Ecological Resource Network System) is a data infrastructure layer providing a federated REST API and an OpenAPI description for ecological and environmental data. It exposes data from independent authoritative sources through a consistent REST API, per-source Explorer web interfaces, and a central Registry. This system is designed to be the foundation for other applications.
 
-The primary users are developers building applications for the general public (homeowners, community members, restoration practitioners, and students) needing access to ecological data without integrating every source themselves. Secondary users include those building applications for ecological missions, businesses, or research.
+The primary users are developers building applications for the general public (homeowners, community members, restoration practitioners, and students) needing access to ecological data without integrating every source themselves. Secondary users include those building applications for ecological missions, businesses, or research. The third user base is agents calling the MCP interface. 
 
 FERNS fetches, caches, and exposes ecological and environmental data from authoritative sources, wraps every response with a provenance envelope, and enforces permission statuses per source. FERNS does not interpret, recommend, or normalize across sources; that is the responsibility of the application layer.
 
