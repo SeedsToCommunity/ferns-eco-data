@@ -9,7 +9,7 @@ const CLOUDINARY_CLOUD_NAME = process.env["CLOUDINARY_CLOUD_NAME"] ?? "dqe2vv0fo
 const CLOUDINARY_API_KEY = process.env["CLOUDINARY_API_KEY"];
 const CLOUDINARY_API_SECRET = process.env["CLOUDINARY_API_SECRET"];
 
-const NPN_BASE_URL = "https://nativeplant.com";
+const NPN_BASE_URL = "http://nativeplant.com";
 const NPN_SPECIES_LIST_URL = `${NPN_BASE_URL}/species`;
 
 const DELAY_MIN_MS = 300;
