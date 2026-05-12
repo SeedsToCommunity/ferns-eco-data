@@ -10,7 +10,11 @@ const CLOUDINARY_API_KEY = process.env["CLOUDINARY_API_KEY"];
 const CLOUDINARY_API_SECRET = process.env["CLOUDINARY_API_SECRET"];
 
 const NPN_BASE_URL = "http://nativeplant.com";
-const NPN_SPECIES_LIST_URL = `${NPN_BASE_URL}/species`;
+// Actual URL structure discovered from live site:
+//   List page:   /plants/list_plants  (links are relative: plant_page_template?Acronym=ACHMIL)
+//   Detail page: /plants/plant_page_template?Acronym=ACHMIL
+const NPN_SPECIES_LIST_URL = `${NPN_BASE_URL}/plants/list_plants`;
+const NPN_DETAIL_BASE_URL = `${NPN_BASE_URL}/plants/plant_page_template?Acronym=`;
 
 const DELAY_MIN_MS = 300;
 const DELAY_RANGE_MS = 200;
@@ -161,18 +165,19 @@ async function fetchSpeciesList(): Promise<RawSpeciesListItem[]> {
   }
   const html = await res.text();
 
-  // Parse species links — nativeplant.com lists species as /species/{acronym} links
+  // List page at /plants/list_plants uses relative links:
+  //   href="plant_page_template?Acronym=ACHMIL"
+  // Detail pages are at /plants/plant_page_template?Acronym=ACHMIL
   const items: RawSpeciesListItem[] = [];
-  const linkPattern = /href="(\/species\/([A-Z0-9]+))"/g;
+  const linkPattern = /href="plant_page_template\?Acronym=([A-Z0-9]+)"/g;
   let match: RegExpExecArray | null;
   const seen = new Set<string>();
 
   while ((match = linkPattern.exec(html)) !== null) {
-    const path = match[1]!;
-    const acronym = match[2]!;
+    const acronym = match[1]!;
     if (!seen.has(acronym)) {
       seen.add(acronym);
-      items.push({ acronym, detail_url: `${NPN_BASE_URL}${path}` });
+      items.push({ acronym, detail_url: `${NPN_DETAIL_BASE_URL}${acronym}` });
     }
   }
 
@@ -180,30 +185,17 @@ async function fetchSpeciesList(): Promise<RawSpeciesListItem[]> {
   return items;
 }
 
-function extractField(html: string, label: string): string | null {
+// Extracts value from inline bold-label pattern: <b>Label:</b>(?:&nbsp;)?\s*VALUE
+// Returns null when absent, empty, or "n/a".
+function extractInlineField(html: string, label: string): string | null {
   const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-  // Table row pattern: <td>Label</td><td>Value</td>
-  const tdPattern = new RegExp(
-    `<td[^>]*>\\s*${escaped}\\s*</td>\\s*<td[^>]*>(.*?)</td>`,
-    "is",
-  );
-  const tdMatch = tdPattern.exec(html);
-  if (tdMatch) {
-    return tdMatch[1]!.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() || null;
-  }
-
-  // Definition list: <dt>Label</dt><dd>Value</dd>
-  const dlPattern = new RegExp(
-    `<dt[^>]*>\\s*${escaped}\\s*</dt>\\s*<dd[^>]*>(.*?)</dd>`,
-    "is",
-  );
-  const dlMatch = dlPattern.exec(html);
-  if (dlMatch) {
-    return dlMatch[1]!.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() || null;
-  }
-
-  return null;
+  // Value runs to the next newline or tag
+  const pattern = new RegExp(`<b>${escaped}:?<\\/b>(?:&nbsp;)?\\s*([^\\n<]+)`, "i");
+  const m = pattern.exec(html);
+  if (!m) return null;
+  const val = m[1]!.replace(/&nbsp;/g, " ").trim();
+  if (!val || val.toLowerCase() === "n/a") return null;
+  return val;
 }
 
 function parseRange(raw: string | null): string[] {
@@ -214,65 +206,35 @@ function parseRange(raw: string | null): string[] {
     .filter(Boolean);
 }
 
-// Prefers <figure>/<figcaption>; falls back to bare <img alt>. Skips nav/icon images.
+// Extracts full-size plant images from nativeplant.com detail pages.
+// Structure per image block:
+//   <a href="/plant_images/ACRONYM/1.jpg" alt="image"><img src="...thumb.jpg" .../></a><br>
+//   <small>caption text</small>   ← optional
+// Full-size URL comes from the <a href>; caption from the <small> tag.
 function extractImages(
   html: string,
 ): Array<{ position: number; src: string; caption: string }> {
   const results: Array<{ position: number; src: string; caption: string }> = [];
   let position = 1;
-
-  const figurePattern = /<figure[^>]*>([\s\S]*?)<\/figure>/gi;
-  let figMatch: RegExpExecArray | null;
   const seenSrcs = new Set<string>();
 
-  while ((figMatch = figurePattern.exec(html)) !== null) {
-    const block = figMatch[1]!;
-    const imgM = /<img[^>]+src="([^"]+)"[^>]*>/i.exec(block);
-    const capM = /<figcaption[^>]*>([\s\S]*?)<\/figcaption>/i.exec(block);
-    if (!imgM) continue;
+  // Match each image block: <a href="/plant_images/...jpg">...<br>\n?<small>caption</small>
+  const blockPattern =
+    /<a href="(\/plant_images\/[^"]+\.jpg)"[^>]*>[\s\S]*?<\/a><br>\s*(?:<small>([^<]*)<\/small>)?/gi;
+  let match: RegExpExecArray | null;
 
-    const src = imgM[1]!;
-    if (isNavImage(src, "")) continue;
-    const absoluteSrc = src.startsWith("http") ? src : `${NPN_BASE_URL}${src}`;
-    if (seenSrcs.has(absoluteSrc)) continue;
-    seenSrcs.add(absoluteSrc);
-
-    const caption = capM
-      ? capM[1]!.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim()
-      : "";
-    results.push({ position: position++, src: absoluteSrc, caption });
-  }
-
-  const imgPattern = /<img[^>]+src="([^"]+)"(?:[^>]*alt="([^"]*)")?[^>]*>/gi;
-  let imgMatch: RegExpExecArray | null;
-
-  while ((imgMatch = imgPattern.exec(html)) !== null) {
-    const src = imgMatch[1]!;
-    const alt = imgMatch[2] ?? "";
-    if (isNavImage(src, alt)) continue;
-    const absoluteSrc = src.startsWith("http") ? src : `${NPN_BASE_URL}${src}`;
-    if (seenSrcs.has(absoluteSrc)) continue;
-    seenSrcs.add(absoluteSrc);
-    results.push({ position: position++, src: absoluteSrc, caption: alt });
+  while ((match = blockPattern.exec(html)) !== null) {
+    const relPath = match[1]!;
+    const caption = (match[2] ?? "").trim();
+    const src = `${NPN_BASE_URL}${relPath}`;
+    if (seenSrcs.has(src)) continue;
+    seenSrcs.add(src);
+    results.push({ position: position++, src, caption });
   }
 
   return results;
 }
 
-function isNavImage(src: string, alt: string): boolean {
-  const srcL = src.toLowerCase();
-  const altL = alt.toLowerCase();
-  return (
-    srcL.includes("/icons/") ||
-    srcL.includes("/logo") ||
-    srcL.includes("/nav") ||
-    srcL.includes("favicon") ||
-    srcL.includes("button") ||
-    altL.includes("logo") ||
-    altL.includes("icon") ||
-    altL.includes("navigation")
-  );
-}
 
 async function fetchSpeciesDetail(
   acronym: string,
@@ -288,40 +250,35 @@ async function fetchSpeciesDetail(
   }
   const html = await res.text();
 
-  const latinName =
-    extractField(html, "Latin Name") ??
-    extractField(html, "Scientific Name") ??
-    extractField(html, "Genus/Species") ??
-    acronym;
+  // Common name from <h1>Great Blue Lobelia </h1>
+  const h1Match = /<h1>([^<]+)<\/h1>/i.exec(html);
+  const commonName = h1Match ? h1Match[1]!.trim() : acronym;
 
-  const latinSynonymGreg =
-    extractField(html, "Latin Synonym") ??
-    extractField(html, "Synonym") ??
-    null;
+  // Latin name from <h2><i>Lobelia siphilitica</h2>
+  const h2Match = /<h2>(?:<i>)?([^<\n]+?)(?:<\/i>)?<\/h2>/i.exec(html);
+  const latinName = h2Match ? h2Match[1]!.trim() : acronym;
 
-  const commonName =
-    extractField(html, "Common Name") ??
-    extractField(html, "Common Names") ??
-    acronym;
+  // Latin synonym (Greg's nomenclature) from <h3>(a.k.a. Symphyotrichum cordifolium)</h3>
+  // Note: GENAND has a common name here ("Closed Gentian") — indexed anyway per task spec.
+  const h3Match = /<h3>\s*\(a\.k\.a\.\s*([^)<]+)\)/i.exec(html);
+  const latinSynonymGreg = h3Match ? h3Match[1]!.trim() : null;
 
-  const light = extractField(html, "Light");
-  const moisture = extractField(html, "Moisture");
-  const height = extractField(html, "Height");
-  const floweringTime =
-    extractField(html, "Flowering Time") ??
-    extractField(html, "Bloom Time") ??
-    extractField(html, "Flower Color/Bloom Time");
-  const habitat = extractField(html, "Habitat");
-  const notes = extractField(html, "Notes") ?? extractField(html, "Description");
-  const rangeRaw =
-    extractField(html, "Range") ??
-    extractField(html, "Range in Michigan") ??
-    extractField(html, "Michigan Range");
+  // Ecological fields — inline <b>Label:</b> value pattern
+  const light = extractInlineField(html, "Light");
+  const moisture = extractInlineField(html, "Moisture");
+  const height = extractInlineField(html, "Height");
+  const floweringTime = extractInlineField(html, "Flowering Time");
+  const notes = extractInlineField(html, "Notes");
+
+  // Range in Michigan: value appears on the next line after the <b> tag
+  // Pattern: <b>Range in Michigan: </b>\n\nSE,SW,NL,UP
+  const rangeMatch = /<b>Range in Michigan:\s*<\/b>\s*\n([\s\S]*?)(?:<\/p>|<br>|<b>)/i.exec(html);
+  const rangeRaw = rangeMatch ? rangeMatch[1]!.trim() : null;
   const rangeMichigan = parseRange(rangeRaw);
-  const npnPriceSizes =
-    extractField(html, "Price/Sizes") ??
-    extractField(html, "Availability") ??
-    extractField(html, "Price");
+
+  // NPN prices/sizes: value (if any) follows the label on same or next line
+  // Most species show &nbsp; with no actual content — captured as null when empty.
+  const npnPriceSizes = extractInlineField(html, "NPN prices/ sizes");
 
   const rawImages = extractImages(html);
 
@@ -334,7 +291,7 @@ async function fetchSpeciesDetail(
     moisture,
     height,
     flowering_time: floweringTime,
-    habitat,
+    habitat: null, // "Habitat:" is a section header on the page, not a data field
     notes,
     range_michigan: rangeMichigan,
     npn_price_sizes: npnPriceSizes,
