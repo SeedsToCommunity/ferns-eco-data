@@ -1260,7 +1260,7 @@ export async function runNpnChecks(fernsBase: string): Promise<EndpointCompariso
   //   acronym exactly "ASTCOR" and the names group must have
   //   all_accepted_keys containing "symphyotrichum cordifolium".
   const TEST_ACRONYM = "LOBSIP";
-  const TEST_LATIN = "Lobelia spicata";       // Greg's listing name for LOBSIP
+  const TEST_LATIN = "Lobelia siphilitica";   // exact Latin name on Greg's site for LOBSIP
   const TEST_ALIAS = "astcor";               // lower-case alias (acronym-as-alias) for ASTCOR
   const EXPECTED_COUNT = 130;
   const encodedAcronym = encodeURIComponent(TEST_ACRONYM);
@@ -1281,7 +1281,7 @@ export async function runNpnChecks(fernsBase: string): Promise<EndpointCompariso
   function makeSpeciesChecker(opts: {
     label: string;
     expectedAcronym?: string;
-    expectedLatinFragment?: string;
+    expectedLatinName?: string;
     requireNonEmptyImages?: boolean;
   }) {
     return (envelope: Record<string, unknown>): FieldFinding[] => {
@@ -1312,13 +1312,12 @@ export async function runNpnChecks(fernsBase: string): Promise<EndpointCompariso
         findings.push({ type: "mismatch", sourceField: "data.acronym", note: `data.acronym missing or not string [${opts.label}]` });
       }
 
-      // data.latin_name — contains expected fragment
+      // data.latin_name — exact match against expectedLatinName (case-insensitive)
       if (data && typeof data.latin_name === "string") {
-        const latinL = data.latin_name.toLowerCase();
-        if (opts.expectedLatinFragment && !latinL.includes(opts.expectedLatinFragment.toLowerCase())) {
-          findings.push({ type: "mismatch", sourceField: "data.latin_name", note: `known-value: expected "${opts.expectedLatinFragment}" in latin_name, got "${data.latin_name}"` });
+        if (opts.expectedLatinName && data.latin_name.toLowerCase() !== opts.expectedLatinName.toLowerCase()) {
+          findings.push({ type: "mismatch", sourceField: "data.latin_name", note: `known-value: expected "${opts.expectedLatinName}", got "${data.latin_name}"` });
         } else {
-          findings.push({ type: "ok", sourceField: "data.latin_name", note: `latin_name="${data.latin_name}"${opts.expectedLatinFragment ? " ✓" : ""}` });
+          findings.push({ type: "ok", sourceField: "data.latin_name", note: `latin_name="${data.latin_name}"${opts.expectedLatinName ? " ✓" : ""}` });
         }
       } else {
         findings.push({ type: "mismatch", sourceField: "data.latin_name", note: `data.latin_name missing [${opts.label}]` });
@@ -1379,18 +1378,18 @@ export async function runNpnChecks(fernsBase: string): Promise<EndpointCompariso
     checkEndpoint(
       "ann-arbor-npn",
       `/api/ann-arbor-npn/species/${encodedAcronym}`,
-      `Ann Arbor NPN — species by acronym (${TEST_ACRONYM}): found=true, acronym, latin_name, images`,
+      `Ann Arbor NPN — species by acronym (${TEST_ACRONYM}): found=true, acronym="${TEST_ACRONYM}", latin_name="${TEST_LATIN}", non-empty images`,
       fernsBase,
       makeSpeciesChecker({
         label: `acronym:${TEST_ACRONYM}`,
         expectedAcronym: TEST_ACRONYM,
-        expectedLatinFragment: "Lobelia",
+        expectedLatinName: TEST_LATIN,
         requireNonEmptyImages: true,
       }),
     ),
 
     // ── latinCheck ────────────────────────────────────────────────────────
-    // Resolves LOBSIP by the full Latin name "Lobelia spicata".
+    // Resolves LOBSIP by the full Latin name "Lobelia siphilitica".
     checkEndpoint(
       "ann-arbor-npn",
       `/api/ann-arbor-npn/species/${encodedLatin}`,
@@ -1399,7 +1398,7 @@ export async function runNpnChecks(fernsBase: string): Promise<EndpointCompariso
       makeSpeciesChecker({
         label: `latin:${TEST_LATIN}`,
         expectedAcronym: TEST_ACRONYM,
-        expectedLatinFragment: "Lobelia",
+        expectedLatinName: TEST_LATIN,
         requireNonEmptyImages: true,
       }),
     ),
@@ -1528,22 +1527,16 @@ export async function runNpnChecks(fernsBase: string): Promise<EndpointCompariso
               ? (astcorGroup.all_accepted_keys as string[])
               : [];
             const hasSymphyotrichum = keys.some((k) =>
-              k.toLowerCase().includes("symphyotrichum cordifolium"),
+              k.toLowerCase() === "symphyotrichum cordifolium",
             );
             if (hasSymphyotrichum) {
               findings.push({ type: "ok", sourceField: "ASTCOR.all_accepted_keys", note: `"symphyotrichum cordifolium" present in ASTCOR aliases ✓` });
             } else {
-              // Symphyotrichum may not be in Greg's synonym slot; check if ANY Symphyotrichum key exists
-              const hasAnySymphyo = keys.some((k) => k.toLowerCase().includes("symphyotrichum"));
-              if (hasAnySymphyo) {
-                findings.push({ type: "ok", sourceField: "ASTCOR.all_accepted_keys", note: `Symphyotrichum key present in ASTCOR aliases (partial match) ✓ — keys: [${keys.join(", ")}]` });
-              } else {
-                findings.push({
-                  type: "mismatch",
-                  sourceField: "ASTCOR.all_accepted_keys",
-                  note: `known-value: "symphyotrichum cordifolium" not found in ASTCOR aliases. Actual keys: [${keys.join(", ")}]. Verify that latin_synonym_greg for ASTCOR is "Symphyotrichum cordifolium".`,
-                });
-              }
+              findings.push({
+                type: "mismatch",
+                sourceField: "ASTCOR.all_accepted_keys",
+                note: `known-value: exact key "symphyotrichum cordifolium" not found in ASTCOR aliases. Actual keys: [${keys.join(", ")}]. Verify that latin_synonym_greg for ASTCOR is "Symphyotrichum cordifolium".`,
+              });
             }
           }
         }
