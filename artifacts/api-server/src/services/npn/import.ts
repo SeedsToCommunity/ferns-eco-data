@@ -111,12 +111,10 @@ function buildAliases(
   aliases.add(latinName.toLowerCase());
 
   if (latinSynonymGreg) {
-    const synLower = latinSynonymGreg.toLowerCase();
-    // Skip if the synonym slot contains a common name rather than a Latin name
-    // (known quirk: GENAND has "Closed Gentian" in this field).
-    if (/^[a-z]+ [a-z]/.test(synLower)) {
-      aliases.add(synLower);
-    }
+    // Index the synonym as-is so /species/{synonym} resolves correctly.
+    // GENAND quirk: synonym slot holds "Closed Gentian" (common name); it is
+    // indexed anyway so the common-name path resolves to GENAND as well.
+    aliases.add(latinSynonymGreg.toLowerCase());
   }
 
   // Split common names on ; and , — each segment trimmed
@@ -403,6 +401,9 @@ export async function importNpn(
         }
 
         const cloudUrl = await uploadToCloudinary(imageBytes, publicId, raw.caption);
+        // Fall back to source URL when Cloudinary credentials are absent (dev environment)
+        // or the upload fails. The image is still included in the record so the species
+        // entry is complete; the URL will be the nativeplant.com origin instead of CDN.
         images.push({
           position: raw.position,
           url: cloudUrl ?? raw.src,
