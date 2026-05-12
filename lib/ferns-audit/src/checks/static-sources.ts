@@ -1243,20 +1243,27 @@ export async function runLbjChecks(fernsBase: string): Promise<EndpointCompariso
 }
 
 // ─── Ann Arbor NPN Health Checks ─────────────────────────────────────────────
-// Tests the metadata, species (by key), bulk list, and names endpoints.
-// Uses ANDCAN (Andropogon canadensis) as the test species — it has both
-// a Latin name and a common name alias so all alias paths are exercised.
+// Tests the metadata, species (by key + Latin + alias), bulk list, and names
+// endpoints.
+//
+// Test corpus:
+//   LOBSIP (Lobelia spicata) — primary test species; well-populated record
+//   ASTCOR — secondary alias check (Aster cordifolius / Symphyotrichum cordifolium)
+//   Expected bulk count: 130 species
 
 export async function runNpnChecks(fernsBase: string): Promise<EndpointComparison[]> {
-  const TEST_ACRONYM = "ANDCAN";
-  const TEST_LATIN = "Andropogon canadensis";
+  const TEST_ACRONYM = "LOBSIP";          // Lobelia spicata
+  const TEST_LATIN = "Lobelia spicata";
+  const TEST_ALIAS = "astcor";            // lower-case alias for ASTCOR
+  const EXPECTED_COUNT = 130;
   const encodedAcronym = encodeURIComponent(TEST_ACRONYM);
   const encodedLatin = encodeURIComponent(TEST_LATIN);
+  const encodedAlias = encodeURIComponent(TEST_ALIAS);
 
-  function speciesEnvelopeChecks(label: string) {
+  function speciesEnvelopeChecks(label: string, knownGenus?: string) {
     return (envelope: Record<string, unknown>): FieldFinding[] => {
       const findings: FieldFinding[] = [];
-      // found
+      // found — boolean required
       if (typeof envelope.found === "boolean") {
         findings.push({ type: "ok", sourceField: "found", note: `found=${envelope.found}` });
       } else {
@@ -1273,23 +1280,34 @@ export async function runNpnChecks(fernsBase: string): Promise<EndpointCompariso
         // data.latin_name
         if (data && typeof data.latin_name === "string") {
           findings.push({ type: "ok", sourceField: "data.latin_name", note: `latin_name=${data.latin_name}` });
+          // Known-genus assertion (e.g. "Lobelia" for LOBSIP)
+          if (knownGenus && !data.latin_name.toLowerCase().includes(knownGenus.toLowerCase())) {
+            findings.push({
+              type: "mismatch",
+              sourceField: "data.latin_name",
+              note: `known-value: expected genus "${knownGenus}" in latin_name, got "${data.latin_name}"`,
+            });
+          } else if (knownGenus) {
+            findings.push({ type: "ok", sourceField: "data.latin_name", note: `known-genus "${knownGenus}" present ✓` });
+          }
         } else {
           findings.push({ type: "mismatch", sourceField: "data.latin_name", note: `data.latin_name missing [${label}]` });
         }
-        // data.images is an array
+        // data.images — array expected
         if (data && Array.isArray(data.images)) {
           findings.push({ type: "ok", sourceField: "data.images", note: `${data.images.length} image(s)` });
         } else {
           findings.push({ type: "gap", sourceField: "data.images", note: `data.images missing or not array [${label}]` });
         }
       } else {
+        // found=false is acceptable before the import runs; flag as gap not mismatch
         findings.push({ type: "gap", sourceField: "data", note: `found=false — species not yet imported or key unrecognised [${label}]` });
       }
       return findings;
     };
   }
 
-  const [metaCheck, acronymCheck, latinCheck, bulkCheck, namesCheck] = await Promise.all([
+  const [metaCheck, acronymCheck, latinCheck, aliasCheck, bulkCheck, namesCheck] = await Promise.all([
     checkEndpoint(
       "ann-arbor-npn",
       "/api/ann-arbor-npn/metadata",
@@ -1297,15 +1315,20 @@ export async function runNpnChecks(fernsBase: string): Promise<EndpointCompariso
       fernsBase,
       (envelope) => {
         const findings: FieldFinding[] = [];
-        if (typeof envelope.service_id === "string") {
+        if (typeof envelope.service_id === "string" && envelope.service_id === "ann-arbor-npn") {
           findings.push({ type: "ok", sourceField: "service_id", note: `service_id=${envelope.service_id}` });
         } else {
-          findings.push({ type: "mismatch", sourceField: "service_id", note: "service_id missing" });
+          findings.push({ type: "mismatch", sourceField: "service_id", note: `expected "ann-arbor-npn", got "${envelope.service_id}"` });
         }
         if (typeof envelope.species_count === "number") {
           findings.push({ type: "ok", sourceField: "species_count", note: `species_count=${envelope.species_count}` });
         } else {
           findings.push({ type: "gap", sourceField: "species_count", note: "species_count missing (import may not have run yet)" });
+        }
+        if (typeof envelope.permission_granted === "boolean") {
+          findings.push({ type: "ok", sourceField: "permission_granted", note: `permission_granted=${envelope.permission_granted}` });
+        } else {
+          findings.push({ type: "mismatch", sourceField: "permission_granted", note: "permission_granted field missing" });
         }
         return findings;
       },
@@ -1315,25 +1338,44 @@ export async function runNpnChecks(fernsBase: string): Promise<EndpointCompariso
       `/api/ann-arbor-npn/species/${encodedAcronym}`,
       `Ann Arbor NPN — species by acronym (${TEST_ACRONYM})`,
       fernsBase,
-      speciesEnvelopeChecks(`acronym:${TEST_ACRONYM}`),
+      speciesEnvelopeChecks(`acronym:${TEST_ACRONYM}`, "Lobelia"),
     ),
     checkEndpoint(
       "ann-arbor-npn",
       `/api/ann-arbor-npn/species/${encodedLatin}`,
       `Ann Arbor NPN — species by Latin name (${TEST_LATIN})`,
       fernsBase,
-      speciesEnvelopeChecks(`latin:${TEST_LATIN}`),
+      speciesEnvelopeChecks(`latin:${TEST_LATIN}`, "Lobelia"),
+    ),
+    checkEndpoint(
+      "ann-arbor-npn",
+      `/api/ann-arbor-npn/species/${encodedAlias}`,
+      `Ann Arbor NPN — species by alias (${TEST_ALIAS})`,
+      fernsBase,
+      speciesEnvelopeChecks(`alias:${TEST_ALIAS}`),
     ),
     checkEndpoint(
       "ann-arbor-npn",
       "/api/ann-arbor-npn/species",
-      "Ann Arbor NPN — bulk species list",
+      `Ann Arbor NPN — bulk species list (expected count: ${EXPECTED_COUNT})`,
       fernsBase,
       (envelope) => {
         const findings: FieldFinding[] = [];
         const data = envelope.data as Record<string, unknown> | null | undefined;
         if (data && typeof data.species_count === "number") {
-          findings.push({ type: "ok", sourceField: "data.species_count", note: `species_count=${data.species_count}` });
+          const count = data.species_count;
+          findings.push({ type: "ok", sourceField: "data.species_count", note: `species_count=${count}` });
+          if (count === 0) {
+            findings.push({ type: "gap", sourceField: "data.species_count", note: "count=0 — import may not have run yet" });
+          } else if (count !== EXPECTED_COUNT) {
+            findings.push({
+              type: "mismatch",
+              sourceField: "data.species_count",
+              note: `expected ${EXPECTED_COUNT} species, got ${count} — database may be stale or source changed`,
+            });
+          } else {
+            findings.push({ type: "ok", sourceField: "data.species_count", note: `count=${count} matches expected ${EXPECTED_COUNT} ✓` });
+          }
         } else {
           findings.push({ type: "gap", sourceField: "data.species_count", note: "data.species_count missing (import may not have run yet)" });
         }
@@ -1348,19 +1390,27 @@ export async function runNpnChecks(fernsBase: string): Promise<EndpointCompariso
     checkEndpoint(
       "ann-arbor-npn",
       "/api/ann-arbor-npn/names",
-      "Ann Arbor NPN — names endpoint (name groups with all_accepted_keys)",
+      "Ann Arbor NPN — names endpoint (common_names[] and all_accepted_keys per group)",
       fernsBase,
       (envelope) => {
         const findings: FieldFinding[] = [];
         const data = envelope.data as Record<string, unknown> | null | undefined;
         if (data && Array.isArray(data.name_groups)) {
           findings.push({ type: "ok", sourceField: "data.name_groups", note: `${data.name_groups.length} name groups` });
-          // Spot-check: each group should have all_accepted_keys
           const sample = data.name_groups[0] as Record<string, unknown> | undefined;
-          if (sample && Array.isArray(sample.all_accepted_keys)) {
-            findings.push({ type: "ok", sourceField: "data.name_groups[0].all_accepted_keys", note: `${sample.all_accepted_keys.length} alias(es) for first group` });
-          } else if (sample) {
-            findings.push({ type: "mismatch", sourceField: "data.name_groups[0].all_accepted_keys", note: "all_accepted_keys missing from first name group" });
+          if (sample) {
+            // all_accepted_keys must be a non-empty array
+            if (Array.isArray(sample.all_accepted_keys)) {
+              findings.push({ type: "ok", sourceField: "data.name_groups[0].all_accepted_keys", note: `${sample.all_accepted_keys.length} alias(es) for first group` });
+            } else {
+              findings.push({ type: "mismatch", sourceField: "data.name_groups[0].all_accepted_keys", note: "all_accepted_keys missing from first name group" });
+            }
+            // common_names must be a string array (not a bare string)
+            if (Array.isArray(sample.common_names)) {
+              findings.push({ type: "ok", sourceField: "data.name_groups[0].common_names", note: `common_names is string[] with ${sample.common_names.length} entry/entries ✓` });
+            } else {
+              findings.push({ type: "mismatch", sourceField: "data.name_groups[0].common_names", note: `common_names missing or not an array — expected string[], got ${typeof sample.common_names}` });
+            }
           }
         } else {
           findings.push({ type: "gap", sourceField: "data.name_groups", note: "data.name_groups missing or not an array (import may not have run yet)" });
@@ -1370,5 +1420,5 @@ export async function runNpnChecks(fernsBase: string): Promise<EndpointCompariso
     ),
   ]);
 
-  return [metaCheck, acronymCheck, latinCheck, bulkCheck, namesCheck];
+  return [metaCheck, acronymCheck, latinCheck, aliasCheck, bulkCheck, namesCheck];
 }

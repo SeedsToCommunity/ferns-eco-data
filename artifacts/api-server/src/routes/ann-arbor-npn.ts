@@ -86,6 +86,7 @@ router.get("/ann-arbor-npn/species", async (req, res) => {
 // ── GET /api/ann-arbor-npn/species/:key ───────────────────────────────────────
 // Accepts any name flavor: acronym, Latin name, Latin synonym, or common name.
 // Resolves via the npn_name_aliases table (case-insensitive).
+// Returns 404 with found=false when the key is not found in the alias index.
 
 router.get("/ann-arbor-npn/species/:key", async (req, res) => {
   await ensureNpnRegistryEntry();
@@ -113,7 +114,7 @@ router.get("/ann-arbor-npn/species/:key", async (req, res) => {
     .limit(1);
 
   if (!aliasRow) {
-    res.json({
+    res.status(404).json({
       found: false,
       queried_at: new Date(),
       source_url: resolveUrl(req, `/api/ann-arbor-npn/species/${encodeURIComponent(rawKey)}`),
@@ -133,7 +134,7 @@ router.get("/ann-arbor-npn/species/:key", async (req, res) => {
     .limit(1);
 
   if (!species) {
-    res.json({
+    res.status(404).json({
       found: false,
       queried_at: new Date(),
       source_url: resolveUrl(req, `/api/ann-arbor-npn/species/${encodeURIComponent(rawKey)}`),
@@ -160,6 +161,7 @@ router.get("/ann-arbor-npn/species/:key", async (req, res) => {
 
 // ── GET /api/ann-arbor-npn/names ──────────────────────────────────────────────
 // Returns all species organized into name groups with all_accepted_keys arrays.
+// Each group includes common_names as a parsed string[] (split on ; and ,).
 // Useful for cross-source name reconciliation.
 
 router.get("/ann-arbor-npn/names", async (req, res) => {
@@ -199,7 +201,11 @@ router.get("/ann-arbor-npn/names", async (req, res) => {
     acronym: sp.acronym,
     latin_name: sp.latin_name,
     latin_synonym_greg: sp.latin_synonym_greg ?? null,
-    common_name: sp.common_name,
+    // Parse common_name string into an array (split on ; and ,)
+    common_names: sp.common_name
+      .split(/[;,]/)
+      .map((s) => s.trim())
+      .filter(Boolean),
     all_accepted_keys: aliasMap.get(sp.acronym) ?? [],
   }));
 

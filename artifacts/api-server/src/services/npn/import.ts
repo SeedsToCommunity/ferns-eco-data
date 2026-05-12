@@ -17,24 +17,78 @@ const CLOUDINARY_API_SECRET = process.env["CLOUDINARY_API_SECRET"];
 const NPN_BASE_URL = "https://nativeplant.com";
 const NPN_SPECIES_LIST_URL = `${NPN_BASE_URL}/species`;
 
+// Inter-request delay: 300–500ms to be polite to the source server.
+const DELAY_MIN_MS = 300;
+const DELAY_RANGE_MS = 200;
+
+// ---------------------------------------------------------------------------
+// Utility helpers
+// ---------------------------------------------------------------------------
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Fetch image bytes and validate the JPEG magic header (FFD8FF).
+ * Returns the raw Buffer on success, or null when the fetch fails,
+ * the content is not a JPEG (e.g. an HTML error page), or the size
+ * is implausibly small (< 512 bytes).
+ */
+async function fetchAndValidateJpeg(url: string): Promise<Buffer | null> {
+  try {
+    const res = await fetch(url, {
+      headers: { "User-Agent": "FERNS-Botanical-Data-Aggregator/1.0 (ecologicalcommons.org)" },
+      signal: AbortSignal.timeout(20000),
+    });
+    if (!res.ok) {
+      logger.warn({ url, status: res.status }, "Image fetch failed");
+      return null;
+    }
+    const bytes = Buffer.from(await res.arrayBuffer());
+    if (bytes.length < 512) {
+      logger.warn({ url, size: bytes.length }, "Image too small — skipping");
+      return null;
+    }
+    // JPEG magic bytes: 0xFF 0xD8 0xFF
+    if (bytes[0] !== 0xff || bytes[1] !== 0xd8 || bytes[2] !== 0xff) {
+      logger.warn(
+        { url, header: bytes.slice(0, 4).toString("hex") },
+        "Image is not a JPEG (magic-byte check failed) — skipping",
+      );
+      return null;
+    }
+    return bytes;
+  } catch (err) {
+    logger.warn({ url, err }, "Image fetch threw — skipping");
+    return null;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Cloudinary helpers
 // ---------------------------------------------------------------------------
 
+/**
+ * Upload a validated JPEG buffer to Cloudinary.
+ * The buffer is encoded as a base64 data URI to avoid a second remote fetch
+ * and to guarantee Cloudinary receives the exact validated bytes.
+ */
 async function uploadToCloudinary(
-  imageUrl: string,
+  imageBytes: Buffer,
   publicId: string,
   caption: string,
 ): Promise<string | null> {
   if (!CLOUDINARY_API_KEY || !CLOUDINARY_API_SECRET) {
     logger.warn("Cloudinary credentials not set — skipping image upload");
-    return imageUrl;
+    return null;
   }
 
   const auth = Buffer.from(`${CLOUDINARY_API_KEY}:${CLOUDINARY_API_SECRET}`).toString("base64");
+  const dataUri = `data:image/jpeg;base64,${imageBytes.toString("base64")}`;
 
   const formData = new URLSearchParams();
-  formData.append("file", imageUrl);
+  formData.append("file", dataUri);
   formData.append("public_id", publicId);
   formData.append("overwrite", "true");
   formData.append("context", `caption=${encodeURIComponent(caption)}`);
@@ -89,7 +143,12 @@ function buildAliases(
   aliases.add(latinName.toLowerCase());
 
   if (latinSynonymGreg) {
-    aliases.add(latinSynonymGreg.toLowerCase());
+    const synLower = latinSynonymGreg.toLowerCase();
+    // Skip if the synonym slot contains a common name rather than a Latin name
+    // (known quirk: GENAND has "Closed Gentian" in this field).
+    if (/^[a-z]+ [a-z]/.test(synLower)) {
+      aliases.add(synLower);
+    }
   }
 
   // Split common names on ; and , — each segment trimmed
@@ -137,6 +196,7 @@ interface RawSpeciesDetail {
 async function fetchSpeciesList(): Promise<RawSpeciesListItem[]> {
   const res = await fetch(NPN_SPECIES_LIST_URL, {
     headers: { "User-Agent": "FERNS-Botanical-Data-Aggregator/1.0 (ecologicalcommons.org)" },
+    signal: AbortSignal.timeout(20000),
   });
   if (!res.ok) {
     throw new Error(`Failed to fetch NPN species list: HTTP ${res.status}`);
@@ -164,11 +224,13 @@ async function fetchSpeciesList(): Promise<RawSpeciesListItem[]> {
 
 /**
  * Extract a labeled field value from an HTML block.
- * Looks for a row/cell containing the label text and returns the adjacent value.
+ * Looks for table rows (<td>Label</td><td>Value</td>) and definition lists
+ * (<dt>Label</dt><dd>Value</dd>). Returns the plain-text value or null.
  */
 function extractField(html: string, label: string): string | null {
-  // Try to find table-row pattern: <td>Label</td><td>Value</td>
   const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  // Table row pattern: <td>Label</td><td>Value</td>
   const tdPattern = new RegExp(
     `<td[^>]*>\\s*${escaped}\\s*</td>\\s*<td[^>]*>(.*?)</td>`,
     "is",
@@ -178,7 +240,7 @@ function extractField(html: string, label: string): string | null {
     return tdMatch[1]!.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() || null;
   }
 
-  // Try definition list: <dt>Label</dt><dd>Value</dd>
+  // Definition list: <dt>Label</dt><dd>Value</dd>
   const dlPattern = new RegExp(
     `<dt[^>]*>\\s*${escaped}\\s*</dt>\\s*<dd[^>]*>(.*?)</dd>`,
     "is",
@@ -203,7 +265,80 @@ function parseRange(raw: string | null): string[] {
 }
 
 /**
+ * Extract images from a species detail page.
+ *
+ * Strategy (in priority order):
+ * 1. Look for <figure> elements containing <img> and <figcaption> — these
+ *    carry proper captions in most modern layouts.
+ * 2. Fall back to bare <img> tags whose src looks like a species image path,
+ *    using the alt attribute as the caption.
+ *
+ * Navigation/icon images are excluded via path and alt heuristics.
+ */
+function extractImages(
+  html: string,
+): Array<{ position: number; src: string; caption: string }> {
+  const results: Array<{ position: number; src: string; caption: string }> = [];
+  let position = 1;
+
+  // Strategy 1: <figure> … <img> … <figcaption> … </figure>
+  const figurePattern = /<figure[^>]*>([\s\S]*?)<\/figure>/gi;
+  let figMatch: RegExpExecArray | null;
+  const seenSrcs = new Set<string>();
+
+  while ((figMatch = figurePattern.exec(html)) !== null) {
+    const block = figMatch[1]!;
+    const imgM = /<img[^>]+src="([^"]+)"[^>]*>/i.exec(block);
+    const capM = /<figcaption[^>]*>([\s\S]*?)<\/figcaption>/i.exec(block);
+    if (!imgM) continue;
+
+    const src = imgM[1]!;
+    if (isNavImage(src, "")) continue;
+    const absoluteSrc = src.startsWith("http") ? src : `${NPN_BASE_URL}${src}`;
+    if (seenSrcs.has(absoluteSrc)) continue;
+    seenSrcs.add(absoluteSrc);
+
+    const caption = capM
+      ? capM[1]!.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim()
+      : "";
+    results.push({ position: position++, src: absoluteSrc, caption });
+  }
+
+  // Strategy 2: bare <img> tags not already captured
+  const imgPattern = /<img[^>]+src="([^"]+)"(?:[^>]*alt="([^"]*)")?[^>]*>/gi;
+  let imgMatch: RegExpExecArray | null;
+
+  while ((imgMatch = imgPattern.exec(html)) !== null) {
+    const src = imgMatch[1]!;
+    const alt = imgMatch[2] ?? "";
+    if (isNavImage(src, alt)) continue;
+    const absoluteSrc = src.startsWith("http") ? src : `${NPN_BASE_URL}${src}`;
+    if (seenSrcs.has(absoluteSrc)) continue;
+    seenSrcs.add(absoluteSrc);
+    results.push({ position: position++, src: absoluteSrc, caption: alt });
+  }
+
+  return results;
+}
+
+function isNavImage(src: string, alt: string): boolean {
+  const srcL = src.toLowerCase();
+  const altL = alt.toLowerCase();
+  return (
+    srcL.includes("/icons/") ||
+    srcL.includes("/logo") ||
+    srcL.includes("/nav") ||
+    srcL.includes("favicon") ||
+    srcL.includes("button") ||
+    altL.includes("logo") ||
+    altL.includes("icon") ||
+    altL.includes("navigation")
+  );
+}
+
+/**
  * Fetch and parse a single species detail page.
+ * Returns null on HTTP errors so the import loop can skip and continue.
  */
 async function fetchSpeciesDetail(
   acronym: string,
@@ -211,6 +346,7 @@ async function fetchSpeciesDetail(
 ): Promise<RawSpeciesDetail | null> {
   const res = await fetch(detailUrl, {
     headers: { "User-Agent": "FERNS-Botanical-Data-Aggregator/1.0 (ecologicalcommons.org)" },
+    signal: AbortSignal.timeout(20000),
   });
   if (!res.ok) {
     logger.warn({ acronym, status: res.status }, "Failed to fetch NPN species detail page");
@@ -218,7 +354,6 @@ async function fetchSpeciesDetail(
   }
   const html = await res.text();
 
-  // Extract main species data fields
   const latinName =
     extractField(html, "Latin Name") ??
     extractField(html, "Scientific Name") ??
@@ -254,32 +389,7 @@ async function fetchSpeciesDetail(
     extractField(html, "Availability") ??
     extractField(html, "Price");
 
-  // Extract images: <img> tags within the species page
-  const rawImages: Array<{ position: number; src: string; caption: string }> = [];
-  const imgPattern = /<img[^>]+src="([^"]+)"[^>]*(?:alt="([^"]*)")?[^>]*>/gi;
-  let imgMatch: RegExpExecArray | null;
-  let position = 1;
-
-  while ((imgMatch = imgPattern.exec(html)) !== null) {
-    const src = imgMatch[1]!;
-    const alt = imgMatch[2] ?? "";
-
-    // Skip navigation/icon images — only species photos
-    if (
-      src.includes("/icons/") ||
-      src.includes("/logo") ||
-      src.includes("/nav") ||
-      src.includes("favicon") ||
-      alt.toLowerCase().includes("logo") ||
-      alt.toLowerCase().includes("icon")
-    ) {
-      continue;
-    }
-
-    const absoluteSrc = src.startsWith("http") ? src : `${NPN_BASE_URL}${src}`;
-    rawImages.push({ position, src: absoluteSrc, caption: alt });
-    position++;
-  }
+  const rawImages = extractImages(html);
 
   return {
     acronym,
@@ -307,6 +417,7 @@ export interface NpnImportResult {
   speciesUpserted: number;
   aliasesUpserted: number;
   imagesUploaded: number;
+  imagesSkipped: number;
   errors: Array<{ acronym: string; error: string }>;
 }
 
@@ -317,6 +428,7 @@ export async function importNpn(
     speciesUpserted: 0,
     aliasesUpserted: 0,
     imagesUploaded: 0,
+    imagesSkipped: 0,
     errors: [],
   };
 
@@ -326,9 +438,16 @@ export async function importNpn(
     items = items.filter((i) => filterSet.has(i.acronym));
   }
 
-  for (const item of items) {
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i]!;
+
+    // Polite inter-request delay (skip before first request)
+    if (i > 0) {
+      await sleep(DELAY_MIN_MS + Math.floor(Math.random() * DELAY_RANGE_MS));
+    }
+
     try {
-      logger.info({ acronym: item.acronym }, "NPN import: processing species");
+      logger.info({ acronym: item.acronym, progress: `${i + 1}/${items.length}` }, "NPN import: processing species");
 
       const detail = await fetchSpeciesDetail(item.acronym, item.detail_url);
       if (!detail) {
@@ -336,12 +455,22 @@ export async function importNpn(
         continue;
       }
 
-      // Upload images to Cloudinary
+      // Upload images to Cloudinary — validate JPEG before upload
       const images: NpnImage[] = [];
       for (const raw of detail.raw_images) {
         const publicId = `ann-arbor-npn/${item.acronym.toLowerCase()}/${raw.position}`;
-        const cloudUrl = await uploadToCloudinary(raw.src, publicId, raw.caption);
         const kind = inferImageKind(raw.caption);
+
+        const imageBytes = await fetchAndValidateJpeg(raw.src);
+        if (!imageBytes) {
+          // Not a valid JPEG — record with original URL but no Cloudinary copy
+          logger.warn({ acronym: item.acronym, src: raw.src }, "Skipping non-JPEG image");
+          result.imagesSkipped++;
+          images.push({ position: raw.position, url: raw.src, caption: raw.caption, kind });
+          continue;
+        }
+
+        const cloudUrl = await uploadToCloudinary(imageBytes, publicId, raw.caption);
         images.push({
           position: raw.position,
           url: cloudUrl ?? raw.src,
@@ -349,6 +478,7 @@ export async function importNpn(
           kind,
         });
         if (cloudUrl) result.imagesUploaded++;
+        else result.imagesSkipped++;
       }
 
       // Upsert species record
@@ -442,8 +572,8 @@ export async function autoImportNpnIfEmpty(): Promise<void> {
     }
 
     logger.info("NPN species table empty — starting background auto-import");
-    const result = await importNpn();
-    logger.info(result, "NPN auto-import complete");
+    const importResult = await importNpn();
+    logger.info(importResult, "NPN auto-import complete");
   } catch (err) {
     logger.error({ err }, "NPN auto-import failed");
   }

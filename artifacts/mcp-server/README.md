@@ -108,7 +108,7 @@ This runs the server directly from TypeScript source using `tsx`, without compil
 
 ---
 
-## Tool inventory (55 tools)
+## Tool inventory (58 tools)
 
 Tool names follow `{source_id}__{action}` (hyphens → underscores, double-underscore separator).
 
@@ -263,6 +263,14 @@ Tool names follow `{source_id}__{action}` (hyphens → underscores, double-under
 | `usda_plants__profile` | GET /usda-plants/profile | symbol | refresh | Full USDA PLANTS profile for a known symbol (e.g. ASTU). Use when the symbol is already known |
 | `usda_plants__search` | GET /usda-plants/search | q | field, page | Search the USDA PLANTS database by Scientific Name, Common Name, Symbol, or Family |
 
+
+### ann-arbor-npn — Ann Arbor Native Plant Nursery
+
+| Tool | Path | Required | Optional | Description |
+|---|---|---|---|---|
+| `ann_arbor_npn__species` | GET /ann-arbor-npn/species/{key} | key | provenance_verbosity | Single NPN species record resolved by acronym (e.g. LOBSIP), Latin name, Greg's Latin synonym, or any common name — via the alias index. Returns 404 when not found. |
+| `ann_arbor_npn__species_list` | GET /ann-arbor-npn/species | — | provenance_verbosity | All ~130 NPN species with ecological attributes, nursery pricing, and Cloudinary image URLs (photograph / drawing). Empty before import runs. |
+| `ann_arbor_npn__names` | GET /ann-arbor-npn/names | — | provenance_verbosity | All NPN species as name groups with common_names[] and all_accepted_keys — designed for cross-source reconciliation against GBIF, USDA PLANTS, or iNaturalist. |
 
 ### registry — Ecological Commons Registry (meta)
 

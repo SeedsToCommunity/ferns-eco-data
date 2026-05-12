@@ -1,4 +1,5 @@
 import { pgTable, text, jsonb, timestamp } from "drizzle-orm/pg-core";
+// note: range_michigan uses native text[] (not jsonb) — see migration 0009
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -20,7 +21,7 @@ export const npnSpeciesTable = pgTable("npn_species", {
   flowering_time: text("flowering_time"),
   habitat: text("habitat"),
   notes: text("notes"),
-  range_michigan: jsonb("range_michigan").$type<string[]>(),
+  range_michigan: text("range_michigan").array(),
   npn_price_sizes: text("npn_price_sizes"),
   images: jsonb("images").notNull().$type<NpnImage[]>(),
   source_url: text("source_url").notNull(),

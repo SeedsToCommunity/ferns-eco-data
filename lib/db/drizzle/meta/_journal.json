@@ -64,6 +64,13 @@
       "when": 1747094400000,
       "tag": "0008_npn",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1747180800000,
+      "tag": "0009_npn_range_text_array",
+      "breakpoints": true
     }
   ]
 }

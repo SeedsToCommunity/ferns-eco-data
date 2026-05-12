@@ -50,6 +50,8 @@ tags:
     description: USDA PLANTS Database — Official Federal Plant Data
   - name: lady-bird-johnson
     description: Lady Bird Johnson Wildflower Center — Native Plant Information
+  - name: ann-arbor-npn
+    description: Ann Arbor Native Plant Nursery — Michigan Native Plant Species Database (nativeplant.com)
   - name: registry
     description: FERNS Service Registry
   - name: trust-groups
@@ -2559,6 +2561,185 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BotanicalWebRefMetadataResponse"
+
+  /ann-arbor-npn/metadata:
+    get:
+      operationId: getAnnArborNpnMetadata
+      tags: [ann-arbor-npn]
+      summary: Ann Arbor Native Plant Nursery service metadata
+      description: >
+        Returns service identity, current species count, permission status, and the full
+        registry entry for The Native Plant Nursery (nativeplant.com, Ann Arbor, MI —
+        Greg Vaclavek). Includes known limitations, update frequency, and technical details.
+      responses:
+        "200":
+          description: NPN service metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NpnMetadataResponse"
+
+  /ann-arbor-npn/species:
+    get:
+      operationId: getAnnArborNpnSpeciesBulk
+      tags: [ann-arbor-npn]
+      summary: All Ann Arbor Native Plant Nursery species (bulk)
+      description: >
+        Returns all ~130 species from The Native Plant Nursery database ordered by Latin
+        name. Each record includes ecological attributes (light, moisture, height, flowering
+        time, habitat, range within Michigan), nursery pricing, and Cloudinary image URLs
+        with captions and kind (photograph / drawing). Returns an empty list if the import
+        has not yet been run.
+      parameters:
+        - name: provenance_verbosity
+          in: query
+          required: false
+          description: Controls provenance verbosity in the response ("full" or "minimal")
+          schema:
+            type: string
+            enum: [full, minimal]
+      responses:
+        "200":
+          description: NPN bulk species list (found=false with empty array before import)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NpnSpeciesBulkResponse"
+
+  /ann-arbor-npn/species/{key}:
+    get:
+      operationId: getAnnArborNpnSpeciesByKey
+      tags: [ann-arbor-npn]
+      summary: Single NPN species by acronym, Latin name, synonym, or common name
+      description: >
+        Resolves any NPN name flavor to a species record via the npn_name_aliases index
+        (case-insensitive). Accepted inputs: acronym (e.g. LOBSIP), Latin name
+        (e.g. "Lobelia spicata"), Greg's Latin synonym, or any common name
+        (semicolon/comma-delimited common names are each indexed separately).
+        Returns HTTP 404 with found=false when the key does not appear in the alias index.
+        The alias index is built during import; 404 is also returned before import has run.
+      parameters:
+        - name: key
+          in: path
+          required: true
+          description: Acronym, Latin name, synonym, or common name (any capitalisation)
+          schema:
+            type: string
+            minLength: 1
+        - name: provenance_verbosity
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [full, minimal]
+      responses:
+        "200":
+          description: NPN species record (found=true)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NpnSpeciesResponse"
+        "400":
+          description: Empty key parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Name not found in alias index (found=false)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NpnNotFoundResponse"
+
+  /ann-arbor-npn/names:
+    get:
+      operationId: getAnnArborNpnNames
+      tags: [ann-arbor-npn]
+      summary: NPN name groups with common_names array and all_accepted_keys for reconciliation
+      description: >
+        Returns all species as name groups, each containing acronym, latin_name,
+        latin_synonym_greg (nullable), common_names (string array, parsed from the
+        semicolon/comma-delimited common_name field), and all_accepted_keys (full list
+        of lowercase aliases indexed for this species). Designed for cross-source name
+        reconciliation against GBIF, USDA PLANTS, or iNaturalist.
+      parameters:
+        - name: provenance_verbosity
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [full, minimal]
+      responses:
+        "200":
+          description: NPN name groups (found=false with empty array before import)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NpnNamesResponse"
+
+  /ann-arbor-npn/import:
+    post:
+      operationId: importAnnArborNpn
+      tags: [ann-arbor-npn]
+      summary: Trigger NPN import from nativeplant.com (admin-only)
+      description: >
+        Scrapes nativeplant.com, uploads images to Cloudinary, and populates
+        npn_species and npn_name_aliases. Requires the x-admin-secret header.
+        Optionally accepts an array of acronyms to re-import a subset of species.
+      security:
+        - adminSecret: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                acronyms:
+                  type: array
+                  items:
+                    type: string
+                  description: Optional subset of acronyms to import; omit to import all
+      responses:
+        "200":
+          description: Import result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  queried_at:
+                    type: string
+                    format: date-time
+                  data:
+                    type: object
+                    properties:
+                      speciesUpserted:
+                        type: integer
+                      aliasesUpserted:
+                        type: integer
+                      imagesUploaded:
+                        type: integer
+                      imagesSkipped:
+                        type: integer
+                      errors:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            acronym:
+                              type: string
+                            error:
+                              type: string
+        "401":
+          description: Missing or invalid admin secret
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
 components:
   schemas:
@@ -6464,5 +6645,217 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/TrustTierWithSources"
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    NpnImage:
+      type: object
+      description: A single image associated with an NPN species record.
+      required: [position, url, caption, kind]
+      properties:
+        position:
+          type: integer
+          description: 1-based position of this image in the species gallery
+        url:
+          type: string
+          description: Cloudinary CDN URL (or original nativeplant.com URL as fallback)
+        caption:
+          type: string
+          description: Image caption from the source page (may be empty string)
+        kind:
+          type: string
+          enum: [photograph, drawing]
+          description: >
+            Inferred from caption text: "pen & ink" or "drawing" → drawing; else photograph
+
+    NpnSpeciesRecord:
+      type: object
+      description: A single species record from The Native Plant Nursery database.
+      required: [acronym, latin_name, common_name, images, source_url, scraped_at]
+      properties:
+        acronym:
+          type: string
+          description: Primary key — 4–7 character code (e.g. LOBSIP). Carex uses CX prefix.
+        latin_name:
+          type: string
+        latin_synonym_greg:
+          type: string
+          nullable: true
+          description: >
+            Greg Vaclavek's Latin synonym. Known quirk: GENAND has "Closed Gentian"
+            (a common name) in this field.
+        common_name:
+          type: string
+          description: Raw common name string (may contain ; and , separators)
+        light:
+          type: string
+          nullable: true
+        moisture:
+          type: string
+          nullable: true
+        height:
+          type: string
+          nullable: true
+        flowering_time:
+          type: string
+          nullable: true
+        habitat:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        range_michigan:
+          type: array
+          items:
+            type: string
+          nullable: true
+          description: County or region strings within Michigan
+        npn_price_sizes:
+          type: string
+          nullable: true
+        images:
+          type: array
+          items:
+            $ref: "#/components/schemas/NpnImage"
+        source_url:
+          type: string
+        scraped_at:
+          type: string
+          format: date-time
+
+    NpnSpeciesResponse:
+      type: object
+      description: Single NPN species lookup response (found=true, HTTP 200).
+      required: [found, queried_at, source_url, provenance]
+      properties:
+        found:
+          type: boolean
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          nullable: true
+          $ref: "#/components/schemas/NpnSpeciesRecord"
+
+    NpnNotFoundResponse:
+      type: object
+      description: >
+        Response when a name key is not in the alias index (HTTP 404). found=false.
+      required: [found, queried_at, source_url, provenance]
+      properties:
+        found:
+          type: boolean
+          example: false
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          nullable: true
+
+    NpnSpeciesBulkResponse:
+      type: object
+      description: Bulk NPN species list response.
+      required: [found, queried_at, source_url, provenance, data]
+      properties:
+        found:
+          type: boolean
+          description: false when the table is empty (import not yet run)
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          type: object
+          required: [species_count, species]
+          properties:
+            species_count:
+              type: integer
+            species:
+              type: array
+              items:
+                $ref: "#/components/schemas/NpnSpeciesRecord"
+
+    NpnNameGroup:
+      type: object
+      description: Name group entry for a single NPN species.
+      required: [acronym, latin_name, common_names, all_accepted_keys]
+      properties:
+        acronym:
+          type: string
+        latin_name:
+          type: string
+        latin_synonym_greg:
+          type: string
+          nullable: true
+        common_names:
+          type: array
+          items:
+            type: string
+          description: Parsed segments (split on ; and , from common_name)
+        all_accepted_keys:
+          type: array
+          items:
+            type: string
+          description: All lowercase aliases for this species
+
+    NpnNamesResponse:
+      type: object
+      description: NPN name groups for cross-source reconciliation.
+      required: [found, queried_at, source_url, provenance, data]
+      properties:
+        found:
+          type: boolean
+        queried_at:
+          type: string
+          format: date-time
+        source_url:
+          type: string
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+        data:
+          type: object
+          required: [species_count, name_groups]
+          properties:
+            species_count:
+              type: integer
+            name_groups:
+              type: array
+              items:
+                $ref: "#/components/schemas/NpnNameGroup"
+
+    NpnMetadataResponse:
+      type: object
+      description: Metadata response for the Ann Arbor Native Plant Nursery source.
+      required: [service_id, service_name, permission_granted, permission_status, species_count, registry_entry, queried_at, provenance]
+      properties:
+        service_id:
+          type: string
+          example: ann-arbor-npn
+        service_name:
+          type: string
+        permission_granted:
+          type: boolean
+        permission_status:
+          type: string
+        species_count:
+          type: integer
+        registry_entry:
+          type: object
+          additionalProperties: true
+        queried_at:
+          type: string
+          format: date-time
         provenance:
           $ref: "#/components/schemas/FernsProvenance"

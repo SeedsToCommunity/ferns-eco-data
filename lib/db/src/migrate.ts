@@ -239,6 +239,7 @@ export async function runMigrations(): Promise<void> {
   const entry1 = journal.entries[1];
   const entry7 = journal.entries[7];
   const entry8 = journal.entries[8];
+  const entry9 = journal.entries[9];
 
   await applyMigration0000(entry0.when);
   await applyMigration0001(entry1.when);
@@ -256,6 +257,13 @@ export async function runMigrations(): Promise<void> {
   // tables were already created via direct SQL before this migration was added.
   if (entry8) {
     await runSqlMigration("0008_npn", entry8.when, "0008 (npn)", true);
+  }
+
+  // Migration 0009: change npn_species.range_michigan from jsonb to text[].
+  // Safe to run: the table was empty when this migration was authored (import
+  // requires live network access to nativeplant.com).
+  if (entry9) {
+    await runSqlMigration("0009_npn_range_text_array", entry9.when, "0009 (npn range text[])", false);
   }
 
   console.info("[migrate] All migrations complete.");
