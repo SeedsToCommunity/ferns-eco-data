@@ -385,7 +385,9 @@ export async function importNpn(
         continue;
       }
 
-      // Upload images to Cloudinary — validate JPEG before upload
+      // Upload images to Cloudinary. Only images that pass JPEG validation AND upload
+      // successfully are included in the record. Non-JPEG responses and failed uploads
+      // are skipped entirely (imagesSkipped++) to avoid storing ephemeral source URLs.
       const images: NpnImage[] = [];
       for (const raw of detail.raw_images) {
         const publicId = `ann-arbor-npn/${item.acronym.toLowerCase()}/${raw.position}`;
@@ -393,25 +395,20 @@ export async function importNpn(
 
         const imageBytes = await fetchAndValidateJpeg(raw.src);
         if (!imageBytes) {
-          // Not a valid JPEG — record with original URL but no Cloudinary copy
-          logger.warn({ acronym: item.acronym, src: raw.src }, "Skipping non-JPEG image");
+          logger.warn({ acronym: item.acronym, src: raw.src }, "Non-JPEG image skipped");
           result.imagesSkipped++;
-          images.push({ position: raw.position, url: raw.src, caption: raw.caption, kind });
           continue;
         }
 
         const cloudUrl = await uploadToCloudinary(imageBytes, publicId, raw.caption);
-        // Fall back to source URL when Cloudinary credentials are absent (dev environment)
-        // or the upload fails. The image is still included in the record so the species
-        // entry is complete; the URL will be the nativeplant.com origin instead of CDN.
-        images.push({
-          position: raw.position,
-          url: cloudUrl ?? raw.src,
-          caption: raw.caption,
-          kind,
-        });
-        if (cloudUrl) result.imagesUploaded++;
-        else result.imagesSkipped++;
+        if (!cloudUrl) {
+          logger.warn({ acronym: item.acronym, src: raw.src }, "Cloudinary upload failed — image omitted");
+          result.imagesSkipped++;
+          continue;
+        }
+
+        images.push({ position: raw.position, url: cloudUrl, caption: raw.caption, kind });
+        result.imagesUploaded++;
       }
 
       // Upsert species record
