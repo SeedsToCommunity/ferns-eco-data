@@ -50,8 +50,8 @@ export const NPN_REGISTRY_ENTRY = {
   input_summary:
     "Acronym (e.g. ANDCAN), Latin name, Latin synonym, or any common name (any capitalization)",
   output_summary:
-    "Species record with light, moisture, height, flowering time, habitat, Michigan range, " +
-    "nursery pricing/sizes, and Cloudinary image URLs with captions and kind (photograph/drawing)",
+    "Species record with light, moisture, height, flowering time, flower color, plant type (physiography), " +
+    "notes, Michigan range, nursery pricing/sizes, and Cloudinary image URLs with captions and kind (photograph/drawing)",
   dependencies: [] as string[],
   update_frequency:
     "Manual re-import via admin endpoint or auto-import at startup when table is empty. " +

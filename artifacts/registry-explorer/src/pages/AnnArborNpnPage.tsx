@@ -9,6 +9,7 @@ import {
   Image,
   Leaf,
   Info,
+  BookOpen,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -55,6 +56,8 @@ interface NpnSpecies {
   moisture: string | null;
   height: string | null;
   flowering_time: string | null;
+  flower_color: string | null;
+  physiography: string | null;
   habitat: string | null;
   notes: string | null;
   range_michigan: string[] | null;
@@ -62,6 +65,25 @@ interface NpnSpecies {
   images: NpnImage[];
   source_url: string;
   scraped_at: string;
+}
+
+interface NpnNameGroup {
+  acronym: string;
+  latin_name: string;
+  latin_synonym_greg: string | null;
+  common_names: string[];
+  all_accepted_keys: string[];
+}
+
+interface NamesEnvelope {
+  found: boolean;
+  queried_at: string;
+  source_url: string;
+  provenance?: Provenance;
+  data: {
+    species_count: number;
+    name_groups: NpnNameGroup[];
+  } | null;
 }
 
 interface Provenance {
@@ -355,6 +377,8 @@ function SpeciesCard({ sp, defaultOpen = false }: { sp: NpnSpecies; defaultOpen?
             <EcoChip label="Moisture" value={sp.moisture} />
             <EcoChip label="Height" value={sp.height} />
             <EcoChip label="Flowering Time" value={sp.flowering_time} />
+            <EcoChip label="Flower Color" value={sp.flower_color} />
+            <EcoChip label="Plant Type" value={sp.physiography} />
             {sp.npn_price_sizes && <EcoChip label="Price / Sizes" value={sp.npn_price_sizes} />}
           </div>
 
@@ -429,13 +453,17 @@ export function AnnArborNpnPage() {
   const [inputValue, setInputValue] = useState("");
   const [singleResult, setSingleResult] = useState<SpeciesEnvelope | null>(null);
   const [bulkData, setBulkData] = useState<BulkEnvelope | null>(null);
+  const [namesData, setNamesData] = useState<NamesEnvelope | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [mode, setMode] = useState<"search" | "browse">("search");
+  const [mode, setMode] = useState<"search" | "browse" | "names">("search");
 
   useEffect(() => {
     if (mode === "browse" && !bulkData) {
       loadAll();
+    }
+    if (mode === "names" && !namesData) {
+      loadNames();
     }
   }, [mode]);
 
@@ -447,6 +475,21 @@ export function AnnArborNpnPage() {
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const data = (await r.json()) as BulkEnvelope;
       setBulkData(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function loadNames() {
+    setLoading(true);
+    setError(null);
+    try {
+      const r = await fetch(`${API_BASE}/ann-arbor-npn/names`);
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const data = (await r.json()) as NamesEnvelope;
+      setNamesData(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -482,29 +525,45 @@ export function AnnArborNpnPage() {
 
         {/* Mode tabs */}
         <div className="flex gap-1 p-1 bg-muted rounded-xl w-fit">
-          {(["search", "browse"] as const).map((m) => (
-            <button
-              key={m}
-              onClick={() => setMode(m)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors capitalize ${
-                mode === m
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {m === "search" ? (
-                <span className="flex items-center gap-2">
-                  <Search className="w-4 h-4" />
-                  Search by Name
-                </span>
-              ) : (
-                <span className="flex items-center gap-2">
-                  <Leaf className="w-4 h-4" />
-                  Browse All
-                </span>
-              )}
-            </button>
-          ))}
+          <button
+            onClick={() => setMode("search")}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              mode === "search"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <span className="flex items-center gap-2">
+              <Search className="w-4 h-4" />
+              Search by Name
+            </span>
+          </button>
+          <button
+            onClick={() => setMode("browse")}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              mode === "browse"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <span className="flex items-center gap-2">
+              <Leaf className="w-4 h-4" />
+              Browse All
+            </span>
+          </button>
+          <button
+            onClick={() => setMode("names")}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              mode === "names"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <span className="flex items-center gap-2">
+              <BookOpen className="w-4 h-4" />
+              Name Index
+            </span>
+          </button>
         </div>
 
         {/* ── Search mode ── */}
@@ -578,6 +637,65 @@ export function AnnArborNpnPage() {
                 <p className="text-xs mt-1 opacity-70">
                   All name forms resolve via the alias index.
                 </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Names mode ── */}
+        {mode === "names" && (
+          <div className="space-y-4">
+            {loading && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground py-8 justify-center">
+                <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                Loading name index…
+              </div>
+            )}
+            {error && (
+              <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-4 text-sm text-destructive">
+                {error}
+              </div>
+            )}
+            {!loading && namesData?.data && (
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  {namesData.data.species_count} species — all accepted name keys for cross-source reconciliation
+                </p>
+                <div className="border border-border rounded-xl overflow-hidden">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="bg-muted/50 border-b border-border">
+                        <th className="text-left px-3 py-2 font-semibold text-muted-foreground uppercase tracking-wider text-[10px]">Acronym</th>
+                        <th className="text-left px-3 py-2 font-semibold text-muted-foreground uppercase tracking-wider text-[10px]">Latin Name</th>
+                        <th className="text-left px-3 py-2 font-semibold text-muted-foreground uppercase tracking-wider text-[10px]">Common Names</th>
+                        <th className="text-left px-3 py-2 font-semibold text-muted-foreground uppercase tracking-wider text-[10px]">All Accepted Keys</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {namesData.data.name_groups.map((g, i) => (
+                        <tr key={g.acronym} className={`border-b border-border/50 last:border-0 ${i % 2 === 0 ? "" : "bg-muted/20"}`}>
+                          <td className="px-3 py-2 font-mono text-[10px] text-muted-foreground whitespace-nowrap">{g.acronym}</td>
+                          <td className="px-3 py-2 italic text-foreground whitespace-nowrap">
+                            {g.latin_name}
+                            {g.latin_synonym_greg && (
+                              <div className="text-[10px] not-italic text-muted-foreground/70">syn. {g.latin_synonym_greg}</div>
+                            )}
+                          </td>
+                          <td className="px-3 py-2 text-foreground">{g.common_names.join(", ")}</td>
+                          <td className="px-3 py-2">
+                            <div className="flex flex-wrap gap-1">
+                              {g.all_accepted_keys.map((k) => (
+                                <span key={k} className="font-mono text-[9px] bg-muted px-1 py-0.5 rounded border border-border/50 text-muted-foreground">{k}</span>
+                              ))}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <ProvenancePanel provenance={namesData.provenance} />
+                <RawPanel title="Raw API — /api/ann-arbor-npn/names" data={namesData} />
               </div>
             )}
           </div>
