@@ -24,6 +24,7 @@ import usdaPlantsRouter from "./usda-plants.js";
 import ladyBirdJohnsonRouter from "./lady-bird-johnson.js";
 import sourceRelationshipsRouter from "./source-relationships.js";
 import trustGroupsRouter from "./trust-groups.js";
+import annArborNpnRouter from "./ann-arbor-npn.js";
 
 const router: IRouter = Router();
 
@@ -50,6 +51,7 @@ router.use(usdaPlantsRouter);
 router.use(ladyBirdJohnsonRouter);
 router.use(sourceRelationshipsRouter);
 router.use(trustGroupsRouter);
+router.use(annArborNpnRouter);
 router.use(registryRouter);
 router.use(specRouter);
 

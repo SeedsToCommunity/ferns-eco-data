@@ -238,6 +238,7 @@ export async function runMigrations(): Promise<void> {
   const entry0 = journal.entries[0];
   const entry1 = journal.entries[1];
   const entry7 = journal.entries[7];
+  const entry8 = journal.entries[8];
 
   await applyMigration0000(entry0.when);
   await applyMigration0001(entry1.when);
@@ -248,6 +249,13 @@ export async function runMigrations(): Promise<void> {
   // in 0007 make it safe to re-run against any state.
   if (entry7) {
     await runSqlMigration("0007_trust_layer", entry7.when, "0007 (trust layer)", true);
+  }
+
+  // Migration 0008: NPN (The Native Plant Nursery) tables (npn_species, npn_name_aliases).
+  // CREATE TABLE IF NOT EXISTS guards make it safe to run against a DB where the
+  // tables were already created via direct SQL before this migration was added.
+  if (entry8) {
+    await runSqlMigration("0008_npn", entry8.when, "0008 (npn)", true);
   }
 
   console.info("[migrate] All migrations complete.");

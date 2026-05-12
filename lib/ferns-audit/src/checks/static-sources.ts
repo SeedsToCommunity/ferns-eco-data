@@ -1241,3 +1241,134 @@ export async function runLbjChecks(fernsBase: string): Promise<EndpointCompariso
 
   return [urlCheck, textCheck];
 }
+
+// ─── Ann Arbor NPN Health Checks ─────────────────────────────────────────────
+// Tests the metadata, species (by key), bulk list, and names endpoints.
+// Uses ANDCAN (Andropogon canadensis) as the test species — it has both
+// a Latin name and a common name alias so all alias paths are exercised.
+
+export async function runNpnChecks(fernsBase: string): Promise<EndpointComparison[]> {
+  const TEST_ACRONYM = "ANDCAN";
+  const TEST_LATIN = "Andropogon canadensis";
+  const encodedAcronym = encodeURIComponent(TEST_ACRONYM);
+  const encodedLatin = encodeURIComponent(TEST_LATIN);
+
+  function speciesEnvelopeChecks(label: string) {
+    return (envelope: Record<string, unknown>): FieldFinding[] => {
+      const findings: FieldFinding[] = [];
+      // found
+      if (typeof envelope.found === "boolean") {
+        findings.push({ type: "ok", sourceField: "found", note: `found=${envelope.found}` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "found", note: "found field missing or not boolean" });
+      }
+      if (envelope.found === true) {
+        const data = envelope.data as Record<string, unknown> | null | undefined;
+        // data.acronym
+        if (data && typeof data.acronym === "string") {
+          findings.push({ type: "ok", sourceField: "data.acronym", note: `acronym=${data.acronym}` });
+        } else {
+          findings.push({ type: "mismatch", sourceField: "data.acronym", note: `data.acronym missing [${label}]` });
+        }
+        // data.latin_name
+        if (data && typeof data.latin_name === "string") {
+          findings.push({ type: "ok", sourceField: "data.latin_name", note: `latin_name=${data.latin_name}` });
+        } else {
+          findings.push({ type: "mismatch", sourceField: "data.latin_name", note: `data.latin_name missing [${label}]` });
+        }
+        // data.images is an array
+        if (data && Array.isArray(data.images)) {
+          findings.push({ type: "ok", sourceField: "data.images", note: `${data.images.length} image(s)` });
+        } else {
+          findings.push({ type: "gap", sourceField: "data.images", note: `data.images missing or not array [${label}]` });
+        }
+      } else {
+        findings.push({ type: "gap", sourceField: "data", note: `found=false — species not yet imported or key unrecognised [${label}]` });
+      }
+      return findings;
+    };
+  }
+
+  const [metaCheck, acronymCheck, latinCheck, bulkCheck, namesCheck] = await Promise.all([
+    checkEndpoint(
+      "ann-arbor-npn",
+      "/api/ann-arbor-npn/metadata",
+      "Ann Arbor NPN — metadata endpoint",
+      fernsBase,
+      (envelope) => {
+        const findings: FieldFinding[] = [];
+        if (typeof envelope.service_id === "string") {
+          findings.push({ type: "ok", sourceField: "service_id", note: `service_id=${envelope.service_id}` });
+        } else {
+          findings.push({ type: "mismatch", sourceField: "service_id", note: "service_id missing" });
+        }
+        if (typeof envelope.species_count === "number") {
+          findings.push({ type: "ok", sourceField: "species_count", note: `species_count=${envelope.species_count}` });
+        } else {
+          findings.push({ type: "gap", sourceField: "species_count", note: "species_count missing (import may not have run yet)" });
+        }
+        return findings;
+      },
+    ),
+    checkEndpoint(
+      "ann-arbor-npn",
+      `/api/ann-arbor-npn/species/${encodedAcronym}`,
+      `Ann Arbor NPN — species by acronym (${TEST_ACRONYM})`,
+      fernsBase,
+      speciesEnvelopeChecks(`acronym:${TEST_ACRONYM}`),
+    ),
+    checkEndpoint(
+      "ann-arbor-npn",
+      `/api/ann-arbor-npn/species/${encodedLatin}`,
+      `Ann Arbor NPN — species by Latin name (${TEST_LATIN})`,
+      fernsBase,
+      speciesEnvelopeChecks(`latin:${TEST_LATIN}`),
+    ),
+    checkEndpoint(
+      "ann-arbor-npn",
+      "/api/ann-arbor-npn/species",
+      "Ann Arbor NPN — bulk species list",
+      fernsBase,
+      (envelope) => {
+        const findings: FieldFinding[] = [];
+        const data = envelope.data as Record<string, unknown> | null | undefined;
+        if (data && typeof data.species_count === "number") {
+          findings.push({ type: "ok", sourceField: "data.species_count", note: `species_count=${data.species_count}` });
+        } else {
+          findings.push({ type: "gap", sourceField: "data.species_count", note: "data.species_count missing (import may not have run yet)" });
+        }
+        if (data && Array.isArray(data.species)) {
+          findings.push({ type: "ok", sourceField: "data.species", note: `${data.species.length} species in list` });
+        } else {
+          findings.push({ type: "mismatch", sourceField: "data.species", note: "data.species not an array" });
+        }
+        return findings;
+      },
+    ),
+    checkEndpoint(
+      "ann-arbor-npn",
+      "/api/ann-arbor-npn/names",
+      "Ann Arbor NPN — names endpoint (name groups with all_accepted_keys)",
+      fernsBase,
+      (envelope) => {
+        const findings: FieldFinding[] = [];
+        const data = envelope.data as Record<string, unknown> | null | undefined;
+        if (data && Array.isArray(data.name_groups)) {
+          findings.push({ type: "ok", sourceField: "data.name_groups", note: `${data.name_groups.length} name groups` });
+          // Spot-check: each group should have all_accepted_keys
+          const sample = data.name_groups[0] as Record<string, unknown> | undefined;
+          if (sample && Array.isArray(sample.all_accepted_keys)) {
+            findings.push({ type: "ok", sourceField: "data.name_groups[0].all_accepted_keys", note: `${sample.all_accepted_keys.length} alias(es) for first group` });
+          } else if (sample) {
+            findings.push({ type: "mismatch", sourceField: "data.name_groups[0].all_accepted_keys", note: "all_accepted_keys missing from first name group" });
+          }
+        } else {
+          findings.push({ type: "gap", sourceField: "data.name_groups", note: "data.name_groups missing or not an array (import may not have run yet)" });
+        }
+        return findings;
+      },
+    ),
+  ]);
+
+  return [metaCheck, acronymCheck, latinCheck, bulkCheck, namesCheck];
+}

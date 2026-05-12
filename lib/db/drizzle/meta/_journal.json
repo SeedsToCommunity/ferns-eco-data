@@ -57,6 +57,13 @@
       "when": 1747008000000,
       "tag": "0007_trust_layer",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1747094400000,
+      "tag": "0008_npn",
+      "breakpoints": true
     }
   ]
 }

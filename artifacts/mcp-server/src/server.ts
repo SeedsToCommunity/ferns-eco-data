@@ -1227,6 +1227,75 @@ const tools: ToolDef[] = [
     handler: async (args) =>
       apiGet(`/v1/trust-groups/${String(args["slug"])}/sources`),
   },
+
+  // ── ann-arbor-npn ────────────────────────────────────────────────────────
+  {
+    tool: {
+      name: "ann_arbor_npn__species",
+      description:
+        "Looks up a single species from the Ann Arbor Native Plant Nursery (nativeplant.com) database, " +
+        "operated by Greg Vaclavek. Accepts any name flavor — acronym (e.g. ANDCAN), Latin name, " +
+        "Latin synonym, or any common name — and resolves via an internal alias index. " +
+        "Returns ecological attributes (light, moisture, height, flowering time, habitat), " +
+        "Michigan range, nursery pricing/sizes, and Cloudinary image URLs with captions and kind (photograph/drawing).",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          key: {
+            type: "string",
+            description:
+              "Any name form: acronym (e.g. ANDCAN), Latin name (e.g. Andropogon canadensis), " +
+              "Latin synonym, or common name (e.g. Big Bluestem). Case-insensitive.",
+          },
+          ...PV_PROP,
+        },
+        required: ["key"],
+      },
+    },
+    handler: async (args) =>
+      apiGet(`/ann-arbor-npn/species/${encodeURIComponent(String(args["key"]))}`, {
+        provenance_verbosity: pv(args),
+      }),
+  },
+  {
+    tool: {
+      name: "ann_arbor_npn__species_list",
+      description:
+        "Returns the complete list of all ~130 Michigan native plant species in the Ann Arbor Native Plant Nursery " +
+        "(nativeplant.com) database. Each record includes acronym, Latin name, common name, ecological attributes, " +
+        "Michigan range, nursery pricing, and Cloudinary image URLs. " +
+        "Use this for bulk queries, browsing, or cross-source reconciliation.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          ...PV_PROP,
+        },
+      },
+    },
+    handler: async (args) =>
+      apiGet("/ann-arbor-npn/species", {
+        provenance_verbosity: pv(args),
+      }),
+  },
+  {
+    tool: {
+      name: "ann_arbor_npn__names",
+      description:
+        "Returns all NPN species organized into name groups, each with an all_accepted_keys array listing " +
+        "every name form that resolves to that species (acronym, Latin name, synonym, common names). " +
+        "Use for cross-source name reconciliation or to discover all aliases for a species.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          ...PV_PROP,
+        },
+      },
+    },
+    handler: async (args) =>
+      apiGet("/ann-arbor-npn/names", {
+        provenance_verbosity: pv(args),
+      }),
+  },
 ];
 
   const toolMap = new Map<string, ToolHandler>(tools.map((t) => [t.tool.name, t.handler]));

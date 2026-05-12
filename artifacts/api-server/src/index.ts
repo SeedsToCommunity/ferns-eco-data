@@ -25,6 +25,8 @@ import { autoImportMinnesotaWildflowersIfEmpty } from "./services/botanical-refs
 import { autoImportIllinoisWildflowersIfEmpty } from "./services/botanical-refs/importers/illinois-wildflowers.js";
 import { autoImportPrairieMoonIfEmpty } from "./services/botanical-refs/importers/prairie-moon.js";
 import { ensureSourceRelationships, ensureSourceRelationshipsRegistryEntry } from "./services/source-relationships/seed.js";
+import { ensureNpnRegistryEntry } from "./services/npn/seed.js";
+import { autoImportNpnIfEmpty } from "./services/npn/import.js";
 
 const rawPort = process.env["PORT"];
 
@@ -77,6 +79,10 @@ async function main() {
       logger.error({ err }, "Prairie Moon auto-import check failed at startup");
     });
 
+    autoImportNpnIfEmpty().catch((err) => {
+      logger.error({ err }, "NPN auto-import check failed at startup");
+    });
+
     const registrySeedLabels = [
       ["BONAP", ensureBonapRegistryEntry()],
       ["iNaturalist", ensureInatRegistryEntry()],
@@ -96,6 +102,7 @@ async function main() {
       ["Prairie Moon", ensurePrairieMoonRegistryEntry()],
       ["USDA PLANTS", ensureUsdaPlantsRegistryEntry()],
       ["Lady Bird Johnson", ensureLadyBirdJohnsonRegistryEntry()],
+      ["Ann Arbor NPN", ensureNpnRegistryEntry()],
       ["Source Relationships", ensureSourceRelationshipsRegistryEntry()],
     ] as const;
 

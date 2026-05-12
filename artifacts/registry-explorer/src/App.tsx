@@ -19,6 +19,7 @@ import GenericSourcePage from "@/pages/GenericSourcePage";
 import SourceRelationshipsPage from "@/pages/SourceRelationshipsPage";
 import TrustGroupsPage from "@/pages/TrustGroupsPage";
 import TrustGroupDetailPage from "@/pages/TrustGroupDetailPage";
+import AnnArborNpnPage from "@/pages/AnnArborNpnPage";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -56,6 +57,7 @@ function Router() {
       <Route path="/source-relationships" component={SourceRelationshipsPage} />
       <Route path="/trust-groups" component={TrustGroupsPage} />
       <Route path="/trust-groups/:slug" component={TrustGroupDetailPage} />
+      <Route path="/source/ann-arbor-npn" component={AnnArborNpnPage} />
       <Route path="/source/:sourceId/metadata" component={MetadataPage} />
       {/* Generic fallback: any source not matched above gets the metadata page */}
       <Route path="/source/:sourceId" component={GenericSourcePage} />
