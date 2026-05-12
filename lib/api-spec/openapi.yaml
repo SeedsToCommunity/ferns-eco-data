@@ -2685,7 +2685,7 @@ paths:
       summary: Trigger NPN import from nativeplant.com (admin-only)
       description: >
         Scrapes nativeplant.com, uploads images to Cloudinary, and populates
-        npn_species and npn_name_aliases. Requires the x-admin-secret header.
+        npn_species and npn_name_aliases. Requires Authorization: Bearer <ADMIN_SECRET>.
         Optionally accepts an array of acronyms to re-import a subset of species.
       security:
         - adminSecret: []

@@ -2937,7 +2937,7 @@ export const GetLadyBirdJohnsonSpeciesTextRefresh = {
 
 export type GetAnnArborNpnSpeciesBulkParams = {
   /**
-   * Controls provenance verbosity in the response ("full" or "minimal")
+   * Controls provenance verbosity in the response ("full", "summary", or "none")
    */
   provenance_verbosity?: GetAnnArborNpnSpeciesBulkProvenanceVerbosity;
 };
@@ -2947,7 +2947,8 @@ export type GetAnnArborNpnSpeciesBulkProvenanceVerbosity =
 
 export const GetAnnArborNpnSpeciesBulkProvenanceVerbosity = {
   full: "full",
-  minimal: "minimal",
+  summary: "summary",
+  none: "none",
 } as const;
 
 export type GetAnnArborNpnSpeciesByKeyParams = {
@@ -2959,7 +2960,8 @@ export type GetAnnArborNpnSpeciesByKeyProvenanceVerbosity =
 
 export const GetAnnArborNpnSpeciesByKeyProvenanceVerbosity = {
   full: "full",
-  minimal: "minimal",
+  summary: "summary",
+  none: "none",
 } as const;
 
 export type GetAnnArborNpnNamesParams = {
@@ -2971,7 +2973,8 @@ export type GetAnnArborNpnNamesProvenanceVerbosity =
 
 export const GetAnnArborNpnNamesProvenanceVerbosity = {
   full: "full",
-  minimal: "minimal",
+  summary: "summary",
+  none: "none",
 } as const;
 
 export type ImportAnnArborNpnBody = {

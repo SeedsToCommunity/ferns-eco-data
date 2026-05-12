@@ -1252,13 +1252,6 @@ export async function runLbjChecks(fernsBase: string): Promise<EndpointCompariso
 //   Expected bulk count: 130 species
 
 export async function runNpnChecks(fernsBase: string): Promise<EndpointComparison[]> {
-  // ── Known test values ─────────────────────────────────────────────────────
-  // LOBSIP — the primary test species.  When imported, the record must have
-  //   acronym exactly "LOBSIP", latin_name starting with "Lobelia",
-  //   and a non-empty images array.
-  // ASTCOR — secondary alias test.  When imported, the record must have
-  //   acronym exactly "ASTCOR" and the names group must have
-  //   all_accepted_keys containing "symphyotrichum cordifolium".
   const TEST_ACRONYM = "LOBSIP";
   const TEST_LATIN = "Lobelia siphilitica";   // exact Latin name on Greg's site for LOBSIP
   const TEST_ALIAS = "astcor";               // lower-case alias (acronym-as-alias) for ASTCOR
@@ -1267,17 +1260,6 @@ export async function runNpnChecks(fernsBase: string): Promise<EndpointCompariso
   const encodedLatin = encodeURIComponent(TEST_LATIN);
   const encodedAlias = encodeURIComponent(TEST_ALIAS);
 
-  /**
-   * Build the standard species envelope checker.
-   * When found=true the following hard assertions fire:
-   *   - data.acronym must equal expectedAcronym exactly (case-sensitive)
-   *   - data.latin_name must include expectedLatinFragment (case-insensitive)
-   *   - data.images must be a non-empty array (mismatch if empty, gap if missing)
-   *
-   * When found=false we record a "gap" (not "mismatch") because the import
-   * may not have been run yet.  The distinction between gap and mismatch is
-   * visible in the audit report and surfaced to callers.
-   */
   function makeSpeciesChecker(opts: {
     label: string;
     expectedAcronym?: string;
@@ -1340,7 +1322,6 @@ export async function runNpnChecks(fernsBase: string): Promise<EndpointCompariso
   }
 
   const [metaCheck, acronymCheck, latinCheck, aliasCheck, bulkCheck, namesCheck] = await Promise.all([
-    // ── metaCheck ─────────────────────────────────────────────────────────
     checkEndpoint(
       "ann-arbor-npn",
       "/api/ann-arbor-npn/metadata",
@@ -1372,9 +1353,6 @@ export async function runNpnChecks(fernsBase: string): Promise<EndpointCompariso
       },
     ),
 
-    // ── acronymCheck ──────────────────────────────────────────────────────
-    // Resolves LOBSIP by acronym.  When imported: found=true, acronym exactly
-    // "LOBSIP", latin_name starts with "Lobelia", non-empty images.
     checkEndpoint(
       "ann-arbor-npn",
       `/api/ann-arbor-npn/species/${encodedAcronym}`,
@@ -1388,8 +1366,6 @@ export async function runNpnChecks(fernsBase: string): Promise<EndpointCompariso
       }),
     ),
 
-    // ── latinCheck ────────────────────────────────────────────────────────
-    // Resolves LOBSIP by the full Latin name "Lobelia siphilitica".
     checkEndpoint(
       "ann-arbor-npn",
       `/api/ann-arbor-npn/species/${encodedLatin}`,
@@ -1403,9 +1379,6 @@ export async function runNpnChecks(fernsBase: string): Promise<EndpointCompariso
       }),
     ),
 
-    // ── aliasCheck ────────────────────────────────────────────────────────
-    // Resolves "astcor" (lower-case acronym alias) → ASTCOR record.
-    // ASTCOR = Aster cordifolius; Greg may list it under Aster or Symphyotrichum.
     checkEndpoint(
       "ann-arbor-npn",
       `/api/ann-arbor-npn/species/${encodedAlias}`,

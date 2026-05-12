@@ -7866,7 +7866,7 @@ export function useGetAnnArborNpnNames<
 }
 
 /**
- * Scrapes nativeplant.com, uploads images to Cloudinary, and populates npn_species and npn_name_aliases. Requires the x-admin-secret header. Optionally accepts an array of acronyms to re-import a subset of species.
+ * Scrapes nativeplant.com, uploads images to Cloudinary, and populates npn_species and npn_name_aliases. Requires Authorization: Bearer <ADMIN_SECRET>. Optionally accepts an array of acronyms to re-import a subset of species.
 
  * @summary Trigger NPN import from nativeplant.com (admin-only)
  */

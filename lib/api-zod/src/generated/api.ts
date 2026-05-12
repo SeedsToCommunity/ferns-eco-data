@@ -7373,10 +7373,10 @@ export const GetAnnArborNpnMetadataResponse = zod
  */
 export const GetAnnArborNpnSpeciesBulkQueryParams = zod.object({
   provenance_verbosity: zod
-    .enum(["full", "minimal"])
+    .enum(["full", "summary", "none"])
     .optional()
     .describe(
-      'Controls provenance verbosity in the response (\"full\" or \"minimal\")',
+      'Controls provenance verbosity in the response (\"full\", \"summary\", or \"none\")',
     ),
 });
 
@@ -7515,7 +7515,7 @@ export const GetAnnArborNpnSpeciesByKeyParams = zod.object({
 });
 
 export const GetAnnArborNpnSpeciesByKeyQueryParams = zod.object({
-  provenance_verbosity: zod.enum(["full", "minimal"]).optional(),
+  provenance_verbosity: zod.enum(["full", "summary", "none"]).optional(),
 });
 
 export const GetAnnArborNpnSpeciesByKeyResponse = zod
@@ -7633,7 +7633,7 @@ export const GetAnnArborNpnSpeciesByKeyResponse = zod
  * @summary NPN name groups with common_names array and all_accepted_keys for reconciliation
  */
 export const GetAnnArborNpnNamesQueryParams = zod.object({
-  provenance_verbosity: zod.enum(["full", "minimal"]).optional(),
+  provenance_verbosity: zod.enum(["full", "summary", "none"]).optional(),
 });
 
 export const GetAnnArborNpnNamesResponse = zod
@@ -7703,7 +7703,7 @@ export const GetAnnArborNpnNamesResponse = zod
   .describe("NPN name groups for cross-source reconciliation.");
 
 /**
- * Scrapes nativeplant.com, uploads images to Cloudinary, and populates npn_species and npn_name_aliases. Requires the x-admin-secret header. Optionally accepts an array of acronyms to re-import a subset of species.
+ * Scrapes nativeplant.com, uploads images to Cloudinary, and populates npn_species and npn_name_aliases. Requires Authorization: Bearer <ADMIN_SECRET>. Optionally accepts an array of acronyms to re-import a subset of species.
 
  * @summary Trigger NPN import from nativeplant.com (admin-only)
  */

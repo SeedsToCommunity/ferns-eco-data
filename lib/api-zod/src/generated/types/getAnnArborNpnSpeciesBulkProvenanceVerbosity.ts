@@ -11,5 +11,6 @@ export type GetAnnArborNpnSpeciesBulkProvenanceVerbosity =
 
 export const GetAnnArborNpnSpeciesBulkProvenanceVerbosity = {
   full: "full",
-  minimal: "minimal",
+  summary: "summary",
+  none: "none",
 } as const;

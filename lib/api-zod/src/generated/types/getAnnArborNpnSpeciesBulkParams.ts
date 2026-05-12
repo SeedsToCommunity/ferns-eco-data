@@ -9,7 +9,7 @@ import type { GetAnnArborNpnSpeciesBulkProvenanceVerbosity } from "./getAnnArbor
 
 export type GetAnnArborNpnSpeciesBulkParams = {
   /**
-   * Controls provenance verbosity in the response ("full" or "minimal")
+   * Controls provenance verbosity in the response ("full", "summary", or "none")
    */
   provenance_verbosity?: GetAnnArborNpnSpeciesBulkProvenanceVerbosity;
 };

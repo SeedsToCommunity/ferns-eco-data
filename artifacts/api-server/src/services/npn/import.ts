@@ -1,11 +1,6 @@
-// ---------------------------------------------------------------------------
-// NPN DATA IMPORT TOOL
-// Scrapes nativeplant.com (Greg Vaclavek's Michigan Native Plants Database),
-// uploads images to Cloudinary, and populates npn_species + npn_name_aliases.
-//
-// Run manually via: POST /api/ann-arbor-npn/import  (requires admin auth)
-// Auto-runs at startup when npn_species is empty.
-// ---------------------------------------------------------------------------
+// Scrapes nativeplant.com (Greg Vaclavek), uploads images to Cloudinary,
+// and populates npn_species + npn_name_aliases.
+// Triggered via POST /api/ann-arbor-npn/import (admin) or auto-runs at startup.
 import { db, npnSpeciesTable, npnNameAliasesTable, type NpnImage } from "@workspace/db";
 import { sql } from "drizzle-orm";
 import { logger } from "../../lib/logger.js";
@@ -17,24 +12,14 @@ const CLOUDINARY_API_SECRET = process.env["CLOUDINARY_API_SECRET"];
 const NPN_BASE_URL = "https://nativeplant.com";
 const NPN_SPECIES_LIST_URL = `${NPN_BASE_URL}/species`;
 
-// Inter-request delay: 300–500ms to be polite to the source server.
 const DELAY_MIN_MS = 300;
 const DELAY_RANGE_MS = 200;
-
-// ---------------------------------------------------------------------------
-// Utility helpers
-// ---------------------------------------------------------------------------
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/**
- * Fetch image bytes and validate the JPEG magic header (FFD8FF).
- * Returns the raw Buffer on success, or null when the fetch fails,
- * the content is not a JPEG (e.g. an HTML error page), or the size
- * is implausibly small (< 512 bytes).
- */
+// Returns null if fetch fails, content is not JPEG (magic FFD8FF), or size < 512 bytes.
 async function fetchAndValidateJpeg(url: string): Promise<Buffer | null> {
   try {
     const res = await fetch(url, {
@@ -65,15 +50,6 @@ async function fetchAndValidateJpeg(url: string): Promise<Buffer | null> {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Cloudinary helpers
-// ---------------------------------------------------------------------------
-
-/**
- * Upload a validated JPEG buffer to Cloudinary.
- * The buffer is encoded as a base64 data URI to avoid a second remote fetch
- * and to guarantee Cloudinary receives the exact validated bytes.
- */
 async function uploadToCloudinary(
   imageBytes: Buffer,
   publicId: string,
@@ -115,10 +91,6 @@ async function uploadToCloudinary(
   return data.secure_url ?? null;
 }
 
-// ---------------------------------------------------------------------------
-// Image kind inference
-// ---------------------------------------------------------------------------
-
 function inferImageKind(caption: string): "photograph" | "drawing" {
   const lower = caption.toLowerCase();
   if (lower.includes("pen & ink") || lower.includes("drawing")) {
@@ -126,10 +98,6 @@ function inferImageKind(caption: string): "photograph" | "drawing" {
   }
   return "photograph";
 }
-
-// ---------------------------------------------------------------------------
-// Alias computation
-// ---------------------------------------------------------------------------
 
 function buildAliases(
   acronym: string,
@@ -163,10 +131,6 @@ function buildAliases(
   return [...aliases];
 }
 
-// ---------------------------------------------------------------------------
-// Scraping helpers
-// ---------------------------------------------------------------------------
-
 interface RawSpeciesListItem {
   acronym: string;
   detail_url: string;
@@ -189,10 +153,6 @@ interface RawSpeciesDetail {
   source_url: string;
 }
 
-/**
- * Fetch and parse the NPN species list page.
- * Returns a list of {acronym, detail_url} entries.
- */
 async function fetchSpeciesList(): Promise<RawSpeciesListItem[]> {
   const res = await fetch(NPN_SPECIES_LIST_URL, {
     headers: { "User-Agent": "FERNS-Botanical-Data-Aggregator/1.0 (ecologicalcommons.org)" },
@@ -222,11 +182,6 @@ async function fetchSpeciesList(): Promise<RawSpeciesListItem[]> {
   return items;
 }
 
-/**
- * Extract a labeled field value from an HTML block.
- * Looks for table rows (<td>Label</td><td>Value</td>) and definition lists
- * (<dt>Label</dt><dd>Value</dd>). Returns the plain-text value or null.
- */
 function extractField(html: string, label: string): string | null {
   const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -253,9 +208,6 @@ function extractField(html: string, label: string): string | null {
   return null;
 }
 
-/**
- * Parse range_michigan as an array of county/region strings.
- */
 function parseRange(raw: string | null): string[] {
   if (!raw) return [];
   return raw
@@ -264,24 +216,13 @@ function parseRange(raw: string | null): string[] {
     .filter(Boolean);
 }
 
-/**
- * Extract images from a species detail page.
- *
- * Strategy (in priority order):
- * 1. Look for <figure> elements containing <img> and <figcaption> — these
- *    carry proper captions in most modern layouts.
- * 2. Fall back to bare <img> tags whose src looks like a species image path,
- *    using the alt attribute as the caption.
- *
- * Navigation/icon images are excluded via path and alt heuristics.
- */
+// Prefers <figure>/<figcaption>; falls back to bare <img alt>. Skips nav/icon images.
 function extractImages(
   html: string,
 ): Array<{ position: number; src: string; caption: string }> {
   const results: Array<{ position: number; src: string; caption: string }> = [];
   let position = 1;
 
-  // Strategy 1: <figure> … <img> … <figcaption> … </figure>
   const figurePattern = /<figure[^>]*>([\s\S]*?)<\/figure>/gi;
   let figMatch: RegExpExecArray | null;
   const seenSrcs = new Set<string>();
@@ -304,7 +245,6 @@ function extractImages(
     results.push({ position: position++, src: absoluteSrc, caption });
   }
 
-  // Strategy 2: bare <img> tags not already captured
   const imgPattern = /<img[^>]+src="([^"]+)"(?:[^>]*alt="([^"]*)")?[^>]*>/gi;
   let imgMatch: RegExpExecArray | null;
 
@@ -336,10 +276,6 @@ function isNavImage(src: string, alt: string): boolean {
   );
 }
 
-/**
- * Fetch and parse a single species detail page.
- * Returns null on HTTP errors so the import loop can skip and continue.
- */
 async function fetchSpeciesDetail(
   acronym: string,
   detailUrl: string,
@@ -408,10 +344,6 @@ async function fetchSpeciesDetail(
     source_url: detailUrl,
   };
 }
-
-// ---------------------------------------------------------------------------
-// Main import function
-// ---------------------------------------------------------------------------
 
 export interface NpnImportResult {
   speciesUpserted: number;
@@ -555,10 +487,6 @@ export async function importNpn(
   logger.info(result, "NPN import complete");
   return result;
 }
-
-// ---------------------------------------------------------------------------
-// Auto-import helper (startup)
-// ---------------------------------------------------------------------------
 
 export async function autoImportNpnIfEmpty(): Promise<void> {
   try {
