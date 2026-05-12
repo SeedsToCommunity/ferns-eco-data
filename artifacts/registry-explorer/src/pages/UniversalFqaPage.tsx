@@ -26,6 +26,7 @@ import {
   ClipboardList,
   FileText,
   ChevronRight,
+  ArrowLeft,
 } from "lucide-react";
 
 function RawPanel({ title, data }: { title: string; data: unknown }) {

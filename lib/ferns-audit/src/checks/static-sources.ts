@@ -1347,12 +1347,37 @@ export async function runNpnChecks(fernsBase: string): Promise<EndpointCompariso
       fernsBase,
       speciesEnvelopeChecks(`latin:${TEST_LATIN}`, "Lobelia"),
     ),
+    // aliasCheck: resolve the lower-case acronym alias "astcor" and, when found,
+    // assert the record is the expected species (Aster cordifolius / ASTCOR).
     checkEndpoint(
       "ann-arbor-npn",
       `/api/ann-arbor-npn/species/${encodedAlias}`,
-      `Ann Arbor NPN — species by alias (${TEST_ALIAS})`,
+      `Ann Arbor NPN — species by alias (${TEST_ALIAS}) with known-value assertions`,
       fernsBase,
-      speciesEnvelopeChecks(`alias:${TEST_ALIAS}`),
+      (envelope) => {
+        const findings = speciesEnvelopeChecks(`alias:${TEST_ALIAS}`)(envelope);
+        if (envelope.found === true) {
+          const data = envelope.data as Record<string, unknown> | null | undefined;
+          // Known acronym: ASTCOR
+          if (data && typeof data.acronym === "string") {
+            if (data.acronym.toUpperCase() === "ASTCOR") {
+              findings.push({ type: "ok", sourceField: "data.acronym", note: `known-value: alias "${TEST_ALIAS}" resolved to ASTCOR ✓` });
+            } else {
+              findings.push({ type: "mismatch", sourceField: "data.acronym", note: `known-value: alias "${TEST_ALIAS}" expected ASTCOR, got ${data.acronym}` });
+            }
+          }
+          // Known latin_name: should contain "Aster" or the synonym "Symphyotrichum" (Greg's name may vary)
+          if (data && typeof data.latin_name === "string") {
+            const latinL = data.latin_name.toLowerCase();
+            if (latinL.includes("aster") || latinL.includes("symphyotrichum")) {
+              findings.push({ type: "ok", sourceField: "data.latin_name", note: `known-value: latin_name "${data.latin_name}" contains expected genus ✓` });
+            } else {
+              findings.push({ type: "mismatch", sourceField: "data.latin_name", note: `known-value: ASTCOR latin_name expected Aster or Symphyotrichum, got "${data.latin_name}"` });
+            }
+          }
+        }
+        return findings;
+      },
     ),
     checkEndpoint(
       "ann-arbor-npn",
@@ -1390,31 +1415,81 @@ export async function runNpnChecks(fernsBase: string): Promise<EndpointCompariso
     checkEndpoint(
       "ann-arbor-npn",
       "/api/ann-arbor-npn/names",
-      "Ann Arbor NPN — names endpoint (common_names[] and all_accepted_keys per group)",
+      `Ann Arbor NPN — names endpoint (count=${EXPECTED_COUNT}, common_names[], ASTCOR known-value)`,
       fernsBase,
       (envelope) => {
         const findings: FieldFinding[] = [];
         const data = envelope.data as Record<string, unknown> | null | undefined;
-        if (data && Array.isArray(data.name_groups)) {
-          findings.push({ type: "ok", sourceField: "data.name_groups", note: `${data.name_groups.length} name groups` });
-          const sample = data.name_groups[0] as Record<string, unknown> | undefined;
-          if (sample) {
-            // all_accepted_keys must be a non-empty array
-            if (Array.isArray(sample.all_accepted_keys)) {
-              findings.push({ type: "ok", sourceField: "data.name_groups[0].all_accepted_keys", note: `${sample.all_accepted_keys.length} alias(es) for first group` });
+        if (!data || !Array.isArray(data.name_groups)) {
+          findings.push({ type: "gap", sourceField: "data.name_groups", note: "data.name_groups missing or not an array (import may not have run yet)" });
+          return findings;
+        }
+
+        const groups = data.name_groups as Array<Record<string, unknown>>;
+        findings.push({ type: "ok", sourceField: "data.name_groups", note: `${groups.length} name groups` });
+
+        // Count assertion: expect EXPECTED_COUNT groups when import is complete
+        if (groups.length === 0) {
+          findings.push({ type: "gap", sourceField: "data.name_groups.length", note: "0 name groups — import may not have run yet" });
+        } else if (groups.length !== EXPECTED_COUNT) {
+          findings.push({
+            type: "mismatch",
+            sourceField: "data.name_groups.length",
+            note: `expected ${EXPECTED_COUNT} name groups, got ${groups.length} — database may be stale`,
+          });
+        } else {
+          findings.push({ type: "ok", sourceField: "data.name_groups.length", note: `${groups.length} groups matches expected ${EXPECTED_COUNT} ✓` });
+        }
+
+        // Shape check on first group
+        const sample = groups[0];
+        if (sample) {
+          if (Array.isArray(sample.all_accepted_keys)) {
+            findings.push({ type: "ok", sourceField: "data.name_groups[0].all_accepted_keys", note: `${sample.all_accepted_keys.length} alias(es) in first group` });
+          } else {
+            findings.push({ type: "mismatch", sourceField: "data.name_groups[0].all_accepted_keys", note: "all_accepted_keys missing from first name group" });
+          }
+          if (Array.isArray(sample.common_names)) {
+            findings.push({ type: "ok", sourceField: "data.name_groups[0].common_names", note: `common_names is string[] with ${sample.common_names.length} entry/entries ✓` });
+          } else {
+            findings.push({ type: "mismatch", sourceField: "data.name_groups[0].common_names", note: `common_names missing or not array — expected string[], got ${typeof sample.common_names}` });
+          }
+        }
+
+        // Known-value: ASTCOR group must have "symphyotrichum cordifolium" in all_accepted_keys.
+        // This verifies that Greg's Latin synonym is properly indexed as a searchable alias.
+        // ASTCOR = Aster cordifolius; modern accepted name = Symphyotrichum cordifolium.
+        if (groups.length > 0) {
+          const astcorGroup = groups.find(
+            (g) => typeof g.acronym === "string" && g.acronym.toUpperCase() === "ASTCOR",
+          );
+          if (!astcorGroup) {
+            findings.push({ type: "gap", sourceField: "ASTCOR name group", note: "ASTCOR not found in name groups — import may not have run yet" });
+          } else {
+            const keys = Array.isArray(astcorGroup.all_accepted_keys)
+              ? (astcorGroup.all_accepted_keys as string[])
+              : [];
+            const hasSymphyotrichum = keys.some((k) =>
+              k.toLowerCase().includes("symphyotrichum cordifolium"),
+            );
+            if (hasSymphyotrichum) {
+              findings.push({ type: "ok", sourceField: "ASTCOR.all_accepted_keys", note: `"symphyotrichum cordifolium" present in ASTCOR aliases ✓` });
             } else {
-              findings.push({ type: "mismatch", sourceField: "data.name_groups[0].all_accepted_keys", note: "all_accepted_keys missing from first name group" });
-            }
-            // common_names must be a string array (not a bare string)
-            if (Array.isArray(sample.common_names)) {
-              findings.push({ type: "ok", sourceField: "data.name_groups[0].common_names", note: `common_names is string[] with ${sample.common_names.length} entry/entries ✓` });
-            } else {
-              findings.push({ type: "mismatch", sourceField: "data.name_groups[0].common_names", note: `common_names missing or not an array — expected string[], got ${typeof sample.common_names}` });
+              // Symphyotrichum may not be in Greg's synonym slot; check if ANY Symphyotrichum key exists
+              const hasAnySymphyo = keys.some((k) => k.toLowerCase().includes("symphyotrichum"));
+              if (hasAnySymphyo) {
+                findings.push({ type: "ok", sourceField: "ASTCOR.all_accepted_keys", note: `Symphyotrichum key present in ASTCOR aliases (partial match) ✓ — keys: [${keys.join(", ")}]` });
+              } else {
+                findings.push({
+                  type: "mismatch",
+                  sourceField: "ASTCOR.all_accepted_keys",
+                  note: `known-value: "symphyotrichum cordifolium" not found in ASTCOR aliases. Actual keys: [${keys.join(", ")}]. Verify that latin_synonym_greg for ASTCOR is "Symphyotrichum cordifolium".`,
+                });
+              }
             }
           }
-        } else {
-          findings.push({ type: "gap", sourceField: "data.name_groups", note: "data.name_groups missing or not an array (import may not have run yet)" });
         }
+
         return findings;
       },
     ),

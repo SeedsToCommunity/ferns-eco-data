@@ -25,7 +25,7 @@ export const NPN_TECHNICAL_DETAILS =
   "Primary source: nativeplant.com — Greg Vaclavek's Michigan Native Plants Database. " +
   "Import method: admin-gated POST /api/ann-arbor-npn/import; auto-import at startup if table is empty. " +
   "DB tables: npn_species (PK: acronym text; fields: latin_name, latin_synonym_greg, common_name, " +
-  "light, moisture, height, flowering_time, habitat, notes, range_michigan jsonb, npn_price_sizes, " +
+  "light, moisture, height, flowering_time, habitat, notes, range_michigan text[] (migration 0009 — was jsonb in 0008), npn_price_sizes, " +
   "images jsonb array of {position, url, caption, kind}, source_url, scraped_at); " +
   "npn_name_aliases (PK: alias text; FK: acronym → npn_species). " +
   "Alias index: acronym + latin_name + latin_synonym_greg (where present) + common names (split on ; and ,). " +

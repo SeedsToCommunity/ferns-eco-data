@@ -1,11 +1,43 @@
 import { useState, useEffect, type FormEvent } from "react";
 import { SourceExplorerLayout } from "@/components/SourceExplorerLayout";
-import { Search, ExternalLink, ChevronDown, ChevronUp, Code, Image, Leaf } from "lucide-react";
+import {
+  Search,
+  ExternalLink,
+  ChevronDown,
+  ChevronUp,
+  Code,
+  Image,
+  Leaf,
+  Info,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 const BASE_URL = import.meta.env.BASE_URL.replace(/\/$/, "");
 const API_BASE = `${BASE_URL}/api`;
+
+// ─── Michigan region legend ───────────────────────────────────────────────────
+// Greg Vaclavek uses short abbreviations on nativeplant.com.
+// This map translates them to plain English for UI display.
+const MICHIGAN_RANGE_LEGEND: Record<string, string> = {
+  SE: "Southeast Michigan",
+  SW: "Southwest Michigan",
+  NE: "Northeast Michigan (Lower Peninsula)",
+  NW: "Northwest Michigan (Lower Peninsula)",
+  NL: "Northern Lower Peninsula",
+  UP: "Upper Peninsula",
+  LP: "Lower Peninsula (statewide)",
+  "S LP": "Southern Lower Peninsula",
+  "N LP": "Northern Lower Peninsula",
+  Statewide: "Statewide (all regions)",
+  Ubiquitous: "Ubiquitous — found throughout Michigan",
+};
+
+function expandMichiganRegion(code: string): string {
+  return MICHIGAN_RANGE_LEGEND[code] ?? MICHIGAN_RANGE_LEGEND[code.toUpperCase()] ?? code;
+}
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface NpnImage {
   position: number;
@@ -32,10 +64,22 @@ interface NpnSpecies {
   scraped_at: string;
 }
 
+interface Provenance {
+  source_id?: string;
+  fetched_at?: string;
+  method?: string;
+  upstream_url?: string;
+  general_summary?: string;
+  technical_details?: string;
+  matched_input?: string;
+  [key: string]: unknown;
+}
+
 interface SpeciesEnvelope {
   found: boolean;
   queried_at: string;
   source_url: string;
+  provenance?: Provenance;
   data: NpnSpecies | null;
 }
 
@@ -43,11 +87,14 @@ interface BulkEnvelope {
   found: boolean;
   queried_at: string;
   source_url: string;
+  provenance?: Provenance;
   data: {
     species_count: number;
     species: NpnSpecies[];
   } | null;
 }
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
 
 function RawPanel({ title, data }: { title: string; data: unknown }) {
   const [open, setOpen] = useState(false);
@@ -62,7 +109,11 @@ function RawPanel({ title, data }: { title: string; data: unknown }) {
           <Code className="w-3.5 h-3.5" />
           {title}
         </div>
-        {open ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+        {open ? (
+          <ChevronUp className="w-4 h-4 text-muted-foreground" />
+        ) : (
+          <ChevronDown className="w-4 h-4 text-muted-foreground" />
+        )}
       </button>
       {open && (
         <div className="border-t border-border/50 p-3">
@@ -75,12 +126,133 @@ function RawPanel({ title, data }: { title: string; data: unknown }) {
   );
 }
 
+/** Collapsible provenance panel showing source metadata for a response. */
+function ProvenancePanel({ provenance }: { provenance: Provenance | undefined }) {
+  const [open, setOpen] = useState(false);
+  if (!provenance) return null;
+  return (
+    <div className="border border-amber-200 dark:border-amber-800/50 rounded-xl overflow-hidden bg-amber-50/40 dark:bg-amber-900/10">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center justify-between p-3 hover:bg-amber-50/70 dark:hover:bg-amber-900/20 transition-colors text-left"
+      >
+        <div className="flex items-center gap-2 text-xs font-medium text-amber-700 dark:text-amber-400">
+          <Info className="w-3.5 h-3.5" />
+          Provenance — Ann Arbor Native Plant Nursery (nativeplant.com)
+        </div>
+        {open ? (
+          <ChevronUp className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+        ) : (
+          <ChevronDown className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+        )}
+      </button>
+      {open && (
+        <div className="border-t border-amber-200 dark:border-amber-800/50 p-3 space-y-2.5 text-xs">
+          {provenance.source_id && (
+            <div>
+              <span className="font-semibold text-muted-foreground uppercase tracking-wider text-[9px]">
+                Source ID
+              </span>
+              <p className="font-mono text-foreground mt-0.5">{provenance.source_id}</p>
+            </div>
+          )}
+          {provenance.method && (
+            <div>
+              <span className="font-semibold text-muted-foreground uppercase tracking-wider text-[9px]">
+                Import Method
+              </span>
+              <p className="text-foreground mt-0.5">{provenance.method}</p>
+            </div>
+          )}
+          {provenance.upstream_url && (
+            <div>
+              <span className="font-semibold text-muted-foreground uppercase tracking-wider text-[9px]">
+                Upstream URL
+              </span>
+              <p className="font-mono break-all text-foreground mt-0.5">{provenance.upstream_url}</p>
+            </div>
+          )}
+          {provenance.fetched_at && (
+            <div>
+              <span className="font-semibold text-muted-foreground uppercase tracking-wider text-[9px]">
+                Fetched At
+              </span>
+              <p className="text-foreground mt-0.5">
+                {new Date(provenance.fetched_at).toLocaleString()}
+              </p>
+            </div>
+          )}
+          {provenance.matched_input && (
+            <div>
+              <span className="font-semibold text-muted-foreground uppercase tracking-wider text-[9px]">
+                Matched Input
+              </span>
+              <p className="font-mono text-foreground mt-0.5">{provenance.matched_input}</p>
+            </div>
+          )}
+          {provenance.general_summary && (
+            <div>
+              <span className="font-semibold text-muted-foreground uppercase tracking-wider text-[9px]">
+                About This Source
+              </span>
+              <p className="text-foreground/80 leading-relaxed mt-0.5">{provenance.general_summary}</p>
+            </div>
+          )}
+          <p className="text-[10px] text-amber-700 dark:text-amber-400 italic border-t border-amber-200 dark:border-amber-800/50 pt-2">
+            Data from Greg Vaclavek / The Native Plant Nursery (nativeplant.com). Cite the source
+            when using this data. No formal data-sharing agreement is in place.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function EcoChip({ label, value }: { label: string; value: string | null | undefined }) {
   if (!value) return null;
   return (
     <div className="bg-muted/50 rounded-lg px-2.5 py-1.5">
-      <div className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">{label}</div>
+      <div className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">
+        {label}
+      </div>
       <div className="text-xs font-medium text-foreground">{value}</div>
+    </div>
+  );
+}
+
+/** Horizontal range legend key — shown once above the first species with range data. */
+function MichiganRangeLegend() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="border border-border/40 rounded-xl overflow-hidden bg-muted/20 text-xs">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center justify-between px-3 py-2 hover:bg-muted/40 transition-colors text-left"
+      >
+        <span className="font-medium text-muted-foreground flex items-center gap-1.5">
+          <Info className="w-3 h-3" />
+          Michigan Range Code Legend
+        </span>
+        {open ? (
+          <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" />
+        ) : (
+          <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+        )}
+      </button>
+      {open && (
+        <div className="border-t border-border/40 p-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1">
+            {Object.entries(MICHIGAN_RANGE_LEGEND).map(([code, label]) => (
+              <div key={code} className="flex items-baseline gap-1.5">
+                <span className="font-mono text-[10px] font-bold text-blue-700 dark:text-blue-300 shrink-0">
+                  {code}
+                </span>
+                <span className="text-[10px] text-muted-foreground">{label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -102,13 +274,17 @@ function ImageGallery({ images }: { images: NpnImage[] }) {
             src={current.url}
             alt={current.caption || `Image ${current.position}`}
             className="w-36 h-36 object-cover rounded-xl border border-border shadow-sm"
-            onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = "none";
+            }}
           />
-          <span className={`absolute top-1.5 right-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
-            current.kind === "drawing"
-              ? "bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300"
-              : "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300"
-          }`}>
+          <span
+            className={`absolute top-1.5 right-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
+              current.kind === "drawing"
+                ? "bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300"
+                : "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300"
+            }`}
+          >
             {current.kind === "drawing" ? "Pen & Ink" : "Photo"}
           </span>
         </div>
@@ -118,12 +294,14 @@ function ImageGallery({ images }: { images: NpnImage[] }) {
           )}
           {images.length > 1 && (
             <div className="flex gap-1 flex-wrap">
-              {images.map((img, i) => (
+              {images.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setIdx(i)}
                   className={`w-2.5 h-2.5 rounded-full transition-colors ${
-                    i === idx ? "bg-primary" : "bg-muted-foreground/30 hover:bg-muted-foreground/60"
+                    i === idx
+                      ? "bg-primary"
+                      : "bg-muted-foreground/30 hover:bg-muted-foreground/60"
                   }`}
                 />
               ))}
@@ -155,12 +333,18 @@ function SpeciesCard({ sp, defaultOpen = false }: { sp: NpnSpecies; defaultOpen?
       >
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded text-muted-foreground">{sp.acronym}</span>
-            <span className="font-semibold italic text-foreground text-sm truncate">{sp.latin_name}</span>
+            <span className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+              {sp.acronym}
+            </span>
+            <span className="font-semibold italic text-foreground text-sm truncate">
+              {sp.latin_name}
+            </span>
           </div>
           <div className="text-xs text-muted-foreground mt-0.5">{sp.common_name}</div>
           {sp.latin_synonym_greg && (
-            <div className="text-[10px] text-muted-foreground/70 italic mt-0.5">syn. {sp.latin_synonym_greg}</div>
+            <div className="text-[10px] text-muted-foreground/70 italic mt-0.5">
+              syn. {sp.latin_synonym_greg}
+            </div>
           )}
         </div>
         <div className="shrink-0 flex items-center gap-2 pt-0.5">
@@ -170,7 +354,11 @@ function SpeciesCard({ sp, defaultOpen = false }: { sp: NpnSpecies; defaultOpen?
               {sp.images.length}
             </span>
           )}
-          {open ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+          {open ? (
+            <ChevronUp className="w-4 h-4 text-muted-foreground" />
+          ) : (
+            <ChevronDown className="w-4 h-4 text-muted-foreground" />
+          )}
         </div>
       </button>
 
@@ -186,18 +374,31 @@ function SpeciesCard({ sp, defaultOpen = false }: { sp: NpnSpecies; defaultOpen?
 
           {sp.habitat && (
             <div>
-              <div className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">Habitat</div>
+              <div className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+                Habitat
+              </div>
               <p className="text-xs text-foreground leading-relaxed">{sp.habitat}</p>
             </div>
           )}
 
           {sp.range_michigan && sp.range_michigan.length > 0 && (
             <div>
-              <div className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">Michigan Range</div>
+              <div className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+                Michigan Range
+              </div>
               <div className="flex flex-wrap gap-1">
                 {sp.range_michigan.map((r, i) => (
-                  <span key={i} className="text-[10px] bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
+                  <span
+                    key={i}
+                    title={expandMichiganRegion(r)}
+                    className="text-[10px] bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-800 cursor-help"
+                  >
                     {r}
+                    {MICHIGAN_RANGE_LEGEND[r] ? (
+                      <span className="ml-1 text-blue-400 dark:text-blue-500">
+                        · {expandMichiganRegion(r)}
+                      </span>
+                    ) : null}
                   </span>
                 ))}
               </div>
@@ -206,7 +407,9 @@ function SpeciesCard({ sp, defaultOpen = false }: { sp: NpnSpecies; defaultOpen?
 
           {sp.notes && (
             <div>
-              <div className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">Notes</div>
+              <div className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+                Notes
+              </div>
               <p className="text-xs text-foreground leading-relaxed">{sp.notes}</p>
             </div>
           )}
@@ -232,6 +435,8 @@ function SpeciesCard({ sp, defaultOpen = false }: { sp: NpnSpecies; defaultOpen?
     </div>
   );
 }
+
+// ─── Main page ────────────────────────────────────────────────────────────────
 
 export function AnnArborNpnPage() {
   const [query, setQuery] = useState("");
@@ -274,7 +479,6 @@ export function AnnArborNpnPage() {
 
     try {
       const r = await fetch(`${API_BASE}/ann-arbor-npn/species/${encodeURIComponent(key)}`);
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const data = (await r.json()) as SpeciesEnvelope;
       setSingleResult(data);
     } catch (err) {
@@ -290,6 +494,7 @@ export function AnnArborNpnPage() {
     <SourceExplorerLayout sourceId="ann-arbor-npn">
       <div className="space-y-6">
 
+        {/* Mode tabs */}
         <div className="flex gap-1 p-1 bg-muted rounded-xl w-fit">
           {(["search", "browse"] as const).map((m) => (
             <button
@@ -302,14 +507,21 @@ export function AnnArborNpnPage() {
               }`}
             >
               {m === "search" ? (
-                <span className="flex items-center gap-2"><Search className="w-4 h-4" />Search by Name</span>
+                <span className="flex items-center gap-2">
+                  <Search className="w-4 h-4" />
+                  Search by Name
+                </span>
               ) : (
-                <span className="flex items-center gap-2"><Leaf className="w-4 h-4" />Browse All</span>
+                <span className="flex items-center gap-2">
+                  <Leaf className="w-4 h-4" />
+                  Browse All
+                </span>
               )}
             </button>
           ))}
         </div>
 
+        {/* ── Search mode ── */}
         {mode === "search" && (
           <div className="space-y-4">
             <form onSubmit={handleSearch} className="flex gap-2">
@@ -319,14 +531,18 @@ export function AnnArborNpnPage() {
                 placeholder="Acronym, Latin name, synonym, or common name…"
                 className="h-11 flex-1"
               />
-              <Button type="submit" disabled={loading || !inputValue.trim()} className="h-11 px-6">
+              <Button
+                type="submit"
+                disabled={loading || !inputValue.trim()}
+                className="h-11 px-6"
+              >
                 <Search className="w-4 h-4 mr-2" />
                 {loading ? "Searching…" : "Search"}
               </Button>
             </form>
 
             <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-              {["ANDCAN", "Gentiana andrewsii", "Blue Wild Indigo", "MONPUN"].map((example) => (
+              {["LOBSIP", "Gentiana andrewsii", "Blue Wild Indigo", "MONPUN"].map((example) => (
                 <button
                   key={example}
                   onClick={() => setInputValue(example)}
@@ -346,26 +562,42 @@ export function AnnArborNpnPage() {
             {singleResult && (
               <div className="space-y-3">
                 {singleResult.found && singleResult.data ? (
-                  <SpeciesCard sp={singleResult.data} defaultOpen />
+                  <>
+                    <SpeciesCard sp={singleResult.data} defaultOpen />
+                    <MichiganRangeLegend />
+                  </>
                 ) : (
                   <div className="bg-muted/50 border border-border rounded-xl p-6 text-center text-sm text-muted-foreground">
-                    No NPN record found for "{query}". Try an acronym (e.g. ANDCAN), Latin name, or common name.
+                    No NPN record found for "{query}". Try an acronym (e.g. LOBSIP), Latin name, or
+                    common name.
+                    <p className="text-xs mt-1 opacity-70">
+                      The species database is empty until the admin import has been run.
+                    </p>
                   </div>
                 )}
-                <RawPanel title={`Raw API — /api/ann-arbor-npn/species/${encodeURIComponent(query)}`} data={singleResult} />
+                <ProvenancePanel provenance={singleResult.provenance} />
+                <RawPanel
+                  title={`Raw API — /api/ann-arbor-npn/species/${encodeURIComponent(query)}`}
+                  data={singleResult}
+                />
               </div>
             )}
 
             {!loading && !singleResult && !error && (
               <div className="text-center py-16 text-muted-foreground">
                 <Leaf className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                <p className="text-sm">Search by acronym (ANDCAN), Latin name, synonym, or common name.</p>
-                <p className="text-xs mt-1 opacity-70">All name forms resolve via the alias index.</p>
+                <p className="text-sm">
+                  Search by acronym (LOBSIP), Latin name, synonym, or common name.
+                </p>
+                <p className="text-xs mt-1 opacity-70">
+                  All name forms resolve via the alias index.
+                </p>
               </div>
             )}
           </div>
         )}
 
+        {/* ── Browse mode ── */}
         {mode === "browse" && (
           <div className="space-y-4">
             {loading && (
@@ -383,12 +615,16 @@ export function AnnArborNpnPage() {
 
             {!loading && bulkData && (
               <div className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  {browseSpecies.length} species — Ann Arbor Native Plant Nursery (nativeplant.com)
-                </p>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground">
+                    {browseSpecies.length} species — Ann Arbor Native Plant Nursery (nativeplant.com)
+                  </p>
+                </div>
+                <MichiganRangeLegend />
                 {browseSpecies.map((sp) => (
                   <SpeciesCard key={sp.acronym} sp={sp} />
                 ))}
+                <ProvenancePanel provenance={bulkData.provenance} />
                 <RawPanel title="Raw API — /api/ann-arbor-npn/species" data={bulkData} />
               </div>
             )}

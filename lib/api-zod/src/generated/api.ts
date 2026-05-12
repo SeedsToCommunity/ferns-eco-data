@@ -7308,3 +7308,429 @@ export const GetLadyBirdJohnsonMetadataResponse = zod
       ),
   })
   .describe("Service metadata response for botanical web reference sources.");
+
+/**
+ * Returns service identity, current species count, permission status, and the full registry entry for The Native Plant Nursery (nativeplant.com, Ann Arbor, MI — Greg Vaclavek). Includes known limitations, update frequency, and technical details.
+
+ * @summary Ann Arbor Native Plant Nursery service metadata
+ */
+export const GetAnnArborNpnMetadataResponse = zod
+  .object({
+    service_id: zod.string(),
+    service_name: zod.string(),
+    permission_granted: zod.boolean(),
+    permission_status: zod.string(),
+    species_count: zod.number(),
+    registry_entry: zod.record(zod.string(), zod.unknown()),
+    queried_at: zod.date(),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+        fetched_at: zod
+          .date()
+          .describe("When this record was obtained from the source"),
+        method: zod
+          .string()
+          .describe(
+            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+          ),
+        upstream_url: zod
+          .string()
+          .describe(
+            "Where this data came from (API endpoint, file path, or registry entry)",
+          ),
+        general_summary: zod
+          .string()
+          .optional()
+          .describe(
+            "Plain language description readable by a homeowner or community member",
+          ),
+        technical_details: zod
+          .string()
+          .optional()
+          .describe(
+            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+          ),
+        matched_input: zod
+          .string()
+          .optional()
+          .describe(
+            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+          ),
+      })
+      .describe(
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
+      ),
+  })
+  .describe("Metadata response for the Ann Arbor Native Plant Nursery source.");
+
+/**
+ * Returns all ~130 species from The Native Plant Nursery database ordered by Latin name. Each record includes ecological attributes (light, moisture, height, flowering time, habitat, range within Michigan), nursery pricing, and Cloudinary image URLs with captions and kind (photograph / drawing). Returns an empty list if the import has not yet been run.
+
+ * @summary All Ann Arbor Native Plant Nursery species (bulk)
+ */
+export const GetAnnArborNpnSpeciesBulkQueryParams = zod.object({
+  provenance_verbosity: zod
+    .enum(["full", "minimal"])
+    .optional()
+    .describe(
+      'Controls provenance verbosity in the response (\"full\" or \"minimal\")',
+    ),
+});
+
+export const GetAnnArborNpnSpeciesBulkResponse = zod
+  .object({
+    found: zod
+      .boolean()
+      .describe("false when the table is empty (import not yet run)"),
+    queried_at: zod.date(),
+    source_url: zod.string(),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+        fetched_at: zod
+          .date()
+          .describe("When this record was obtained from the source"),
+        method: zod
+          .string()
+          .describe(
+            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+          ),
+        upstream_url: zod
+          .string()
+          .describe(
+            "Where this data came from (API endpoint, file path, or registry entry)",
+          ),
+        general_summary: zod
+          .string()
+          .optional()
+          .describe(
+            "Plain language description readable by a homeowner or community member",
+          ),
+        technical_details: zod
+          .string()
+          .optional()
+          .describe(
+            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+          ),
+        matched_input: zod
+          .string()
+          .optional()
+          .describe(
+            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+          ),
+      })
+      .describe(
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
+      ),
+    data: zod.object({
+      species_count: zod.number(),
+      species: zod.array(
+        zod
+          .object({
+            acronym: zod
+              .string()
+              .describe(
+                "Primary key — 4–7 character code (e.g. LOBSIP). Carex uses CX prefix.",
+              ),
+            latin_name: zod.string(),
+            latin_synonym_greg: zod
+              .string()
+              .nullish()
+              .describe(
+                'Greg Vaclavek\'s Latin synonym. Known quirk: GENAND has \"Closed Gentian\" (a common name) in this field.\n',
+              ),
+            common_name: zod
+              .string()
+              .describe(
+                "Raw common name string (may contain ; and , separators)",
+              ),
+            light: zod.string().nullish(),
+            moisture: zod.string().nullish(),
+            height: zod.string().nullish(),
+            flowering_time: zod.string().nullish(),
+            habitat: zod.string().nullish(),
+            notes: zod.string().nullish(),
+            range_michigan: zod
+              .array(zod.string())
+              .nullish()
+              .describe("County or region strings within Michigan"),
+            npn_price_sizes: zod.string().nullish(),
+            images: zod.array(
+              zod
+                .object({
+                  position: zod
+                    .number()
+                    .describe(
+                      "1-based position of this image in the species gallery",
+                    ),
+                  url: zod
+                    .string()
+                    .describe(
+                      "Cloudinary CDN URL (or original nativeplant.com URL as fallback)",
+                    ),
+                  caption: zod
+                    .string()
+                    .describe(
+                      "Image caption from the source page (may be empty string)",
+                    ),
+                  kind: zod
+                    .enum(["photograph", "drawing"])
+                    .describe(
+                      'Inferred from caption text: \"pen & ink\" or \"drawing\" → drawing; else photograph\n',
+                    ),
+                })
+                .describe(
+                  "A single image associated with an NPN species record.",
+                ),
+            ),
+            source_url: zod.string(),
+            scraped_at: zod.date(),
+          })
+          .describe(
+            "A single species record from The Native Plant Nursery database.",
+          ),
+      ),
+    }),
+  })
+  .describe("Bulk NPN species list response.");
+
+/**
+ * Resolves any NPN name flavor to a species record via the npn_name_aliases index (case-insensitive). Accepted inputs: acronym (e.g. LOBSIP), Latin name (e.g. "Lobelia spicata"), Greg's Latin synonym, or any common name (semicolon/comma-delimited common names are each indexed separately). Returns HTTP 404 with found=false when the key does not appear in the alias index. The alias index is built during import; 404 is also returned before import has run.
+
+ * @summary Single NPN species by acronym, Latin name, synonym, or common name
+ */
+
+export const GetAnnArborNpnSpeciesByKeyParams = zod.object({
+  key: zod
+    .string()
+    .min(1)
+    .describe(
+      "Acronym, Latin name, synonym, or common name (any capitalisation)",
+    ),
+});
+
+export const GetAnnArborNpnSpeciesByKeyQueryParams = zod.object({
+  provenance_verbosity: zod.enum(["full", "minimal"]).optional(),
+});
+
+export const GetAnnArborNpnSpeciesByKeyResponse = zod
+  .object({
+    found: zod.boolean(),
+    queried_at: zod.date(),
+    source_url: zod.string(),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+        fetched_at: zod
+          .date()
+          .describe("When this record was obtained from the source"),
+        method: zod
+          .string()
+          .describe(
+            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+          ),
+        upstream_url: zod
+          .string()
+          .describe(
+            "Where this data came from (API endpoint, file path, or registry entry)",
+          ),
+        general_summary: zod
+          .string()
+          .optional()
+          .describe(
+            "Plain language description readable by a homeowner or community member",
+          ),
+        technical_details: zod
+          .string()
+          .optional()
+          .describe(
+            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+          ),
+        matched_input: zod
+          .string()
+          .optional()
+          .describe(
+            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+          ),
+      })
+      .describe(
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
+      ),
+    data: zod
+      .object({
+        acronym: zod
+          .string()
+          .describe(
+            "Primary key — 4–7 character code (e.g. LOBSIP). Carex uses CX prefix.",
+          ),
+        latin_name: zod.string(),
+        latin_synonym_greg: zod
+          .string()
+          .nullish()
+          .describe(
+            'Greg Vaclavek\'s Latin synonym. Known quirk: GENAND has \"Closed Gentian\" (a common name) in this field.\n',
+          ),
+        common_name: zod
+          .string()
+          .describe("Raw common name string (may contain ; and , separators)"),
+        light: zod.string().nullish(),
+        moisture: zod.string().nullish(),
+        height: zod.string().nullish(),
+        flowering_time: zod.string().nullish(),
+        habitat: zod.string().nullish(),
+        notes: zod.string().nullish(),
+        range_michigan: zod
+          .array(zod.string())
+          .nullish()
+          .describe("County or region strings within Michigan"),
+        npn_price_sizes: zod.string().nullish(),
+        images: zod.array(
+          zod
+            .object({
+              position: zod
+                .number()
+                .describe(
+                  "1-based position of this image in the species gallery",
+                ),
+              url: zod
+                .string()
+                .describe(
+                  "Cloudinary CDN URL (or original nativeplant.com URL as fallback)",
+                ),
+              caption: zod
+                .string()
+                .describe(
+                  "Image caption from the source page (may be empty string)",
+                ),
+              kind: zod
+                .enum(["photograph", "drawing"])
+                .describe(
+                  'Inferred from caption text: \"pen & ink\" or \"drawing\" → drawing; else photograph\n',
+                ),
+            })
+            .describe("A single image associated with an NPN species record."),
+        ),
+        source_url: zod.string(),
+        scraped_at: zod.date(),
+      })
+      .nullish()
+      .describe(
+        "A single species record from The Native Plant Nursery database.",
+      ),
+  })
+  .describe("Single NPN species lookup response (found=true, HTTP 200).");
+
+/**
+ * Returns all species as name groups, each containing acronym, latin_name, latin_synonym_greg (nullable), common_names (string array, parsed from the semicolon/comma-delimited common_name field), and all_accepted_keys (full list of lowercase aliases indexed for this species). Designed for cross-source name reconciliation against GBIF, USDA PLANTS, or iNaturalist.
+
+ * @summary NPN name groups with common_names array and all_accepted_keys for reconciliation
+ */
+export const GetAnnArborNpnNamesQueryParams = zod.object({
+  provenance_verbosity: zod.enum(["full", "minimal"]).optional(),
+});
+
+export const GetAnnArborNpnNamesResponse = zod
+  .object({
+    found: zod.boolean(),
+    queried_at: zod.date(),
+    source_url: zod.string(),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+        fetched_at: zod
+          .date()
+          .describe("When this record was obtained from the source"),
+        method: zod
+          .string()
+          .describe(
+            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+          ),
+        upstream_url: zod
+          .string()
+          .describe(
+            "Where this data came from (API endpoint, file path, or registry entry)",
+          ),
+        general_summary: zod
+          .string()
+          .optional()
+          .describe(
+            "Plain language description readable by a homeowner or community member",
+          ),
+        technical_details: zod
+          .string()
+          .optional()
+          .describe(
+            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+          ),
+        matched_input: zod
+          .string()
+          .optional()
+          .describe(
+            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+          ),
+      })
+      .describe(
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
+      ),
+    data: zod.object({
+      species_count: zod.number(),
+      name_groups: zod.array(
+        zod
+          .object({
+            acronym: zod.string(),
+            latin_name: zod.string(),
+            latin_synonym_greg: zod.string().nullish(),
+            common_names: zod
+              .array(zod.string())
+              .describe("Parsed segments (split on ; and , from common_name)"),
+            all_accepted_keys: zod
+              .array(zod.string())
+              .describe("All lowercase aliases for this species"),
+          })
+          .describe("Name group entry for a single NPN species."),
+      ),
+    }),
+  })
+  .describe("NPN name groups for cross-source reconciliation.");
+
+/**
+ * Scrapes nativeplant.com, uploads images to Cloudinary, and populates npn_species and npn_name_aliases. Requires the x-admin-secret header. Optionally accepts an array of acronyms to re-import a subset of species.
+
+ * @summary Trigger NPN import from nativeplant.com (admin-only)
+ */
+export const ImportAnnArborNpnBody = zod.object({
+  acronyms: zod
+    .array(zod.string())
+    .optional()
+    .describe("Optional subset of acronyms to import; omit to import all"),
+});
+
+export const ImportAnnArborNpnResponse = zod.object({
+  success: zod.boolean().optional(),
+  queried_at: zod.date().optional(),
+  data: zod
+    .object({
+      speciesUpserted: zod.number().optional(),
+      aliasesUpserted: zod.number().optional(),
+      imagesUploaded: zod.number().optional(),
+      imagesSkipped: zod.number().optional(),
+      errors: zod
+        .array(
+          zod.object({
+            acronym: zod.string().optional(),
+            error: zod.string().optional(),
+          }),
+        )
+        .optional(),
+    })
+    .optional(),
+});

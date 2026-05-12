@@ -2182,6 +2182,143 @@ export interface TrustGroupSourcesResponse {
   provenance: FernsProvenance;
 }
 
+/**
+ * Inferred from caption text: "pen & ink" or "drawing" → drawing; else photograph
+
+ */
+export type NpnImageKind = (typeof NpnImageKind)[keyof typeof NpnImageKind];
+
+export const NpnImageKind = {
+  photograph: "photograph",
+  drawing: "drawing",
+} as const;
+
+/**
+ * A single image associated with an NPN species record.
+ */
+export interface NpnImage {
+  /** 1-based position of this image in the species gallery */
+  position: number;
+  /** Cloudinary CDN URL (or original nativeplant.com URL as fallback) */
+  url: string;
+  /** Image caption from the source page (may be empty string) */
+  caption: string;
+  /** Inferred from caption text: "pen & ink" or "drawing" → drawing; else photograph
+   */
+  kind: NpnImageKind;
+}
+
+/**
+ * A single species record from The Native Plant Nursery database.
+ */
+export interface NpnSpeciesRecord {
+  /** Primary key — 4–7 character code (e.g. LOBSIP). Carex uses CX prefix. */
+  acronym: string;
+  latin_name: string;
+  /** Greg Vaclavek's Latin synonym. Known quirk: GENAND has "Closed Gentian" (a common name) in this field.
+   */
+  latin_synonym_greg?: string | null;
+  /** Raw common name string (may contain ; and , separators) */
+  common_name: string;
+  light?: string | null;
+  moisture?: string | null;
+  height?: string | null;
+  flowering_time?: string | null;
+  habitat?: string | null;
+  notes?: string | null;
+  /** County or region strings within Michigan */
+  range_michigan?: string[] | null;
+  npn_price_sizes?: string | null;
+  images: NpnImage[];
+  source_url: string;
+  scraped_at: string;
+}
+
+/**
+ * Single NPN species lookup response (found=true, HTTP 200).
+ */
+export interface NpnSpeciesResponse {
+  found: boolean;
+  queried_at: string;
+  source_url: string;
+  provenance: FernsProvenance;
+  data?: NpnSpeciesRecord | null;
+}
+
+/**
+ * Response when a name key is not in the alias index (HTTP 404). found=false.
+
+ */
+export interface NpnNotFoundResponse {
+  found: boolean;
+  queried_at: string;
+  source_url: string;
+  provenance: FernsProvenance;
+  data?: unknown | null;
+}
+
+export type NpnSpeciesBulkResponseData = {
+  species_count: number;
+  species: NpnSpeciesRecord[];
+};
+
+/**
+ * Bulk NPN species list response.
+ */
+export interface NpnSpeciesBulkResponse {
+  /** false when the table is empty (import not yet run) */
+  found: boolean;
+  queried_at: string;
+  source_url: string;
+  provenance: FernsProvenance;
+  data: NpnSpeciesBulkResponseData;
+}
+
+/**
+ * Name group entry for a single NPN species.
+ */
+export interface NpnNameGroup {
+  acronym: string;
+  latin_name: string;
+  latin_synonym_greg?: string | null;
+  /** Parsed segments (split on ; and , from common_name) */
+  common_names: string[];
+  /** All lowercase aliases for this species */
+  all_accepted_keys: string[];
+}
+
+export type NpnNamesResponseData = {
+  species_count: number;
+  name_groups: NpnNameGroup[];
+};
+
+/**
+ * NPN name groups for cross-source reconciliation.
+ */
+export interface NpnNamesResponse {
+  found: boolean;
+  queried_at: string;
+  source_url: string;
+  provenance: FernsProvenance;
+  data: NpnNamesResponseData;
+}
+
+export type NpnMetadataResponseRegistryEntry = { [key: string]: unknown };
+
+/**
+ * Metadata response for the Ann Arbor Native Plant Nursery source.
+ */
+export interface NpnMetadataResponse {
+  service_id: string;
+  service_name: string;
+  permission_granted: boolean;
+  permission_status: string;
+  species_count: number;
+  registry_entry: NpnMetadataResponseRegistryEntry;
+  queried_at: string;
+  provenance: FernsProvenance;
+}
+
 export type GetBonapMapParams = {
   /**
  * Genus name. First letter capitalized, remainder lowercase (e.g. Asclepias). The service normalizes to title case before URL construction.
@@ -2797,3 +2934,66 @@ export const GetLadyBirdJohnsonSpeciesTextRefresh = {
   true: "true",
   false: "false",
 } as const;
+
+export type GetAnnArborNpnSpeciesBulkParams = {
+  /**
+   * Controls provenance verbosity in the response ("full" or "minimal")
+   */
+  provenance_verbosity?: GetAnnArborNpnSpeciesBulkProvenanceVerbosity;
+};
+
+export type GetAnnArborNpnSpeciesBulkProvenanceVerbosity =
+  (typeof GetAnnArborNpnSpeciesBulkProvenanceVerbosity)[keyof typeof GetAnnArborNpnSpeciesBulkProvenanceVerbosity];
+
+export const GetAnnArborNpnSpeciesBulkProvenanceVerbosity = {
+  full: "full",
+  minimal: "minimal",
+} as const;
+
+export type GetAnnArborNpnSpeciesByKeyParams = {
+  provenance_verbosity?: GetAnnArborNpnSpeciesByKeyProvenanceVerbosity;
+};
+
+export type GetAnnArborNpnSpeciesByKeyProvenanceVerbosity =
+  (typeof GetAnnArborNpnSpeciesByKeyProvenanceVerbosity)[keyof typeof GetAnnArborNpnSpeciesByKeyProvenanceVerbosity];
+
+export const GetAnnArborNpnSpeciesByKeyProvenanceVerbosity = {
+  full: "full",
+  minimal: "minimal",
+} as const;
+
+export type GetAnnArborNpnNamesParams = {
+  provenance_verbosity?: GetAnnArborNpnNamesProvenanceVerbosity;
+};
+
+export type GetAnnArborNpnNamesProvenanceVerbosity =
+  (typeof GetAnnArborNpnNamesProvenanceVerbosity)[keyof typeof GetAnnArborNpnNamesProvenanceVerbosity];
+
+export const GetAnnArborNpnNamesProvenanceVerbosity = {
+  full: "full",
+  minimal: "minimal",
+} as const;
+
+export type ImportAnnArborNpnBody = {
+  /** Optional subset of acronyms to import; omit to import all */
+  acronyms?: string[];
+};
+
+export type ImportAnnArborNpn200DataErrorsItem = {
+  acronym?: string;
+  error?: string;
+};
+
+export type ImportAnnArborNpn200Data = {
+  speciesUpserted?: number;
+  aliasesUpserted?: number;
+  imagesUploaded?: number;
+  imagesSkipped?: number;
+  errors?: ImportAnnArborNpn200DataErrorsItem[];
+};
+
+export type ImportAnnArborNpn200 = {
+  success?: boolean;
+  queried_at?: string;
+  data?: ImportAnnArborNpn200Data;
+};

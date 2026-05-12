@@ -5,10 +5,13 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
+  MutationFunction,
   QueryFunction,
   QueryKey,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult,
 } from "@tanstack/react-query";
@@ -26,6 +29,9 @@ import type {
   GbifOccurrencesResponse,
   GbifReconcileResponse,
   GbifSearchResponse,
+  GetAnnArborNpnNamesParams,
+  GetAnnArborNpnSpeciesBulkParams,
+  GetAnnArborNpnSpeciesByKeyParams,
   GetBonapMapParams,
   GetCoefficientByValueParams,
   GetGbifMatchParams,
@@ -69,6 +75,8 @@ import type {
   GetWetlandIndicatorByWParams,
   GetWucolsByCodeParams,
   HealthStatus,
+  ImportAnnArborNpn200,
+  ImportAnnArborNpnBody,
   InatFieldValuesResponse,
   InatHistogramResponse,
   InatMetadataResponse,
@@ -93,6 +101,11 @@ import type {
   NatureserveEcosystemsResponse,
   NatureserveMetadataResponse,
   NatureserveSpeciesResponse,
+  NpnMetadataResponse,
+  NpnNamesResponse,
+  NpnNotFoundResponse,
+  NpnSpeciesBulkResponse,
+  NpnSpeciesResponse,
   S2CSpeciesResponse,
   S2CYearsResponse,
   SourceRelationshipsResponse,
@@ -120,7 +133,7 @@ import type {
 } from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
-import type { ErrorType } from "../custom-fetch";
+import type { ErrorType, BodyType } from "../custom-fetch";
 
 type AwaitedInput<T> = PromiseLike<T> | T;
 
@@ -7438,3 +7451,504 @@ export function useGetLadyBirdJohnsonMetadata<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * Returns service identity, current species count, permission status, and the full registry entry for The Native Plant Nursery (nativeplant.com, Ann Arbor, MI — Greg Vaclavek). Includes known limitations, update frequency, and technical details.
+
+ * @summary Ann Arbor Native Plant Nursery service metadata
+ */
+export const getGetAnnArborNpnMetadataUrl = () => {
+  return `/api/ann-arbor-npn/metadata`;
+};
+
+export const getAnnArborNpnMetadata = async (
+  options?: RequestInit,
+): Promise<NpnMetadataResponse> => {
+  return customFetch<NpnMetadataResponse>(getGetAnnArborNpnMetadataUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetAnnArborNpnMetadataQueryKey = () => {
+  return [`/api/ann-arbor-npn/metadata`] as const;
+};
+
+export const getGetAnnArborNpnMetadataQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAnnArborNpnMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getAnnArborNpnMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetAnnArborNpnMetadataQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getAnnArborNpnMetadata>>
+  > = ({ signal }) => getAnnArborNpnMetadata({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getAnnArborNpnMetadata>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetAnnArborNpnMetadataQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAnnArborNpnMetadata>>
+>;
+export type GetAnnArborNpnMetadataQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Ann Arbor Native Plant Nursery service metadata
+ */
+
+export function useGetAnnArborNpnMetadata<
+  TData = Awaited<ReturnType<typeof getAnnArborNpnMetadata>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getAnnArborNpnMetadata>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetAnnArborNpnMetadataQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns all ~130 species from The Native Plant Nursery database ordered by Latin name. Each record includes ecological attributes (light, moisture, height, flowering time, habitat, range within Michigan), nursery pricing, and Cloudinary image URLs with captions and kind (photograph / drawing). Returns an empty list if the import has not yet been run.
+
+ * @summary All Ann Arbor Native Plant Nursery species (bulk)
+ */
+export const getGetAnnArborNpnSpeciesBulkUrl = (
+  params?: GetAnnArborNpnSpeciesBulkParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/ann-arbor-npn/species?${stringifiedParams}`
+    : `/api/ann-arbor-npn/species`;
+};
+
+export const getAnnArborNpnSpeciesBulk = async (
+  params?: GetAnnArborNpnSpeciesBulkParams,
+  options?: RequestInit,
+): Promise<NpnSpeciesBulkResponse> => {
+  return customFetch<NpnSpeciesBulkResponse>(
+    getGetAnnArborNpnSpeciesBulkUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetAnnArborNpnSpeciesBulkQueryKey = (
+  params?: GetAnnArborNpnSpeciesBulkParams,
+) => {
+  return [`/api/ann-arbor-npn/species`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetAnnArborNpnSpeciesBulkQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAnnArborNpnSpeciesBulk>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetAnnArborNpnSpeciesBulkParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getAnnArborNpnSpeciesBulk>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetAnnArborNpnSpeciesBulkQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getAnnArborNpnSpeciesBulk>>
+  > = ({ signal }) =>
+    getAnnArborNpnSpeciesBulk(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getAnnArborNpnSpeciesBulk>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetAnnArborNpnSpeciesBulkQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAnnArborNpnSpeciesBulk>>
+>;
+export type GetAnnArborNpnSpeciesBulkQueryError = ErrorType<unknown>;
+
+/**
+ * @summary All Ann Arbor Native Plant Nursery species (bulk)
+ */
+
+export function useGetAnnArborNpnSpeciesBulk<
+  TData = Awaited<ReturnType<typeof getAnnArborNpnSpeciesBulk>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetAnnArborNpnSpeciesBulkParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getAnnArborNpnSpeciesBulk>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetAnnArborNpnSpeciesBulkQueryOptions(
+    params,
+    options,
+  );
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Resolves any NPN name flavor to a species record via the npn_name_aliases index (case-insensitive). Accepted inputs: acronym (e.g. LOBSIP), Latin name (e.g. "Lobelia spicata"), Greg's Latin synonym, or any common name (semicolon/comma-delimited common names are each indexed separately). Returns HTTP 404 with found=false when the key does not appear in the alias index. The alias index is built during import; 404 is also returned before import has run.
+
+ * @summary Single NPN species by acronym, Latin name, synonym, or common name
+ */
+export const getGetAnnArborNpnSpeciesByKeyUrl = (
+  key: string,
+  params?: GetAnnArborNpnSpeciesByKeyParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/ann-arbor-npn/species/${key}?${stringifiedParams}`
+    : `/api/ann-arbor-npn/species/${key}`;
+};
+
+export const getAnnArborNpnSpeciesByKey = async (
+  key: string,
+  params?: GetAnnArborNpnSpeciesByKeyParams,
+  options?: RequestInit,
+): Promise<NpnSpeciesResponse> => {
+  return customFetch<NpnSpeciesResponse>(
+    getGetAnnArborNpnSpeciesByKeyUrl(key, params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetAnnArborNpnSpeciesByKeyQueryKey = (
+  key: string,
+  params?: GetAnnArborNpnSpeciesByKeyParams,
+) => {
+  return [
+    `/api/ann-arbor-npn/species/${key}`,
+    ...(params ? [params] : []),
+  ] as const;
+};
+
+export const getGetAnnArborNpnSpeciesByKeyQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAnnArborNpnSpeciesByKey>>,
+  TError = ErrorType<ErrorResponse | NpnNotFoundResponse>,
+>(
+  key: string,
+  params?: GetAnnArborNpnSpeciesByKeyParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getAnnArborNpnSpeciesByKey>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ??
+    getGetAnnArborNpnSpeciesByKeyQueryKey(key, params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getAnnArborNpnSpeciesByKey>>
+  > = ({ signal }) =>
+    getAnnArborNpnSpeciesByKey(key, params, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!key,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getAnnArborNpnSpeciesByKey>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetAnnArborNpnSpeciesByKeyQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAnnArborNpnSpeciesByKey>>
+>;
+export type GetAnnArborNpnSpeciesByKeyQueryError = ErrorType<
+  ErrorResponse | NpnNotFoundResponse
+>;
+
+/**
+ * @summary Single NPN species by acronym, Latin name, synonym, or common name
+ */
+
+export function useGetAnnArborNpnSpeciesByKey<
+  TData = Awaited<ReturnType<typeof getAnnArborNpnSpeciesByKey>>,
+  TError = ErrorType<ErrorResponse | NpnNotFoundResponse>,
+>(
+  key: string,
+  params?: GetAnnArborNpnSpeciesByKeyParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getAnnArborNpnSpeciesByKey>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetAnnArborNpnSpeciesByKeyQueryOptions(
+    key,
+    params,
+    options,
+  );
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns all species as name groups, each containing acronym, latin_name, latin_synonym_greg (nullable), common_names (string array, parsed from the semicolon/comma-delimited common_name field), and all_accepted_keys (full list of lowercase aliases indexed for this species). Designed for cross-source name reconciliation against GBIF, USDA PLANTS, or iNaturalist.
+
+ * @summary NPN name groups with common_names array and all_accepted_keys for reconciliation
+ */
+export const getGetAnnArborNpnNamesUrl = (
+  params?: GetAnnArborNpnNamesParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/ann-arbor-npn/names?${stringifiedParams}`
+    : `/api/ann-arbor-npn/names`;
+};
+
+export const getAnnArborNpnNames = async (
+  params?: GetAnnArborNpnNamesParams,
+  options?: RequestInit,
+): Promise<NpnNamesResponse> => {
+  return customFetch<NpnNamesResponse>(getGetAnnArborNpnNamesUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetAnnArborNpnNamesQueryKey = (
+  params?: GetAnnArborNpnNamesParams,
+) => {
+  return [`/api/ann-arbor-npn/names`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetAnnArborNpnNamesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAnnArborNpnNames>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetAnnArborNpnNamesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getAnnArborNpnNames>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetAnnArborNpnNamesQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getAnnArborNpnNames>>
+  > = ({ signal }) =>
+    getAnnArborNpnNames(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getAnnArborNpnNames>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetAnnArborNpnNamesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAnnArborNpnNames>>
+>;
+export type GetAnnArborNpnNamesQueryError = ErrorType<unknown>;
+
+/**
+ * @summary NPN name groups with common_names array and all_accepted_keys for reconciliation
+ */
+
+export function useGetAnnArborNpnNames<
+  TData = Awaited<ReturnType<typeof getAnnArborNpnNames>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetAnnArborNpnNamesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getAnnArborNpnNames>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetAnnArborNpnNamesQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Scrapes nativeplant.com, uploads images to Cloudinary, and populates npn_species and npn_name_aliases. Requires the x-admin-secret header. Optionally accepts an array of acronyms to re-import a subset of species.
+
+ * @summary Trigger NPN import from nativeplant.com (admin-only)
+ */
+export const getImportAnnArborNpnUrl = () => {
+  return `/api/ann-arbor-npn/import`;
+};
+
+export const importAnnArborNpn = async (
+  importAnnArborNpnBody?: ImportAnnArborNpnBody,
+  options?: RequestInit,
+): Promise<ImportAnnArborNpn200> => {
+  return customFetch<ImportAnnArborNpn200>(getImportAnnArborNpnUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(importAnnArborNpnBody),
+  });
+};
+
+export const getImportAnnArborNpnMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof importAnnArborNpn>>,
+    TError,
+    { data: BodyType<ImportAnnArborNpnBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof importAnnArborNpn>>,
+  TError,
+  { data: BodyType<ImportAnnArborNpnBody> },
+  TContext
+> => {
+  const mutationKey = ["importAnnArborNpn"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof importAnnArborNpn>>,
+    { data: BodyType<ImportAnnArborNpnBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return importAnnArborNpn(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ImportAnnArborNpnMutationResult = NonNullable<
+  Awaited<ReturnType<typeof importAnnArborNpn>>
+>;
+export type ImportAnnArborNpnMutationBody = BodyType<ImportAnnArborNpnBody>;
+export type ImportAnnArborNpnMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Trigger NPN import from nativeplant.com (admin-only)
+ */
+export const useImportAnnArborNpn = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof importAnnArborNpn>>,
+    TError,
+    { data: BodyType<ImportAnnArborNpnBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof importAnnArborNpn>>,
+  TError,
+  { data: BodyType<ImportAnnArborNpnBody> },
+  TContext
+> => {
+  return useMutation(getImportAnnArborNpnMutationOptions(options));
+};
