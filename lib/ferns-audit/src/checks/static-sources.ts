@@ -1252,127 +1252,185 @@ export async function runLbjChecks(fernsBase: string): Promise<EndpointCompariso
 //   Expected bulk count: 130 species
 
 export async function runNpnChecks(fernsBase: string): Promise<EndpointComparison[]> {
-  const TEST_ACRONYM = "LOBSIP";          // Lobelia spicata
-  const TEST_LATIN = "Lobelia spicata";
-  const TEST_ALIAS = "astcor";            // lower-case alias for ASTCOR
+  // ── Known test values ─────────────────────────────────────────────────────
+  // LOBSIP — the primary test species.  When imported, the record must have
+  //   acronym exactly "LOBSIP", latin_name starting with "Lobelia",
+  //   and a non-empty images array.
+  // ASTCOR — secondary alias test.  When imported, the record must have
+  //   acronym exactly "ASTCOR" and the names group must have
+  //   all_accepted_keys containing "symphyotrichum cordifolium".
+  const TEST_ACRONYM = "LOBSIP";
+  const TEST_LATIN = "Lobelia spicata";       // Greg's listing name for LOBSIP
+  const TEST_ALIAS = "astcor";               // lower-case alias (acronym-as-alias) for ASTCOR
   const EXPECTED_COUNT = 130;
   const encodedAcronym = encodeURIComponent(TEST_ACRONYM);
   const encodedLatin = encodeURIComponent(TEST_LATIN);
   const encodedAlias = encodeURIComponent(TEST_ALIAS);
 
-  function speciesEnvelopeChecks(label: string, knownGenus?: string) {
+  /**
+   * Build the standard species envelope checker.
+   * When found=true the following hard assertions fire:
+   *   - data.acronym must equal expectedAcronym exactly (case-sensitive)
+   *   - data.latin_name must include expectedLatinFragment (case-insensitive)
+   *   - data.images must be a non-empty array (mismatch if empty, gap if missing)
+   *
+   * When found=false we record a "gap" (not "mismatch") because the import
+   * may not have been run yet.  The distinction between gap and mismatch is
+   * visible in the audit report and surfaced to callers.
+   */
+  function makeSpeciesChecker(opts: {
+    label: string;
+    expectedAcronym?: string;
+    expectedLatinFragment?: string;
+    requireNonEmptyImages?: boolean;
+  }) {
     return (envelope: Record<string, unknown>): FieldFinding[] => {
       const findings: FieldFinding[] = [];
+
       // found — boolean required
-      if (typeof envelope.found === "boolean") {
-        findings.push({ type: "ok", sourceField: "found", note: `found=${envelope.found}` });
-      } else {
+      if (typeof envelope.found !== "boolean") {
         findings.push({ type: "mismatch", sourceField: "found", note: "found field missing or not boolean" });
+        return findings;
       }
-      if (envelope.found === true) {
-        const data = envelope.data as Record<string, unknown> | null | undefined;
-        // data.acronym
-        if (data && typeof data.acronym === "string") {
-          findings.push({ type: "ok", sourceField: "data.acronym", note: `acronym=${data.acronym}` });
+      findings.push({ type: "ok", sourceField: "found", note: `found=${envelope.found}` });
+
+      if (envelope.found !== true) {
+        findings.push({ type: "gap", sourceField: "data", note: `found=false — not yet imported or key unrecognised [${opts.label}]` });
+        return findings;
+      }
+
+      const data = envelope.data as Record<string, unknown> | null | undefined;
+
+      // data.acronym — exact match
+      if (data && typeof data.acronym === "string") {
+        if (opts.expectedAcronym && data.acronym !== opts.expectedAcronym) {
+          findings.push({ type: "mismatch", sourceField: "data.acronym", note: `known-value: expected "${opts.expectedAcronym}", got "${data.acronym}"` });
         } else {
-          findings.push({ type: "mismatch", sourceField: "data.acronym", note: `data.acronym missing [${label}]` });
-        }
-        // data.latin_name
-        if (data && typeof data.latin_name === "string") {
-          findings.push({ type: "ok", sourceField: "data.latin_name", note: `latin_name=${data.latin_name}` });
-          // Known-genus assertion (e.g. "Lobelia" for LOBSIP)
-          if (knownGenus && !data.latin_name.toLowerCase().includes(knownGenus.toLowerCase())) {
-            findings.push({
-              type: "mismatch",
-              sourceField: "data.latin_name",
-              note: `known-value: expected genus "${knownGenus}" in latin_name, got "${data.latin_name}"`,
-            });
-          } else if (knownGenus) {
-            findings.push({ type: "ok", sourceField: "data.latin_name", note: `known-genus "${knownGenus}" present ✓` });
-          }
-        } else {
-          findings.push({ type: "mismatch", sourceField: "data.latin_name", note: `data.latin_name missing [${label}]` });
-        }
-        // data.images — array expected
-        if (data && Array.isArray(data.images)) {
-          findings.push({ type: "ok", sourceField: "data.images", note: `${data.images.length} image(s)` });
-        } else {
-          findings.push({ type: "gap", sourceField: "data.images", note: `data.images missing or not array [${label}]` });
+          findings.push({ type: "ok", sourceField: "data.acronym", note: `acronym=${data.acronym}${opts.expectedAcronym ? " ✓" : ""}` });
         }
       } else {
-        // found=false is acceptable before the import runs; flag as gap not mismatch
-        findings.push({ type: "gap", sourceField: "data", note: `found=false — species not yet imported or key unrecognised [${label}]` });
+        findings.push({ type: "mismatch", sourceField: "data.acronym", note: `data.acronym missing or not string [${opts.label}]` });
       }
+
+      // data.latin_name — contains expected fragment
+      if (data && typeof data.latin_name === "string") {
+        const latinL = data.latin_name.toLowerCase();
+        if (opts.expectedLatinFragment && !latinL.includes(opts.expectedLatinFragment.toLowerCase())) {
+          findings.push({ type: "mismatch", sourceField: "data.latin_name", note: `known-value: expected "${opts.expectedLatinFragment}" in latin_name, got "${data.latin_name}"` });
+        } else {
+          findings.push({ type: "ok", sourceField: "data.latin_name", note: `latin_name="${data.latin_name}"${opts.expectedLatinFragment ? " ✓" : ""}` });
+        }
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.latin_name", note: `data.latin_name missing [${opts.label}]` });
+      }
+
+      // data.images — non-empty array required
+      if (data && Array.isArray(data.images)) {
+        const count = data.images.length;
+        if (opts.requireNonEmptyImages && count === 0) {
+          findings.push({ type: "mismatch", sourceField: "data.images", note: `images array is empty — expected at least one image for ${opts.label}` });
+        } else {
+          findings.push({ type: "ok", sourceField: "data.images", note: `${count} image(s)${count > 0 ? " ✓" : " (none yet)"}` });
+        }
+      } else {
+        findings.push({ type: "gap", sourceField: "data.images", note: `data.images missing or not array [${opts.label}]` });
+      }
+
       return findings;
     };
   }
 
   const [metaCheck, acronymCheck, latinCheck, aliasCheck, bulkCheck, namesCheck] = await Promise.all([
+    // ── metaCheck ─────────────────────────────────────────────────────────
     checkEndpoint(
       "ann-arbor-npn",
       "/api/ann-arbor-npn/metadata",
-      "Ann Arbor NPN — metadata endpoint",
+      "Ann Arbor NPN — metadata endpoint (service_id, permission_granted)",
       fernsBase,
       (envelope) => {
         const findings: FieldFinding[] = [];
+        // service_id must be exactly "ann-arbor-npn"
         if (typeof envelope.service_id === "string" && envelope.service_id === "ann-arbor-npn") {
-          findings.push({ type: "ok", sourceField: "service_id", note: `service_id=${envelope.service_id}` });
+          findings.push({ type: "ok", sourceField: "service_id", note: `service_id="${envelope.service_id}" ✓` });
         } else {
           findings.push({ type: "mismatch", sourceField: "service_id", note: `expected "ann-arbor-npn", got "${envelope.service_id}"` });
         }
+        // species_count — numeric
         if (typeof envelope.species_count === "number") {
           findings.push({ type: "ok", sourceField: "species_count", note: `species_count=${envelope.species_count}` });
         } else {
-          findings.push({ type: "gap", sourceField: "species_count", note: "species_count missing (import may not have run yet)" });
+          findings.push({ type: "gap", sourceField: "species_count", note: "species_count missing" });
         }
-        if (typeof envelope.permission_granted === "boolean") {
-          findings.push({ type: "ok", sourceField: "permission_granted", note: `permission_granted=${envelope.permission_granted}` });
+        // permission_granted — must be boolean false for this source
+        if (envelope.permission_granted === false) {
+          findings.push({ type: "ok", sourceField: "permission_granted", note: "permission_granted=false ✓ (expected — no agreement yet)" });
+        } else if (typeof envelope.permission_granted === "boolean") {
+          findings.push({ type: "mismatch", sourceField: "permission_granted", note: `expected false, got ${envelope.permission_granted}` });
         } else {
           findings.push({ type: "mismatch", sourceField: "permission_granted", note: "permission_granted field missing" });
         }
         return findings;
       },
     ),
+
+    // ── acronymCheck ──────────────────────────────────────────────────────
+    // Resolves LOBSIP by acronym.  When imported: found=true, acronym exactly
+    // "LOBSIP", latin_name starts with "Lobelia", non-empty images.
     checkEndpoint(
       "ann-arbor-npn",
       `/api/ann-arbor-npn/species/${encodedAcronym}`,
-      `Ann Arbor NPN — species by acronym (${TEST_ACRONYM})`,
+      `Ann Arbor NPN — species by acronym (${TEST_ACRONYM}): found=true, acronym, latin_name, images`,
       fernsBase,
-      speciesEnvelopeChecks(`acronym:${TEST_ACRONYM}`, "Lobelia"),
+      makeSpeciesChecker({
+        label: `acronym:${TEST_ACRONYM}`,
+        expectedAcronym: TEST_ACRONYM,
+        expectedLatinFragment: "Lobelia",
+        requireNonEmptyImages: true,
+      }),
     ),
+
+    // ── latinCheck ────────────────────────────────────────────────────────
+    // Resolves LOBSIP by the full Latin name "Lobelia spicata".
     checkEndpoint(
       "ann-arbor-npn",
       `/api/ann-arbor-npn/species/${encodedLatin}`,
-      `Ann Arbor NPN — species by Latin name (${TEST_LATIN})`,
+      `Ann Arbor NPN — species by Latin name ("${TEST_LATIN}"): same record as acronymCheck`,
       fernsBase,
-      speciesEnvelopeChecks(`latin:${TEST_LATIN}`, "Lobelia"),
+      makeSpeciesChecker({
+        label: `latin:${TEST_LATIN}`,
+        expectedAcronym: TEST_ACRONYM,
+        expectedLatinFragment: "Lobelia",
+        requireNonEmptyImages: true,
+      }),
     ),
-    // aliasCheck: resolve the lower-case acronym alias "astcor" and, when found,
-    // assert the record is the expected species (Aster cordifolius / ASTCOR).
+
+    // ── aliasCheck ────────────────────────────────────────────────────────
+    // Resolves "astcor" (lower-case acronym alias) → ASTCOR record.
+    // ASTCOR = Aster cordifolius; Greg may list it under Aster or Symphyotrichum.
     checkEndpoint(
       "ann-arbor-npn",
       `/api/ann-arbor-npn/species/${encodedAlias}`,
-      `Ann Arbor NPN — species by alias (${TEST_ALIAS}) with known-value assertions`,
+      `Ann Arbor NPN — species by alias ("${TEST_ALIAS}"): resolves to ASTCOR (Aster/Symphyotrichum)`,
       fernsBase,
       (envelope) => {
-        const findings = speciesEnvelopeChecks(`alias:${TEST_ALIAS}`)(envelope);
+        const findings = makeSpeciesChecker({ label: `alias:${TEST_ALIAS}` })(envelope);
         if (envelope.found === true) {
           const data = envelope.data as Record<string, unknown> | null | undefined;
-          // Known acronym: ASTCOR
+          // acronym must be exactly ASTCOR
           if (data && typeof data.acronym === "string") {
             if (data.acronym.toUpperCase() === "ASTCOR") {
-              findings.push({ type: "ok", sourceField: "data.acronym", note: `known-value: alias "${TEST_ALIAS}" resolved to ASTCOR ✓` });
+              findings.push({ type: "ok", sourceField: "data.acronym", note: `known-value: alias "${TEST_ALIAS}" → ASTCOR ✓` });
             } else {
-              findings.push({ type: "mismatch", sourceField: "data.acronym", note: `known-value: alias "${TEST_ALIAS}" expected ASTCOR, got ${data.acronym}` });
+              findings.push({ type: "mismatch", sourceField: "data.acronym", note: `known-value: expected ASTCOR, got "${data.acronym}"` });
             }
           }
-          // Known latin_name: should contain "Aster" or the synonym "Symphyotrichum" (Greg's name may vary)
+          // latin_name must contain "Aster" or "Symphyotrichum"
           if (data && typeof data.latin_name === "string") {
-            const latinL = data.latin_name.toLowerCase();
-            if (latinL.includes("aster") || latinL.includes("symphyotrichum")) {
-              findings.push({ type: "ok", sourceField: "data.latin_name", note: `known-value: latin_name "${data.latin_name}" contains expected genus ✓` });
+            const l = data.latin_name.toLowerCase();
+            if (l.includes("aster") || l.includes("symphyotrichum")) {
+              findings.push({ type: "ok", sourceField: "data.latin_name", note: `known genus present in "${data.latin_name}" ✓` });
             } else {
-              findings.push({ type: "mismatch", sourceField: "data.latin_name", note: `known-value: ASTCOR latin_name expected Aster or Symphyotrichum, got "${data.latin_name}"` });
+              findings.push({ type: "mismatch", sourceField: "data.latin_name", note: `expected Aster or Symphyotrichum genus, got "${data.latin_name}"` });
             }
           }
         }

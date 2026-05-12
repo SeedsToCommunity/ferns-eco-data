@@ -258,9 +258,7 @@ function MichiganRangeLegend() {
 }
 
 function ImageGallery({ images }: { images: NpnImage[] }) {
-  const [idx, setIdx] = useState(0);
   if (images.length === 0) return null;
-  const current = images[idx]!;
 
   return (
     <div className="space-y-2">
@@ -268,55 +266,43 @@ function ImageGallery({ images }: { images: NpnImage[] }) {
         <Image className="w-3 h-3" />
         Images ({images.length})
       </div>
-      <div className="flex gap-3 items-start flex-wrap">
-        <div className="relative">
-          <img
-            src={current.url}
-            alt={current.caption || `Image ${current.position}`}
-            className="w-36 h-36 object-cover rounded-xl border border-border shadow-sm"
-            onError={(e) => {
-              (e.target as HTMLImageElement).style.display = "none";
-            }}
-          />
-          <span
-            className={`absolute top-1.5 right-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
-              current.kind === "drawing"
-                ? "bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300"
-                : "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300"
-            }`}
-          >
-            {current.kind === "drawing" ? "Pen & Ink" : "Photo"}
-          </span>
-        </div>
-        <div className="flex-1 min-w-0 space-y-2">
-          {current.caption && (
-            <p className="text-xs text-muted-foreground italic leading-relaxed">{current.caption}</p>
-          )}
-          {images.length > 1 && (
-            <div className="flex gap-1 flex-wrap">
-              {images.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setIdx(i)}
-                  className={`w-2.5 h-2.5 rounded-full transition-colors ${
-                    i === idx
-                      ? "bg-primary"
-                      : "bg-muted-foreground/30 hover:bg-muted-foreground/60"
-                  }`}
-                />
-              ))}
-            </div>
-          )}
-          <a
-            href={current.url}
-            target="_blank"
-            rel="noreferrer"
-            className="text-[10px] text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors"
-          >
-            <ExternalLink className="w-2.5 h-2.5" />
-            Open image
-          </a>
-        </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        {images.map((img) => (
+          <div key={img.position} className="flex flex-col gap-1">
+            <a
+              href={img.url}
+              target="_blank"
+              rel="noreferrer"
+              className="block relative group"
+            >
+              <img
+                src={img.url}
+                alt={img.caption || `Image ${img.position}`}
+                className="w-full aspect-square object-cover rounded-lg border border-border shadow-sm group-hover:opacity-90 transition-opacity"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = "none";
+                }}
+              />
+              <span
+                className={`absolute top-1.5 right-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
+                  img.kind === "drawing"
+                    ? "bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300"
+                    : "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300"
+                }`}
+              >
+                {img.kind === "drawing" ? "Pen & Ink" : "Photo"}
+              </span>
+              <span className="absolute bottom-1.5 right-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                <ExternalLink className="w-3 h-3 text-white drop-shadow" />
+              </span>
+            </a>
+            {img.caption && (
+              <p className="text-[10px] text-muted-foreground italic leading-snug px-0.5">
+                {img.caption}
+              </p>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
