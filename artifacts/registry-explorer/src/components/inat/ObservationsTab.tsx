@@ -55,8 +55,10 @@ export function ObservationsTab() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const taxId = taxonIdInput.trim() ? Number(taxonIdInput.trim()) : undefined;
-    const plId  = placeIdInput.trim()  ? Number(placeIdInput.trim())  : undefined;
+    const rawTax = Number(taxonIdInput.trim());
+    const rawPl  = Number(placeIdInput.trim());
+    const taxId  = taxonIdInput.trim() && !isNaN(rawTax) && rawTax > 0 ? rawTax : undefined;
+    const plId   = placeIdInput.trim()  && !isNaN(rawPl)  && rawPl  > 0 ? rawPl  : undefined;
     setPage(1);
     commit(taxId, plId, qualityGrade, 1);
   }
@@ -179,28 +181,34 @@ export function ObservationsTab() {
           {/* Pagination header */}
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              {total.toLocaleString()} total observations · showing page {committedPage} of {totalPgs}
-              {total > 10000 && (
-                <span className="ml-1 text-xs">(iNat caps at 10,000 accessible)</span>
-              )}
+              {total === 0
+                ? "No observations found"
+                : <>
+                    {total.toLocaleString()} total observations
+                    {totalPgs > 1 && <> · page {committedPage} of {totalPgs}</>}
+                    {total > 10000 && <span className="ml-1 text-xs">(iNat caps at 10,000 accessible)</span>}
+                  </>
+              }
             </p>
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => goToPage(committedPage - 1)}
-                disabled={committedPage <= 1 || isLoading}
-                className="p-1.5 rounded-lg border border-border hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <span className="text-xs px-2 text-muted-foreground">{committedPage} / {totalPgs}</span>
-              <button
-                onClick={() => goToPage(committedPage + 1)}
-                disabled={committedPage >= totalPgs || isLoading}
-                className="p-1.5 rounded-lg border border-border hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
+            {totalPgs > 1 && (
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => goToPage(committedPage - 1)}
+                  disabled={committedPage <= 1 || isLoading}
+                  className="p-1.5 rounded-lg border border-border hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <span className="text-xs px-2 text-muted-foreground">{committedPage} / {totalPgs}</span>
+                <button
+                  onClick={() => goToPage(committedPage + 1)}
+                  disabled={committedPage >= totalPgs || isLoading}
+                  className="p-1.5 rounded-lg border border-border hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Cards */}
