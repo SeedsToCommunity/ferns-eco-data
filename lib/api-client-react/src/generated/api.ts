@@ -45,7 +45,7 @@ import type {
   GetIllinoisWildflowersSpeciesTextParams,
   GetInatFieldValuesParams,
   GetInatHistogramParams,
-  GetInatObservationsParams,
+  GetInatObservationSummaryParams,
   GetInatPlaceParams,
   GetInatSpeciesParams,
   GetLadyBirdJohnsonParams,
@@ -80,7 +80,7 @@ import type {
   InatFieldValuesResponse,
   InatHistogramResponse,
   InatMetadataResponse,
-  InatObservationsResponse,
+  InatObservationSummaryResponse,
   InatPlaceResponse,
   InatSpeciesResponse,
   LbjSpeciesTextResponse,
@@ -1254,12 +1254,12 @@ export function useGetInatFieldValues<
 }
 
 /**
- * This endpoint does not return or cache observation records. It constructs and returns direct URLs that applications use to link to iNaturalist or to query the API directly. Individual observation records are live event data that changes constantly — FERNS provides URL patterns for applications to fetch them fresh. Both taxon_id and place_id are optional. When provided, they are validated and incorporated into the returned URLs.
+ * Calls the iNaturalist API live (no cache) and returns a curated subset of observation fields — not the full raw record. Each result includes: id, uri, observed_on, quality_grade, taxon_name, common_name, place_guess, location (lat,lng), observer login, and the first photo URL + attribution. Callers who need the complete record should follow the uri field to iNaturalist directly. Supports pagination via page and per_page. The iNaturalist API enforces a hard ceiling of 10,000 accessible observations (page × per_page ≤ 10,000).
 
- * @summary Get iNaturalist observation URL construction for a species or place
+ * @summary Paged slim observation records from iNaturalist
  */
-export const getGetInatObservationsUrl = (
-  params?: GetInatObservationsParams,
+export const getGetInatObservationSummaryUrl = (
+  params?: GetInatObservationSummaryParams,
 ) => {
   const normalizedParams = new URLSearchParams();
 
@@ -1272,16 +1272,16 @@ export const getGetInatObservationsUrl = (
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/inat/observations?${stringifiedParams}`
-    : `/api/inat/observations`;
+    ? `/api/inat/observation-summary?${stringifiedParams}`
+    : `/api/inat/observation-summary`;
 };
 
-export const getInatObservations = async (
-  params?: GetInatObservationsParams,
+export const getInatObservationSummary = async (
+  params?: GetInatObservationSummaryParams,
   options?: RequestInit,
-): Promise<InatObservationsResponse> => {
-  return customFetch<InatObservationsResponse>(
-    getGetInatObservationsUrl(params),
+): Promise<InatObservationSummaryResponse> => {
+  return customFetch<InatObservationSummaryResponse>(
+    getGetInatObservationSummaryUrl(params),
     {
       ...options,
       method: "GET",
@@ -1289,20 +1289,23 @@ export const getInatObservations = async (
   );
 };
 
-export const getGetInatObservationsQueryKey = (
-  params?: GetInatObservationsParams,
+export const getGetInatObservationSummaryQueryKey = (
+  params?: GetInatObservationSummaryParams,
 ) => {
-  return [`/api/inat/observations`, ...(params ? [params] : [])] as const;
+  return [
+    `/api/inat/observation-summary`,
+    ...(params ? [params] : []),
+  ] as const;
 };
 
-export const getGetInatObservationsQueryOptions = <
-  TData = Awaited<ReturnType<typeof getInatObservations>>,
+export const getGetInatObservationSummaryQueryOptions = <
+  TData = Awaited<ReturnType<typeof getInatObservationSummary>>,
   TError = ErrorType<ErrorResponse>,
 >(
-  params?: GetInatObservationsParams,
+  params?: GetInatObservationSummaryParams,
   options?: {
     query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getInatObservations>>,
+      Awaited<ReturnType<typeof getInatObservationSummary>>,
       TError,
       TData
     >;
@@ -1312,44 +1315,47 @@ export const getGetInatObservationsQueryOptions = <
   const { query: queryOptions, request: requestOptions } = options ?? {};
 
   const queryKey =
-    queryOptions?.queryKey ?? getGetInatObservationsQueryKey(params);
+    queryOptions?.queryKey ?? getGetInatObservationSummaryQueryKey(params);
 
   const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getInatObservations>>
+    Awaited<ReturnType<typeof getInatObservationSummary>>
   > = ({ signal }) =>
-    getInatObservations(params, { signal, ...requestOptions });
+    getInatObservationSummary(params, { signal, ...requestOptions });
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getInatObservations>>,
+    Awaited<ReturnType<typeof getInatObservationSummary>>,
     TError,
     TData
   > & { queryKey: QueryKey };
 };
 
-export type GetInatObservationsQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getInatObservations>>
+export type GetInatObservationSummaryQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getInatObservationSummary>>
 >;
-export type GetInatObservationsQueryError = ErrorType<ErrorResponse>;
+export type GetInatObservationSummaryQueryError = ErrorType<ErrorResponse>;
 
 /**
- * @summary Get iNaturalist observation URL construction for a species or place
+ * @summary Paged slim observation records from iNaturalist
  */
 
-export function useGetInatObservations<
-  TData = Awaited<ReturnType<typeof getInatObservations>>,
+export function useGetInatObservationSummary<
+  TData = Awaited<ReturnType<typeof getInatObservationSummary>>,
   TError = ErrorType<ErrorResponse>,
 >(
-  params?: GetInatObservationsParams,
+  params?: GetInatObservationSummaryParams,
   options?: {
     query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getInatObservations>>,
+      Awaited<ReturnType<typeof getInatObservationSummary>>,
       TError,
       TData
     >;
     request?: SecondParameter<typeof customFetch>;
   },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getGetInatObservationsQueryOptions(params, options);
+  const queryOptions = getGetInatObservationSummaryQueryOptions(
+    params,
+    options,
+  );
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

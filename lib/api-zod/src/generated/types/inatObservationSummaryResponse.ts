@@ -6,11 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { FernsProvenance } from "./fernsProvenance";
-import type { InatObservationsData } from "./inatObservationsData";
+import type { InatObservationSummaryData } from "./inatObservationSummaryData";
 
-export interface InatObservationsResponse {
+export interface InatObservationSummaryResponse {
   source_url: string;
   found: boolean;
-  data: InatObservationsData;
+  data: InatObservationSummaryData;
   provenance: FernsProvenance;
 }

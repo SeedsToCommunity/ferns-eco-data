@@ -1121,39 +1121,94 @@ export const GetInatFieldValuesResponse = zod.object({
 });
 
 /**
- * This endpoint does not return or cache observation records. It constructs and returns direct URLs that applications use to link to iNaturalist or to query the API directly. Individual observation records are live event data that changes constantly — FERNS provides URL patterns for applications to fetch them fresh. Both taxon_id and place_id are optional. When provided, they are validated and incorporated into the returned URLs.
+ * Calls the iNaturalist API live (no cache) and returns a curated subset of observation fields — not the full raw record. Each result includes: id, uri, observed_on, quality_grade, taxon_name, common_name, place_guess, location (lat,lng), observer login, and the first photo URL + attribution. Callers who need the complete record should follow the uri field to iNaturalist directly. Supports pagination via page and per_page. The iNaturalist API enforces a hard ceiling of 10,000 accessible observations (page × per_page ≤ 10,000).
 
- * @summary Get iNaturalist observation URL construction for a species or place
+ * @summary Paged slim observation records from iNaturalist
  */
-export const GetInatObservationsQueryParams = zod.object({
+export const getInatObservationSummaryQueryPerPageDefault = 30;
+export const getInatObservationSummaryQueryPerPageMax = 200;
+
+export const getInatObservationSummaryQueryPageDefault = 1;
+
+export const GetInatObservationSummaryQueryParams = zod.object({
   taxon_id: zod.coerce
     .number()
     .optional()
-    .describe("iNaturalist taxon ID to incorporate into URLs"),
+    .describe("iNaturalist taxon ID to filter by"),
   place_id: zod.coerce
     .number()
     .optional()
-    .describe("iNaturalist place ID to incorporate into URLs"),
+    .describe("iNaturalist place ID to filter by"),
+  quality_grade: zod
+    .enum(["research", "needs_id", "casual"])
+    .optional()
+    .describe("Filter by quality grade: research, needs_id, or casual"),
+  per_page: zod.coerce
+    .number()
+    .min(1)
+    .max(getInatObservationSummaryQueryPerPageMax)
+    .default(getInatObservationSummaryQueryPerPageDefault)
+    .describe("Number of results per page (default 30, max 200)"),
+  page: zod.coerce
+    .number()
+    .min(1)
+    .default(getInatObservationSummaryQueryPageDefault)
+    .describe("Page number (1-indexed, default 1)"),
 });
 
-export const GetInatObservationsResponse = zod.object({
+export const GetInatObservationSummaryResponse = zod.object({
   source_url: zod.string(),
   found: zod.boolean(),
   data: zod.object({
-    taxon_id: zod.number().nullish(),
-    place_id: zod.number().nullish(),
-    observations_by_species_url: zod
-      .string()
-      .describe("iNaturalist website URL for sightings of a species"),
-    observations_by_place_url: zod
-      .string()
-      .describe("iNaturalist website URL for everything observed in a place"),
-    api_observations_endpoint: zod
-      .string()
+    total_results: zod
+      .number()
       .describe(
-        "Base API endpoint for programmatic queries. Full docs at iNaturalist API docs.",
+        "Total observations matching the query (iNat API limit is 10,000)",
       ),
-    queried_at: zod.date(),
+    page: zod.number(),
+    per_page: zod.number(),
+    total_pages: zod.number(),
+    results: zod.array(
+      zod
+        .object({
+          id: zod.number(),
+          uri: zod
+            .string()
+            .describe("Canonical URL to the full observation on iNaturalist"),
+          observed_on: zod
+            .string()
+            .nullish()
+            .describe("Date the observation was made (YYYY-MM-DD)"),
+          quality_grade: zod
+            .string()
+            .nullish()
+            .describe("research | needs_id | casual"),
+          taxon_name: zod.string().nullish().describe("Scientific name"),
+          common_name: zod.string().nullish().describe("Preferred common name"),
+          place_guess: zod
+            .string()
+            .nullish()
+            .describe(
+              "Human-readable location string provided by the observer",
+            ),
+          location: zod.string().nullish().describe("lat,lng decimal string"),
+          observer: zod
+            .string()
+            .nullish()
+            .describe("iNaturalist login of the observer"),
+          photo_url: zod
+            .string()
+            .nullish()
+            .describe("Medium-size URL of the first photo"),
+          photo_attribution: zod
+            .string()
+            .nullish()
+            .describe("License and attribution text for the first photo"),
+        })
+        .describe(
+          "Curated subset of a single iNaturalist observation. Follow the uri field for the complete record on iNaturalist.\n",
+        ),
+    ),
   }),
   provenance: zod
     .object({

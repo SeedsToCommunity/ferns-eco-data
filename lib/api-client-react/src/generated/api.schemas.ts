@@ -552,22 +552,47 @@ export interface InatFieldValuesResponse {
   provenance: FernsProvenance;
 }
 
-export interface InatObservationsData {
-  taxon_id?: number | null;
-  place_id?: number | null;
-  /** iNaturalist website URL for sightings of a species */
-  observations_by_species_url: string;
-  /** iNaturalist website URL for everything observed in a place */
-  observations_by_place_url: string;
-  /** Base API endpoint for programmatic queries. Full docs at iNaturalist API docs. */
-  api_observations_endpoint: string;
-  queried_at: string;
+/**
+ * Curated subset of a single iNaturalist observation. Follow the uri field for the complete record on iNaturalist.
+
+ */
+export interface InatObservationSummaryRecord {
+  id: number;
+  /** Canonical URL to the full observation on iNaturalist */
+  uri: string;
+  /** Date the observation was made (YYYY-MM-DD) */
+  observed_on?: string | null;
+  /** research | needs_id | casual */
+  quality_grade?: string | null;
+  /** Scientific name */
+  taxon_name?: string | null;
+  /** Preferred common name */
+  common_name?: string | null;
+  /** Human-readable location string provided by the observer */
+  place_guess?: string | null;
+  /** lat,lng decimal string */
+  location?: string | null;
+  /** iNaturalist login of the observer */
+  observer?: string | null;
+  /** Medium-size URL of the first photo */
+  photo_url?: string | null;
+  /** License and attribution text for the first photo */
+  photo_attribution?: string | null;
 }
 
-export interface InatObservationsResponse {
+export interface InatObservationSummaryData {
+  /** Total observations matching the query (iNat API limit is 10,000) */
+  total_results: number;
+  page: number;
+  per_page: number;
+  total_pages: number;
+  results: InatObservationSummaryRecord[];
+}
+
+export interface InatObservationSummaryResponse {
   source_url: string;
   found: boolean;
-  data: InatObservationsData;
+  data: InatObservationSummaryData;
   provenance: FernsProvenance;
 }
 
@@ -2477,16 +2502,40 @@ export type GetInatFieldValuesParams = {
   refresh?: boolean;
 };
 
-export type GetInatObservationsParams = {
+export type GetInatObservationSummaryParams = {
   /**
-   * iNaturalist taxon ID to incorporate into URLs
+   * iNaturalist taxon ID to filter by
    */
   taxon_id?: number;
   /**
-   * iNaturalist place ID to incorporate into URLs
+   * iNaturalist place ID to filter by
    */
   place_id?: number;
+  /**
+   * Filter by quality grade: research, needs_id, or casual
+   */
+  quality_grade?: GetInatObservationSummaryQualityGrade;
+  /**
+   * Number of results per page (default 30, max 200)
+   * @minimum 1
+   * @maximum 200
+   */
+  per_page?: number;
+  /**
+   * Page number (1-indexed, default 1)
+   * @minimum 1
+   */
+  page?: number;
 };
+
+export type GetInatObservationSummaryQualityGrade =
+  (typeof GetInatObservationSummaryQualityGrade)[keyof typeof GetInatObservationSummaryQualityGrade];
+
+export const GetInatObservationSummaryQualityGrade = {
+  research: "research",
+  needs_id: "needs_id",
+  casual: "casual",
+} as const;
 
 export type GetMifloraSpeciesParams = {
   /**

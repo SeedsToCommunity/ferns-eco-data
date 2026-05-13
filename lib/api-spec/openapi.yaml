@@ -549,40 +549,71 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/observations:
+  /inat/observation-summary:
     get:
-      operationId: getInatObservations
+      operationId: getInatObservationSummary
       tags: [inat]
-      summary: Get iNaturalist observation URL construction for a species or place
+      summary: Paged slim observation records from iNaturalist
       description: >
-        This endpoint does not return or cache observation records. It constructs and
-        returns direct URLs that applications use to link to iNaturalist or to query
-        the API directly. Individual observation records are live event data that changes
-        constantly — FERNS provides URL patterns for applications to fetch them fresh.
-        Both taxon_id and place_id are optional. When provided, they are validated and
-        incorporated into the returned URLs.
+        Calls the iNaturalist API live (no cache) and returns a curated subset of
+        observation fields — not the full raw record. Each result includes: id, uri,
+        observed_on, quality_grade, taxon_name, common_name, place_guess, location
+        (lat,lng), observer login, and the first photo URL + attribution. Callers
+        who need the complete record should follow the uri field to iNaturalist directly.
+        Supports pagination via page and per_page. The iNaturalist API enforces a hard
+        ceiling of 10,000 accessible observations (page × per_page ≤ 10,000).
       parameters:
         - name: taxon_id
           in: query
           required: false
-          description: iNaturalist taxon ID to incorporate into URLs
+          description: iNaturalist taxon ID to filter by
           schema:
             type: integer
         - name: place_id
           in: query
           required: false
-          description: iNaturalist place ID to incorporate into URLs
+          description: iNaturalist place ID to filter by
           schema:
             type: integer
+        - name: quality_grade
+          in: query
+          required: false
+          description: "Filter by quality grade: research, needs_id, or casual"
+          schema:
+            type: string
+            enum: [research, needs_id, casual]
+        - name: per_page
+          in: query
+          required: false
+          description: Number of results per page (default 30, max 200)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 30
+        - name: page
+          in: query
+          required: false
+          description: Page number (1-indexed, default 1)
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
       responses:
         "200":
-          description: Constructed observation URLs
+          description: Paged slim observation records
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/InatObservationsResponse"
+                $ref: "#/components/schemas/InatObservationSummaryResponse"
         "400":
-          description: Invalid taxon_id or place_id (must be positive integers when provided)
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: iNaturalist API error
           content:
             application/json:
               schema:
@@ -3715,34 +3746,81 @@ components:
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
 
-    InatObservationsData:
+    InatObservationSummaryRecord:
+      type: object
+      description: >
+        Curated subset of a single iNaturalist observation. Follow the uri field
+        for the complete record on iNaturalist.
+      required:
+        - id
+        - uri
+      properties:
+        id:
+          type: integer
+        uri:
+          type: string
+          description: Canonical URL to the full observation on iNaturalist
+        observed_on:
+          type: string
+          nullable: true
+          description: Date the observation was made (YYYY-MM-DD)
+        quality_grade:
+          type: string
+          nullable: true
+          description: "research | needs_id | casual"
+        taxon_name:
+          type: string
+          nullable: true
+          description: Scientific name
+        common_name:
+          type: string
+          nullable: true
+          description: Preferred common name
+        place_guess:
+          type: string
+          nullable: true
+          description: Human-readable location string provided by the observer
+        location:
+          type: string
+          nullable: true
+          description: "lat,lng decimal string"
+        observer:
+          type: string
+          nullable: true
+          description: iNaturalist login of the observer
+        photo_url:
+          type: string
+          nullable: true
+          description: Medium-size URL of the first photo
+        photo_attribution:
+          type: string
+          nullable: true
+          description: License and attribution text for the first photo
+
+    InatObservationSummaryData:
       type: object
       required:
-        - observations_by_species_url
-        - observations_by_place_url
-        - api_observations_endpoint
-        - queried_at
+        - total_results
+        - page
+        - per_page
+        - total_pages
+        - results
       properties:
-        taxon_id:
+        total_results:
           type: integer
-          nullable: true
-        place_id:
+          description: Total observations matching the query (iNat API limit is 10,000)
+        page:
           type: integer
-          nullable: true
-        observations_by_species_url:
-          type: string
-          description: iNaturalist website URL for sightings of a species
-        observations_by_place_url:
-          type: string
-          description: iNaturalist website URL for everything observed in a place
-        api_observations_endpoint:
-          type: string
-          description: Base API endpoint for programmatic queries. Full docs at iNaturalist API docs.
-        queried_at:
-          type: string
-          format: date-time
+        per_page:
+          type: integer
+        total_pages:
+          type: integer
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/InatObservationSummaryRecord"
 
-    InatObservationsResponse:
+    InatObservationSummaryResponse:
       type: object
       required:
         - source_url
@@ -3755,7 +3833,7 @@ components:
         found:
           type: boolean
         data:
-          $ref: "#/components/schemas/InatObservationsData"
+          $ref: "#/components/schemas/InatObservationSummaryData"
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
 

@@ -9,6 +9,7 @@ import {
   fetchSpecies,
   fetchHistogram,
   fetchFieldValues,
+  fetchObservationSummary,
   buildProvenance,
 } from "../services/inat/connector.js";
 import {
@@ -41,8 +42,8 @@ import {
   GetInatHistogramResponse,
   GetInatFieldValuesQueryParams,
   GetInatFieldValuesResponse,
-  GetInatObservationsQueryParams,
-  GetInatObservationsResponse,
+  GetInatObservationSummaryQueryParams,
+  GetInatObservationSummaryResponse,
   GetInatMetadataResponse,
 } from "@workspace/api-zod";
 import { filterProvenance } from "../lib/provenance.js";
@@ -306,8 +307,8 @@ function buildPassthroughResponse(
   };
 }
 
-router.get("/inat/observations", (req, res) => {
-  const parsed = GetInatObservationsQueryParams.safeParse(req.query);
+router.get("/inat/observation-summary", async (req, res) => {
+  const parsed = GetInatObservationSummaryQueryParams.safeParse(req.query);
   if (!parsed.success) {
     res.status(400).json({ error: "invalid_input", message: parsed.error.errors[0]?.message ?? "Invalid query parameters" });
     return;
@@ -315,46 +316,38 @@ router.get("/inat/observations", (req, res) => {
 
   const taxonId = parsed.data.taxon_id ?? null;
   const placeId = parsed.data.place_id ?? null;
+  const qualityGrade = parsed.data.quality_grade ?? null;
+  const perPage = parsed.data.per_page ?? 30;
+  const page = parsed.data.page ?? 1;
   const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
 
-  const observations_by_species_url = taxonId
-    ? `https://www.inaturalist.org/observations?taxon_id=${taxonId}`
-    : `https://www.inaturalist.org/observations`;
+  try {
+    const result = await fetchObservationSummary(taxonId, placeId, qualityGrade, perPage, page);
+    const prov = buildProvenance(result.upstream_url, "api_fetch");
 
-  const observations_by_place_url = placeId
-    ? `https://www.inaturalist.org/observations?place_id=${placeId}`
-    : `https://www.inaturalist.org/observations`;
-
-  const api_observations_endpoint = "https://api.inaturalist.org/v1/observations";
-
-  const queriedAt = new Date();
-  const prov = buildProvenance("https://api.inaturalist.org/v1/observations", "url_construction");
-
-  const combined_url = taxonId && placeId
-    ? `https://www.inaturalist.org/observations?taxon_id=${taxonId}&place_id=${placeId}`
-    : null;
-  const source_url = combined_url ?? (placeId ? observations_by_place_url : observations_by_species_url);
-
-  res.json(GetInatObservationsResponse.parse({
-    source_url,
-    found: true,
-    data: {
-      taxon_id: taxonId,
-      place_id: placeId,
-      observations_by_species_url,
-      observations_by_place_url,
-      api_observations_endpoint,
-      queried_at: queriedAt,
-    },
-    provenance: filterProvenance({
-      source_id: prov.source_id,
-      fetched_at: prov.fetched_at,
-      method: prov.method,
-      upstream_url: prov.upstream_url,
-      general_summary: prov.general_summary,
-      technical_details: prov.technical_details,
-    }, verbosity),
-  }));
+    res.json(GetInatObservationSummaryResponse.parse({
+      source_url: result.source_url,
+      found: result.total_results > 0,
+      data: {
+        total_results: result.total_results,
+        page: result.page,
+        per_page: result.per_page,
+        total_pages: result.total_pages,
+        results: result.results,
+      },
+      provenance: filterProvenance({
+        source_id: prov.source_id,
+        fetched_at: prov.fetched_at,
+        method: prov.method,
+        upstream_url: prov.upstream_url,
+        general_summary: prov.general_summary,
+        technical_details: prov.technical_details,
+      }, verbosity),
+    }));
+  } catch (err) {
+    req.log.error({ err }, "iNat observation-summary fetch failed");
+    res.status(502).json({ error: "upstream_error", message: "Failed to fetch from iNaturalist API" });
+  }
 });
 
 router.get("/inat/metadata", async (req, res) => {

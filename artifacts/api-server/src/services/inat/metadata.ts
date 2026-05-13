@@ -58,7 +58,7 @@ export const INAT_REGISTRY_ENTRY = {
   description:
     "Species photos, Wikipedia summaries, common names, native or introduced status, conservation status, " +
     "monthly sighting counts, and phenological stage annotations (flowering, budding, fruiting) for any searchable species worldwide; " +
-    "also constructs direct URLs for querying live observation records by taxon, place, or both. " +
+    "also returns paged observation summary records (live, no cache) with curated fields: date, taxon, observer, location, quality grade, and first photo. " +
     "From iNaturalist, a global citizen science platform operated by the California Academy of Sciences and National Geographic Society " +
     "with over 200 million user observations.",
   input_summary:
@@ -66,7 +66,7 @@ export const INAT_REGISTRY_ENTRY = {
   output_summary:
     "iNaturalist place ID and display name; species photo, Wikipedia description, common names, conservation status, " +
     "native status, global observation count; monthly observation counts and phenological stage breakdown " +
-    "(flowering, fruiting, budding) by month; direct URLs for querying live iNaturalist observation records",
+    "(flowering, fruiting, budding) by month; paged observation summary records (date, taxon, observer, location, quality grade, photo) — live fetch, no cache",
   dependencies: [] as string[],
   update_frequency:
     "Live — iNaturalist data is continuously updated by the global community.",

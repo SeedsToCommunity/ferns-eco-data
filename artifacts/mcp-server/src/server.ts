@@ -244,23 +244,29 @@ const tools: ToolDef[] = [
   },
   {
     tool: {
-      name: "inaturalist__observations",
+      name: "inaturalist__observation_summary",
       description:
-        "Returns a list of recent iNaturalist observations for a taxon and/or place, including observer, date, coordinates, and photos.",
+        "Returns one page of iNaturalist observation records as a curated field subset (id, uri, observed_on, quality_grade, taxon_name, common_name, place_guess, location, observer, photo_url, photo_attribution). This is NOT the full iNat record — follow the uri field for the complete observation. Supports pagination via page and per_page. The iNat API enforces a hard ceiling of 10,000 accessible results (page × per_page ≤ 10,000). No caching — every call is live.",
       inputSchema: {
         type: "object" as const,
         properties: {
-          taxon_id: { type: "number", description: "iNaturalist taxon ID (integer)" },
-          place_id: { type: "number", description: "iNaturalist place ID (integer)" },
+          taxon_id:     { type: "number",  description: "iNaturalist taxon ID (integer)" },
+          place_id:     { type: "number",  description: "iNaturalist place ID (integer)" },
+          quality_grade:{ type: "string",  description: "research | needs_id | casual" },
+          per_page:     { type: "number",  description: "Results per page (default 30, max 200)" },
+          page:         { type: "number",  description: "Page number, 1-indexed (default 1)" },
           ...PV_PROP,
         },
         required: [],
       },
     },
     handler: async (args) =>
-      apiGet("/inat/observations", {
-        taxon_id: args["taxon_id"] !== undefined ? Number(args["taxon_id"]) : undefined,
-        place_id: args["place_id"] !== undefined ? Number(args["place_id"]) : undefined,
+      apiGet("/inat/observation-summary", {
+        taxon_id:      args["taxon_id"]      !== undefined ? Number(args["taxon_id"])   : undefined,
+        place_id:      args["place_id"]      !== undefined ? Number(args["place_id"])   : undefined,
+        quality_grade: args["quality_grade"] !== undefined ? String(args["quality_grade"]) : undefined,
+        per_page:      args["per_page"]      !== undefined ? Number(args["per_page"])   : undefined,
+        page:          args["page"]          !== undefined ? Number(args["page"])        : undefined,
         provenance_verbosity: pv(args),
       }),
   },

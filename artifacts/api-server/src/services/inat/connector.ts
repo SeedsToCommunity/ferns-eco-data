@@ -318,6 +318,87 @@ export async function fetchFieldValues(taxonId: number, placeIds: number[], veri
   };
 }
 
+export interface InatObservationSummaryRecord {
+  id: number;
+  uri: string;
+  observed_on: string | null;
+  quality_grade: string | null;
+  taxon_name: string | null;
+  common_name: string | null;
+  place_guess: string | null;
+  location: string | null;
+  observer: string | null;
+  photo_url: string | null;
+  photo_attribution: string | null;
+}
+
+export interface InatObservationSummaryResult {
+  total_results: number;
+  page: number;
+  per_page: number;
+  total_pages: number;
+  results: InatObservationSummaryRecord[];
+  source_url: string;
+  upstream_url: string;
+}
+
+export async function fetchObservationSummary(
+  taxonId: number | null,
+  placeId: number | null,
+  qualityGrade: string | null,
+  perPage: number,
+  page: number,
+): Promise<InatObservationSummaryResult> {
+  const params = new URLSearchParams();
+  if (taxonId !== null) params.set("taxon_id", String(taxonId));
+  if (placeId !== null) params.set("place_id", String(placeId));
+  if (qualityGrade) params.set("quality_grade", qualityGrade);
+  params.set("per_page", String(perPage));
+  params.set("page", String(page));
+  params.set("order", "desc");
+  params.set("order_by", "created_at");
+
+  const url = `${INAT_API_BASE}/observations?${params.toString()}`;
+  const raw = (await inatFetch(url)) as Record<string, unknown>;
+
+  const totalResults = typeof raw.total_results === "number" ? raw.total_results : 0;
+  const totalPages = totalResults > 0 ? Math.ceil(Math.min(totalResults, 10000) / perPage) : 0;
+
+  const rawResults = (raw.results as Record<string, unknown>[]) ?? [];
+  const results: InatObservationSummaryRecord[] = rawResults.map((r) => {
+    const taxon = r.taxon as Record<string, unknown> | null;
+    const user = r.user as Record<string, unknown> | null;
+    const photos = (r.photos as Record<string, unknown>[]) ?? [];
+    const firstPhoto = photos[0] ?? null;
+
+    // iNat photo URLs come in as square size — swap to medium
+    const rawPhotoUrl = (firstPhoto?.url as string) ?? null;
+    const photo_url = rawPhotoUrl ? rawPhotoUrl.replace("/square.", "/medium.") : null;
+
+    return {
+      id: r.id as number,
+      uri: (r.uri as string) ?? `https://www.inaturalist.org/observations/${r.id}`,
+      observed_on: (r.observed_on as string) ?? null,
+      quality_grade: (r.quality_grade as string) ?? null,
+      taxon_name: (taxon?.name as string) ?? null,
+      common_name: (taxon?.preferred_common_name as string) ?? null,
+      place_guess: (r.place_guess as string) ?? null,
+      location: (r.location as string) ?? null,
+      observer: (user?.login as string) ?? null,
+      photo_url,
+      photo_attribution: (firstPhoto?.attribution as string) ?? null,
+    };
+  });
+
+  const sourceUrlParts: string[] = [];
+  if (taxonId !== null) sourceUrlParts.push(`taxon_id=${taxonId}`);
+  if (placeId !== null) sourceUrlParts.push(`place_id=${placeId}`);
+  if (qualityGrade) sourceUrlParts.push(`quality_grade=${qualityGrade}`);
+  const source_url = `https://www.inaturalist.org/observations${sourceUrlParts.length ? `?${sourceUrlParts.join("&")}` : ""}`;
+
+  return { total_results: totalResults, page, per_page: perPage, total_pages: totalPages, results, source_url, upstream_url: url };
+}
+
 export function buildProvenance(upstreamUrl: string, method: "api_fetch" | "url_construction" = "api_fetch") {
   return {
     source_id: INAT_SOURCE_ID,
