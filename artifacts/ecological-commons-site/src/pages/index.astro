@@ -6,12 +6,14 @@ import { Content as ComputingFrontierContent } from "../content/computing-fronti
 import { Content as BuiltContent } from "../content/built.md";
 import { Content as NamingLayerContent } from "../content/naming-layer.md";
 import { Content as WorksheetContent } from "../content/worksheet.md";
+import { Content as JustifyingContent } from "../content/justifying-the-structure.md";
 import "../styles/global.css";
 
 const TABS = [
   { id: "home", label: "Home" },
   { id: "idea", label: "The Idea" },
   { id: "built", label: "What's Built" },
+  { id: "justifying-the-structure", label: "Justifying the Structure" },
   { id: "naming-layer", label: "The Naming Layer" },
   { id: "worksheet", label: "Worksheet" },
 ];
@@ -82,6 +84,14 @@ const TABS = [
         </div>
       </section>
 
+      <section id="justifying-the-structure" class="tab-section">
+        <div style="max-width: 720px; margin: 0 auto; padding: 3rem 1.5rem;">
+          <article class="prose max-w-none">
+            <JustifyingContent />
+          </article>
+        </div>
+      </section>
+
       <section id="naming-layer" class="tab-section">
         <div style="max-width: 720px; margin: 0 auto; padding: 3rem 1.5rem;">
           <article class="prose max-w-none">
@@ -101,7 +111,7 @@ const TABS = [
 
     <script>
       (function () {
-        const TABS = ["home", "idea", "built", "naming-layer", "worksheet"];
+        const TABS = ["home", "idea", "built", "justifying-the-structure", "naming-layer", "worksheet"];
 
         function activate(id: string) {
           if (!TABS.includes(id)) id = "home";
