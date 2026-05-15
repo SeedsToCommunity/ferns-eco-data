@@ -1,6 +1,6 @@
 # Justifying the Structure
 
-The Ecological Commons has a specific architecture. The data sources are described and kept as themselves, not absorbed into a single rewritten store. Trust is a named, declared layer that filters the data below it rather than a logic baked silently into applications. Names from all traditions and places are treated as first class knowledge, not labels attached to one true form. This page attempts to describe the architectural choices made and the reasonig behind them.
+The Ecological Commons has a specific architecture. The data sources are described and kept as themselves, not absorbed into a single rewritten store. Trust is a named, declared layer that filters the data below it rather than a logic baked silently into applications. Names from all traditions and places are treated as first class knowledge, not labels attached to one true form. This page describes the architectural choices made and the reasoning behind them.
 
 ## Aspect 1 - Ecology is about relationships and place.
 
@@ -16,7 +16,9 @@ Key Phrase: *Aggregate decision-makers are not the experts.*
 
 ## Aspect 3 - People make most decisions alone, regardless of how many experts exist.
 
-Face-to-face, inspired connections is irreplaceable for society. It is also demonstrably insufficient. Most decisions, in most domain, happen alone — at a kitchen table, in front of a screen, walking a piece of land before the nursery opens, at a hardware store with a phone and a question. Even in domains crowded with experts and workshops and online forums, the actual moment of decision is often private. Any system that pretends the alone-channel does not exist has missed the place where most of the work happens. We would argue for more in person sharing and systems that share hard earned wisdom at scale with everyone, everywhere. 
+Face-to-face, inspired connections are irreplaceable for society. To meet the people where they are, when experts are not on hand, we must provide the best data and translation possible. 
+
+Most decisions, in most domains, happen alone — at a kitchen table, in front of a screen, walking a piece of land before the nursery opens, at a hardware store with a phone and a question. Even in domains crowded with experts and workshops and online forums, the actual moment of decision is often private. Ecology itself is crowded with geological, botanical, and chemical facts that no amount of expert discussions can satisfy or human minds can hold. Any system that pretends the alone-channel does not exist has missed the place where most of the work happens. We would argue for both more in-person sharing and also systems that share hard-earned wisdom at scale with everyone, everywhere. 
 
 Key Phrase: *Face-to-face is necessary and insufficient; most decisions happen alone.*
 
@@ -32,11 +34,11 @@ Key Phrase: *Too much, walled off, and the methods of access keep moving.*
 
 ## Aspect 5 - New tools change what is possible.
 
-Against this backdrop, a new class of tools has arrived. Called AI loosely, used with varying interpretations and perspectives of about what it actually is. It is definately a new tool class. Like chainsaws, fire, vehicles, propane, or chemicals ... AI has real failure modes and genuinely changes what is possible. The failure modes are themselves strage in comparison to other tools: confabulation, training bias, confident wrongness. 
+Against this backdrop, a new class of tools has arrived. Called AI loosely, the term is used with varying interpretations and perspectives about what it actually is. It is definitely a new tool class. Like chainsaws, fire, vehicles, propane, or chemicals ... AI has real failure modes and also genuinely changes what is possible. The failure modes are themselves strange in comparison to other tools: confabulation, training bias, confident wrongness. 
 
-A model that has absorbed the internet, Reddit, marketing copy and social media produces answers that mirror the quality level of what it was fed. Analysis that feeds on Michigan Flora, MNFI, BONAP, FQA analysis, peer-reviewed work, and field observations can produce amazing insight.
+Specifically, a model that has absorbed the internet, Reddit, marketing copy and social media produces answers that mirror the quality level of what it was fed. Analysis that feeds on Michigan Flora, MNFI, BONAP, FQA analysis, peer-reviewed work, and field observations can produce amazing insight.
 
-The current capabilities and the pace of advancement is also specific and real. For our domain, its not a replacement for experts. It could be a way to extend expert knowledge into all the alone-moments where most decisions actually happen. 
+The current capabilities and the pace of advancement are specific and real. For our domain, it's not a replacement for experts. It could be a way to extend expert knowledge into all the alone-moments where most decisions actually happen. 
 
 Key phrase: *New tool class, real failure modes, genuinely changes what is possible.*
 
@@ -44,58 +46,54 @@ Key phrase: *New tool class, real failure modes, genuinely changes what is possi
 
 If the problem is that good data is hard to find, hard to use at scale, and the tools that could help are only as good as the data they are fed, then one concrete answer is to make existing data reachable and honored for what it is.
 
-Every source is kept as itself. The commons describes each source in depth — what it covers, how it was made, what its limits are, who maintains it — and provides uniform ways to reach it. Keeping sources as themselves means keeping their authority, their governance, and their perspectives intact. Aggregation through absorption and assimilation does not a vibrant commons make.
+Every source is kept as itself. The Ecological Commons describes each source in depth — what it covers, how it was made, what its limits are, who maintains it — and provides uniform ways to reach it. Keeping sources as themselves means keeping their authority, their governance, and their perspectives intact. Aggregation through absorption and assimilation does not make a vibrant Commons.
 
-Key phrase: *The tools are downstream of diverse data.*
-
-Key phrase: *Describe and reach; never absorb.*
+Key phrase: *The tools are downstream of diverse data. Describe and reach; never absorb.*
 
 ## Aspect 7 - Trust is a pillar of shared discipline
 
-The data layer carries everything that each source and contributor has asserted, with provenance on every claim and every equivalence. 
+The data layer is rich with information, but also so operationally vast as to not be directly usable for most purposes. Most uses need a narrower field before they can begin. The Trust Layer is one possible implementation of how to execute such a filter. Any kind or style of group can be shaped: peer-reviewed botanical sources only, Michigan-focused regional authorities only, named community contributors plus major synonymy publishers, species focused, whatever is useful. 
 
-Below this layer sits the full data layer: everything
+When using an application or creating your own, select any group that is appropriate to the purpose. The data layer itself remains untouched and complete. The application layer above does not have to invent its own trust logic. It can rely upon a declared list from a trusted creator.
 
-Is is data rich, but still so operationally vast as to not be directly usable for most purposes. A homeowner asking what to plant in their backyard cannot reason about a maximalist provenance stream. A regional planting calculator does not need to present the full range of what every source has ever said about a species' cold hardiness. Most applications need to narrow the field before they present anything, and the question is where that narrowing happens and who structures it.
+Key phrase: *Trust is a layer of named, declared scopes — applied above the data, exposed to the user, and explicit.*
 
-The trust layer is where it happens snd is the second constructive decision. Named trust scopes are declared here. Any kind or style of group can be shaped: peer-reviewed botanical sources only, Michigan-focused regional authorities, named community contributors plus major synonymy publishers. When using an application or creating your own, select any group that is appropriate. Each trust group is a filter on the full list of dats sources. An application running under a given scope sees only the claims and equivalences whose provenance the scope honors. 
+## Aspect 8 — No canonical names; every equivalence is an attributed claim
 
-The data layer below remains untouched and complete. The application layer above does not invent its own trust logic, quietly, in ways no one can examine. 
-
-Key phrase: *Trust is a layer of named, declared scopes — applied above the data, exposed to the user, not silently defined.*
-
-## Aspect 8 — No canonical name; every equivalence is an attributed claim
-
-Living things are known by many names. Scientific Latin. Common local names. Regional vernaculars. The languages of communities who lived alongside these species for thousands of years. Each tradition is anchored in a particular relationship between a community and the world.
+Living things are known by many names: Scientific Latin, common local names, regional vernaculars, the languages of indigenous communities who lived alongside these species for thousands of years. Each tradition is anchored in a particular relationship between a community and the world.
 
 Indigenous botanical knowledge was, in many places and times, not just unrecorded but actively suppressed. Plants were renamed. Knowledge holders were displaced. The naming conventions that emerged through that period reflect that history — and the silence around what was lost was itself manufactured, not natural. The medicinal, food, ceremonial, and ecological knowledge carried by those traditions was detailed practice, often more developed than what replaced it.
 
-We made two architectural decisions associated with this topic.
+We made two architectural decisions associated with this topic, which sit within the Name Translation Layer.
 
-The first is that no naming tradition is structurally privileged within the name layer. Every name is a node in a graph. No node type sits above another. Scientific Latin, an indigenous community name, an English vernacular, and a name from a community seed program are all, structurally, the same kind of thing. They are distinguished only by what asserters have said about them.
+The first is that no naming tradition is structurally privileged. Every name is a node in a graph. No node type sits above another. They only appear in the Name Translation Layer if their community gives permission.
 
-The second is that every claim of equivalence between names is recorded structurally — who said two names refer to the same living being, when, and on what basis.
+The second is that every claim of equivalence between names is recorded structurally — who said two names refer to the same living being, when, and on what basis. Both ends of such an assertion of equivalence must be represented in the Name Translation Layer before such equivalences are allowed. 
 
-Whatever name a user knows is the center of a small search. The system walks outward from that input, finds what works against the data source, and shows the trail it took.
+When interacting with a data source, the user can choose to use the Name Translation Layer to bridge the gap between the name they know and the names accepted by the data source. Whatever name a user knows is the center of a small search. The system walks outward from that input, finds what works against the data source, and shows the trail it took.
 
 Key phrase: *No structurally privileged name; every equivalence is an attributed claim; the user’s input is the center of the search.*
 
-## Aspect 9 - The data commons is neutral; applications are opinionated
+## Aspect 9 - Three types of reciprocity as architecture
 
-The fourth construction decision closes the argument. The commons data layer is not what anyone uses directly. What people use are applications and tools built on top — explorers, guides, decision tools, research interfaces, planning tools. An application for a homeowner in Southeast Michigan carries opinions about what sources to trust, what audience to serve, what trust scope to apply, how to present uncertainty, how to integrate whatever current generation of AI tools is useful. The commons carries none of those opinions. It stays neutral and source-faithful, with its provenance intact and its sources unchanged.
+The Ecological Commons holds three things in relationship, and the architecture is only sound if all three support each other.
 
-The separation is what makes the commons sustainable. If the commons were opinionated, every change in the technology landscape — every new access method, every new generation of AI tooling — would require the commons to change. Instead, applications adapt. The commons stays honest about its own job. New tools, new audiences, and new access methods produce new applications; the commons underneath them remains the same trustworthy substrate. *The commons is neutral; the applications are opinionated.*
+The ecological work and posture is the content. A million years of evolution, specialization, and mutual adaptation — organisms in relationship with other organisms in specific places over deep time. The Commons treats this as substance, not subject. It is the reason the architecture exists at all, not to force source conformance, not to impose the "right" perspective. Every decision described above — keeping sources as themselves, refusing a canonical naming tradition, making trust visible and attributable, keeping the Commons neutral — is accountable, finally, to the ecological reality it exists to serve.
 
-## Aspect 10 - Three reciprocities
+The technical work and posture is the shape and structure of the system. The structural design and architectural decisions determine whether the system can be trusted. Sources kept as themselves. Names without a canonical tradition. Trust as a named, declared layer. Applications as where opinions live. These are the architectural disciplines that let the Commons stay honest about its own job. The technical here is what keeps each layer accountable to the layers around it, rather than accumulating quiet assumptions that compound into hidden bias.
 
-The aspects above are technical architecture, but they rest on something that is not technical. The commons holds three things in relationship, and the architecture is only sound if all three are held together.
-
-The ecological is the content. A million years of evolution, specialization, and mutual adaptation — organisms in relationship with other organisms in specific places over deep time. The commons treats this as substance, not subject. It is the reason the architecture exists at all, not material the architecture freely conforms. Every decision described above — keeping sources as themselves, refusing a canonical naming tradition, making trust visible and attributable, keeping the commons neutral — is accountable, finally, to the ecological reality it exists to serve.
-
-The technical is the shape and structure. Not the tools, not the code — the structural agreements that determine whether the system can be trusted. Sources kept as themselves. Names without a canonical tradition. Trust as a named, declared layer. Applications as where opinions live. These are the architectural disciplines that let the commons stay honest about its own job. The technical here is what keeps each layer accountable to the layers around it, rather than accumulating quiet assumptions that compound into hidden bias.
-
-The social is the human relationships: the cross-cultural trust, the decision-making, the regional vision. The machinery of how humans across cultures, regions, institutions, and generations decide what counts, who is heard, what is honored, and what direction the whole thing moves. The commons treats these relationships as load-bearing, not decorative. They are built into the substrate as named, attributed, accountable contributions rather than assumed at the edges where no one examines them.
+The social work and posture is the human relationships: the cross-cultural trust, the decision-making, the regional vision. The machinery of how humans across cultures, regions, institutions, and generations decide what counts, who is heard, what is honored, and what direction the whole thing moves. The Commons treats these relationships as load-bearing, not decorative. They are built into the substrate as named, attributed, accountable contributions rather than assumed at the edges where no one examines them.
 
 None of the three is sufficient alone. The ecological without the technical is unreachable at scale. The technical without the ecological is empty scaffolding. Either without the social is a structure no one is responsible to and no one is responsible for. 
 
-Key phrase *The commons architects the ecological, the technical, and the social in reciprocity.*
+Key phrase: *The Ecological Commons architects the ecological, the technical, and the social in reciprocity.*
+
+## Aspect 10 - The data sources are neutral; applications are flexible
+
+End users don't generally interact with the data layer, the Trust Layer or the Name Translation Layer directly. People use applications (explorers, guides, tools, interfaces) built on top of those layers. Those applications will use the source access methods best suited to their design. Application objectives can adapt as new sources are linked, application goals expand, or human needs shift. 
+
+As functionality advances, agents and agentic systems (that can take natural language direction as inputs, explore among selected sources, and return answers) will emerge. These new tools are themselves applications, though with strange and sometimes disconcerting failure modes. They need clear context and thoughtful guidance to avoid failure cases, which take time to learn and flexibility to apply. Technology advancement holds the potential to minimize these failure modes and to also allow anyone to request a new application tool of their own imagining, without the need for more technical human support. As these tools advance and trustworthy data remains essential, the Ecological Commons can offer a grounding in trusted truth. 
+
+Through all these uses, the Commons remains neutral and source-faithful, with its provenance intact and its sources stable and reachable. The role of application developers is to hold our values and our reciprocity to all life, imagine what could exist, and to build what we judge our communities need.
+
+Key phrase: *The Commons is neutral; the applications are opinionated.*
