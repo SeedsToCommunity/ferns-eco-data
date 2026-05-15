@@ -78,7 +78,7 @@ The second is that every claim of equivalence between names is recorded structur
 
 Whatever name a user knows is the center of a small search. The system walks outward from that input, finds what works against the data source, and shows the trail it took.
 
-Key phrase: *No structurally privileged name; every equivalence is an attributed claim; the user's input is the center of the search.*
+Key phrase: *No structurally privileged name; every equivalence is an attributed claim; the user’s input is the center of the search.*
 
 ## Aspect 9 - The data commons is neutral; applications are opinionated
 
