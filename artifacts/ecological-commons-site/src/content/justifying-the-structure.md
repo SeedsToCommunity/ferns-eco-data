@@ -96,4 +96,4 @@ As functionality advances, agents and agentic systems (that can take natural lan
 
 Through all these uses, the Commons remains neutral and source-faithful, with its provenance intact and its sources stable and reachable. The Commons remains neutral and source-faithful. The applications carry the opinions and the audience. We bring the imagination.
 
-Key phrase: *The Commons is neutral; the applications are opinionated.*
+Key phrase: *The Commons is neutral; applications are flexible.*
