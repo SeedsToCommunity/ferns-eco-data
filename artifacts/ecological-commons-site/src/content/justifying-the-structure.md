@@ -1,59 +1,101 @@
 # Justifying the Structure
 
-The Ecological Commons has a specific architecture. The sources are described and kept as themselves rather than absorbed into a single rewritten store. Names are treated as nodes in a graph rather than labels attached to a canonical form. Trust is a named, declared layer that filters the data below it rather than a logic baked silently into the application above. Applications are where opinions live; the commons itself stays neutral. These are not obvious choices, and each one costs something. This page is the argument for why they were made.
+The Ecological Commons has a specific architecture. The data sources are described and kept as themselves, not absorbed into a single rewritten store. Trust is a named, declared layer that filters the data below it rather than a logic baked silently into applications. Names from all traditions and places are treated as first class knowledge, not labels attached to one true form. This page attempts to describe the architectural choices made and the reasonig behind them.
 
-## Where decisions actually happen
+## Aspect 1 - Ecology is about relationships and place.
 
-Ecology is about relationships in place. Plants, animals, fungi, soil, water, fire, weather, people, and history — all of them interacting with each other in specific places over time. Anyone who has spent serious time with a particular piece of land already knows this. The work of ecological stewardship is the work of understanding those relationships: what depends on what, what is missing, what is out of balance, what would help. *Relationships in places, not facts about species.*
+Plants, animals, fungi, soil, water, fire, weather, people, and history — all of them interacting with each other in each specific place over time. The work of ecological stewardship is the work of understanding those relationships: what depends on what, what was present and is now absent, what does balance look like, what does diversity look like.
 
-Most of the land in any region is held by people who are not ecologists. Homeowners, small landowners, municipal maintenance staff, volunteer boards, weekend stewards, neighbors with a backyard and some curiosity. The trained experts — the restoration ecologists, the botanists, the land managers with years of field experience — are vastly outnumbered. That gap matters because what aggregates into the ecological condition of a region is not what the experts decide to do with the land they manage. It is the daily, unremarkable decisions made by the many: what gets planted, what gets removed, what gets mowed, what gets left. *Aggregate decision-makers are not the experts.*
+Key Phrase: *Relationships in places, not facts about species.*
 
-This might seem like an argument for more outreach, more education, more experts in the room. Those things matter. But they are not sufficient, because they do not address where most decisions are actually made. Face-to-face connection is irreplaceable for some kinds of learning, and for some kinds of trust. It is also insufficient. Most decisions, in any domain, happen alone — at a kitchen table, in front of a screen, walking a piece of land before the nursery opens, at a hardware store with a phone and a question. Even in domains crowded with experts and workshops and online forums, the actual moment of decision is usually private. Any system that pretends the alone-channel does not exist has missed the place where most of the work happens. *Face-to-face is necessary and insufficient; most decisions happen alone.*
+## Aspect 2 - The decisions that shape most places are made by non-experts.
 
-## Why the data doesn't help
+Most of the land in any region is held by people who are not ecologists. Homeowners, landowners, municipal maintenance staff, volunteer boards, weekend stewards, neighbors with a backyard and some curiosity. The trained experts — the restoration ecologists, the botanists, the land managers with years of field experience — are vastly outnumbered. That gap matters because what aggregates into the ecological condition of a region is not what the experts decide to do with the land they manage. It is the daily, unremarkable decisions made by the many: what gets planted, what gets removed, what gets mowed, what gets left, what is valued by society. 
 
-The data exists. That is not the problem. The problem is that it is broken in three specific ways.
+Key Phrase: *Aggregate decision-makers are not the experts.*
 
-First, there is too much of it, and it contradicts itself. Overwhelming volume, scattered across websites, books, seed catalogs, agency PDFs, extension bulletins, forum threads, and nursery species descriptions written more for marketing than accuracy. A person trying to answer a real question in a real place has to read across all of it with no systematic way to evaluate what is reliable and what is not.
+## Aspect 3 - People make most decisions alone, regardless of how many experts exist.
 
-Second, significant sources are walled off. Some because of institutional decisions, some because of technical configurations that make them reachable by human browsers but invisible to any tool trying to work at scale. The sources that would matter most — rigorous regional flora, conservation status data, peer-reviewed phenology, field observation records — are often the hardest to reach programmatically.
+Face-to-face, inspired connections is irreplaceable for society. It is also demonstrably insufficient. Most decisions, in most domain, happen alone — at a kitchen table, in front of a screen, walking a piece of land before the nursery opens, at a hardware store with a phone and a question. Even in domains crowded with experts and workshops and online forums, the actual moment of decision is often private. Any system that pretends the alone-channel does not exist has missed the place where most of the work happens. We would argue for more in person sharing and systems that share hard earned wisdom at scale with everyone, everywhere. 
 
-Third, the technology of access keeps moving. Books, then websites, then spreadsheets, then REST APIs, now MCP protocols that let language models work directly against structured data sources — and the method will keep changing. Each generation of access opens what the prior generation could not reach, and makes assumptions built on the previous one obsolete. Knowledge that wants to be genuinely reachable has to be structured so that it can move with the access methods. *Too much, walled off, and the methods of access keep moving.*
+Key Phrase: *Face-to-face is necessary and insufficient; most decisions happen alone.*
 
-Against this backdrop, a new class of tools has arrived. Called AI loosely, used everywhere with varying degrees of understanding about what it actually is. It is a new tool class — comparable to chainsaws, fire, vehicles, propane, and herbicides in the sense that it has real failure modes and genuinely changes what is possible. The failure modes are specific: confabulation, training bias, confident wrongness. A language model that has absorbed the internet, marketing copy and all, produces answers that sound right at roughly the quality level of what it was fed. But the capability is also specific and real: reading across scattered text, synthesizing across sources, answering a specific question from a person in a specific place in a way that was not possible before. Not a replacement for experts. A way to extend expert knowledge into the alone-moments where most decisions actually happen. *New tool class, real failure modes, genuinely changes what is possible.*
+## Aspect 4 - The data landscape is broken in three specific ways.
 
-## Describe and reach; never absorb
+First, we are awash in information, challenged to judge, often without training or clear insight. Overwhelming volume, scattered across websites, books, seed catalogs, agency PDFs, extension bulletins, forum threads, and every manner of species descriptions written more for marketing than accuracy. A person trying to answer a real question in a real place has to read across all of it with no systematic way to evaluate what is reliable and what is not.
 
-The first construction decision follows directly from all of that. If the problem is that good data is hard to find and harder to use, and if the tools that could help people in alone-moments are only as good as the data they are fed, then the answer is not to write another book, not to add more experts, and not to build another database that rewrites what it takes in. It is to make the existing good data findable and reachable.
+Second, significant sources are walled off. Some because of institutional incentives, some because of the shape of delivery, and some because of missing social cohesion. The sources that would matter most — rigorous regional flora, conservation status data, peer-reviewed phenology, field observation records — are often the hardest to reach personally and programmatically.
 
-Every source is kept as itself. Michigan Flora stays Michigan Flora. BONAP stays BONAP. MNFI conservation status data stays attributed to MNFI. A nursery's species description remains clearly a nursery's species description. The commons describes each source — what it covers, how it was made, what its limits are, who maintains it — and provides uniform ways to reach it. Prior attempts at aggregation failed not because they were under-resourced but because they tried to absorb. When a source is rewritten into a common schema, it loses the provenance that makes it trustworthy, and the institution that held it has no reason to maintain what it contributed. Keeping sources as themselves means keeping their authority, their governance, and their communities intact. *The tools are downstream of the data. Describe and reach; never absorb.*
+Third, the technology of access keeps moving. Books, then websites, then spreadsheets, then REST APIs, and now MCP protocols. The method will keep changing. Each generation of access opens what the prior generation could not reach, and makes implications inherent in the previous one obsolete. Knowledge that wants to be genuinely reachable has to be structured so that it can move with the access methods. 
 
-## No canonical name; every equivalence is an attributed claim
+Key Phrase: *Too much, walled off, and the methods of access keep moving.*
 
-The second construction decision is the morally serious one. Every existing ecological data system picks scientific Latin as the canonical identifier and treats every other name — English vernacular, regional names, indigenous and community names, program-specific names — as decoration attached to the canonical form. The choice is presented as technical convenience. It is not neutral. It encodes a hierarchy in the substrate that the underlying reality does not support and that many communities have actively been harmed by.
+## Aspect 5 - New tools change what is possible.
 
-The naming layer refuses this. Every name is a node in a graph. Every assertion that two names refer to the same living thing is an edge with provenance — who said so, when, on what basis. A species concept is whatever connected component emerges from the graph; it is not a pre-declared identifier owned by a particular tradition. A community contributing names from their tradition is making the same kind of structural contribution that a major synonymy publisher makes — attributed, recorded, available alongside every other assertion. The data layer does not pick a winner. It records what was said, by whom, on what basis, and lets the application or the user choose what to honor. The user's input is always the center of the search; the layer translates between traditions at query time without requiring anyone to translate themselves into Latin first. The architecture does not by itself solve the historical inequities in how naming traditions have been documented, but it refuses to encode them into the substrate. *No canonical name; every equivalence is an attributed claim; the user's input is the center.*
+Against this backdrop, a new class of tools has arrived. Called AI loosely, used with varying interpretations and perspectives of about what it actually is. It is definately a new tool class. Like chainsaws, fire, vehicles, propane, or chemicals ... AI has real failure modes and genuinely changes what is possible. The failure modes are themselves strage in comparison to other tools: confabulation, training bias, confident wrongness. 
 
-## Trust is a layer, with its own discipline
+A model that has absorbed the internet, Reddit, marketing copy and social media produces answers that mirror the quality level of what it was fed. Analysis that feeds on Michigan Flora, MNFI, BONAP, FQA analysis, peer-reviewed work, and field observations can produce amazing insight.
 
-The third construction decision. Below this layer sits the full data layer: everything every source and every contributor has asserted, with provenance on every claim and every equivalence. That is operationally complete, but it is not directly usable for most purposes. A homeowner asking what to plant in their backyard cannot reason about a maximalist provenance stream. A regional planting calculator does not need to present the full range of what every source has ever said about a species' cold hardiness. Most applications need to narrow the field before they present anything, and the question is where that narrowing happens and who controls it.
+The current capabilities and the pace of advancement is also specific and real. For our domain, its not a replacement for experts. It could be a way to extend expert knowledge into all the alone-moments where most decisions actually happen. 
 
-The trust layer is where it happens. Named trust scopes are declared here — peer-reviewed botanical sources only, Michigan-focused regional authorities, named community contributors plus major synonymy publishers, whatever the deployment requires. Each scope is a filter expressed against the provenance metadata flowing up from below. An application running under a given scope sees only the claims and equivalences whose provenance the scope honors. The scopes themselves are declared, attributed, versioned, and visible. A user can ask what scope an answer was filtered through and inspect what was excluded. The data layer below remains neutral and complete. The application layer above does not invent its own trust logic, quietly, in ways no one can examine. Trust is not embedded silently in the application. It is a layer with its own structure and its own accountability. *Trust is a layer of named, declared scopes — applied above the data, exposed to the user, never silently embedded.*
+Key phrase: *New tool class, real failure modes, genuinely changes what is possible.*
 
-## The commons is neutral; the applications are opinionated
+## Aspect 6 - Make knowledge findable, well-described, reachable, and connected.
 
-The fourth construction decision closes the argument. The commons is not what anyone uses directly. What people use are applications built on top — species explorers, planting guides, question-answering tools for kitchen-table decisions, research interfaces, regional planning tools. An application for a homeowner in Southeast Michigan carries opinions about what sources to trust, what audience to serve, what trust scope to apply, how to present uncertainty, how to integrate whatever current generation of AI tools is useful. The commons carries none of those opinions. It stays neutral and source-faithful, with its provenance intact and its sources unchanged.
+If the problem is that good data is hard to find, hard to use at scale, and the tools that could help are only as good as the data they are fed, then one concrete answer is to make existing data reachable and honored for what it is.
+
+Every source is kept as itself. The commons describes each source in depth — what it covers, how it was made, what its limits are, who maintains it — and provides uniform ways to reach it. Keeping sources as themselves means keeping their authority, their governance, and their perspectives intact. Aggregation through absorption and assimilation does not a vibrant commons make.
+
+Key phrase: *The tools are downstream of diverse data.*
+
+Key phrase: *Describe and reach; never absorb.*
+
+## Aspect 7 - Trust is a pillar of shared discipline
+
+The data layer carries everything that each source and contributor has asserted, with provenance on every claim and every equivalence. 
+
+Below this layer sits the full data layer: everything
+
+Is is data rich, but still so operationally vast as to not be directly usable for most purposes. A homeowner asking what to plant in their backyard cannot reason about a maximalist provenance stream. A regional planting calculator does not need to present the full range of what every source has ever said about a species' cold hardiness. Most applications need to narrow the field before they present anything, and the question is where that narrowing happens and who structures it.
+
+The trust layer is where it happens snd is the second constructive decision. Named trust scopes are declared here. Any kind or style of group can be shaped: peer-reviewed botanical sources only, Michigan-focused regional authorities, named community contributors plus major synonymy publishers. When using an application or creating your own, select any group that is appropriate. Each trust group is a filter on the full list of dats sources. An application running under a given scope sees only the claims and equivalences whose provenance the scope honors. 
+
+The data layer below remains untouched and complete. The application layer above does not invent its own trust logic, quietly, in ways no one can examine. 
+
+Key phrase: *Trust is a layer of named, declared scopes — applied above the data, exposed to the user, not silently defined.*
+
+## Aspect 8 — No canonical name; every equivalence is an attributed claim
+
+Living things are known by many names. Scientific Latin. Common local names. Regional vernaculars. The languages of communities who lived alongside these species for thousands of years. Each tradition is anchored in a particular relationship between a community and the world.
+
+Indigenous botanical knowledge was, in many places and times, not just unrecorded but actively suppressed. Plants were renamed. Knowledge holders were displaced. The naming conventions that emerged through that period reflect that history — and the silence around what was lost was itself manufactured, not natural. The medicinal, food, ceremonial, and ecological knowledge carried by those traditions was detailed practice, often more developed than what replaced it.
+
+We made two architectural decisions associated with this topic.
+
+The first is that no naming tradition is structurally privileged within the name layer. Every name is a node in a graph. No node type sits above another. Scientific Latin, an indigenous community name, an English vernacular, and a name from a community seed program are all, structurally, the same kind of thing. They are distinguished only by what asserters have said about them.
+
+The second is that every claim of equivalence between names is recorded structurally — who said two names refer to the same living being, when, and on what basis.
+
+Whatever name a user knows is the center of a small search. The system walks outward from that input, finds what works against the data source, and shows the trail it took.
+
+Key phrase: *No structurally privileged name; every equivalence is an attributed claim; the user’s input is the center of the search.*
+
+## Aspect 9 - The data commons is neutral; applications are opinionated
+
+The fourth construction decision closes the argument. The commons data layer is not what anyone uses directly. What people use are applications and tools built on top — explorers, guides, decision tools, research interfaces, planning tools. An application for a homeowner in Southeast Michigan carries opinions about what sources to trust, what audience to serve, what trust scope to apply, how to present uncertainty, how to integrate whatever current generation of AI tools is useful. The commons carries none of those opinions. It stays neutral and source-faithful, with its provenance intact and its sources unchanged.
 
 The separation is what makes the commons sustainable. If the commons were opinionated, every change in the technology landscape — every new access method, every new generation of AI tooling — would require the commons to change. Instead, applications adapt. The commons stays honest about its own job. New tools, new audiences, and new access methods produce new applications; the commons underneath them remains the same trustworthy substrate. *The commons is neutral; the applications are opinionated.*
 
-## Three reciprocities
+## Aspect 10 - Three reciprocities
 
-The layers above are technical architecture, but they rest on something that is not technical. The commons holds three things in relationship, and the architecture is only sound if all three are held together.
+The aspects above are technical architecture, but they rest on something that is not technical. The commons holds three things in relationship, and the architecture is only sound if all three are held together.
 
-The ecological is the content. A million years of evolution, specialization, and mutual adaptation — organisms in relationship with other organisms in specific places over deep time. The commons treats this as substance, not subject. It is the reason the architecture exists, not material the architecture is free to reshape. Every decision described above — keeping sources as themselves, refusing a canonical naming tradition, making trust visible and attributable, keeping the commons neutral — is accountable, finally, to the ecological reality it exists to serve.
+The ecological is the content. A million years of evolution, specialization, and mutual adaptation — organisms in relationship with other organisms in specific places over deep time. The commons treats this as substance, not subject. It is the reason the architecture exists at all, not material the architecture freely conforms. Every decision described above — keeping sources as themselves, refusing a canonical naming tradition, making trust visible and attributable, keeping the commons neutral — is accountable, finally, to the ecological reality it exists to serve.
 
 The technical is the shape and structure. Not the tools, not the code — the structural agreements that determine whether the system can be trusted. Sources kept as themselves. Names without a canonical tradition. Trust as a named, declared layer. Applications as where opinions live. These are the architectural disciplines that let the commons stay honest about its own job. The technical here is what keeps each layer accountable to the layers around it, rather than accumulating quiet assumptions that compound into hidden bias.
 
 The social is the human relationships: the cross-cultural trust, the decision-making, the regional vision. The machinery of how humans across cultures, regions, institutions, and generations decide what counts, who is heard, what is honored, and what direction the whole thing moves. The commons treats these relationships as load-bearing, not decorative. They are built into the substrate as named, attributed, accountable contributions rather than assumed at the edges where no one examines them.
 
-None of the three is sufficient alone. The ecological without the technical is unreachable at scale. The technical without the ecological is empty scaffolding. Either without the social is a structure no one is responsible to and no one is responsible for. *The commons architects the ecological, the technical, and the social in reciprocity.*
+None of the three is sufficient alone. The ecological without the technical is unreachable at scale. The technical without the ecological is empty scaffolding. Either without the social is a structure no one is responsible to and no one is responsible for. 
+
+Key phrase *The commons architects the ecological, the technical, and the social in reciprocity.*
