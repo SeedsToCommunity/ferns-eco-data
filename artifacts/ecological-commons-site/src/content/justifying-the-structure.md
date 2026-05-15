@@ -18,7 +18,7 @@ Key Phrase: *Aggregate decision-makers are not the experts.*
 
 Face-to-face, inspired connections are irreplaceable for society. To meet the people where they are, when experts are not on hand, we must provide the best data and translation possible. 
 
-Most decisions, in most domains, happen alone — at a kitchen table, in front of a screen, walking a piece of land before the nursery opens, at a hardware store with a phone and a question. Even in domains crowded with experts and workshops and online forums, the actual moment of decision is often private. Ecology itself is crowded with geological, botanical, and chemical facts that no amount of expert discussions can satisfy or human minds can hold. Any system that pretends the alone-channel does not exist has missed the place where most of the work happens. We would argue for both more in-person sharing and also systems that share hard-earned wisdom at scale with everyone, everywhere. 
+Most decisions, in most domains, happen alone — at a kitchen table, in front of a screen, walking a piece of land before the nursery opens, at a hardware store with a phone and a question. Even in domains crowded with experts and workshops and online forums, the actual moment of decision is often private. Ecology itself is crowded with geological, botanical, and chemical facts that no expert holds, no discussions can cover, or human minds can transmit. Any system that pretends the alone-channel does not exist has missed the place where most of the work happens. We would argue for both more in-person sharing and also systems that share hard-earned wisdom at scale with everyone, everywhere. 
 
 Key Phrase: *Face-to-face is necessary and insufficient; most decisions happen alone.*
 
@@ -34,7 +34,7 @@ Key Phrase: *Too much, walled off, and the methods of access keep moving.*
 
 ## Aspect 5 - New tools change what is possible.
 
-Against this backdrop, a new class of tools has arrived. Called AI loosely, the term is used with varying interpretations and perspectives about what it actually is. It is definitely a new tool class. Like chainsaws, fire, vehicles, propane, or chemicals ... AI has real failure modes and also genuinely changes what is possible. The failure modes are themselves strange in comparison to other tools: confabulation, training bias, confident wrongness. 
+Against this backdrop, a new class of tools has arrived. Called AI loosely, the term is used with varying interpretations and perspectives about what it actually is. It is a new tool class. Like chainsaws, fire, vehicles, propane, or chemicals ... AI has real failure modes, many possible uses, and also genuinely changes what is possible. The failure modes are themselves strange in comparison to other tools: confabulation, training bias, confident wrongness. 
 
 Specifically, a model that has absorbed the internet, Reddit, marketing copy and social media produces answers that mirror the quality level of what it was fed. Analysis that feeds on Michigan Flora, MNFI, BONAP, FQA analysis, peer-reviewed work, and field observations can produce amazing insight.
 
@@ -50,11 +50,11 @@ Every source is kept as itself. The Ecological Commons describes each source in 
 
 Key phrase: *The tools are downstream of diverse data. Describe and reach; never absorb.*
 
-## Aspect 7 - Trust is a pillar of shared discipline
+## Aspect 7 - Trust is something to share
 
-The data layer is rich with information, but also so operationally vast as to not be directly usable for most purposes. Most uses need a narrower field before they can begin. The Trust Layer is one possible implementation of how to execute such a filter. Any kind or style of group can be shaped: peer-reviewed botanical sources only, Michigan-focused regional authorities only, named community contributors plus major synonymy publishers, species focused, whatever is useful. 
+The data layer is rich with information, but also so operationally vast as to not be directly usable for most purposes. Most uses need a narrower field before they can begin. The Trust Layer is one possible implementation of how to execute such a filter. Any kind or style of group can be shaped: peer-reviewed botanical sources only, Michigan-focused regional authorities only, named community contributors plus major synonymy publishers, species focused, whatever is useful. The sources of these groups will emerge with the data sources. We are just at the beginning of that necessary Commons governance work. We would expect many passionate users to share their best judgement of the layers as we all experiment with new tools. 
 
-When using an application or creating your own, select any group that is appropriate to the purpose. The data layer itself remains untouched and complete. The application layer above does not have to invent its own trust logic. It can rely upon a declared list from a trusted creator.
+When using an application or creating your own, select (or create) any group that is appropriate to the purpose. The data layer itself remains untouched and complete. The application layer above does not have to invent its own trust logic. It can rely upon a declared list from a trusted creator.
 
 Key phrase: *Trust is a layer of named, declared scopes — applied above the data, exposed to the user, and explicit.*
 
@@ -84,7 +84,7 @@ The technical work and posture is the shape and structure of the system. The str
 
 The social work and posture is the human relationships: the cross-cultural trust, the decision-making, the regional vision. The machinery of how humans across cultures, regions, institutions, and generations decide what counts, who is heard, what is honored, and what direction the whole thing moves. The Commons treats these relationships as load-bearing, not decorative. They are built into the substrate as named, attributed, accountable contributions rather than assumed at the edges where no one examines them.
 
-None of the three is sufficient alone. The ecological without the technical is unreachable at scale. The technical without the ecological is empty scaffolding. Either without the social is a structure no one is responsible to and no one is responsible for. 
+None of the three is sufficient alone. The ecological without the technical is unsharable at scale. The technical without the ecological is empty scaffolding. Either without the social is a Commons structure no one is responsible to and no one is responsible for. 
 
 Key phrase: *The Ecological Commons architects the ecological, the technical, and the social in reciprocity.*
 
@@ -94,6 +94,6 @@ End users don't generally interact with the data layer, the Trust Layer or the N
 
 As functionality advances, agents and agentic systems (that can take natural language direction as inputs, explore among selected sources, and return answers) will emerge. These new tools are themselves applications, though with strange and sometimes disconcerting failure modes. They need clear context and thoughtful guidance to avoid failure cases, which take time to learn and flexibility to apply. Technology advancement holds the potential to minimize these failure modes and to also allow anyone to request a new application tool of their own imagining, without the need for more technical human support. As these tools advance and trustworthy data remains essential, the Ecological Commons can offer a grounding in trusted truth. 
 
-Through all these uses, the Commons remains neutral and source-faithful, with its provenance intact and its sources stable and reachable. The role of application developers is to hold our values and our reciprocity to all life, imagine what could exist, and to build what we judge our communities need.
+Through all these uses, the Commons remains neutral and source-faithful, with its provenance intact and its sources stable and reachable. The Commons remains neutral and source-faithful. The applications carry the opinions and the audience. We bring the imagination.
 
 Key phrase: *The Commons is neutral; the applications are opinionated.*
