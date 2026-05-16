@@ -38,7 +38,7 @@ export function InatPage() {
     <SourceExplorerLayout sourceId="inaturalist">
       {(selectedPlaceId || selectedTaxonId) && (
         <div className="mb-4 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-          <span className="font-medium text-foreground/60">Pinned for Phenology:</span>
+          <span className="font-medium text-foreground/60">Pinned values:</span>
           {selectedTaxonId && (
             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-primary/10 text-primary border border-primary/20">
               Taxon: {selectedTaxonName || selectedTaxonId}
@@ -100,7 +100,14 @@ export function InatPage() {
             preloadedPlaceName={selectedPlaceName}
           />
         )}
-        {activeTab === "observations" && <ObservationsTab />}
+        {activeTab === "observations" && (
+          <ObservationsTab
+            preloadedTaxonId={selectedTaxonId}
+            preloadedTaxonName={selectedTaxonName}
+            preloadedPlaceId={selectedPlaceId}
+            preloadedPlaceName={selectedPlaceName}
+          />
+        )}
       </div>
     </SourceExplorerLayout>
   );

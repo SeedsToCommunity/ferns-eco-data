@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   useGetInatObservationSummary,
   getGetInatObservationSummaryQueryKey,
@@ -20,11 +20,29 @@ const QUALITY_COLORS: Record<string, string> = {
   casual:   "bg-gray-100 text-gray-600 border-gray-200",
 };
 
-export function ObservationsTab() {
-  const [taxonIdInput, setTaxonIdInput]     = useState("");
-  const [placeIdInput, setPlaceIdInput]     = useState("");
+interface ObservationsTabProps {
+  preloadedTaxonId?: number | null;
+  preloadedTaxonName?: string;
+  preloadedPlaceId?: string;
+  preloadedPlaceName?: string;
+}
+
+export function ObservationsTab({
+  preloadedTaxonId,
+  preloadedPlaceId,
+}: ObservationsTabProps) {
+  const [taxonIdInput, setTaxonIdInput]     = useState(preloadedTaxonId ? String(preloadedTaxonId) : "");
+  const [placeIdInput, setPlaceIdInput]     = useState(preloadedPlaceId ?? "");
   const [qualityGrade, setQualityGrade]     = useState("");
   const [page, setPage]                     = useState(1);
+
+  useEffect(() => {
+    if (preloadedTaxonId) setTaxonIdInput(String(preloadedTaxonId));
+  }, [preloadedTaxonId]);
+
+  useEffect(() => {
+    if (preloadedPlaceId) setPlaceIdInput(preloadedPlaceId);
+  }, [preloadedPlaceId]);
 
   const [submitted, setSubmitted]           = useState(false);
   const [committedTaxonId, setCommittedTaxonId] = useState<number | undefined>(undefined);
