@@ -24,6 +24,13 @@ const ICONIC_TAXA = [
   { value: "Animalia", label: "Animalia" },
 ];
 
+const TERM_PRESETS = [
+  { label: "All", termId: undefined, termValueId: undefined },
+  { label: "Plant Phenology (flowering/fruiting)", termId: 12, termValueId: undefined },
+];
+
+const PER_PAGE_OPTIONS = [10, 25, 50, 100, 200, 500];
+
 interface SpeciesCountsTabProps {
   preloadedPlaceId?: string;
   preloadedPlaceName?: string;
@@ -60,12 +67,11 @@ export function SpeciesCountsTab({
 }: SpeciesCountsTabProps) {
   const [placeIdInput, setPlaceIdInput]             = useState(preloadedPlaceId ?? "");
   const [qualityGrade, setQualityGrade]             = useState("research");
-  const [iconicTaxonName, setIconicTaxonName]       = useState("");
+  const [iconicTaxonName, setIconicTaxonName]       = useState("Plantae");
   const [nativeFilter, setNativeFilter]             = useState<"" | "native" | "introduced">("");
-  const [termIdInput, setTermIdInput]               = useState("");
-  const [termValueIdInput, setTermValueIdInput]     = useState("");
+  const [termPresetIdx, setTermPresetIdx]           = useState(0);
   const [monthInput, setMonthInput]                 = useState("");
-  const [perPage]                                   = useState(50);
+  const [perPage, setPerPage]                       = useState(50);
 
   useEffect(() => {
     if (preloadedPlaceId) setPlaceIdInput(preloadedPlaceId);
@@ -123,10 +129,7 @@ export function SpeciesCountsTab({
     e.preventDefault();
     const rawPl = Number(placeIdInput.trim());
     const placeId = placeIdInput.trim() && !isNaN(rawPl) && rawPl > 0 ? rawPl : undefined;
-    const rawTermId = Number(termIdInput.trim());
-    const termId = termIdInput.trim() && !isNaN(rawTermId) && rawTermId > 0 ? rawTermId : undefined;
-    const rawTermValueId = Number(termValueIdInput.trim());
-    const termValueId = termValueIdInput.trim() && !isNaN(rawTermValueId) && rawTermValueId > 0 ? rawTermValueId : undefined;
+    const preset = TERM_PRESETS[termPresetIdx];
 
     commit({
       placeId,
@@ -134,8 +137,8 @@ export function SpeciesCountsTab({
       iconicTaxonName: iconicTaxonName || undefined,
       native: nativeFilter === "native" ? true : undefined,
       introduced: nativeFilter === "introduced" ? true : undefined,
-      termId,
-      termValueId,
+      termId: preset?.termId,
+      termValueId: preset?.termValueId,
       month: monthInput.trim() || undefined,
       perPage,
       page: 1,
@@ -147,8 +150,7 @@ export function SpeciesCountsTab({
     setQualityGrade(quality);
     setIconicTaxonName(iconic);
     setNativeFilter(nativity);
-    setTermIdInput("");
-    setTermValueIdInput("");
+    setTermPresetIdx(0);
     setMonthInput("");
     const rawPl = Number(placeId);
     commit({
@@ -241,24 +243,16 @@ export function SpeciesCountsTab({
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Term ID</label>
-              <input
-                type="number"
-                value={termIdInput}
-                onChange={(e) => setTermIdInput(e.target.value)}
-                placeholder="e.g. 12"
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Annotation filter</label>
+              <select
+                value={termPresetIdx}
+                onChange={(e) => setTermPresetIdx(Number(e.target.value))}
                 className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Term value ID</label>
-              <input
-                type="number"
-                value={termValueIdInput}
-                onChange={(e) => setTermValueIdInput(e.target.value)}
-                placeholder="e.g. 13"
-                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-              />
+              >
+                {TERM_PRESETS.map((p, i) => (
+                  <option key={i} value={i}>{p.label}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-xs font-medium text-muted-foreground mb-1">Months</label>
@@ -269,6 +263,18 @@ export function SpeciesCountsTab({
                 placeholder="e.g. 4,5,6"
                 className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Results per page</label>
+              <select
+                value={perPage}
+                onChange={(e) => setPerPage(Number(e.target.value))}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                {PER_PAGE_OPTIONS.map((n) => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+              </select>
             </div>
           </div>
 

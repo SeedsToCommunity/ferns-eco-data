@@ -355,11 +355,28 @@ async function checkInatSpeciesCounts(
       findings.push({ type: "gap", sourceField: "provenance", note: "Provenance block missing from FERNS response" });
     }
 
+    const failGaps = findings.filter((f) => f.type === "gap");
+    const requiredOk =
+      fernsEnvelope["found"] !== undefined &&
+      fernsData["total_results"] !== undefined &&
+      (fernsTotal ?? 0) > 0 &&
+      fernsResults.length > 0 &&
+      prov !== undefined &&
+      prov["source_id"] !== undefined;
+
+    if (!requiredOk) {
+      findings.push({
+        type: "gap",
+        sourceField: "required_checks",
+        note: `Required checks failed: found=${fernsEnvelope["found"]}, total_results=${fernsTotal}, results.length=${fernsResults.length}, provenance.source_id=${prov?.["source_id"]}`,
+      });
+    }
+
     return {
       source: "inat",
       endpoint: `${fernsEndpoint}?place_id=${placeId}&native=true&iconic_taxon_name=Plantae&quality_grade=research&per_page=10`,
       label,
-      ok: true,
+      ok: requiredOk && failGaps.length === 0,
       rawSource: inatResponse,
       rawFerns: fernsData,
       findings,
