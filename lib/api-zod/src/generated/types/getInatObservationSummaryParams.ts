@@ -31,4 +31,32 @@ export type GetInatObservationSummaryParams = {
    * @minimum 1
    */
   page?: number;
+  /**
+   * Center latitude for radius-based geographic filter. Requires lng and radius.
+   */
+  lat?: number;
+  /**
+   * Center longitude for radius-based geographic filter. Requires lat and radius.
+   */
+  lng?: number;
+  /**
+   * Radius in km around the lat/lng center point.
+   */
+  radius?: number;
+  /**
+   * Northeast corner latitude for bounding box filter.
+   */
+  nelat?: number;
+  /**
+   * Northeast corner longitude for bounding box filter.
+   */
+  nelng?: number;
+  /**
+   * Southwest corner latitude for bounding box filter.
+   */
+  swlat?: number;
+  /**
+   * Southwest corner longitude for bounding box filter.
+   */
+  swlng?: number;
 };

@@ -4,19 +4,24 @@ import {
   inatSpeciesTable,
   inatHistogramTable,
   inatFieldValuesTable,
+  inatControlledTermsTable,
+  inatTaxonByIdTable,
   type InatPlace,
   type InatSpecies,
   type InatHistogram,
   type InatFieldValues,
+  type InatControlledTerms,
+  type InatTaxonById,
 } from "@workspace/db";
 import { eq } from "drizzle-orm";
-import type { InatPlaceLookupResult, InatSpeciesResult, InatHistogramResult, InatFieldValuesResult } from "./connector.js";
+import type { InatPlaceLookupResult, InatSpeciesResult, InatHistogramResult, InatFieldValuesResult, InatPassthroughResult } from "./connector.js";
 import { INAT_SOURCE_ID, INAT_GENERAL_SUMMARY, INAT_TECHNICAL_DETAILS } from "./metadata.js";
 
 const SPECIES_HIT_TTL_DAYS = 30;
 const SPECIES_NOMATCH_TTL_DAYS = 7;
 const HISTOGRAM_TTL_DAYS = 7;
 const FIELD_VALUES_TTL_DAYS = 7;
+const TAXON_BY_ID_TTL_DAYS = 30;
 
 function daysFromNow(days: number): Date {
   return new Date(Date.now() + days * 24 * 60 * 60 * 1000);
@@ -249,6 +254,163 @@ export async function storeFieldValues(
     .values(insert)
     .onConflictDoUpdate({
       target: inatFieldValuesTable.cache_key,
+      set: {
+        raw_response: insert.raw_response,
+        source_url: insert.source_url,
+        fetched_at: insert.fetched_at,
+        upstream_url: insert.upstream_url,
+        expires_at: insert.expires_at,
+      },
+    })
+    .returning();
+  return rows[0];
+}
+
+export async function lookupPlaceById(cacheKey: string): Promise<InatPlace | null> {
+  const rows = await db
+    .select()
+    .from(inatPlacesTable)
+    .where(eq(inatPlacesTable.cache_key, cacheKey))
+    .limit(1);
+  if (!rows.length) return null;
+  const row = rows[0];
+  if (row.expires_at && row.expires_at < new Date()) {
+    await db.delete(inatPlacesTable).where(eq(inatPlacesTable.cache_key, cacheKey));
+    return null;
+  }
+  return row;
+}
+
+export async function storePlaceById(
+  cacheKey: string,
+  placeId: number,
+  result: InatPassthroughResult,
+): Promise<InatPlace> {
+  const now = new Date();
+  const insert = {
+    cache_key: cacheKey,
+    query: String(placeId),
+    results: result.raw_response,
+    found: true,
+    expires_at: null as Date | null,
+    source_id: INAT_SOURCE_ID,
+    fetched_at: now,
+    method: "api_fetch",
+    upstream_url: result.upstream_url,
+    general_summary: INAT_GENERAL_SUMMARY,
+    technical_details: INAT_TECHNICAL_DETAILS,
+  };
+
+  const rows = await db
+    .insert(inatPlacesTable)
+    .values(insert)
+    .onConflictDoUpdate({
+      target: inatPlacesTable.cache_key,
+      set: {
+        query: insert.query,
+        results: insert.results,
+        found: insert.found,
+        fetched_at: insert.fetched_at,
+        upstream_url: insert.upstream_url,
+        expires_at: insert.expires_at,
+      },
+    })
+    .returning();
+  return rows[0];
+}
+
+export async function lookupControlledTerms(cacheKey: string): Promise<InatControlledTerms | null> {
+  const rows = await db
+    .select()
+    .from(inatControlledTermsTable)
+    .where(eq(inatControlledTermsTable.cache_key, cacheKey))
+    .limit(1);
+  if (!rows.length) return null;
+  const row = rows[0];
+  if (row.expires_at && row.expires_at < new Date()) {
+    await db.delete(inatControlledTermsTable).where(eq(inatControlledTermsTable.cache_key, cacheKey));
+    return null;
+  }
+  return row;
+}
+
+export async function storeControlledTerms(
+  cacheKey: string,
+  result: InatPassthroughResult,
+): Promise<InatControlledTerms> {
+  const now = new Date();
+  const insert = {
+    cache_key: cacheKey,
+    raw_response: result.raw_response,
+    source_url: result.source_url,
+    found: true,
+    expires_at: null as Date | null,
+    source_id: INAT_SOURCE_ID,
+    fetched_at: now,
+    method: "api_fetch",
+    upstream_url: result.upstream_url,
+    general_summary: INAT_GENERAL_SUMMARY,
+    technical_details: INAT_TECHNICAL_DETAILS,
+  };
+
+  const rows = await db
+    .insert(inatControlledTermsTable)
+    .values(insert)
+    .onConflictDoUpdate({
+      target: inatControlledTermsTable.cache_key,
+      set: {
+        raw_response: insert.raw_response,
+        source_url: insert.source_url,
+        fetched_at: insert.fetched_at,
+        upstream_url: insert.upstream_url,
+        expires_at: insert.expires_at,
+      },
+    })
+    .returning();
+  return rows[0];
+}
+
+export async function lookupTaxonById(cacheKey: string): Promise<InatTaxonById | null> {
+  const rows = await db
+    .select()
+    .from(inatTaxonByIdTable)
+    .where(eq(inatTaxonByIdTable.cache_key, cacheKey))
+    .limit(1);
+  if (!rows.length) return null;
+  const row = rows[0];
+  if (row.expires_at && row.expires_at < new Date()) {
+    await db.delete(inatTaxonByIdTable).where(eq(inatTaxonByIdTable.cache_key, cacheKey));
+    return null;
+  }
+  return row;
+}
+
+export async function storeTaxonById(
+  cacheKey: string,
+  taxonId: number,
+  result: InatPassthroughResult,
+): Promise<InatTaxonById> {
+  const now = new Date();
+  const insert = {
+    cache_key: cacheKey,
+    taxon_id: taxonId,
+    raw_response: result.raw_response,
+    source_url: result.source_url,
+    found: true,
+    expires_at: daysFromNow(TAXON_BY_ID_TTL_DAYS),
+    source_id: INAT_SOURCE_ID,
+    fetched_at: now,
+    method: "api_fetch",
+    upstream_url: result.upstream_url,
+    general_summary: INAT_GENERAL_SUMMARY,
+    technical_details: INAT_TECHNICAL_DETAILS,
+  };
+
+  const rows = await db
+    .insert(inatTaxonByIdTable)
+    .values(insert)
+    .onConflictDoUpdate({
+      target: inatTaxonByIdTable.cache_key,
       set: {
         raw_response: insert.raw_response,
         source_url: insert.source_url,

@@ -4,6 +4,10 @@ import {
   buildSpeciesCacheKey,
   buildHistogramCacheKey,
   buildFieldValuesCacheKey,
+  buildControlledTermsCacheKey,
+  buildControlledTermsForTaxonCacheKey,
+  buildTaxonByIdCacheKey,
+  buildPlaceByIdCacheKey,
   sortPlaceIds,
   fetchPlaces,
   fetchSpecies,
@@ -11,6 +15,12 @@ import {
   fetchFieldValues,
   fetchObservationSummary,
   fetchSpeciesCounts,
+  fetchControlledTerms,
+  fetchControlledTermsForTaxon,
+  fetchTaxaAutocomplete,
+  fetchTaxonById,
+  fetchPlaceById,
+  fetchPlacesNearby,
   buildProvenance,
 } from "../services/inat/connector.js";
 import {
@@ -22,6 +32,12 @@ import {
   storeHistogram,
   lookupFieldValues,
   storeFieldValues,
+  lookupControlledTerms,
+  storeControlledTerms,
+  lookupTaxonById,
+  storeTaxonById,
+  lookupPlaceById,
+  storePlaceById,
 } from "../services/inat/cache.js";
 import {
   INAT_SOURCE_ID,
@@ -47,6 +63,20 @@ import {
   GetInatObservationSummaryResponse,
   GetInatSpeciesCountsQueryParams,
   GetInatSpeciesCountsResponse,
+  GetInatControlledTermsQueryParams,
+  GetInatControlledTermsResponse,
+  GetInatControlledTermsForTaxonQueryParams,
+  GetInatControlledTermsForTaxonResponse,
+  GetInatTaxaAutocompleteQueryParams,
+  GetInatTaxaAutocompleteResponse,
+  GetInatTaxonByIdParams,
+  GetInatTaxonByIdQueryParams,
+  GetInatTaxonByIdResponse,
+  GetInatPlaceByIdParams,
+  GetInatPlaceByIdQueryParams,
+  GetInatPlaceByIdResponse,
+  GetInatPlacesNearbyQueryParams,
+  GetInatPlacesNearbyResponse,
   GetInatMetadataResponse,
 } from "@workspace/api-zod";
 import { filterProvenance } from "../lib/provenance.js";
@@ -327,7 +357,15 @@ router.get("/inat/observation-summary", async (req, res) => {
   const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
 
   try {
-    const result = await fetchObservationSummary(taxonId, placeId, qualityGrade, perPage, page);
+    const result = await fetchObservationSummary(taxonId, placeId, qualityGrade, perPage, page, {
+      lat:   parsed.data.lat ?? null,
+      lng:   parsed.data.lng ?? null,
+      radius: parsed.data.radius ?? null,
+      nelat: parsed.data.nelat ?? null,
+      nelng: parsed.data.nelng ?? null,
+      swlat: parsed.data.swlat ?? null,
+      swlng: parsed.data.swlng ?? null,
+    });
     const prov = buildProvenance(result.upstream_url, "api_fetch");
 
     res.json(GetInatObservationSummaryResponse.parse({
@@ -406,6 +444,319 @@ router.get("/inat/species-counts", async (req, res) => {
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from iNaturalist API" });
   }
 });
+
+router.get("/inat/controlled-terms", async (req, res) => {
+  const parsed = GetInatControlledTermsQueryParams.safeParse(req.query);
+  if (!parsed.success) {
+    res.status(400).json({ error: "invalid_input", message: parsed.error.errors[0]?.message ?? "Invalid query parameters" });
+    return;
+  }
+
+  const refresh = parsed.data.refresh ?? false;
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+  const cacheKey = buildControlledTermsCacheKey();
+
+  if (!refresh) {
+    const cached = await lookupControlledTerms(cacheKey);
+    if (cached) {
+      res.json(GetInatControlledTermsResponse.parse(buildCachedPassthroughResponse(cached, "hit", verbosity)));
+      return;
+    }
+  }
+
+  try {
+    const result = await fetchControlledTerms();
+    const stored = await storeControlledTerms(cacheKey, result);
+    res.json(GetInatControlledTermsResponse.parse(buildCachedPassthroughResponse(stored, refresh ? "bypassed" : "miss", verbosity)));
+  } catch (err) {
+    req.log.error({ err }, "iNat controlled-terms fetch failed");
+    res.status(502).json({ error: "upstream_error", message: "Failed to fetch from iNaturalist API" });
+  }
+});
+
+router.get("/inat/controlled-terms/for-taxon", async (req, res) => {
+  const parsed = GetInatControlledTermsForTaxonQueryParams.safeParse(req.query);
+  if (!parsed.success) {
+    res.status(400).json({ error: "invalid_input", message: parsed.error.errors[0]?.message ?? "Invalid query parameters" });
+    return;
+  }
+
+  const taxonId = parsed.data.taxon_id;
+  const refresh = parsed.data.refresh ?? false;
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+  const cacheKey = buildControlledTermsForTaxonCacheKey(taxonId);
+
+  if (!refresh) {
+    const cached = await lookupControlledTerms(cacheKey);
+    if (cached) {
+      res.json(GetInatControlledTermsForTaxonResponse.parse(buildCachedPassthroughResponse(cached, "hit", verbosity)));
+      return;
+    }
+  }
+
+  try {
+    const result = await fetchControlledTermsForTaxon(taxonId);
+    const stored = await storeControlledTerms(cacheKey, result);
+    res.json(GetInatControlledTermsForTaxonResponse.parse(buildCachedPassthroughResponse(stored, refresh ? "bypassed" : "miss", verbosity)));
+  } catch (err) {
+    req.log.error({ err }, "iNat controlled-terms/for-taxon fetch failed");
+    res.status(502).json({ error: "upstream_error", message: "Failed to fetch from iNaturalist API" });
+  }
+});
+
+router.get("/inat/taxa/autocomplete", async (req, res) => {
+  const parsed = GetInatTaxaAutocompleteQueryParams.safeParse(req.query);
+  if (!parsed.success) {
+    res.status(400).json({ error: "invalid_input", message: parsed.error.errors[0]?.message ?? "Invalid query parameters" });
+    return;
+  }
+
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+
+  try {
+    const result = await fetchTaxaAutocomplete({
+      q:                  parsed.data.q,
+      per_page:           parsed.data.per_page ?? undefined,
+      is_active:          parsed.data.is_active ?? undefined,
+      rank:               parsed.data.rank ?? undefined,
+      locale:             parsed.data.locale ?? undefined,
+      all_names:          parsed.data.all_names ?? undefined,
+      preferred_place_id: parsed.data.preferred_place_id ?? undefined,
+    });
+    const prov = buildProvenance(result.upstream_url, "api_fetch");
+    const raw = result.raw_response;
+    const total = typeof raw["total_results"] === "number" ? raw["total_results"] : 0;
+
+    res.json(GetInatTaxaAutocompleteResponse.parse({
+      source_url: result.source_url,
+      found: total > 0,
+      data: raw,
+      provenance: filterProvenance({
+        source_id: prov.source_id,
+        fetched_at: prov.fetched_at,
+        method: prov.method,
+        upstream_url: prov.upstream_url,
+        general_summary: prov.general_summary,
+        technical_details: prov.technical_details,
+      }, verbosity),
+    }));
+  } catch (err) {
+    req.log.error({ err }, "iNat taxa/autocomplete fetch failed");
+    res.status(502).json({ error: "upstream_error", message: "Failed to fetch from iNaturalist API" });
+  }
+});
+
+router.get("/inat/taxon/:id", async (req, res) => {
+  const pathParsed = GetInatTaxonByIdParams.safeParse(req.params);
+  if (!pathParsed.success) {
+    res.status(400).json({ error: "invalid_input", message: "id must be a positive integer" });
+    return;
+  }
+
+  const queryParsed = GetInatTaxonByIdQueryParams.safeParse(req.query);
+  if (!queryParsed.success) {
+    res.status(400).json({ error: "invalid_input", message: queryParsed.error.errors[0]?.message ?? "Invalid query parameters" });
+    return;
+  }
+
+  const taxonId = pathParsed.data.id;
+  const refresh = queryParsed.data.refresh ?? false;
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+  const cacheKey = buildTaxonByIdCacheKey(taxonId);
+
+  if (!refresh) {
+    const cached = await lookupTaxonById(cacheKey);
+    if (cached) {
+      res.json(GetInatTaxonByIdResponse.parse(buildTaxonByIdResponse(cached, "hit", verbosity)));
+      return;
+    }
+  }
+
+  try {
+    const result = await fetchTaxonById(taxonId);
+    const stored = await storeTaxonById(cacheKey, taxonId, result);
+    res.json(GetInatTaxonByIdResponse.parse(buildTaxonByIdResponse(stored, refresh ? "bypassed" : "miss", verbosity)));
+  } catch (err) {
+    req.log.error({ err }, "iNat taxon/{id} fetch failed");
+    res.status(502).json({ error: "upstream_error", message: "Failed to fetch from iNaturalist API" });
+  }
+});
+
+function buildTaxonByIdResponse(
+  row: {
+    raw_response: unknown;
+    source_url: string;
+    found: boolean;
+    fetched_at: Date;
+    upstream_url: string;
+    source_id: string;
+    method: string;
+    general_summary: string;
+    technical_details: string;
+  },
+  cache_status: "hit" | "miss" | "bypassed",
+  verbosity?: string,
+) {
+  return {
+    source_url: row.source_url,
+    found: row.found,
+    cache_status,
+    queried_at: new Date(),
+    data: row.raw_response,
+    provenance: filterProvenance({
+      source_id: row.source_id,
+      fetched_at: row.fetched_at,
+      method: row.method,
+      upstream_url: row.upstream_url,
+      general_summary: row.general_summary,
+      technical_details: row.technical_details,
+    }, verbosity),
+  };
+}
+
+router.get("/inat/place/:id", async (req, res) => {
+  const pathParsed = GetInatPlaceByIdParams.safeParse(req.params);
+  if (!pathParsed.success) {
+    res.status(400).json({ error: "invalid_input", message: "id must be a positive integer" });
+    return;
+  }
+
+  const queryParsed = GetInatPlaceByIdQueryParams.safeParse(req.query);
+  if (!queryParsed.success) {
+    res.status(400).json({ error: "invalid_input", message: queryParsed.error.errors[0]?.message ?? "Invalid query parameters" });
+    return;
+  }
+
+  const placeId = pathParsed.data.id;
+  const refresh = queryParsed.data.refresh ?? false;
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+  const cacheKey = buildPlaceByIdCacheKey(placeId);
+
+  if (!refresh) {
+    const cached = await lookupPlaceById(cacheKey);
+    if (cached) {
+      res.json(GetInatPlaceByIdResponse.parse(buildPlaceByIdResponse(cached, "hit", verbosity)));
+      return;
+    }
+  }
+
+  try {
+    const result = await fetchPlaceById(placeId, {
+      admin_level: queryParsed.data.admin_level ?? undefined,
+    });
+    const stored = await storePlaceById(cacheKey, placeId, result);
+    res.json(GetInatPlaceByIdResponse.parse(buildPlaceByIdResponse(stored, refresh ? "bypassed" : "miss", verbosity)));
+  } catch (err) {
+    req.log.error({ err }, "iNat place/{id} fetch failed");
+    res.status(502).json({ error: "upstream_error", message: "Failed to fetch from iNaturalist API" });
+  }
+});
+
+function buildPlaceByIdResponse(
+  row: {
+    results: unknown;
+    upstream_url: string;
+    found: boolean;
+    fetched_at: Date;
+    source_id: string;
+    method: string;
+    general_summary: string;
+    technical_details: string;
+  },
+  cache_status: "hit" | "miss" | "bypassed",
+  verbosity?: string,
+) {
+  return {
+    source_url: row.upstream_url,
+    found: row.found,
+    cache_status,
+    queried_at: new Date(),
+    data: row.results,
+    provenance: filterProvenance({
+      source_id: row.source_id,
+      fetched_at: row.fetched_at,
+      method: row.method,
+      upstream_url: row.upstream_url,
+      general_summary: row.general_summary,
+      technical_details: row.technical_details,
+    }, verbosity),
+  };
+}
+
+router.get("/inat/places/nearby", async (req, res) => {
+  const parsed = GetInatPlacesNearbyQueryParams.safeParse(req.query);
+  if (!parsed.success) {
+    res.status(400).json({ error: "invalid_input", message: parsed.error.errors[0]?.message ?? "Invalid query parameters" });
+    return;
+  }
+
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+
+  try {
+    const result = await fetchPlacesNearby({
+      nelat:    parsed.data.nelat,
+      nelng:    parsed.data.nelng,
+      swlat:    parsed.data.swlat,
+      swlng:    parsed.data.swlng,
+      name:     parsed.data.name ?? undefined,
+      per_page: parsed.data.per_page ?? undefined,
+    });
+    const prov = buildProvenance(result.upstream_url, "api_fetch");
+    const raw = result.raw_response;
+    const results = (raw["results"] as Record<string, unknown> | undefined) ?? {};
+    const standardArr = Array.isArray(results["standard"]) ? results["standard"] as unknown[] : [];
+    const foundAny = standardArr.length > 0;
+
+    res.json(GetInatPlacesNearbyResponse.parse({
+      source_url: result.source_url,
+      found: foundAny,
+      data: raw,
+      provenance: filterProvenance({
+        source_id: prov.source_id,
+        fetched_at: prov.fetched_at,
+        method: prov.method,
+        upstream_url: prov.upstream_url,
+        general_summary: prov.general_summary,
+        technical_details: prov.technical_details,
+      }, verbosity),
+    }));
+  } catch (err) {
+    req.log.error({ err }, "iNat places/nearby fetch failed");
+    res.status(502).json({ error: "upstream_error", message: "Failed to fetch from iNaturalist API" });
+  }
+});
+
+function buildCachedPassthroughResponse(
+  row: {
+    raw_response: unknown;
+    source_url: string;
+    found: boolean;
+    fetched_at: Date;
+    upstream_url: string;
+    source_id: string;
+    method: string;
+    general_summary: string;
+    technical_details: string;
+  },
+  cache_status: "hit" | "miss" | "bypassed",
+  verbosity?: string,
+) {
+  return {
+    source_url: row.source_url,
+    found: row.found,
+    cache_status,
+    queried_at: new Date(),
+    data: row.raw_response,
+    provenance: filterProvenance({
+      source_id: row.source_id,
+      fetched_at: row.fetched_at,
+      method: row.method,
+      upstream_url: row.upstream_url,
+      general_summary: row.general_summary,
+      technical_details: row.technical_details,
+    }, verbosity),
+  };
+}
 
 router.get("/inat/metadata", async (req, res) => {
   await ensureInatRegistryEntry();

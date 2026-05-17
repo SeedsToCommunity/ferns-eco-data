@@ -82,6 +82,39 @@ export const inatFieldValuesTable = pgTable("inat_field_values", {
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+export const inatControlledTermsTable = pgTable("inat_controlled_terms", {
+  id: serial("id").primaryKey(),
+  cache_key: text("cache_key").notNull().unique(),
+  raw_response: jsonb("raw_response").notNull().default({}),
+  source_url: text("source_url").notNull(),
+  found: boolean("found").notNull().default(true),
+  expires_at: timestamp("expires_at", { withTimezone: true }),
+  source_id: text("source_id").notNull().default("inaturalist"),
+  fetched_at: timestamp("fetched_at", { withTimezone: true }).notNull(),
+  method: text("method").notNull().default("api_fetch"),
+  upstream_url: text("upstream_url").notNull(),
+  general_summary: text("general_summary").notNull(),
+  technical_details: text("technical_details").notNull(),
+  created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const inatTaxonByIdTable = pgTable("inat_taxon_by_id", {
+  id: serial("id").primaryKey(),
+  cache_key: text("cache_key").notNull().unique(),
+  taxon_id: integer("taxon_id").notNull(),
+  raw_response: jsonb("raw_response").notNull().default({}),
+  source_url: text("source_url").notNull(),
+  found: boolean("found").notNull().default(true),
+  expires_at: timestamp("expires_at", { withTimezone: true }),
+  source_id: text("source_id").notNull().default("inaturalist"),
+  fetched_at: timestamp("fetched_at", { withTimezone: true }).notNull(),
+  method: text("method").notNull().default("api_fetch"),
+  upstream_url: text("upstream_url").notNull(),
+  general_summary: text("general_summary").notNull(),
+  technical_details: text("technical_details").notNull(),
+  created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 export const insertInatPlaceSchema = createInsertSchema(inatPlacesTable).omit({ id: true });
 export const selectInatPlaceSchema = createSelectSchema(inatPlacesTable);
 export const insertInatSpeciesSchema = createInsertSchema(inatSpeciesTable).omit({ id: true });
@@ -90,6 +123,10 @@ export const insertInatHistogramSchema = createInsertSchema(inatHistogramTable).
 export const selectInatHistogramSchema = createSelectSchema(inatHistogramTable);
 export const insertInatFieldValuesSchema = createInsertSchema(inatFieldValuesTable).omit({ id: true });
 export const selectInatFieldValuesSchema = createSelectSchema(inatFieldValuesTable);
+export const insertInatControlledTermsSchema = createInsertSchema(inatControlledTermsTable).omit({ id: true });
+export const selectInatControlledTermsSchema = createSelectSchema(inatControlledTermsTable);
+export const insertInatTaxonByIdSchema = createInsertSchema(inatTaxonByIdTable).omit({ id: true });
+export const selectInatTaxonByIdSchema = createSelectSchema(inatTaxonByIdTable);
 
 export type InsertInatPlace = z.infer<typeof insertInatPlaceSchema>;
 export type InatPlace = typeof inatPlacesTable.$inferSelect;
@@ -99,3 +136,7 @@ export type InsertInatHistogram = z.infer<typeof insertInatHistogramSchema>;
 export type InatHistogram = typeof inatHistogramTable.$inferSelect;
 export type InsertInatFieldValues = z.infer<typeof insertInatFieldValuesSchema>;
 export type InatFieldValues = typeof inatFieldValuesTable.$inferSelect;
+export type InsertInatControlledTerms = z.infer<typeof insertInatControlledTermsSchema>;
+export type InatControlledTerms = typeof inatControlledTermsTable.$inferSelect;
+export type InsertInatTaxonById = z.infer<typeof insertInatTaxonByIdSchema>;
+export type InatTaxonById = typeof inatTaxonByIdTable.$inferSelect;

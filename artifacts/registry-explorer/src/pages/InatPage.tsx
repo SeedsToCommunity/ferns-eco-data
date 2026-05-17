@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { SourceExplorerLayout } from "@/components/SourceExplorerLayout";
-import { MapPin, Leaf, CalendarDays, Eye, BarChart2 } from "lucide-react";
+import { MapPin, Leaf, CalendarDays, Eye, BarChart2, Search } from "lucide-react";
 import { PlaceLookupTab } from "@/components/inat/PlaceLookupTab";
 import { SpeciesTab } from "@/components/inat/SpeciesTab";
 import { PhenologyTab } from "@/components/inat/PhenologyTab";
 import { ObservationsTab } from "@/components/inat/ObservationsTab";
 import { SpeciesCountsTab } from "@/components/inat/SpeciesCountsTab";
+import { LookupTab } from "@/components/inat/LookupTab";
 
 const TABS = [
   { id: "place", label: "Place Lookup", icon: MapPin },
@@ -13,6 +14,7 @@ const TABS = [
   { id: "phenology", label: "Phenology", icon: CalendarDays },
   { id: "observations", label: "Observations", icon: Eye },
   { id: "species-counts", label: "Species Counts", icon: BarChart2 },
+  { id: "lookup", label: "Lookup", icon: Search },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -113,6 +115,13 @@ export function InatPage() {
         {activeTab === "species-counts" && (
           <SpeciesCountsTab
             preloadedPlaceId={selectedPlaceId}
+            preloadedPlaceName={selectedPlaceName}
+            onTaxonSelected={handleTaxonSelected}
+          />
+        )}
+        {activeTab === "lookup" && (
+          <LookupTab
+            preloadedTaxonId={selectedTaxonId}
             preloadedPlaceName={selectedPlaceName}
             onTaxonSelected={handleTaxonSelected}
           />

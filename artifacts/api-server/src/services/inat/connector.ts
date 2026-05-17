@@ -74,6 +74,12 @@ export interface InatFieldValuesResult {
   upstream_url: string;
 }
 
+export interface InatPassthroughResult {
+  raw_response: Record<string, unknown>;
+  source_url: string;
+  upstream_url: string;
+}
+
 export function buildPlaceCacheKey(query: string): string {
   const normalized = query.trim().toLowerCase().replace(/\s+/g, ":");
   return `inat:place:${normalized}`;
@@ -95,6 +101,22 @@ export function buildHistogramCacheKey(taxonId: number, placeIds: number[], term
 export function buildFieldValuesCacheKey(taxonId: number, placeIds: number[], verifiable: boolean): string {
   const sortedIds = [...placeIds].sort((a, b) => a - b).join(",");
   return `inat:fv:${taxonId}:${sortedIds}:${verifiable ? "v" : "nv"}`;
+}
+
+export function buildControlledTermsCacheKey(): string {
+  return "inat:ct:all";
+}
+
+export function buildControlledTermsForTaxonCacheKey(taxonId: number): string {
+  return `inat:ct:taxon:${taxonId}`;
+}
+
+export function buildTaxonByIdCacheKey(taxonId: number): string {
+  return `inat:taxon:${taxonId}`;
+}
+
+export function buildPlaceByIdCacheKey(placeId: number): string {
+  return `inat:place-by-id:${placeId}`;
 }
 
 export function sortPlaceIds(placeIds: number[]): number[] {
@@ -389,18 +411,131 @@ export async function fetchFieldValues(taxonId: number, placeIds: number[], veri
   };
 }
 
+export async function fetchControlledTerms(): Promise<InatPassthroughResult> {
+  const url = `${INAT_API_BASE}/controlled_terms`;
+  const raw = await inatFetch(url) as Record<string, unknown>;
+  return {
+    raw_response: raw,
+    source_url: "https://www.inaturalist.org/controlled_terms",
+    upstream_url: url,
+  };
+}
+
+export async function fetchControlledTermsForTaxon(taxonId: number): Promise<InatPassthroughResult> {
+  const url = `${INAT_API_BASE}/controlled_terms/for_taxon?taxon_id=${taxonId}`;
+  const raw = await inatFetch(url) as Record<string, unknown>;
+  return {
+    raw_response: raw,
+    source_url: `https://www.inaturalist.org/taxa/${taxonId}`,
+    upstream_url: url,
+  };
+}
+
+export interface InatTaxaAutocompleteParams {
+  q: string;
+  per_page?: number;
+  is_active?: boolean;
+  rank?: string;
+  locale?: string;
+  all_names?: boolean;
+  preferred_place_id?: number;
+}
+
+export async function fetchTaxaAutocomplete(params: InatTaxaAutocompleteParams): Promise<InatPassthroughResult> {
+  const q = new URLSearchParams();
+  q.set("q", params.q);
+  if (params.per_page !== undefined) q.set("per_page", String(params.per_page));
+  if (params.is_active !== undefined) q.set("is_active", String(params.is_active));
+  if (params.rank) q.set("rank", params.rank);
+  if (params.locale) q.set("locale", params.locale);
+  if (params.all_names !== undefined) q.set("all_names", String(params.all_names));
+  if (params.preferred_place_id !== undefined) q.set("preferred_place_id", String(params.preferred_place_id));
+
+  const url = `${INAT_API_BASE}/taxa/autocomplete?${q.toString()}`;
+  const raw = await inatFetch(url) as Record<string, unknown>;
+  return {
+    raw_response: raw,
+    source_url: `https://www.inaturalist.org/taxa?q=${encodeURIComponent(params.q)}`,
+    upstream_url: url,
+  };
+}
+
+export async function fetchTaxonById(taxonId: number): Promise<InatPassthroughResult> {
+  const url = `${INAT_API_BASE}/taxa/${taxonId}`;
+  const raw = await inatFetch(url) as Record<string, unknown>;
+  return {
+    raw_response: raw,
+    source_url: `https://www.inaturalist.org/taxa/${taxonId}`,
+    upstream_url: url,
+  };
+}
+
+export interface InatPlaceByIdParams {
+  admin_level?: number;
+}
+
+export async function fetchPlaceById(placeId: number, params?: InatPlaceByIdParams): Promise<InatPassthroughResult> {
+  const q = new URLSearchParams();
+  if (params?.admin_level !== undefined) q.set("admin_level", String(params.admin_level));
+  const qs = q.toString();
+  const url = `${INAT_API_BASE}/places/${placeId}${qs ? `?${qs}` : ""}`;
+  const raw = await inatFetch(url) as Record<string, unknown>;
+  return {
+    raw_response: raw,
+    source_url: `https://www.inaturalist.org/places/${placeId}`,
+    upstream_url: url,
+  };
+}
+
+export interface InatPlacesNearbyParams {
+  nelat: number;
+  nelng: number;
+  swlat: number;
+  swlng: number;
+  name?: string;
+  per_page?: number;
+}
+
+export async function fetchPlacesNearby(params: InatPlacesNearbyParams): Promise<InatPassthroughResult> {
+  const q = new URLSearchParams();
+  q.set("nelat", String(params.nelat));
+  q.set("nelng", String(params.nelng));
+  q.set("swlat", String(params.swlat));
+  q.set("swlng", String(params.swlng));
+  if (params.name) q.set("name", params.name);
+  if (params.per_page !== undefined) q.set("per_page", String(params.per_page));
+
+  const url = `${INAT_API_BASE}/places/nearby?${q.toString()}`;
+  const raw = await inatFetch(url) as Record<string, unknown>;
+  return {
+    raw_response: raw,
+    source_url: `https://www.inaturalist.org/places?nelat=${params.nelat}&nelng=${params.nelng}&swlat=${params.swlat}&swlng=${params.swlng}`,
+    upstream_url: url,
+  };
+}
+
 export interface InatObservationSummaryRecord {
   id: number;
+  uuid: string | null;
   uri: string;
   observed_on: string | null;
   quality_grade: string | null;
+  obscured: boolean | null;
+  license_code: string | null;
+  description: string | null;
+  tags: string[] | null;
   taxon_name: string | null;
   common_name: string | null;
+  taxon: Record<string, unknown> | null;
   place_guess: string | null;
   location: string | null;
   observer: string | null;
+  user: Record<string, unknown> | null;
   photo_url: string | null;
   photo_attribution: string | null;
+  photos: Record<string, unknown>[] | null;
+  annotations: Record<string, unknown>[] | null;
+  ofvs: Record<string, unknown>[] | null;
 }
 
 export interface InatObservationSummaryResult {
@@ -413,12 +548,36 @@ export interface InatObservationSummaryResult {
   upstream_url: string;
 }
 
+export interface InatObservationSummaryParams {
+  taxon_id?: number | null;
+  place_id?: number | null;
+  quality_grade?: string | null;
+  per_page?: number;
+  page?: number;
+  lat?: number | null;
+  lng?: number | null;
+  radius?: number | null;
+  nelat?: number | null;
+  nelng?: number | null;
+  swlat?: number | null;
+  swlng?: number | null;
+}
+
 export async function fetchObservationSummary(
   taxonId: number | null,
   placeId: number | null,
   qualityGrade: string | null,
   perPage: number,
   page: number,
+  geoParams?: {
+    lat?: number | null;
+    lng?: number | null;
+    radius?: number | null;
+    nelat?: number | null;
+    nelng?: number | null;
+    swlat?: number | null;
+    swlng?: number | null;
+  },
 ): Promise<InatObservationSummaryResult> {
   const params = new URLSearchParams();
   if (taxonId !== null) params.set("taxon_id", String(taxonId));
@@ -428,6 +587,13 @@ export async function fetchObservationSummary(
   params.set("page", String(page));
   params.set("order", "desc");
   params.set("order_by", "created_at");
+  if (geoParams?.lat != null) params.set("lat", String(geoParams.lat));
+  if (geoParams?.lng != null) params.set("lng", String(geoParams.lng));
+  if (geoParams?.radius != null) params.set("radius", String(geoParams.radius));
+  if (geoParams?.nelat != null) params.set("nelat", String(geoParams.nelat));
+  if (geoParams?.nelng != null) params.set("nelng", String(geoParams.nelng));
+  if (geoParams?.swlat != null) params.set("swlat", String(geoParams.swlat));
+  if (geoParams?.swlng != null) params.set("swlng", String(geoParams.swlng));
 
   const url = `${INAT_API_BASE}/observations?${params.toString()}`;
   const raw = (await inatFetch(url)) as Record<string, unknown>;
@@ -442,22 +608,59 @@ export async function fetchObservationSummary(
     const photos = (r.photos as Record<string, unknown>[]) ?? [];
     const firstPhoto = photos[0] ?? null;
 
-    // iNat photo URLs come in as square size — swap to medium
     const rawPhotoUrl = (firstPhoto?.url as string) ?? null;
     const photo_url = rawPhotoUrl ? rawPhotoUrl.replace("/square.", "/medium.") : null;
 
+    const rawTags = (r.tags as unknown[]) ?? [];
+    const tags: string[] = rawTags
+      .map((t) => {
+        if (typeof t === "string") return t;
+        if (typeof t === "object" && t !== null && "name" in t) return String((t as Record<string, unknown>).name);
+        return null;
+      })
+      .filter((t): t is string => t !== null);
+
+    const taxonRecord: Record<string, unknown> | null = taxon
+      ? {
+          id: taxon.id,
+          rank: taxon.rank ?? null,
+          name: taxon.name ?? null,
+          preferred_common_name: taxon.preferred_common_name ?? null,
+          iconic_taxon_name: taxon.iconic_taxon_name ?? null,
+          default_photo: (taxon.default_photo as Record<string, unknown>) ?? null,
+        }
+      : null;
+
+    const userRecord: Record<string, unknown> | null = user
+      ? {
+          id: user.id,
+          login: user.login ?? null,
+          name: user.name ?? null,
+        }
+      : null;
+
     return {
       id: r.id as number,
+      uuid: (r.uuid as string) ?? null,
       uri: (r.uri as string) ?? `https://www.inaturalist.org/observations/${r.id}`,
       observed_on: (r.observed_on as string) ?? null,
       quality_grade: (r.quality_grade as string) ?? null,
+      obscured: typeof r.obscured === "boolean" ? r.obscured : null,
+      license_code: (r.license_code as string) ?? null,
+      description: (r.description as string) ?? null,
+      tags: tags.length > 0 ? tags : null,
       taxon_name: (taxon?.name as string) ?? null,
       common_name: (taxon?.preferred_common_name as string) ?? null,
+      taxon: taxonRecord,
       place_guess: (r.place_guess as string) ?? null,
       location: (r.location as string) ?? null,
       observer: (user?.login as string) ?? null,
+      user: userRecord,
       photo_url,
       photo_attribution: (firstPhoto?.attribution as string) ?? null,
+      photos: photos.length > 0 ? photos : null,
+      annotations: ((r.annotations as Record<string, unknown>[]) ?? null),
+      ofvs: ((r.ofvs as Record<string, unknown>[]) ?? null),
     };
   });
 

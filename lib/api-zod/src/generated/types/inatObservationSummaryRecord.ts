@@ -5,31 +5,56 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
+import type { InatObservationSummaryRecordAnnotationsItem } from "./inatObservationSummaryRecordAnnotationsItem";
+import type { InatObservationSummaryRecordOfvsItem } from "./inatObservationSummaryRecordOfvsItem";
+import type { InatObservationSummaryRecordPhotosItem } from "./inatObservationSummaryRecordPhotosItem";
+import type { InatObservationSummaryRecordTaxon } from "./inatObservationSummaryRecordTaxon";
+import type { InatObservationSummaryRecordUser } from "./inatObservationSummaryRecordUser";
 
 /**
- * Curated subset of a single iNaturalist observation. Follow the uri field for the complete record on iNaturalist.
+ * Expanded field subset of a single iNaturalist observation. Follow the uri field for the complete record on iNaturalist. Note: nativity data (native, introduced, endemic status) is NOT present on observation records — it lives in listed_taxa on the taxon record, available via GET /inat/taxon/{id}.
 
  */
 export interface InatObservationSummaryRecord {
   id: number;
+  /** UUID of the observation */
+  uuid?: string | null;
   /** Canonical URL to the full observation on iNaturalist */
   uri: string;
   /** Date the observation was made (YYYY-MM-DD) */
   observed_on?: string | null;
   /** research | needs_id | casual */
   quality_grade?: string | null;
-  /** Scientific name */
+  /** Whether the location has been obscured for this observation */
+  obscured?: boolean | null;
+  /** License code for this observation (e.g. cc-by, cc-by-nc) */
+  license_code?: string | null;
+  /** Observer-provided description text */
+  description?: string | null;
+  /** Tags applied to this observation */
+  tags?: string[] | null;
+  /** Scientific name (shorthand from taxon.name) */
   taxon_name?: string | null;
-  /** Preferred common name */
+  /** Preferred common name (shorthand from taxon.preferred_common_name) */
   common_name?: string | null;
+  /** Taxon sub-object with key fields */
+  taxon?: InatObservationSummaryRecordTaxon;
   /** Human-readable location string provided by the observer */
   place_guess?: string | null;
   /** lat,lng decimal string */
   location?: string | null;
-  /** iNaturalist login of the observer */
+  /** iNaturalist login of the observer (shorthand from user.login) */
   observer?: string | null;
-  /** Medium-size URL of the first photo */
+  /** Observer user sub-object */
+  user?: InatObservationSummaryRecordUser;
+  /** Medium-size URL of the first photo (shorthand) */
   photo_url?: string | null;
-  /** License and attribution text for the first photo */
+  /** License and attribution text for the first photo (shorthand) */
   photo_attribution?: string | null;
+  /** Full photos array from iNaturalist */
+  photos?: InatObservationSummaryRecordPhotosItem[] | null;
+  /** Controlled annotation values on this observation */
+  annotations?: InatObservationSummaryRecordAnnotationsItem[] | null;
+  /** Observer field values (OFVs) on this observation */
+  ofvs?: InatObservationSummaryRecordOfvsItem[] | null;
 }

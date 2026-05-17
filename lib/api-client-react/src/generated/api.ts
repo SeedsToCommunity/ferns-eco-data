@@ -43,12 +43,18 @@ import type {
   GetGoogleImagesParams,
   GetIllinoisWildflowersParams,
   GetIllinoisWildflowersSpeciesTextParams,
+  GetInatControlledTermsForTaxonParams,
+  GetInatControlledTermsParams,
   GetInatFieldValuesParams,
   GetInatHistogramParams,
   GetInatObservationSummaryParams,
+  GetInatPlaceByIdParams,
   GetInatPlaceParams,
+  GetInatPlacesNearbyParams,
   GetInatSpeciesCountsParams,
   GetInatSpeciesParams,
+  GetInatTaxaAutocompleteParams,
+  GetInatTaxonByIdParams,
   GetLadyBirdJohnsonParams,
   GetLadyBirdJohnsonSpeciesTextParams,
   GetLcscgSpeciesParams,
@@ -78,13 +84,19 @@ import type {
   HealthStatus,
   ImportAnnArborNpn200,
   ImportAnnArborNpnBody,
+  InatControlledTermsForTaxonResponse,
+  InatControlledTermsResponse,
   InatFieldValuesResponse,
   InatHistogramResponse,
   InatMetadataResponse,
   InatObservationSummaryResponse,
+  InatPlaceByIdResponse,
   InatPlaceResponse,
+  InatPlacesNearbyResponse,
   InatSpeciesCountsResponse,
   InatSpeciesResponse,
+  InatTaxaAutocompleteResponse,
+  InatTaxonByIdResponse,
   LbjSpeciesTextResponse,
   LbjUrlCheckResponse,
   LcscgGuideResponse,
@@ -1463,6 +1475,662 @@ export function useGetInatSpeciesCounts<
   },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetInatSpeciesCountsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns the full list of iNaturalist controlled annotation terms and their possible values (e.g. term_id=12 "Flowers and Fruits" with values "Flowering", "Fruiting", etc). The controlled terms list is essentially static (iNat changes it extremely rarely). Cached permanently in the DB; use refresh=true to force a re-fetch. Results are wrapped in the standard FERNS provenance envelope.
+
+ * @summary All iNaturalist controlled annotation terms
+ */
+export const getGetInatControlledTermsUrl = (
+  params?: GetInatControlledTermsParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/inat/controlled-terms?${stringifiedParams}`
+    : `/api/inat/controlled-terms`;
+};
+
+export const getInatControlledTerms = async (
+  params?: GetInatControlledTermsParams,
+  options?: RequestInit,
+): Promise<InatControlledTermsResponse> => {
+  return customFetch<InatControlledTermsResponse>(
+    getGetInatControlledTermsUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetInatControlledTermsQueryKey = (
+  params?: GetInatControlledTermsParams,
+) => {
+  return [`/api/inat/controlled-terms`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetInatControlledTermsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getInatControlledTerms>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params?: GetInatControlledTermsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatControlledTerms>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetInatControlledTermsQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getInatControlledTerms>>
+  > = ({ signal }) =>
+    getInatControlledTerms(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getInatControlledTerms>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetInatControlledTermsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getInatControlledTerms>>
+>;
+export type GetInatControlledTermsQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary All iNaturalist controlled annotation terms
+ */
+
+export function useGetInatControlledTerms<
+  TData = Awaited<ReturnType<typeof getInatControlledTerms>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params?: GetInatControlledTermsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatControlledTerms>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetInatControlledTermsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns the controlled annotation terms that are applicable to a specific taxon (e.g. Flowers and Fruits applies to plants but not birds). Cached permanently in the DB keyed by taxon_id; use refresh=true to force a re-fetch. Results are wrapped in the standard FERNS provenance envelope.
+
+ * @summary iNaturalist controlled terms applicable to a specific taxon
+ */
+export const getGetInatControlledTermsForTaxonUrl = (
+  params: GetInatControlledTermsForTaxonParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/inat/controlled-terms/for-taxon?${stringifiedParams}`
+    : `/api/inat/controlled-terms/for-taxon`;
+};
+
+export const getInatControlledTermsForTaxon = async (
+  params: GetInatControlledTermsForTaxonParams,
+  options?: RequestInit,
+): Promise<InatControlledTermsForTaxonResponse> => {
+  return customFetch<InatControlledTermsForTaxonResponse>(
+    getGetInatControlledTermsForTaxonUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetInatControlledTermsForTaxonQueryKey = (
+  params?: GetInatControlledTermsForTaxonParams,
+) => {
+  return [
+    `/api/inat/controlled-terms/for-taxon`,
+    ...(params ? [params] : []),
+  ] as const;
+};
+
+export const getGetInatControlledTermsForTaxonQueryOptions = <
+  TData = Awaited<ReturnType<typeof getInatControlledTermsForTaxon>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetInatControlledTermsForTaxonParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatControlledTermsForTaxon>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetInatControlledTermsForTaxonQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getInatControlledTermsForTaxon>>
+  > = ({ signal }) =>
+    getInatControlledTermsForTaxon(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getInatControlledTermsForTaxon>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetInatControlledTermsForTaxonQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getInatControlledTermsForTaxon>>
+>;
+export type GetInatControlledTermsForTaxonQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary iNaturalist controlled terms applicable to a specific taxon
+ */
+
+export function useGetInatControlledTermsForTaxon<
+  TData = Awaited<ReturnType<typeof getInatControlledTermsForTaxon>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetInatControlledTermsForTaxonParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatControlledTermsForTaxon>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetInatControlledTermsForTaxonQueryOptions(
+    params,
+    options,
+  );
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Live passthrough for iNaturalist's /taxa/autocomplete endpoint. Returns matching taxa with photos, observation counts, and common names. Intended for type-ahead / search-as-you-type UIs. No cache — every call is live. Results are wrapped in the standard FERNS provenance envelope.
+
+ * @summary Fast partial-name taxon search with photo thumbnail
+ */
+export const getGetInatTaxaAutocompleteUrl = (
+  params: GetInatTaxaAutocompleteParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/inat/taxa/autocomplete?${stringifiedParams}`
+    : `/api/inat/taxa/autocomplete`;
+};
+
+export const getInatTaxaAutocomplete = async (
+  params: GetInatTaxaAutocompleteParams,
+  options?: RequestInit,
+): Promise<InatTaxaAutocompleteResponse> => {
+  return customFetch<InatTaxaAutocompleteResponse>(
+    getGetInatTaxaAutocompleteUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetInatTaxaAutocompleteQueryKey = (
+  params?: GetInatTaxaAutocompleteParams,
+) => {
+  return [`/api/inat/taxa/autocomplete`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetInatTaxaAutocompleteQueryOptions = <
+  TData = Awaited<ReturnType<typeof getInatTaxaAutocomplete>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetInatTaxaAutocompleteParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatTaxaAutocomplete>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetInatTaxaAutocompleteQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getInatTaxaAutocomplete>>
+  > = ({ signal }) =>
+    getInatTaxaAutocomplete(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getInatTaxaAutocomplete>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetInatTaxaAutocompleteQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getInatTaxaAutocomplete>>
+>;
+export type GetInatTaxaAutocompleteQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Fast partial-name taxon search with photo thumbnail
+ */
+
+export function useGetInatTaxaAutocomplete<
+  TData = Awaited<ReturnType<typeof getInatTaxaAutocomplete>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetInatTaxaAutocompleteParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatTaxaAutocomplete>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetInatTaxaAutocompleteQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns the full iNaturalist taxon record for a known taxon ID, including Wikipedia summary, listed_taxa (nativity per place — up to 41 entries for common species), children, conservation_status, and default_photo. DB-cached for 30 days keyed by taxon ID; use refresh=true to force a re-fetch. Results are wrapped in the standard FERNS provenance envelope.
+
+ * @summary Full iNaturalist taxon record by numeric ID
+ */
+export const getGetInatTaxonByIdUrl = (
+  id: number,
+  params?: GetInatTaxonByIdParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/inat/taxon/${id}?${stringifiedParams}`
+    : `/api/inat/taxon/${id}`;
+};
+
+export const getInatTaxonById = async (
+  id: number,
+  params?: GetInatTaxonByIdParams,
+  options?: RequestInit,
+): Promise<InatTaxonByIdResponse> => {
+  return customFetch<InatTaxonByIdResponse>(
+    getGetInatTaxonByIdUrl(id, params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetInatTaxonByIdQueryKey = (
+  id: number,
+  params?: GetInatTaxonByIdParams,
+) => {
+  return [`/api/inat/taxon/${id}`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetInatTaxonByIdQueryOptions = <
+  TData = Awaited<ReturnType<typeof getInatTaxonById>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: number,
+  params?: GetInatTaxonByIdParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatTaxonById>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetInatTaxonByIdQueryKey(id, params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getInatTaxonById>>
+  > = ({ signal }) =>
+    getInatTaxonById(id, params, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getInatTaxonById>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetInatTaxonByIdQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getInatTaxonById>>
+>;
+export type GetInatTaxonByIdQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Full iNaturalist taxon record by numeric ID
+ */
+
+export function useGetInatTaxonById<
+  TData = Awaited<ReturnType<typeof getInatTaxonById>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: number,
+  params?: GetInatTaxonByIdParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatTaxonById>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetInatTaxonByIdQueryOptions(id, params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns the full iNaturalist place record for a known place ID, including centroid, bounding box, admin hierarchy, display name, and place type. DB-cached permanently (place IDs are stable); use refresh=true to force a re-fetch. Results are wrapped in the standard FERNS provenance envelope.
+
+ * @summary iNaturalist place record by numeric ID
+ */
+export const getGetInatPlaceByIdUrl = (
+  id: number,
+  params?: GetInatPlaceByIdParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/inat/place/${id}?${stringifiedParams}`
+    : `/api/inat/place/${id}`;
+};
+
+export const getInatPlaceById = async (
+  id: number,
+  params?: GetInatPlaceByIdParams,
+  options?: RequestInit,
+): Promise<InatPlaceByIdResponse> => {
+  return customFetch<InatPlaceByIdResponse>(
+    getGetInatPlaceByIdUrl(id, params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetInatPlaceByIdQueryKey = (
+  id: number,
+  params?: GetInatPlaceByIdParams,
+) => {
+  return [`/api/inat/place/${id}`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetInatPlaceByIdQueryOptions = <
+  TData = Awaited<ReturnType<typeof getInatPlaceById>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: number,
+  params?: GetInatPlaceByIdParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatPlaceById>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetInatPlaceByIdQueryKey(id, params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getInatPlaceById>>
+  > = ({ signal }) =>
+    getInatPlaceById(id, params, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getInatPlaceById>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetInatPlaceByIdQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getInatPlaceById>>
+>;
+export type GetInatPlaceByIdQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary iNaturalist place record by numeric ID
+ */
+
+export function useGetInatPlaceById<
+  TData = Awaited<ReturnType<typeof getInatPlaceById>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: number,
+  params?: GetInatPlaceByIdParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatPlaceById>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetInatPlaceByIdQueryOptions(id, params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Live passthrough for iNaturalist's /places/nearby endpoint. Returns standard (admin) and community places within the given bounding box. No cache — bounding box inputs produce a combinatorially large key space. Results are wrapped in the standard FERNS provenance envelope.
+
+ * @summary iNaturalist places within a bounding box
+ */
+export const getGetInatPlacesNearbyUrl = (
+  params: GetInatPlacesNearbyParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/inat/places/nearby?${stringifiedParams}`
+    : `/api/inat/places/nearby`;
+};
+
+export const getInatPlacesNearby = async (
+  params: GetInatPlacesNearbyParams,
+  options?: RequestInit,
+): Promise<InatPlacesNearbyResponse> => {
+  return customFetch<InatPlacesNearbyResponse>(
+    getGetInatPlacesNearbyUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetInatPlacesNearbyQueryKey = (
+  params?: GetInatPlacesNearbyParams,
+) => {
+  return [`/api/inat/places/nearby`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetInatPlacesNearbyQueryOptions = <
+  TData = Awaited<ReturnType<typeof getInatPlacesNearby>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetInatPlacesNearbyParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatPlacesNearby>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetInatPlacesNearbyQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getInatPlacesNearby>>
+  > = ({ signal }) =>
+    getInatPlacesNearby(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getInatPlacesNearby>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetInatPlacesNearbyQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getInatPlacesNearby>>
+>;
+export type GetInatPlacesNearbyQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary iNaturalist places within a bounding box
+ */
+
+export function useGetInatPlacesNearby<
+  TData = Awaited<ReturnType<typeof getInatPlacesNearby>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetInatPlacesNearbyParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatPlacesNearby>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetInatPlacesNearbyQueryOptions(params, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

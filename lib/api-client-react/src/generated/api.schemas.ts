@@ -552,32 +552,85 @@ export interface InatFieldValuesResponse {
   provenance: FernsProvenance;
 }
 
+export type InatObservationSummaryRecordTaxonDefaultPhoto = {
+  [key: string]: unknown;
+} | null;
+
 /**
- * Curated subset of a single iNaturalist observation. Follow the uri field for the complete record on iNaturalist.
+ * Taxon sub-object with key fields
+ */
+export type InatObservationSummaryRecordTaxon = {
+  id?: number;
+  rank?: string | null;
+  iconic_taxon_name?: string | null;
+  default_photo?: InatObservationSummaryRecordTaxonDefaultPhoto;
+  [key: string]: unknown;
+} | null;
+
+/**
+ * Observer user sub-object
+ */
+export type InatObservationSummaryRecordUser = {
+  id?: number;
+  name?: string | null;
+  login?: string | null;
+  [key: string]: unknown;
+} | null;
+
+export type InatObservationSummaryRecordPhotosItem = { [key: string]: unknown };
+
+export type InatObservationSummaryRecordAnnotationsItem = {
+  [key: string]: unknown;
+};
+
+export type InatObservationSummaryRecordOfvsItem = { [key: string]: unknown };
+
+/**
+ * Expanded field subset of a single iNaturalist observation. Follow the uri field for the complete record on iNaturalist. Note: nativity data (native, introduced, endemic status) is NOT present on observation records — it lives in listed_taxa on the taxon record, available via GET /inat/taxon/{id}.
 
  */
 export interface InatObservationSummaryRecord {
   id: number;
+  /** UUID of the observation */
+  uuid?: string | null;
   /** Canonical URL to the full observation on iNaturalist */
   uri: string;
   /** Date the observation was made (YYYY-MM-DD) */
   observed_on?: string | null;
   /** research | needs_id | casual */
   quality_grade?: string | null;
-  /** Scientific name */
+  /** Whether the location has been obscured for this observation */
+  obscured?: boolean | null;
+  /** License code for this observation (e.g. cc-by, cc-by-nc) */
+  license_code?: string | null;
+  /** Observer-provided description text */
+  description?: string | null;
+  /** Tags applied to this observation */
+  tags?: string[] | null;
+  /** Scientific name (shorthand from taxon.name) */
   taxon_name?: string | null;
-  /** Preferred common name */
+  /** Preferred common name (shorthand from taxon.preferred_common_name) */
   common_name?: string | null;
+  /** Taxon sub-object with key fields */
+  taxon?: InatObservationSummaryRecordTaxon;
   /** Human-readable location string provided by the observer */
   place_guess?: string | null;
   /** lat,lng decimal string */
   location?: string | null;
-  /** iNaturalist login of the observer */
+  /** iNaturalist login of the observer (shorthand from user.login) */
   observer?: string | null;
-  /** Medium-size URL of the first photo */
+  /** Observer user sub-object */
+  user?: InatObservationSummaryRecordUser;
+  /** Medium-size URL of the first photo (shorthand) */
   photo_url?: string | null;
-  /** License and attribution text for the first photo */
+  /** License and attribution text for the first photo (shorthand) */
   photo_attribution?: string | null;
+  /** Full photos array from iNaturalist */
+  photos?: InatObservationSummaryRecordPhotosItem[] | null;
+  /** Controlled annotation values on this observation */
+  annotations?: InatObservationSummaryRecordAnnotationsItem[] | null;
+  /** Observer field values (OFVs) on this observation */
+  ofvs?: InatObservationSummaryRecordOfvsItem[] | null;
 }
 
 export interface InatObservationSummaryData {
@@ -593,6 +646,96 @@ export interface InatObservationSummaryResponse {
   source_url: string;
   found: boolean;
   data: InatObservationSummaryData;
+  provenance: FernsProvenance;
+}
+
+/**
+ * Raw iNaturalist controlled_terms response.
+ */
+export type InatControlledTermsResponseData = { [key: string]: unknown };
+
+export interface InatControlledTermsResponse {
+  source_url: string;
+  found: boolean;
+  cache_status?: string;
+  /** Raw iNaturalist controlled_terms response. */
+  data: InatControlledTermsResponseData;
+  provenance: FernsProvenance;
+}
+
+/**
+ * Raw iNaturalist controlled_terms/for_taxon response.
+ */
+export type InatControlledTermsForTaxonResponseData = {
+  [key: string]: unknown;
+};
+
+export interface InatControlledTermsForTaxonResponse {
+  source_url: string;
+  found: boolean;
+  cache_status?: string;
+  /** Raw iNaturalist controlled_terms/for_taxon response. */
+  data: InatControlledTermsForTaxonResponseData;
+  provenance: FernsProvenance;
+}
+
+/**
+ * Raw iNaturalist taxa/autocomplete response with results array.
+ */
+export type InatTaxaAutocompleteResponseData = { [key: string]: unknown };
+
+export interface InatTaxaAutocompleteResponse {
+  source_url: string;
+  found: boolean;
+  /** Raw iNaturalist taxa/autocomplete response with results array. */
+  data: InatTaxaAutocompleteResponseData;
+  provenance: FernsProvenance;
+}
+
+/**
+ * Raw iNaturalist taxa/{id} response. Includes wikipedia_summary, listed_taxa (nativity per place), children, conservation_status, and default_photo. The listed_taxa array is the canonical source of native/introduced/endemic status for this taxon.
+
+ */
+export type InatTaxonByIdResponseData = { [key: string]: unknown };
+
+export interface InatTaxonByIdResponse {
+  source_url: string;
+  found: boolean;
+  cache_status?: string;
+  /** Raw iNaturalist taxa/{id} response. Includes wikipedia_summary, listed_taxa (nativity per place), children, conservation_status, and default_photo. The listed_taxa array is the canonical source of native/introduced/endemic status for this taxon.
+   */
+  data: InatTaxonByIdResponseData;
+  provenance: FernsProvenance;
+}
+
+/**
+ * Raw iNaturalist places/{id} response. Includes display_name, place_type, centroid, bounding_box_geojson, and admin hierarchy (admin_level, parent_id).
+
+ */
+export type InatPlaceByIdResponseData = { [key: string]: unknown };
+
+export interface InatPlaceByIdResponse {
+  source_url: string;
+  found: boolean;
+  cache_status?: string;
+  /** Raw iNaturalist places/{id} response. Includes display_name, place_type, centroid, bounding_box_geojson, and admin hierarchy (admin_level, parent_id).
+   */
+  data: InatPlaceByIdResponseData;
+  provenance: FernsProvenance;
+}
+
+/**
+ * Raw iNaturalist places/nearby response. Contains two result arrays: standard (admin places) and community (user-created places).
+
+ */
+export type InatPlacesNearbyResponseData = { [key: string]: unknown };
+
+export interface InatPlacesNearbyResponse {
+  source_url: string;
+  found: boolean;
+  /** Raw iNaturalist places/nearby response. Contains two result arrays: standard (admin places) and community (user-created places).
+   */
+  data: InatPlacesNearbyResponseData;
   provenance: FernsProvenance;
 }
 
@@ -2552,6 +2695,34 @@ export type GetInatObservationSummaryParams = {
    * @minimum 1
    */
   page?: number;
+  /**
+   * Center latitude for radius-based geographic filter. Requires lng and radius.
+   */
+  lat?: number;
+  /**
+   * Center longitude for radius-based geographic filter. Requires lat and radius.
+   */
+  lng?: number;
+  /**
+   * Radius in km around the lat/lng center point.
+   */
+  radius?: number;
+  /**
+   * Northeast corner latitude for bounding box filter.
+   */
+  nelat?: number;
+  /**
+   * Northeast corner longitude for bounding box filter.
+   */
+  nelng?: number;
+  /**
+   * Southwest corner latitude for bounding box filter.
+   */
+  swlat?: number;
+  /**
+   * Southwest corner longitude for bounding box filter.
+   */
+  swlng?: number;
 };
 
 export type GetInatObservationSummaryQualityGrade =
@@ -2644,6 +2815,181 @@ export const GetInatSpeciesCountsQualityGrade = {
   research: "research",
   needs_id: "needs_id",
   casual: "casual",
+} as const;
+
+export type GetInatControlledTermsParams = {
+  /**
+   * Bypass cache and re-fetch from iNaturalist
+   */
+  refresh?: boolean;
+  /**
+   * Controls provenance text: full (default), summary, or none
+   */
+  provenance_verbosity?: GetInatControlledTermsProvenanceVerbosity;
+};
+
+export type GetInatControlledTermsProvenanceVerbosity =
+  (typeof GetInatControlledTermsProvenanceVerbosity)[keyof typeof GetInatControlledTermsProvenanceVerbosity];
+
+export const GetInatControlledTermsProvenanceVerbosity = {
+  full: "full",
+  summary: "summary",
+  none: "none",
+} as const;
+
+export type GetInatControlledTermsForTaxonParams = {
+  /**
+   * iNaturalist taxon ID
+   */
+  taxon_id: number;
+  /**
+   * Bypass cache and re-fetch from iNaturalist
+   */
+  refresh?: boolean;
+  /**
+   * Controls provenance text: full (default), summary, or none
+   */
+  provenance_verbosity?: GetInatControlledTermsForTaxonProvenanceVerbosity;
+};
+
+export type GetInatControlledTermsForTaxonProvenanceVerbosity =
+  (typeof GetInatControlledTermsForTaxonProvenanceVerbosity)[keyof typeof GetInatControlledTermsForTaxonProvenanceVerbosity];
+
+export const GetInatControlledTermsForTaxonProvenanceVerbosity = {
+  full: "full",
+  summary: "summary",
+  none: "none",
+} as const;
+
+export type GetInatTaxaAutocompleteParams = {
+  /**
+   * Partial or full scientific or common name to search for
+   */
+  q: string;
+  /**
+   * Results per page (default 10, max 10 for autocomplete)
+   * @minimum 1
+   * @maximum 10
+   */
+  per_page?: number;
+  /**
+   * Filter to active taxa only (default true)
+   */
+  is_active?: boolean;
+  /**
+   * Taxonomic rank filter (e.g. species, genus, family)
+   */
+  rank?: string;
+  /**
+   * Locale code for common names (e.g. en, es, de)
+   */
+  locale?: string;
+  /**
+   * Include all name variants in search (not just preferred)
+   */
+  all_names?: boolean;
+  /**
+   * iNaturalist place ID to prioritize common names for that place
+   */
+  preferred_place_id?: number;
+  /**
+   * Controls provenance text: full (default), summary, or none
+   */
+  provenance_verbosity?: GetInatTaxaAutocompleteProvenanceVerbosity;
+};
+
+export type GetInatTaxaAutocompleteProvenanceVerbosity =
+  (typeof GetInatTaxaAutocompleteProvenanceVerbosity)[keyof typeof GetInatTaxaAutocompleteProvenanceVerbosity];
+
+export const GetInatTaxaAutocompleteProvenanceVerbosity = {
+  full: "full",
+  summary: "summary",
+  none: "none",
+} as const;
+
+export type GetInatTaxonByIdParams = {
+  /**
+   * Bypass cache and re-fetch from iNaturalist
+   */
+  refresh?: boolean;
+  /**
+   * Controls provenance text: full (default), summary, or none
+   */
+  provenance_verbosity?: GetInatTaxonByIdProvenanceVerbosity;
+};
+
+export type GetInatTaxonByIdProvenanceVerbosity =
+  (typeof GetInatTaxonByIdProvenanceVerbosity)[keyof typeof GetInatTaxonByIdProvenanceVerbosity];
+
+export const GetInatTaxonByIdProvenanceVerbosity = {
+  full: "full",
+  summary: "summary",
+  none: "none",
+} as const;
+
+export type GetInatPlaceByIdParams = {
+  /**
+   * Admin level filter (e.g. 0=country, 1=state, 2=county)
+   */
+  admin_level?: number;
+  /**
+   * Bypass cache and re-fetch from iNaturalist
+   */
+  refresh?: boolean;
+  /**
+   * Controls provenance text: full (default), summary, or none
+   */
+  provenance_verbosity?: GetInatPlaceByIdProvenanceVerbosity;
+};
+
+export type GetInatPlaceByIdProvenanceVerbosity =
+  (typeof GetInatPlaceByIdProvenanceVerbosity)[keyof typeof GetInatPlaceByIdProvenanceVerbosity];
+
+export const GetInatPlaceByIdProvenanceVerbosity = {
+  full: "full",
+  summary: "summary",
+  none: "none",
+} as const;
+
+export type GetInatPlacesNearbyParams = {
+  /**
+   * Northeast corner latitude of the bounding box
+   */
+  nelat: number;
+  /**
+   * Northeast corner longitude of the bounding box
+   */
+  nelng: number;
+  /**
+   * Southwest corner latitude of the bounding box
+   */
+  swlat: number;
+  /**
+   * Southwest corner longitude of the bounding box
+   */
+  swlng: number;
+  /**
+   * Optional name filter to narrow results
+   */
+  name?: string;
+  /**
+   * Results per page
+   * @minimum 1
+   */
+  per_page?: number;
+  /**
+   * Controls provenance text: full (default), summary, or none
+   */
+  provenance_verbosity?: GetInatPlacesNearbyProvenanceVerbosity;
+};
+
+export type GetInatPlacesNearbyProvenanceVerbosity =
+  (typeof GetInatPlacesNearbyProvenanceVerbosity)[keyof typeof GetInatPlacesNearbyProvenanceVerbosity];
+
+export const GetInatPlacesNearbyProvenanceVerbosity = {
+  full: "full",
+  summary: "summary",
+  none: "none",
 } as const;
 
 export type GetMifloraSpeciesParams = {

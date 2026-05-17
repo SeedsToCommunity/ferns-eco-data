@@ -328,6 +328,160 @@ const tools: ToolDef[] = [
       }),
   },
 
+  {
+    tool: {
+      name: "inaturalist__controlled_terms",
+      description:
+        "Returns the full list of iNaturalist controlled annotation terms and their possible values. Use this to look up term_id and term_value_id pairs (e.g. term_id=12 for Flowers and Fruits, with values Flowering, Fruiting, etc). The list is essentially static — cached permanently. Use refresh=true to force a re-fetch.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          refresh: { type: "boolean", description: "Bypass cache and re-fetch from iNaturalist" },
+          ...PV_PROP,
+        },
+        required: [],
+      },
+    },
+    handler: async (args) =>
+      apiGet("/inat/controlled-terms", {
+        refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        provenance_verbosity: pv(args),
+      }),
+  },
+
+  {
+    tool: {
+      name: "inaturalist__controlled_terms_for_taxon",
+      description:
+        "Returns the controlled annotation terms applicable to a specific iNaturalist taxon (e.g. Flowers and Fruits applies to plants, not birds). Cached permanently by taxon_id. Use this to know which term_id values are valid for a given taxon before filtering histograms or species counts.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          taxon_id: { type: "number", description: "iNaturalist taxon ID (integer)" },
+          refresh:  { type: "boolean", description: "Bypass cache" },
+          ...PV_PROP,
+        },
+        required: ["taxon_id"],
+      },
+    },
+    handler: async (args) =>
+      apiGet("/inat/controlled-terms/for-taxon", {
+        taxon_id: Number(args["taxon_id"]),
+        refresh:  args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        provenance_verbosity: pv(args),
+      }),
+  },
+
+  {
+    tool: {
+      name: "inaturalist__taxa_autocomplete",
+      description:
+        "Fast partial-name taxon search on iNaturalist with photo thumbnails and observation counts. Designed for type-ahead search. Returns up to 10 results. No cache — every call is live. Use this to find taxon IDs for use in other iNaturalist tools.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          q:                  { type: "string",  description: "Partial or full scientific or common name" },
+          per_page:           { type: "number",  description: "Results to return (max 10, default 10)" },
+          is_active:          { type: "boolean", description: "Filter to active taxa only (default true)" },
+          rank:               { type: "string",  description: "Taxonomic rank filter (e.g. species, genus, family)" },
+          locale:             { type: "string",  description: "Locale code for common names (e.g. en, es)" },
+          all_names:          { type: "boolean", description: "Include all name variants in search" },
+          preferred_place_id: { type: "number",  description: "Place ID to prioritize common names for that place" },
+          ...PV_PROP,
+        },
+        required: ["q"],
+      },
+    },
+    handler: async (args) =>
+      apiGet("/inat/taxa/autocomplete", {
+        q:                  String(args["q"]),
+        per_page:           args["per_page"]           !== undefined ? Number(args["per_page"])           : undefined,
+        is_active:          args["is_active"]          !== undefined ? String(args["is_active"])          : undefined,
+        rank:               args["rank"]               !== undefined ? String(args["rank"])               : undefined,
+        locale:             args["locale"]             !== undefined ? String(args["locale"])             : undefined,
+        all_names:          args["all_names"]          !== undefined ? String(args["all_names"])          : undefined,
+        preferred_place_id: args["preferred_place_id"] !== undefined ? Number(args["preferred_place_id"]) : undefined,
+        provenance_verbosity: pv(args),
+      }),
+  },
+
+  {
+    tool: {
+      name: "inaturalist__taxon_by_id",
+      description:
+        "Returns the full iNaturalist taxon record for a known taxon ID, including Wikipedia summary, listed_taxa (nativity per place — the canonical source of native/introduced/endemic status), children, conservation_status, and default_photo. DB-cached for 30 days. Use refresh=true to force a re-fetch.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          id:      { type: "number",  description: "iNaturalist taxon ID (integer)" },
+          refresh: { type: "boolean", description: "Bypass cache" },
+          ...PV_PROP,
+        },
+        required: ["id"],
+      },
+    },
+    handler: async (args) =>
+      apiGet(`/inat/taxon/${Number(args["id"])}`, {
+        refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        provenance_verbosity: pv(args),
+      }),
+  },
+
+  {
+    tool: {
+      name: "inaturalist__place_by_id",
+      description:
+        "Returns the full iNaturalist place record for a known place ID, including display name, place type, centroid, bounding box, and admin hierarchy. DB-cached permanently (place IDs are stable). Use refresh=true to force a re-fetch.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          id:          { type: "number",  description: "iNaturalist place ID (integer)" },
+          admin_level: { type: "number",  description: "Admin level filter (0=country, 1=state, 2=county)" },
+          refresh:     { type: "boolean", description: "Bypass cache" },
+          ...PV_PROP,
+        },
+        required: ["id"],
+      },
+    },
+    handler: async (args) =>
+      apiGet(`/inat/place/${Number(args["id"])}`, {
+        admin_level: args["admin_level"] !== undefined ? Number(args["admin_level"]) : undefined,
+        refresh:     args["refresh"]     !== undefined ? String(args["refresh"])     : undefined,
+        provenance_verbosity: pv(args),
+      }),
+  },
+
+  {
+    tool: {
+      name: "inaturalist__places_nearby",
+      description:
+        "Returns standard (admin) and community places within a bounding box from iNaturalist. Useful for discovering what iNaturalist place IDs cover a given geographic area. No cache — live call. Provide all four bounding box corners: nelat, nelng (NE corner) and swlat, swlng (SW corner).",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          nelat:    { type: "number", description: "Northeast corner latitude" },
+          nelng:    { type: "number", description: "Northeast corner longitude" },
+          swlat:    { type: "number", description: "Southwest corner latitude" },
+          swlng:    { type: "number", description: "Southwest corner longitude" },
+          name:     { type: "string", description: "Optional name filter to narrow results" },
+          per_page: { type: "number", description: "Results per page" },
+          ...PV_PROP,
+        },
+        required: ["nelat", "nelng", "swlat", "swlng"],
+      },
+    },
+    handler: async (args) =>
+      apiGet("/inat/places/nearby", {
+        nelat:    Number(args["nelat"]),
+        nelng:    Number(args["nelng"]),
+        swlat:    Number(args["swlat"]),
+        swlng:    Number(args["swlng"]),
+        name:     args["name"]     !== undefined ? String(args["name"])     : undefined,
+        per_page: args["per_page"] !== undefined ? Number(args["per_page"]) : undefined,
+        provenance_verbosity: pv(args),
+      }),
+  },
+
   // ── michigan-flora ──────────────────────────────────────────────────────
   {
     tool: {

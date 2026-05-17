@@ -35,6 +35,21 @@ export async function runInatComparators(
   }
 
   results.push(await checkInatSpeciesCounts(fernsBase));
+  results.push(await checkInatControlledTerms(fernsBase));
+
+  const firstTaxonId = species[0]
+    ? (await compareInatSpecies(fernsBase, species[0])).rawSource?.["id"] as number | undefined
+    : undefined;
+  if (firstTaxonId) {
+    results.push(await checkInatControlledTermsForTaxon(fernsBase, firstTaxonId));
+    results.push(await checkInatTaxonById(fernsBase, firstTaxonId));
+    results.push(await checkInatTaxaAutocomplete(fernsBase, species[0]?.label ?? "Trillium"));
+  }
+
+  if (places[0]) {
+    results.push(await checkInatPlaceById(fernsBase, places[0].id));
+    results.push(await checkInatPlacesNearby(fernsBase));
+  }
 
   return results;
 }
@@ -465,6 +480,318 @@ async function checkInatObservations(
     return {
       source: "inat",
       endpoint: `${fernsEndpoint}?taxon_id=${taxonId}${placeParam}`,
+      label,
+      ok: false,
+      error: String(err),
+      findings: [],
+      urlsCollected: [],
+    };
+  }
+}
+
+async function checkInatControlledTerms(fernsBase: string): Promise<EndpointComparison> {
+  const fernsEndpoint = `/api/inat/controlled-terms`;
+  const fernsUrl = `${fernsBase}${fernsEndpoint}`;
+  const label = `iNat controlled-terms reference list`;
+
+  try {
+    const fernsRaw = await fetchJson(fernsUrl) as Record<string, unknown>;
+    const findings: FieldFinding[] = [];
+    const urlsCollected = collectUrls(fernsRaw, "inat/controlled-terms");
+
+    for (const field of ["source_url", "found", "data"] as const) {
+      if (fernsRaw[field] !== undefined) {
+        findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: fernsRaw[field], note: `${field} present` });
+      } else {
+        findings.push({ type: "gap", sourceField: field, note: `${field} missing from response` });
+      }
+    }
+
+    const data = fernsRaw.data as Record<string, unknown> | undefined;
+    if (data) {
+      const results = data["results"];
+      if (Array.isArray(results) && results.length > 0) {
+        findings.push({ type: "ok", sourceField: "results", note: `${results.length} controlled terms returned` });
+      } else {
+        findings.push({ type: "gap", sourceField: "results", note: "No controlled terms in response" });
+      }
+    }
+
+    return {
+      source: "inat",
+      endpoint: fernsEndpoint,
+      label,
+      ok: true,
+      rawFerns: fernsRaw,
+      findings,
+      urlsCollected,
+    };
+  } catch (err) {
+    return {
+      source: "inat",
+      endpoint: fernsEndpoint,
+      label,
+      ok: false,
+      error: String(err),
+      findings: [],
+      urlsCollected: [],
+    };
+  }
+}
+
+async function checkInatControlledTermsForTaxon(
+  fernsBase: string,
+  taxonId: number,
+): Promise<EndpointComparison> {
+  const fernsEndpoint = `/api/inat/controlled-terms/for-taxon`;
+  const fernsUrl = `${fernsBase}${fernsEndpoint}?taxon_id=${taxonId}`;
+  const label = `iNat controlled-terms/for-taxon (taxon_id=${taxonId})`;
+
+  try {
+    const fernsRaw = await fetchJson(fernsUrl) as Record<string, unknown>;
+    const findings: FieldFinding[] = [];
+    const urlsCollected = collectUrls(fernsRaw, "inat/controlled-terms/for-taxon");
+
+    for (const field of ["source_url", "found", "data"] as const) {
+      if (fernsRaw[field] !== undefined) {
+        findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: fernsRaw[field], note: `${field} present` });
+      } else {
+        findings.push({ type: "gap", sourceField: field, note: `${field} missing from response` });
+      }
+    }
+
+    return {
+      source: "inat",
+      endpoint: `${fernsEndpoint}?taxon_id=${taxonId}`,
+      label,
+      ok: true,
+      rawFerns: fernsRaw,
+      findings,
+      urlsCollected,
+    };
+  } catch (err) {
+    return {
+      source: "inat",
+      endpoint: `${fernsEndpoint}?taxon_id=${taxonId}`,
+      label,
+      ok: false,
+      error: String(err),
+      findings: [],
+      urlsCollected: [],
+    };
+  }
+}
+
+async function checkInatTaxaAutocomplete(
+  fernsBase: string,
+  q: string,
+): Promise<EndpointComparison> {
+  const fernsEndpoint = `/api/inat/taxa/autocomplete`;
+  const fernsUrl = `${fernsBase}${fernsEndpoint}?q=${encodeURIComponent(q)}`;
+  const label = `iNat taxa/autocomplete q="${q}"`;
+
+  try {
+    const fernsRaw = await fetchJson(fernsUrl) as Record<string, unknown>;
+    const findings: FieldFinding[] = [];
+    const urlsCollected = collectUrls(fernsRaw, "inat/taxa/autocomplete");
+
+    for (const field of ["source_url", "found", "data"] as const) {
+      if (fernsRaw[field] !== undefined) {
+        findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: fernsRaw[field], note: `${field} present` });
+      } else {
+        findings.push({ type: "gap", sourceField: field, note: `${field} missing` });
+      }
+    }
+
+    const data = fernsRaw.data as Record<string, unknown> | undefined;
+    if (data) {
+      const results = data["results"];
+      if (Array.isArray(results) && results.length > 0) {
+        findings.push({ type: "ok", sourceField: "results", note: `${results.length} taxon autocomplete results` });
+      } else {
+        findings.push({ type: "gap", sourceField: "results", note: "No autocomplete results" });
+      }
+    }
+
+    return {
+      source: "inat",
+      endpoint: `${fernsEndpoint}?q=${encodeURIComponent(q)}`,
+      label,
+      ok: true,
+      rawFerns: fernsRaw,
+      findings,
+      urlsCollected,
+    };
+  } catch (err) {
+    return {
+      source: "inat",
+      endpoint: `${fernsEndpoint}?q=${encodeURIComponent(q)}`,
+      label,
+      ok: false,
+      error: String(err),
+      findings: [],
+      urlsCollected: [],
+    };
+  }
+}
+
+async function checkInatTaxonById(
+  fernsBase: string,
+  taxonId: number,
+): Promise<EndpointComparison> {
+  const fernsEndpoint = `/api/inat/taxon/${taxonId}`;
+  const fernsUrl = `${fernsBase}${fernsEndpoint}`;
+  const label = `iNat taxon by ID (taxon_id=${taxonId})`;
+
+  try {
+    const fernsRaw = await fetchJson(fernsUrl) as Record<string, unknown>;
+    const findings: FieldFinding[] = [];
+    const urlsCollected = collectUrls(fernsRaw, `inat/taxon/${taxonId}`);
+
+    for (const field of ["source_url", "found", "data", "cache_status"] as const) {
+      if (fernsRaw[field] !== undefined) {
+        findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: fernsRaw[field], note: `${field} present` });
+      } else {
+        findings.push({ type: "gap", sourceField: field, note: `${field} missing` });
+      }
+    }
+
+    const data = fernsRaw.data as Record<string, unknown> | undefined;
+    if (data) {
+      const results = data["results"];
+      if (Array.isArray(results) && results.length > 0) {
+        const t = results[0] as Record<string, unknown>;
+        findings.push({ type: "ok", sourceField: "id", fernsField: "id", fernsValue: t["id"], note: `taxon id=${t["id"]}` });
+        findings.push({ type: "ok", sourceField: "name", fernsField: "name", fernsValue: t["name"], note: `name=${t["name"]}` });
+      } else {
+        findings.push({ type: "gap", sourceField: "results", note: "No results in taxon response" });
+      }
+    }
+
+    return {
+      source: "inat",
+      endpoint: fernsEndpoint,
+      label,
+      ok: true,
+      rawFerns: fernsRaw,
+      findings,
+      urlsCollected,
+    };
+  } catch (err) {
+    return {
+      source: "inat",
+      endpoint: fernsEndpoint,
+      label,
+      ok: false,
+      error: String(err),
+      findings: [],
+      urlsCollected: [],
+    };
+  }
+}
+
+async function checkInatPlaceById(
+  fernsBase: string,
+  placeId: number,
+): Promise<EndpointComparison> {
+  const fernsEndpoint = `/api/inat/place/${placeId}`;
+  const fernsUrl = `${fernsBase}${fernsEndpoint}`;
+  const label = `iNat place by ID (place_id=${placeId})`;
+
+  try {
+    const fernsRaw = await fetchJson(fernsUrl) as Record<string, unknown>;
+    const findings: FieldFinding[] = [];
+    const urlsCollected = collectUrls(fernsRaw, `inat/place/${placeId}`);
+
+    for (const field of ["source_url", "found", "data", "cache_status"] as const) {
+      if (fernsRaw[field] !== undefined) {
+        findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: fernsRaw[field], note: `${field} present` });
+      } else {
+        findings.push({ type: "gap", sourceField: field, note: `${field} missing` });
+      }
+    }
+
+    const data = fernsRaw.data as Record<string, unknown> | undefined;
+    if (data) {
+      const results = data["results"];
+      if (Array.isArray(results) && results.length > 0) {
+        const p = results[0] as Record<string, unknown>;
+        findings.push({ type: "ok", sourceField: "id", fernsField: "id", fernsValue: p["id"], note: `place id=${p["id"]}` });
+      } else {
+        findings.push({ type: "gap", sourceField: "results", note: "No results in place response" });
+      }
+    }
+
+    return {
+      source: "inat",
+      endpoint: fernsEndpoint,
+      label,
+      ok: true,
+      rawFerns: fernsRaw,
+      findings,
+      urlsCollected,
+    };
+  } catch (err) {
+    return {
+      source: "inat",
+      endpoint: fernsEndpoint,
+      label,
+      ok: false,
+      error: String(err),
+      findings: [],
+      urlsCollected: [],
+    };
+  }
+}
+
+async function checkInatPlacesNearby(fernsBase: string): Promise<EndpointComparison> {
+  const fernsEndpoint = `/api/inat/places/nearby`;
+  const fernsUrl = `${fernsBase}${fernsEndpoint}?nelat=42.45&nelng=-83.5&swlat=42.12&swlng=-84.1`;
+  const label = `iNat places/nearby (Washtenaw County bbox)`;
+
+  try {
+    const fernsRaw = await fetchJson(fernsUrl) as Record<string, unknown>;
+    const findings: FieldFinding[] = [];
+    const urlsCollected = collectUrls(fernsRaw, "inat/places/nearby");
+
+    for (const field of ["source_url", "found", "data"] as const) {
+      if (fernsRaw[field] !== undefined) {
+        findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: fernsRaw[field], note: `${field} present` });
+      } else {
+        findings.push({ type: "gap", sourceField: field, note: `${field} missing` });
+      }
+    }
+
+    const data = fernsRaw.data as Record<string, unknown> | undefined;
+    if (data) {
+      const results = data["results"] as Record<string, unknown> | undefined;
+      if (results) {
+        const standard = results["standard"];
+        const community = results["community"];
+        if (Array.isArray(standard)) {
+          findings.push({ type: "ok", sourceField: "results.standard", note: `${standard.length} standard places` });
+        }
+        if (Array.isArray(community)) {
+          findings.push({ type: "ok", sourceField: "results.community", note: `${community.length} community places` });
+        }
+      } else {
+        findings.push({ type: "gap", sourceField: "results", note: "No results in nearby places response" });
+      }
+    }
+
+    return {
+      source: "inat",
+      endpoint: fernsEndpoint,
+      label,
+      ok: true,
+      rawFerns: fernsRaw,
+      findings,
+      urlsCollected,
+    };
+  } catch (err) {
+    return {
+      source: "inat",
+      endpoint: fernsEndpoint,
       label,
       ok: false,
       error: String(err),

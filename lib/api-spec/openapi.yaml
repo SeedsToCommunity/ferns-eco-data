@@ -616,6 +616,48 @@ paths:
             type: integer
             minimum: 1
             default: 1
+        - name: lat
+          in: query
+          required: false
+          description: Center latitude for radius-based geographic filter. Requires lng and radius.
+          schema:
+            type: number
+        - name: lng
+          in: query
+          required: false
+          description: Center longitude for radius-based geographic filter. Requires lat and radius.
+          schema:
+            type: number
+        - name: radius
+          in: query
+          required: false
+          description: Radius in km around the lat/lng center point.
+          schema:
+            type: number
+        - name: nelat
+          in: query
+          required: false
+          description: Northeast corner latitude for bounding box filter.
+          schema:
+            type: number
+        - name: nelng
+          in: query
+          required: false
+          description: Northeast corner longitude for bounding box filter.
+          schema:
+            type: number
+        - name: swlat
+          in: query
+          required: false
+          description: Southwest corner latitude for bounding box filter.
+          schema:
+            type: number
+        - name: swlng
+          in: query
+          required: false
+          description: Southwest corner longitude for bounding box filter.
+          schema:
+            type: number
       responses:
         "200":
           description: Paged slim observation records
@@ -764,6 +806,360 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InatSpeciesCountsResponse"
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: iNaturalist API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /inat/controlled-terms:
+    get:
+      operationId: getInatControlledTerms
+      tags: [inat]
+      summary: All iNaturalist controlled annotation terms
+      description: >
+        Returns the full list of iNaturalist controlled annotation terms and their
+        possible values (e.g. term_id=12 "Flowers and Fruits" with values
+        "Flowering", "Fruiting", etc). The controlled terms list is essentially
+        static (iNat changes it extremely rarely). Cached permanently in the DB;
+        use refresh=true to force a re-fetch. Results are wrapped in the standard
+        FERNS provenance envelope.
+      parameters:
+        - name: refresh
+          in: query
+          required: false
+          description: Bypass cache and re-fetch from iNaturalist
+          schema:
+            type: boolean
+        - name: provenance_verbosity
+          in: query
+          required: false
+          description: "Controls provenance text: full (default), summary, or none"
+          schema:
+            type: string
+            enum: [full, summary, none]
+      responses:
+        "200":
+          description: Raw iNaturalist controlled_terms response in FERNS envelope
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InatControlledTermsResponse"
+        "502":
+          description: iNaturalist API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /inat/controlled-terms/for-taxon:
+    get:
+      operationId: getInatControlledTermsForTaxon
+      tags: [inat]
+      summary: iNaturalist controlled terms applicable to a specific taxon
+      description: >
+        Returns the controlled annotation terms that are applicable to a specific
+        taxon (e.g. Flowers and Fruits applies to plants but not birds).
+        Cached permanently in the DB keyed by taxon_id; use refresh=true to
+        force a re-fetch. Results are wrapped in the standard FERNS provenance envelope.
+      parameters:
+        - name: taxon_id
+          in: query
+          required: true
+          description: iNaturalist taxon ID
+          schema:
+            type: integer
+        - name: refresh
+          in: query
+          required: false
+          description: Bypass cache and re-fetch from iNaturalist
+          schema:
+            type: boolean
+        - name: provenance_verbosity
+          in: query
+          required: false
+          description: "Controls provenance text: full (default), summary, or none"
+          schema:
+            type: string
+            enum: [full, summary, none]
+      responses:
+        "200":
+          description: Raw iNaturalist controlled_terms/for_taxon response in FERNS envelope
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InatControlledTermsForTaxonResponse"
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: iNaturalist API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /inat/taxa/autocomplete:
+    get:
+      operationId: getInatTaxaAutocomplete
+      tags: [inat]
+      summary: Fast partial-name taxon search with photo thumbnail
+      description: >
+        Live passthrough for iNaturalist's /taxa/autocomplete endpoint. Returns
+        matching taxa with photos, observation counts, and common names. Intended
+        for type-ahead / search-as-you-type UIs. No cache — every call is live.
+        Results are wrapped in the standard FERNS provenance envelope.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Partial or full scientific or common name to search for
+          schema:
+            type: string
+        - name: per_page
+          in: query
+          required: false
+          description: Results per page (default 10, max 10 for autocomplete)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10
+        - name: is_active
+          in: query
+          required: false
+          description: Filter to active taxa only (default true)
+          schema:
+            type: boolean
+        - name: rank
+          in: query
+          required: false
+          description: "Taxonomic rank filter (e.g. species, genus, family)"
+          schema:
+            type: string
+        - name: locale
+          in: query
+          required: false
+          description: "Locale code for common names (e.g. en, es, de)"
+          schema:
+            type: string
+        - name: all_names
+          in: query
+          required: false
+          description: Include all name variants in search (not just preferred)
+          schema:
+            type: boolean
+        - name: preferred_place_id
+          in: query
+          required: false
+          description: iNaturalist place ID to prioritize common names for that place
+          schema:
+            type: integer
+        - name: provenance_verbosity
+          in: query
+          required: false
+          description: "Controls provenance text: full (default), summary, or none"
+          schema:
+            type: string
+            enum: [full, summary, none]
+      responses:
+        "200":
+          description: Raw iNaturalist taxa/autocomplete response in FERNS envelope
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InatTaxaAutocompleteResponse"
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: iNaturalist API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /inat/taxon/{id}:
+    get:
+      operationId: getInatTaxonById
+      tags: [inat]
+      summary: Full iNaturalist taxon record by numeric ID
+      description: >
+        Returns the full iNaturalist taxon record for a known taxon ID, including
+        Wikipedia summary, listed_taxa (nativity per place — up to 41 entries for
+        common species), children, conservation_status, and default_photo.
+        DB-cached for 30 days keyed by taxon ID; use refresh=true to force a re-fetch.
+        Results are wrapped in the standard FERNS provenance envelope.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: iNaturalist taxon ID (integer)
+          schema:
+            type: integer
+        - name: refresh
+          in: query
+          required: false
+          description: Bypass cache and re-fetch from iNaturalist
+          schema:
+            type: boolean
+        - name: provenance_verbosity
+          in: query
+          required: false
+          description: "Controls provenance text: full (default), summary, or none"
+          schema:
+            type: string
+            enum: [full, summary, none]
+      responses:
+        "200":
+          description: Full iNaturalist taxon record in FERNS envelope
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InatTaxonByIdResponse"
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: iNaturalist API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /inat/place/{id}:
+    get:
+      operationId: getInatPlaceById
+      tags: [inat]
+      summary: iNaturalist place record by numeric ID
+      description: >
+        Returns the full iNaturalist place record for a known place ID, including
+        centroid, bounding box, admin hierarchy, display name, and place type.
+        DB-cached permanently (place IDs are stable); use refresh=true to force a
+        re-fetch. Results are wrapped in the standard FERNS provenance envelope.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: iNaturalist place ID (integer)
+          schema:
+            type: integer
+        - name: admin_level
+          in: query
+          required: false
+          description: "Admin level filter (e.g. 0=country, 1=state, 2=county)"
+          schema:
+            type: integer
+        - name: refresh
+          in: query
+          required: false
+          description: Bypass cache and re-fetch from iNaturalist
+          schema:
+            type: boolean
+        - name: provenance_verbosity
+          in: query
+          required: false
+          description: "Controls provenance text: full (default), summary, or none"
+          schema:
+            type: string
+            enum: [full, summary, none]
+      responses:
+        "200":
+          description: Full iNaturalist place record in FERNS envelope
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InatPlaceByIdResponse"
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: iNaturalist API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /inat/places/nearby:
+    get:
+      operationId: getInatPlacesNearby
+      tags: [inat]
+      summary: iNaturalist places within a bounding box
+      description: >
+        Live passthrough for iNaturalist's /places/nearby endpoint. Returns
+        standard (admin) and community places within the given bounding box.
+        No cache — bounding box inputs produce a combinatorially large key space.
+        Results are wrapped in the standard FERNS provenance envelope.
+      parameters:
+        - name: nelat
+          in: query
+          required: true
+          description: Northeast corner latitude of the bounding box
+          schema:
+            type: number
+        - name: nelng
+          in: query
+          required: true
+          description: Northeast corner longitude of the bounding box
+          schema:
+            type: number
+        - name: swlat
+          in: query
+          required: true
+          description: Southwest corner latitude of the bounding box
+          schema:
+            type: number
+        - name: swlng
+          in: query
+          required: true
+          description: Southwest corner longitude of the bounding box
+          schema:
+            type: number
+        - name: name
+          in: query
+          required: false
+          description: Optional name filter to narrow results
+          schema:
+            type: string
+        - name: per_page
+          in: query
+          required: false
+          description: Results per page
+          schema:
+            type: integer
+            minimum: 1
+        - name: provenance_verbosity
+          in: query
+          required: false
+          description: "Controls provenance text: full (default), summary, or none"
+          schema:
+            type: string
+            enum: [full, summary, none]
+      responses:
+        "200":
+          description: Raw iNaturalist places/nearby response in FERNS envelope
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InatPlacesNearbyResponse"
         "400":
           description: Invalid parameters
           content:
@@ -3907,14 +4303,20 @@ components:
     InatObservationSummaryRecord:
       type: object
       description: >
-        Curated subset of a single iNaturalist observation. Follow the uri field
-        for the complete record on iNaturalist.
+        Expanded field subset of a single iNaturalist observation. Follow the uri
+        field for the complete record on iNaturalist. Note: nativity data (native,
+        introduced, endemic status) is NOT present on observation records — it lives
+        in listed_taxa on the taxon record, available via GET /inat/taxon/{id}.
       required:
         - id
         - uri
       properties:
         id:
           type: integer
+        uuid:
+          type: string
+          nullable: true
+          description: UUID of the observation
         uri:
           type: string
           description: Canonical URL to the full observation on iNaturalist
@@ -3926,14 +4328,50 @@ components:
           type: string
           nullable: true
           description: "research | needs_id | casual"
+        obscured:
+          type: boolean
+          nullable: true
+          description: Whether the location has been obscured for this observation
+        license_code:
+          type: string
+          nullable: true
+          description: "License code for this observation (e.g. cc-by, cc-by-nc)"
+        description:
+          type: string
+          nullable: true
+          description: Observer-provided description text
+        tags:
+          type: array
+          nullable: true
+          description: Tags applied to this observation
+          items:
+            type: string
         taxon_name:
           type: string
           nullable: true
-          description: Scientific name
+          description: Scientific name (shorthand from taxon.name)
         common_name:
           type: string
           nullable: true
-          description: Preferred common name
+          description: Preferred common name (shorthand from taxon.preferred_common_name)
+        taxon:
+          type: object
+          nullable: true
+          description: Taxon sub-object with key fields
+          properties:
+            id:
+              type: integer
+            rank:
+              type: string
+              nullable: true
+            iconic_taxon_name:
+              type: string
+              nullable: true
+            default_photo:
+              type: object
+              nullable: true
+              additionalProperties: true
+          additionalProperties: true
         place_guess:
           type: string
           nullable: true
@@ -3945,15 +4383,50 @@ components:
         observer:
           type: string
           nullable: true
-          description: iNaturalist login of the observer
+          description: iNaturalist login of the observer (shorthand from user.login)
+        user:
+          type: object
+          nullable: true
+          description: Observer user sub-object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+              nullable: true
+            login:
+              type: string
+              nullable: true
+          additionalProperties: true
         photo_url:
           type: string
           nullable: true
-          description: Medium-size URL of the first photo
+          description: Medium-size URL of the first photo (shorthand)
         photo_attribution:
           type: string
           nullable: true
-          description: License and attribution text for the first photo
+          description: License and attribution text for the first photo (shorthand)
+        photos:
+          type: array
+          nullable: true
+          description: Full photos array from iNaturalist
+          items:
+            type: object
+            additionalProperties: true
+        annotations:
+          type: array
+          nullable: true
+          description: Controlled annotation values on this observation
+          items:
+            type: object
+            additionalProperties: true
+        ofvs:
+          type: array
+          nullable: true
+          description: Observer field values (OFVs) on this observation
+          items:
+            type: object
+            additionalProperties: true
 
     InatObservationSummaryData:
       type: object
@@ -3992,6 +4465,136 @@ components:
           type: boolean
         data:
           $ref: "#/components/schemas/InatObservationSummaryData"
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    InatControlledTermsResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+        found:
+          type: boolean
+        cache_status:
+          type: string
+        data:
+          type: object
+          description: Raw iNaturalist controlled_terms response.
+          additionalProperties: true
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    InatControlledTermsForTaxonResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+        found:
+          type: boolean
+        cache_status:
+          type: string
+        data:
+          type: object
+          description: Raw iNaturalist controlled_terms/for_taxon response.
+          additionalProperties: true
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    InatTaxaAutocompleteResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+        found:
+          type: boolean
+        data:
+          type: object
+          description: Raw iNaturalist taxa/autocomplete response with results array.
+          additionalProperties: true
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    InatTaxonByIdResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+        found:
+          type: boolean
+        cache_status:
+          type: string
+        data:
+          type: object
+          description: >
+            Raw iNaturalist taxa/{id} response. Includes wikipedia_summary,
+            listed_taxa (nativity per place), children, conservation_status,
+            and default_photo. The listed_taxa array is the canonical source
+            of native/introduced/endemic status for this taxon.
+          additionalProperties: true
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    InatPlaceByIdResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+        found:
+          type: boolean
+        cache_status:
+          type: string
+        data:
+          type: object
+          description: >
+            Raw iNaturalist places/{id} response. Includes display_name, place_type,
+            centroid, bounding_box_geojson, and admin hierarchy (admin_level, parent_id).
+          additionalProperties: true
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    InatPlacesNearbyResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+        found:
+          type: boolean
+        data:
+          type: object
+          description: >
+            Raw iNaturalist places/nearby response. Contains two result arrays:
+            standard (admin places) and community (user-created places).
+          additionalProperties: true
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
 
