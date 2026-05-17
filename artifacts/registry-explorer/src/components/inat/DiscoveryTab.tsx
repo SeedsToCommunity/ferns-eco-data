@@ -277,10 +277,38 @@ const QUALITY_GRADES = [
   { value: "casual", label: "Casual" },
 ];
 
+const ICONIC_TAXA = [
+  { value: "", label: "All groups" },
+  { value: "Plantae", label: "Plantae" },
+  { value: "Aves", label: "Aves" },
+  { value: "Fungi", label: "Fungi" },
+  { value: "Mammalia", label: "Mammalia" },
+  { value: "Insecta", label: "Insecta" },
+  { value: "Arachnida", label: "Arachnida" },
+  { value: "Reptilia", label: "Reptilia" },
+  { value: "Amphibia", label: "Amphibia" },
+  { value: "Actinopterygii", label: "Actinopterygii" },
+  { value: "Mollusca", label: "Mollusca" },
+  { value: "Animalia", label: "Animalia" },
+];
+
+const TERM_PRESETS = [
+  { label: "All", termId: undefined as number | undefined, termValueId: undefined as number | undefined },
+  { label: "Plant Phenology (flowering/fruiting)", termId: 12, termValueId: undefined as number | undefined },
+];
+
+const PER_PAGE_OPTIONS = [10, 25, 50, 100, 200];
+
 const TAXON_OF_OPTIONS = [
   { value: "", label: "Default (identification)" },
   { value: "identification", label: "Identification taxon" },
   { value: "community", label: "Community taxon" },
+];
+
+const ORDER_BY_OPTIONS = [
+  { value: "", label: "Default" },
+  { value: "count", label: "Count" },
+  { value: "id", label: "ID" },
 ];
 
 function IdentCountsPanel({
@@ -292,8 +320,15 @@ function IdentCountsPanel({
 }) {
   const [placeIdInput, setPlaceIdInput] = useState(preloadedPlaceId ?? "");
   const [qualityGrade, setQualityGrade] = useState("research");
+  const [iconicTaxon, setIconicTaxon] = useState("Plantae");
+  const [nativeFilter, setNativeFilter] = useState<"" | "native" | "introduced">("");
+  const [termPresetIdx, setTermPresetIdx] = useState(0);
+  const [monthInput, setMonthInput] = useState("");
   const [taxonOf, setTaxonOf] = useState("");
-  const [perPage, setPerPage] = useState(25);
+  const [orderBy, setOrderBy] = useState("");
+  const [d1Input, setD1Input] = useState("");
+  const [d2Input, setD2Input] = useState("");
+  const [perPage, setPerPage] = useState(50);
   const [page, setPage] = useState(1);
   const [submittedParams, setSubmittedParams] = useState<Record<string, string | number | undefined> | null>(null);
 
@@ -311,13 +346,22 @@ function IdentCountsPanel({
   }>(url);
 
   function buildParams(pg: number) {
-    const pid = placeIdInput.trim() ? Number(placeIdInput.trim()) : undefined;
+    const preset = TERM_PRESETS[termPresetIdx];
     return {
-      place_id: pid,
+      place_id:      placeIdInput.trim() ? Number(placeIdInput.trim()) : undefined,
       quality_grade: qualityGrade || undefined,
-      taxon_of: taxonOf || undefined,
-      per_page: perPage,
-      page: pg,
+      iconic_taxa:   iconicTaxon || undefined,
+      native:        nativeFilter === "native" ? "true" : undefined,
+      introduced:    nativeFilter === "introduced" ? "true" : undefined,
+      term_id:       preset?.termId,
+      term_value_id: preset?.termValueId,
+      month:         monthInput.trim() || undefined,
+      taxon_of:      taxonOf || undefined,
+      order_by:      orderBy || undefined,
+      d1:            d1Input.trim() || undefined,
+      d2:            d2Input.trim() || undefined,
+      per_page:      perPage,
+      page:          pg,
     };
   }
 
@@ -325,6 +369,23 @@ function IdentCountsPanel({
     e.preventDefault();
     setPage(1);
     setSubmittedParams(buildParams(1));
+  }
+
+  function runExample(placeId: string, quality: string, iconic: string, nativity: "" | "native" | "introduced") {
+    setPlaceIdInput(placeId); setQualityGrade(quality); setIconicTaxon(iconic); setNativeFilter(nativity);
+    setPage(1);
+    const preset = TERM_PRESETS[0];
+    setSubmittedParams({
+      place_id: placeId ? Number(placeId) : undefined,
+      quality_grade: quality || undefined,
+      iconic_taxa: iconic || undefined,
+      native: nativity === "native" ? "true" : undefined,
+      introduced: nativity === "introduced" ? "true" : undefined,
+      term_id: preset?.termId,
+      term_value_id: preset?.termValueId,
+      per_page: perPage,
+      page: 1,
+    });
   }
 
   function goToPage(pg: number) {
@@ -341,57 +402,143 @@ function IdentCountsPanel({
       <div className="bg-card border border-border rounded-xl p-5">
         <h3 className="font-semibold text-sm mb-1">Identification Species Counts</h3>
         <p className="text-xs text-muted-foreground mb-4">
-          Species ranked by community identification activity — distinct from raw observation counts.
+          Species ranked by community identification activity — a distinct signal from raw observation counts.
+          Use <em>taxon_of</em> to switch between the identified taxon and the community-agreed taxon.
         </p>
-        <form onSubmit={handleSubmit} className="flex flex-wrap gap-3 items-end">
-          <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1">Place ID</label>
-            <input
-              type="number"
-              value={placeIdInput}
-              onChange={(e) => setPlaceIdInput(e.target.value)}
-              placeholder="e.g. 2649"
-              className="w-32 px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-            />
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Place ID</label>
+              <input
+                type="number"
+                value={placeIdInput}
+                onChange={(e) => setPlaceIdInput(e.target.value)}
+                placeholder="e.g. 2649"
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Quality grade</label>
+              <select value={qualityGrade} onChange={(e) => setQualityGrade(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                {QUALITY_GRADES.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Iconic taxon</label>
+              <select value={iconicTaxon} onChange={(e) => setIconicTaxon(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                {ICONIC_TAXA.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+              </select>
+            </div>
           </div>
-          <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1">Quality</label>
-            <select value={qualityGrade} onChange={(e) => setQualityGrade(e.target.value)}
-              className="px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-            >
-              {QUALITY_GRADES.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
-            </select>
+
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Nativity</label>
+              <select value={nativeFilter} onChange={(e) => setNativeFilter(e.target.value as "" | "native" | "introduced")}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="">Any</option>
+                <option value="native">Native only</option>
+                <option value="introduced">Introduced only</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Annotation filter</label>
+              <select value={termPresetIdx} onChange={(e) => setTermPresetIdx(Number(e.target.value))}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                {TERM_PRESETS.map((p, i) => <option key={i} value={i}>{p.label}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Months</label>
+              <input
+                type="text"
+                value={monthInput}
+                onChange={(e) => setMonthInput(e.target.value)}
+                placeholder="e.g. 4,5,6"
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Taxon of</label>
+              <select value={taxonOf} onChange={(e) => setTaxonOf(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                {TAXON_OF_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </div>
           </div>
-          <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1">Taxon of</label>
-            <select value={taxonOf} onChange={(e) => setTaxonOf(e.target.value)}
-              className="px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-            >
-              {TAXON_OF_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-            </select>
+
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Date from</label>
+              <input
+                type="date"
+                value={d1Input}
+                onChange={(e) => setD1Input(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Date to</label>
+              <input
+                type="date"
+                value={d2Input}
+                onChange={(e) => setD2Input(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Order by</label>
+              <select value={orderBy} onChange={(e) => setOrderBy(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                {ORDER_BY_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Results per page</label>
+              <select value={perPage} onChange={(e) => setPerPage(Number(e.target.value))}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                {PER_PAGE_OPTIONS.map((n) => <option key={n} value={n}>{n}</option>)}
+              </select>
+            </div>
           </div>
+
           <button type="submit" disabled={loading}
             className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50 flex items-center gap-2"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
-            Fetch counts
+            Fetch identification counts
           </button>
         </form>
         <p className="text-xs text-muted-foreground mt-2">
           Try:{" "}
-          <button
-            onClick={() => {
-              setPlaceIdInput("2649"); setQualityGrade("research"); setTaxonOf(""); setPage(1);
-              setSubmittedParams({ place_id: 2649, quality_grade: "research", per_page: 25, page: 1 });
-            }}
-            className="underline text-primary hover:no-underline"
-          >
-            Washtenaw Co (2649), research
+          <button onClick={() => runExample("2649", "research", "Plantae", "native")} className="underline text-primary hover:no-underline">
+            Native plants in Washtenaw Co, research
+          </button>
+          {" · "}
+          <button onClick={() => runExample("10", "research", "Aves", "")} className="underline text-primary hover:no-underline">
+            Birds in Michigan (10), research
           </button>
         </p>
       </div>
 
       {error && <ErrorBlock message={error} />}
+
+      {loading && (
+        <div className="space-y-2">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="h-14 rounded-xl bg-muted animate-pulse" />
+          ))}
+        </div>
+      )}
 
       {!loading && submittedParams && data && (
         <div className="space-y-3">
@@ -699,6 +846,18 @@ function TaxonSummaryPanel() {
 
 // ── Identifications ──────────────────────────────────────────────────────────
 
+const ORDER_IDENT_OPTIONS = [
+  { value: "", label: "Default" },
+  { value: "desc", label: "Newest first" },
+  { value: "asc", label: "Oldest first" },
+];
+
+const ORDER_IDENT_BY_OPTIONS = [
+  { value: "", label: "Default" },
+  { value: "created_at", label: "Created at" },
+  { value: "id", label: "ID" },
+];
+
 function IdentificationsPanel({
   preloadedTaxonId,
   preloadedPlaceId,
@@ -709,6 +868,16 @@ function IdentificationsPanel({
   const [taxonIdInput, setTaxonIdInput] = useState(preloadedTaxonId ? String(preloadedTaxonId) : "");
   const [placeIdInput, setPlaceIdInput] = useState(preloadedPlaceId ?? "");
   const [qualityGrade, setQualityGrade] = useState("research");
+  const [nativeFilter, setNativeFilter] = useState<"" | "native" | "introduced">("");
+  const [monthInput, setMonthInput] = useState("");
+  const [d1Input, setD1Input] = useState("");
+  const [d2Input, setD2Input] = useState("");
+  const [localeInput, setLocaleInput] = useState("");
+  const [userLoginInput, setUserLoginInput] = useState("");
+  const [termPresetIdx, setTermPresetIdx] = useState(0);
+  const [verifiable, setVerifiable] = useState("");
+  const [orderIdent, setOrderIdent] = useState("");
+  const [orderIdentBy, setOrderIdentBy] = useState("");
   const [perPage, setPerPage] = useState(20);
   const [page, setPage] = useState(1);
   const [submittedParams, setSubmittedParams] = useState<Record<string, string | number | undefined> | null>(null);
@@ -734,10 +903,23 @@ function IdentificationsPanel({
   }>(url);
 
   function buildParams(pg: number) {
+    const preset = TERM_PRESETS[termPresetIdx];
     return {
       taxon_id:      taxonIdInput.trim() ? Number(taxonIdInput.trim()) : undefined,
       place_id:      placeIdInput.trim() ? Number(placeIdInput.trim()) : undefined,
       quality_grade: qualityGrade || undefined,
+      native:        nativeFilter === "native" ? "true" : undefined,
+      introduced:    nativeFilter === "introduced" ? "true" : undefined,
+      month:         monthInput.trim() || undefined,
+      d1:            d1Input.trim() || undefined,
+      d2:            d2Input.trim() || undefined,
+      locale:        localeInput.trim() || undefined,
+      user_login:    userLoginInput.trim() || undefined,
+      term_id:       preset?.termId,
+      term_value_id: preset?.termValueId,
+      verifiable:    verifiable || undefined,
+      order:         orderIdent || undefined,
+      order_by:      orderIdentBy || undefined,
       per_page:      perPage,
       page:          pg,
     };
@@ -764,52 +946,174 @@ function IdentificationsPanel({
         <h3 className="font-semibold text-sm mb-1">Identifications</h3>
         <p className="text-xs text-muted-foreground mb-4">
           Individual identification records from iNaturalist — who identified what taxon on which observation.
+          Supports date range, nativity, locale, user, annotation term, verifiable, and sort filters.
         </p>
-        <form onSubmit={handleSubmit} className="flex flex-wrap gap-3 items-end">
-          <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1">Taxon ID</label>
-            <input type="number" value={taxonIdInput} onChange={(e) => setTaxonIdInput(e.target.value)}
-              placeholder="e.g. 47603"
-              className="w-32 px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-            />
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Taxon ID</label>
+              <input type="number" value={taxonIdInput} onChange={(e) => setTaxonIdInput(e.target.value)}
+                placeholder="e.g. 47486"
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Place ID</label>
+              <input type="number" value={placeIdInput} onChange={(e) => setPlaceIdInput(e.target.value)}
+                placeholder="e.g. 2649"
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Quality grade</label>
+              <select value={qualityGrade} onChange={(e) => setQualityGrade(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                {QUALITY_GRADES.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
+              </select>
+            </div>
           </div>
-          <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1">Place ID</label>
-            <input type="number" value={placeIdInput} onChange={(e) => setPlaceIdInput(e.target.value)}
-              placeholder="e.g. 2649"
-              className="w-32 px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-            />
+
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Nativity</label>
+              <select value={nativeFilter} onChange={(e) => setNativeFilter(e.target.value as "" | "native" | "introduced")}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="">Any</option>
+                <option value="native">Native only</option>
+                <option value="introduced">Introduced only</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Annotation filter</label>
+              <select value={termPresetIdx} onChange={(e) => setTermPresetIdx(Number(e.target.value))}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                {TERM_PRESETS.map((p, i) => <option key={i} value={i}>{p.label}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Months</label>
+              <input
+                type="text"
+                value={monthInput}
+                onChange={(e) => setMonthInput(e.target.value)}
+                placeholder="e.g. 4,5,6"
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Verifiable</label>
+              <select value={verifiable} onChange={(e) => setVerifiable(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="">Any</option>
+                <option value="true">Verifiable only</option>
+                <option value="false">Non-verifiable only</option>
+              </select>
+            </div>
           </div>
-          <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1">Quality</label>
-            <select value={qualityGrade} onChange={(e) => setQualityGrade(e.target.value)}
-              className="px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-            >
-              {QUALITY_GRADES.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
-            </select>
+
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Date from</label>
+              <input
+                type="date"
+                value={d1Input}
+                onChange={(e) => setD1Input(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Date to</label>
+              <input
+                type="date"
+                value={d2Input}
+                onChange={(e) => setD2Input(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">User login</label>
+              <input
+                type="text"
+                value={userLoginInput}
+                onChange={(e) => setUserLoginInput(e.target.value)}
+                placeholder="e.g. tiwane"
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Locale</label>
+              <input
+                type="text"
+                value={localeInput}
+                onChange={(e) => setLocaleInput(e.target.value)}
+                placeholder="e.g. en, es, fr"
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
           </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Order</label>
+              <select value={orderIdent} onChange={(e) => setOrderIdent(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                {ORDER_IDENT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Order by</label>
+              <select value={orderIdentBy} onChange={(e) => setOrderIdentBy(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                {ORDER_IDENT_BY_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Results per page</label>
+              <select value={perPage} onChange={(e) => setPerPage(Number(e.target.value))}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                {[10, 20, 50, 100, 200].map((n) => <option key={n} value={n}>{n}</option>)}
+              </select>
+            </div>
+          </div>
+
           <button type="submit" disabled={loading}
             className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50 flex items-center gap-2"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
-            Fetch idents
+            Fetch identifications
           </button>
         </form>
         <p className="text-xs text-muted-foreground mt-2">
           Try:{" "}
           <button
             onClick={() => {
-              setTaxonIdInput("47603"); setPlaceIdInput("2649"); setQualityGrade("research"); setPage(1);
-              setSubmittedParams({ taxon_id: 47603, place_id: 2649, quality_grade: "research", per_page: 20, page: 1 });
+              setTaxonIdInput("47486"); setPlaceIdInput("2649"); setQualityGrade("research");
+              setNativeFilter(""); setPage(1);
+              setSubmittedParams({ taxon_id: 47486, place_id: 2649, quality_grade: "research", per_page: 20, page: 1 });
             }}
             className="underline text-primary hover:no-underline"
           >
-            Quercus (47603) in Washtenaw Co, research
+            Trillium grandiflorum (47486) in Washtenaw Co, research
           </button>
         </p>
       </div>
 
       {error && <ErrorBlock message={error} />}
+
+      {loading && (
+        <div className="space-y-2">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="h-14 rounded-xl bg-muted animate-pulse" />
+          ))}
+        </div>
+      )}
 
       {!loading && submittedParams && data && (
         <div className="space-y-3">
