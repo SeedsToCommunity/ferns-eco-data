@@ -344,7 +344,30 @@ async function checkInatSpeciesCounts(
           } else {
             findings.push({ type: "mismatch", sourceField: "results[0].taxon.id", sourceValue: inatTaxon["id"], fernsValue: fernsTaxon["id"] });
           }
+
+          if (typeof fernsTaxon["name"] === "string" && fernsTaxon["name"].length > 0) {
+            findings.push({ type: "ok", sourceField: "results[0].taxon.name", fernsValue: fernsTaxon["name"], note: "Top taxon name present" });
+          } else {
+            findings.push({ type: "gap", sourceField: "results[0].taxon.name", note: "taxon.name missing from first result" });
+          }
         }
+      }
+
+      const sampleSize = Math.min(fernsResults.length, 5);
+      let sampleGaps = 0;
+      for (let i = 0; i < sampleSize; i++) {
+        const entry = fernsResults[i] as Record<string, unknown> | undefined;
+        const taxon = (entry?.["taxon"] ?? {}) as Record<string, unknown>;
+        const hasRequired =
+          typeof entry?.["count"] === "number" &&
+          (typeof taxon["id"] === "number" || typeof taxon["id"] === "string") &&
+          typeof taxon["name"] === "string" && (taxon["name"] as string).length > 0;
+        if (!hasRequired) sampleGaps++;
+      }
+      if (sampleGaps === 0) {
+        findings.push({ type: "ok", sourceField: `results[0..${sampleSize - 1}]`, note: `All ${sampleSize} sampled results have count, taxon.id, and taxon.name` });
+      } else {
+        findings.push({ type: "gap", sourceField: `results[sample]`, note: `${sampleGaps}/${sampleSize} sampled results missing required fields (count, taxon.id, taxon.name)` });
       }
     }
 

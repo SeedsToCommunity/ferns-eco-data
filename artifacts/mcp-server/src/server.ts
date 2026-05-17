@@ -196,7 +196,7 @@ const tools: ToolDef[] = [
     tool: {
       name: "inaturalist__histogram",
       description:
-        "Returns a monthly phenology histogram of iNaturalist observation counts for a taxon, optionally filtered by place. Useful for understanding seasonal bloom or activity patterns.",
+        "Returns a monthly phenology histogram of iNaturalist observation counts for a taxon, optionally filtered by place and phenological stage. Use term_id=12 to restrict to Flowers and Fruits annotations only (stage-filtered histogram), producing a curve that reflects flowering/fruiting activity rather than all observations. Useful for understanding seasonal bloom, fruiting, or leaf-out patterns.",
       inputSchema: {
         type: "object" as const,
         properties: {
