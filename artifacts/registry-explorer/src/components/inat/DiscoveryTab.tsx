@@ -322,7 +322,6 @@ function IdentCountsPanel({
   const [qualityGrade, setQualityGrade] = useState("research");
   const [iconicTaxon, setIconicTaxon] = useState("Plantae");
   const [nativeFilter, setNativeFilter] = useState<"" | "native" | "introduced">("");
-  const [termPresetIdx, setTermPresetIdx] = useState(0);
   const [monthInput, setMonthInput] = useState("");
   const [taxonOf, setTaxonOf] = useState("");
   const [orderBy, setOrderBy] = useState("");
@@ -346,15 +345,12 @@ function IdentCountsPanel({
   }>(url);
 
   function buildParams(pg: number) {
-    const preset = TERM_PRESETS[termPresetIdx];
     return {
       place_id:      placeIdInput.trim() ? Number(placeIdInput.trim()) : undefined,
       quality_grade: qualityGrade || undefined,
       iconic_taxa:   iconicTaxon || undefined,
       native:        nativeFilter === "native" ? "true" : undefined,
       introduced:    nativeFilter === "introduced" ? "true" : undefined,
-      term_id:       preset?.termId,
-      term_value_id: preset?.termValueId,
       month:         monthInput.trim() || undefined,
       taxon_of:      taxonOf || undefined,
       order_by:      orderBy || undefined,
@@ -374,15 +370,12 @@ function IdentCountsPanel({
   function runExample(placeId: string, quality: string, iconic: string, nativity: "" | "native" | "introduced") {
     setPlaceIdInput(placeId); setQualityGrade(quality); setIconicTaxon(iconic); setNativeFilter(nativity);
     setPage(1);
-    const preset = TERM_PRESETS[0];
     setSubmittedParams({
       place_id: placeId ? Number(placeId) : undefined,
       quality_grade: quality || undefined,
       iconic_taxa: iconic || undefined,
       native: nativity === "native" ? "true" : undefined,
       introduced: nativity === "introduced" ? "true" : undefined,
-      term_id: preset?.termId,
-      term_value_id: preset?.termValueId,
       per_page: perPage,
       page: 1,
     });
@@ -447,11 +440,11 @@ function IdentCountsPanel({
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Annotation filter</label>
-              <select value={termPresetIdx} onChange={(e) => setTermPresetIdx(Number(e.target.value))}
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Taxon of</label>
+              <select value={taxonOf} onChange={(e) => setTaxonOf(e.target.value)}
                 className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               >
-                {TERM_PRESETS.map((p, i) => <option key={i} value={i}>{p.label}</option>)}
+                {TAXON_OF_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
             <div>
@@ -465,16 +458,16 @@ function IdentCountsPanel({
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Taxon of</label>
-              <select value={taxonOf} onChange={(e) => setTaxonOf(e.target.value)}
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Order by</label>
+              <select value={orderBy} onChange={(e) => setOrderBy(e.target.value)}
                 className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               >
-                {TAXON_OF_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                {ORDER_BY_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <label className="block text-xs font-medium text-muted-foreground mb-1">Date from</label>
               <input
@@ -492,14 +485,6 @@ function IdentCountsPanel({
                 onChange={(e) => setD2Input(e.target.value)}
                 className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Order by</label>
-              <select value={orderBy} onChange={(e) => setOrderBy(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-              >
-                {ORDER_BY_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
             </div>
             <div>
               <label className="block text-xs font-medium text-muted-foreground mb-1">Results per page</label>
