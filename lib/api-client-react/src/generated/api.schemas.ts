@@ -755,6 +755,96 @@ export interface InatSpeciesCountsResponse {
   provenance: FernsProvenance;
 }
 
+/**
+ * Raw iNaturalist taxon_summary response for the given observation. Contains wikipedia_summary (string), listed_taxon (establishment_means for the observation's place), and conservation_status.
+
+ */
+export type InatTaxonSummaryResponseData = { [key: string]: unknown };
+
+export interface InatTaxonSummaryResponse {
+  source_url: string;
+  found: boolean;
+  /** Raw iNaturalist taxon_summary response for the given observation. Contains wikipedia_summary (string), listed_taxon (establishment_means for the observation's place), and conservation_status.
+   */
+  data: InatTaxonSummaryResponseData;
+  provenance: FernsProvenance;
+}
+
+/**
+ * Raw iNaturalist identifications/similar_species response. The results array contains taxa frequently confused with the queried taxon, each with a count field indicating co-confusion frequency.
+
+ */
+export type InatSimilarSpeciesResponseData = { [key: string]: unknown };
+
+export interface InatSimilarSpeciesResponse {
+  source_url: string;
+  found: boolean;
+  /** Raw iNaturalist identifications/similar_species response. The results array contains taxa frequently confused with the queried taxon, each with a count field indicating co-confusion frequency.
+   */
+  data: InatSimilarSpeciesResponseData;
+  provenance: FernsProvenance;
+}
+
+/**
+ * Raw iNaturalist identifications/species_counts response. Species ranked by identification activity — a community engagement signal distinct from raw observation count. Supports taxon_of=identification|community.
+
+ */
+export type InatIdentSpeciesCountsResponseData = { [key: string]: unknown };
+
+export interface InatIdentSpeciesCountsResponse {
+  source_url: string;
+  found: boolean;
+  /** Raw iNaturalist identifications/species_counts response. Species ranked by identification activity — a community engagement signal distinct from raw observation count. Supports taxon_of=identification|community.
+   */
+  data: InatIdentSpeciesCountsResponseData;
+  provenance: FernsProvenance;
+}
+
+/**
+ * Raw iNaturalist identifications/recent_taxa response. Taxa recently identified in a place — "what's being documented right now".
+
+ */
+export type InatRecentTaxaResponseData = { [key: string]: unknown };
+
+export interface InatRecentTaxaResponse {
+  source_url: string;
+  found: boolean;
+  /** Raw iNaturalist identifications/recent_taxa response. Taxa recently identified in a place — "what's being documented right now".
+   */
+  data: InatRecentTaxaResponseData;
+  provenance: FernsProvenance;
+}
+
+/**
+ * Raw iNaturalist identifications response. Contains total_results, page, per_page, and a results array of individual identification records. Each record includes id, created_at, taxon, observation, and user fields.
+
+ */
+export type InatIdentificationsResponseData = { [key: string]: unknown };
+
+export interface InatIdentificationsResponse {
+  source_url: string;
+  found: boolean;
+  /** Raw iNaturalist identifications response. Contains total_results, page, per_page, and a results array of individual identification records. Each record includes id, created_at, taxon, observation, and user fields.
+   */
+  data: InatIdentificationsResponseData;
+  provenance: FernsProvenance;
+}
+
+/**
+ * Raw iNaturalist identification record response for a single identification ID. Contains the full identification record including taxon, observation, user, and created_at fields.
+
+ */
+export type InatIdentificationResponseData = { [key: string]: unknown };
+
+export interface InatIdentificationResponse {
+  source_url: string;
+  found: boolean;
+  /** Raw iNaturalist identification record response for a single identification ID. Contains the full identification record including taxon, observation, user, and created_at fields.
+   */
+  data: InatIdentificationResponseData;
+  provenance: FernsProvenance;
+}
+
 export interface InatAttribution {
   source_name: string;
   website: string;
@@ -2987,6 +3077,310 @@ export type GetInatPlacesNearbyProvenanceVerbosity =
   (typeof GetInatPlacesNearbyProvenanceVerbosity)[keyof typeof GetInatPlacesNearbyProvenanceVerbosity];
 
 export const GetInatPlacesNearbyProvenanceVerbosity = {
+  full: "full",
+  summary: "summary",
+  none: "none",
+} as const;
+
+export type GetInatTaxonSummaryParams = {
+  /**
+   * iNaturalist observation ID (integer)
+   */
+  observation_id: number;
+  /**
+   * Controls provenance text: full (default), summary, or none
+   */
+  provenance_verbosity?: GetInatTaxonSummaryProvenanceVerbosity;
+};
+
+export type GetInatTaxonSummaryProvenanceVerbosity =
+  (typeof GetInatTaxonSummaryProvenanceVerbosity)[keyof typeof GetInatTaxonSummaryProvenanceVerbosity];
+
+export const GetInatTaxonSummaryProvenanceVerbosity = {
+  full: "full",
+  summary: "summary",
+  none: "none",
+} as const;
+
+export type GetInatSimilarSpeciesParams = {
+  /**
+   * iNaturalist taxon ID to find similar species for
+   */
+  taxon_id: number;
+  place_id?: number;
+  quality_grade?: GetInatSimilarSpeciesQualityGrade;
+  lat?: number;
+  lng?: number;
+  radius?: number;
+  nelat?: number;
+  nelng?: number;
+  swlat?: number;
+  swlng?: number;
+  /**
+   * Controls provenance text: full (default), summary, or none
+   */
+  provenance_verbosity?: GetInatSimilarSpeciesProvenanceVerbosity;
+};
+
+export type GetInatSimilarSpeciesQualityGrade =
+  (typeof GetInatSimilarSpeciesQualityGrade)[keyof typeof GetInatSimilarSpeciesQualityGrade];
+
+export const GetInatSimilarSpeciesQualityGrade = {
+  research: "research",
+  needs_id: "needs_id",
+  casual: "casual",
+} as const;
+
+export type GetInatSimilarSpeciesProvenanceVerbosity =
+  (typeof GetInatSimilarSpeciesProvenanceVerbosity)[keyof typeof GetInatSimilarSpeciesProvenanceVerbosity];
+
+export const GetInatSimilarSpeciesProvenanceVerbosity = {
+  full: "full",
+  summary: "summary",
+  none: "none",
+} as const;
+
+export type GetInatIdentSpeciesCountsParams = {
+  taxon_id?: number;
+  place_id?: number;
+  quality_grade?: GetInatIdentSpeciesCountsQualityGrade;
+  /**
+   * @minimum 1
+   */
+  per_page?: number;
+  /**
+   * @minimum 1
+   */
+  page?: number;
+  /**
+   * Start date filter (YYYY-MM-DD)
+   */
+  d1?: string;
+  /**
+   * End date filter (YYYY-MM-DD)
+   */
+  d2?: string;
+  /**
+   * Comma-separated month numbers (e.g. 4,5,6)
+   */
+  month?: string;
+  native?: boolean;
+  introduced?: boolean;
+  lat?: number;
+  lng?: number;
+  radius?: number;
+  nelat?: number;
+  nelng?: number;
+  swlat?: number;
+  swlng?: number;
+  /**
+   * Sort order: desc (default) or asc
+   */
+  order?: GetInatIdentSpeciesCountsOrder;
+  /**
+   * Sort field: count (default) or id
+   */
+  order_by?: string;
+  /**
+   * Which taxon to count: identification (default) or community
+   */
+  taxon_of?: GetInatIdentSpeciesCountsTaxonOf;
+  /**
+   * Comma-separated iconic taxon names (e.g. Plantae,Fungi)
+   */
+  iconic_taxa?: string;
+  /**
+   * Controls provenance text: full (default), summary, or none
+   */
+  provenance_verbosity?: GetInatIdentSpeciesCountsProvenanceVerbosity;
+};
+
+export type GetInatIdentSpeciesCountsQualityGrade =
+  (typeof GetInatIdentSpeciesCountsQualityGrade)[keyof typeof GetInatIdentSpeciesCountsQualityGrade];
+
+export const GetInatIdentSpeciesCountsQualityGrade = {
+  research: "research",
+  needs_id: "needs_id",
+  casual: "casual",
+} as const;
+
+export type GetInatIdentSpeciesCountsOrder =
+  (typeof GetInatIdentSpeciesCountsOrder)[keyof typeof GetInatIdentSpeciesCountsOrder];
+
+export const GetInatIdentSpeciesCountsOrder = {
+  asc: "asc",
+  desc: "desc",
+} as const;
+
+export type GetInatIdentSpeciesCountsTaxonOf =
+  (typeof GetInatIdentSpeciesCountsTaxonOf)[keyof typeof GetInatIdentSpeciesCountsTaxonOf];
+
+export const GetInatIdentSpeciesCountsTaxonOf = {
+  identification: "identification",
+  community: "community",
+} as const;
+
+export type GetInatIdentSpeciesCountsProvenanceVerbosity =
+  (typeof GetInatIdentSpeciesCountsProvenanceVerbosity)[keyof typeof GetInatIdentSpeciesCountsProvenanceVerbosity];
+
+export const GetInatIdentSpeciesCountsProvenanceVerbosity = {
+  full: "full",
+  summary: "summary",
+  none: "none",
+} as const;
+
+export type GetInatRecentTaxaParams = {
+  place_id?: number;
+  taxon_id?: number;
+  quality_grade?: GetInatRecentTaxaQualityGrade;
+  /**
+   * @minimum 1
+   */
+  per_page?: number;
+  /**
+   * @minimum 1
+   */
+  page?: number;
+  /**
+   * Start date filter (YYYY-MM-DD)
+   */
+  d1?: string;
+  /**
+   * End date filter (YYYY-MM-DD)
+   */
+  d2?: string;
+  /**
+   * Controls provenance text: full (default), summary, or none
+   */
+  provenance_verbosity?: GetInatRecentTaxaProvenanceVerbosity;
+};
+
+export type GetInatRecentTaxaQualityGrade =
+  (typeof GetInatRecentTaxaQualityGrade)[keyof typeof GetInatRecentTaxaQualityGrade];
+
+export const GetInatRecentTaxaQualityGrade = {
+  research: "research",
+  needs_id: "needs_id",
+  casual: "casual",
+} as const;
+
+export type GetInatRecentTaxaProvenanceVerbosity =
+  (typeof GetInatRecentTaxaProvenanceVerbosity)[keyof typeof GetInatRecentTaxaProvenanceVerbosity];
+
+export const GetInatRecentTaxaProvenanceVerbosity = {
+  full: "full",
+  summary: "summary",
+  none: "none",
+} as const;
+
+export type GetInatIdentificationsParams = {
+  taxon_id?: number;
+  place_id?: number;
+  quality_grade?: GetInatIdentificationsQualityGrade;
+  /**
+   * @minimum 1
+   * @maximum 200
+   */
+  per_page?: number;
+  /**
+   * @minimum 1
+   */
+  page?: number;
+  /**
+   * Start date filter (YYYY-MM-DD)
+   */
+  d1?: string;
+  /**
+   * End date filter (YYYY-MM-DD)
+   */
+  d2?: string;
+  /**
+   * Comma-separated month numbers (e.g. 4,5,6)
+   */
+  month?: string;
+  native?: boolean;
+  introduced?: boolean;
+  lat?: number;
+  lng?: number;
+  radius?: number;
+  nelat?: number;
+  nelng?: number;
+  swlat?: number;
+  swlng?: number;
+  /**
+   * Locale for common names (e.g. en, es)
+   */
+  locale?: string;
+  /**
+   * Filter by identifier user ID
+   */
+  user_id?: number;
+  /**
+   * Filter by identifier user login
+   */
+  user_login?: string;
+  /**
+   * Comma-separated iconic taxon names (e.g. Plantae,Fungi)
+   */
+  iconic_taxa?: string;
+  term_id?: number;
+  term_value_id?: number;
+  verifiable?: boolean;
+  /**
+   * Sort order: desc (default) or asc
+   */
+  order?: GetInatIdentificationsOrder;
+  /**
+   * Sort field: created_at (default) or id
+   */
+  order_by?: string;
+  /**
+   * Controls provenance text: full (default), summary, or none
+   */
+  provenance_verbosity?: GetInatIdentificationsProvenanceVerbosity;
+};
+
+export type GetInatIdentificationsQualityGrade =
+  (typeof GetInatIdentificationsQualityGrade)[keyof typeof GetInatIdentificationsQualityGrade];
+
+export const GetInatIdentificationsQualityGrade = {
+  research: "research",
+  needs_id: "needs_id",
+  casual: "casual",
+} as const;
+
+export type GetInatIdentificationsOrder =
+  (typeof GetInatIdentificationsOrder)[keyof typeof GetInatIdentificationsOrder];
+
+export const GetInatIdentificationsOrder = {
+  asc: "asc",
+  desc: "desc",
+} as const;
+
+export type GetInatIdentificationsProvenanceVerbosity =
+  (typeof GetInatIdentificationsProvenanceVerbosity)[keyof typeof GetInatIdentificationsProvenanceVerbosity];
+
+export const GetInatIdentificationsProvenanceVerbosity = {
+  full: "full",
+  summary: "summary",
+  none: "none",
+} as const;
+
+export type GetInatIdentificationByIdParams = {
+  /**
+   * iNaturalist identification ID (integer)
+   */
+  id: number;
+  /**
+   * Controls provenance text: full (default), summary, or none
+   */
+  provenance_verbosity?: GetInatIdentificationByIdProvenanceVerbosity;
+};
+
+export type GetInatIdentificationByIdProvenanceVerbosity =
+  (typeof GetInatIdentificationByIdProvenanceVerbosity)[keyof typeof GetInatIdentificationByIdProvenanceVerbosity];
+
+export const GetInatIdentificationByIdProvenanceVerbosity = {
   full: "full",
   summary: "summary",
   none: "none",

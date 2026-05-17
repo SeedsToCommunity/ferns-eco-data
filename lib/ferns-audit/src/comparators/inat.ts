@@ -52,6 +52,11 @@ export async function runInatComparators(
     results.push(await checkInatPlacesNearby(fernsBase));
   }
 
+  results.push(await checkInatSimilarSpecies(fernsBase, firstTaxonId));
+  results.push(await checkInatIdentSpeciesCounts(fernsBase));
+  results.push(await checkInatRecentTaxa(fernsBase));
+  results.push(await checkInatIdentifications(fernsBase, firstTaxonId));
+
   return results;
 }
 
@@ -887,6 +892,287 @@ async function checkInatPlacesNearby(fernsBase: string): Promise<EndpointCompari
     return {
       source: "inat",
       endpoint: fernsEndpoint,
+      label,
+      ok: false,
+      error: String(err),
+      findings: [],
+      urlsCollected: [],
+    };
+  }
+}
+
+async function checkInatSimilarSpecies(
+  fernsBase: string,
+  taxonId: number | undefined,
+): Promise<EndpointComparison> {
+  const fernsEndpoint = `/api/inat/similar-species`;
+  const tid = taxonId ?? 47486;
+  const fernsUrl = `${fernsBase}${fernsEndpoint}?taxon_id=${tid}`;
+  const label = `iNat similar-species (taxon_id=${tid})`;
+
+  try {
+    const fernsRaw = await fetchJson(fernsUrl) as Record<string, unknown>;
+    const findings: FieldFinding[] = [];
+    const urlsCollected = collectUrls(fernsRaw, "inat/similar-species");
+
+    for (const field of ["source_url", "found", "data"] as const) {
+      if (fernsRaw[field] !== undefined) {
+        findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: fernsRaw[field], note: `${field} present` });
+      } else {
+        findings.push({ type: "gap", sourceField: field, note: `${field} missing` });
+      }
+    }
+
+    const data = fernsRaw.data as Record<string, unknown> | undefined;
+    if (data) {
+      const results = data["results"];
+      if (Array.isArray(results)) {
+        findings.push({ type: "ok", sourceField: "results", note: `${results.length} similar species returned` });
+        if (results.length > 0) {
+          const first = results[0] as Record<string, unknown>;
+          const taxon = first["taxon"] as Record<string, unknown> | undefined;
+          const count = first["count"];
+          if (typeof count === "number") {
+            findings.push({ type: "ok", sourceField: "results[0].count", fernsValue: count, note: "co-confusion count present" });
+          } else {
+            findings.push({ type: "gap", sourceField: "results[0].count", note: "co-confusion count missing from first result" });
+          }
+          if (taxon && typeof taxon["id"] !== "undefined") {
+            findings.push({ type: "ok", sourceField: "results[0].taxon.id", fernsValue: taxon["id"], note: "taxon.id present" });
+          } else {
+            findings.push({ type: "gap", sourceField: "results[0].taxon.id", note: "taxon.id missing from first result" });
+          }
+        }
+      } else {
+        findings.push({ type: "gap", sourceField: "results", note: "results array missing from similar-species response" });
+      }
+    }
+
+    return {
+      source: "inat",
+      endpoint: `${fernsEndpoint}?taxon_id=${tid}`,
+      label,
+      ok: true,
+      rawFerns: fernsRaw,
+      findings,
+      urlsCollected,
+    };
+  } catch (err) {
+    return {
+      source: "inat",
+      endpoint: `${fernsEndpoint}?taxon_id=${tid}`,
+      label,
+      ok: false,
+      error: String(err),
+      findings: [],
+      urlsCollected: [],
+    };
+  }
+}
+
+async function checkInatIdentSpeciesCounts(fernsBase: string): Promise<EndpointComparison> {
+  const fernsEndpoint = `/api/inat/identification-species-counts`;
+  const placeId = 2649;
+  const fernsUrl = `${fernsBase}${fernsEndpoint}?place_id=${placeId}&quality_grade=research&per_page=10`;
+  const label = `iNat identification-species-counts (place_id=${placeId}, research)`;
+
+  try {
+    const fernsRaw = await fetchJson(fernsUrl) as Record<string, unknown>;
+    const findings: FieldFinding[] = [];
+    const urlsCollected = collectUrls(fernsRaw, "inat/identification-species-counts");
+
+    for (const field of ["source_url", "found", "data"] as const) {
+      if (fernsRaw[field] !== undefined) {
+        findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: fernsRaw[field], note: `${field} present` });
+      } else {
+        findings.push({ type: "gap", sourceField: field, note: `${field} missing` });
+      }
+    }
+
+    const data = fernsRaw.data as Record<string, unknown> | undefined;
+    if (data) {
+      const total = data["total_results"];
+      const results = data["results"];
+      if (typeof total === "number") {
+        findings.push({ type: "ok", sourceField: "total_results", fernsValue: total, note: `total_results=${total}` });
+      } else {
+        findings.push({ type: "gap", sourceField: "total_results", note: "total_results missing from response" });
+      }
+      if (Array.isArray(results) && results.length > 0) {
+        findings.push({ type: "ok", sourceField: "results", note: `${results.length} identification species counts returned` });
+        const first = results[0] as Record<string, unknown>;
+        const taxon = first["taxon"] as Record<string, unknown> | undefined;
+        if (typeof first["count"] === "number") {
+          findings.push({ type: "ok", sourceField: "results[0].count", fernsValue: first["count"], note: "count present" });
+        } else {
+          findings.push({ type: "gap", sourceField: "results[0].count", note: "count missing from first result" });
+        }
+        if (taxon && typeof taxon["id"] !== "undefined") {
+          findings.push({ type: "ok", sourceField: "results[0].taxon.id", fernsValue: taxon["id"], note: "taxon.id present" });
+        } else {
+          findings.push({ type: "gap", sourceField: "results[0].taxon.id", note: "taxon.id missing from first result" });
+        }
+      } else if (Array.isArray(results) && results.length === 0) {
+        findings.push({ type: "ok", sourceField: "results", note: "No identification species counts — may be normal for this place" });
+      } else {
+        findings.push({ type: "gap", sourceField: "results", note: "results array missing" });
+      }
+    }
+
+    return {
+      source: "inat",
+      endpoint: `${fernsEndpoint}?place_id=${placeId}&quality_grade=research&per_page=10`,
+      label,
+      ok: true,
+      rawFerns: fernsRaw,
+      findings,
+      urlsCollected,
+    };
+  } catch (err) {
+    return {
+      source: "inat",
+      endpoint: `${fernsEndpoint}?place_id=${placeId}&quality_grade=research&per_page=10`,
+      label,
+      ok: false,
+      error: String(err),
+      findings: [],
+      urlsCollected: [],
+    };
+  }
+}
+
+async function checkInatRecentTaxa(fernsBase: string): Promise<EndpointComparison> {
+  const fernsEndpoint = `/api/inat/recent-taxa`;
+  const placeId = 10;
+  const fernsUrl = `${fernsBase}${fernsEndpoint}?place_id=${placeId}&quality_grade=research&per_page=10`;
+  const label = `iNat recent-taxa (place_id=${placeId} Michigan, research)`;
+
+  try {
+    const fernsRaw = await fetchJson(fernsUrl) as Record<string, unknown>;
+    const findings: FieldFinding[] = [];
+    const urlsCollected = collectUrls(fernsRaw, "inat/recent-taxa");
+
+    for (const field of ["source_url", "found", "data"] as const) {
+      if (fernsRaw[field] !== undefined) {
+        findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: fernsRaw[field], note: `${field} present` });
+      } else {
+        findings.push({ type: "gap", sourceField: field, note: `${field} missing` });
+      }
+    }
+
+    const data = fernsRaw.data as Record<string, unknown> | undefined;
+    if (data) {
+      const results = data["results"];
+      if (Array.isArray(results)) {
+        findings.push({ type: "ok", sourceField: "results", note: `${results.length} recently identified taxa returned` });
+        if (results.length > 0) {
+          const first = results[0] as Record<string, unknown>;
+          const taxon = first["taxon"] as Record<string, unknown> | undefined;
+          if (taxon && typeof taxon["id"] !== "undefined") {
+            findings.push({ type: "ok", sourceField: "results[0].taxon.id", fernsValue: taxon["id"], note: "taxon.id present" });
+          } else {
+            findings.push({ type: "gap", sourceField: "results[0].taxon.id", note: "taxon.id missing from first result" });
+          }
+        }
+      } else {
+        findings.push({ type: "gap", sourceField: "results", note: "results array missing from recent-taxa response" });
+      }
+    }
+
+    return {
+      source: "inat",
+      endpoint: `${fernsEndpoint}?place_id=${placeId}&quality_grade=research&per_page=10`,
+      label,
+      ok: true,
+      rawFerns: fernsRaw,
+      findings,
+      urlsCollected,
+    };
+  } catch (err) {
+    return {
+      source: "inat",
+      endpoint: `${fernsEndpoint}?place_id=${placeId}&quality_grade=research&per_page=10`,
+      label,
+      ok: false,
+      error: String(err),
+      findings: [],
+      urlsCollected: [],
+    };
+  }
+}
+
+async function checkInatIdentifications(
+  fernsBase: string,
+  taxonId: number | undefined,
+): Promise<EndpointComparison> {
+  const fernsEndpoint = `/api/inat/identifications`;
+  const tid = taxonId ?? 47486;
+  const placeId = 2649;
+  const fernsUrl = `${fernsBase}${fernsEndpoint}?taxon_id=${tid}&place_id=${placeId}&quality_grade=research&per_page=5`;
+  const label = `iNat identifications (taxon_id=${tid}, place_id=${placeId}, research)`;
+
+  try {
+    const fernsRaw = await fetchJson(fernsUrl) as Record<string, unknown>;
+    const findings: FieldFinding[] = [];
+    const urlsCollected = collectUrls(fernsRaw, "inat/identifications");
+
+    for (const field of ["source_url", "found", "data"] as const) {
+      if (fernsRaw[field] !== undefined) {
+        findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: fernsRaw[field], note: `${field} present` });
+      } else {
+        findings.push({ type: "gap", sourceField: field, note: `${field} missing` });
+      }
+    }
+
+    const data = fernsRaw.data as Record<string, unknown> | undefined;
+    if (data) {
+      const total = data["total_results"];
+      const results = data["results"];
+      if (typeof total === "number") {
+        findings.push({ type: "ok", sourceField: "total_results", fernsValue: total, note: `total_results=${total}` });
+      } else {
+        findings.push({ type: "gap", sourceField: "total_results", note: "total_results missing" });
+      }
+      if (Array.isArray(results) && results.length > 0) {
+        findings.push({ type: "ok", sourceField: "results", note: `${results.length} identification records returned` });
+        const first = results[0] as Record<string, unknown>;
+        if (typeof first["id"] !== "undefined") {
+          findings.push({ type: "ok", sourceField: "results[0].id", fernsValue: first["id"], note: "identification id present" });
+        } else {
+          findings.push({ type: "gap", sourceField: "results[0].id", note: "identification id missing from first result" });
+        }
+        const taxon = first["taxon"] as Record<string, unknown> | undefined;
+        if (taxon && typeof taxon["id"] !== "undefined") {
+          findings.push({ type: "ok", sourceField: "results[0].taxon.id", fernsValue: taxon["id"], note: "taxon.id present" });
+        } else {
+          findings.push({ type: "gap", sourceField: "results[0].taxon.id", note: "taxon.id missing from first result" });
+        }
+        const user = first["user"] as Record<string, unknown> | undefined;
+        if (user && typeof user["login"] !== "undefined") {
+          findings.push({ type: "ok", sourceField: "results[0].user.login", fernsValue: user["login"], note: "user.login present" });
+        } else {
+          findings.push({ type: "gap", sourceField: "results[0].user.login", note: "user.login missing from first result" });
+        }
+      } else if (Array.isArray(results) && results.length === 0) {
+        findings.push({ type: "ok", sourceField: "results", note: "No identifications returned — may be normal" });
+      } else {
+        findings.push({ type: "gap", sourceField: "results", note: "results array missing" });
+      }
+    }
+
+    return {
+      source: "inat",
+      endpoint: `${fernsEndpoint}?taxon_id=${tid}&place_id=${placeId}&quality_grade=research&per_page=5`,
+      label,
+      ok: true,
+      rawFerns: fernsRaw,
+      findings,
+      urlsCollected,
+    };
+  } catch (err) {
+    return {
+      source: "inat",
+      endpoint: `${fernsEndpoint}?taxon_id=${tid}&place_id=${placeId}&quality_grade=research&per_page=5`,
       label,
       ok: false,
       error: String(err),

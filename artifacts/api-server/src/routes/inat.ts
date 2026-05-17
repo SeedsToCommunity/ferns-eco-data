@@ -21,6 +21,12 @@ import {
   fetchTaxonById,
   fetchPlaceById,
   fetchPlacesNearby,
+  fetchTaxonSummary,
+  fetchSimilarSpecies,
+  fetchIdentSpeciesCounts,
+  fetchRecentTaxa,
+  fetchIdentifications,
+  fetchIdentificationById,
   buildProvenance,
 } from "../services/inat/connector.js";
 import {
@@ -77,6 +83,18 @@ import {
   GetInatPlaceByIdResponse,
   GetInatPlacesNearbyQueryParams,
   GetInatPlacesNearbyResponse,
+  GetInatTaxonSummaryQueryParams,
+  GetInatTaxonSummaryResponse,
+  GetInatSimilarSpeciesQueryParams,
+  GetInatSimilarSpeciesResponse,
+  GetInatIdentSpeciesCountsQueryParams,
+  GetInatIdentSpeciesCountsResponse,
+  GetInatRecentTaxaQueryParams,
+  GetInatRecentTaxaResponse,
+  GetInatIdentificationsQueryParams,
+  GetInatIdentificationsResponse,
+  GetInatIdentificationByIdQueryParams,
+  GetInatIdentificationByIdResponse,
   GetInatMetadataResponse,
 } from "@workspace/api-zod";
 import { filterProvenance } from "../lib/provenance.js";
@@ -441,6 +459,279 @@ router.get("/inat/species-counts", async (req, res) => {
     }));
   } catch (err) {
     req.log.error({ err }, "iNat species-counts fetch failed");
+    res.status(502).json({ error: "upstream_error", message: "Failed to fetch from iNaturalist API" });
+  }
+});
+
+router.get("/inat/taxon-summary", async (req, res) => {
+  const parsed = GetInatTaxonSummaryQueryParams.safeParse(req.query);
+  if (!parsed.success) {
+    res.status(400).json({ error: "invalid_input", message: parsed.error.errors[0]?.message ?? "Invalid query parameters" });
+    return;
+  }
+
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+
+  try {
+    const result = await fetchTaxonSummary(parsed.data.observation_id);
+    const prov = buildProvenance(result.upstream_url, "api_fetch");
+    const raw = result.raw_response;
+    const found = !!(raw["wikipedia_summary"] || raw["listed_taxon"] || raw["conservation_status"]);
+
+    res.json(GetInatTaxonSummaryResponse.parse({
+      source_url: result.source_url,
+      found,
+      data: raw,
+      provenance: filterProvenance({
+        source_id: prov.source_id,
+        fetched_at: prov.fetched_at,
+        method: prov.method,
+        upstream_url: prov.upstream_url,
+        general_summary: prov.general_summary,
+        technical_details: prov.technical_details,
+      }, verbosity),
+    }));
+  } catch (err) {
+    req.log.error({ err }, "iNat taxon-summary fetch failed");
+    res.status(502).json({ error: "upstream_error", message: "Failed to fetch from iNaturalist API" });
+  }
+});
+
+router.get("/inat/similar-species", async (req, res) => {
+  const parsed = GetInatSimilarSpeciesQueryParams.safeParse(req.query);
+  if (!parsed.success) {
+    res.status(400).json({ error: "invalid_input", message: parsed.error.errors[0]?.message ?? "Invalid query parameters" });
+    return;
+  }
+
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+
+  try {
+    const result = await fetchSimilarSpecies({
+      taxon_id:      parsed.data.taxon_id,
+      place_id:      parsed.data.place_id ?? undefined,
+      quality_grade: parsed.data.quality_grade ?? undefined,
+      lat:           parsed.data.lat ?? undefined,
+      lng:           parsed.data.lng ?? undefined,
+      radius:        parsed.data.radius ?? undefined,
+      nelat:         parsed.data.nelat ?? undefined,
+      nelng:         parsed.data.nelng ?? undefined,
+      swlat:         parsed.data.swlat ?? undefined,
+      swlng:         parsed.data.swlng ?? undefined,
+    });
+    const prov = buildProvenance(result.upstream_url, "api_fetch");
+    const raw = result.raw_response;
+    const total = typeof raw["total_results"] === "number" ? raw["total_results"] : 0;
+    const results = Array.isArray(raw["results"]) ? raw["results"].length : 0;
+
+    res.json(GetInatSimilarSpeciesResponse.parse({
+      source_url: result.source_url,
+      found: total > 0 || results > 0,
+      data: raw,
+      provenance: filterProvenance({
+        source_id: prov.source_id,
+        fetched_at: prov.fetched_at,
+        method: prov.method,
+        upstream_url: prov.upstream_url,
+        general_summary: prov.general_summary,
+        technical_details: prov.technical_details,
+      }, verbosity),
+    }));
+  } catch (err) {
+    req.log.error({ err }, "iNat similar-species fetch failed");
+    res.status(502).json({ error: "upstream_error", message: "Failed to fetch from iNaturalist API" });
+  }
+});
+
+router.get("/inat/identification-species-counts", async (req, res) => {
+  const parsed = GetInatIdentSpeciesCountsQueryParams.safeParse(req.query);
+  if (!parsed.success) {
+    res.status(400).json({ error: "invalid_input", message: parsed.error.errors[0]?.message ?? "Invalid query parameters" });
+    return;
+  }
+
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+
+  try {
+    const result = await fetchIdentSpeciesCounts({
+      taxon_id:      parsed.data.taxon_id ?? undefined,
+      place_id:      parsed.data.place_id ?? undefined,
+      quality_grade: parsed.data.quality_grade ?? undefined,
+      per_page:      parsed.data.per_page ?? undefined,
+      page:          parsed.data.page ?? undefined,
+      d1:            parsed.data.d1 ?? undefined,
+      d2:            parsed.data.d2 ?? undefined,
+      month:         parsed.data.month ?? undefined,
+      native:        parsed.data.native ?? undefined,
+      introduced:    parsed.data.introduced ?? undefined,
+      lat:           parsed.data.lat ?? undefined,
+      lng:           parsed.data.lng ?? undefined,
+      radius:        parsed.data.radius ?? undefined,
+      nelat:         parsed.data.nelat ?? undefined,
+      nelng:         parsed.data.nelng ?? undefined,
+      swlat:         parsed.data.swlat ?? undefined,
+      swlng:         parsed.data.swlng ?? undefined,
+      order:         parsed.data.order ?? undefined,
+      order_by:      parsed.data.order_by ?? undefined,
+      taxon_of:      parsed.data.taxon_of ?? undefined,
+      iconic_taxa:   parsed.data.iconic_taxa ?? undefined,
+    });
+    const prov = buildProvenance(result.upstream_url, "api_fetch");
+    const raw = result.raw_response;
+    const total = typeof raw["total_results"] === "number" ? raw["total_results"] : 0;
+
+    res.json(GetInatIdentSpeciesCountsResponse.parse({
+      source_url: result.source_url,
+      found: total > 0,
+      data: raw,
+      provenance: filterProvenance({
+        source_id: prov.source_id,
+        fetched_at: prov.fetched_at,
+        method: prov.method,
+        upstream_url: prov.upstream_url,
+        general_summary: prov.general_summary,
+        technical_details: prov.technical_details,
+      }, verbosity),
+    }));
+  } catch (err) {
+    req.log.error({ err }, "iNat identification-species-counts fetch failed");
+    res.status(502).json({ error: "upstream_error", message: "Failed to fetch from iNaturalist API" });
+  }
+});
+
+router.get("/inat/recent-taxa", async (req, res) => {
+  const parsed = GetInatRecentTaxaQueryParams.safeParse(req.query);
+  if (!parsed.success) {
+    res.status(400).json({ error: "invalid_input", message: parsed.error.errors[0]?.message ?? "Invalid query parameters" });
+    return;
+  }
+
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+
+  try {
+    const result = await fetchRecentTaxa({
+      place_id:      parsed.data.place_id ?? undefined,
+      taxon_id:      parsed.data.taxon_id ?? undefined,
+      quality_grade: parsed.data.quality_grade ?? undefined,
+      per_page:      parsed.data.per_page ?? undefined,
+      page:          parsed.data.page ?? undefined,
+      d1:            parsed.data.d1 ?? undefined,
+      d2:            parsed.data.d2 ?? undefined,
+    });
+    const prov = buildProvenance(result.upstream_url, "api_fetch");
+    const raw = result.raw_response;
+    const results = Array.isArray(raw["results"]) ? raw["results"].length : 0;
+
+    res.json(GetInatRecentTaxaResponse.parse({
+      source_url: result.source_url,
+      found: results > 0,
+      data: raw,
+      provenance: filterProvenance({
+        source_id: prov.source_id,
+        fetched_at: prov.fetched_at,
+        method: prov.method,
+        upstream_url: prov.upstream_url,
+        general_summary: prov.general_summary,
+        technical_details: prov.technical_details,
+      }, verbosity),
+    }));
+  } catch (err) {
+    req.log.error({ err }, "iNat recent-taxa fetch failed");
+    res.status(502).json({ error: "upstream_error", message: "Failed to fetch from iNaturalist API" });
+  }
+});
+
+router.get("/inat/identifications", async (req, res) => {
+  const parsed = GetInatIdentificationsQueryParams.safeParse(req.query);
+  if (!parsed.success) {
+    res.status(400).json({ error: "invalid_input", message: parsed.error.errors[0]?.message ?? "Invalid query parameters" });
+    return;
+  }
+
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+
+  try {
+    const result = await fetchIdentifications({
+      taxon_id:      parsed.data.taxon_id ?? undefined,
+      place_id:      parsed.data.place_id ?? undefined,
+      quality_grade: parsed.data.quality_grade ?? undefined,
+      per_page:      parsed.data.per_page ?? undefined,
+      page:          parsed.data.page ?? undefined,
+      d1:            parsed.data.d1 ?? undefined,
+      d2:            parsed.data.d2 ?? undefined,
+      month:         parsed.data.month ?? undefined,
+      native:        parsed.data.native ?? undefined,
+      introduced:    parsed.data.introduced ?? undefined,
+      lat:           parsed.data.lat ?? undefined,
+      lng:           parsed.data.lng ?? undefined,
+      radius:        parsed.data.radius ?? undefined,
+      nelat:         parsed.data.nelat ?? undefined,
+      nelng:         parsed.data.nelng ?? undefined,
+      swlat:         parsed.data.swlat ?? undefined,
+      swlng:         parsed.data.swlng ?? undefined,
+      locale:        parsed.data.locale ?? undefined,
+      user_id:       parsed.data.user_id ?? undefined,
+      user_login:    parsed.data.user_login ?? undefined,
+      iconic_taxa:   parsed.data.iconic_taxa ?? undefined,
+      term_id:       parsed.data.term_id ?? undefined,
+      term_value_id: parsed.data.term_value_id ?? undefined,
+      verifiable:    parsed.data.verifiable ?? undefined,
+      order:         parsed.data.order ?? undefined,
+      order_by:      parsed.data.order_by ?? undefined,
+    });
+    const prov = buildProvenance(result.upstream_url, "api_fetch");
+    const raw = result.raw_response;
+    const total = typeof raw["total_results"] === "number" ? raw["total_results"] : 0;
+
+    res.json(GetInatIdentificationsResponse.parse({
+      source_url: result.source_url,
+      found: total > 0,
+      data: raw,
+      provenance: filterProvenance({
+        source_id: prov.source_id,
+        fetched_at: prov.fetched_at,
+        method: prov.method,
+        upstream_url: prov.upstream_url,
+        general_summary: prov.general_summary,
+        technical_details: prov.technical_details,
+      }, verbosity),
+    }));
+  } catch (err) {
+    req.log.error({ err }, "iNat identifications fetch failed");
+    res.status(502).json({ error: "upstream_error", message: "Failed to fetch from iNaturalist API" });
+  }
+});
+
+router.get("/inat/identification", async (req, res) => {
+  const parsed = GetInatIdentificationByIdQueryParams.safeParse(req.query);
+  if (!parsed.success) {
+    res.status(400).json({ error: "invalid_input", message: parsed.error.errors[0]?.message ?? "Invalid query parameters" });
+    return;
+  }
+
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+
+  try {
+    const result = await fetchIdentificationById(parsed.data.id);
+    const prov = buildProvenance(result.upstream_url, "api_fetch");
+    const raw = result.raw_response;
+    const results = Array.isArray(raw["results"]) ? raw["results"].length : 0;
+
+    res.json(GetInatIdentificationByIdResponse.parse({
+      source_url: result.source_url,
+      found: results > 0,
+      data: raw,
+      provenance: filterProvenance({
+        source_id: prov.source_id,
+        fetched_at: prov.fetched_at,
+        method: prov.method,
+        upstream_url: prov.upstream_url,
+        general_summary: prov.general_summary,
+        technical_details: prov.technical_details,
+      }, verbosity),
+    }));
+  } catch (err) {
+    req.log.error({ err }, "iNat identification-by-id fetch failed");
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from iNaturalist API" });
   }
 });

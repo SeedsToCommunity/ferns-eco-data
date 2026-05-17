@@ -1953,6 +1953,492 @@ export const GetInatPlacesNearbyResponse = zod.object({
 });
 
 /**
+ * Calls GET /observations/{id}/taxon_summary on the iNaturalist API. Returns a Wikipedia summary (500-600 chars), listed_taxon (establishment_means for the observation's place — native/introduced/endemic), and conservation_status. The observation_id is required; it determines which location context is used for nativity data. Live call, no cache.
+
+ * @summary Wikipedia summary + nativity + conservation status for a taxon at an observation location
+ */
+export const GetInatTaxonSummaryQueryParams = zod.object({
+  observation_id: zod.coerce
+    .number()
+    .describe("iNaturalist observation ID (integer)"),
+  provenance_verbosity: zod
+    .enum(["full", "summary", "none"])
+    .optional()
+    .describe("Controls provenance text: full (default), summary, or none"),
+});
+
+export const GetInatTaxonSummaryResponse = zod.object({
+  source_url: zod.string(),
+  found: zod.boolean(),
+  data: zod
+    .record(zod.string(), zod.unknown())
+    .describe(
+      "Raw iNaturalist taxon_summary response for the given observation. Contains wikipedia_summary (string), listed_taxon (establishment_means for the observation's place), and conservation_status.\n",
+    ),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      general_summary: zod
+        .string()
+        .optional()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      technical_details: zod
+        .string()
+        .optional()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
+    ),
+});
+
+/**
+ * Live passthrough for iNaturalist GET /identifications/similar_species. Returns taxa that are frequently confused with the given taxon_id, ranked by co-confusion count. Optionally filtered by place and geography. No cache.
+
+ * @summary Species commonly confused with a given taxon
+ */
+export const GetInatSimilarSpeciesQueryParams = zod.object({
+  taxon_id: zod.coerce
+    .number()
+    .describe("iNaturalist taxon ID to find similar species for"),
+  place_id: zod.coerce.number().optional(),
+  quality_grade: zod.enum(["research", "needs_id", "casual"]).optional(),
+  lat: zod.coerce.number().optional(),
+  lng: zod.coerce.number().optional(),
+  radius: zod.coerce.number().optional(),
+  nelat: zod.coerce.number().optional(),
+  nelng: zod.coerce.number().optional(),
+  swlat: zod.coerce.number().optional(),
+  swlng: zod.coerce.number().optional(),
+  provenance_verbosity: zod
+    .enum(["full", "summary", "none"])
+    .optional()
+    .describe("Controls provenance text: full (default), summary, or none"),
+});
+
+export const GetInatSimilarSpeciesResponse = zod.object({
+  source_url: zod.string(),
+  found: zod.boolean(),
+  data: zod
+    .record(zod.string(), zod.unknown())
+    .describe(
+      "Raw iNaturalist identifications\/similar_species response. The results array contains taxa frequently confused with the queried taxon, each with a count field indicating co-confusion frequency.\n",
+    ),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      general_summary: zod
+        .string()
+        .optional()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      technical_details: zod
+        .string()
+        .optional()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
+    ),
+});
+
+/**
+ * Live passthrough for iNaturalist GET /identifications/species_counts. Returns species ranked by identification engagement (distinct from raw observation count). Supports taxon_of=identification|community to select which taxon is counted. No cache.
+
+ * @summary Species ranked by identification activity
+ */
+
+export const GetInatIdentSpeciesCountsQueryParams = zod.object({
+  taxon_id: zod.coerce.number().optional(),
+  place_id: zod.coerce.number().optional(),
+  quality_grade: zod.enum(["research", "needs_id", "casual"]).optional(),
+  per_page: zod.coerce.number().min(1).optional(),
+  page: zod.coerce.number().min(1).optional(),
+  d1: zod.string().optional().describe("Start date filter (YYYY-MM-DD)"),
+  d2: zod.string().optional().describe("End date filter (YYYY-MM-DD)"),
+  month: zod
+    .string()
+    .optional()
+    .describe("Comma-separated month numbers (e.g. 4,5,6)"),
+  native: zod.coerce.boolean().optional(),
+  introduced: zod.coerce.boolean().optional(),
+  lat: zod.coerce.number().optional(),
+  lng: zod.coerce.number().optional(),
+  radius: zod.coerce.number().optional(),
+  nelat: zod.coerce.number().optional(),
+  nelng: zod.coerce.number().optional(),
+  swlat: zod.coerce.number().optional(),
+  swlng: zod.coerce.number().optional(),
+  order: zod
+    .enum(["asc", "desc"])
+    .optional()
+    .describe("Sort order: desc (default) or asc"),
+  order_by: zod
+    .string()
+    .optional()
+    .describe("Sort field: count (default) or id"),
+  taxon_of: zod
+    .enum(["identification", "community"])
+    .optional()
+    .describe("Which taxon to count: identification (default) or community"),
+  iconic_taxa: zod
+    .string()
+    .optional()
+    .describe("Comma-separated iconic taxon names (e.g. Plantae,Fungi)"),
+  provenance_verbosity: zod
+    .enum(["full", "summary", "none"])
+    .optional()
+    .describe("Controls provenance text: full (default), summary, or none"),
+});
+
+export const GetInatIdentSpeciesCountsResponse = zod.object({
+  source_url: zod.string(),
+  found: zod.boolean(),
+  data: zod
+    .record(zod.string(), zod.unknown())
+    .describe(
+      "Raw iNaturalist identifications\/species_counts response. Species ranked by identification activity — a community engagement signal distinct from raw observation count. Supports taxon_of=identification|community.\n",
+    ),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      general_summary: zod
+        .string()
+        .optional()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      technical_details: zod
+        .string()
+        .optional()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
+    ),
+});
+
+/**
+ * Live passthrough for iNaturalist GET /identifications/recent_taxa. Returns taxa that have recently been identified in a given place. Useful for "what's being documented right now" queries. No cache.
+
+ * @summary Taxa recently identified in a place
+ */
+
+export const GetInatRecentTaxaQueryParams = zod.object({
+  place_id: zod.coerce.number().optional(),
+  taxon_id: zod.coerce.number().optional(),
+  quality_grade: zod.enum(["research", "needs_id", "casual"]).optional(),
+  per_page: zod.coerce.number().min(1).optional(),
+  page: zod.coerce.number().min(1).optional(),
+  d1: zod.string().optional().describe("Start date filter (YYYY-MM-DD)"),
+  d2: zod.string().optional().describe("End date filter (YYYY-MM-DD)"),
+  provenance_verbosity: zod
+    .enum(["full", "summary", "none"])
+    .optional()
+    .describe("Controls provenance text: full (default), summary, or none"),
+});
+
+export const GetInatRecentTaxaResponse = zod.object({
+  source_url: zod.string(),
+  found: zod.boolean(),
+  data: zod
+    .record(zod.string(), zod.unknown())
+    .describe(
+      'Raw iNaturalist identifications\/recent_taxa response. Taxa recently identified in a place — \"what\'s being documented right now\".\n',
+    ),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      general_summary: zod
+        .string()
+        .optional()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      technical_details: zod
+        .string()
+        .optional()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
+    ),
+});
+
+/**
+ * Live passthrough for iNaturalist GET /identifications. Returns individual identification records (who made an identification, of what taxon, on which observation). A single observation can have multiple identifications. Useful for understanding the community identification process. No cache. Supports pagination via page and per_page.
+
+ * @summary Paged list of individual iNaturalist identification records
+ */
+export const getInatIdentificationsQueryPerPageMax = 200;
+
+export const GetInatIdentificationsQueryParams = zod.object({
+  taxon_id: zod.coerce.number().optional(),
+  place_id: zod.coerce.number().optional(),
+  quality_grade: zod.enum(["research", "needs_id", "casual"]).optional(),
+  per_page: zod.coerce
+    .number()
+    .min(1)
+    .max(getInatIdentificationsQueryPerPageMax)
+    .optional(),
+  page: zod.coerce.number().min(1).optional(),
+  d1: zod.string().optional().describe("Start date filter (YYYY-MM-DD)"),
+  d2: zod.string().optional().describe("End date filter (YYYY-MM-DD)"),
+  month: zod
+    .string()
+    .optional()
+    .describe("Comma-separated month numbers (e.g. 4,5,6)"),
+  native: zod.coerce.boolean().optional(),
+  introduced: zod.coerce.boolean().optional(),
+  lat: zod.coerce.number().optional(),
+  lng: zod.coerce.number().optional(),
+  radius: zod.coerce.number().optional(),
+  nelat: zod.coerce.number().optional(),
+  nelng: zod.coerce.number().optional(),
+  swlat: zod.coerce.number().optional(),
+  swlng: zod.coerce.number().optional(),
+  locale: zod
+    .string()
+    .optional()
+    .describe("Locale for common names (e.g. en, es)"),
+  user_id: zod.coerce
+    .number()
+    .optional()
+    .describe("Filter by identifier user ID"),
+  user_login: zod
+    .string()
+    .optional()
+    .describe("Filter by identifier user login"),
+  iconic_taxa: zod
+    .string()
+    .optional()
+    .describe("Comma-separated iconic taxon names (e.g. Plantae,Fungi)"),
+  term_id: zod.coerce.number().optional(),
+  term_value_id: zod.coerce.number().optional(),
+  verifiable: zod.coerce.boolean().optional(),
+  order: zod
+    .enum(["asc", "desc"])
+    .optional()
+    .describe("Sort order: desc (default) or asc"),
+  order_by: zod
+    .string()
+    .optional()
+    .describe("Sort field: created_at (default) or id"),
+  provenance_verbosity: zod
+    .enum(["full", "summary", "none"])
+    .optional()
+    .describe("Controls provenance text: full (default), summary, or none"),
+});
+
+export const GetInatIdentificationsResponse = zod.object({
+  source_url: zod.string(),
+  found: zod.boolean(),
+  data: zod
+    .record(zod.string(), zod.unknown())
+    .describe(
+      "Raw iNaturalist identifications response. Contains total_results, page, per_page, and a results array of individual identification records. Each record includes id, created_at, taxon, observation, and user fields.\n",
+    ),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      general_summary: zod
+        .string()
+        .optional()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      technical_details: zod
+        .string()
+        .optional()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
+    ),
+});
+
+/**
+ * Live passthrough for iNaturalist GET /identifications/{id}. Returns the full identification record for a known identification ID. Uses a flat query param consistent with FERNS conventions. No cache.
+
+ * @summary Single iNaturalist identification record by ID
+ */
+export const GetInatIdentificationByIdQueryParams = zod.object({
+  id: zod.coerce.number().describe("iNaturalist identification ID (integer)"),
+  provenance_verbosity: zod
+    .enum(["full", "summary", "none"])
+    .optional()
+    .describe("Controls provenance text: full (default), summary, or none"),
+});
+
+export const GetInatIdentificationByIdResponse = zod.object({
+  source_url: zod.string(),
+  found: zod.boolean(),
+  data: zod
+    .record(zod.string(), zod.unknown())
+    .describe(
+      "Raw iNaturalist identification record response for a single identification ID. Contains the full identification record including taxon, observation, user, and created_at fields.\n",
+    ),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      general_summary: zod
+        .string()
+        .optional()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      technical_details: zod
+        .string()
+        .optional()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
+    ),
+});
+
+/**
  * Returns service identity, attribution, permission status, and the full registry entry for the iNaturalist service. Use this to populate 'About this data' panels in any application displaying iNaturalist data. Also seeds the iNaturalist entry in the FERNS source registry.
 
  * @summary iNaturalist service metadata

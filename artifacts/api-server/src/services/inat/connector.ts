@@ -514,6 +514,216 @@ export async function fetchPlacesNearby(params: InatPlacesNearbyParams): Promise
   };
 }
 
+export async function fetchTaxonSummary(observationId: number): Promise<InatPassthroughResult> {
+  const url = `${INAT_API_BASE}/observations/${observationId}/taxon_summary`;
+  const raw = await inatFetch(url) as Record<string, unknown>;
+  return {
+    raw_response: raw,
+    source_url: `https://www.inaturalist.org/observations/${observationId}`,
+    upstream_url: url,
+  };
+}
+
+export interface InatSimilarSpeciesParams {
+  taxon_id: number;
+  place_id?: number;
+  quality_grade?: string;
+  lat?: number;
+  lng?: number;
+  radius?: number;
+  nelat?: number;
+  nelng?: number;
+  swlat?: number;
+  swlng?: number;
+}
+
+export async function fetchSimilarSpecies(params: InatSimilarSpeciesParams): Promise<InatPassthroughResult> {
+  const q = new URLSearchParams();
+  q.set("taxon_id", String(params.taxon_id));
+  if (params.place_id !== undefined) q.set("place_id", String(params.place_id));
+  if (params.quality_grade) q.set("quality_grade", params.quality_grade);
+  if (params.lat !== undefined) q.set("lat", String(params.lat));
+  if (params.lng !== undefined) q.set("lng", String(params.lng));
+  if (params.radius !== undefined) q.set("radius", String(params.radius));
+  if (params.nelat !== undefined) q.set("nelat", String(params.nelat));
+  if (params.nelng !== undefined) q.set("nelng", String(params.nelng));
+  if (params.swlat !== undefined) q.set("swlat", String(params.swlat));
+  if (params.swlng !== undefined) q.set("swlng", String(params.swlng));
+
+  const url = `${INAT_API_BASE}/identifications/similar_species?${q.toString()}`;
+  const raw = await inatFetch(url) as Record<string, unknown>;
+  return {
+    raw_response: raw,
+    source_url: `https://www.inaturalist.org/taxa/${params.taxon_id}`,
+    upstream_url: url,
+  };
+}
+
+export interface InatIdentSpeciesCountsParams {
+  taxon_id?: number;
+  place_id?: number;
+  quality_grade?: string;
+  per_page?: number;
+  page?: number;
+  d1?: string;
+  d2?: string;
+  month?: string;
+  native?: boolean;
+  introduced?: boolean;
+  lat?: number;
+  lng?: number;
+  radius?: number;
+  nelat?: number;
+  nelng?: number;
+  swlat?: number;
+  swlng?: number;
+  order?: string;
+  order_by?: string;
+  taxon_of?: string;
+  iconic_taxa?: string;
+}
+
+export async function fetchIdentSpeciesCounts(params: InatIdentSpeciesCountsParams): Promise<InatPassthroughResult> {
+  const q = new URLSearchParams();
+  if (params.taxon_id !== undefined) q.set("taxon_id", String(params.taxon_id));
+  if (params.place_id !== undefined) q.set("place_id", String(params.place_id));
+  if (params.quality_grade) q.set("quality_grade", params.quality_grade);
+  if (params.per_page !== undefined) q.set("per_page", String(params.per_page));
+  if (params.page !== undefined) q.set("page", String(params.page));
+  if (params.d1) q.set("d1", params.d1);
+  if (params.d2) q.set("d2", params.d2);
+  if (params.month) q.set("month", params.month);
+  if (params.native !== undefined) q.set("native", String(params.native));
+  if (params.introduced !== undefined) q.set("introduced", String(params.introduced));
+  if (params.lat !== undefined) q.set("lat", String(params.lat));
+  if (params.lng !== undefined) q.set("lng", String(params.lng));
+  if (params.radius !== undefined) q.set("radius", String(params.radius));
+  if (params.nelat !== undefined) q.set("nelat", String(params.nelat));
+  if (params.nelng !== undefined) q.set("nelng", String(params.nelng));
+  if (params.swlat !== undefined) q.set("swlat", String(params.swlat));
+  if (params.swlng !== undefined) q.set("swlng", String(params.swlng));
+  if (params.order) q.set("order", params.order);
+  if (params.order_by) q.set("order_by", params.order_by);
+  if (params.taxon_of) q.set("taxon_of", params.taxon_of);
+  if (params.iconic_taxa) q.set("iconic_taxa", params.iconic_taxa);
+
+  const url = `${INAT_API_BASE}/identifications/species_counts?${q.toString()}`;
+  const raw = await inatFetch(url) as Record<string, unknown>;
+  return {
+    raw_response: raw,
+    source_url: `https://www.inaturalist.org/identifications`,
+    upstream_url: url,
+  };
+}
+
+export interface InatRecentTaxaParams {
+  place_id?: number;
+  taxon_id?: number;
+  quality_grade?: string;
+  per_page?: number;
+  page?: number;
+  d1?: string;
+  d2?: string;
+}
+
+export async function fetchRecentTaxa(params: InatRecentTaxaParams): Promise<InatPassthroughResult> {
+  const q = new URLSearchParams();
+  if (params.place_id !== undefined) q.set("place_id", String(params.place_id));
+  if (params.taxon_id !== undefined) q.set("taxon_id", String(params.taxon_id));
+  if (params.quality_grade) q.set("quality_grade", params.quality_grade);
+  if (params.per_page !== undefined) q.set("per_page", String(params.per_page));
+  if (params.page !== undefined) q.set("page", String(params.page));
+  if (params.d1) q.set("d1", params.d1);
+  if (params.d2) q.set("d2", params.d2);
+
+  const url = `${INAT_API_BASE}/identifications/recent_taxa?${q.toString()}`;
+  const raw = await inatFetch(url) as Record<string, unknown>;
+  return {
+    raw_response: raw,
+    source_url: `https://www.inaturalist.org/identifications`,
+    upstream_url: url,
+  };
+}
+
+export interface InatIdentificationsParams {
+  taxon_id?: number;
+  place_id?: number;
+  quality_grade?: string;
+  per_page?: number;
+  page?: number;
+  d1?: string;
+  d2?: string;
+  month?: string;
+  native?: boolean;
+  introduced?: boolean;
+  lat?: number;
+  lng?: number;
+  radius?: number;
+  nelat?: number;
+  nelng?: number;
+  swlat?: number;
+  swlng?: number;
+  locale?: string;
+  user_id?: number;
+  user_login?: string;
+  iconic_taxa?: string;
+  term_id?: number;
+  term_value_id?: number;
+  verifiable?: boolean;
+  order?: string;
+  order_by?: string;
+}
+
+export async function fetchIdentifications(params: InatIdentificationsParams): Promise<InatPassthroughResult> {
+  const q = new URLSearchParams();
+  if (params.taxon_id !== undefined) q.set("taxon_id", String(params.taxon_id));
+  if (params.place_id !== undefined) q.set("place_id", String(params.place_id));
+  if (params.quality_grade) q.set("quality_grade", params.quality_grade);
+  if (params.per_page !== undefined) q.set("per_page", String(params.per_page));
+  if (params.page !== undefined) q.set("page", String(params.page));
+  if (params.d1) q.set("d1", params.d1);
+  if (params.d2) q.set("d2", params.d2);
+  if (params.month) q.set("month", params.month);
+  if (params.native !== undefined) q.set("native", String(params.native));
+  if (params.introduced !== undefined) q.set("introduced", String(params.introduced));
+  if (params.lat !== undefined) q.set("lat", String(params.lat));
+  if (params.lng !== undefined) q.set("lng", String(params.lng));
+  if (params.radius !== undefined) q.set("radius", String(params.radius));
+  if (params.nelat !== undefined) q.set("nelat", String(params.nelat));
+  if (params.nelng !== undefined) q.set("nelng", String(params.nelng));
+  if (params.swlat !== undefined) q.set("swlat", String(params.swlat));
+  if (params.swlng !== undefined) q.set("swlng", String(params.swlng));
+  if (params.locale) q.set("locale", params.locale);
+  if (params.user_id !== undefined) q.set("user_id", String(params.user_id));
+  if (params.user_login) q.set("user_login", params.user_login);
+  if (params.iconic_taxa) q.set("iconic_taxa", params.iconic_taxa);
+  if (params.term_id !== undefined) q.set("term_id", String(params.term_id));
+  if (params.term_value_id !== undefined) q.set("term_value_id", String(params.term_value_id));
+  if (params.verifiable !== undefined) q.set("verifiable", String(params.verifiable));
+  if (params.order) q.set("order", params.order);
+  if (params.order_by) q.set("order_by", params.order_by);
+
+  const url = `${INAT_API_BASE}/identifications?${q.toString()}`;
+  const raw = await inatFetch(url) as Record<string, unknown>;
+
+  const sourceParts: string[] = [];
+  if (params.taxon_id !== undefined) sourceParts.push(`taxon_id=${params.taxon_id}`);
+  if (params.place_id !== undefined) sourceParts.push(`place_id=${params.place_id}`);
+  const source_url = `https://www.inaturalist.org/identifications${sourceParts.length ? `?${sourceParts.join("&")}` : ""}`;
+
+  return { raw_response: raw, source_url, upstream_url: url };
+}
+
+export async function fetchIdentificationById(id: number): Promise<InatPassthroughResult> {
+  const url = `${INAT_API_BASE}/identifications/${id}`;
+  const raw = await inatFetch(url) as Record<string, unknown>;
+  return {
+    raw_response: raw,
+    source_url: `https://www.inaturalist.org/identifications/${id}`,
+    upstream_url: url,
+  };
+}
+
 export interface InatObservationSummaryRecord {
   id: number;
   uuid: string | null;

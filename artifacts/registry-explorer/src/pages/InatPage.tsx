@@ -7,6 +7,8 @@ import { PhenologyTab } from "@/components/inat/PhenologyTab";
 import { ObservationsTab } from "@/components/inat/ObservationsTab";
 import { SpeciesCountsTab } from "@/components/inat/SpeciesCountsTab";
 import { LookupTab } from "@/components/inat/LookupTab";
+import { DiscoveryTab } from "@/components/inat/DiscoveryTab";
+import { Compass } from "lucide-react";
 
 const TABS = [
   { id: "place", label: "Place Lookup", icon: MapPin },
@@ -15,6 +17,7 @@ const TABS = [
   { id: "observations", label: "Observations", icon: Eye },
   { id: "species-counts", label: "Species Counts", icon: BarChart2 },
   { id: "lookup", label: "Lookup", icon: Search },
+  { id: "discovery", label: "Discovery", icon: Compass },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -122,6 +125,13 @@ export function InatPage() {
         {activeTab === "lookup" && (
           <LookupTab
             preloadedTaxonId={selectedTaxonId}
+            onTaxonSelected={handleTaxonSelected}
+          />
+        )}
+        {activeTab === "discovery" && (
+          <DiscoveryTab
+            preloadedTaxonId={selectedTaxonId}
+            preloadedPlaceId={selectedPlaceId}
             onTaxonSelected={handleTaxonSelected}
           />
         )}

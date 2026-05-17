@@ -1173,6 +1173,598 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /inat/taxon-summary:
+    get:
+      operationId: getInatTaxonSummary
+      tags: [inat]
+      summary: Wikipedia summary + nativity + conservation status for a taxon at an observation location
+      description: >
+        Calls GET /observations/{id}/taxon_summary on the iNaturalist API. Returns a
+        Wikipedia summary (500-600 chars), listed_taxon (establishment_means for the
+        observation's place — native/introduced/endemic), and conservation_status.
+        The observation_id is required; it determines which location context is used
+        for nativity data. Live call, no cache.
+      parameters:
+        - name: observation_id
+          in: query
+          required: true
+          description: iNaturalist observation ID (integer)
+          schema:
+            type: integer
+        - name: provenance_verbosity
+          in: query
+          required: false
+          description: "Controls provenance text: full (default), summary, or none"
+          schema:
+            type: string
+            enum: [full, summary, none]
+      responses:
+        "200":
+          description: Taxon summary in FERNS envelope
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InatTaxonSummaryResponse"
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: iNaturalist API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /inat/similar-species:
+    get:
+      operationId: getInatSimilarSpecies
+      tags: [inat]
+      summary: Species commonly confused with a given taxon
+      description: >
+        Live passthrough for iNaturalist GET /identifications/similar_species.
+        Returns taxa that are frequently confused with the given taxon_id, ranked
+        by co-confusion count. Optionally filtered by place and geography. No cache.
+      parameters:
+        - name: taxon_id
+          in: query
+          required: true
+          description: iNaturalist taxon ID to find similar species for
+          schema:
+            type: integer
+        - name: place_id
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: quality_grade
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [research, needs_id, casual]
+        - name: lat
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: lng
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: radius
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: nelat
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: nelng
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: swlat
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: swlng
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: provenance_verbosity
+          in: query
+          required: false
+          description: "Controls provenance text: full (default), summary, or none"
+          schema:
+            type: string
+            enum: [full, summary, none]
+      responses:
+        "200":
+          description: Similar species list in FERNS envelope
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InatSimilarSpeciesResponse"
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: iNaturalist API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /inat/identification-species-counts:
+    get:
+      operationId: getInatIdentSpeciesCounts
+      tags: [inat]
+      summary: Species ranked by identification activity
+      description: >
+        Live passthrough for iNaturalist GET /identifications/species_counts. Returns
+        species ranked by identification engagement (distinct from raw observation
+        count). Supports taxon_of=identification|community to select which taxon is
+        counted. No cache.
+      parameters:
+        - name: taxon_id
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: place_id
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: quality_grade
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [research, needs_id, casual]
+        - name: per_page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+        - name: d1
+          in: query
+          required: false
+          description: Start date filter (YYYY-MM-DD)
+          schema:
+            type: string
+        - name: d2
+          in: query
+          required: false
+          description: End date filter (YYYY-MM-DD)
+          schema:
+            type: string
+        - name: month
+          in: query
+          required: false
+          description: Comma-separated month numbers (e.g. 4,5,6)
+          schema:
+            type: string
+        - name: native
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: introduced
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: lat
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: lng
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: radius
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: nelat
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: nelng
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: swlat
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: swlng
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: order
+          in: query
+          required: false
+          description: "Sort order: desc (default) or asc"
+          schema:
+            type: string
+            enum: [asc, desc]
+        - name: order_by
+          in: query
+          required: false
+          description: "Sort field: count (default) or id"
+          schema:
+            type: string
+        - name: taxon_of
+          in: query
+          required: false
+          description: "Which taxon to count: identification (default) or community"
+          schema:
+            type: string
+            enum: [identification, community]
+        - name: iconic_taxa
+          in: query
+          required: false
+          description: Comma-separated iconic taxon names (e.g. Plantae,Fungi)
+          schema:
+            type: string
+        - name: provenance_verbosity
+          in: query
+          required: false
+          description: "Controls provenance text: full (default), summary, or none"
+          schema:
+            type: string
+            enum: [full, summary, none]
+      responses:
+        "200":
+          description: Identification-based species counts in FERNS envelope
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InatIdentSpeciesCountsResponse"
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: iNaturalist API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /inat/recent-taxa:
+    get:
+      operationId: getInatRecentTaxa
+      tags: [inat]
+      summary: Taxa recently identified in a place
+      description: >
+        Live passthrough for iNaturalist GET /identifications/recent_taxa. Returns
+        taxa that have recently been identified in a given place. Useful for
+        "what's being documented right now" queries. No cache.
+      parameters:
+        - name: place_id
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: taxon_id
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: quality_grade
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [research, needs_id, casual]
+        - name: per_page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+        - name: d1
+          in: query
+          required: false
+          description: Start date filter (YYYY-MM-DD)
+          schema:
+            type: string
+        - name: d2
+          in: query
+          required: false
+          description: End date filter (YYYY-MM-DD)
+          schema:
+            type: string
+        - name: provenance_verbosity
+          in: query
+          required: false
+          description: "Controls provenance text: full (default), summary, or none"
+          schema:
+            type: string
+            enum: [full, summary, none]
+      responses:
+        "200":
+          description: Recently identified taxa in FERNS envelope
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InatRecentTaxaResponse"
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: iNaturalist API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /inat/identifications:
+    get:
+      operationId: getInatIdentifications
+      tags: [inat]
+      summary: Paged list of individual iNaturalist identification records
+      description: >
+        Live passthrough for iNaturalist GET /identifications. Returns individual
+        identification records (who made an identification, of what taxon, on which
+        observation). A single observation can have multiple identifications. Useful
+        for understanding the community identification process. No cache. Supports
+        pagination via page and per_page.
+      parameters:
+        - name: taxon_id
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: place_id
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: quality_grade
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [research, needs_id, casual]
+        - name: per_page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+        - name: d1
+          in: query
+          required: false
+          description: Start date filter (YYYY-MM-DD)
+          schema:
+            type: string
+        - name: d2
+          in: query
+          required: false
+          description: End date filter (YYYY-MM-DD)
+          schema:
+            type: string
+        - name: month
+          in: query
+          required: false
+          description: Comma-separated month numbers (e.g. 4,5,6)
+          schema:
+            type: string
+        - name: native
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: introduced
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: lat
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: lng
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: radius
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: nelat
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: nelng
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: swlat
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: swlng
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: locale
+          in: query
+          required: false
+          description: Locale for common names (e.g. en, es)
+          schema:
+            type: string
+        - name: user_id
+          in: query
+          required: false
+          description: Filter by identifier user ID
+          schema:
+            type: integer
+        - name: user_login
+          in: query
+          required: false
+          description: Filter by identifier user login
+          schema:
+            type: string
+        - name: iconic_taxa
+          in: query
+          required: false
+          description: Comma-separated iconic taxon names (e.g. Plantae,Fungi)
+          schema:
+            type: string
+        - name: term_id
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: term_value_id
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: verifiable
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: order
+          in: query
+          required: false
+          description: "Sort order: desc (default) or asc"
+          schema:
+            type: string
+            enum: [asc, desc]
+        - name: order_by
+          in: query
+          required: false
+          description: "Sort field: created_at (default) or id"
+          schema:
+            type: string
+        - name: provenance_verbosity
+          in: query
+          required: false
+          description: "Controls provenance text: full (default), summary, or none"
+          schema:
+            type: string
+            enum: [full, summary, none]
+      responses:
+        "200":
+          description: Paged identification records in FERNS envelope
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InatIdentificationsResponse"
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: iNaturalist API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /inat/identification:
+    get:
+      operationId: getInatIdentificationById
+      tags: [inat]
+      summary: Single iNaturalist identification record by ID
+      description: >
+        Live passthrough for iNaturalist GET /identifications/{id}. Returns the full
+        identification record for a known identification ID. Uses a flat query param
+        consistent with FERNS conventions. No cache.
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: iNaturalist identification ID (integer)
+          schema:
+            type: integer
+        - name: provenance_verbosity
+          in: query
+          required: false
+          description: "Controls provenance text: full (default), summary, or none"
+          schema:
+            type: string
+            enum: [full, summary, none]
+      responses:
+        "200":
+          description: Single identification record in FERNS envelope
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InatIdentificationResponse"
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: iNaturalist API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /inat/metadata:
     get:
       operationId: getInatMetadata
@@ -4617,6 +5209,137 @@ components:
             Raw iNaturalist observations/species_counts response. The results array
             contains entries with count and taxon fields. Each taxon includes id,
             name, preferred_common_name, default_photo, and observations_count.
+          additionalProperties: true
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    InatTaxonSummaryResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+        found:
+          type: boolean
+        data:
+          type: object
+          description: >
+            Raw iNaturalist taxon_summary response for the given observation. Contains
+            wikipedia_summary (string), listed_taxon (establishment_means for the
+            observation's place), and conservation_status.
+          additionalProperties: true
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    InatSimilarSpeciesResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+        found:
+          type: boolean
+        data:
+          type: object
+          description: >
+            Raw iNaturalist identifications/similar_species response. The results
+            array contains taxa frequently confused with the queried taxon, each
+            with a count field indicating co-confusion frequency.
+          additionalProperties: true
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    InatIdentSpeciesCountsResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+        found:
+          type: boolean
+        data:
+          type: object
+          description: >
+            Raw iNaturalist identifications/species_counts response. Species ranked
+            by identification activity — a community engagement signal distinct from
+            raw observation count. Supports taxon_of=identification|community.
+          additionalProperties: true
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    InatRecentTaxaResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+        found:
+          type: boolean
+        data:
+          type: object
+          description: >
+            Raw iNaturalist identifications/recent_taxa response. Taxa recently
+            identified in a place — "what's being documented right now".
+          additionalProperties: true
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    InatIdentificationsResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+        found:
+          type: boolean
+        data:
+          type: object
+          description: >
+            Raw iNaturalist identifications response. Contains total_results, page,
+            per_page, and a results array of individual identification records. Each
+            record includes id, created_at, taxon, observation, and user fields.
+          additionalProperties: true
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    InatIdentificationResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+        found:
+          type: boolean
+        data:
+          type: object
+          description: >
+            Raw iNaturalist identification record response for a single identification
+            ID. Contains the full identification record including taxon, observation,
+            user, and created_at fields.
           additionalProperties: true
         provenance:
           $ref: "#/components/schemas/FernsProvenance"

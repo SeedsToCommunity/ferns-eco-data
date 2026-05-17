@@ -47,14 +47,20 @@ import type {
   GetInatControlledTermsParams,
   GetInatFieldValuesParams,
   GetInatHistogramParams,
+  GetInatIdentSpeciesCountsParams,
+  GetInatIdentificationByIdParams,
+  GetInatIdentificationsParams,
   GetInatObservationSummaryParams,
   GetInatPlaceByIdParams,
   GetInatPlaceParams,
   GetInatPlacesNearbyParams,
+  GetInatRecentTaxaParams,
+  GetInatSimilarSpeciesParams,
   GetInatSpeciesCountsParams,
   GetInatSpeciesParams,
   GetInatTaxaAutocompleteParams,
   GetInatTaxonByIdParams,
+  GetInatTaxonSummaryParams,
   GetLadyBirdJohnsonParams,
   GetLadyBirdJohnsonSpeciesTextParams,
   GetLcscgSpeciesParams,
@@ -88,15 +94,21 @@ import type {
   InatControlledTermsResponse,
   InatFieldValuesResponse,
   InatHistogramResponse,
+  InatIdentSpeciesCountsResponse,
+  InatIdentificationResponse,
+  InatIdentificationsResponse,
   InatMetadataResponse,
   InatObservationSummaryResponse,
   InatPlaceByIdResponse,
   InatPlaceResponse,
   InatPlacesNearbyResponse,
+  InatRecentTaxaResponse,
+  InatSimilarSpeciesResponse,
   InatSpeciesCountsResponse,
   InatSpeciesResponse,
   InatTaxaAutocompleteResponse,
   InatTaxonByIdResponse,
+  InatTaxonSummaryResponse,
   LbjSpeciesTextResponse,
   LbjUrlCheckResponse,
   LcscgGuideResponse,
@@ -2131,6 +2143,639 @@ export function useGetInatPlacesNearby<
   },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetInatPlacesNearbyQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Calls GET /observations/{id}/taxon_summary on the iNaturalist API. Returns a Wikipedia summary (500-600 chars), listed_taxon (establishment_means for the observation's place — native/introduced/endemic), and conservation_status. The observation_id is required; it determines which location context is used for nativity data. Live call, no cache.
+
+ * @summary Wikipedia summary + nativity + conservation status for a taxon at an observation location
+ */
+export const getGetInatTaxonSummaryUrl = (
+  params: GetInatTaxonSummaryParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/inat/taxon-summary?${stringifiedParams}`
+    : `/api/inat/taxon-summary`;
+};
+
+export const getInatTaxonSummary = async (
+  params: GetInatTaxonSummaryParams,
+  options?: RequestInit,
+): Promise<InatTaxonSummaryResponse> => {
+  return customFetch<InatTaxonSummaryResponse>(
+    getGetInatTaxonSummaryUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetInatTaxonSummaryQueryKey = (
+  params?: GetInatTaxonSummaryParams,
+) => {
+  return [`/api/inat/taxon-summary`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetInatTaxonSummaryQueryOptions = <
+  TData = Awaited<ReturnType<typeof getInatTaxonSummary>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetInatTaxonSummaryParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatTaxonSummary>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetInatTaxonSummaryQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getInatTaxonSummary>>
+  > = ({ signal }) =>
+    getInatTaxonSummary(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getInatTaxonSummary>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetInatTaxonSummaryQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getInatTaxonSummary>>
+>;
+export type GetInatTaxonSummaryQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Wikipedia summary + nativity + conservation status for a taxon at an observation location
+ */
+
+export function useGetInatTaxonSummary<
+  TData = Awaited<ReturnType<typeof getInatTaxonSummary>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetInatTaxonSummaryParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatTaxonSummary>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetInatTaxonSummaryQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Live passthrough for iNaturalist GET /identifications/similar_species. Returns taxa that are frequently confused with the given taxon_id, ranked by co-confusion count. Optionally filtered by place and geography. No cache.
+
+ * @summary Species commonly confused with a given taxon
+ */
+export const getGetInatSimilarSpeciesUrl = (
+  params: GetInatSimilarSpeciesParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/inat/similar-species?${stringifiedParams}`
+    : `/api/inat/similar-species`;
+};
+
+export const getInatSimilarSpecies = async (
+  params: GetInatSimilarSpeciesParams,
+  options?: RequestInit,
+): Promise<InatSimilarSpeciesResponse> => {
+  return customFetch<InatSimilarSpeciesResponse>(
+    getGetInatSimilarSpeciesUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetInatSimilarSpeciesQueryKey = (
+  params?: GetInatSimilarSpeciesParams,
+) => {
+  return [`/api/inat/similar-species`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetInatSimilarSpeciesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getInatSimilarSpecies>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetInatSimilarSpeciesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatSimilarSpecies>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetInatSimilarSpeciesQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getInatSimilarSpecies>>
+  > = ({ signal }) =>
+    getInatSimilarSpecies(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getInatSimilarSpecies>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetInatSimilarSpeciesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getInatSimilarSpecies>>
+>;
+export type GetInatSimilarSpeciesQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Species commonly confused with a given taxon
+ */
+
+export function useGetInatSimilarSpecies<
+  TData = Awaited<ReturnType<typeof getInatSimilarSpecies>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetInatSimilarSpeciesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatSimilarSpecies>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetInatSimilarSpeciesQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Live passthrough for iNaturalist GET /identifications/species_counts. Returns species ranked by identification engagement (distinct from raw observation count). Supports taxon_of=identification|community to select which taxon is counted. No cache.
+
+ * @summary Species ranked by identification activity
+ */
+export const getGetInatIdentSpeciesCountsUrl = (
+  params?: GetInatIdentSpeciesCountsParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/inat/identification-species-counts?${stringifiedParams}`
+    : `/api/inat/identification-species-counts`;
+};
+
+export const getInatIdentSpeciesCounts = async (
+  params?: GetInatIdentSpeciesCountsParams,
+  options?: RequestInit,
+): Promise<InatIdentSpeciesCountsResponse> => {
+  return customFetch<InatIdentSpeciesCountsResponse>(
+    getGetInatIdentSpeciesCountsUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetInatIdentSpeciesCountsQueryKey = (
+  params?: GetInatIdentSpeciesCountsParams,
+) => {
+  return [
+    `/api/inat/identification-species-counts`,
+    ...(params ? [params] : []),
+  ] as const;
+};
+
+export const getGetInatIdentSpeciesCountsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getInatIdentSpeciesCounts>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params?: GetInatIdentSpeciesCountsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatIdentSpeciesCounts>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetInatIdentSpeciesCountsQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getInatIdentSpeciesCounts>>
+  > = ({ signal }) =>
+    getInatIdentSpeciesCounts(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getInatIdentSpeciesCounts>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetInatIdentSpeciesCountsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getInatIdentSpeciesCounts>>
+>;
+export type GetInatIdentSpeciesCountsQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Species ranked by identification activity
+ */
+
+export function useGetInatIdentSpeciesCounts<
+  TData = Awaited<ReturnType<typeof getInatIdentSpeciesCounts>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params?: GetInatIdentSpeciesCountsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatIdentSpeciesCounts>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetInatIdentSpeciesCountsQueryOptions(
+    params,
+    options,
+  );
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Live passthrough for iNaturalist GET /identifications/recent_taxa. Returns taxa that have recently been identified in a given place. Useful for "what's being documented right now" queries. No cache.
+
+ * @summary Taxa recently identified in a place
+ */
+export const getGetInatRecentTaxaUrl = (params?: GetInatRecentTaxaParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/inat/recent-taxa?${stringifiedParams}`
+    : `/api/inat/recent-taxa`;
+};
+
+export const getInatRecentTaxa = async (
+  params?: GetInatRecentTaxaParams,
+  options?: RequestInit,
+): Promise<InatRecentTaxaResponse> => {
+  return customFetch<InatRecentTaxaResponse>(getGetInatRecentTaxaUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetInatRecentTaxaQueryKey = (
+  params?: GetInatRecentTaxaParams,
+) => {
+  return [`/api/inat/recent-taxa`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetInatRecentTaxaQueryOptions = <
+  TData = Awaited<ReturnType<typeof getInatRecentTaxa>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params?: GetInatRecentTaxaParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatRecentTaxa>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetInatRecentTaxaQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getInatRecentTaxa>>
+  > = ({ signal }) => getInatRecentTaxa(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getInatRecentTaxa>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetInatRecentTaxaQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getInatRecentTaxa>>
+>;
+export type GetInatRecentTaxaQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Taxa recently identified in a place
+ */
+
+export function useGetInatRecentTaxa<
+  TData = Awaited<ReturnType<typeof getInatRecentTaxa>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params?: GetInatRecentTaxaParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatRecentTaxa>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetInatRecentTaxaQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Live passthrough for iNaturalist GET /identifications. Returns individual identification records (who made an identification, of what taxon, on which observation). A single observation can have multiple identifications. Useful for understanding the community identification process. No cache. Supports pagination via page and per_page.
+
+ * @summary Paged list of individual iNaturalist identification records
+ */
+export const getGetInatIdentificationsUrl = (
+  params?: GetInatIdentificationsParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/inat/identifications?${stringifiedParams}`
+    : `/api/inat/identifications`;
+};
+
+export const getInatIdentifications = async (
+  params?: GetInatIdentificationsParams,
+  options?: RequestInit,
+): Promise<InatIdentificationsResponse> => {
+  return customFetch<InatIdentificationsResponse>(
+    getGetInatIdentificationsUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetInatIdentificationsQueryKey = (
+  params?: GetInatIdentificationsParams,
+) => {
+  return [`/api/inat/identifications`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetInatIdentificationsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getInatIdentifications>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params?: GetInatIdentificationsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatIdentifications>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetInatIdentificationsQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getInatIdentifications>>
+  > = ({ signal }) =>
+    getInatIdentifications(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getInatIdentifications>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetInatIdentificationsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getInatIdentifications>>
+>;
+export type GetInatIdentificationsQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Paged list of individual iNaturalist identification records
+ */
+
+export function useGetInatIdentifications<
+  TData = Awaited<ReturnType<typeof getInatIdentifications>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params?: GetInatIdentificationsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatIdentifications>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetInatIdentificationsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Live passthrough for iNaturalist GET /identifications/{id}. Returns the full identification record for a known identification ID. Uses a flat query param consistent with FERNS conventions. No cache.
+
+ * @summary Single iNaturalist identification record by ID
+ */
+export const getGetInatIdentificationByIdUrl = (
+  params: GetInatIdentificationByIdParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/inat/identification?${stringifiedParams}`
+    : `/api/inat/identification`;
+};
+
+export const getInatIdentificationById = async (
+  params: GetInatIdentificationByIdParams,
+  options?: RequestInit,
+): Promise<InatIdentificationResponse> => {
+  return customFetch<InatIdentificationResponse>(
+    getGetInatIdentificationByIdUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetInatIdentificationByIdQueryKey = (
+  params?: GetInatIdentificationByIdParams,
+) => {
+  return [`/api/inat/identification`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetInatIdentificationByIdQueryOptions = <
+  TData = Awaited<ReturnType<typeof getInatIdentificationById>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetInatIdentificationByIdParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatIdentificationById>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetInatIdentificationByIdQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getInatIdentificationById>>
+  > = ({ signal }) =>
+    getInatIdentificationById(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getInatIdentificationById>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetInatIdentificationByIdQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getInatIdentificationById>>
+>;
+export type GetInatIdentificationByIdQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Single iNaturalist identification record by ID
+ */
+
+export function useGetInatIdentificationById<
+  TData = Awaited<ReturnType<typeof getInatIdentificationById>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetInatIdentificationByIdParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatIdentificationById>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetInatIdentificationByIdQueryOptions(
+    params,
+    options,
+  );
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

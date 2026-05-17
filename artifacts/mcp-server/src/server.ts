@@ -453,6 +453,252 @@ const tools: ToolDef[] = [
 
   {
     tool: {
+      name: "inaturalist__taxon_summary",
+      description:
+        "Returns the Wikipedia summary, place-specific nativity (establishment_means), and conservation status for the taxon associated with a specific iNaturalist observation. The observation_id determines which location context is used for nativity data. Live call, no cache.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          observation_id: { type: "number", description: "iNaturalist observation ID (integer)" },
+          ...PV_PROP,
+        },
+        required: ["observation_id"],
+      },
+    },
+    handler: async (args) =>
+      apiGet("/inat/taxon-summary", {
+        observation_id: Number(args["observation_id"]),
+        provenance_verbosity: pv(args),
+      }),
+  },
+
+  {
+    tool: {
+      name: "inaturalist__similar_species",
+      description:
+        "Returns species commonly confused with a given taxon from iNaturalist's identification history, ranked by co-confusion count. Useful for disambiguation and quality identification work. Optionally filtered by place and geography. Live call, no cache.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          taxon_id:      { type: "number",  description: "iNaturalist taxon ID to find similar species for (integer)" },
+          place_id:      { type: "number",  description: "iNaturalist place ID to filter by" },
+          quality_grade: { type: "string",  description: "research | needs_id | casual" },
+          lat:           { type: "number",  description: "Center latitude for radius filter" },
+          lng:           { type: "number",  description: "Center longitude for radius filter" },
+          radius:        { type: "number",  description: "Radius in km" },
+          nelat:         { type: "number",  description: "Bounding box NE latitude" },
+          nelng:         { type: "number",  description: "Bounding box NE longitude" },
+          swlat:         { type: "number",  description: "Bounding box SW latitude" },
+          swlng:         { type: "number",  description: "Bounding box SW longitude" },
+          ...PV_PROP,
+        },
+        required: ["taxon_id"],
+      },
+    },
+    handler: async (args) =>
+      apiGet("/inat/similar-species", {
+        taxon_id:      Number(args["taxon_id"]),
+        place_id:      args["place_id"]      !== undefined ? Number(args["place_id"])      : undefined,
+        quality_grade: args["quality_grade"] !== undefined ? String(args["quality_grade"]) : undefined,
+        lat:           args["lat"]           !== undefined ? Number(args["lat"])           : undefined,
+        lng:           args["lng"]           !== undefined ? Number(args["lng"])           : undefined,
+        radius:        args["radius"]        !== undefined ? Number(args["radius"])        : undefined,
+        nelat:         args["nelat"]         !== undefined ? Number(args["nelat"])         : undefined,
+        nelng:         args["nelng"]         !== undefined ? Number(args["nelng"])         : undefined,
+        swlat:         args["swlat"]         !== undefined ? Number(args["swlat"])         : undefined,
+        swlng:         args["swlng"]         !== undefined ? Number(args["swlng"])         : undefined,
+        provenance_verbosity: pv(args),
+      }),
+  },
+
+  {
+    tool: {
+      name: "inaturalist__identification_species_counts",
+      description:
+        "Returns species ranked by identification activity on iNaturalist — a community engagement signal distinct from raw observation count. Use taxon_of=identification (default) to rank by the identified taxon, or taxon_of=community to rank by the community-agreed taxon. Live call, no cache.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          taxon_id:      { type: "number",  description: "iNaturalist taxon ID to filter by" },
+          place_id:      { type: "number",  description: "iNaturalist place ID to filter by" },
+          quality_grade: { type: "string",  description: "research | needs_id | casual" },
+          per_page:      { type: "number",  description: "Results per page (max 500)" },
+          page:          { type: "number",  description: "Page number, 1-indexed" },
+          d1:            { type: "string",  description: "Start date filter (YYYY-MM-DD)" },
+          d2:            { type: "string",  description: "End date filter (YYYY-MM-DD)" },
+          month:         { type: "string",  description: "Comma-separated month numbers (e.g. 4,5,6)" },
+          native:        { type: "boolean", description: "Only native taxa" },
+          introduced:    { type: "boolean", description: "Only introduced taxa" },
+          lat:           { type: "number",  description: "Center latitude for radius filter" },
+          lng:           { type: "number",  description: "Center longitude for radius filter" },
+          radius:        { type: "number",  description: "Radius in km" },
+          nelat:         { type: "number",  description: "Bounding box NE latitude" },
+          nelng:         { type: "number",  description: "Bounding box NE longitude" },
+          swlat:         { type: "number",  description: "Bounding box SW latitude" },
+          swlng:         { type: "number",  description: "Bounding box SW longitude" },
+          order:         { type: "string",  description: "asc or desc (default desc)" },
+          order_by:      { type: "string",  description: "count or id" },
+          taxon_of:      { type: "string",  description: "identification (default) or community" },
+          iconic_taxa:   { type: "string",  description: "Comma-separated iconic taxon names (e.g. Plantae,Fungi)" },
+          ...PV_PROP,
+        },
+        required: [],
+      },
+    },
+    handler: async (args) =>
+      apiGet("/inat/identification-species-counts", {
+        taxon_id:      args["taxon_id"]      !== undefined ? Number(args["taxon_id"])      : undefined,
+        place_id:      args["place_id"]      !== undefined ? Number(args["place_id"])      : undefined,
+        quality_grade: args["quality_grade"] !== undefined ? String(args["quality_grade"]) : undefined,
+        per_page:      args["per_page"]      !== undefined ? Number(args["per_page"])      : undefined,
+        page:          args["page"]          !== undefined ? Number(args["page"])          : undefined,
+        d1:            args["d1"]            !== undefined ? String(args["d1"])            : undefined,
+        d2:            args["d2"]            !== undefined ? String(args["d2"])            : undefined,
+        month:         args["month"]         !== undefined ? String(args["month"])         : undefined,
+        native:        args["native"]        !== undefined ? String(args["native"])        : undefined,
+        introduced:    args["introduced"]    !== undefined ? String(args["introduced"])    : undefined,
+        lat:           args["lat"]           !== undefined ? Number(args["lat"])           : undefined,
+        lng:           args["lng"]           !== undefined ? Number(args["lng"])           : undefined,
+        radius:        args["radius"]        !== undefined ? Number(args["radius"])        : undefined,
+        nelat:         args["nelat"]         !== undefined ? Number(args["nelat"])         : undefined,
+        nelng:         args["nelng"]         !== undefined ? Number(args["nelng"])         : undefined,
+        swlat:         args["swlat"]         !== undefined ? Number(args["swlat"])         : undefined,
+        swlng:         args["swlng"]         !== undefined ? Number(args["swlng"])         : undefined,
+        order:         args["order"]         !== undefined ? String(args["order"])         : undefined,
+        order_by:      args["order_by"]      !== undefined ? String(args["order_by"])      : undefined,
+        taxon_of:      args["taxon_of"]      !== undefined ? String(args["taxon_of"])      : undefined,
+        iconic_taxa:   args["iconic_taxa"]   !== undefined ? String(args["iconic_taxa"])   : undefined,
+        provenance_verbosity: pv(args),
+      }),
+  },
+
+  {
+    tool: {
+      name: "inaturalist__recent_taxa",
+      description:
+        "Returns taxa recently identified in a given iNaturalist place — 'what's being documented right now'. Useful for real-time biodiversity monitoring queries. Optionally filtered by taxon, quality grade, and date range. Live call, no cache.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          place_id:      { type: "number", description: "iNaturalist place ID" },
+          taxon_id:      { type: "number", description: "Filter to a specific taxon and its children" },
+          quality_grade: { type: "string", description: "research | needs_id | casual" },
+          per_page:      { type: "number", description: "Results per page" },
+          page:          { type: "number", description: "Page number, 1-indexed" },
+          d1:            { type: "string", description: "Start date filter (YYYY-MM-DD)" },
+          d2:            { type: "string", description: "End date filter (YYYY-MM-DD)" },
+          ...PV_PROP,
+        },
+        required: [],
+      },
+    },
+    handler: async (args) =>
+      apiGet("/inat/recent-taxa", {
+        place_id:      args["place_id"]      !== undefined ? Number(args["place_id"])      : undefined,
+        taxon_id:      args["taxon_id"]      !== undefined ? Number(args["taxon_id"])      : undefined,
+        quality_grade: args["quality_grade"] !== undefined ? String(args["quality_grade"]) : undefined,
+        per_page:      args["per_page"]      !== undefined ? Number(args["per_page"])      : undefined,
+        page:          args["page"]          !== undefined ? Number(args["page"])          : undefined,
+        d1:            args["d1"]            !== undefined ? String(args["d1"])            : undefined,
+        d2:            args["d2"]            !== undefined ? String(args["d2"])            : undefined,
+        provenance_verbosity: pv(args),
+      }),
+  },
+
+  {
+    tool: {
+      name: "inaturalist__identifications",
+      description:
+        "Returns a paged list of individual iNaturalist identification records — who identified what taxon on which observation. Distinct from observations: one observation can have many identifications. Useful for understanding the community identification process for a taxon. Live call, no cache. Supports pagination via page and per_page.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          taxon_id:      { type: "number",  description: "iNaturalist taxon ID" },
+          place_id:      { type: "number",  description: "iNaturalist place ID" },
+          quality_grade: { type: "string",  description: "research | needs_id | casual" },
+          per_page:      { type: "number",  description: "Results per page (max 200)" },
+          page:          { type: "number",  description: "Page number, 1-indexed" },
+          d1:            { type: "string",  description: "Start date filter (YYYY-MM-DD)" },
+          d2:            { type: "string",  description: "End date filter (YYYY-MM-DD)" },
+          month:         { type: "string",  description: "Comma-separated month numbers" },
+          native:        { type: "boolean", description: "Only native taxa" },
+          introduced:    { type: "boolean", description: "Only introduced taxa" },
+          lat:           { type: "number",  description: "Center latitude for radius filter" },
+          lng:           { type: "number",  description: "Center longitude for radius filter" },
+          radius:        { type: "number",  description: "Radius in km" },
+          nelat:         { type: "number",  description: "Bounding box NE latitude" },
+          nelng:         { type: "number",  description: "Bounding box NE longitude" },
+          swlat:         { type: "number",  description: "Bounding box SW latitude" },
+          swlng:         { type: "number",  description: "Bounding box SW longitude" },
+          locale:        { type: "string",  description: "Locale for common names (e.g. en, es)" },
+          user_id:       { type: "number",  description: "Filter by identifier user ID" },
+          user_login:    { type: "string",  description: "Filter by identifier user login" },
+          iconic_taxa:   { type: "string",  description: "Comma-separated iconic taxon names" },
+          term_id:       { type: "number",  description: "Controlled annotation term ID" },
+          term_value_id: { type: "number",  description: "Controlled annotation value ID" },
+          verifiable:    { type: "boolean", description: "Only verifiable observations" },
+          order:         { type: "string",  description: "asc or desc" },
+          order_by:      { type: "string",  description: "created_at or id" },
+          ...PV_PROP,
+        },
+        required: [],
+      },
+    },
+    handler: async (args) =>
+      apiGet("/inat/identifications", {
+        taxon_id:      args["taxon_id"]      !== undefined ? Number(args["taxon_id"])      : undefined,
+        place_id:      args["place_id"]      !== undefined ? Number(args["place_id"])      : undefined,
+        quality_grade: args["quality_grade"] !== undefined ? String(args["quality_grade"]) : undefined,
+        per_page:      args["per_page"]      !== undefined ? Number(args["per_page"])      : undefined,
+        page:          args["page"]          !== undefined ? Number(args["page"])          : undefined,
+        d1:            args["d1"]            !== undefined ? String(args["d1"])            : undefined,
+        d2:            args["d2"]            !== undefined ? String(args["d2"])            : undefined,
+        month:         args["month"]         !== undefined ? String(args["month"])         : undefined,
+        native:        args["native"]        !== undefined ? String(args["native"])        : undefined,
+        introduced:    args["introduced"]    !== undefined ? String(args["introduced"])    : undefined,
+        lat:           args["lat"]           !== undefined ? Number(args["lat"])           : undefined,
+        lng:           args["lng"]           !== undefined ? Number(args["lng"])           : undefined,
+        radius:        args["radius"]        !== undefined ? Number(args["radius"])        : undefined,
+        nelat:         args["nelat"]         !== undefined ? Number(args["nelat"])         : undefined,
+        nelng:         args["nelng"]         !== undefined ? Number(args["nelng"])         : undefined,
+        swlat:         args["swlat"]         !== undefined ? Number(args["swlat"])         : undefined,
+        swlng:         args["swlng"]         !== undefined ? Number(args["swlng"])         : undefined,
+        locale:        args["locale"]        !== undefined ? String(args["locale"])        : undefined,
+        user_id:       args["user_id"]       !== undefined ? Number(args["user_id"])       : undefined,
+        user_login:    args["user_login"]    !== undefined ? String(args["user_login"])    : undefined,
+        iconic_taxa:   args["iconic_taxa"]   !== undefined ? String(args["iconic_taxa"])   : undefined,
+        term_id:       args["term_id"]       !== undefined ? Number(args["term_id"])       : undefined,
+        term_value_id: args["term_value_id"] !== undefined ? Number(args["term_value_id"]) : undefined,
+        verifiable:    args["verifiable"]    !== undefined ? String(args["verifiable"])    : undefined,
+        order:         args["order"]         !== undefined ? String(args["order"])         : undefined,
+        order_by:      args["order_by"]      !== undefined ? String(args["order_by"])      : undefined,
+        provenance_verbosity: pv(args),
+      }),
+  },
+
+  {
+    tool: {
+      name: "inaturalist__identification_by_id",
+      description:
+        "Returns the full iNaturalist identification record for a known identification ID. An identification is a community taxon determination on an observation. Live call, no cache.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          id:  { type: "number", description: "iNaturalist identification ID (integer)" },
+          ...PV_PROP,
+        },
+        required: ["id"],
+      },
+    },
+    handler: async (args) =>
+      apiGet("/inat/identification", {
+        id: Number(args["id"]),
+        provenance_verbosity: pv(args),
+      }),
+  },
+
+  {
+    tool: {
       name: "inaturalist__places_nearby",
       description:
         "Returns standard (admin) and community places within a bounding box from iNaturalist. Useful for discovering what iNaturalist place IDs cover a given geographic area. No cache — live call. Provide all four bounding box corners: nelat, nelng (NE corner) and swlat, swlng (SW corner).",
