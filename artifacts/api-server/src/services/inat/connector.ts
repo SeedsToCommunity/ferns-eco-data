@@ -84,9 +84,12 @@ export function buildSpeciesCacheKey(name: string): string {
   return `inat:species:${normalized}`;
 }
 
-export function buildHistogramCacheKey(taxonId: number, placeIds: number[]): string {
+export function buildHistogramCacheKey(taxonId: number, placeIds: number[], termId?: number, termValueId?: number): string {
   const sortedIds = [...placeIds].sort((a, b) => a - b).join(",");
-  return `inat:histogram:${taxonId}:${sortedIds}`;
+  let key = `inat:histogram:${taxonId}:${sortedIds}`;
+  if (termId !== undefined) key += `:t${termId}`;
+  if (termValueId !== undefined) key += `-v${termValueId}`;
+  return key;
 }
 
 export function buildFieldValuesCacheKey(taxonId: number, placeIds: number[], verifiable: boolean): string {
@@ -274,12 +277,22 @@ export async function fetchSpecies(name: string): Promise<InatSpeciesResult> {
   };
 }
 
-export async function fetchHistogram(taxonId: number, placeIds: number[]): Promise<InatHistogramResult> {
+export async function fetchHistogram(
+  taxonId: number,
+  placeIds: number[],
+  termId?: number,
+  termValueId?: number,
+): Promise<InatHistogramResult> {
   const sorted = sortPlaceIds(placeIds);
   const placeIdStr = sorted.join(",");
-  const placeParam = placeIdStr ? `&place_id=${placeIdStr}` : "";
+  const params = new URLSearchParams();
+  params.set("taxon_id", String(taxonId));
+  if (placeIdStr) params.set("place_id", placeIdStr);
+  params.set("interval", "month_of_year");
+  if (termId !== undefined) params.set("term_id", String(termId));
+  if (termValueId !== undefined) params.set("term_value_id", String(termValueId));
 
-  const url = `${INAT_API_BASE}/observations/histogram?taxon_id=${taxonId}${placeParam}&interval=month_of_year`;
+  const url = `${INAT_API_BASE}/observations/histogram?${params.toString()}`;
   const raw = await inatFetch(url) as Record<string, unknown>;
 
   const source_url = placeIdStr
@@ -293,6 +306,64 @@ export async function fetchHistogram(taxonId: number, placeIds: number[]): Promi
     source_url,
     upstream_url: url,
   };
+}
+
+export interface InatSpeciesCountsParams {
+  place_id?: number;
+  quality_grade?: string;
+  iconic_taxon_name?: string;
+  native?: boolean;
+  introduced?: boolean;
+  term_id?: number;
+  term_value_id?: number;
+  month?: string;
+  per_page?: number;
+  page?: number;
+  lat?: number;
+  lng?: number;
+  radius?: number;
+  nelat?: number;
+  nelng?: number;
+  swlat?: number;
+  swlng?: number;
+}
+
+export interface InatSpeciesCountsResult {
+  raw_response: Record<string, unknown>;
+  source_url: string;
+  upstream_url: string;
+}
+
+export async function fetchSpeciesCounts(params: InatSpeciesCountsParams): Promise<InatSpeciesCountsResult> {
+  const q = new URLSearchParams();
+  if (params.place_id !== undefined) q.set("place_id", String(params.place_id));
+  if (params.quality_grade) q.set("quality_grade", params.quality_grade);
+  if (params.iconic_taxon_name) q.set("iconic_taxon_name", params.iconic_taxon_name);
+  if (params.native !== undefined) q.set("native", String(params.native));
+  if (params.introduced !== undefined) q.set("introduced", String(params.introduced));
+  if (params.term_id !== undefined) q.set("term_id", String(params.term_id));
+  if (params.term_value_id !== undefined) q.set("term_value_id", String(params.term_value_id));
+  if (params.month) q.set("month", params.month);
+  if (params.per_page !== undefined) q.set("per_page", String(params.per_page));
+  if (params.page !== undefined) q.set("page", String(params.page));
+  if (params.lat !== undefined) q.set("lat", String(params.lat));
+  if (params.lng !== undefined) q.set("lng", String(params.lng));
+  if (params.radius !== undefined) q.set("radius", String(params.radius));
+  if (params.nelat !== undefined) q.set("nelat", String(params.nelat));
+  if (params.nelng !== undefined) q.set("nelng", String(params.nelng));
+  if (params.swlat !== undefined) q.set("swlat", String(params.swlat));
+  if (params.swlng !== undefined) q.set("swlng", String(params.swlng));
+
+  const url = `${INAT_API_BASE}/observations/species_counts?${q.toString()}`;
+  const raw = await inatFetch(url) as Record<string, unknown>;
+
+  const sourceParts: string[] = [];
+  if (params.place_id !== undefined) sourceParts.push(`place_id=${params.place_id}`);
+  if (params.quality_grade) sourceParts.push(`quality_grade=${params.quality_grade}`);
+  if (params.iconic_taxon_name) sourceParts.push(`iconic_taxon_name=${encodeURIComponent(params.iconic_taxon_name)}`);
+  const source_url = `https://www.inaturalist.org/observations${sourceParts.length ? `?${sourceParts.join("&")}` : ""}`;
+
+  return { raw_response: raw, source_url, upstream_url: url };
 }
 
 export async function fetchFieldValues(taxonId: number, placeIds: number[], verifiable: boolean): Promise<InatFieldValuesResult> {

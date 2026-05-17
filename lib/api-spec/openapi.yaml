@@ -459,6 +459,23 @@ paths:
             When omitted, returns global (worldwide) data.
           schema:
             type: string
+        - name: term_id
+          in: query
+          required: false
+          description: >
+            Controlled annotation term ID to filter by (e.g. 12 for Flowers and Fruits,
+            36 for Leaves). When provided, only observations annotated with this term
+            are counted. Cache key incorporates this value.
+          schema:
+            type: integer
+        - name: term_value_id
+          in: query
+          required: false
+          description: >
+            Controlled annotation value ID to filter by. Requires term_id.
+            Cache key incorporates this value.
+          schema:
+            type: integer
         - name: refresh
           in: query
           required: false
@@ -606,6 +623,147 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InatObservationSummaryResponse"
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: iNaturalist API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /inat/species-counts:
+    get:
+      operationId: getInatSpeciesCounts
+      tags: [inat]
+      summary: Passthrough for iNaturalist observations/species_counts
+      description: >
+        Live passthrough for iNaturalist's GET /observations/species_counts endpoint.
+        Returns species ranked by observation count. Supports filters for place,
+        quality grade, iconic taxon, nativity, phenology annotations, month window,
+        and geographic constraints (place_id, lat/lng radius, or bounding box).
+        No cache — every call is live. Results are wrapped in the standard FERNS
+        provenance envelope.
+      parameters:
+        - name: place_id
+          in: query
+          required: false
+          description: iNaturalist place ID to filter by
+          schema:
+            type: integer
+        - name: quality_grade
+          in: query
+          required: false
+          description: "Filter by quality grade: research, needs_id, or casual"
+          schema:
+            type: string
+            enum: [research, needs_id, casual]
+        - name: iconic_taxon_name
+          in: query
+          required: false
+          description: "Filter to this iconic taxon group (e.g. Plantae, Aves, Fungi, Mammalia, Reptilia, Amphibia, Actinopterygii, Mollusca, Arachnida, Insecta, Animalia)"
+          schema:
+            type: string
+        - name: native
+          in: query
+          required: false
+          description: Only include taxa native to the observed location
+          schema:
+            type: boolean
+        - name: introduced
+          in: query
+          required: false
+          description: Only include taxa introduced at the observed location
+          schema:
+            type: boolean
+        - name: term_id
+          in: query
+          required: false
+          description: "Controlled annotation term ID (e.g. 12 for Flowers and Fruits)"
+          schema:
+            type: integer
+        - name: term_value_id
+          in: query
+          required: false
+          description: Controlled annotation value ID. Requires term_id.
+          schema:
+            type: integer
+        - name: month
+          in: query
+          required: false
+          description: "Comma-separated month numbers to filter by (e.g. 4,5,6 for Apr–Jun)"
+          schema:
+            type: string
+        - name: per_page
+          in: query
+          required: false
+          description: Number of results (default 500, max 500)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+            default: 500
+        - name: page
+          in: query
+          required: false
+          description: Page number (1-indexed, default 1)
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: lat
+          in: query
+          required: false
+          description: Center latitude for radius-based geographic filter. Requires lng and radius.
+          schema:
+            type: number
+        - name: lng
+          in: query
+          required: false
+          description: Center longitude for radius-based geographic filter. Requires lat and radius.
+          schema:
+            type: number
+        - name: radius
+          in: query
+          required: false
+          description: Radius in km around the lat/lng center point.
+          schema:
+            type: number
+        - name: nelat
+          in: query
+          required: false
+          description: Northeast corner latitude for bounding box filter.
+          schema:
+            type: number
+        - name: nelng
+          in: query
+          required: false
+          description: Northeast corner longitude for bounding box filter.
+          schema:
+            type: number
+        - name: swlat
+          in: query
+          required: false
+          description: Southwest corner latitude for bounding box filter.
+          schema:
+            type: number
+        - name: swlng
+          in: query
+          required: false
+          description: Southwest corner longitude for bounding box filter.
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Raw iNaturalist species_counts response in FERNS envelope
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InatSpeciesCountsResponse"
         "400":
           description: Invalid parameters
           content:
@@ -3834,6 +3992,29 @@ components:
           type: boolean
         data:
           $ref: "#/components/schemas/InatObservationSummaryData"
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    InatSpeciesCountsResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+          description: https://www.inaturalist.org/observations?taxon_id=...
+        found:
+          type: boolean
+        data:
+          type: object
+          description: >
+            Raw iNaturalist observations/species_counts response. The results array
+            contains entries with count and taxon fields. Each taxon includes id,
+            name, preferred_common_name, default_photo, and observations_count.
+          additionalProperties: true
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
 

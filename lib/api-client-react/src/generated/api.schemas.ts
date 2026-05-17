@@ -596,6 +596,22 @@ export interface InatObservationSummaryResponse {
   provenance: FernsProvenance;
 }
 
+/**
+ * Raw iNaturalist observations/species_counts response. The results array contains entries with count and taxon fields. Each taxon includes id, name, preferred_common_name, default_photo, and observations_count.
+
+ */
+export type InatSpeciesCountsResponseData = { [key: string]: unknown };
+
+export interface InatSpeciesCountsResponse {
+  /** https://www.inaturalist.org/observations?taxon_id=... */
+  source_url: string;
+  found: boolean;
+  /** Raw iNaturalist observations/species_counts response. The results array contains entries with count and taxon fields. Each taxon includes id, name, preferred_common_name, default_photo, and observations_count.
+   */
+  data: InatSpeciesCountsResponseData;
+  provenance: FernsProvenance;
+}
+
 export interface InatAttribution {
   source_name: string;
   website: string;
@@ -2476,6 +2492,16 @@ export type GetInatHistogramParams = {
  */
   place_id?: string;
   /**
+ * Controlled annotation term ID to filter by (e.g. 12 for Flowers and Fruits, 36 for Leaves). When provided, only observations annotated with this term are counted. Cache key incorporates this value.
+
+ */
+  term_id?: number;
+  /**
+ * Controlled annotation value ID to filter by. Requires term_id. Cache key incorporates this value.
+
+ */
+  term_value_id?: number;
+  /**
    * If true, bypasses cache and fetches fresh from iNaturalist
    */
   refresh?: boolean;
@@ -2532,6 +2558,89 @@ export type GetInatObservationSummaryQualityGrade =
   (typeof GetInatObservationSummaryQualityGrade)[keyof typeof GetInatObservationSummaryQualityGrade];
 
 export const GetInatObservationSummaryQualityGrade = {
+  research: "research",
+  needs_id: "needs_id",
+  casual: "casual",
+} as const;
+
+export type GetInatSpeciesCountsParams = {
+  /**
+   * iNaturalist place ID to filter by
+   */
+  place_id?: number;
+  /**
+   * Filter by quality grade: research, needs_id, or casual
+   */
+  quality_grade?: GetInatSpeciesCountsQualityGrade;
+  /**
+   * Filter to this iconic taxon group (e.g. Plantae, Aves, Fungi, Mammalia, Reptilia, Amphibia, Actinopterygii, Mollusca, Arachnida, Insecta, Animalia)
+   */
+  iconic_taxon_name?: string;
+  /**
+   * Only include taxa native to the observed location
+   */
+  native?: boolean;
+  /**
+   * Only include taxa introduced at the observed location
+   */
+  introduced?: boolean;
+  /**
+   * Controlled annotation term ID (e.g. 12 for Flowers and Fruits)
+   */
+  term_id?: number;
+  /**
+   * Controlled annotation value ID. Requires term_id.
+   */
+  term_value_id?: number;
+  /**
+   * Comma-separated month numbers to filter by (e.g. 4,5,6 for Apr–Jun)
+   */
+  month?: string;
+  /**
+   * Number of results (default 500, max 500)
+   * @minimum 1
+   * @maximum 500
+   */
+  per_page?: number;
+  /**
+   * Page number (1-indexed, default 1)
+   * @minimum 1
+   */
+  page?: number;
+  /**
+   * Center latitude for radius-based geographic filter. Requires lng and radius.
+   */
+  lat?: number;
+  /**
+   * Center longitude for radius-based geographic filter. Requires lat and radius.
+   */
+  lng?: number;
+  /**
+   * Radius in km around the lat/lng center point.
+   */
+  radius?: number;
+  /**
+   * Northeast corner latitude for bounding box filter.
+   */
+  nelat?: number;
+  /**
+   * Northeast corner longitude for bounding box filter.
+   */
+  nelng?: number;
+  /**
+   * Southwest corner latitude for bounding box filter.
+   */
+  swlat?: number;
+  /**
+   * Southwest corner longitude for bounding box filter.
+   */
+  swlng?: number;
+};
+
+export type GetInatSpeciesCountsQualityGrade =
+  (typeof GetInatSpeciesCountsQualityGrade)[keyof typeof GetInatSpeciesCountsQualityGrade];
+
+export const GetInatSpeciesCountsQualityGrade = {
   research: "research",
   needs_id: "needs_id",
   casual: "casual",

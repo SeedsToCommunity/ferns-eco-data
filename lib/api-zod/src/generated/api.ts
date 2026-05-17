@@ -972,6 +972,18 @@ export const GetInatHistogramQueryParams = zod.object({
     .describe(
       "One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). Place IDs from the place lookup endpoint. Sorted ascending when building cache key. When omitted, returns global (worldwide) data.\n",
     ),
+  term_id: zod.coerce
+    .number()
+    .optional()
+    .describe(
+      "Controlled annotation term ID to filter by (e.g. 12 for Flowers and Fruits, 36 for Leaves). When provided, only observations annotated with this term are counted. Cache key incorporates this value.\n",
+    ),
+  term_value_id: zod.coerce
+    .number()
+    .optional()
+    .describe(
+      "Controlled annotation value ID to filter by. Requires term_id. Cache key incorporates this value.\n",
+    ),
   refresh: zod.coerce
     .boolean()
     .default(getInatHistogramQueryRefreshDefault)
@@ -1210,6 +1222,150 @@ export const GetInatObservationSummaryResponse = zod.object({
         ),
     ),
   }),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      general_summary: zod
+        .string()
+        .optional()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      technical_details: zod
+        .string()
+        .optional()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
+    ),
+});
+
+/**
+ * Live passthrough for iNaturalist's GET /observations/species_counts endpoint. Returns species ranked by observation count. Supports filters for place, quality grade, iconic taxon, nativity, phenology annotations, month window, and geographic constraints (place_id, lat/lng radius, or bounding box). No cache — every call is live. Results are wrapped in the standard FERNS provenance envelope.
+
+ * @summary Passthrough for iNaturalist observations/species_counts
+ */
+export const getInatSpeciesCountsQueryPerPageDefault = 500;
+export const getInatSpeciesCountsQueryPerPageMax = 500;
+
+export const getInatSpeciesCountsQueryPageDefault = 1;
+
+export const GetInatSpeciesCountsQueryParams = zod.object({
+  place_id: zod.coerce
+    .number()
+    .optional()
+    .describe("iNaturalist place ID to filter by"),
+  quality_grade: zod
+    .enum(["research", "needs_id", "casual"])
+    .optional()
+    .describe("Filter by quality grade: research, needs_id, or casual"),
+  iconic_taxon_name: zod
+    .string()
+    .optional()
+    .describe(
+      "Filter to this iconic taxon group (e.g. Plantae, Aves, Fungi, Mammalia, Reptilia, Amphibia, Actinopterygii, Mollusca, Arachnida, Insecta, Animalia)",
+    ),
+  native: zod.coerce
+    .boolean()
+    .optional()
+    .describe("Only include taxa native to the observed location"),
+  introduced: zod.coerce
+    .boolean()
+    .optional()
+    .describe("Only include taxa introduced at the observed location"),
+  term_id: zod.coerce
+    .number()
+    .optional()
+    .describe("Controlled annotation term ID (e.g. 12 for Flowers and Fruits)"),
+  term_value_id: zod.coerce
+    .number()
+    .optional()
+    .describe("Controlled annotation value ID. Requires term_id."),
+  month: zod
+    .string()
+    .optional()
+    .describe(
+      "Comma-separated month numbers to filter by (e.g. 4,5,6 for Apr–Jun)",
+    ),
+  per_page: zod.coerce
+    .number()
+    .min(1)
+    .max(getInatSpeciesCountsQueryPerPageMax)
+    .default(getInatSpeciesCountsQueryPerPageDefault)
+    .describe("Number of results (default 500, max 500)"),
+  page: zod.coerce
+    .number()
+    .min(1)
+    .default(getInatSpeciesCountsQueryPageDefault)
+    .describe("Page number (1-indexed, default 1)"),
+  lat: zod.coerce
+    .number()
+    .optional()
+    .describe(
+      "Center latitude for radius-based geographic filter. Requires lng and radius.",
+    ),
+  lng: zod.coerce
+    .number()
+    .optional()
+    .describe(
+      "Center longitude for radius-based geographic filter. Requires lat and radius.",
+    ),
+  radius: zod.coerce
+    .number()
+    .optional()
+    .describe("Radius in km around the lat\/lng center point."),
+  nelat: zod.coerce
+    .number()
+    .optional()
+    .describe("Northeast corner latitude for bounding box filter."),
+  nelng: zod.coerce
+    .number()
+    .optional()
+    .describe("Northeast corner longitude for bounding box filter."),
+  swlat: zod.coerce
+    .number()
+    .optional()
+    .describe("Southwest corner latitude for bounding box filter."),
+  swlng: zod.coerce
+    .number()
+    .optional()
+    .describe("Southwest corner longitude for bounding box filter."),
+});
+
+export const GetInatSpeciesCountsResponse = zod.object({
+  source_url: zod
+    .string()
+    .describe("https:\/\/www.inaturalist.org\/observations?taxon_id=..."),
+  found: zod.boolean(),
+  data: zod
+    .record(zod.string(), zod.unknown())
+    .describe(
+      "Raw iNaturalist observations\/species_counts response. The results array contains entries with count and taxon fields. Each taxon includes id, name, preferred_common_name, default_photo, and observations_count.\n",
+    ),
   provenance: zod
     .object({
       source_id: zod

@@ -10,6 +10,7 @@ import {
   fetchHistogram,
   fetchFieldValues,
   fetchObservationSummary,
+  fetchSpeciesCounts,
   buildProvenance,
 } from "../services/inat/connector.js";
 import {
@@ -44,6 +45,8 @@ import {
   GetInatFieldValuesResponse,
   GetInatObservationSummaryQueryParams,
   GetInatObservationSummaryResponse,
+  GetInatSpeciesCountsQueryParams,
+  GetInatSpeciesCountsResponse,
   GetInatMetadataResponse,
 } from "@workspace/api-zod";
 import { filterProvenance } from "../lib/provenance.js";
@@ -208,9 +211,11 @@ router.get("/inat/histogram", async (req, res) => {
   }
 
   const sortedPlaceIds = sortPlaceIds(placeIds);
+  const termId = parsed.data.term_id ?? undefined;
+  const termValueId = parsed.data.term_value_id ?? undefined;
   const refresh = parsed.data.refresh ?? false;
   const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
-  const cacheKey = buildHistogramCacheKey(taxonId, sortedPlaceIds);
+  const cacheKey = buildHistogramCacheKey(taxonId, sortedPlaceIds, termId, termValueId);
 
   if (!refresh) {
     const cached = await lookupHistogram(cacheKey);
@@ -221,7 +226,7 @@ router.get("/inat/histogram", async (req, res) => {
   }
 
   try {
-    const result = await fetchHistogram(taxonId, sortedPlaceIds);
+    const result = await fetchHistogram(taxonId, sortedPlaceIds, termId, termValueId);
     const stored = await storeHistogram(cacheKey, result);
     res.json(GetInatHistogramResponse.parse(buildPassthroughResponse(stored, refresh ? "bypassed" : "miss", verbosity)));
   } catch (err) {
@@ -346,6 +351,58 @@ router.get("/inat/observation-summary", async (req, res) => {
     }));
   } catch (err) {
     req.log.error({ err }, "iNat observation-summary fetch failed");
+    res.status(502).json({ error: "upstream_error", message: "Failed to fetch from iNaturalist API" });
+  }
+});
+
+router.get("/inat/species-counts", async (req, res) => {
+  const parsed = GetInatSpeciesCountsQueryParams.safeParse(req.query);
+  if (!parsed.success) {
+    res.status(400).json({ error: "invalid_input", message: parsed.error.errors[0]?.message ?? "Invalid query parameters" });
+    return;
+  }
+
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+
+  try {
+    const result = await fetchSpeciesCounts({
+      place_id:          parsed.data.place_id ?? undefined,
+      quality_grade:     parsed.data.quality_grade ?? undefined,
+      iconic_taxon_name: parsed.data.iconic_taxon_name ?? undefined,
+      native:            parsed.data.native ?? undefined,
+      introduced:        parsed.data.introduced ?? undefined,
+      term_id:           parsed.data.term_id ?? undefined,
+      term_value_id:     parsed.data.term_value_id ?? undefined,
+      month:             parsed.data.month ?? undefined,
+      per_page:          parsed.data.per_page ?? undefined,
+      page:              parsed.data.page ?? undefined,
+      lat:               parsed.data.lat ?? undefined,
+      lng:               parsed.data.lng ?? undefined,
+      radius:            parsed.data.radius ?? undefined,
+      nelat:             parsed.data.nelat ?? undefined,
+      nelng:             parsed.data.nelng ?? undefined,
+      swlat:             parsed.data.swlat ?? undefined,
+      swlng:             parsed.data.swlng ?? undefined,
+    });
+    const prov = buildProvenance(result.upstream_url, "api_fetch");
+    const raw = result.raw_response;
+    const total = typeof raw["total_results"] === "number" ? raw["total_results"] : 0;
+
+    res.json(GetInatSpeciesCountsResponse.parse({
+      source_url: result.source_url,
+      found: total > 0,
+      data: raw,
+      provenance: filterProvenance({
+        source_id: prov.source_id,
+        fetched_at: prov.fetched_at,
+        method: prov.method,
+        upstream_url: prov.upstream_url,
+        general_summary: prov.general_summary,
+        technical_details: prov.technical_details,
+      }, verbosity),
+    }));
+  } catch (err) {
+    req.log.error({ err }, "iNat species-counts fetch failed");
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from iNaturalist API" });
   }
 });

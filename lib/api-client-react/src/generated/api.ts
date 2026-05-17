@@ -47,6 +47,7 @@ import type {
   GetInatHistogramParams,
   GetInatObservationSummaryParams,
   GetInatPlaceParams,
+  GetInatSpeciesCountsParams,
   GetInatSpeciesParams,
   GetLadyBirdJohnsonParams,
   GetLadyBirdJohnsonSpeciesTextParams,
@@ -82,6 +83,7 @@ import type {
   InatMetadataResponse,
   InatObservationSummaryResponse,
   InatPlaceResponse,
+  InatSpeciesCountsResponse,
   InatSpeciesResponse,
   LbjSpeciesTextResponse,
   LbjUrlCheckResponse,
@@ -1356,6 +1358,111 @@ export function useGetInatObservationSummary<
     params,
     options,
   );
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Live passthrough for iNaturalist's GET /observations/species_counts endpoint. Returns species ranked by observation count. Supports filters for place, quality grade, iconic taxon, nativity, phenology annotations, month window, and geographic constraints (place_id, lat/lng radius, or bounding box). No cache — every call is live. Results are wrapped in the standard FERNS provenance envelope.
+
+ * @summary Passthrough for iNaturalist observations/species_counts
+ */
+export const getGetInatSpeciesCountsUrl = (
+  params?: GetInatSpeciesCountsParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/inat/species-counts?${stringifiedParams}`
+    : `/api/inat/species-counts`;
+};
+
+export const getInatSpeciesCounts = async (
+  params?: GetInatSpeciesCountsParams,
+  options?: RequestInit,
+): Promise<InatSpeciesCountsResponse> => {
+  return customFetch<InatSpeciesCountsResponse>(
+    getGetInatSpeciesCountsUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetInatSpeciesCountsQueryKey = (
+  params?: GetInatSpeciesCountsParams,
+) => {
+  return [`/api/inat/species-counts`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetInatSpeciesCountsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getInatSpeciesCounts>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params?: GetInatSpeciesCountsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatSpeciesCounts>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetInatSpeciesCountsQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getInatSpeciesCounts>>
+  > = ({ signal }) =>
+    getInatSpeciesCounts(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getInatSpeciesCounts>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetInatSpeciesCountsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getInatSpeciesCounts>>
+>;
+export type GetInatSpeciesCountsQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Passthrough for iNaturalist observations/species_counts
+ */
+
+export function useGetInatSpeciesCounts<
+  TData = Awaited<ReturnType<typeof getInatSpeciesCounts>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params?: GetInatSpeciesCountsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getInatSpeciesCounts>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetInatSpeciesCountsQueryOptions(params, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

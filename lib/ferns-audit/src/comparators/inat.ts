@@ -34,6 +34,8 @@ export async function runInatComparators(
     }
   }
 
+  results.push(await checkInatSpeciesCounts(fernsBase));
+
   return results;
 }
 
@@ -268,6 +270,105 @@ async function compareInatFieldValues(
     return {
       source: "inat",
       endpoint: `${fernsEndpoint}?taxon_id=${taxonId}&place_id=${place.id}&verifiable=true`,
+      label,
+      ok: false,
+      error: String(err),
+      findings: [],
+      urlsCollected: [],
+    };
+  }
+}
+
+async function checkInatSpeciesCounts(
+  fernsBase: string,
+): Promise<EndpointComparison> {
+  const fernsEndpoint = `/api/inat/species-counts`;
+  const placeId = 2649;
+  const fernsUrl = `${fernsBase}${fernsEndpoint}?place_id=${placeId}&native=true&iconic_taxon_name=Plantae&quality_grade=research&per_page=10`;
+  const inatUrl = `https://api.inaturalist.org/v1/observations/species_counts?place_id=${placeId}&native=true&iconic_taxon_name=Plantae&quality_grade=research&per_page=10`;
+  const label = `Washtenaw Co (place_id=2649), native=true, Plantae, research — species_counts (live passthrough)`;
+
+  try {
+    const [inatRaw, fernsRaw] = await Promise.all([
+      fetchJson(inatUrl) as Promise<Record<string, unknown>>,
+      fetchJson(fernsUrl) as Promise<Record<string, unknown>>,
+    ]);
+
+    const fernsEnvelope = fernsRaw as Record<string, unknown>;
+    const fernsData = (fernsEnvelope.data ?? {}) as Record<string, unknown>;
+    const urlsCollected = collectUrls(fernsEnvelope, `inat/species-counts:Plantae@Washtenaw`);
+    const inatResponse = inatRaw as Record<string, unknown>;
+
+    const findings: FieldFinding[] = [];
+
+    const inatTotal = inatResponse["total_results"] as number | undefined;
+    const fernsTotal = fernsData["total_results"] as number | undefined;
+
+    if (inatTotal !== undefined && fernsTotal !== undefined) {
+      if (inatTotal === fernsTotal) {
+        findings.push({ type: "ok", sourceField: "total_results", fernsField: "total_results", fernsValue: fernsTotal, note: "total_results matches upstream" });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "total_results", sourceValue: inatTotal, fernsField: "total_results", fernsValue: fernsTotal, note: "Live call — minor divergence is expected if iNat index updated between requests" });
+      }
+    } else if (fernsTotal === undefined) {
+      findings.push({ type: "gap", sourceField: "total_results", note: "total_results missing from FERNS response" });
+    }
+
+    const inatResults = (inatResponse["results"] ?? []) as Array<Record<string, unknown>>;
+    const fernsResults = (fernsData["results"] ?? []) as Array<Record<string, unknown>>;
+
+    if (fernsResults.length === 0 && inatResults.length > 0) {
+      findings.push({ type: "gap", sourceField: "results", note: `Upstream returned ${inatResults.length} results but FERNS returned none` });
+    } else if (fernsResults.length > 0) {
+      findings.push({ type: "ok", sourceField: "results", note: `FERNS: ${fernsResults.length} results, upstream: ${inatResults.length} results` });
+
+      const firstInatEntry = inatResults[0] as Record<string, unknown> | undefined;
+      const firstFernsEntry = fernsResults[0] as Record<string, unknown> | undefined;
+
+      if (firstInatEntry && firstFernsEntry) {
+        const inatCount = firstInatEntry["count"] as number | undefined;
+        const fernsCount = firstFernsEntry["count"] as number | undefined;
+        if (inatCount !== undefined && fernsCount !== undefined) {
+          if (inatCount === fernsCount) {
+            findings.push({ type: "ok", sourceField: "results[0].count", fernsValue: fernsCount, note: "Top result count matches" });
+          } else {
+            findings.push({ type: "mismatch", sourceField: "results[0].count", sourceValue: inatCount, fernsValue: fernsCount, note: "Live call — divergence expected if index changed between requests" });
+          }
+        }
+
+        const inatTaxon = firstInatEntry["taxon"] as Record<string, unknown> | undefined;
+        const fernsTaxon = firstFernsEntry["taxon"] as Record<string, unknown> | undefined;
+        if (inatTaxon && fernsTaxon) {
+          if (inatTaxon["id"] === fernsTaxon["id"]) {
+            findings.push({ type: "ok", sourceField: "results[0].taxon.id", fernsValue: fernsTaxon["id"], note: "Top taxon id matches" });
+          } else {
+            findings.push({ type: "mismatch", sourceField: "results[0].taxon.id", sourceValue: inatTaxon["id"], fernsValue: fernsTaxon["id"] });
+          }
+        }
+      }
+    }
+
+    const prov = fernsEnvelope["provenance"] as Record<string, unknown> | undefined;
+    if (prov && prov["source_id"]) {
+      findings.push({ type: "ok", sourceField: "provenance.source_id", fernsValue: prov["source_id"], note: "Provenance block present" });
+    } else {
+      findings.push({ type: "gap", sourceField: "provenance", note: "Provenance block missing from FERNS response" });
+    }
+
+    return {
+      source: "inat",
+      endpoint: `${fernsEndpoint}?place_id=${placeId}&native=true&iconic_taxon_name=Plantae&quality_grade=research&per_page=10`,
+      label,
+      ok: true,
+      rawSource: inatResponse,
+      rawFerns: fernsData,
+      findings,
+      urlsCollected,
+    };
+  } catch (err) {
+    return {
+      source: "inat",
+      endpoint: `${fernsEndpoint}?place_id=${placeId}&native=true&iconic_taxon_name=Plantae&quality_grade=research&per_page=10`,
       label,
       ok: false,
       error: String(err),

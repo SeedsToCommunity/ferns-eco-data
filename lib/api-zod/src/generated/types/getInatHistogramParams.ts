@@ -17,6 +17,16 @@ export type GetInatHistogramParams = {
  */
   place_id?: string;
   /**
+ * Controlled annotation term ID to filter by (e.g. 12 for Flowers and Fruits, 36 for Leaves). When provided, only observations annotated with this term are counted. Cache key incorporates this value.
+
+ */
+  term_id?: number;
+  /**
+ * Controlled annotation value ID to filter by. Requires term_id. Cache key incorporates this value.
+
+ */
+  term_value_id?: number;
+  /**
    * If true, bypasses cache and fetches fresh from iNaturalist
    */
   refresh?: boolean;
