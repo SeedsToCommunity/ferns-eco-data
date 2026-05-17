@@ -122,7 +122,6 @@ export function InatPage() {
         {activeTab === "lookup" && (
           <LookupTab
             preloadedTaxonId={selectedTaxonId}
-            preloadedPlaceName={selectedPlaceName}
             onTaxonSelected={handleTaxonSelected}
           />
         )}

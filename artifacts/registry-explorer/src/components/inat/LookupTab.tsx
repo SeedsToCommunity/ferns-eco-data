@@ -20,7 +20,6 @@ function apiUrl(path: string, params: Record<string, string | number | boolean |
 
 interface Props {
   preloadedTaxonId?: number | null;
-  preloadedPlaceName?: string;
   onTaxonSelected?: (taxonId: number, taxonName: string) => void;
 }
 
