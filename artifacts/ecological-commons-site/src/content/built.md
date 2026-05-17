@@ -25,6 +25,9 @@ Applications that demonstrate that kinds of things that can be built.
 **[Connecting Concepts](https://connectingconcepts.replit.app)**
 > A demonstration and explanation of how large language models work. Submit three concepts; the model finds connections across what it learned during training. The prompt — the instructions shaping which patterns it emphasizes — is shown, not hidden. Same concepts, different context, different connections.
 
+**[Native Plant Right-Now Almanac](https://right-now-almanac.replit.app)**
+> Discover what native plants are doing right now in Washtenaw County and surrounding region. Pick a place, see which species are actively flowering, fruiting, or leafing out based on iNaturalist phenology records from the same two-week window across all years. Select a species for a full detail page: a continental range map, and a Claude-composed field note on what makes this plant interesting at this moment in the season.
+
 ## What's Coming
 
 - Integrating additional sources that have been identified.
