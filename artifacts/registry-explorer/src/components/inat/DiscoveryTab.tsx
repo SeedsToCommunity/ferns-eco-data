@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useApiGet } from "@/hooks/useApiGet";
 import { Loader2, Search, ExternalLink, ChevronLeft, ChevronRight, AlertCircle } from "lucide-react";
 import { RawJsonPanel } from "@/components/RawJsonPanel";
@@ -71,6 +71,34 @@ export function DiscoveryTab({ preloadedTaxonId, preloadedPlaceId, onTaxonSelect
 
 // ── Similar Species ──────────────────────────────────────────────────────────
 
+type SimilarSpeciesEntry = {
+  count: number;
+  taxon: {
+    id: number;
+    name: string;
+    rank?: string;
+    preferred_common_name?: string;
+    default_photo?: { square_url?: string };
+  };
+};
+
+async function enrichTaxonPhoto(
+  taxonId: number,
+  apiBase: string,
+): Promise<{ square_url?: string } | null> {
+  try {
+    const url = new URL(`/api/inat/taxon/${taxonId}`, window.location.origin + apiBase);
+    const resp = await fetch(url.toString());
+    if (!resp.ok) return null;
+    const json = await resp.json() as {
+      data?: { results?: Array<{ default_photo?: { square_url?: string } }> };
+    };
+    return json.data?.results?.[0]?.default_photo ?? null;
+  } catch {
+    return null;
+  }
+}
+
 function SimilarSpeciesPanel({
   preloadedTaxonId,
   preloadedPlaceId,
@@ -83,6 +111,8 @@ function SimilarSpeciesPanel({
   const [taxonIdInput, setTaxonIdInput] = useState(preloadedTaxonId ? String(preloadedTaxonId) : "");
   const [placeIdInput, setPlaceIdInput] = useState(preloadedPlaceId ?? "");
   const [submitted, setSubmitted] = useState<{ taxonId: number; placeId?: number } | null>(null);
+  const [enrichedPhotos, setEnrichedPhotos] = useState<Record<number, string | null>>({});
+  const enrichingRef = useRef<number>(0);
 
   const url = submitted
     ? apiUrl("/api/inat/similar-species", {
@@ -96,18 +126,30 @@ function SimilarSpeciesPanel({
     source_url: string;
     data: {
       total_results?: number;
-      results: Array<{
-        count: number;
-        taxon: {
-          id: number;
-          name: string;
-          rank?: string;
-          preferred_common_name?: string;
-          default_photo?: { square_url?: string };
-        };
-      }>;
+      results: SimilarSpeciesEntry[];
     };
   }>(url);
+
+  useEffect(() => {
+    if (!data?.data?.results?.length) return;
+    const results = data.data.results;
+    const run = ++enrichingRef.current;
+    setEnrichedPhotos({});
+
+    const missing = results.filter((e) => !e.taxon.default_photo?.square_url);
+    if (!missing.length) return;
+
+    void (async () => {
+      for (const entry of missing) {
+        if (enrichingRef.current !== run) return;
+        const photo = await enrichTaxonPhoto(entry.taxon.id, BASE_URL);
+        if (enrichingRef.current !== run) return;
+        if (photo?.square_url) {
+          setEnrichedPhotos((prev) => ({ ...prev, [entry.taxon.id]: photo.square_url! }));
+        }
+      }
+    })();
+  }, [data]);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -119,12 +161,17 @@ function SimilarSpeciesPanel({
 
   const results = data?.data?.results ?? [];
 
+  function photoUrl(entry: SimilarSpeciesEntry): string | undefined {
+    return entry.taxon.default_photo?.square_url ?? enrichedPhotos[entry.taxon.id] ?? undefined;
+  }
+
   return (
     <div className="space-y-4">
       <div className="bg-card border border-border rounded-xl p-5">
         <h3 className="font-semibold text-sm mb-1">Similar Species</h3>
         <p className="text-xs text-muted-foreground mb-4">
           Species commonly confused with a taxon, ranked by co-confusion count from iNaturalist identifications.
+          Photos are enriched via taxon lookup for entries without inline photos.
         </p>
         <form onSubmit={handleSubmit} className="flex flex-wrap gap-3 items-end">
           <div>
@@ -133,7 +180,7 @@ function SimilarSpeciesPanel({
               type="number"
               value={taxonIdInput}
               onChange={(e) => setTaxonIdInput(e.target.value)}
-              placeholder="e.g. 47603"
+              placeholder="e.g. 47486"
               className="w-36 px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
@@ -159,10 +206,10 @@ function SimilarSpeciesPanel({
         <p className="text-xs text-muted-foreground mt-2">
           Try:{" "}
           <button
-            onClick={() => { setTaxonIdInput("47603"); setPlaceIdInput("2649"); setSubmitted({ taxonId: 47603, placeId: 2649 }); }}
+            onClick={() => { setTaxonIdInput("47486"); setPlaceIdInput("2649"); setSubmitted({ taxonId: 47486, placeId: 2649 }); }}
             className="underline text-primary hover:no-underline"
           >
-            Quercus (47603) in Washtenaw Co
+            Trillium grandiflorum (47486) in Washtenaw Co
           </button>
         </p>
       </div>
@@ -178,8 +225,8 @@ function SimilarSpeciesPanel({
             {results.map((entry) => (
               <div key={entry.taxon.id} className="flex items-center gap-3 bg-card border border-border rounded-xl px-3 py-2.5 hover:border-primary/30 transition-colors">
                 <div className="shrink-0 w-9 h-9 rounded-lg overflow-hidden bg-muted border border-border">
-                  {entry.taxon.default_photo?.square_url ? (
-                    <img src={entry.taxon.default_photo.square_url} alt={entry.taxon.name} className="w-full h-full object-cover" loading="lazy" />
+                  {photoUrl(entry) ? (
+                    <img src={photoUrl(entry)} alt={entry.taxon.name} className="w-full h-full object-cover" loading="lazy" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-muted-foreground/30 text-xs">?</div>
                   )}
