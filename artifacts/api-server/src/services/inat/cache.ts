@@ -287,11 +287,16 @@ export async function storePlaceById(
   result: InatPassthroughResult,
 ): Promise<InatPlace> {
   const now = new Date();
+  const raw = result.raw_response as Record<string, unknown> | null;
+  const found =
+    raw !== null &&
+    ((typeof raw["total_results"] === "number" && raw["total_results"] > 0) ||
+      (Array.isArray(raw["results"]) && (raw["results"] as unknown[]).length > 0));
   const insert = {
     cache_key: cacheKey,
     query: String(placeId),
     results: result.raw_response,
-    found: true,
+    found,
     expires_at: null as Date | null,
     source_id: INAT_SOURCE_ID,
     fetched_at: now,
@@ -339,11 +344,16 @@ export async function storeControlledTerms(
   result: InatPassthroughResult,
 ): Promise<InatControlledTerms> {
   const now = new Date();
+  const raw = result.raw_response as Record<string, unknown> | null;
+  const found =
+    raw !== null &&
+    ((typeof raw["total_results"] === "number" && raw["total_results"] > 0) ||
+      (Array.isArray(raw["results"]) && (raw["results"] as unknown[]).length > 0));
   const insert = {
     cache_key: cacheKey,
     raw_response: result.raw_response,
     source_url: result.source_url,
-    found: true,
+    found,
     expires_at: null as Date | null,
     source_id: INAT_SOURCE_ID,
     fetched_at: now,
@@ -391,12 +401,17 @@ export async function storeTaxonById(
   result: InatPassthroughResult,
 ): Promise<InatTaxonById> {
   const now = new Date();
+  const raw = result.raw_response as Record<string, unknown> | null;
+  const found =
+    raw !== null &&
+    ((typeof raw["total_results"] === "number" && raw["total_results"] > 0) ||
+      (Array.isArray(raw["results"]) && (raw["results"] as unknown[]).length > 0));
   const insert = {
     cache_key: cacheKey,
     taxon_id: taxonId,
     raw_response: result.raw_response,
     source_url: result.source_url,
-    found: true,
+    found,
     expires_at: daysFromNow(TAXON_BY_ID_TTL_DAYS),
     source_id: INAT_SOURCE_ID,
     fetched_at: now,

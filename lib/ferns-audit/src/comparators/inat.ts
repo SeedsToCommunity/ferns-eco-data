@@ -35,6 +35,7 @@ export async function runInatComparators(
   }
 
   results.push(await checkInatSpeciesCounts(fernsBase));
+  results.push(await checkInatObservationSummaryExpanded(fernsBase, species[0] ?? null));
   results.push(await checkInatControlledTerms(fernsBase));
 
   const firstTaxonId = species[0]
@@ -480,6 +481,100 @@ async function checkInatObservations(
     return {
       source: "inat",
       endpoint: `${fernsEndpoint}?taxon_id=${taxonId}${placeParam}`,
+      label,
+      ok: false,
+      error: String(err),
+      findings: [],
+      urlsCollected: [],
+    };
+  }
+}
+
+async function checkInatObservationSummaryExpanded(
+  fernsBase: string,
+  sp: TestSpecies | null,
+): Promise<EndpointComparison> {
+  const fernsEndpoint = `/api/inat/observation-summary`;
+  const taxonParam = sp ? `?taxon_id=${sp.inatTaxonId ?? ""}&per_page=5` : `?per_page=5`;
+  const fernsUrl = `${fernsBase}${fernsEndpoint}${taxonParam}`;
+  const label = sp
+    ? `${sp.label} — iNat observation-summary expanded fields`
+    : `iNat observation-summary expanded fields`;
+
+  try {
+    const fernsRaw = await fetchJson(fernsUrl) as Record<string, unknown>;
+    const findings: FieldFinding[] = [];
+    const urlsCollected = collectUrls(fernsRaw, "inat/observation-summary");
+
+    for (const field of ["source_url", "found", "data"] as const) {
+      if (fernsRaw[field] !== undefined) {
+        findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: fernsRaw[field], note: `${field} present` });
+      } else {
+        findings.push({ type: "gap", sourceField: field, note: `${field} missing from response` });
+      }
+    }
+
+    const data = fernsRaw.data as Record<string, unknown> | undefined;
+    const results = Array.isArray(data?.["results"]) ? data!["results"] as Array<Record<string, unknown>> : [];
+
+    findings.push({ type: "ok", sourceField: "total_results", fernsField: "total_results", fernsValue: data?.["total_results"], note: `total_results present` });
+    findings.push({ type: "ok", sourceField: "page", fernsField: "page", fernsValue: data?.["page"], note: `page present` });
+    findings.push({ type: "ok", sourceField: "per_page", fernsField: "per_page", fernsValue: data?.["per_page"], note: `per_page present` });
+
+    if (results.length > 0) {
+      const rec = results[0];
+      const expandedFields = [
+        "uuid", "obscured", "license_code", "description", "tags",
+        "photos", "annotations", "ofvs",
+      ] as const;
+      for (const field of expandedFields) {
+        if (rec[field] !== undefined) {
+          findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: rec[field], note: `record.${field} present` });
+        } else {
+          findings.push({ type: "gap", sourceField: field, note: `record.${field} missing from observation record` });
+        }
+      }
+      const taxon = rec["taxon"] as Record<string, unknown> | undefined;
+      if (taxon) {
+        for (const sub of ["id", "rank", "iconic_taxon_name"] as const) {
+          if (taxon[sub] !== undefined) {
+            findings.push({ type: "ok", sourceField: `taxon.${sub}`, fernsField: `taxon.${sub}`, fernsValue: taxon[sub], note: `taxon.${sub} present` });
+          } else {
+            findings.push({ type: "gap", sourceField: `taxon.${sub}`, note: `taxon.${sub} missing from observation record` });
+          }
+        }
+      } else {
+        findings.push({ type: "gap", sourceField: "taxon", note: "taxon object missing from observation record" });
+      }
+      const user = rec["user"] as Record<string, unknown> | undefined;
+      if (user) {
+        for (const sub of ["id", "login"] as const) {
+          if (user[sub] !== undefined) {
+            findings.push({ type: "ok", sourceField: `user.${sub}`, fernsField: `user.${sub}`, fernsValue: user[sub], note: `user.${sub} present` });
+          } else {
+            findings.push({ type: "gap", sourceField: `user.${sub}`, note: `user.${sub} missing from observation record` });
+          }
+        }
+      } else {
+        findings.push({ type: "gap", sourceField: "user", note: "user object missing from observation record" });
+      }
+    } else {
+      findings.push({ type: "gap", sourceField: "results", note: "No observation records returned — cannot verify expanded fields" });
+    }
+
+    return {
+      source: "inat",
+      endpoint: `${fernsEndpoint}${taxonParam}`,
+      label,
+      ok: true,
+      rawFerns: fernsRaw,
+      findings,
+      urlsCollected,
+    };
+  } catch (err) {
+    return {
+      source: "inat",
+      endpoint: `${fernsEndpoint}${taxonParam}`,
       label,
       ok: false,
       error: String(err),

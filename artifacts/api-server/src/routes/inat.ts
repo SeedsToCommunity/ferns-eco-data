@@ -654,6 +654,7 @@ router.get("/inat/place/:id", async (req, res) => {
 
 function buildPlaceByIdResponse(
   row: {
+    query: string;
     results: unknown;
     upstream_url: string;
     found: boolean;
@@ -667,7 +668,7 @@ function buildPlaceByIdResponse(
   verbosity?: string,
 ) {
   return {
-    source_url: row.upstream_url,
+    source_url: `https://www.inaturalist.org/places/${row.query}`,
     found: row.found,
     cache_status,
     queried_at: new Date(),
@@ -705,7 +706,8 @@ router.get("/inat/places/nearby", async (req, res) => {
     const raw = result.raw_response;
     const results = (raw["results"] as Record<string, unknown> | undefined) ?? {};
     const standardArr = Array.isArray(results["standard"]) ? results["standard"] as unknown[] : [];
-    const foundAny = standardArr.length > 0;
+    const communityArr = Array.isArray(results["community"]) ? results["community"] as unknown[] : [];
+    const foundAny = standardArr.length > 0 || communityArr.length > 0;
 
     res.json(GetInatPlacesNearbyResponse.parse({
       source_url: result.source_url,
