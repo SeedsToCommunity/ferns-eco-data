@@ -328,6 +328,13 @@ paths:
           schema:
             type: boolean
             default: false
+        - name: provenance_verbosity
+          in: query
+          required: false
+          description: "Controls provenance text fields: full | summary | none"
+          schema:
+            type: string
+            enum: [full, summary, none]
       responses:
         "200":
           description: List of synonyms for the taxon
@@ -388,6 +395,13 @@ paths:
           schema:
             type: boolean
             default: false
+        - name: provenance_verbosity
+          in: query
+          required: false
+          description: "Controls provenance text fields: full | summary | none"
+          schema:
+            type: string
+            enum: [full, summary, none]
       responses:
         "200":
           description: List of vernacular names for the taxon
