@@ -359,6 +359,68 @@ export async function fetchVernacularSearch(q: string): Promise<{
   };
 }
 
+export function buildSynonymsCacheKey(usageKey: number): string {
+  return `gbif:synonyms:${usageKey}`;
+}
+
+export function buildVernacularNamesCacheKey(usageKey: number): string {
+  return `gbif:vernacular:${usageKey}`;
+}
+
+export async function fetchSynonyms(usageKey: number): Promise<{
+  synonyms: GbifSynonymRecord[];
+  synonym_count: number;
+  upstream_url: string;
+}> {
+  const url = `${GBIF_API_BASE}/species/${usageKey}/synonyms?limit=100`;
+  const raw = (await gbifFetch(url)) as Record<string, unknown>;
+  const results = (raw.results as Record<string, unknown>[]) || [];
+
+  const synonyms: GbifSynonymRecord[] = results.map((r) => ({
+    key: r.key as number,
+    canonicalName: (r.canonicalName as string) || "",
+    scientificName: (r.scientificName as string) || "",
+    rank: (r.rank as string) || "",
+    taxonomicStatus: (r.taxonomicStatus as string) || "",
+    nameType: (r.nameType as string) || "",
+    publishedIn: (r.publishedIn as string) || null,
+  }));
+
+  return {
+    synonyms,
+    synonym_count: (raw.count as number) ?? synonyms.length,
+    upstream_url: url,
+  };
+}
+
+export async function fetchVernacularNames(usageKey: number): Promise<{
+  vernacular_names: GbifVernacularRecord[];
+  vernacular_name_primary: string | null;
+  vernacular_name_count: number;
+  upstream_url: string;
+}> {
+  const url = `${GBIF_API_BASE}/species/${usageKey}/vernacularNames?limit=100`;
+  const raw = (await gbifFetch(url)) as Record<string, unknown>;
+  const results = (raw.results as Record<string, unknown>[]) || [];
+
+  const vernacular_names: GbifVernacularRecord[] = results.map((r) => ({
+    vernacularName: (r.vernacularName as string) || "",
+    language: (r.language as string) || "",
+    country: (r.country as string) || null,
+    source: (r.source as string) || null,
+  }));
+
+  const enName = vernacular_names.find((v) => v.language === "eng" || v.language === "en");
+  const vernacular_name_primary = enName?.vernacularName ?? vernacular_names[0]?.vernacularName ?? null;
+
+  return {
+    vernacular_names,
+    vernacular_name_primary,
+    vernacular_name_count: (raw.count as number) ?? vernacular_names.length,
+    upstream_url: url,
+  };
+}
+
 export function buildProvenance(upstreamUrl: string) {
   return {
     source_id: GBIF_SOURCE_ID,

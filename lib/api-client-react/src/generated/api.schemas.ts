@@ -315,6 +315,84 @@ export interface GbifSearchResponse {
   provenance: FernsProvenance;
 }
 
+export type GbifSynonymsDataCacheStatus =
+  | (typeof GbifSynonymsDataCacheStatus)[keyof typeof GbifSynonymsDataCacheStatus]
+  | null;
+
+export const GbifSynonymsDataCacheStatus = {
+  hit: "hit",
+  miss: "miss",
+  bypassed: "bypassed",
+} as const;
+
+export interface GbifSynonymRecord {
+  key: number;
+  canonicalName: string;
+  scientificName: string;
+  rank: string;
+  taxonomicStatus: string;
+  nameType: string;
+  publishedIn?: string | null;
+}
+
+export interface GbifSynonymsData {
+  usage_key: number;
+  synonyms: GbifSynonymRecord[];
+  synonym_count: number;
+  cache_status?: GbifSynonymsDataCacheStatus;
+}
+
+export interface GbifSynonymsResponse {
+  source_url: string | null;
+  found: boolean;
+  data: GbifSynonymsData | null;
+  provenance: FernsProvenance;
+}
+
+export type GbifVernacularNamesDataCacheStatus =
+  | (typeof GbifVernacularNamesDataCacheStatus)[keyof typeof GbifVernacularNamesDataCacheStatus]
+  | null;
+
+export const GbifVernacularNamesDataCacheStatus = {
+  hit: "hit",
+  miss: "miss",
+  bypassed: "bypassed",
+} as const;
+
+export interface GbifVernacularRecord {
+  vernacularName: string;
+  language: string;
+  country?: string | null;
+  source?: string | null;
+}
+
+export interface GbifVernacularNamesData {
+  usage_key: number;
+  vernacular_names: GbifVernacularRecord[];
+  vernacular_name_primary?: string | null;
+  vernacular_name_count: number;
+  cache_status?: GbifVernacularNamesDataCacheStatus;
+}
+
+export interface GbifVernacularNamesResponse {
+  source_url: string | null;
+  found: boolean;
+  data: GbifVernacularNamesData | null;
+  provenance: FernsProvenance;
+}
+
+export type GetGbifSpeciesSynonymsParams = {
+  usageKey: number;
+  refresh?: boolean;
+  provenance_verbosity?: string;
+};
+
+export type GetGbifSpeciesVernacularNamesParams = {
+  usageKey: number;
+  refresh?: boolean;
+  provenance_verbosity?: string;
+};
+
 export interface GbifVocabularyEntry {
   code: string;
   label: string;

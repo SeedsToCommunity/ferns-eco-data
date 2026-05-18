@@ -2,9 +2,13 @@ import { Router, type IRouter } from "express";
 import {
   buildMatchCacheKey,
   buildOccurrencesCacheKey,
+  buildSynonymsCacheKey,
+  buildVernacularNamesCacheKey,
   fetchNameMatch,
   fetchOccurrences,
   fetchVernacularSearch,
+  fetchSynonyms,
+  fetchVernacularNames,
   parseGeography,
   buildProvenance,
 } from "../services/gbif/connector.js";
@@ -13,6 +17,10 @@ import {
   storeNameMatch,
   lookupOccurrences,
   storeOccurrences,
+  lookupSynonyms,
+  storeSynonyms,
+  lookupVernacularNames,
+  storeVernacularNames,
 } from "../services/gbif/cache.js";
 import {
   GBIF_SOURCE_ID,
@@ -286,6 +294,138 @@ router.get("/gbif/species/search", async (req, res) => {
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from GBIF API" });
   }
 });
+
+router.get("/gbif/species/:usageKey/synonyms", async (req, res) => {
+  const rawKey = req.params.usageKey;
+  const usageKey = Number(rawKey);
+  if (!rawKey || isNaN(usageKey) || usageKey <= 0) {
+    res.status(400).json({ error: "invalid_input", message: "usageKey must be a positive integer" });
+    return;
+  }
+
+  const refresh = req.query.refresh === "true" || req.query.refresh === "1";
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+  const cacheKey = buildSynonymsCacheKey(usageKey);
+
+  if (!refresh) {
+    const cached = await lookupSynonyms(cacheKey);
+    if (cached) {
+      res.json(buildSynonymsResponse(cached, "hit", verbosity));
+      return;
+    }
+  }
+
+  try {
+    const result = await fetchSynonyms(usageKey);
+    const stored = await storeSynonyms(cacheKey, usageKey, result);
+    res.json(buildSynonymsResponse(stored, refresh ? "bypassed" : "miss", verbosity));
+  } catch (err) {
+    req.log.error({ err }, "GBIF synonyms fetch failed");
+    res.status(502).json({ error: "upstream_error", message: "Failed to fetch from GBIF API" });
+  }
+});
+
+function buildSynonymsResponse(
+  row: {
+    usage_key: number;
+    synonyms: unknown;
+    synonym_count: number;
+    source_id: string;
+    fetched_at: Date;
+    method: string;
+    upstream_url: string;
+    general_summary: string;
+    technical_details: string;
+  },
+  cache_status: "hit" | "miss" | "bypassed",
+  verbosity?: string,
+) {
+  return {
+    source_url: `https://www.gbif.org/species/${row.usage_key}`,
+    found: true,
+    data: {
+      usage_key: row.usage_key,
+      synonyms: row.synonyms,
+      synonym_count: row.synonym_count,
+      cache_status,
+    },
+    provenance: filterProvenance({
+      source_id: row.source_id,
+      fetched_at: row.fetched_at,
+      method: row.method,
+      upstream_url: row.upstream_url,
+      general_summary: row.general_summary,
+      technical_details: row.technical_details,
+    }, verbosity),
+  };
+}
+
+router.get("/gbif/species/:usageKey/vernacularNames", async (req, res) => {
+  const rawKey = req.params.usageKey;
+  const usageKey = Number(rawKey);
+  if (!rawKey || isNaN(usageKey) || usageKey <= 0) {
+    res.status(400).json({ error: "invalid_input", message: "usageKey must be a positive integer" });
+    return;
+  }
+
+  const refresh = req.query.refresh === "true" || req.query.refresh === "1";
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+  const cacheKey = buildVernacularNamesCacheKey(usageKey);
+
+  if (!refresh) {
+    const cached = await lookupVernacularNames(cacheKey);
+    if (cached) {
+      res.json(buildVernacularNamesResponse(cached, "hit", verbosity));
+      return;
+    }
+  }
+
+  try {
+    const result = await fetchVernacularNames(usageKey);
+    const stored = await storeVernacularNames(cacheKey, usageKey, result);
+    res.json(buildVernacularNamesResponse(stored, refresh ? "bypassed" : "miss", verbosity));
+  } catch (err) {
+    req.log.error({ err }, "GBIF vernacular names fetch failed");
+    res.status(502).json({ error: "upstream_error", message: "Failed to fetch from GBIF API" });
+  }
+});
+
+function buildVernacularNamesResponse(
+  row: {
+    usage_key: number;
+    vernacular_names: unknown;
+    vernacular_name_primary: string | null;
+    vernacular_name_count: number;
+    source_id: string;
+    fetched_at: Date;
+    method: string;
+    upstream_url: string;
+    general_summary: string;
+    technical_details: string;
+  },
+  cache_status: "hit" | "miss" | "bypassed",
+  verbosity?: string,
+) {
+  return {
+    source_url: `https://www.gbif.org/species/${row.usage_key}`,
+    found: true,
+    data: {
+      usage_key: row.usage_key,
+      vernacular_names: row.vernacular_names,
+      vernacular_name_primary: row.vernacular_name_primary,
+      vernacular_name_count: row.vernacular_name_count,
+      cache_status,
+    },
+    provenance: filterProvenance({
+      source_id: row.source_id,
+      fetched_at: row.fetched_at,
+      method: row.method,
+      upstream_url: row.upstream_url,
+      general_summary: row.general_summary,
+      technical_details: row.technical_details,
+    }, verbosity),
+  };
+}
 
 router.get("/gbif/metadata", async (req, res) => {
   await ensureGbifRegistryEntry();

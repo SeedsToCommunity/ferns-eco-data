@@ -2,17 +2,23 @@ import {
   db,
   gbifNameMatchesTable,
   gbifOccurrencesTable,
+  gbifSynonymsTable,
+  gbifVernacularNamesTable,
   type GbifNameMatch,
   type GbifOccurrences,
+  type GbifSynonyms,
+  type GbifVernacularNames,
 } from "@workspace/db";
 import { eq } from "drizzle-orm";
-import type { GbifMatchResult, GbifOccurrencesResult, GeographyParams } from "./connector.js";
+import type { GbifMatchResult, GbifOccurrencesResult, GeographyParams, GbifSynonymRecord, GbifVernacularRecord } from "./connector.js";
 import { serializeGeography } from "./connector.js";
 import { GBIF_SOURCE_ID, GBIF_GENERAL_SUMMARY, GBIF_TECHNICAL_DETAILS } from "./metadata.js";
 
 const MATCH_HIT_TTL_DAYS = 30;
 const MATCH_NOMATCH_TTL_DAYS = 7;
 const OCCURRENCES_TTL_DAYS = 7;
+const SYNONYMS_TTL_DAYS = 30;
+const VERNACULAR_TTL_DAYS = 30;
 
 function daysFromNow(days: number): Date {
   return new Date(Date.now() + days * 24 * 60 * 60 * 1000);
@@ -167,6 +173,112 @@ export async function storeOccurrences(
         recent_occurrences: insert.recent_occurrences,
         source_url: insert.source_url,
         occurrence_last_fetched: insert.occurrence_last_fetched,
+        fetched_at: insert.fetched_at,
+        upstream_url: insert.upstream_url,
+        expires_at: insert.expires_at,
+      },
+    })
+    .returning();
+  return rows[0];
+}
+
+export async function lookupSynonyms(cacheKey: string): Promise<GbifSynonyms | null> {
+  const rows = await db
+    .select()
+    .from(gbifSynonymsTable)
+    .where(eq(gbifSynonymsTable.cache_key, cacheKey))
+    .limit(1);
+  if (!rows.length) return null;
+  const row = rows[0];
+  if (row.expires_at && row.expires_at < new Date()) {
+    await db.delete(gbifSynonymsTable).where(eq(gbifSynonymsTable.cache_key, cacheKey));
+    return null;
+  }
+  return row;
+}
+
+export async function storeSynonyms(
+  cacheKey: string,
+  usageKey: number,
+  result: { synonyms: GbifSynonymRecord[]; synonym_count: number; upstream_url: string },
+): Promise<GbifSynonyms> {
+  const now = new Date();
+  const insert = {
+    cache_key: cacheKey,
+    usage_key: usageKey,
+    synonyms: result.synonyms,
+    synonym_count: result.synonym_count,
+    expires_at: daysFromNow(SYNONYMS_TTL_DAYS),
+    source_id: GBIF_SOURCE_ID,
+    fetched_at: now,
+    method: "api_fetch",
+    upstream_url: result.upstream_url,
+    general_summary: GBIF_GENERAL_SUMMARY,
+    technical_details: GBIF_TECHNICAL_DETAILS,
+  };
+
+  const rows = await db
+    .insert(gbifSynonymsTable)
+    .values(insert)
+    .onConflictDoUpdate({
+      target: gbifSynonymsTable.cache_key,
+      set: {
+        synonyms: insert.synonyms,
+        synonym_count: insert.synonym_count,
+        fetched_at: insert.fetched_at,
+        upstream_url: insert.upstream_url,
+        expires_at: insert.expires_at,
+      },
+    })
+    .returning();
+  return rows[0];
+}
+
+export async function lookupVernacularNames(cacheKey: string): Promise<GbifVernacularNames | null> {
+  const rows = await db
+    .select()
+    .from(gbifVernacularNamesTable)
+    .where(eq(gbifVernacularNamesTable.cache_key, cacheKey))
+    .limit(1);
+  if (!rows.length) return null;
+  const row = rows[0];
+  if (row.expires_at && row.expires_at < new Date()) {
+    await db.delete(gbifVernacularNamesTable).where(eq(gbifVernacularNamesTable.cache_key, cacheKey));
+    return null;
+  }
+  return row;
+}
+
+export async function storeVernacularNames(
+  cacheKey: string,
+  usageKey: number,
+  result: { vernacular_names: GbifVernacularRecord[]; vernacular_name_primary: string | null; vernacular_name_count: number; upstream_url: string },
+): Promise<GbifVernacularNames> {
+  const now = new Date();
+  const insert = {
+    cache_key: cacheKey,
+    usage_key: usageKey,
+    vernacular_names: result.vernacular_names,
+    vernacular_name_primary: result.vernacular_name_primary,
+    vernacular_name_count: result.vernacular_name_count,
+    expires_at: daysFromNow(VERNACULAR_TTL_DAYS),
+    source_id: GBIF_SOURCE_ID,
+    fetched_at: now,
+    method: "api_fetch",
+    upstream_url: result.upstream_url,
+    general_summary: GBIF_GENERAL_SUMMARY,
+    technical_details: GBIF_TECHNICAL_DETAILS,
+  };
+
+  const rows = await db
+    .insert(gbifVernacularNamesTable)
+    .values(insert)
+    .onConflictDoUpdate({
+      target: gbifVernacularNamesTable.cache_key,
+      set: {
+        vernacular_names: insert.vernacular_names,
+        vernacular_name_primary: insert.vernacular_name_primary,
+        vernacular_name_count: insert.vernacular_name_count,
         fetched_at: insert.fetched_at,
         upstream_url: insert.upstream_url,
         expires_at: insert.expires_at,

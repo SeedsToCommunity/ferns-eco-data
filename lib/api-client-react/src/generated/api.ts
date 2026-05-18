@@ -28,6 +28,8 @@ import type {
   GbifMetadataResponse,
   GbifOccurrencesResponse,
   GbifSearchResponse,
+  GbifSynonymsResponse,
+  GbifVernacularNamesResponse,
   GetAnnArborNpnNamesParams,
   GetAnnArborNpnSpeciesBulkParams,
   GetAnnArborNpnSpeciesByKeyParams,
@@ -36,6 +38,8 @@ import type {
   GetGbifMatchParams,
   GetGbifOccurrencesParams,
   GetGbifSearchParams,
+  GetGbifSpeciesSynonymsParams,
+  GetGbifSpeciesVernacularNamesParams,
   GetGobotanyParams,
   GetGobotanySpeciesTextParams,
   GetGoogleImagesParams,
@@ -773,6 +777,150 @@ export function useGetGbifMetadata<
     queryKey: QueryKey;
   };
 
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Get all taxonomic synonyms for a GBIF taxon
+ */
+export const getGetGbifSpeciesSynonymsUrl = (params: GetGbifSpeciesSynonymsParams) =>
+  `/api/gbif/species/${params.usageKey}/synonyms${params.refresh !== undefined || params.provenance_verbosity !== undefined ? `?${new URLSearchParams(Object.fromEntries(Object.entries({ refresh: params.refresh, provenance_verbosity: params.provenance_verbosity }).filter(([, v]) => v !== undefined).map(([k, v]) => [k, String(v)])) as Record<string, string>).toString()}` : ""}`;
+
+export const getGbifSpeciesSynonyms = async (
+  params: GetGbifSpeciesSynonymsParams,
+  options?: RequestInit,
+): Promise<GbifSynonymsResponse> => {
+  return customFetch<GbifSynonymsResponse>(getGetGbifSpeciesSynonymsUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetGbifSpeciesSynonymsQueryKey = (params: GetGbifSpeciesSynonymsParams) => {
+  return [`/api/gbif/species/${params.usageKey}/synonyms`, params] as const;
+};
+
+export const getGetGbifSpeciesSynonymsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getGbifSpeciesSynonyms>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetGbifSpeciesSynonymsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getGbifSpeciesSynonyms>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+  const queryKey = queryOptions?.queryKey ?? getGetGbifSpeciesSynonymsQueryKey(params);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getGbifSpeciesSynonyms>>> = ({
+    signal,
+  }) => getGbifSpeciesSynonyms(params, { signal, ...requestOptions });
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getGbifSpeciesSynonyms>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetGbifSpeciesSynonymsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getGbifSpeciesSynonyms>>
+>;
+export type GetGbifSpeciesSynonymsQueryError = ErrorType<ErrorResponse>;
+
+export function useGetGbifSpeciesSynonyms<
+  TData = Awaited<ReturnType<typeof getGbifSpeciesSynonyms>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetGbifSpeciesSynonymsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getGbifSpeciesSynonyms>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetGbifSpeciesSynonymsQueryOptions(params, options);
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Get all vernacular (common) names for a GBIF taxon
+ */
+export const getGetGbifSpeciesVernacularNamesUrl = (params: GetGbifSpeciesVernacularNamesParams) =>
+  `/api/gbif/species/${params.usageKey}/vernacularNames${params.refresh !== undefined || params.provenance_verbosity !== undefined ? `?${new URLSearchParams(Object.fromEntries(Object.entries({ refresh: params.refresh, provenance_verbosity: params.provenance_verbosity }).filter(([, v]) => v !== undefined).map(([k, v]) => [k, String(v)])) as Record<string, string>).toString()}` : ""}`;
+
+export const getGbifSpeciesVernacularNames = async (
+  params: GetGbifSpeciesVernacularNamesParams,
+  options?: RequestInit,
+): Promise<GbifVernacularNamesResponse> => {
+  return customFetch<GbifVernacularNamesResponse>(getGetGbifSpeciesVernacularNamesUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetGbifSpeciesVernacularNamesQueryKey = (params: GetGbifSpeciesVernacularNamesParams) => {
+  return [`/api/gbif/species/${params.usageKey}/vernacularNames`, params] as const;
+};
+
+export const getGetGbifSpeciesVernacularNamesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getGbifSpeciesVernacularNames>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetGbifSpeciesVernacularNamesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getGbifSpeciesVernacularNames>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+  const queryKey = queryOptions?.queryKey ?? getGetGbifSpeciesVernacularNamesQueryKey(params);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getGbifSpeciesVernacularNames>>> = ({
+    signal,
+  }) => getGbifSpeciesVernacularNames(params, { signal, ...requestOptions });
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getGbifSpeciesVernacularNames>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetGbifSpeciesVernacularNamesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getGbifSpeciesVernacularNames>>
+>;
+export type GetGbifSpeciesVernacularNamesQueryError = ErrorType<ErrorResponse>;
+
+export function useGetGbifSpeciesVernacularNames<
+  TData = Awaited<ReturnType<typeof getGbifSpeciesVernacularNames>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetGbifSpeciesVernacularNamesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getGbifSpeciesVernacularNames>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetGbifSpeciesVernacularNamesQueryOptions(params, options);
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
   return { ...query, queryKey: queryOptions.queryKey };
 }
 

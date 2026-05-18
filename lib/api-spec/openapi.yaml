@@ -288,6 +288,92 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /gbif/species/{usageKey}/synonyms:
+    get:
+      operationId: getGbifSpeciesSynonyms
+      tags: [gbif]
+      summary: Get all taxonomic synonyms for a GBIF taxon
+      description: >
+        Returns all names that are considered synonyms of the accepted taxon
+        identified by the given usage key. Mirrors GBIF's GET /v1/species/{usageKey}/synonyms.
+        Cached 30 days per usageKey.
+      parameters:
+        - name: usageKey
+          in: path
+          required: true
+          description: GBIF backbone usage key (integer)
+          schema:
+            type: integer
+        - name: refresh
+          in: query
+          required: false
+          description: If true, bypasses cache and fetches fresh from GBIF
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: List of synonyms for the taxon
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GbifSynonymsResponse"
+        "400":
+          description: Invalid usageKey
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: GBIF API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /gbif/species/{usageKey}/vernacularNames:
+    get:
+      operationId: getGbifSpeciesVernacularNames
+      tags: [gbif]
+      summary: Get all vernacular (common) names for a GBIF taxon
+      description: >
+        Returns all vernacular names across all languages and countries for the
+        taxon identified by the given usage key. Mirrors GBIF's GET /v1/species/{usageKey}/vernacularNames.
+        Cached 30 days per usageKey.
+      parameters:
+        - name: usageKey
+          in: path
+          required: true
+          description: GBIF backbone usage key (integer)
+          schema:
+            type: integer
+        - name: refresh
+          in: query
+          required: false
+          description: If true, bypasses cache and fetches fresh from GBIF
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: List of vernacular names for the taxon
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GbifVernacularNamesResponse"
+        "400":
+          description: Invalid usageKey
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: GBIF API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /gbif/metadata:
     get:
       operationId: getGbifMetadata
@@ -4099,6 +4185,132 @@ components:
           type: string
           enum: [hit, miss, bypassed]
           nullable: true
+
+    GbifSynonymRecord:
+      type: object
+      required:
+        - key
+        - canonicalName
+        - scientificName
+        - rank
+        - taxonomicStatus
+        - nameType
+      properties:
+        key:
+          type: integer
+        canonicalName:
+          type: string
+        scientificName:
+          type: string
+        rank:
+          type: string
+        taxonomicStatus:
+          type: string
+        nameType:
+          type: string
+        publishedIn:
+          type: string
+          nullable: true
+
+    GbifSynonymsData:
+      type: object
+      required:
+        - usage_key
+        - synonyms
+        - synonym_count
+      properties:
+        usage_key:
+          type: integer
+        synonyms:
+          type: array
+          items:
+            $ref: "#/components/schemas/GbifSynonymRecord"
+        synonym_count:
+          type: integer
+        cache_status:
+          type: string
+          enum: [hit, miss, bypassed]
+          nullable: true
+
+    GbifSynonymsResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+          nullable: true
+        found:
+          type: boolean
+        data:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/GbifSynonymsData"
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    GbifVernacularRecord:
+      type: object
+      required:
+        - vernacularName
+        - language
+      properties:
+        vernacularName:
+          type: string
+        language:
+          type: string
+        country:
+          type: string
+          nullable: true
+        source:
+          type: string
+          nullable: true
+
+    GbifVernacularNamesData:
+      type: object
+      required:
+        - usage_key
+        - vernacular_names
+        - vernacular_name_count
+      properties:
+        usage_key:
+          type: integer
+        vernacular_names:
+          type: array
+          items:
+            $ref: "#/components/schemas/GbifVernacularRecord"
+        vernacular_name_primary:
+          type: string
+          nullable: true
+        vernacular_name_count:
+          type: integer
+        cache_status:
+          type: string
+          enum: [hit, miss, bypassed]
+          nullable: true
+
+    GbifVernacularNamesResponse:
+      type: object
+      required:
+        - source_url
+        - found
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+          nullable: true
+        found:
+          type: boolean
+        data:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/GbifVernacularNamesData"
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
 
     GbifMatchResponse:
       type: object

@@ -58,6 +58,48 @@ const tools: ToolDef[] = [
   // ── gbif ────────────────────────────────────────────────────────────────
   {
     tool: {
+      name: "gbif__species_synonyms",
+      description:
+        "Returns all taxonomic synonyms for a GBIF taxon identified by its usage key. A synonym is a name that was once considered valid but is now superseded by the accepted name. Use gbif__match first to resolve a scientific name to a usageKey.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          usageKey: { type: "number", description: "GBIF usage key (integer)" },
+          refresh:  { type: "boolean", description: "Bypass cache and re-fetch from GBIF" },
+          ...PV_PROP,
+        },
+        required: ["usageKey"],
+      },
+    },
+    handler: async (args) =>
+      apiGet(`/gbif/species/${Number(args["usageKey"])}/synonyms`, {
+        refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        provenance_verbosity: pv(args),
+      }),
+  },
+  {
+    tool: {
+      name: "gbif__species_vernacular_names",
+      description:
+        "Returns all vernacular (common) names for a GBIF taxon identified by its usage key, across all languages and countries in the GBIF backbone. Use gbif__match first to resolve a scientific name to a usageKey.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          usageKey: { type: "number", description: "GBIF usage key (integer)" },
+          refresh:  { type: "boolean", description: "Bypass cache and re-fetch from GBIF" },
+          ...PV_PROP,
+        },
+        required: ["usageKey"],
+      },
+    },
+    handler: async (args) =>
+      apiGet(`/gbif/species/${Number(args["usageKey"])}/vernacularNames`, {
+        refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        provenance_verbosity: pv(args),
+      }),
+  },
+  {
+    tool: {
       name: "gbif__match",
       description:
         "Matches a scientific name string to the GBIF taxonomic backbone, returning the accepted usage key, rank, confidence score, and synonym chain. Use this first to resolve a name before calling occurrence or reconcile endpoints.",

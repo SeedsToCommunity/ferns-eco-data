@@ -1,8 +1,15 @@
 import { useState, type ReactNode } from "react";
-import { useGetGbifMatch, getGetGbifMatchQueryKey } from "@workspace/api-client-react";
+import {
+  useGetGbifMatch,
+  getGetGbifMatchQueryKey,
+  useGetGbifSpeciesSynonyms,
+  getGetGbifSpeciesSynonymsQueryKey,
+  useGetGbifSpeciesVernacularNames,
+  getGetGbifSpeciesVernacularNamesQueryKey,
+} from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, CheckCircle, ChevronDown, ChevronRight, Info, ExternalLink } from "lucide-react";
+import { AlertTriangle, CheckCircle, ChevronDown, ChevronRight, Info, ExternalLink, BookOpen, Languages } from "lucide-react";
 import { RawJsonPanel } from "@/components/RawJsonPanel";
 import { OccurrencesPanel } from "./OccurrencesPanel";
 
@@ -56,6 +63,16 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
   const matchData = matchQuery.data?.data;
   const reconcileKey = matchData?.status === 'SYNONYM' ? matchData.accepted_usage_key : matchData?.usageKey;
 
+  const synonymsQuery = useGetGbifSpeciesSynonyms(
+    { usageKey: reconcileKey ?? 0 },
+    { query: { queryKey: getGetGbifSpeciesSynonymsQueryKey({ usageKey: reconcileKey ?? 0 }), enabled: !!reconcileKey } }
+  );
+
+  const vernacularQuery = useGetGbifSpeciesVernacularNames(
+    { usageKey: reconcileKey ?? 0 },
+    { query: { queryKey: getGetGbifSpeciesVernacularNamesQueryKey({ usageKey: reconcileKey ?? 0 }), enabled: !!reconcileKey } }
+  );
+
   if (matchQuery.isLoading) {
     return <div className="p-8 text-center text-muted-foreground animate-pulse">Matching taxonomy...</div>;
   }
@@ -75,6 +92,12 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
   if (!matchQuery.data) return null;
 
   const isNotFound = !matchQuery.data.found || !matchData || matchData.matchType === "NONE";
+
+  const synonyms = synonymsQuery.data?.data?.synonyms ?? [];
+  const synonymCount = synonymsQuery.data?.data?.synonym_count ?? 0;
+  const vernacularNames = vernacularQuery.data?.data?.vernacular_names ?? [];
+  const vernacularCount = vernacularQuery.data?.data?.vernacular_name_count ?? 0;
+  const enNames = vernacularNames.filter(v => v.language === "eng" || v.language === "en");
 
   return (
     <div className="space-y-6">
@@ -186,10 +209,89 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
                 </div>
               </div>
 
+              {reconcileKey && !vernacularQuery.isLoading && enNames.length > 0 && (
+                <div className="mt-6 pt-6 border-t border-border">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Common Names (English)</p>
+                  <div className="flex flex-wrap gap-2">
+                    {enNames.slice(0, 8).map((v, i) => (
+                      <Badge key={i} variant="outline" className="text-sm font-medium">
+                        {v.vernacularName}
+                      </Badge>
+                    ))}
+                    {enNames.length > 8 && (
+                      <Badge variant="secondary" className="text-sm">+{enNames.length - 8} more</Badge>
+                    )}
+                  </div>
+                </div>
+              )}
+
             </CardContent>
           </Card>
 
           {reconcileKey && <OccurrencesPanel usageKey={reconcileKey} />}
+
+          {reconcileKey && (
+            <ExpandableSection
+              title="Synonyms"
+              count={synonymsQuery.isLoading ? 0 : synonymCount}
+              icon={<BookOpen className="w-5 h-5 text-primary/70" />}
+              defaultOpen={false}
+            >
+              {synonymsQuery.isLoading ? (
+                <p className="text-sm text-muted-foreground animate-pulse">Loading synonyms…</p>
+              ) : synonymsQuery.isError ? (
+                <p className="text-sm text-destructive">Failed to load synonyms.</p>
+              ) : synonyms.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No synonyms found in the GBIF backbone for this taxon.</p>
+              ) : (
+                <div className="space-y-2">
+                  {synonyms.map((syn, i) => (
+                    <div key={i} className="flex items-center justify-between py-2 border-b border-border/40 last:border-0">
+                      <div>
+                        <span className="italic text-foreground font-medium">{syn.canonicalName || syn.scientificName}</span>
+                        {syn.publishedIn && (
+                          <span className="ml-2 text-xs text-muted-foreground">{syn.publishedIn}</span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs capitalize">{syn.rank?.toLowerCase()}</Badge>
+                        <Badge variant="secondary" className="text-xs">{syn.taxonomicStatus}</Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </ExpandableSection>
+          )}
+
+          {reconcileKey && (
+            <ExpandableSection
+              title="All Vernacular Names"
+              count={vernacularQuery.isLoading ? 0 : vernacularCount}
+              icon={<Languages className="w-5 h-5 text-primary/70" />}
+              defaultOpen={false}
+            >
+              {vernacularQuery.isLoading ? (
+                <p className="text-sm text-muted-foreground animate-pulse">Loading vernacular names…</p>
+              ) : vernacularQuery.isError ? (
+                <p className="text-sm text-destructive">Failed to load vernacular names.</p>
+              ) : vernacularNames.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No vernacular names found in the GBIF backbone for this taxon.</p>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+                  {vernacularNames.map((v, i) => (
+                    <div key={i} className="flex items-center justify-between py-1.5 px-2 rounded hover:bg-muted/40">
+                      <span className="text-sm text-foreground font-medium">{v.vernacularName}</span>
+                      <div className="flex items-center gap-1">
+                        {v.language && <Badge variant="outline" className="text-xs uppercase">{v.language}</Badge>}
+                        {v.country && <Badge variant="outline" className="text-xs uppercase">{v.country}</Badge>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </ExpandableSection>
+          )}
 
           <RawJsonPanel title="Match Response" data={matchQuery.data} />
         </>
