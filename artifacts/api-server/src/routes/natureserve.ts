@@ -3,10 +3,15 @@ import {
   searchSpecies,
   buildSpeciesCacheKey,
   buildProvenance,
+  searchByRecordType,
+  buildSearchCacheKey,
+  type NatureserveSearchItem,
 } from "../services/natureserve/connector.js";
 import {
   lookupSpeciesCache,
   storeSpeciesCache,
+  lookupEcosystemsCache,
+  storeEcosystemsCache,
 } from "../services/natureserve/cache.js";
 import {
   NATURESERVE_SOURCE_ID,
@@ -19,7 +24,7 @@ import {
 } from "../services/natureserve/metadata.js";
 import { ensureNatureserveRegistryEntry } from "../services/natureserve/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
-import { db, natureserveSpeciesCacheTable } from "@workspace/db";
+import { db, natureserveSpeciesCacheTable, natureserveEcosystemsCacheTable } from "@workspace/db";
 import { count } from "drizzle-orm";
 import { filterProvenance } from "../lib/provenance.js";
 
@@ -93,6 +98,76 @@ function buildSpeciesResponse(
       cosewic_description: row.cosewic_description ?? null,
       natureserve_url: row.natureserve_url ?? null,
       element_global_id: row.element_global_id ?? null,
+      cache_status,
+    },
+    provenance: filterProvenance({
+      source_id: row.source_id,
+      fetched_at: row.fetched_at,
+      method: row.method,
+      upstream_url: row.upstream_url,
+      general_summary: row.general_summary,
+      technical_details: row.technical_details,
+    }, verbosity),
+  };
+}
+
+const VALID_RECORD_TYPES = ["ECOSYSTEM", "SPECIES", "COMMUNITY", "GROUP", "ASSOCIATION"] as const;
+
+router.get("/natureserve/search", async (req, res) => {
+  const rawQ = req.query.q;
+  if (!rawQ || typeof rawQ !== "string" || rawQ.trim() === "") {
+    res.status(400).json({ error: "invalid_input", message: "q is required and must be a non-empty string" });
+    return;
+  }
+  const q = rawQ.trim();
+
+  const rawRecordType = typeof req.query.recordType === "string" ? req.query.recordType.trim().toUpperCase() : "ECOSYSTEM";
+  if (!(VALID_RECORD_TYPES as readonly string[]).includes(rawRecordType)) {
+    res.status(400).json({ error: "invalid_input", message: `recordType must be one of: ${VALID_RECORD_TYPES.join(", ")}` });
+    return;
+  }
+
+  const rawLimit = req.query.limit;
+  const limit = typeof rawLimit === "string" ? Math.min(50, Math.max(1, parseInt(rawLimit, 10) || 10)) : 10;
+  const rawPage = req.query.page;
+  const page = typeof rawPage === "string" ? Math.max(0, parseInt(rawPage, 10) || 0) : 0;
+  const refresh = req.query.refresh === "true" || req.query.refresh === "1";
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+
+  const cacheKey = buildSearchCacheKey(q, rawRecordType, limit, page);
+
+  if (!refresh) {
+    const cached = await lookupEcosystemsCache(cacheKey);
+    if (cached) {
+      res.json(buildSearchResponse(cached, "hit", verbosity));
+      return;
+    }
+  }
+
+  try {
+    const result = await searchByRecordType(q, rawRecordType, limit, page);
+    const stored = await storeEcosystemsCache(cacheKey, result.items, result.total_results, result.search_upstream_url);
+    res.json(buildSearchResponse(stored, refresh ? "bypassed" : "miss", verbosity));
+  } catch (err) {
+    req.log.error({ err }, "NatureServe search failed");
+    res.status(502).json({ error: "upstream_error", message: "Failed to fetch from NatureServe Explorer API" });
+  }
+});
+
+function buildSearchResponse(
+  row: typeof natureserveEcosystemsCacheTable.$inferSelect,
+  cache_status: "hit" | "miss" | "bypassed",
+  verbosity?: string,
+) {
+  const ecosystems = (row.results as NatureserveSearchItem[]) ?? [];
+  return {
+    source_url: null,
+    found: ecosystems.length > 0,
+    attribution: "NatureServe Explorer (https://explorer.natureserve.org). Attribution required per NatureServe Terms of Use.",
+    data: {
+      ecosystems,
+      result_count: ecosystems.length,
+      total_results: parseInt(row.result_count ?? "0", 10) || ecosystems.length,
       cache_status,
     },
     provenance: filterProvenance({

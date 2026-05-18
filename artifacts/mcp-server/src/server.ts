@@ -1424,6 +1424,43 @@ const tools: ToolDef[] = [
   // ── natureserve ──────────────────────────────────────────────────────────
   {
     tool: {
+      name: "natureserve__search",
+      description:
+        "Searches NatureServe Explorer using the general POST /api/data/search endpoint. " +
+        "Accepts a recordType parameter to control what kind of records are returned. " +
+        "recordType values: ECOSYSTEM (NatureServe ecological systems and community types — global rank, concept description, NatureServe Explorer link); " +
+        "SPECIES (animal and plant species — use natureserve__species for richer per-species detail); " +
+        "COMMUNITY (plant communities); GROUP (element groups); ASSOCIATION (plant associations). " +
+        "Returns system/species name, global rank, US national rank, description, and NatureServe Explorer URL for each result.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          q:          { type: "string", description: "Search text (e.g. 'oak savanna', 'tallgrass prairie', 'oak woodland')" },
+          recordType: {
+            type: "string",
+            enum: ["ECOSYSTEM", "SPECIES", "COMMUNITY", "GROUP", "ASSOCIATION"],
+            description: "Type of records to return (default: ECOSYSTEM). ECOSYSTEM returns ecological systems and community types with global/national ranks and concept descriptions.",
+          },
+          limit:   { type: "number", description: "Results per page (1–50, default 10)" },
+          page:    { type: "number", description: "Zero-indexed page number (default 0)" },
+          refresh: { type: "boolean", description: "Bypass cache and re-fetch from NatureServe Explorer" },
+          ...PV_PROP,
+        },
+        required: ["q"],
+      },
+    },
+    handler: async (args) =>
+      apiGet("/natureserve/search", {
+        q:          String(args["q"]),
+        recordType: args["recordType"] !== undefined ? String(args["recordType"]) : undefined,
+        limit:      args["limit"]   !== undefined ? String(args["limit"])   : undefined,
+        page:       args["page"]    !== undefined ? String(args["page"])    : undefined,
+        refresh:    args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        provenance_verbosity: pv(args),
+      }),
+  },
+  {
+    tool: {
       name: "natureserve__species",
       description:
         "Returns NatureServe global (G-rank) and state (S-rank) conservation status for a species, optionally filtered to a specific US state. Ranks reflect the relative rarity and vulnerability of the species.",

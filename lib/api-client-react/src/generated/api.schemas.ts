@@ -3490,6 +3490,68 @@ export const GetMnfiCountyElementsType = {
   community: "community",
 } as const;
 
+export type GetNatureserveSearchParams = {
+  /**
+   * Search text (e.g. oak savanna, tallgrass prairie, Platanthera leucophaea)
+   * @minLength 1
+   */
+  q: string;
+  /**
+   * Type of records to return (default: ECOSYSTEM).
+   * ECOSYSTEM — ecological systems and community types;
+   * SPECIES — animal and plant species;
+   * COMMUNITY — plant communities;
+   * GROUP — element groups;
+   * ASSOCIATION — plant associations.
+   */
+  recordType?: string;
+  /** Number of results per page (1–50, default 10) */
+  limit?: number;
+  /** Zero-indexed page number (default 0) */
+  page?: number;
+  /** If true, bypasses cache and fetches fresh from NatureServe Explorer */
+  refresh?: boolean;
+  /** Controls provenance verbosity: full | summary | none */
+  provenance_verbosity?: string;
+};
+
+export type NatureserveSearchResponseItemCharacteristicSpecies = {
+  scientific_name?: string;
+  stratum?: string | null;
+  constancy_percent?: number | null;
+  cover_class_percent?: number | null;
+};
+
+export type NatureserveSearchResponseItem = {
+  system_name?: string;
+  global_rank?: string | null;
+  rounded_global_rank?: string | null;
+  us_national_rank?: string | null;
+  rounded_us_national_rank?: string | null;
+  /** Concept sentence from ecosystemGlobal.conceptSentence (ecosystem records only) */
+  description_excerpt?: string | null;
+  national_distribution?: string | null;
+  characteristic_species?: NatureserveSearchResponseItemCharacteristicSpecies[];
+  natureserve_url?: string | null;
+  element_global_id?: string;
+  record_type?: string;
+};
+
+export type NatureserveSearchResponseData = {
+  ecosystems?: NatureserveSearchResponseItem[];
+  result_count?: number;
+  total_results?: number;
+  cache_status?: NatureserveSpeciesResponseDataCacheStatus;
+};
+
+export interface NatureserveSearchResponse {
+  source_url?: string | null;
+  found: boolean;
+  attribution?: string;
+  data?: NatureserveSearchResponseData;
+  provenance?: FernsProvenance;
+}
+
 export type GetNatureserveSpeciesParams = {
   /**
    * Scientific name to look up (e.g. Asclepias tuberosa)

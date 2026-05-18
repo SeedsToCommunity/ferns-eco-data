@@ -73,7 +73,9 @@ import type {
   GetMissouriPlantsSpeciesTextParams,
   GetMnfiCommunitiesParams,
   GetMnfiCountyElementsParams,
+  GetNatureserveSearchParams,
   GetNatureserveSpeciesParams,
+  NatureserveSearchResponse,
   GetPrairieMoonParams,
   GetPrairieMoonSpeciesTextParams,
   GetS2CSpeciesByYearParams,
@@ -6279,6 +6281,115 @@ export function useGetNatureserveSpecies<
   },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetNatureserveSpeciesQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Searches NatureServe Explorer using the general POST /api/data/search endpoint.
+ * recordType controls what kind of records are returned (default: ECOSYSTEM).
+ *
+ * @summary Search NatureServe by record type (ecosystems, species, communities)
+ */
+export const getGetNatureserveSearchUrl = (
+  params: GetNatureserveSearchParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/natureserve/search?${stringifiedParams}`
+    : `/api/natureserve/search`;
+};
+
+export const getNatureserveSearch = async (
+  params: GetNatureserveSearchParams,
+  options?: RequestInit,
+): Promise<NatureserveSearchResponse> => {
+  return customFetch<NatureserveSearchResponse>(
+    getGetNatureserveSearchUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetNatureserveSearchQueryKey = (
+  params?: GetNatureserveSearchParams,
+) => {
+  return [
+    `/api/natureserve/search`,
+    ...(params ? [params] : []),
+  ] as const;
+};
+
+export const getGetNatureserveSearchQueryOptions = <
+  TData = Awaited<ReturnType<typeof getNatureserveSearch>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetNatureserveSearchParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getNatureserveSearch>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetNatureserveSearchQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getNatureserveSearch>>
+  > = ({ signal }) =>
+    getNatureserveSearch(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getNatureserveSearch>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetNatureserveSearchQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getNatureserveSearch>>
+>;
+export type GetNatureserveSearchQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Search NatureServe by record type (ecosystems, species, communities)
+ */
+
+export function useGetNatureserveSearch<
+  TData = Awaited<ReturnType<typeof getNatureserveSearch>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetNatureserveSearchParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getNatureserveSearch>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetNatureserveSearchQueryOptions(params, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

@@ -8,6 +8,7 @@ import {
   ChevronUp,
   Code,
   Leaf,
+  Layers,
   AlertTriangle,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -17,7 +18,7 @@ import { cn } from "@/lib/utils";
 const BASE_URL = import.meta.env.BASE_URL.replace(/\/$/, "");
 const API_BASE = `${BASE_URL}/api`;
 
-type Tab = "species";
+type Tab = "species" | "ecosystems";
 
 function RawPanel({ title, data }: { title: string; data: unknown }) {
   const [open, setOpen] = useState(false);
@@ -342,8 +343,10 @@ export function NatureservePage() {
   const [stateInput, setStateInput] = useState("MI");
 
   const [speciesQuery, setSpeciesQuery] = useState<{ name: string; state: string } | null>(null);
+  const [ecosystemsQuery, setEcosystemsQuery] = useState<{ q: string } | null>(null);
 
   const [speciesResult, setSpeciesResult] = useState<SpeciesEnvelope | null>(null);
+  const [ecosystemsResult, setEcosystemsResult] = useState<EcosystemsEnvelope | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -354,10 +357,10 @@ export function NatureservePage() {
 
     setLoading(true);
     setError(null);
-    setSpeciesResult(null);
 
     try {
       if (activeTab === "species") {
+        setSpeciesResult(null);
         const state = stateInput.trim().toUpperCase() || "MI";
         setSpeciesQuery({ name, state });
         const url = `${API_BASE}/natureserve/speciesSearch?name=${encodeURIComponent(name)}&state=${encodeURIComponent(state)}`;
@@ -365,6 +368,14 @@ export function NatureservePage() {
         if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
         const data = (await r.json()) as SpeciesEnvelope;
         setSpeciesResult(data);
+      } else if (activeTab === "ecosystems") {
+        setEcosystemsResult(null);
+        setEcosystemsQuery({ q: name });
+        const url = `${API_BASE}/natureserve/search?q=${encodeURIComponent(name)}&recordType=ECOSYSTEM&limit=10`;
+        const r = await fetch(url);
+        if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+        const data = (await r.json()) as EcosystemsEnvelope;
+        setEcosystemsResult(data);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -372,6 +383,8 @@ export function NatureservePage() {
       setLoading(false);
     }
   };
+
+  const currentResult = activeTab === "species" ? speciesResult : ecosystemsResult;
 
   return (
     <SourceExplorerLayout sourceId="natureserve">
@@ -389,6 +402,18 @@ export function NatureservePage() {
               Species Status
             </span>
           </button>
+          <button
+            onClick={() => { setActiveTab("ecosystems"); setNameInput(""); setError(null); }}
+            className={cn(
+              "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
+              activeTab === "ecosystems" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <span className="flex items-center gap-2">
+              <Layers className="w-4 h-4" />
+              Ecosystems
+            </span>
+          </button>
         </div>
 
         <form onSubmit={handleSubmit} className="flex gap-2 flex-wrap">
@@ -396,7 +421,7 @@ export function NatureservePage() {
             <Input
               value={nameInput}
               onChange={(e) => setNameInput(e.target.value)}
-              placeholder="e.g. Platanthera leucophaea"
+              placeholder={activeTab === "species" ? "e.g. Platanthera leucophaea" : "e.g. oak savanna"}
               className="h-11"
             />
           </div>
@@ -429,6 +454,20 @@ export function NatureservePage() {
           </div>
         )}
 
+        {activeTab === "ecosystems" && (
+          <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+            {["oak savanna", "tallgrass prairie", "oak woodland"].map((q) => (
+              <button
+                key={q}
+                onClick={() => { setNameInput(q); }}
+                className="px-2.5 py-1 bg-muted/60 hover:bg-muted rounded-full border border-border/50 text-foreground/70 transition-colors"
+              >
+                {q}
+              </button>
+            ))}
+          </div>
+        )}
+
         {error && (
           <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-4 text-sm text-destructive">
             {error}
@@ -446,11 +485,24 @@ export function NatureservePage() {
           </div>
         )}
 
-        {!loading && !speciesResult && !error && (
+        {ecosystemsResult && activeTab === "ecosystems" && (
+          <div>
+            {ecosystemsQuery && (
+              <p className="text-xs text-muted-foreground mb-3">
+                Results for <strong>"{ecosystemsQuery.q}"</strong>
+              </p>
+            )}
+            <EcosystemsResultPanel result={ecosystemsResult} />
+          </div>
+        )}
+
+        {!loading && !currentResult && !error && (
           <div className="text-center py-16 text-muted-foreground">
             <Shield className="w-12 h-12 mx-auto mb-3 opacity-30" />
             <p className="text-sm">
-              Search a species to see its global, national, and state conservation status from NatureServe.
+              {activeTab === "species"
+                ? "Search a species to see its global, national, and state conservation status from NatureServe."
+                : "Search an ecological system name to see its global rank and description from NatureServe."}
             </p>
           </div>
         )}

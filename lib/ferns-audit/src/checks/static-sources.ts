@@ -950,7 +950,68 @@ export async function runNatureserveChecks(fernsBase: string): Promise<EndpointC
     },
   );
 
-  return [metadataCheck, speciesCheck];
+  const ecosystemSearchCheck = await checkEndpoint(
+    "natureserve",
+    "/api/natureserve/search?q=oak+savanna&recordType=ECOSYSTEM&limit=5",
+    "NatureServe — ecosystem search (oak savanna: found field, data.ecosystems array, item fields)",
+    fernsBase,
+    (envelope) => {
+      const findings: FieldFinding[] = [];
+      const ec = envelope as Record<string, unknown>;
+      if (typeof ec.found === "boolean") {
+        findings.push({ type: "ok", sourceField: "found", note: `found=${ec.found}` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "found", note: "found field missing" });
+        return findings;
+      }
+      const data = ec.data as Record<string, unknown> | null | undefined;
+      if (!data) {
+        findings.push({ type: "mismatch", sourceField: "data", note: "No data block in response" });
+        return findings;
+      }
+      if (Array.isArray(data.ecosystems)) {
+        findings.push({ type: "ok", sourceField: "data.ecosystems", note: `ecosystems array present (${(data.ecosystems as unknown[]).length} items)` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.ecosystems", note: "data.ecosystems is not an array" });
+        return findings;
+      }
+      if (typeof data.result_count === "number") {
+        findings.push({ type: "ok", sourceField: "data.result_count", note: `result_count=${data.result_count}` });
+      } else {
+        findings.push({ type: "gap", sourceField: "data.result_count", note: "result_count missing or wrong type" });
+      }
+      const cacheStatus = data.cache_status;
+      if (cacheStatus === "hit" || cacheStatus === "miss" || cacheStatus === "bypassed") {
+        findings.push({ type: "ok", sourceField: "data.cache_status", note: `cache_status=${cacheStatus}` });
+      } else {
+        findings.push({ type: "gap", sourceField: "data.cache_status", note: `cache_status=${cacheStatus}` });
+      }
+      const items = data.ecosystems as Record<string, unknown>[];
+      if (items.length > 0) {
+        const first = items[0];
+        if (first.system_name) {
+          findings.push({ type: "ok", sourceField: "data.ecosystems[0].system_name", note: `${first.system_name}` });
+        } else {
+          findings.push({ type: "gap", sourceField: "data.ecosystems[0].system_name", note: "system_name missing on first result" });
+        }
+        if (first.element_global_id) {
+          findings.push({ type: "ok", sourceField: "data.ecosystems[0].element_global_id", note: `${first.element_global_id}` });
+        } else {
+          findings.push({ type: "gap", sourceField: "data.ecosystems[0].element_global_id", note: "element_global_id missing" });
+        }
+        if (first.record_type) {
+          findings.push({ type: "ok", sourceField: "data.ecosystems[0].record_type", note: `record_type=${first.record_type}` });
+        } else {
+          findings.push({ type: "gap", sourceField: "data.ecosystems[0].record_type", note: "record_type missing" });
+        }
+      } else {
+        findings.push({ type: "gap", sourceField: "data.ecosystems", note: "No results for 'oak savanna' — may be upstream API change" });
+      }
+      return findings;
+    },
+  );
+
+  return [metadataCheck, speciesCheck, ecosystemSearchCheck];
 }
 
 // ─── Species-Text Health Checks ───────────────────────────────────────────────

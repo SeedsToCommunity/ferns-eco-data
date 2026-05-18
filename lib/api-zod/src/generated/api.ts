@@ -5823,6 +5823,90 @@ export const GetNatureserveMetadataResponse = zod.object({
 });
 
 /**
+ * Searches NatureServe Explorer using the general POST /api/data/search endpoint.
+ * recordType controls what kind of records are returned (default: ECOSYSTEM).
+ *
+ * @summary Search NatureServe by record type (ecosystems, species, communities)
+ */
+
+export const getNatureserveSearchQueryRecordTypeDefault = `ECOSYSTEM`;
+export const getNatureserveSearchQueryLimitDefault = 10;
+export const getNatureserveSearchQueryPageDefault = 0;
+export const getNatureserveSearchQueryRefreshDefault = false;
+
+export const GetNatureserveSearchQueryParams = zod.object({
+  q: zod.string().min(1).describe("Search text (e.g. oak savanna, tallgrass prairie)"),
+  recordType: zod
+    .enum(["ECOSYSTEM", "SPECIES", "COMMUNITY", "GROUP", "ASSOCIATION"])
+    .default(getNatureserveSearchQueryRecordTypeDefault)
+    .describe("Type of records to return (default: ECOSYSTEM)"),
+  limit: zod.coerce
+    .number()
+    .min(1)
+    .max(50)
+    .default(getNatureserveSearchQueryLimitDefault)
+    .describe("Results per page (1–50, default 10)"),
+  page: zod.coerce
+    .number()
+    .min(0)
+    .default(getNatureserveSearchQueryPageDefault)
+    .describe("Zero-indexed page number (default 0)"),
+  refresh: zod.coerce
+    .boolean()
+    .default(getNatureserveSearchQueryRefreshDefault)
+    .describe("If true, bypasses cache and fetches fresh from NatureServe Explorer"),
+});
+
+export const GetNatureserveSearchResponse = zod.object({
+  source_url: zod.string().nullish(),
+  found: zod.boolean(),
+  attribution: zod.string().optional(),
+  data: zod
+    .object({
+      ecosystems: zod
+        .array(
+          zod.object({
+            system_name: zod.string().optional(),
+            global_rank: zod.string().nullish().describe("NatureServe G-rank (e.g. G3, G4G5)"),
+            rounded_global_rank: zod.string().nullish(),
+            us_national_rank: zod.string().nullish().describe("NatureServe N-rank for the US"),
+            rounded_us_national_rank: zod.string().nullish(),
+            description_excerpt: zod.string().nullish().describe("Concept sentence from ecosystemGlobal.conceptSentence"),
+            national_distribution: zod.string().nullish(),
+            characteristic_species: zod
+              .array(
+                zod.object({
+                  scientific_name: zod.string().optional(),
+                  stratum: zod.string().nullish(),
+                  constancy_percent: zod.number().nullish(),
+                  cover_class_percent: zod.number().nullish(),
+                }),
+              )
+              .optional(),
+            natureserve_url: zod.string().nullish().describe("Direct link to this record on NatureServe Explorer"),
+            element_global_id: zod.string().optional().describe("NatureServe element global identifier"),
+            record_type: zod.string().optional(),
+          }),
+        )
+        .optional(),
+      result_count: zod.number().optional(),
+      total_results: zod.number().optional(),
+      cache_status: zod.enum(["hit", "miss", "bypassed"]).optional(),
+    })
+    .optional(),
+  provenance: zod
+    .object({
+      source_id: zod.string().describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod.date().describe("When this record was obtained from the source"),
+      method: zod.string().describe("How the data was obtained: api_fetch | blob_import | llm_synthesis"),
+      upstream_url: zod.string().describe("Where this data came from (API endpoint, file path, or registry entry)"),
+      general_summary: zod.string().optional().describe("Plain language description readable by a homeowner or community member"),
+      technical_details: zod.string().optional().describe("Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n"),
+    })
+    .optional(),
+});
+
+/**
  * Queries NatureServe Explorer for conservation status data for a given scientific name, optionally scoped to a US state. Returns global rank (G-rank), national rank (N-rank), state rank (S-rank), IUCN category, federal status, state status, and a direct NatureServe Explorer URL for the species. Ranks follow NatureServe standard notation (e.g. G3, N2N3, S1). State rank is derived from NatureServe S-rank and reflects rarity status — it is not a formal statutory state listing. Results cached 30 days per name+state combination.
 
  * @summary Look up species conservation status from NatureServe Explorer
