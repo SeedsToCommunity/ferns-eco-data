@@ -125,6 +125,8 @@ router.get("/v1/sources/metadata", async (req, res) => {
         "Reports what is registered; does not evaluate data quality, trust tier, or methodological soundness of registered services.",
       metadata_url: resolveUrl(req, "/api/v1/sources/metadata"),
       explorer_url: resolveUrl(req, "/"),
+      licenses: REGISTRY_LICENSES,
+      license_notes: REGISTRY_LICENSE_NOTES,
     },
     provenance: {
       source_id: "ferns-registry",

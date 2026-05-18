@@ -1,6 +1,6 @@
 export const LCSCG_SOURCE_ID = "lcscg";
 
-export const LCSCG_LICENSES = ["cc-by"];
+export const LCSCG_LICENSES = ["cc-by-nc"];
 
 export const LCSCG_LICENSE_NOTES =
   "GRANTED — Lake County Seed Collection Guides are published by the Lake County Forest Preserve District " +
