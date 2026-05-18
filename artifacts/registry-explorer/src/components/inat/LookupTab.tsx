@@ -170,7 +170,7 @@ function TaxonByIdPanel({ preloadedTaxonId }: { preloadedTaxonId?: number | null
   const [taxonIdInput, setTaxonIdInput] = useState(preloadedTaxonId ? String(preloadedTaxonId) : "");
   const [submittedId, setSubmittedId] = useState<number | null>(preloadedTaxonId ?? null);
 
-  const url = submittedId !== null ? apiUrl(`/api/inat/taxon/${submittedId}`, {}) : null;
+  const url = submittedId !== null ? apiUrl(`/api/inat/taxa/${submittedId}`, {}) : null;
   const { data, loading, error } = useApiGet<{
     found: boolean;
     cache_status?: string;
@@ -305,7 +305,7 @@ function PlaceByIdPanel() {
   const [placeIdInput, setPlaceIdInput] = useState("");
   const [submittedId, setSubmittedId] = useState<number | null>(null);
 
-  const url = submittedId !== null ? apiUrl(`/api/inat/place/${submittedId}`, {}) : null;
+  const url = submittedId !== null ? apiUrl(`/api/inat/places/${submittedId}`, {}) : null;
   const { data, loading, error } = useApiGet<{
     found: boolean;
     cache_status?: string;
@@ -495,7 +495,7 @@ function PlacesNearbyPanel() {
 }
 
 function ControlledTermsPanel() {
-  const url = apiUrl("/api/inat/controlled-terms", {});
+  const url = apiUrl("/api/inat/controlled_terms", {});
   const { data, loading, error } = useApiGet<{
     found: boolean;
     cache_status?: string;

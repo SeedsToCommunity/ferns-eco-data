@@ -6,7 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetInatFieldValuesParams = {
+export type GetInatObservationsPopularFieldValuesParams = {
   /**
    * iNaturalist numeric taxon ID (from the species endpoint)
    */

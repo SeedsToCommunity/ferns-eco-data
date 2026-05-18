@@ -5,16 +5,16 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetInatSimilarSpeciesProvenanceVerbosity } from "./getInatSimilarSpeciesProvenanceVerbosity";
-import type { GetInatSimilarSpeciesQualityGrade } from "./getInatSimilarSpeciesQualityGrade";
+import type { GetInatIdentificationsSimilarSpeciesProvenanceVerbosity } from "./getInatIdentificationsSimilarSpeciesProvenanceVerbosity";
+import type { GetInatIdentificationsSimilarSpeciesQualityGrade } from "./getInatIdentificationsSimilarSpeciesQualityGrade";
 
-export type GetInatSimilarSpeciesParams = {
+export type GetInatIdentificationsSimilarSpeciesParams = {
   /**
    * iNaturalist taxon ID to find similar species for
    */
   taxon_id: number;
   place_id?: number;
-  quality_grade?: GetInatSimilarSpeciesQualityGrade;
+  quality_grade?: GetInatIdentificationsSimilarSpeciesQualityGrade;
   lat?: number;
   lng?: number;
   radius?: number;
@@ -25,5 +25,5 @@ export type GetInatSimilarSpeciesParams = {
   /**
    * Controls provenance text: full (default), summary, or none
    */
-  provenance_verbosity?: GetInatSimilarSpeciesProvenanceVerbosity;
+  provenance_verbosity?: GetInatIdentificationsSimilarSpeciesProvenanceVerbosity;
 };

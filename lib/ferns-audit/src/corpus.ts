@@ -3,6 +3,7 @@ export interface TestSpecies {
   genus: string;
   species: string;
   label: string;
+  inatTaxonId?: number;
 }
 
 export interface TestPlace {
@@ -29,9 +30,9 @@ export interface TestAssessment {
 }
 
 export const TEST_SPECIES: TestSpecies[] = [
-  { name: "Quercus rubra", genus: "Quercus", species: "rubra", label: "Red oak" },
-  { name: "Trillium grandiflorum", genus: "Trillium", species: "grandiflorum", label: "White trillium" },
-  { name: "Asclepias tuberosa", genus: "Asclepias", species: "tuberosa", label: "Butterfly weed" },
+  { name: "Quercus rubra", genus: "Quercus", species: "rubra", label: "Red oak", inatTaxonId: 47851 },
+  { name: "Trillium grandiflorum", genus: "Trillium", species: "grandiflorum", label: "White trillium", inatTaxonId: 52975 },
+  { name: "Asclepias tuberosa", genus: "Asclepias", species: "tuberosa", label: "Butterfly weed", inatTaxonId: 53897 },
 ];
 
 export const TEST_PLACES: TestPlace[] = [

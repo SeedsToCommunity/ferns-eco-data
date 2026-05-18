@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { SourceExplorerLayout } from "@/components/SourceExplorerLayout";
-import { MapPin, Leaf, CalendarDays, Eye, BarChart2, Search } from "lucide-react";
+import { MapPin, CalendarDays, Eye, BarChart2, Search } from "lucide-react";
 import { PlaceLookupTab } from "@/components/inat/PlaceLookupTab";
-import { SpeciesTab } from "@/components/inat/SpeciesTab";
 import { PhenologyTab } from "@/components/inat/PhenologyTab";
 import { ObservationsTab } from "@/components/inat/ObservationsTab";
 import { SpeciesCountsTab } from "@/components/inat/SpeciesCountsTab";
@@ -12,7 +11,6 @@ import { Compass } from "lucide-react";
 
 const TABS = [
   { id: "place", label: "Place Lookup", icon: MapPin },
-  { id: "species", label: "Species", icon: Leaf },
   { id: "phenology", label: "Phenology", icon: CalendarDays },
   { id: "observations", label: "Observations", icon: Eye },
   { id: "species-counts", label: "Species Counts", icon: BarChart2 },
@@ -23,7 +21,7 @@ const TABS = [
 type TabId = (typeof TABS)[number]["id"];
 
 export function InatPage() {
-  const [activeTab, setActiveTab] = useState<TabId>("species");
+  const [activeTab, setActiveTab] = useState<TabId>("place");
   const [selectedPlaceId, setSelectedPlaceId] = useState<string>("");
   const [selectedPlaceName, setSelectedPlaceName] = useState<string>("");
   const [selectedTaxonId, setSelectedTaxonId] = useState<number | null>(null);
@@ -95,9 +93,6 @@ export function InatPage() {
       <div className="py-2">
         {activeTab === "place" && (
           <PlaceLookupTab onPlaceSelected={handlePlaceSelected} />
-        )}
-        {activeTab === "species" && (
-          <SpeciesTab onTaxonIdSelected={handleTaxonSelected} />
         )}
         {activeTab === "phenology" && (
           <PhenologyTab

@@ -5,9 +5,9 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetInatSpeciesCountsQualityGrade } from "./getInatSpeciesCountsQualityGrade";
+import type { GetInatObservationsSpeciesCountsQualityGrade } from "./getInatObservationsSpeciesCountsQualityGrade";
 
-export type GetInatSpeciesCountsParams = {
+export type GetInatObservationsSpeciesCountsParams = {
   /**
    * iNaturalist place ID to filter by
    */
@@ -15,7 +15,7 @@ export type GetInatSpeciesCountsParams = {
   /**
    * Filter by quality grade: research, needs_id, or casual
    */
-  quality_grade?: GetInatSpeciesCountsQualityGrade;
+  quality_grade?: GetInatObservationsSpeciesCountsQualityGrade;
   /**
    * Filter to this iconic taxon group (e.g. Plantae, Aves, Fungi, Mammalia, Reptilia, Amphibia, Actinopterygii, Mollusca, Arachnida, Insecta, Animalia)
    */

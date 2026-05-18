@@ -2690,7 +2690,7 @@ export type GetGbifSearchParams = {
   q: string;
 };
 
-export type GetInatPlaceParams = {
+export type GetInatPlacesAutocompleteParams = {
   /**
    * Place name to search (e.g. Washtenaw County, Michigan, Sleeping Bear Dunes)
    * @minLength 1
@@ -2702,19 +2702,7 @@ export type GetInatPlaceParams = {
   refresh?: boolean;
 };
 
-export type GetInatSpeciesParams = {
-  /**
-   * Scientific name to look up (e.g. Asclepias tuberosa)
-   * @minLength 1
-   */
-  name: string;
-  /**
-   * If true, bypasses cache and fetches fresh from iNaturalist
-   */
-  refresh?: boolean;
-};
-
-export type GetInatHistogramParams = {
+export type GetInatObservationsHistogramParams = {
   /**
    * iNaturalist numeric taxon ID (from the species endpoint)
    */
@@ -2740,7 +2728,7 @@ export type GetInatHistogramParams = {
   refresh?: boolean;
 };
 
-export type GetInatFieldValuesParams = {
+export type GetInatObservationsPopularFieldValuesParams = {
   /**
    * iNaturalist numeric taxon ID (from the species endpoint)
    */
@@ -2761,7 +2749,7 @@ export type GetInatFieldValuesParams = {
   refresh?: boolean;
 };
 
-export type GetInatObservationSummaryParams = {
+export type GetInatObservationsParams = {
   /**
    * iNaturalist taxon ID to filter by
    */
@@ -2773,7 +2761,7 @@ export type GetInatObservationSummaryParams = {
   /**
    * Filter by quality grade: research, needs_id, or casual
    */
-  quality_grade?: GetInatObservationSummaryQualityGrade;
+  quality_grade?: GetInatObservationsQualityGrade;
   /**
    * Number of results per page (default 30, max 200)
    * @minimum 1
@@ -2815,16 +2803,16 @@ export type GetInatObservationSummaryParams = {
   swlng?: number;
 };
 
-export type GetInatObservationSummaryQualityGrade =
-  (typeof GetInatObservationSummaryQualityGrade)[keyof typeof GetInatObservationSummaryQualityGrade];
+export type GetInatObservationsQualityGrade =
+  (typeof GetInatObservationsQualityGrade)[keyof typeof GetInatObservationsQualityGrade];
 
-export const GetInatObservationSummaryQualityGrade = {
+export const GetInatObservationsQualityGrade = {
   research: "research",
   needs_id: "needs_id",
   casual: "casual",
 } as const;
 
-export type GetInatSpeciesCountsParams = {
+export type GetInatObservationsSpeciesCountsParams = {
   /**
    * iNaturalist place ID to filter by
    */
@@ -2832,7 +2820,7 @@ export type GetInatSpeciesCountsParams = {
   /**
    * Filter by quality grade: research, needs_id, or casual
    */
-  quality_grade?: GetInatSpeciesCountsQualityGrade;
+  quality_grade?: GetInatObservationsSpeciesCountsQualityGrade;
   /**
    * Filter to this iconic taxon group (e.g. Plantae, Aves, Fungi, Mammalia, Reptilia, Amphibia, Actinopterygii, Mollusca, Arachnida, Insecta, Animalia)
    */
@@ -2898,10 +2886,10 @@ export type GetInatSpeciesCountsParams = {
   swlng?: number;
 };
 
-export type GetInatSpeciesCountsQualityGrade =
-  (typeof GetInatSpeciesCountsQualityGrade)[keyof typeof GetInatSpeciesCountsQualityGrade];
+export type GetInatObservationsSpeciesCountsQualityGrade =
+  (typeof GetInatObservationsSpeciesCountsQualityGrade)[keyof typeof GetInatObservationsSpeciesCountsQualityGrade];
 
-export const GetInatSpeciesCountsQualityGrade = {
+export const GetInatObservationsSpeciesCountsQualityGrade = {
   research: "research",
   needs_id: "needs_id",
   casual: "casual",
@@ -2997,7 +2985,7 @@ export const GetInatTaxaAutocompleteProvenanceVerbosity = {
   none: "none",
 } as const;
 
-export type GetInatTaxonByIdParams = {
+export type GetInatTaxaByIdParams = {
   /**
    * Bypass cache and re-fetch from iNaturalist
    */
@@ -3005,19 +2993,19 @@ export type GetInatTaxonByIdParams = {
   /**
    * Controls provenance text: full (default), summary, or none
    */
-  provenance_verbosity?: GetInatTaxonByIdProvenanceVerbosity;
+  provenance_verbosity?: GetInatTaxaByIdProvenanceVerbosity;
 };
 
-export type GetInatTaxonByIdProvenanceVerbosity =
-  (typeof GetInatTaxonByIdProvenanceVerbosity)[keyof typeof GetInatTaxonByIdProvenanceVerbosity];
+export type GetInatTaxaByIdProvenanceVerbosity =
+  (typeof GetInatTaxaByIdProvenanceVerbosity)[keyof typeof GetInatTaxaByIdProvenanceVerbosity];
 
-export const GetInatTaxonByIdProvenanceVerbosity = {
+export const GetInatTaxaByIdProvenanceVerbosity = {
   full: "full",
   summary: "summary",
   none: "none",
 } as const;
 
-export type GetInatPlaceByIdParams = {
+export type GetInatPlacesByIdParams = {
   /**
    * Admin level filter (e.g. 0=country, 1=state, 2=county)
    */
@@ -3029,13 +3017,13 @@ export type GetInatPlaceByIdParams = {
   /**
    * Controls provenance text: full (default), summary, or none
    */
-  provenance_verbosity?: GetInatPlaceByIdProvenanceVerbosity;
+  provenance_verbosity?: GetInatPlacesByIdProvenanceVerbosity;
 };
 
-export type GetInatPlaceByIdProvenanceVerbosity =
-  (typeof GetInatPlaceByIdProvenanceVerbosity)[keyof typeof GetInatPlaceByIdProvenanceVerbosity];
+export type GetInatPlacesByIdProvenanceVerbosity =
+  (typeof GetInatPlacesByIdProvenanceVerbosity)[keyof typeof GetInatPlacesByIdProvenanceVerbosity];
 
-export const GetInatPlaceByIdProvenanceVerbosity = {
+export const GetInatPlacesByIdProvenanceVerbosity = {
   full: "full",
   summary: "summary",
   none: "none",
@@ -3082,33 +3070,29 @@ export const GetInatPlacesNearbyProvenanceVerbosity = {
   none: "none",
 } as const;
 
-export type GetInatTaxonSummaryParams = {
-  /**
-   * iNaturalist observation ID (integer)
-   */
-  observation_id: number;
+export type GetInatObservationsTaxonSummaryParams = {
   /**
    * Controls provenance text: full (default), summary, or none
    */
-  provenance_verbosity?: GetInatTaxonSummaryProvenanceVerbosity;
+  provenance_verbosity?: GetInatObservationsTaxonSummaryProvenanceVerbosity;
 };
 
-export type GetInatTaxonSummaryProvenanceVerbosity =
-  (typeof GetInatTaxonSummaryProvenanceVerbosity)[keyof typeof GetInatTaxonSummaryProvenanceVerbosity];
+export type GetInatObservationsTaxonSummaryProvenanceVerbosity =
+  (typeof GetInatObservationsTaxonSummaryProvenanceVerbosity)[keyof typeof GetInatObservationsTaxonSummaryProvenanceVerbosity];
 
-export const GetInatTaxonSummaryProvenanceVerbosity = {
+export const GetInatObservationsTaxonSummaryProvenanceVerbosity = {
   full: "full",
   summary: "summary",
   none: "none",
 } as const;
 
-export type GetInatSimilarSpeciesParams = {
+export type GetInatIdentificationsSimilarSpeciesParams = {
   /**
    * iNaturalist taxon ID to find similar species for
    */
   taxon_id: number;
   place_id?: number;
-  quality_grade?: GetInatSimilarSpeciesQualityGrade;
+  quality_grade?: GetInatIdentificationsSimilarSpeciesQualityGrade;
   lat?: number;
   lng?: number;
   radius?: number;
@@ -3119,31 +3103,31 @@ export type GetInatSimilarSpeciesParams = {
   /**
    * Controls provenance text: full (default), summary, or none
    */
-  provenance_verbosity?: GetInatSimilarSpeciesProvenanceVerbosity;
+  provenance_verbosity?: GetInatIdentificationsSimilarSpeciesProvenanceVerbosity;
 };
 
-export type GetInatSimilarSpeciesQualityGrade =
-  (typeof GetInatSimilarSpeciesQualityGrade)[keyof typeof GetInatSimilarSpeciesQualityGrade];
+export type GetInatIdentificationsSimilarSpeciesQualityGrade =
+  (typeof GetInatIdentificationsSimilarSpeciesQualityGrade)[keyof typeof GetInatIdentificationsSimilarSpeciesQualityGrade];
 
-export const GetInatSimilarSpeciesQualityGrade = {
+export const GetInatIdentificationsSimilarSpeciesQualityGrade = {
   research: "research",
   needs_id: "needs_id",
   casual: "casual",
 } as const;
 
-export type GetInatSimilarSpeciesProvenanceVerbosity =
-  (typeof GetInatSimilarSpeciesProvenanceVerbosity)[keyof typeof GetInatSimilarSpeciesProvenanceVerbosity];
+export type GetInatIdentificationsSimilarSpeciesProvenanceVerbosity =
+  (typeof GetInatIdentificationsSimilarSpeciesProvenanceVerbosity)[keyof typeof GetInatIdentificationsSimilarSpeciesProvenanceVerbosity];
 
-export const GetInatSimilarSpeciesProvenanceVerbosity = {
+export const GetInatIdentificationsSimilarSpeciesProvenanceVerbosity = {
   full: "full",
   summary: "summary",
   none: "none",
 } as const;
 
-export type GetInatIdentSpeciesCountsParams = {
+export type GetInatIdentificationsSpeciesCountsParams = {
   taxon_id?: number;
   place_id?: number;
-  quality_grade?: GetInatIdentSpeciesCountsQualityGrade;
+  quality_grade?: GetInatIdentificationsSpeciesCountsQualityGrade;
   /**
    * @minimum 1
    */
@@ -3176,7 +3160,7 @@ export type GetInatIdentSpeciesCountsParams = {
   /**
    * Sort order: desc (default) or asc
    */
-  order?: GetInatIdentSpeciesCountsOrder;
+  order?: GetInatIdentificationsSpeciesCountsOrder;
   /**
    * Sort field: count (default) or id
    */
@@ -3184,7 +3168,7 @@ export type GetInatIdentSpeciesCountsParams = {
   /**
    * Which taxon to count: identification (default) or community
    */
-  taxon_of?: GetInatIdentSpeciesCountsTaxonOf;
+  taxon_of?: GetInatIdentificationsSpeciesCountsTaxonOf;
   /**
    * Comma-separated iconic taxon names (e.g. Plantae,Fungi)
    */
@@ -3192,47 +3176,47 @@ export type GetInatIdentSpeciesCountsParams = {
   /**
    * Controls provenance text: full (default), summary, or none
    */
-  provenance_verbosity?: GetInatIdentSpeciesCountsProvenanceVerbosity;
+  provenance_verbosity?: GetInatIdentificationsSpeciesCountsProvenanceVerbosity;
 };
 
-export type GetInatIdentSpeciesCountsQualityGrade =
-  (typeof GetInatIdentSpeciesCountsQualityGrade)[keyof typeof GetInatIdentSpeciesCountsQualityGrade];
+export type GetInatIdentificationsSpeciesCountsQualityGrade =
+  (typeof GetInatIdentificationsSpeciesCountsQualityGrade)[keyof typeof GetInatIdentificationsSpeciesCountsQualityGrade];
 
-export const GetInatIdentSpeciesCountsQualityGrade = {
+export const GetInatIdentificationsSpeciesCountsQualityGrade = {
   research: "research",
   needs_id: "needs_id",
   casual: "casual",
 } as const;
 
-export type GetInatIdentSpeciesCountsOrder =
-  (typeof GetInatIdentSpeciesCountsOrder)[keyof typeof GetInatIdentSpeciesCountsOrder];
+export type GetInatIdentificationsSpeciesCountsOrder =
+  (typeof GetInatIdentificationsSpeciesCountsOrder)[keyof typeof GetInatIdentificationsSpeciesCountsOrder];
 
-export const GetInatIdentSpeciesCountsOrder = {
+export const GetInatIdentificationsSpeciesCountsOrder = {
   asc: "asc",
   desc: "desc",
 } as const;
 
-export type GetInatIdentSpeciesCountsTaxonOf =
-  (typeof GetInatIdentSpeciesCountsTaxonOf)[keyof typeof GetInatIdentSpeciesCountsTaxonOf];
+export type GetInatIdentificationsSpeciesCountsTaxonOf =
+  (typeof GetInatIdentificationsSpeciesCountsTaxonOf)[keyof typeof GetInatIdentificationsSpeciesCountsTaxonOf];
 
-export const GetInatIdentSpeciesCountsTaxonOf = {
+export const GetInatIdentificationsSpeciesCountsTaxonOf = {
   identification: "identification",
   community: "community",
 } as const;
 
-export type GetInatIdentSpeciesCountsProvenanceVerbosity =
-  (typeof GetInatIdentSpeciesCountsProvenanceVerbosity)[keyof typeof GetInatIdentSpeciesCountsProvenanceVerbosity];
+export type GetInatIdentificationsSpeciesCountsProvenanceVerbosity =
+  (typeof GetInatIdentificationsSpeciesCountsProvenanceVerbosity)[keyof typeof GetInatIdentificationsSpeciesCountsProvenanceVerbosity];
 
-export const GetInatIdentSpeciesCountsProvenanceVerbosity = {
+export const GetInatIdentificationsSpeciesCountsProvenanceVerbosity = {
   full: "full",
   summary: "summary",
   none: "none",
 } as const;
 
-export type GetInatRecentTaxaParams = {
+export type GetInatIdentificationsRecentTaxaParams = {
   place_id?: number;
   taxon_id?: number;
-  quality_grade?: GetInatRecentTaxaQualityGrade;
+  quality_grade?: GetInatIdentificationsRecentTaxaQualityGrade;
   /**
    * @minimum 1
    */
@@ -3252,22 +3236,22 @@ export type GetInatRecentTaxaParams = {
   /**
    * Controls provenance text: full (default), summary, or none
    */
-  provenance_verbosity?: GetInatRecentTaxaProvenanceVerbosity;
+  provenance_verbosity?: GetInatIdentificationsRecentTaxaProvenanceVerbosity;
 };
 
-export type GetInatRecentTaxaQualityGrade =
-  (typeof GetInatRecentTaxaQualityGrade)[keyof typeof GetInatRecentTaxaQualityGrade];
+export type GetInatIdentificationsRecentTaxaQualityGrade =
+  (typeof GetInatIdentificationsRecentTaxaQualityGrade)[keyof typeof GetInatIdentificationsRecentTaxaQualityGrade];
 
-export const GetInatRecentTaxaQualityGrade = {
+export const GetInatIdentificationsRecentTaxaQualityGrade = {
   research: "research",
   needs_id: "needs_id",
   casual: "casual",
 } as const;
 
-export type GetInatRecentTaxaProvenanceVerbosity =
-  (typeof GetInatRecentTaxaProvenanceVerbosity)[keyof typeof GetInatRecentTaxaProvenanceVerbosity];
+export type GetInatIdentificationsRecentTaxaProvenanceVerbosity =
+  (typeof GetInatIdentificationsRecentTaxaProvenanceVerbosity)[keyof typeof GetInatIdentificationsRecentTaxaProvenanceVerbosity];
 
-export const GetInatRecentTaxaProvenanceVerbosity = {
+export const GetInatIdentificationsRecentTaxaProvenanceVerbosity = {
   full: "full",
   summary: "summary",
   none: "none",
@@ -3366,21 +3350,17 @@ export const GetInatIdentificationsProvenanceVerbosity = {
   none: "none",
 } as const;
 
-export type GetInatIdentificationByIdParams = {
-  /**
-   * iNaturalist identification ID (integer)
-   */
-  id: number;
+export type GetInatIdentificationsByIdParams = {
   /**
    * Controls provenance text: full (default), summary, or none
    */
-  provenance_verbosity?: GetInatIdentificationByIdProvenanceVerbosity;
+  provenance_verbosity?: GetInatIdentificationsByIdProvenanceVerbosity;
 };
 
-export type GetInatIdentificationByIdProvenanceVerbosity =
-  (typeof GetInatIdentificationByIdProvenanceVerbosity)[keyof typeof GetInatIdentificationByIdProvenanceVerbosity];
+export type GetInatIdentificationsByIdProvenanceVerbosity =
+  (typeof GetInatIdentificationsByIdProvenanceVerbosity)[keyof typeof GetInatIdentificationsByIdProvenanceVerbosity];
 
-export const GetInatIdentificationByIdProvenanceVerbosity = {
+export const GetInatIdentificationsByIdProvenanceVerbosity = {
   full: "full",
   summary: "summary",
   none: "none",

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useGetInatPlace, getGetInatPlaceQueryKey } from "@workspace/api-client-react";
+import { useGetInatPlacesAutocomplete, getGetInatPlacesAutocompleteQueryKey } from "@workspace/api-client-react";
 import { MapPin, Search, Loader2, AlertCircle, ExternalLink, CheckCircle } from "lucide-react";
 import { RawJsonPanel } from "@/components/RawJsonPanel";
 
@@ -22,9 +22,9 @@ export function PlaceLookupTab({ onPlaceSelected }: PlaceLookupTabProps) {
 
   const enabled = !!query;
   const placeParams = { q: query };
-  const { data: response, isLoading, isError, error } = useGetInatPlace(
+  const { data: response, isLoading, isError, error } = useGetInatPlacesAutocomplete(
     placeParams,
-    { query: { enabled, queryKey: getGetInatPlaceQueryKey(placeParams) } }
+    { query: { enabled, queryKey: getGetInatPlacesAutocompleteQueryKey(placeParams) } }
   );
 
   function handleSubmit(e: React.FormEvent) {

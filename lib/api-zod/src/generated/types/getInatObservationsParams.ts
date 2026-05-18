@@ -5,9 +5,9 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetInatObservationSummaryQualityGrade } from "./getInatObservationSummaryQualityGrade";
+import type { GetInatObservationsQualityGrade } from "./getInatObservationsQualityGrade";
 
-export type GetInatObservationSummaryParams = {
+export type GetInatObservationsParams = {
   /**
    * iNaturalist taxon ID to filter by
    */
@@ -19,7 +19,7 @@ export type GetInatObservationSummaryParams = {
   /**
    * Filter by quality grade: research, needs_id, or casual
    */
-  quality_grade?: GetInatObservationSummaryQualityGrade;
+  quality_grade?: GetInatObservationsQualityGrade;
   /**
    * Number of results per page (default 30, max 200)
    * @minimum 1

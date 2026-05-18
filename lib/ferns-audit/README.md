@@ -21,8 +21,8 @@ pnpm --filter @workspace/ferns-audit run audit --json
 - **API docs** — `/api/openapi.yaml` and `/api/openapi.json` return HTTP 200
 - **Source registry** — all source `metadata_url` and `explorer_url` fields are absolute and reachable
 - **GBIF passthrough** — field-level diff of GBIF `/v1/species/match` vs FERNS `/api/gbif/match`
-- **iNat passthrough** — field-level diff of iNat `/taxa/{id}` vs FERNS `/api/inat/species`
-- **iNat phenology** — field-level diff of iNat histogram + field_values responses vs FERNS `/api/inat/phenology`
+- **iNat passthrough** — field-level diff of iNat `/taxa/{id}` vs FERNS `/api/inat/taxa/{id}`
+- **iNat phenology** — field-level diff of iNat histogram + field_values responses vs FERNS `/api/inat/observations/histogram` and `/api/inat/observations/popular_field_values`
 - **BONAP map URLs** — absolute, reachable, content-type `image/png`
 - **URL audit** — every URL-named field in FERNS responses is collected and HEAD-checked
 

@@ -781,9 +781,9 @@ export const GetGbifMetadataResponse = zod.object({
  * @summary Look up an iNaturalist place by name
  */
 
-export const getInatPlaceQueryRefreshDefault = false;
+export const getInatPlacesAutocompleteQueryRefreshDefault = false;
 
-export const GetInatPlaceQueryParams = zod.object({
+export const GetInatPlacesAutocompleteQueryParams = zod.object({
   q: zod
     .string()
     .min(1)
@@ -792,11 +792,11 @@ export const GetInatPlaceQueryParams = zod.object({
     ),
   refresh: zod.coerce
     .boolean()
-    .default(getInatPlaceQueryRefreshDefault)
+    .default(getInatPlacesAutocompleteQueryRefreshDefault)
     .describe("If true, bypasses cache and fetches fresh from iNaturalist"),
 });
 
-export const GetInatPlaceResponse = zod.object({
+export const GetInatPlacesAutocompleteResponse = zod.object({
   source_url: zod
     .string()
     .nullable()
@@ -881,88 +881,13 @@ export const GetInatPlaceResponse = zod.object({
 });
 
 /**
- * Given a scientific name, returns what iNaturalist knows about that species: a representative photo, a Wikipedia description (raw HTML — strip tags before display), common names in all languages, native/introduced status by place, global observation count, IUCN conservation status, and the iNaturalist taxon ID needed for phenology queries. Two API calls are always required. Results cached 30 days for found species; 7 days for not-found. match_type indicates whether the name matched exactly (exact) or whether the first result was used as a fallback (fallback — applications should flag this to users).
-
- * @summary Look up species appearance data from iNaturalist
- */
-
-export const getInatSpeciesQueryRefreshDefault = false;
-
-export const GetInatSpeciesQueryParams = zod.object({
-  name: zod
-    .string()
-    .min(1)
-    .describe("Scientific name to look up (e.g. Asclepias tuberosa)"),
-  refresh: zod.coerce
-    .boolean()
-    .default(getInatSpeciesQueryRefreshDefault)
-    .describe("If true, bypasses cache and fetches fresh from iNaturalist"),
-});
-
-export const GetInatSpeciesResponse = zod.object({
-  source_url: zod
-    .string()
-    .nullable()
-    .describe("https:\/\/www.inaturalist.org\/taxa\/{id}"),
-  found: zod.boolean(),
-  cache_status: zod.enum(["hit", "miss", "bypassed"]),
-  queried_at: zod.date().describe("When this FERNS request was processed"),
-  data: zod
-    .record(zod.string(), zod.unknown())
-    .nullable()
-    .describe(
-      "Complete iNaturalist taxon record from GET \/taxa\/{id}, passed through with all original field names intact. Key fields include: id (taxon ID), name (scientific name), preferred_common_name, observations_count, default_photo (object with medium_url), wikipedia_url, wikipedia_summary, conservation_status, and taxon_names.\n",
-    ),
-  provenance: zod
-    .object({
-      source_id: zod
-        .string()
-        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod
-        .date()
-        .describe("When this record was obtained from the source"),
-      method: zod
-        .string()
-        .describe(
-          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-        ),
-      upstream_url: zod
-        .string()
-        .describe(
-          "Where this data came from (API endpoint, file path, or registry entry)",
-        ),
-      general_summary: zod
-        .string()
-        .optional()
-        .describe(
-          "Plain language description readable by a homeowner or community member",
-        ),
-      technical_details: zod
-        .string()
-        .optional()
-        .describe(
-          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-        ),
-      matched_input: zod
-        .string()
-        .optional()
-        .describe(
-          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-        ),
-    })
-    .describe(
-      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-    ),
-});
-
-/**
  * Passthrough for iNaturalist's GET /observations/histogram endpoint. Returns the raw iNaturalist response containing observation counts by calendar month (month_of_year key in results). Cached 7 days keyed by taxon_id and sorted set of place_ids.
 
  * @summary Passthrough for iNaturalist observations/histogram
  */
-export const getInatHistogramQueryRefreshDefault = false;
+export const getInatObservationsHistogramQueryRefreshDefault = false;
 
-export const GetInatHistogramQueryParams = zod.object({
+export const GetInatObservationsHistogramQueryParams = zod.object({
   taxon_id: zod.coerce
     .number()
     .describe("iNaturalist numeric taxon ID (from the species endpoint)"),
@@ -986,11 +911,11 @@ export const GetInatHistogramQueryParams = zod.object({
     ),
   refresh: zod.coerce
     .boolean()
-    .default(getInatHistogramQueryRefreshDefault)
+    .default(getInatObservationsHistogramQueryRefreshDefault)
     .describe("If true, bypasses cache and fetches fresh from iNaturalist"),
 });
 
-export const GetInatHistogramResponse = zod.object({
+export const GetInatObservationsHistogramResponse = zod.object({
   source_url: zod
     .string()
     .describe(
@@ -1051,10 +976,10 @@ export const GetInatHistogramResponse = zod.object({
 
  * @summary Passthrough for iNaturalist observations/popular_field_values
  */
-export const getInatFieldValuesQueryVerifiableDefault = true;
-export const getInatFieldValuesQueryRefreshDefault = false;
+export const getInatObservationsPopularFieldValuesQueryVerifiableDefault = true;
+export const getInatObservationsPopularFieldValuesQueryRefreshDefault = false;
 
-export const GetInatFieldValuesQueryParams = zod.object({
+export const GetInatObservationsPopularFieldValuesQueryParams = zod.object({
   taxon_id: zod.coerce
     .number()
     .describe("iNaturalist numeric taxon ID (from the species endpoint)"),
@@ -1066,17 +991,17 @@ export const GetInatFieldValuesQueryParams = zod.object({
     ),
   verifiable: zod.coerce
     .boolean()
-    .default(getInatFieldValuesQueryVerifiableDefault)
+    .default(getInatObservationsPopularFieldValuesQueryVerifiableDefault)
     .describe(
       "If true (default), restricts to verifiable observations. Pass false to include all quality grades.\n",
     ),
   refresh: zod.coerce
     .boolean()
-    .default(getInatFieldValuesQueryRefreshDefault)
+    .default(getInatObservationsPopularFieldValuesQueryRefreshDefault)
     .describe("If true, bypasses cache and fetches fresh from iNaturalist"),
 });
 
-export const GetInatFieldValuesResponse = zod.object({
+export const GetInatObservationsPopularFieldValuesResponse = zod.object({
   source_url: zod
     .string()
     .describe(
@@ -1137,12 +1062,12 @@ export const GetInatFieldValuesResponse = zod.object({
 
  * @summary Paged slim observation records from iNaturalist
  */
-export const getInatObservationSummaryQueryPerPageDefault = 30;
-export const getInatObservationSummaryQueryPerPageMax = 200;
+export const getInatObservationsQueryPerPageDefault = 30;
+export const getInatObservationsQueryPerPageMax = 200;
 
-export const getInatObservationSummaryQueryPageDefault = 1;
+export const getInatObservationsQueryPageDefault = 1;
 
-export const GetInatObservationSummaryQueryParams = zod.object({
+export const GetInatObservationsQueryParams = zod.object({
   taxon_id: zod.coerce
     .number()
     .optional()
@@ -1158,13 +1083,13 @@ export const GetInatObservationSummaryQueryParams = zod.object({
   per_page: zod.coerce
     .number()
     .min(1)
-    .max(getInatObservationSummaryQueryPerPageMax)
-    .default(getInatObservationSummaryQueryPerPageDefault)
+    .max(getInatObservationsQueryPerPageMax)
+    .default(getInatObservationsQueryPerPageDefault)
     .describe("Number of results per page (default 30, max 200)"),
   page: zod.coerce
     .number()
     .min(1)
-    .default(getInatObservationSummaryQueryPageDefault)
+    .default(getInatObservationsQueryPageDefault)
     .describe("Page number (1-indexed, default 1)"),
   lat: zod.coerce
     .number()
@@ -1200,7 +1125,7 @@ export const GetInatObservationSummaryQueryParams = zod.object({
     .describe("Southwest corner longitude for bounding box filter."),
 });
 
-export const GetInatObservationSummaryResponse = zod.object({
+export const GetInatObservationsResponse = zod.object({
   source_url: zod.string(),
   found: zod.boolean(),
   data: zod.object({
@@ -1363,12 +1288,12 @@ export const GetInatObservationSummaryResponse = zod.object({
 
  * @summary Passthrough for iNaturalist observations/species_counts
  */
-export const getInatSpeciesCountsQueryPerPageDefault = 500;
-export const getInatSpeciesCountsQueryPerPageMax = 500;
+export const getInatObservationsSpeciesCountsQueryPerPageDefault = 500;
+export const getInatObservationsSpeciesCountsQueryPerPageMax = 500;
 
-export const getInatSpeciesCountsQueryPageDefault = 1;
+export const getInatObservationsSpeciesCountsQueryPageDefault = 1;
 
-export const GetInatSpeciesCountsQueryParams = zod.object({
+export const GetInatObservationsSpeciesCountsQueryParams = zod.object({
   place_id: zod.coerce
     .number()
     .optional()
@@ -1408,13 +1333,13 @@ export const GetInatSpeciesCountsQueryParams = zod.object({
   per_page: zod.coerce
     .number()
     .min(1)
-    .max(getInatSpeciesCountsQueryPerPageMax)
-    .default(getInatSpeciesCountsQueryPerPageDefault)
+    .max(getInatObservationsSpeciesCountsQueryPerPageMax)
+    .default(getInatObservationsSpeciesCountsQueryPerPageDefault)
     .describe("Number of results (default 500, max 500)"),
   page: zod.coerce
     .number()
     .min(1)
-    .default(getInatSpeciesCountsQueryPageDefault)
+    .default(getInatObservationsSpeciesCountsQueryPageDefault)
     .describe("Page number (1-indexed, default 1)"),
   lat: zod.coerce
     .number()
@@ -1450,7 +1375,7 @@ export const GetInatSpeciesCountsQueryParams = zod.object({
     .describe("Southwest corner longitude for bounding box filter."),
 });
 
-export const GetInatSpeciesCountsResponse = zod.object({
+export const GetInatObservationsSpeciesCountsResponse = zod.object({
   source_url: zod
     .string()
     .describe("https:\/\/www.inaturalist.org\/observations?taxon_id=..."),
@@ -1731,11 +1656,11 @@ export const GetInatTaxaAutocompleteResponse = zod.object({
 
  * @summary Full iNaturalist taxon record by numeric ID
  */
-export const GetInatTaxonByIdParams = zod.object({
+export const GetInatTaxaByIdParams = zod.object({
   id: zod.coerce.number().describe("iNaturalist taxon ID (integer)"),
 });
 
-export const GetInatTaxonByIdQueryParams = zod.object({
+export const GetInatTaxaByIdQueryParams = zod.object({
   refresh: zod.coerce
     .boolean()
     .optional()
@@ -1746,7 +1671,7 @@ export const GetInatTaxonByIdQueryParams = zod.object({
     .describe("Controls provenance text: full (default), summary, or none"),
 });
 
-export const GetInatTaxonByIdResponse = zod.object({
+export const GetInatTaxaByIdResponse = zod.object({
   source_url: zod.string(),
   found: zod.boolean(),
   cache_status: zod.string().optional(),
@@ -1802,11 +1727,11 @@ export const GetInatTaxonByIdResponse = zod.object({
 
  * @summary iNaturalist place record by numeric ID
  */
-export const GetInatPlaceByIdParams = zod.object({
+export const GetInatPlacesByIdParams = zod.object({
   id: zod.coerce.number().describe("iNaturalist place ID (integer)"),
 });
 
-export const GetInatPlaceByIdQueryParams = zod.object({
+export const GetInatPlacesByIdQueryParams = zod.object({
   admin_level: zod.coerce
     .number()
     .optional()
@@ -1821,7 +1746,7 @@ export const GetInatPlaceByIdQueryParams = zod.object({
     .describe("Controls provenance text: full (default), summary, or none"),
 });
 
-export const GetInatPlaceByIdResponse = zod.object({
+export const GetInatPlacesByIdResponse = zod.object({
   source_url: zod.string(),
   found: zod.boolean(),
   cache_status: zod.string().optional(),
@@ -1957,17 +1882,18 @@ export const GetInatPlacesNearbyResponse = zod.object({
 
  * @summary Wikipedia summary + nativity + conservation status for a taxon at an observation location
  */
-export const GetInatTaxonSummaryQueryParams = zod.object({
-  observation_id: zod.coerce
-    .number()
-    .describe("iNaturalist observation ID (integer)"),
+export const GetInatObservationsTaxonSummaryParams = zod.object({
+  id: zod.coerce.number().describe("iNaturalist observation ID (integer)"),
+});
+
+export const GetInatObservationsTaxonSummaryQueryParams = zod.object({
   provenance_verbosity: zod
     .enum(["full", "summary", "none"])
     .optional()
     .describe("Controls provenance text: full (default), summary, or none"),
 });
 
-export const GetInatTaxonSummaryResponse = zod.object({
+export const GetInatObservationsTaxonSummaryResponse = zod.object({
   source_url: zod.string(),
   found: zod.boolean(),
   data: zod
@@ -2022,7 +1948,7 @@ export const GetInatTaxonSummaryResponse = zod.object({
 
  * @summary Species commonly confused with a given taxon
  */
-export const GetInatSimilarSpeciesQueryParams = zod.object({
+export const GetInatIdentificationsSimilarSpeciesQueryParams = zod.object({
   taxon_id: zod.coerce
     .number()
     .describe("iNaturalist taxon ID to find similar species for"),
@@ -2041,7 +1967,7 @@ export const GetInatSimilarSpeciesQueryParams = zod.object({
     .describe("Controls provenance text: full (default), summary, or none"),
 });
 
-export const GetInatSimilarSpeciesResponse = zod.object({
+export const GetInatIdentificationsSimilarSpeciesResponse = zod.object({
   source_url: zod.string(),
   found: zod.boolean(),
   data: zod
@@ -2097,7 +2023,7 @@ export const GetInatSimilarSpeciesResponse = zod.object({
  * @summary Species ranked by identification activity
  */
 
-export const GetInatIdentSpeciesCountsQueryParams = zod.object({
+export const GetInatIdentificationsSpeciesCountsQueryParams = zod.object({
   taxon_id: zod.coerce.number().optional(),
   place_id: zod.coerce.number().optional(),
   quality_grade: zod.enum(["research", "needs_id", "casual"]).optional(),
@@ -2140,7 +2066,7 @@ export const GetInatIdentSpeciesCountsQueryParams = zod.object({
     .describe("Controls provenance text: full (default), summary, or none"),
 });
 
-export const GetInatIdentSpeciesCountsResponse = zod.object({
+export const GetInatIdentificationsSpeciesCountsResponse = zod.object({
   source_url: zod.string(),
   found: zod.boolean(),
   data: zod
@@ -2196,7 +2122,7 @@ export const GetInatIdentSpeciesCountsResponse = zod.object({
  * @summary Taxa recently identified in a place
  */
 
-export const GetInatRecentTaxaQueryParams = zod.object({
+export const GetInatIdentificationsRecentTaxaQueryParams = zod.object({
   place_id: zod.coerce.number().optional(),
   taxon_id: zod.coerce.number().optional(),
   quality_grade: zod.enum(["research", "needs_id", "casual"]).optional(),
@@ -2210,7 +2136,7 @@ export const GetInatRecentTaxaQueryParams = zod.object({
     .describe("Controls provenance text: full (default), summary, or none"),
 });
 
-export const GetInatRecentTaxaResponse = zod.object({
+export const GetInatIdentificationsRecentTaxaResponse = zod.object({
   source_url: zod.string(),
   found: zod.boolean(),
   data: zod
@@ -2376,19 +2302,22 @@ export const GetInatIdentificationsResponse = zod.object({
 });
 
 /**
- * Live passthrough for iNaturalist GET /identifications/{id}. Returns the full identification record for a known identification ID. Uses a flat query param consistent with FERNS conventions. No cache.
+ * Live passthrough for iNaturalist GET /identifications/{id}. Returns the full identification record for a known identification ID. No cache.
 
  * @summary Single iNaturalist identification record by ID
  */
-export const GetInatIdentificationByIdQueryParams = zod.object({
+export const GetInatIdentificationsByIdParams = zod.object({
   id: zod.coerce.number().describe("iNaturalist identification ID (integer)"),
+});
+
+export const GetInatIdentificationsByIdQueryParams = zod.object({
   provenance_verbosity: zod
     .enum(["full", "summary", "none"])
     .optional()
     .describe("Controls provenance text: full (default), summary, or none"),
 });
 
-export const GetInatIdentificationByIdResponse = zod.object({
+export const GetInatIdentificationsByIdResponse = zod.object({
   source_url: zod.string(),
   found: zod.boolean(),
   data: zod

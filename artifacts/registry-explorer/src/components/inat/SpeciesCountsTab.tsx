@@ -104,7 +104,7 @@ export function SpeciesCountsTab({
     q.set("page", String(params.page));
 
     try {
-      const res = await fetch(`/api/inat/species-counts?${q.toString()}`);
+      const res = await fetch(`/api/inat/observations/species_counts?${q.toString()}`);
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         throw new Error((body as { message?: string }).message ?? `HTTP ${res.status}`);
@@ -383,7 +383,7 @@ export function SpeciesCountsTab({
             </div>
           )}
 
-          <RawJsonPanel title="Raw API — /api/inat/species-counts" data={data} />
+          <RawJsonPanel title="Raw API — /api/inat/observations/species_counts" data={data} />
         </div>
       )}
     </div>

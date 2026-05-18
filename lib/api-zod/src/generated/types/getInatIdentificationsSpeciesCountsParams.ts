@@ -5,15 +5,15 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetInatIdentSpeciesCountsOrder } from "./getInatIdentSpeciesCountsOrder";
-import type { GetInatIdentSpeciesCountsProvenanceVerbosity } from "./getInatIdentSpeciesCountsProvenanceVerbosity";
-import type { GetInatIdentSpeciesCountsQualityGrade } from "./getInatIdentSpeciesCountsQualityGrade";
-import type { GetInatIdentSpeciesCountsTaxonOf } from "./getInatIdentSpeciesCountsTaxonOf";
+import type { GetInatIdentificationsSpeciesCountsOrder } from "./getInatIdentificationsSpeciesCountsOrder";
+import type { GetInatIdentificationsSpeciesCountsProvenanceVerbosity } from "./getInatIdentificationsSpeciesCountsProvenanceVerbosity";
+import type { GetInatIdentificationsSpeciesCountsQualityGrade } from "./getInatIdentificationsSpeciesCountsQualityGrade";
+import type { GetInatIdentificationsSpeciesCountsTaxonOf } from "./getInatIdentificationsSpeciesCountsTaxonOf";
 
-export type GetInatIdentSpeciesCountsParams = {
+export type GetInatIdentificationsSpeciesCountsParams = {
   taxon_id?: number;
   place_id?: number;
-  quality_grade?: GetInatIdentSpeciesCountsQualityGrade;
+  quality_grade?: GetInatIdentificationsSpeciesCountsQualityGrade;
   /**
    * @minimum 1
    */
@@ -46,7 +46,7 @@ export type GetInatIdentSpeciesCountsParams = {
   /**
    * Sort order: desc (default) or asc
    */
-  order?: GetInatIdentSpeciesCountsOrder;
+  order?: GetInatIdentificationsSpeciesCountsOrder;
   /**
    * Sort field: count (default) or id
    */
@@ -54,7 +54,7 @@ export type GetInatIdentSpeciesCountsParams = {
   /**
    * Which taxon to count: identification (default) or community
    */
-  taxon_of?: GetInatIdentSpeciesCountsTaxonOf;
+  taxon_of?: GetInatIdentificationsSpeciesCountsTaxonOf;
   /**
    * Comma-separated iconic taxon names (e.g. Plantae,Fungi)
    */
@@ -62,5 +62,5 @@ export type GetInatIdentSpeciesCountsParams = {
   /**
    * Controls provenance text: full (default), summary, or none
    */
-  provenance_verbosity?: GetInatIdentSpeciesCountsProvenanceVerbosity;
+  provenance_verbosity?: GetInatIdentificationsSpeciesCountsProvenanceVerbosity;
 };

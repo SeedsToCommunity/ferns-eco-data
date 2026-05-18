@@ -338,9 +338,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/GbifMetadataResponse"
 
-  /inat/place:
+  /inat/places/autocomplete:
     get:
-      operationId: getInatPlace
+      operationId: getInatPlacesAutocomplete
       tags: [inat]
       summary: Look up an iNaturalist place by name
       description: >
@@ -384,58 +384,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/species:
+  /inat/observations/histogram:
     get:
-      operationId: getInatSpecies
-      tags: [inat]
-      summary: Look up species appearance data from iNaturalist
-      description: >
-        Given a scientific name, returns what iNaturalist knows about that species:
-        a representative photo, a Wikipedia description (raw HTML — strip tags before
-        display), common names in all languages, native/introduced status by place,
-        global observation count, IUCN conservation status, and the iNaturalist taxon ID
-        needed for phenology queries. Two API calls are always required. Results cached
-        30 days for found species; 7 days for not-found. match_type indicates whether
-        the name matched exactly (exact) or whether the first result was used as a
-        fallback (fallback — applications should flag this to users).
-      parameters:
-        - name: name
-          in: query
-          required: true
-          description: Scientific name to look up (e.g. Asclepias tuberosa)
-          schema:
-            type: string
-            minLength: 1
-        - name: refresh
-          in: query
-          required: false
-          description: If true, bypasses cache and fetches fresh from iNaturalist
-          schema:
-            type: boolean
-            default: false
-      responses:
-        "200":
-          description: Species lookup complete (found or not found — check the found field)
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/InatSpeciesResponse"
-        "400":
-          description: Missing or empty name parameter
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "502":
-          description: iNaturalist API error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
-  /inat/histogram:
-    get:
-      operationId: getInatHistogram
+      operationId: getInatObservationsHistogram
       tags: [inat]
       summary: Passthrough for iNaturalist observations/histogram
       description: >
@@ -503,9 +454,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/field-values:
+  /inat/observations/popular_field_values:
     get:
-      operationId: getInatFieldValues
+      operationId: getInatObservationsPopularFieldValues
       tags: [inat]
       summary: Passthrough for iNaturalist observations/popular_field_values
       description: >
@@ -566,9 +517,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/observation-summary:
+  /inat/observations:
     get:
-      operationId: getInatObservationSummary
+      operationId: getInatObservations
       tags: [inat]
       summary: Paged slim observation records from iNaturalist
       description: >
@@ -678,9 +629,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/species-counts:
+  /inat/observations/species_counts:
     get:
-      operationId: getInatSpeciesCounts
+      operationId: getInatObservationsSpeciesCounts
       tags: [inat]
       summary: Passthrough for iNaturalist observations/species_counts
       description: >
@@ -819,7 +770,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/controlled-terms:
+  /inat/controlled_terms:
     get:
       operationId: getInatControlledTerms
       tags: [inat]
@@ -859,7 +810,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/controlled-terms/for-taxon:
+  /inat/controlled_terms/for_taxon:
     get:
       operationId: getInatControlledTermsForTaxon
       tags: [inat]
@@ -991,9 +942,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/taxon/{id}:
+  /inat/taxa/{id}:
     get:
-      operationId: getInatTaxonById
+      operationId: getInatTaxaById
       tags: [inat]
       summary: Full iNaturalist taxon record by numeric ID
       description: >
@@ -1042,9 +993,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/place/{id}:
+  /inat/places/{id}:
     get:
-      operationId: getInatPlaceById
+      operationId: getInatPlacesById
       tags: [inat]
       summary: iNaturalist place record by numeric ID
       description: >
@@ -1173,9 +1124,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/taxon-summary:
+  /inat/observations/{id}/taxon_summary:
     get:
-      operationId: getInatTaxonSummary
+      operationId: getInatObservationsTaxonSummary
       tags: [inat]
       summary: Wikipedia summary + nativity + conservation status for a taxon at an observation location
       description: >
@@ -1185,8 +1136,8 @@ paths:
         The observation_id is required; it determines which location context is used
         for nativity data. Live call, no cache.
       parameters:
-        - name: observation_id
-          in: query
+        - name: id
+          in: path
           required: true
           description: iNaturalist observation ID (integer)
           schema:
@@ -1218,9 +1169,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/similar-species:
+  /inat/identifications/similar_species:
     get:
-      operationId: getInatSimilarSpecies
+      operationId: getInatIdentificationsSimilarSpecies
       tags: [inat]
       summary: Species commonly confused with a given taxon
       description: >
@@ -1307,9 +1258,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/identification-species-counts:
+  /inat/identifications/species_counts:
     get:
-      operationId: getInatIdentSpeciesCounts
+      operationId: getInatIdentificationsSpeciesCounts
       tags: [inat]
       summary: Species ranked by identification activity
       description: >
@@ -1462,9 +1413,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/recent-taxa:
+  /inat/identifications/recent_taxa:
     get:
-      operationId: getInatRecentTaxa
+      operationId: getInatIdentificationsRecentTaxa
       tags: [inat]
       summary: Taxa recently identified in a place
       description: >
@@ -1722,18 +1673,17 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/identification:
+  /inat/identifications/{id}:
     get:
-      operationId: getInatIdentificationById
+      operationId: getInatIdentificationsById
       tags: [inat]
       summary: Single iNaturalist identification record by ID
       description: >
         Live passthrough for iNaturalist GET /identifications/{id}. Returns the full
-        identification record for a known identification ID. Uses a flat query param
-        consistent with FERNS conventions. No cache.
+        identification record for a known identification ID. No cache.
       parameters:
         - name: id
-          in: query
+          in: path
           required: true
           description: iNaturalist identification ID (integer)
           schema:
@@ -4898,7 +4848,7 @@ components:
         Expanded field subset of a single iNaturalist observation. Follow the uri
         field for the complete record on iNaturalist. Note: nativity data (native,
         introduced, endemic status) is NOT present on observation records — it lives
-        in listed_taxa on the taxon record, available via GET /inat/taxon/{id}.
+        in listed_taxa on the taxon record, available via GET /inat/taxa/{id}.
       required:
         - id
         - uri

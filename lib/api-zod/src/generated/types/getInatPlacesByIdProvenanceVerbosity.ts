@@ -6,10 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetInatTaxonByIdProvenanceVerbosity =
-  (typeof GetInatTaxonByIdProvenanceVerbosity)[keyof typeof GetInatTaxonByIdProvenanceVerbosity];
+export type GetInatPlacesByIdProvenanceVerbosity =
+  (typeof GetInatPlacesByIdProvenanceVerbosity)[keyof typeof GetInatPlacesByIdProvenanceVerbosity];
 
-export const GetInatTaxonByIdProvenanceVerbosity = {
+export const GetInatPlacesByIdProvenanceVerbosity = {
   full: "full",
   summary: "summary",
   none: "none",

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useGetInatHistogram, useGetInatFieldValues, getGetInatHistogramQueryKey, getGetInatFieldValuesQueryKey } from "@workspace/api-client-react";
+import { useGetInatObservationsHistogram, useGetInatObservationsPopularFieldValues, getGetInatObservationsHistogramQueryKey, getGetInatObservationsPopularFieldValuesQueryKey } from "@workspace/api-client-react";
 import { CalendarDays, Search, Loader2, AlertCircle, Plus, X, ExternalLink } from "lucide-react";
 import { monthName, formatNumber } from "@/lib/utils";
 import {
@@ -82,15 +82,15 @@ export function PhenologyTab({
   const enabled = !!submittedTaxon && !!submittedPlaceId;
 
   const histParams = { taxon_id: Number(submittedTaxon), place_id: submittedPlaceId };
-  const { data: histResponse, isLoading: histLoading, isError: histError, error: histErr } = useGetInatHistogram(
+  const { data: histResponse, isLoading: histLoading, isError: histError, error: histErr } = useGetInatObservationsHistogram(
     histParams,
-    { query: { enabled, queryKey: getGetInatHistogramQueryKey(histParams) } }
+    { query: { enabled, queryKey: getGetInatObservationsHistogramQueryKey(histParams) } }
   );
 
   const fvParams = { taxon_id: Number(submittedTaxon), place_id: submittedPlaceId, verifiable: true };
-  const { data: fvResponse, isLoading: fvLoading, isError: fvError, error: fvErr } = useGetInatFieldValues(
+  const { data: fvResponse, isLoading: fvLoading, isError: fvError, error: fvErr } = useGetInatObservationsPopularFieldValues(
     fvParams,
-    { query: { enabled, queryKey: getGetInatFieldValuesQueryKey(fvParams) } }
+    { query: { enabled, queryKey: getGetInatObservationsPopularFieldValuesQueryKey(fvParams) } }
   );
 
   const isLoading = histLoading || fvLoading;

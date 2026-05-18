@@ -87,7 +87,7 @@ async function enrichTaxonPhoto(
   apiBase: string,
 ): Promise<{ square_url?: string } | null> {
   try {
-    const url = new URL(`/api/inat/taxon/${taxonId}`, window.location.origin + apiBase);
+    const url = new URL(`/api/inat/taxa/${taxonId}`, window.location.origin + apiBase);
     const resp = await fetch(url.toString());
     if (!resp.ok) return null;
     const json = await resp.json() as {
@@ -115,7 +115,7 @@ function SimilarSpeciesPanel({
   const enrichingRef = useRef<number>(0);
 
   const url = submitted
-    ? apiUrl("/api/inat/similar-species", {
+    ? apiUrl("/api/inat/identifications/similar_species", {
         taxon_id: submitted.taxonId,
         place_id: submitted.placeId,
       })
@@ -261,7 +261,7 @@ function SimilarSpeciesPanel({
               </div>
             ))}
           </div>
-          <RawJsonPanel title="Raw API — /api/inat/similar-species" data={data} />
+          <RawJsonPanel title="Raw API — /api/inat/identifications/similar_species" data={data} />
         </div>
       )}
     </div>
@@ -331,7 +331,7 @@ function IdentCountsPanel({
   const [page, setPage] = useState(1);
   const [submittedParams, setSubmittedParams] = useState<Record<string, string | number | undefined> | null>(null);
 
-  const url = submittedParams ? apiUrl("/api/inat/identification-species-counts", submittedParams) : null;
+  const url = submittedParams ? apiUrl("/api/inat/identifications/species_counts", submittedParams) : null;
 
   const { data, loading, error } = useApiGet<{
     found: boolean;
@@ -560,7 +560,7 @@ function IdentCountsPanel({
               </button>
             </div>
           )}
-          <RawJsonPanel title="Raw API — /api/inat/identification-species-counts" data={data} />
+          <RawJsonPanel title="Raw API — /api/inat/identifications/species_counts" data={data} />
         </div>
       )}
     </div>
@@ -581,7 +581,7 @@ function RecentTaxaPanel({
   const [perPage, setPerPage] = useState(20);
   const [submittedParams, setSubmittedParams] = useState<Record<string, string | number | undefined> | null>(null);
 
-  const url = submittedParams ? apiUrl("/api/inat/recent-taxa", submittedParams) : null;
+  const url = submittedParams ? apiUrl("/api/inat/identifications/recent_taxa", submittedParams) : null;
 
   const { data, loading, error } = useApiGet<{
     found: boolean;
@@ -695,7 +695,7 @@ function RecentTaxaPanel({
               </div>
             ))}
           </div>
-          <RawJsonPanel title="Raw API — /api/inat/recent-taxa" data={data} />
+          <RawJsonPanel title="Raw API — /api/inat/identifications/recent_taxa" data={data} />
         </div>
       )}
     </div>
@@ -708,7 +708,7 @@ function TaxonSummaryPanel() {
   const [obsIdInput, setObsIdInput] = useState("");
   const [submitted, setSubmitted] = useState<number | null>(null);
 
-  const url = submitted ? apiUrl("/api/inat/taxon-summary", { observation_id: submitted }) : null;
+  const url = submitted ? `/api/inat/observations/${submitted}/taxon_summary` : null;
 
   const { data, loading, error } = useApiGet<{
     found: boolean;
@@ -822,7 +822,7 @@ function TaxonSummaryPanel() {
             <div className="text-center py-8 text-muted-foreground text-sm">No summary data returned for this observation.</div>
           )}
 
-          <RawJsonPanel title="Raw API — /api/inat/taxon-summary" data={data} />
+          <RawJsonPanel title="Raw API — /api/inat/observations/:id/taxon_summary" data={data} />
         </div>
       )}
     </div>

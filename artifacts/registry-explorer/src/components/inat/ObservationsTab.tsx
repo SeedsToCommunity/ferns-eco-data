@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import {
-  useGetInatObservationSummary,
-  getGetInatObservationSummaryQueryKey,
-  type GetInatObservationSummaryParams,
+  useGetInatObservations,
+  getGetInatObservationsQueryKey,
+  type GetInatObservationsParams,
 } from "@workspace/api-client-react";
 import { Eye, Search, Loader2, AlertCircle, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
 import { RawJsonPanel } from "@/components/RawJsonPanel";
@@ -50,17 +50,17 @@ export function ObservationsTab({
   const [committedQuality, setCommittedQuality] = useState<string | undefined>(undefined);
   const [committedPage, setCommittedPage]   = useState(1);
 
-  const params: GetInatObservationSummaryParams = {
+  const params: GetInatObservationsParams = {
     taxon_id:      committedTaxonId,
     place_id:      committedPlaceId,
-    quality_grade: (committedQuality || undefined) as GetInatObservationSummaryParams["quality_grade"],
+    quality_grade: (committedQuality || undefined) as GetInatObservationsParams["quality_grade"],
     per_page:      30,
     page:          committedPage,
   };
 
-  const { data, isLoading, isError, error } = useGetInatObservationSummary(
+  const { data, isLoading, isError, error } = useGetInatObservations(
     params,
-    { query: { enabled: submitted, queryKey: getGetInatObservationSummaryQueryKey(params) } },
+    { query: { enabled: submitted, queryKey: getGetInatObservationsQueryKey(params) } },
   );
 
   function commit(taxId: number | undefined, plId: number | undefined, quality: string, pg: number) {
@@ -261,7 +261,7 @@ export function ObservationsTab({
             </div>
           )}
 
-          <RawJsonPanel title="Raw API — /api/inat/observation-summary" data={data} />
+          <RawJsonPanel title="Raw API — /api/inat/observations" data={data} />
         </div>
       )}
     </div>

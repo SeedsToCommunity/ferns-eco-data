@@ -18,13 +18,7 @@ export async function runInatComparators(
   }
 
   for (const sp of species) {
-    const speciesResult = await compareInatSpecies(fernsBase, sp);
-    results.push(speciesResult);
-
-    const inatTaxonId = speciesResult.rawSource
-      ? (speciesResult.rawSource["id"] as number | undefined)
-      : undefined;
-
+    const inatTaxonId = sp.inatTaxonId;
     if (inatTaxonId) {
       for (const place of places) {
         results.push(await compareInatHistogram(fernsBase, sp, inatTaxonId, place));
@@ -38,9 +32,7 @@ export async function runInatComparators(
   results.push(await checkInatObservationSummaryExpanded(fernsBase, species[0] ?? null));
   results.push(await checkInatControlledTerms(fernsBase));
 
-  const firstTaxonId = species[0]
-    ? (await compareInatSpecies(fernsBase, species[0])).rawSource?.["id"] as number | undefined
-    : undefined;
+  const firstTaxonId = species[0]?.inatTaxonId;
   if (firstTaxonId) {
     results.push(await checkInatControlledTermsForTaxon(fernsBase, firstTaxonId));
     results.push(await checkInatTaxonById(fernsBase, firstTaxonId));
@@ -66,7 +58,7 @@ async function compareInatPlace(
   fernsBase: string,
   pq: TestPlaceQuery,
 ): Promise<EndpointComparison> {
-  const fernsEndpoint = `/api/inat/place`;
+  const fernsEndpoint = `/api/inat/places/autocomplete`;
   const fernsUrl = `${fernsBase}${fernsEndpoint}?q=${encodeURIComponent(pq.q)}&refresh=true`;
   const inatUrl = `${INAT_API}/places/autocomplete?q=${encodeURIComponent(pq.q)}`;
   const label = `${pq.label} — iNat place search`;
@@ -81,7 +73,7 @@ async function compareInatPlace(
     const fernsData = (fernsEnvelope.data ?? {}) as Record<string, unknown>;
     const fernsResults = (fernsData.results ?? []) as Array<Record<string, unknown>>;
     const inatResults = (inatRaw.results ?? []) as Array<Record<string, unknown>>;
-    const urlsCollected = collectUrls(fernsEnvelope, `inat/place:${pq.q}`);
+    const urlsCollected = collectUrls(fernsEnvelope, `inat/places/autocomplete:${pq.q}`);
 
     const findings: FieldFinding[] = [];
 
@@ -138,83 +130,13 @@ async function compareInatPlace(
   }
 }
 
-async function compareInatSpecies(fernsBase: string, sp: TestSpecies): Promise<EndpointComparison> {
-  const fernsEndpoint = `/api/inat/species`;
-  const fernsUrl = `${fernsBase}${fernsEndpoint}?name=${encodeURIComponent(sp.name)}&refresh=true`;
-
-  const encoded = encodeURIComponent(sp.name.trim());
-  const inatSearchUrl = `${INAT_API}/taxa?q=${encoded}&rank=species`;
-  const label = `${sp.label} (${sp.name}) — species appearance`;
-
-  try {
-    const [inatSearchRaw, fernsRaw] = await Promise.all([
-      fetchJson(inatSearchUrl),
-      fetchJson(fernsUrl),
-    ]);
-
-    const inatSearch = inatSearchRaw as Record<string, unknown>;
-    const inatResults = (inatSearch.results as Record<string, unknown>[] | undefined) ?? [];
-
-    if (inatResults.length === 0) {
-      return {
-        source: "inat",
-        endpoint: `${fernsEndpoint}?name=${encodeURIComponent(sp.name)}`,
-        label,
-        ok: true,
-        error: "iNat returned no results for this species — cannot diff",
-        findings: [],
-        urlsCollected: [],
-      };
-    }
-
-    const lowerName = sp.name.trim().toLowerCase();
-    const exactMatch = inatResults.find(
-      (r) => typeof r.name === "string" && r.name.toLowerCase() === lowerName && r.rank === "species",
-    );
-    const chosen = exactMatch ?? inatResults[0];
-    const taxonId = chosen.id as number;
-
-    const inatFullUrl = `${INAT_API}/taxa/${taxonId}`;
-    const inatFullRaw = await fetchJson(inatFullUrl) as Record<string, unknown>;
-    const inatFullResults = (inatFullRaw.results as Record<string, unknown>[] | undefined) ?? [];
-    const inatTaxon = (inatFullResults[0] as Record<string, unknown> | undefined) ?? chosen;
-
-    const fernsEnvelope = fernsRaw as Record<string, unknown>;
-    const fernsData = (fernsEnvelope.data ?? {}) as Record<string, unknown>;
-
-    const findings = diffObjects(inatTaxon, fernsData, "iNaturalist");
-    const urlsCollected = collectUrls(fernsEnvelope, `inat/species:${sp.name}`);
-
-    return {
-      source: "inat",
-      endpoint: `${fernsEndpoint}?name=${encodeURIComponent(sp.name)}`,
-      label,
-      ok: true,
-      rawSource: inatTaxon,
-      rawFerns: fernsData,
-      findings,
-      urlsCollected,
-    };
-  } catch (err) {
-    return {
-      source: "inat",
-      endpoint: `${fernsEndpoint}?name=${encodeURIComponent(sp.name)}`,
-      label,
-      ok: false,
-      error: String(err),
-      findings: [],
-      urlsCollected: [],
-    };
-  }
-}
-
 async function compareInatHistogram(
   fernsBase: string,
   sp: TestSpecies,
   taxonId: number,
   place: TestPlace,
 ): Promise<EndpointComparison> {
-  const fernsEndpoint = `/api/inat/histogram`;
+  const fernsEndpoint = `/api/inat/observations/histogram`;
   const fernsUrl = `${fernsBase}${fernsEndpoint}?taxon_id=${taxonId}&place_id=${place.id}&refresh=true`;
   const inatUrl = `${INAT_API}/observations/histogram?taxon_id=${taxonId}&place_id=${place.id}&interval=month_of_year`;
   const label = `${sp.label} in ${place.name} — histogram (passthrough)`;
@@ -230,7 +152,7 @@ async function compareInatHistogram(
     const inatResponse = inatRaw as Record<string, unknown>;
 
     const findings = diffObjects(inatResponse, fernsData, "iNat histogram");
-    const urlsCollected = collectUrls(fernsEnvelope, `inat/histogram:${sp.name}@${place.name}`);
+    const urlsCollected = collectUrls(fernsEnvelope, `inat/observations/histogram:${sp.name}@${place.name}`);
 
     return {
       source: "inat",
@@ -261,7 +183,7 @@ async function compareInatFieldValues(
   taxonId: number,
   place: TestPlace,
 ): Promise<EndpointComparison> {
-  const fernsEndpoint = `/api/inat/field-values`;
+  const fernsEndpoint = `/api/inat/observations/popular_field_values`;
   const fernsUrl = `${fernsBase}${fernsEndpoint}?taxon_id=${taxonId}&place_id=${place.id}&verifiable=true&refresh=true`;
   const inatUrl = `${INAT_API}/observations/popular_field_values?taxon_id=${taxonId}&place_id=${place.id}&verifiable=true`;
   const label = `${sp.label} in ${place.name} — field-values (passthrough)`;
@@ -277,7 +199,7 @@ async function compareInatFieldValues(
     const inatResponse = inatRaw as Record<string, unknown>;
 
     const findings = diffObjects(inatResponse, fernsData, "iNat field values");
-    const urlsCollected = collectUrls(fernsEnvelope, `inat/field-values:${sp.name}@${place.name}`);
+    const urlsCollected = collectUrls(fernsEnvelope, `inat/observations/popular_field_values:${sp.name}@${place.name}`);
 
     return {
       source: "inat",
@@ -305,7 +227,7 @@ async function compareInatFieldValues(
 async function checkInatSpeciesCounts(
   fernsBase: string,
 ): Promise<EndpointComparison> {
-  const fernsEndpoint = `/api/inat/species-counts`;
+  const fernsEndpoint = `/api/inat/observations/species_counts`;
   const placeId = 2649;
   const fernsUrl = `${fernsBase}${fernsEndpoint}?place_id=${placeId}&native=true&iconic_taxon_name=Plantae&quality_grade=research&per_page=10`;
   const inatUrl = `https://api.inaturalist.org/v1/observations/species_counts?place_id=${placeId}&native=true&iconic_taxon_name=Plantae&quality_grade=research&per_page=10`;
@@ -319,7 +241,7 @@ async function checkInatSpeciesCounts(
 
     const fernsEnvelope = fernsRaw as Record<string, unknown>;
     const fernsData = (fernsEnvelope.data ?? {}) as Record<string, unknown>;
-    const urlsCollected = collectUrls(fernsEnvelope, `inat/species-counts:Plantae@Washtenaw`);
+    const urlsCollected = collectUrls(fernsEnvelope, `inat/observations/species_counts:Plantae@Washtenaw`);
     const inatResponse = inatRaw as Record<string, unknown>;
 
     const findings: FieldFinding[] = [];
@@ -501,17 +423,17 @@ async function checkInatObservationSummaryExpanded(
   fernsBase: string,
   sp: TestSpecies | null,
 ): Promise<EndpointComparison> {
-  const fernsEndpoint = `/api/inat/observation-summary`;
+  const fernsEndpoint = `/api/inat/observations`;
   const taxonParam = sp ? `?taxon_id=${sp.inatTaxonId ?? ""}&per_page=5` : `?per_page=5`;
   const fernsUrl = `${fernsBase}${fernsEndpoint}${taxonParam}`;
   const label = sp
-    ? `${sp.label} — iNat observation-summary expanded fields`
-    : `iNat observation-summary expanded fields`;
+    ? `${sp.label} — iNat observations expanded fields`
+    : `iNat observations expanded fields`;
 
   try {
     const fernsRaw = await fetchJson(fernsUrl) as Record<string, unknown>;
     const findings: FieldFinding[] = [];
-    const urlsCollected = collectUrls(fernsRaw, "inat/observation-summary");
+    const urlsCollected = collectUrls(fernsRaw, "inat/observations");
 
     for (const field of ["source_url", "found", "data"] as const) {
       if (fernsRaw[field] !== undefined) {
@@ -592,14 +514,14 @@ async function checkInatObservationSummaryExpanded(
 }
 
 async function checkInatControlledTerms(fernsBase: string): Promise<EndpointComparison> {
-  const fernsEndpoint = `/api/inat/controlled-terms`;
+  const fernsEndpoint = `/api/inat/controlled_terms`;
   const fernsUrl = `${fernsBase}${fernsEndpoint}`;
-  const label = `iNat controlled-terms reference list`;
+  const label = `iNat controlled_terms reference list`;
 
   try {
     const fernsRaw = await fetchJson(fernsUrl) as Record<string, unknown>;
     const findings: FieldFinding[] = [];
-    const urlsCollected = collectUrls(fernsRaw, "inat/controlled-terms");
+    const urlsCollected = collectUrls(fernsRaw, "inat/controlled_terms");
 
     for (const field of ["source_url", "found", "data"] as const) {
       if (fernsRaw[field] !== undefined) {
@@ -645,14 +567,14 @@ async function checkInatControlledTermsForTaxon(
   fernsBase: string,
   taxonId: number,
 ): Promise<EndpointComparison> {
-  const fernsEndpoint = `/api/inat/controlled-terms/for-taxon`;
+  const fernsEndpoint = `/api/inat/controlled_terms/for_taxon`;
   const fernsUrl = `${fernsBase}${fernsEndpoint}?taxon_id=${taxonId}`;
-  const label = `iNat controlled-terms/for-taxon (taxon_id=${taxonId})`;
+  const label = `iNat controlled_terms/for_taxon (taxon_id=${taxonId})`;
 
   try {
     const fernsRaw = await fetchJson(fernsUrl) as Record<string, unknown>;
     const findings: FieldFinding[] = [];
-    const urlsCollected = collectUrls(fernsRaw, "inat/controlled-terms/for-taxon");
+    const urlsCollected = collectUrls(fernsRaw, "inat/controlled_terms/for_taxon");
 
     for (const field of ["source_url", "found", "data"] as const) {
       if (fernsRaw[field] !== undefined) {
@@ -741,14 +663,14 @@ async function checkInatTaxonById(
   fernsBase: string,
   taxonId: number,
 ): Promise<EndpointComparison> {
-  const fernsEndpoint = `/api/inat/taxon/${taxonId}`;
+  const fernsEndpoint = `/api/inat/taxa/${taxonId}`;
   const fernsUrl = `${fernsBase}${fernsEndpoint}`;
-  const label = `iNat taxon by ID (taxon_id=${taxonId})`;
+  const label = `iNat taxa by ID (taxon_id=${taxonId})`;
 
   try {
     const fernsRaw = await fetchJson(fernsUrl) as Record<string, unknown>;
     const findings: FieldFinding[] = [];
-    const urlsCollected = collectUrls(fernsRaw, `inat/taxon/${taxonId}`);
+    const urlsCollected = collectUrls(fernsRaw, `inat/taxa/${taxonId}`);
 
     for (const field of ["source_url", "found", "data", "cache_status"] as const) {
       if (fernsRaw[field] !== undefined) {
@@ -796,14 +718,14 @@ async function checkInatPlaceById(
   fernsBase: string,
   placeId: number,
 ): Promise<EndpointComparison> {
-  const fernsEndpoint = `/api/inat/place/${placeId}`;
+  const fernsEndpoint = `/api/inat/places/${placeId}`;
   const fernsUrl = `${fernsBase}${fernsEndpoint}`;
-  const label = `iNat place by ID (place_id=${placeId})`;
+  const label = `iNat places by ID (place_id=${placeId})`;
 
   try {
     const fernsRaw = await fetchJson(fernsUrl) as Record<string, unknown>;
     const findings: FieldFinding[] = [];
-    const urlsCollected = collectUrls(fernsRaw, `inat/place/${placeId}`);
+    const urlsCollected = collectUrls(fernsRaw, `inat/places/${placeId}`);
 
     for (const field of ["source_url", "found", "data", "cache_status"] as const) {
       if (fernsRaw[field] !== undefined) {
@@ -904,15 +826,15 @@ async function checkInatPlacesNearby(fernsBase: string): Promise<EndpointCompari
 }
 
 async function checkInatTaxonSummary(fernsBase: string): Promise<EndpointComparison> {
-  const fernsEndpoint = `/api/inat/taxon-summary`;
+  const fernsEndpoint = `/api/inat/observations/${362023441}/taxon_summary`;
   const observationId = 362023441;
-  const fernsUrl = `${fernsBase}${fernsEndpoint}?observation_id=${observationId}`;
-  const label = `iNat taxon-summary (observation_id=${observationId})`;
+  const fernsUrl = `${fernsBase}${fernsEndpoint}`;
+  const label = `iNat observations/:id/taxon_summary (observation_id=${observationId})`;
 
   try {
     const fernsRaw = await fetchJson(fernsUrl) as Record<string, unknown>;
     const findings: FieldFinding[] = [];
-    const urlsCollected = collectUrls(fernsRaw, "inat/taxon-summary");
+    const urlsCollected = collectUrls(fernsRaw, `inat/observations/${observationId}/taxon_summary`);
 
     for (const field of ["source_url", "found", "data"] as const) {
       if (fernsRaw[field] !== undefined) {
@@ -935,7 +857,7 @@ async function checkInatTaxonSummary(fernsBase: string): Promise<EndpointCompari
 
     return {
       source: "inat",
-      endpoint: `${fernsEndpoint}?observation_id=${observationId}`,
+      endpoint: fernsEndpoint,
       label,
       ok: true,
       rawFerns: fernsRaw,
@@ -945,7 +867,7 @@ async function checkInatTaxonSummary(fernsBase: string): Promise<EndpointCompari
   } catch (err) {
     return {
       source: "inat",
-      endpoint: `${fernsEndpoint}?observation_id=${observationId}`,
+      endpoint: fernsEndpoint,
       label,
       ok: false,
       error: String(err),
@@ -956,15 +878,15 @@ async function checkInatTaxonSummary(fernsBase: string): Promise<EndpointCompari
 }
 
 async function checkInatIdentificationById(fernsBase: string): Promise<EndpointComparison> {
-  const fernsEndpoint = `/api/inat/identification`;
   const identId = 813148877;
-  const fernsUrl = `${fernsBase}${fernsEndpoint}?id=${identId}`;
-  const label = `iNat identification by ID (id=${identId})`;
+  const fernsEndpoint = `/api/inat/identifications/${identId}`;
+  const fernsUrl = `${fernsBase}${fernsEndpoint}`;
+  const label = `iNat identifications/:id (id=${identId})`;
 
   try {
     const fernsRaw = await fetchJson(fernsUrl) as Record<string, unknown>;
     const findings: FieldFinding[] = [];
-    const urlsCollected = collectUrls(fernsRaw, "inat/identification");
+    const urlsCollected = collectUrls(fernsRaw, `inat/identifications/${identId}`);
 
     for (const field of ["source_url", "found", "data"] as const) {
       if (fernsRaw[field] !== undefined) {
@@ -1004,7 +926,7 @@ async function checkInatIdentificationById(fernsBase: string): Promise<EndpointC
 
     return {
       source: "inat",
-      endpoint: `${fernsEndpoint}?id=${identId}`,
+      endpoint: fernsEndpoint,
       label,
       ok: true,
       rawFerns: fernsRaw,
@@ -1014,7 +936,7 @@ async function checkInatIdentificationById(fernsBase: string): Promise<EndpointC
   } catch (err) {
     return {
       source: "inat",
-      endpoint: `${fernsEndpoint}?id=${identId}`,
+      endpoint: fernsEndpoint,
       label,
       ok: false,
       error: String(err),
@@ -1028,15 +950,15 @@ async function checkInatSimilarSpecies(
   fernsBase: string,
   taxonId: number | undefined,
 ): Promise<EndpointComparison> {
-  const fernsEndpoint = `/api/inat/similar-species`;
+  const fernsEndpoint = `/api/inat/identifications/similar_species`;
   const tid = taxonId ?? 47486;
   const fernsUrl = `${fernsBase}${fernsEndpoint}?taxon_id=${tid}`;
-  const label = `iNat similar-species (taxon_id=${tid})`;
+  const label = `iNat identifications/similar_species (taxon_id=${tid})`;
 
   try {
     const fernsRaw = await fetchJson(fernsUrl) as Record<string, unknown>;
     const findings: FieldFinding[] = [];
-    const urlsCollected = collectUrls(fernsRaw, "inat/similar-species");
+    const urlsCollected = collectUrls(fernsRaw, "inat/identifications/similar_species");
 
     for (const field of ["source_url", "found", "data"] as const) {
       if (fernsRaw[field] !== undefined) {
@@ -1094,15 +1016,15 @@ async function checkInatSimilarSpecies(
 }
 
 async function checkInatIdentSpeciesCounts(fernsBase: string): Promise<EndpointComparison> {
-  const fernsEndpoint = `/api/inat/identification-species-counts`;
+  const fernsEndpoint = `/api/inat/identifications/species_counts`;
   const placeId = 2649;
   const fernsUrl = `${fernsBase}${fernsEndpoint}?place_id=${placeId}&quality_grade=research&per_page=10`;
-  const label = `iNat identification-species-counts (place_id=${placeId}, research)`;
+  const label = `iNat identifications/species_counts (place_id=${placeId}, research)`;
 
   try {
     const fernsRaw = await fetchJson(fernsUrl) as Record<string, unknown>;
     const findings: FieldFinding[] = [];
-    const urlsCollected = collectUrls(fernsRaw, "inat/identification-species-counts");
+    const urlsCollected = collectUrls(fernsRaw, "inat/identifications/species_counts");
 
     for (const field of ["source_url", "found", "data"] as const) {
       if (fernsRaw[field] !== undefined) {
@@ -1165,15 +1087,15 @@ async function checkInatIdentSpeciesCounts(fernsBase: string): Promise<EndpointC
 }
 
 async function checkInatRecentTaxa(fernsBase: string): Promise<EndpointComparison> {
-  const fernsEndpoint = `/api/inat/recent-taxa`;
+  const fernsEndpoint = `/api/inat/identifications/recent_taxa`;
   const placeId = 10;
   const fernsUrl = `${fernsBase}${fernsEndpoint}?place_id=${placeId}&quality_grade=research&per_page=10`;
-  const label = `iNat recent-taxa (place_id=${placeId} Michigan, research)`;
+  const label = `iNat identifications/recent_taxa (place_id=${placeId} Michigan, research)`;
 
   try {
     const fernsRaw = await fetchJson(fernsUrl) as Record<string, unknown>;
     const findings: FieldFinding[] = [];
-    const urlsCollected = collectUrls(fernsRaw, "inat/recent-taxa");
+    const urlsCollected = collectUrls(fernsRaw, "inat/identifications/recent_taxa");
 
     for (const field of ["source_url", "found", "data"] as const) {
       if (fernsRaw[field] !== undefined) {

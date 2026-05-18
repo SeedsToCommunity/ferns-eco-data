@@ -150,7 +150,7 @@ const tools: ToolDef[] = [
   // ── inaturalist ─────────────────────────────────────────────────────────
   {
     tool: {
-      name: "inaturalist__place",
+      name: "inaturalist__places_autocomplete",
       description:
         "Searches iNaturalist's place index by name and returns matching place records with place IDs. Place IDs are required by other iNaturalist tools to filter results geographically.",
       inputSchema: {
@@ -164,7 +164,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/inat/place", {
+      apiGet("/inat/places/autocomplete", {
         q:       String(args["q"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
         provenance_verbosity: pv(args),
@@ -172,29 +172,7 @@ const tools: ToolDef[] = [
   },
   {
     tool: {
-      name: "inaturalist__species",
-      description:
-        "Returns the iNaturalist taxon record for a scientific name, including the taxon ID, common name, default photo, and observation count. Taxon IDs are required by the histogram and field-values tools.",
-      inputSchema: {
-        type: "object" as const,
-        properties: {
-          name:    { type: "string", description: "Scientific name (e.g. Trillium grandiflorum)" },
-          refresh: { type: "boolean", description: "Bypass cache" },
-          ...PV_PROP,
-        },
-        required: ["name"],
-      },
-    },
-    handler: async (args) =>
-      apiGet("/inat/species", {
-        name:    String(args["name"]),
-        refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
-        provenance_verbosity: pv(args),
-      }),
-  },
-  {
-    tool: {
-      name: "inaturalist__histogram",
+      name: "inaturalist__observations_histogram",
       description:
         "Returns a monthly phenology histogram of iNaturalist observation counts for a taxon, optionally filtered by place and phenological stage. Use term_id=12 to restrict to Flowers and Fruits annotations only (stage-filtered histogram), producing a curve that reflects flowering/fruiting activity rather than all observations. Useful for understanding seasonal bloom, fruiting, or leaf-out patterns.",
       inputSchema: {
@@ -211,7 +189,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/inat/histogram", {
+      apiGet("/inat/observations/histogram", {
         taxon_id:      Number(args["taxon_id"]),
         place_id:      args["place_id"]      !== undefined ? String(args["place_id"])      : undefined,
         term_id:       args["term_id"]       !== undefined ? Number(args["term_id"])       : undefined,
@@ -222,7 +200,7 @@ const tools: ToolDef[] = [
   },
   {
     tool: {
-      name: "inaturalist__field_values",
+      name: "inaturalist__observations_popular_field_values",
       description:
         "Returns observer-submitted field values (e.g., habitat, plant height) for a taxon from iNaturalist, optionally filtered by place and verification status.",
       inputSchema: {
@@ -238,7 +216,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/inat/field-values", {
+      apiGet("/inat/observations/popular_field_values", {
         taxon_id:   Number(args["taxon_id"]),
         place_id:   args["place_id"] !== undefined ? String(args["place_id"]) : undefined,
         verifiable: args["verifiable"] !== undefined ? String(args["verifiable"]) : undefined,
@@ -248,7 +226,7 @@ const tools: ToolDef[] = [
   },
   {
     tool: {
-      name: "inaturalist__observation_summary",
+      name: "inaturalist__observations",
       description:
         "Returns one page of iNaturalist observation records as a curated field subset (id, uri, observed_on, quality_grade, taxon_name, common_name, place_guess, location, observer, photo_url, photo_attribution). This is NOT the full iNat record — follow the uri field for the complete observation. Supports pagination via page and per_page. The iNat API enforces a hard ceiling of 10,000 accessible results (page × per_page ≤ 10,000). No caching — every call is live.",
       inputSchema: {
@@ -265,7 +243,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/inat/observation-summary", {
+      apiGet("/inat/observations", {
         taxon_id:      args["taxon_id"]      !== undefined ? Number(args["taxon_id"])   : undefined,
         place_id:      args["place_id"]      !== undefined ? Number(args["place_id"])   : undefined,
         quality_grade: args["quality_grade"] !== undefined ? String(args["quality_grade"]) : undefined,
@@ -277,7 +255,7 @@ const tools: ToolDef[] = [
 
   {
     tool: {
-      name: "inaturalist__species_counts",
+      name: "inaturalist__observations_species_counts",
       description:
         "Returns species ranked by observation count from iNaturalist. Useful for identifying which species are most frequently observed in a given place or under specific filters. Supports filtering by place, quality grade, iconic taxon group (e.g. Plantae), nativity (native/introduced), phenology annotations (term_id/term_value_id), month window, and geographic constraints (lat/lng radius or bounding box). No caching — every call is live.",
       inputSchema: {
@@ -306,7 +284,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/inat/species-counts", {
+      apiGet("/inat/observations/species_counts", {
         place_id:          args["place_id"]          !== undefined ? Number(args["place_id"])          : undefined,
         quality_grade:     args["quality_grade"]     !== undefined ? String(args["quality_grade"])     : undefined,
         iconic_taxon_name: args["iconic_taxon_name"] !== undefined ? String(args["iconic_taxon_name"]) : undefined,
@@ -343,7 +321,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/inat/controlled-terms", {
+      apiGet("/inat/controlled_terms", {
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
         provenance_verbosity: pv(args),
       }),
@@ -365,7 +343,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/inat/controlled-terms/for-taxon", {
+      apiGet("/inat/controlled_terms/for_taxon", {
         taxon_id: Number(args["taxon_id"]),
         refresh:  args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
         provenance_verbosity: pv(args),
@@ -407,7 +385,7 @@ const tools: ToolDef[] = [
 
   {
     tool: {
-      name: "inaturalist__taxon_by_id",
+      name: "inaturalist__taxa_by_id",
       description:
         "Returns the full iNaturalist taxon record for a known taxon ID, including Wikipedia summary, listed_taxa (nativity per place — the canonical source of native/introduced/endemic status), children, conservation_status, and default_photo. DB-cached for 30 days. Use refresh=true to force a re-fetch.",
       inputSchema: {
@@ -421,7 +399,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet(`/inat/taxon/${Number(args["id"])}`, {
+      apiGet(`/inat/taxa/${Number(args["id"])}`, {
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
         provenance_verbosity: pv(args),
       }),
@@ -429,7 +407,7 @@ const tools: ToolDef[] = [
 
   {
     tool: {
-      name: "inaturalist__place_by_id",
+      name: "inaturalist__places_by_id",
       description:
         "Returns the full iNaturalist place record for a known place ID, including display name, place type, centroid, bounding box, and admin hierarchy. DB-cached permanently (place IDs are stable). Use refresh=true to force a re-fetch.",
       inputSchema: {
@@ -444,7 +422,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet(`/inat/place/${Number(args["id"])}`, {
+      apiGet(`/inat/places/${Number(args["id"])}`, {
         admin_level: args["admin_level"] !== undefined ? Number(args["admin_level"]) : undefined,
         refresh:     args["refresh"]     !== undefined ? String(args["refresh"])     : undefined,
         provenance_verbosity: pv(args),
@@ -453,7 +431,7 @@ const tools: ToolDef[] = [
 
   {
     tool: {
-      name: "inaturalist__taxon_summary",
+      name: "inaturalist__observations_taxon_summary",
       description:
         "Returns the Wikipedia summary, place-specific nativity (establishment_means), and conservation status for the taxon associated with a specific iNaturalist observation. The observation_id determines which location context is used for nativity data. Live call, no cache.",
       inputSchema: {
@@ -466,15 +444,14 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/inat/taxon-summary", {
-        observation_id: Number(args["observation_id"]),
+      apiGet(`/inat/observations/${Number(args["observation_id"])}/taxon_summary`, {
         provenance_verbosity: pv(args),
       }),
   },
 
   {
     tool: {
-      name: "inaturalist__similar_species",
+      name: "inaturalist__identifications_similar_species",
       description:
         "Returns species commonly confused with a given taxon from iNaturalist's identification history, ranked by co-confusion count. Useful for disambiguation and quality identification work. Optionally filtered by place and geography. Live call, no cache.",
       inputSchema: {
@@ -496,7 +473,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/inat/similar-species", {
+      apiGet("/inat/identifications/similar_species", {
         taxon_id:      Number(args["taxon_id"]),
         place_id:      args["place_id"]      !== undefined ? Number(args["place_id"])      : undefined,
         quality_grade: args["quality_grade"] !== undefined ? String(args["quality_grade"]) : undefined,
@@ -513,7 +490,7 @@ const tools: ToolDef[] = [
 
   {
     tool: {
-      name: "inaturalist__identification_species_counts",
+      name: "inaturalist__identifications_species_counts",
       description:
         "Returns species ranked by identification activity on iNaturalist — a community engagement signal distinct from raw observation count. Use taxon_of=identification (default) to rank by the identified taxon, or taxon_of=community to rank by the community-agreed taxon. Live call, no cache.",
       inputSchema: {
@@ -546,7 +523,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/inat/identification-species-counts", {
+      apiGet("/inat/identifications/species_counts", {
         taxon_id:      args["taxon_id"]      !== undefined ? Number(args["taxon_id"])      : undefined,
         place_id:      args["place_id"]      !== undefined ? Number(args["place_id"])      : undefined,
         quality_grade: args["quality_grade"] !== undefined ? String(args["quality_grade"]) : undefined,
@@ -574,7 +551,7 @@ const tools: ToolDef[] = [
 
   {
     tool: {
-      name: "inaturalist__recent_taxa",
+      name: "inaturalist__identifications_recent_taxa",
       description:
         "Returns taxa recently identified in a given iNaturalist place — 'what's being documented right now'. Useful for real-time biodiversity monitoring queries. Optionally filtered by taxon, quality grade, and date range. Live call, no cache.",
       inputSchema: {
@@ -593,7 +570,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/inat/recent-taxa", {
+      apiGet("/inat/identifications/recent_taxa", {
         place_id:      args["place_id"]      !== undefined ? Number(args["place_id"])      : undefined,
         taxon_id:      args["taxon_id"]      !== undefined ? Number(args["taxon_id"])      : undefined,
         quality_grade: args["quality_grade"] !== undefined ? String(args["quality_grade"]) : undefined,
@@ -678,7 +655,7 @@ const tools: ToolDef[] = [
 
   {
     tool: {
-      name: "inaturalist__identification_by_id",
+      name: "inaturalist__identifications_by_id",
       description:
         "Returns the full iNaturalist identification record for a known identification ID. An identification is a community taxon determination on an observation. Live call, no cache.",
       inputSchema: {
@@ -691,8 +668,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/inat/identification", {
-        id: Number(args["id"]),
+      apiGet(`/inat/identifications/${Number(args["id"])}`, {
         provenance_verbosity: pv(args),
       }),
   },

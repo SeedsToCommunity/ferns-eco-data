@@ -6,7 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetInatPlaceParams = {
+export type GetInatPlacesAutocompleteParams = {
   /**
    * Place name to search (e.g. Washtenaw County, Michigan, Sleeping Bear Dunes)
    * @minLength 1

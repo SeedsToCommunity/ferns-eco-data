@@ -6,10 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetInatSpeciesCountsQualityGrade =
-  (typeof GetInatSpeciesCountsQualityGrade)[keyof typeof GetInatSpeciesCountsQualityGrade];
+export type GetInatIdentificationsRecentTaxaQualityGrade =
+  (typeof GetInatIdentificationsRecentTaxaQualityGrade)[keyof typeof GetInatIdentificationsRecentTaxaQualityGrade];
 
-export const GetInatSpeciesCountsQualityGrade = {
+export const GetInatIdentificationsRecentTaxaQualityGrade = {
   research: "research",
   needs_id: "needs_id",
   casual: "casual",
