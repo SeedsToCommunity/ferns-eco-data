@@ -148,6 +148,168 @@ export async function fetchImages(name: string): Promise<MifloraImagesResult> {
   };
 }
 
+export function buildFloraSearchCacheKey(name: string): string {
+  const normalized = name.trim().toLowerCase().replace(/\s+/g, " ");
+  return `miflora:flora_search_sp:${normalized}`;
+}
+
+export function buildSpecTextCacheKey(plantId: number): string {
+  return `miflora:spec_text:${plantId}`;
+}
+
+export function buildSynonymsCacheKey(plantId: number): string {
+  return `miflora:synonyms:${plantId}`;
+}
+
+export function buildPImageCacheKey(plantId: number): string {
+  return `miflora:pimage:${plantId}`;
+}
+
+export interface MifloraSpeciesRecord {
+  plant_id: number;
+  scientific_name: string;
+  c: string | null;
+  st: string | null;
+  w: number | null;
+  wet: string | null;
+  phys: string | null;
+  na: string | null;
+  family_name: string | null;
+  author: string | null;
+  acronym: string | null;
+  common_name: string[];
+}
+
+export interface MifloraFloraSearchResult {
+  found: boolean;
+  plant_id: number | null;
+  source_url: string | null;
+  upstream_url: string;
+  records: MifloraSpeciesRecord[];
+}
+
+export async function fetchFloraSearchSp(name: string): Promise<MifloraFloraSearchResult> {
+  const trimmed = name.trim();
+  const url = `${MIFLORA_API_BASE}/flora_search_sp?scientific_name=${encodeURIComponent(trimmed)}`;
+  const raw = await mifloraFetch(url);
+  const rawArr: unknown[] = Array.isArray(raw) ? raw : [];
+  const records: MifloraSpeciesRecord[] = rawArr.map((item) => {
+    const r = item as Record<string, unknown>;
+    return {
+      plant_id: Number(r.plant_id),
+      scientific_name: String(r.scientific_name ?? ""),
+      c: r.c != null ? String(r.c) : null,
+      st: (r.st != null && r.st !== "NULL") ? String(r.st) : null,
+      w: r.w != null ? Number(r.w) : null,
+      wet: r.wet != null ? String(r.wet) : null,
+      phys: r.phys != null ? String(r.phys) : null,
+      na: r.na != null ? String(r.na) : null,
+      family_name: r.family_name != null ? String(r.family_name) : null,
+      author: r.author != null ? String(r.author) : null,
+      acronym: r.acronym != null ? String(r.acronym) : null,
+      common_name: Array.isArray(r.common_name) ? (r.common_name as string[]) : [],
+    };
+  });
+  const first = records[0] ?? null;
+  return {
+    found: records.length > 0,
+    plant_id: first ? first.plant_id : null,
+    source_url: first ? `https://michiganflora.net/species/${first.plant_id}` : null,
+    upstream_url: url,
+    records,
+  };
+}
+
+export interface MifloraSpecTextResult {
+  found: boolean;
+  plant_id: number;
+  source_url: string;
+  upstream_url: string;
+  text: string | null;
+}
+
+export async function fetchSpecText(plantId: number): Promise<MifloraSpecTextResult> {
+  const url = `${MIFLORA_API_BASE}/spec_text?id=${plantId}`;
+  const raw = (await mifloraFetch(url)) as Record<string, unknown>;
+  const text = raw.text != null ? String(raw.text) : null;
+  return {
+    found: text != null && text.length > 0,
+    plant_id: plantId,
+    source_url: `https://michiganflora.net/species/${plantId}`,
+    upstream_url: url,
+    text,
+  };
+}
+
+export interface MifloraSynonymRecord {
+  synonym: string;
+  author: string | null;
+}
+
+export interface MifloraSynonymsResult {
+  found: boolean;
+  plant_id: number;
+  source_url: string;
+  upstream_url: string;
+  synonyms: MifloraSynonymRecord[];
+}
+
+export async function fetchSynonyms(plantId: number): Promise<MifloraSynonymsResult> {
+  const url = `${MIFLORA_API_BASE}/synonyms?id=${plantId}`;
+  const raw = await mifloraFetch(url);
+  const synonyms: MifloraSynonymRecord[] = Array.isArray(raw)
+    ? (raw as Record<string, unknown>[]).map((r) => ({
+        synonym: String(r.synonym ?? ""),
+        author: r.author != null ? String(r.author) : null,
+      }))
+    : [];
+  return {
+    found: synonyms.length > 0,
+    plant_id: plantId,
+    source_url: `https://michiganflora.net/species/${plantId}`,
+    upstream_url: url,
+    synonyms,
+  };
+}
+
+export interface MifloraPImageResult {
+  found: boolean;
+  plant_id: number;
+  source_url: string;
+  upstream_url: string;
+  image: MifloraImageRecord | null;
+}
+
+export async function fetchPImageInfo(plantId: number): Promise<MifloraPImageResult> {
+  const url = `${MIFLORA_API_BASE}/pimage_info?id=${plantId}`;
+  const raw = (await mifloraFetch(url)) as Record<string, unknown>;
+  const imageId = raw.image_id as number | string | undefined;
+  if (imageId == null || "message" in raw) {
+    return {
+      found: false,
+      plant_id: plantId,
+      source_url: `https://michiganflora.net/species/${plantId}`,
+      upstream_url: url,
+      image: null,
+    };
+  }
+  const urls = buildMifloraImageUrls(plantId, imageId);
+  return {
+    found: true,
+    plant_id: plantId,
+    source_url: `https://michiganflora.net/species/${plantId}`,
+    upstream_url: url,
+    image: {
+      image_id: imageId,
+      image_name: raw.image_name != null ? String(raw.image_name) : null,
+      caption: raw.caption != null ? String(raw.caption) : null,
+      photographer: raw.photographer != null ? String(raw.photographer) : null,
+      image_url: urls.image_url,
+      thumbnail_url: urls.thumbnail_url,
+    },
+  };
+}
+
 export function buildProvenance(upstreamUrl: string, method: "api_fetch" | "static_metadata" = "api_fetch") {
   return {
     source_id: MIFLORA_SOURCE_ID,

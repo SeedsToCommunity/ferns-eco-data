@@ -66,7 +66,11 @@ import type {
   GetLadyBirdJohnsonSpeciesTextParams,
   GetLcscgSpeciesParams,
   GetMifloraCountiesParams,
+  GetMifloraFloraSearchParams,
   GetMifloraImagesParams,
+  GetMifloraSpecTextParams,
+  GetMifloraSynonymsParams,
+  GetMifloraPImageInfoParams,
   GetMinnesotaWildflowersParams,
   GetMinnesotaWildflowersSpeciesTextParams,
   GetMissouriPlantsParams,
@@ -114,8 +118,12 @@ import type {
   LcscgMetadataResponse,
   LcscgSpeciesResponse,
   MifloraCountiesResponse,
+  MifloraFloraSearchResponse,
   MifloraImagesResponse,
   MifloraMetadataResponse,
+  MifloraSpecTextResponse,
+  MifloraSynonymsResponse,
+  MifloraPImageInfoResponse,
   MnfiCommunitiesResponse,
   MnfiCommunityPlantsResponse,
   MnfiCommunityResponse,
@@ -3107,6 +3115,286 @@ export function useGetMifloraImages<
     queryKey: QueryKey;
   };
 
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Look up a Michigan Flora species by scientific name
+ */
+
+export const getGetMifloraFloraSearchUrl = (params: GetMifloraFloraSearchParams) => {
+  const normalizedParams = new URLSearchParams();
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+  const stringifiedParams = normalizedParams.toString();
+  return stringifiedParams.length > 0
+    ? `/api/miflora/flora_search_sp?${stringifiedParams}`
+    : `/api/miflora/flora_search_sp`;
+};
+
+export const getMifloraFloraSearch = async (
+  params: GetMifloraFloraSearchParams,
+  options?: RequestInit,
+): Promise<MifloraFloraSearchResponse> => {
+  return customFetch<MifloraFloraSearchResponse>(getGetMifloraFloraSearchUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetMifloraFloraSearchQueryKey = (params?: GetMifloraFloraSearchParams) => {
+  return [`/api/miflora/flora_search_sp`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetMifloraFloraSearchQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMifloraFloraSearch>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetMifloraFloraSearchParams,
+  options?: {
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getMifloraFloraSearch>>, TError, TData>;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+  const queryKey = queryOptions?.queryKey ?? getGetMifloraFloraSearchQueryKey(params);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getMifloraFloraSearch>>> = ({ signal }) =>
+    getMifloraFloraSearch(params, { signal, ...requestOptions });
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMifloraFloraSearch>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMifloraFloraSearchQueryResult = NonNullable<Awaited<ReturnType<typeof getMifloraFloraSearch>>>;
+export type GetMifloraFloraSearchQueryError = ErrorType<ErrorResponse>;
+
+export function useGetMifloraFloraSearch<
+  TData = Awaited<ReturnType<typeof getMifloraFloraSearch>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetMifloraFloraSearchParams,
+  options?: {
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getMifloraFloraSearch>>, TError, TData>;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMifloraFloraSearchQueryOptions(params, options);
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & { queryKey: QueryKey };
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Get botanical description text for a Michigan Flora species by plant_id
+ */
+
+export const getGetMifloraSpecTextUrl = (params: GetMifloraSpecTextParams) => {
+  const normalizedParams = new URLSearchParams();
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+  const stringifiedParams = normalizedParams.toString();
+  return stringifiedParams.length > 0
+    ? `/api/miflora/spec_text?${stringifiedParams}`
+    : `/api/miflora/spec_text`;
+};
+
+export const getMifloraSpecText = async (
+  params: GetMifloraSpecTextParams,
+  options?: RequestInit,
+): Promise<MifloraSpecTextResponse> => {
+  return customFetch<MifloraSpecTextResponse>(getGetMifloraSpecTextUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetMifloraSpecTextQueryKey = (params?: GetMifloraSpecTextParams) => {
+  return [`/api/miflora/spec_text`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetMifloraSpecTextQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMifloraSpecText>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetMifloraSpecTextParams,
+  options?: {
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getMifloraSpecText>>, TError, TData>;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+  const queryKey = queryOptions?.queryKey ?? getGetMifloraSpecTextQueryKey(params);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getMifloraSpecText>>> = ({ signal }) =>
+    getMifloraSpecText(params, { signal, ...requestOptions });
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMifloraSpecText>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMifloraSpecTextQueryResult = NonNullable<Awaited<ReturnType<typeof getMifloraSpecText>>>;
+export type GetMifloraSpecTextQueryError = ErrorType<ErrorResponse>;
+
+export function useGetMifloraSpecText<
+  TData = Awaited<ReturnType<typeof getMifloraSpecText>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetMifloraSpecTextParams,
+  options?: {
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getMifloraSpecText>>, TError, TData>;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMifloraSpecTextQueryOptions(params, options);
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & { queryKey: QueryKey };
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Get taxonomic synonyms for a Michigan Flora species by plant_id
+ */
+
+export const getGetMifloraSynonymsUrl = (params: GetMifloraSynonymsParams) => {
+  const normalizedParams = new URLSearchParams();
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+  const stringifiedParams = normalizedParams.toString();
+  return stringifiedParams.length > 0
+    ? `/api/miflora/synonyms?${stringifiedParams}`
+    : `/api/miflora/synonyms`;
+};
+
+export const getMifloraSynonyms = async (
+  params: GetMifloraSynonymsParams,
+  options?: RequestInit,
+): Promise<MifloraSynonymsResponse> => {
+  return customFetch<MifloraSynonymsResponse>(getGetMifloraSynonymsUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetMifloraSynonymsQueryKey = (params?: GetMifloraSynonymsParams) => {
+  return [`/api/miflora/synonyms`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetMifloraSynonymsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMifloraSynonyms>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetMifloraSynonymsParams,
+  options?: {
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getMifloraSynonyms>>, TError, TData>;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+  const queryKey = queryOptions?.queryKey ?? getGetMifloraSynonymsQueryKey(params);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getMifloraSynonyms>>> = ({ signal }) =>
+    getMifloraSynonyms(params, { signal, ...requestOptions });
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMifloraSynonyms>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMifloraSynonymsQueryResult = NonNullable<Awaited<ReturnType<typeof getMifloraSynonyms>>>;
+export type GetMifloraSynonymsQueryError = ErrorType<ErrorResponse>;
+
+export function useGetMifloraSynonyms<
+  TData = Awaited<ReturnType<typeof getMifloraSynonyms>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetMifloraSynonymsParams,
+  options?: {
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getMifloraSynonyms>>, TError, TData>;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMifloraSynonymsQueryOptions(params, options);
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & { queryKey: QueryKey };
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Get the primary image for a Michigan Flora species by plant_id
+ */
+
+export const getGetMifloraPImageInfoUrl = (params: GetMifloraPImageInfoParams) => {
+  const normalizedParams = new URLSearchParams();
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+  const stringifiedParams = normalizedParams.toString();
+  return stringifiedParams.length > 0
+    ? `/api/miflora/pimage_info?${stringifiedParams}`
+    : `/api/miflora/pimage_info`;
+};
+
+export const getMifloraPImageInfo = async (
+  params: GetMifloraPImageInfoParams,
+  options?: RequestInit,
+): Promise<MifloraPImageInfoResponse> => {
+  return customFetch<MifloraPImageInfoResponse>(getGetMifloraPImageInfoUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetMifloraPImageInfoQueryKey = (params?: GetMifloraPImageInfoParams) => {
+  return [`/api/miflora/pimage_info`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetMifloraPImageInfoQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMifloraPImageInfo>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetMifloraPImageInfoParams,
+  options?: {
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getMifloraPImageInfo>>, TError, TData>;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+  const queryKey = queryOptions?.queryKey ?? getGetMifloraPImageInfoQueryKey(params);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getMifloraPImageInfo>>> = ({ signal }) =>
+    getMifloraPImageInfo(params, { signal, ...requestOptions });
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMifloraPImageInfo>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMifloraPImageInfoQueryResult = NonNullable<Awaited<ReturnType<typeof getMifloraPImageInfo>>>;
+export type GetMifloraPImageInfoQueryError = ErrorType<ErrorResponse>;
+
+export function useGetMifloraPImageInfo<
+  TData = Awaited<ReturnType<typeof getMifloraPImageInfo>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params: GetMifloraPImageInfoParams,
+  options?: {
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getMifloraPImageInfo>>, TError, TData>;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMifloraPImageInfoQueryOptions(params, options);
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & { queryKey: QueryKey };
   return { ...query, queryKey: queryOptions.queryKey };
 }
 

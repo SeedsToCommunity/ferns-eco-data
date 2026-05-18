@@ -1067,6 +1067,112 @@ export interface MifloraImagesResponse {
   provenance: FernsProvenance;
 }
 
+export interface MifloraSpeciesRecord {
+  plant_id: number;
+  scientific_name: string;
+  c?: string | null;
+  st?: string | null;
+  w?: number | null;
+  wet?: string | null;
+  phys?: string | null;
+  na?: string | null;
+  family_name?: string | null;
+  author?: string | null;
+  acronym?: string | null;
+  common_name?: string[];
+}
+
+export type MifloraFloraSearchResponseCacheStatus =
+  (typeof MifloraFloraSearchResponseCacheStatus)[keyof typeof MifloraFloraSearchResponseCacheStatus];
+
+export const MifloraFloraSearchResponseCacheStatus = {
+  hit: "hit",
+  miss: "miss",
+  bypassed: "bypassed",
+  error: "error",
+} as const;
+
+export interface MifloraFloraSearchResponse {
+  source_url: string | null;
+  found: boolean;
+  cache_status: MifloraFloraSearchResponseCacheStatus;
+  queried_at: string;
+  data?: {
+    plant_id: number | null;
+    scientific_name: string | null;
+    family_name: string | null;
+    na: string | null;
+    c: string | null;
+    wet: string | null;
+    phys: string | null;
+    common_name: string[];
+    records: MifloraSpeciesRecord[];
+  } | null;
+  provenance: FernsProvenance;
+}
+
+export type MifloraSpecTextResponseCacheStatus =
+  (typeof MifloraSpecTextResponseCacheStatus)[keyof typeof MifloraSpecTextResponseCacheStatus];
+
+export const MifloraSpecTextResponseCacheStatus = {
+  hit: "hit",
+  miss: "miss",
+  bypassed: "bypassed",
+  error: "error",
+} as const;
+
+export interface MifloraSpecTextResponse {
+  source_url: string | null;
+  found: boolean;
+  cache_status: MifloraSpecTextResponseCacheStatus;
+  queried_at: string;
+  data?: { plant_id: number | null; text: string | null } | null;
+  provenance: FernsProvenance;
+}
+
+export interface MifloraSynonymRecord {
+  synonym: string;
+  author?: string | null;
+}
+
+export type MifloraSynonymsResponseCacheStatus =
+  (typeof MifloraSynonymsResponseCacheStatus)[keyof typeof MifloraSynonymsResponseCacheStatus];
+
+export const MifloraSynonymsResponseCacheStatus = {
+  hit: "hit",
+  miss: "miss",
+  bypassed: "bypassed",
+  error: "error",
+} as const;
+
+export interface MifloraSynonymsResponse {
+  source_url: string | null;
+  found: boolean;
+  cache_status: MifloraSynonymsResponseCacheStatus;
+  queried_at: string;
+  data?: { plant_id: number | null; synonyms: MifloraSynonymRecord[] } | null;
+  provenance: FernsProvenance;
+}
+
+export type MifloraPImageInfoResponseCacheStatus =
+  (typeof MifloraPImageInfoResponseCacheStatus)[keyof typeof MifloraPImageInfoResponseCacheStatus];
+
+export const MifloraPImageInfoResponseCacheStatus = {
+  hit: "hit",
+  miss: "miss",
+  bypassed: "bypassed",
+  error: "error",
+} as const;
+
+export interface MifloraPImageInfoResponse {
+  source_url: string | null;
+  found: boolean;
+  cache_status: MifloraPImageInfoResponseCacheStatus;
+  queried_at: string;
+  data?: { plant_id: number | null; image: MifloraImageRecord | null } | null;
+  provenance: FernsProvenance;
+}
+
 export interface MifloraAttribution {
   source_name: string;
   website: string;
@@ -3351,6 +3457,54 @@ export type GetMifloraImagesParams = {
    * @minLength 1
    */
   name: string;
+  /**
+   * If true, bypasses cache and fetches fresh from Michigan Flora API
+   */
+  refresh?: boolean;
+};
+
+export type GetMifloraFloraSearchParams = {
+  /**
+   * Scientific name to look up (e.g. Quercus rubra)
+   * @minLength 1
+   */
+  name: string;
+  /**
+   * If true, bypasses cache and fetches fresh from Michigan Flora API
+   */
+  refresh?: boolean;
+};
+
+export type GetMifloraSpecTextParams = {
+  /**
+   * Michigan Flora plant_id (positive integer, from flora_search_sp)
+   * @minimum 1
+   */
+  id: number;
+  /**
+   * If true, bypasses cache and fetches fresh from Michigan Flora API
+   */
+  refresh?: boolean;
+};
+
+export type GetMifloraSynonymsParams = {
+  /**
+   * Michigan Flora plant_id (positive integer, from flora_search_sp)
+   * @minimum 1
+   */
+  id: number;
+  /**
+   * If true, bypasses cache and fetches fresh from Michigan Flora API
+   */
+  refresh?: boolean;
+};
+
+export type GetMifloraPImageInfoParams = {
+  /**
+   * Michigan Flora plant_id (positive integer, from flora_search_sp)
+   * @minimum 1
+   */
+  id: number;
   /**
    * If true, bypasses cache and fetches fresh from Michigan Flora API
    */

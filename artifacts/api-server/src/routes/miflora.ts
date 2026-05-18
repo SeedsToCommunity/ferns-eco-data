@@ -2,14 +2,32 @@ import { Router, type IRouter } from "express";
 import {
   buildCountiesCacheKey,
   buildImagesCacheKey,
+  buildFloraSearchCacheKey,
+  buildSpecTextCacheKey,
+  buildSynonymsCacheKey,
+  buildPImageCacheKey,
   fetchCounties,
   fetchImages,
+  fetchFloraSearchSp,
+  fetchSpecText,
+  fetchSynonyms,
+  fetchPImageInfo,
+  type MifloraSpeciesRecord,
+  type MifloraSynonymRecord,
 } from "../services/miflora/connector.js";
 import {
   lookupCounties,
   storeCounties,
   lookupImages,
   storeImages,
+  lookupFloraSearch,
+  storeFloraSearch,
+  lookupSpecText,
+  storeSpecText,
+  lookupSynonyms,
+  storeSynonyms,
+  lookupPImage,
+  storePImage,
 } from "../services/miflora/cache.js";
 import {
   MIFLORA_SOURCE_ID,
@@ -181,6 +199,281 @@ function buildImagesResponse(
       general_summary: row.general_summary,
       technical_details: row.technical_details,
       ...(row.queried_name ? { matched_input: row.queried_name } : {}),
+    }, verbosity),
+  };
+}
+
+router.get("/miflora/flora_search_sp", async (req, res) => {
+  const rawName = req.query.name;
+  if (!rawName || typeof rawName !== "string" || rawName.trim() === "") {
+    res.status(400).json({ error: "invalid_input", message: "name is required and must be a non-empty string" });
+    return;
+  }
+  const name = rawName.trim();
+  const refresh = req.query.refresh === "true" || req.query.refresh === "1";
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+  const cacheKey = buildFloraSearchCacheKey(name);
+
+  if (!refresh) {
+    const cached = await lookupFloraSearch(cacheKey);
+    if (cached) {
+      res.json(buildFloraSearchResponse(cached, "hit", verbosity));
+      return;
+    }
+  }
+
+  try {
+    const result = await fetchFloraSearchSp(name);
+    const stored = await storeFloraSearch(cacheKey, name, result);
+    res.json(buildFloraSearchResponse(stored, refresh ? "bypassed" : "miss", verbosity));
+  } catch (err) {
+    req.log.error({ err }, "Michigan Flora flora_search_sp failed");
+    res.status(502).json({ error: "upstream_error", message: "Failed to fetch from Michigan Flora API" });
+  }
+});
+
+function buildFloraSearchResponse(
+  row: {
+    found: boolean;
+    source_url: string | null;
+    raw_response: unknown;
+    fetched_at: Date;
+    upstream_url: string;
+    source_id: string;
+    method: string;
+    general_summary: string;
+    technical_details: string;
+    plant_id?: number | null;
+    queried_name?: string;
+  },
+  cache_status: "hit" | "miss" | "bypassed" | "error",
+  verbosity?: string,
+) {
+  const rawResponse = row.raw_response as { records: MifloraSpeciesRecord[] } | null;
+  const records = rawResponse?.records ?? [];
+  const first = records[0] ?? null;
+  return {
+    source_url: row.source_url ?? null,
+    found: row.found,
+    cache_status,
+    queried_at: new Date(),
+    data: {
+      plant_id: row.plant_id ?? first?.plant_id ?? null,
+      scientific_name: first?.scientific_name ?? null,
+      family_name: first?.family_name ?? null,
+      na: first?.na ?? null,
+      c: first?.c ?? null,
+      wet: first?.wet ?? null,
+      phys: first?.phys ?? null,
+      common_name: first?.common_name ?? [],
+      records,
+    },
+    provenance: filterProvenance({
+      source_id: row.source_id,
+      fetched_at: row.fetched_at,
+      method: row.method,
+      upstream_url: row.upstream_url,
+      general_summary: row.general_summary,
+      technical_details: row.technical_details,
+      ...(row.queried_name ? { matched_input: row.queried_name } : {}),
+    }, verbosity),
+  };
+}
+
+router.get("/miflora/spec_text", async (req, res) => {
+  const rawId = req.query.id;
+  const id = rawId && typeof rawId === "string" ? parseInt(rawId, 10) : NaN;
+  if (!Number.isInteger(id) || id < 1) {
+    res.status(400).json({ error: "invalid_input", message: "id must be a positive integer (Michigan Flora plant_id)" });
+    return;
+  }
+  const refresh = req.query.refresh === "true" || req.query.refresh === "1";
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+  const cacheKey = buildSpecTextCacheKey(id);
+
+  if (!refresh) {
+    const cached = await lookupSpecText(cacheKey);
+    if (cached) {
+      res.json(buildSpecTextResponse(cached, "hit", verbosity));
+      return;
+    }
+  }
+
+  try {
+    const result = await fetchSpecText(id);
+    const stored = await storeSpecText(cacheKey, id, result);
+    res.json(buildSpecTextResponse(stored, refresh ? "bypassed" : "miss", verbosity));
+  } catch (err) {
+    req.log.error({ err }, "Michigan Flora spec_text failed");
+    res.status(502).json({ error: "upstream_error", message: "Failed to fetch from Michigan Flora API" });
+  }
+});
+
+function buildSpecTextResponse(
+  row: {
+    found: boolean;
+    source_url: string | null;
+    raw_response: unknown;
+    fetched_at: Date;
+    upstream_url: string;
+    source_id: string;
+    method: string;
+    general_summary: string;
+    technical_details: string;
+    plant_id?: number | null;
+  },
+  cache_status: "hit" | "miss" | "bypassed" | "error",
+  verbosity?: string,
+) {
+  const rawResponse = row.raw_response as { text: string | null } | null;
+  return {
+    source_url: row.source_url ?? null,
+    found: row.found,
+    cache_status,
+    queried_at: new Date(),
+    data: {
+      plant_id: row.plant_id ?? null,
+      text: rawResponse?.text ?? null,
+    },
+    provenance: filterProvenance({
+      source_id: row.source_id,
+      fetched_at: row.fetched_at,
+      method: row.method,
+      upstream_url: row.upstream_url,
+      general_summary: row.general_summary,
+      technical_details: row.technical_details,
+    }, verbosity),
+  };
+}
+
+router.get("/miflora/synonyms", async (req, res) => {
+  const rawId = req.query.id;
+  const id = rawId && typeof rawId === "string" ? parseInt(rawId, 10) : NaN;
+  if (!Number.isInteger(id) || id < 1) {
+    res.status(400).json({ error: "invalid_input", message: "id must be a positive integer (Michigan Flora plant_id)" });
+    return;
+  }
+  const refresh = req.query.refresh === "true" || req.query.refresh === "1";
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+  const cacheKey = buildSynonymsCacheKey(id);
+
+  if (!refresh) {
+    const cached = await lookupSynonyms(cacheKey);
+    if (cached) {
+      res.json(buildSynonymsResponse(cached, "hit", verbosity));
+      return;
+    }
+  }
+
+  try {
+    const result = await fetchSynonyms(id);
+    const stored = await storeSynonyms(cacheKey, id, result);
+    res.json(buildSynonymsResponse(stored, refresh ? "bypassed" : "miss", verbosity));
+  } catch (err) {
+    req.log.error({ err }, "Michigan Flora synonyms failed");
+    res.status(502).json({ error: "upstream_error", message: "Failed to fetch from Michigan Flora API" });
+  }
+});
+
+function buildSynonymsResponse(
+  row: {
+    found: boolean;
+    source_url: string | null;
+    raw_response: unknown;
+    fetched_at: Date;
+    upstream_url: string;
+    source_id: string;
+    method: string;
+    general_summary: string;
+    technical_details: string;
+    plant_id?: number | null;
+  },
+  cache_status: "hit" | "miss" | "bypassed" | "error",
+  verbosity?: string,
+) {
+  const rawResponse = row.raw_response as { synonyms: MifloraSynonymRecord[] } | null;
+  return {
+    source_url: row.source_url ?? null,
+    found: row.found,
+    cache_status,
+    queried_at: new Date(),
+    data: {
+      plant_id: row.plant_id ?? null,
+      synonyms: rawResponse?.synonyms ?? [],
+    },
+    provenance: filterProvenance({
+      source_id: row.source_id,
+      fetched_at: row.fetched_at,
+      method: row.method,
+      upstream_url: row.upstream_url,
+      general_summary: row.general_summary,
+      technical_details: row.technical_details,
+    }, verbosity),
+  };
+}
+
+router.get("/miflora/pimage_info", async (req, res) => {
+  const rawId = req.query.id;
+  const id = rawId && typeof rawId === "string" ? parseInt(rawId, 10) : NaN;
+  if (!Number.isInteger(id) || id < 1) {
+    res.status(400).json({ error: "invalid_input", message: "id must be a positive integer (Michigan Flora plant_id)" });
+    return;
+  }
+  const refresh = req.query.refresh === "true" || req.query.refresh === "1";
+  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+  const cacheKey = buildPImageCacheKey(id);
+
+  if (!refresh) {
+    const cached = await lookupPImage(cacheKey);
+    if (cached) {
+      res.json(buildPImageResponse(cached, "hit", verbosity));
+      return;
+    }
+  }
+
+  try {
+    const result = await fetchPImageInfo(id);
+    const stored = await storePImage(cacheKey, id, result);
+    res.json(buildPImageResponse(stored, refresh ? "bypassed" : "miss", verbosity));
+  } catch (err) {
+    req.log.error({ err }, "Michigan Flora pimage_info failed");
+    res.status(502).json({ error: "upstream_error", message: "Failed to fetch from Michigan Flora API" });
+  }
+});
+
+function buildPImageResponse(
+  row: {
+    found: boolean;
+    source_url: string | null;
+    raw_response: unknown;
+    fetched_at: Date;
+    upstream_url: string;
+    source_id: string;
+    method: string;
+    general_summary: string;
+    technical_details: string;
+    plant_id?: number | null;
+  },
+  cache_status: "hit" | "miss" | "bypassed" | "error",
+  verbosity?: string,
+) {
+  const rawResponse = row.raw_response as { image: unknown } | null;
+  return {
+    source_url: row.source_url ?? null,
+    found: row.found,
+    cache_status,
+    queried_at: new Date(),
+    data: {
+      plant_id: row.plant_id ?? null,
+      image: rawResponse?.image ?? null,
+    },
+    provenance: filterProvenance({
+      source_id: row.source_id,
+      fetched_at: row.fetched_at,
+      method: row.method,
+      upstream_url: row.upstream_url,
+      general_summary: row.general_summary,
+      technical_details: row.technical_details,
     }, verbosity),
   };
 }

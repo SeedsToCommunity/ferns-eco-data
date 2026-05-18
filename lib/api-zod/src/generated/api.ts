@@ -2662,6 +2662,189 @@ export const GetMifloraImagesResponse = zod
   );
 
 /**
+ * Look up a Michigan Flora species by scientific name via flora_search_sp.
+ * @summary Look up a Michigan Flora species by scientific name
+ */
+
+export const getMifloraFloraSearchQueryRefreshDefault = false;
+
+export const GetMifloraFloraSearchQueryParams = zod.object({
+  name: zod
+    .string()
+    .min(1)
+    .describe("Scientific name to look up (e.g. Quercus rubra)"),
+  refresh: zod.coerce
+    .boolean()
+    .default(getMifloraFloraSearchQueryRefreshDefault)
+    .describe("If true, bypasses cache and fetches fresh from Michigan Flora API"),
+});
+
+export const GetMifloraFloraSearchResponse = zod
+  .object({
+    source_url: zod.string().nullable().describe("Michigan Flora species page URL. Null when species not found."),
+    found: zod.boolean().describe("Whether a species record was found for this name"),
+    cache_status: zod.enum(["hit", "miss", "bypassed", "error"]),
+    queried_at: zod.date(),
+    data: zod
+      .object({
+        plant_id: zod.number().nullable(),
+        scientific_name: zod.string().nullable(),
+        family_name: zod.string().nullable(),
+        na: zod.string().nullable(),
+        c: zod.string().nullable(),
+        wet: zod.string().nullable(),
+        phys: zod.string().nullable(),
+        common_name: zod.array(zod.string()),
+        records: zod.array(
+          zod.object({
+            plant_id: zod.number(),
+            scientific_name: zod.string(),
+            c: zod.string().nullable(),
+            st: zod.string().nullable(),
+            w: zod.number().nullable(),
+            wet: zod.string().nullable(),
+            phys: zod.string().nullable(),
+            na: zod.string().nullable(),
+            family_name: zod.string().nullable(),
+            author: zod.string().nullable(),
+            acronym: zod.string().nullable(),
+            common_name: zod.array(zod.string()),
+          }),
+        ),
+      })
+      .nullable()
+      .describe("Species data from the first matching record, plus full records array."),
+    provenance: zod.object({
+      source_id: zod.string(),
+      fetched_at: zod.date(),
+      method: zod.string(),
+      upstream_url: zod.string(),
+      general_summary: zod.string().optional(),
+      technical_details: zod.string().optional(),
+      matched_input: zod.string().optional(),
+    }),
+  })
+  .describe("FERNS envelope for Michigan Flora flora_search_sp.\n");
+
+/**
+ * Get botanical description text for a Michigan Flora species by plant_id.
+ * @summary Get botanical description text
+ */
+
+export const getMifloraSpecTextQueryRefreshDefault = false;
+
+export const GetMifloraSpecTextQueryParams = zod.object({
+  id: zod.coerce.number().int().min(1).describe("Michigan Flora plant_id (positive integer, from flora_search_sp)"),
+  refresh: zod.coerce
+    .boolean()
+    .default(getMifloraSpecTextQueryRefreshDefault)
+    .describe("If true, bypasses cache and fetches fresh from Michigan Flora API"),
+});
+
+export const GetMifloraSpecTextResponse = zod
+  .object({
+    source_url: zod.string().nullable(),
+    found: zod.boolean(),
+    cache_status: zod.enum(["hit", "miss", "bypassed", "error"]),
+    queried_at: zod.date(),
+    data: zod.object({ plant_id: zod.number().nullable(), text: zod.string().nullable() }).nullable(),
+    provenance: zod.object({
+      source_id: zod.string(),
+      fetched_at: zod.date(),
+      method: zod.string(),
+      upstream_url: zod.string(),
+      general_summary: zod.string().optional(),
+      technical_details: zod.string().optional(),
+    }),
+  })
+  .describe("FERNS envelope for Michigan Flora spec_text.\n");
+
+/**
+ * Get taxonomic synonyms for a Michigan Flora species by plant_id.
+ * @summary Get taxonomic synonyms
+ */
+
+export const getMifloraSynonymsQueryRefreshDefault = false;
+
+export const GetMifloraSynonymsQueryParams = zod.object({
+  id: zod.coerce.number().int().min(1).describe("Michigan Flora plant_id (positive integer, from flora_search_sp)"),
+  refresh: zod.coerce
+    .boolean()
+    .default(getMifloraSynonymsQueryRefreshDefault)
+    .describe("If true, bypasses cache and fetches fresh from Michigan Flora API"),
+});
+
+export const GetMifloraSynonymsResponse = zod
+  .object({
+    source_url: zod.string().nullable(),
+    found: zod.boolean(),
+    cache_status: zod.enum(["hit", "miss", "bypassed", "error"]),
+    queried_at: zod.date(),
+    data: zod
+      .object({
+        plant_id: zod.number().nullable(),
+        synonyms: zod.array(zod.object({ synonym: zod.string(), author: zod.string().nullable() })),
+      })
+      .nullable(),
+    provenance: zod.object({
+      source_id: zod.string(),
+      fetched_at: zod.date(),
+      method: zod.string(),
+      upstream_url: zod.string(),
+      general_summary: zod.string().optional(),
+      technical_details: zod.string().optional(),
+    }),
+  })
+  .describe("FERNS envelope for Michigan Flora synonyms.\n");
+
+/**
+ * Get the primary image for a Michigan Flora species by plant_id.
+ * @summary Get primary image
+ */
+
+export const getMifloraPImageInfoQueryRefreshDefault = false;
+
+export const GetMifloraPImageInfoQueryParams = zod.object({
+  id: zod.coerce.number().int().min(1).describe("Michigan Flora plant_id (positive integer, from flora_search_sp)"),
+  refresh: zod.coerce
+    .boolean()
+    .default(getMifloraPImageInfoQueryRefreshDefault)
+    .describe("If true, bypasses cache and fetches fresh from Michigan Flora API"),
+});
+
+export const GetMifloraPImageInfoResponse = zod
+  .object({
+    source_url: zod.string().nullable(),
+    found: zod.boolean(),
+    cache_status: zod.enum(["hit", "miss", "bypassed", "error"]),
+    queried_at: zod.date(),
+    data: zod
+      .object({
+        plant_id: zod.number().nullable(),
+        image: zod
+          .object({
+            image_id: zod.union([zod.number(), zod.string()]),
+            image_name: zod.string().nullish(),
+            caption: zod.string().nullish(),
+            photographer: zod.string().nullish(),
+            image_url: zod.string(),
+            thumbnail_url: zod.string(),
+          })
+          .nullable(),
+      })
+      .nullable(),
+    provenance: zod.object({
+      source_id: zod.string(),
+      fetched_at: zod.date(),
+      method: zod.string(),
+      upstream_url: zod.string(),
+      general_summary: zod.string().optional(),
+      technical_details: zod.string().optional(),
+    }),
+  })
+  .describe("FERNS envelope for Michigan Flora pimage_info.\n");
+
+/**
  * Returns service identity, attribution, permission status, and the full registry entry for the Michigan Flora service. Use this to populate 'About this data' panels in any application displaying Michigan Flora data. Also seeds the Michigan Flora entry in the FERNS source registry.
 
  * @summary Michigan Flora service metadata

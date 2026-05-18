@@ -1930,6 +1930,186 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /miflora/flora_search_sp:
+    get:
+      operationId: getMifloraFloraSearch
+      tags: [miflora]
+      summary: Look up a Michigan Flora species by scientific name
+      description: >
+        Mirrors the Michigan Flora flora_search_sp endpoint verbatim. Returns the first
+        matching species record for the given scientific name, including plant_id, family,
+        native status (na: N=native, A=adventive), C-value, wetland indicator code, physiognomy,
+        and common names. The plant_id is required for the spec_text, synonyms, and pimage_info
+        endpoints. Cached permanently (no TTL) — use ?refresh=true to force a re-fetch.
+      parameters:
+        - name: name
+          in: query
+          required: true
+          description: Scientific name to look up (e.g. Quercus rubra)
+          schema:
+            type: string
+            minLength: 1
+        - name: refresh
+          in: query
+          required: false
+          description: If true, bypasses cache and fetches fresh from Michigan Flora API
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Species lookup result (check the found field)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MifloraFloraSearchResponse"
+        "400":
+          description: Missing or empty name parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: Michigan Flora API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /miflora/spec_text:
+    get:
+      operationId: getMifloraSpecText
+      tags: [miflora]
+      summary: Get botanical description text for a Michigan Flora species by plant_id
+      description: >
+        Mirrors the Michigan Flora spec_text endpoint. Returns the botanical description
+        HTML text for the given plant_id. Use flora_search_sp to resolve a scientific name
+        to a plant_id first. Cached permanently (no TTL) — use ?refresh=true to re-fetch.
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: Michigan Flora plant_id (positive integer, from flora_search_sp)
+          schema:
+            type: integer
+            minimum: 1
+        - name: refresh
+          in: query
+          required: false
+          description: If true, bypasses cache and fetches fresh from Michigan Flora API
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Botanical description text
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MifloraSpecTextResponse"
+        "400":
+          description: Missing or invalid id parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: Michigan Flora API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /miflora/synonyms:
+    get:
+      operationId: getMifloraSynonyms
+      tags: [miflora]
+      summary: Get taxonomic synonyms for a Michigan Flora species by plant_id
+      description: >
+        Mirrors the Michigan Flora synonyms endpoint. Returns an array of taxonomic
+        synonyms for the given plant_id, or an empty array if none exist.
+        Use flora_search_sp to resolve a scientific name to a plant_id first.
+        Cached permanently (no TTL) — use ?refresh=true to re-fetch.
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: Michigan Flora plant_id (positive integer, from flora_search_sp)
+          schema:
+            type: integer
+            minimum: 1
+        - name: refresh
+          in: query
+          required: false
+          description: If true, bypasses cache and fetches fresh from Michigan Flora API
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Synonym list (may be empty if no synonyms exist)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MifloraSynonymsResponse"
+        "400":
+          description: Missing or invalid id parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: Michigan Flora API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /miflora/pimage_info:
+    get:
+      operationId: getMifloraPImageInfo
+      tags: [miflora]
+      summary: Get the primary image for a Michigan Flora species by plant_id
+      description: >
+        Mirrors the Michigan Flora pimage_info endpoint. Returns the primary (featured)
+        image record for the given plant_id, enriched with constructed absolute image_url
+        and thumbnail_url fields. Use flora_search_sp to resolve a scientific name to a
+        plant_id first. Cached permanently (no TTL) — use ?refresh=true to re-fetch.
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: Michigan Flora plant_id (positive integer, from flora_search_sp)
+          schema:
+            type: integer
+            minimum: 1
+        - name: refresh
+          in: query
+          required: false
+          description: If true, bypasses cache and fetches fresh from Michigan Flora API
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Primary image record (found may be false if no image exists)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MifloraPImageInfoResponse"
+        "400":
+          description: Missing or invalid id parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: Michigan Flora API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /miflora/metadata:
     get:
       operationId: getMifloraMetadata
@@ -5685,6 +5865,259 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/MifloraImageRecord"
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    MifloraSpeciesRecord:
+      type: object
+      description: A single species record from the Michigan Flora flora_search_sp endpoint.
+      required:
+        - plant_id
+        - scientific_name
+        - common_name
+      properties:
+        plant_id:
+          type: integer
+          description: Michigan Flora internal plant ID
+        scientific_name:
+          type: string
+          description: Scientific name of the species
+        c:
+          type: string
+          nullable: true
+          description: Coefficient of Conservatism (0–10, or null if not assigned)
+        st:
+          type: string
+          nullable: true
+          description: State status code (T=threatened, E=endangered, X=probably extirpated, etc.)
+        w:
+          type: number
+          nullable: true
+          description: Coefficient of Wetness (-5 to +5)
+        wet:
+          type: string
+          nullable: true
+          description: Wetland indicator status code (OBL/FACW/FAC/FACU/UPL)
+        phys:
+          type: string
+          nullable: true
+          description: Physiognomy code (e.g. Wt, Sh, Fo, Gr)
+        na:
+          type: string
+          nullable: true
+          description: Native status (N=native, A=adventive/non-native)
+        family_name:
+          type: string
+          nullable: true
+          description: Plant family name
+        author:
+          type: string
+          nullable: true
+          description: Taxonomic authority
+        acronym:
+          type: string
+          nullable: true
+          description: Short species code used in Michigan Flora
+        common_name:
+          type: array
+          items:
+            type: string
+          description: Array of common names for this species
+
+    MifloraFloraSearchResponse:
+      type: object
+      description: >
+        FERNS envelope for Michigan Flora flora_search_sp. data contains the first matching
+        species record plus the full records array. Cached permanently (no TTL).
+      required:
+        - source_url
+        - found
+        - cache_status
+        - queried_at
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+          nullable: true
+          description: Michigan Flora species page URL. Null when species not found.
+        found:
+          type: boolean
+          description: Whether a species record was found for this name
+        cache_status:
+          type: string
+          enum: [hit, miss, bypassed, error]
+        queried_at:
+          type: string
+          format: date-time
+        data:
+          nullable: true
+          description: Species data extracted from the first matching record, plus full records array.
+          type: object
+          properties:
+            plant_id:
+              type: integer
+              nullable: true
+            scientific_name:
+              type: string
+              nullable: true
+            family_name:
+              type: string
+              nullable: true
+            na:
+              type: string
+              nullable: true
+            c:
+              type: string
+              nullable: true
+            wet:
+              type: string
+              nullable: true
+            phys:
+              type: string
+              nullable: true
+            common_name:
+              type: array
+              items:
+                type: string
+            records:
+              type: array
+              items:
+                $ref: "#/components/schemas/MifloraSpeciesRecord"
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    MifloraSpecTextResponse:
+      type: object
+      description: >
+        FERNS envelope for Michigan Flora spec_text. data.text is the raw HTML
+        botanical description from Michigan Flora. Cached permanently (no TTL).
+      required:
+        - source_url
+        - found
+        - cache_status
+        - queried_at
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+          nullable: true
+          description: Michigan Flora species page URL.
+        found:
+          type: boolean
+          description: Whether a description was found for this plant_id
+        cache_status:
+          type: string
+          enum: [hit, miss, bypassed, error]
+        queried_at:
+          type: string
+          format: date-time
+        data:
+          nullable: true
+          type: object
+          properties:
+            plant_id:
+              type: integer
+              nullable: true
+            text:
+              type: string
+              nullable: true
+              description: Raw HTML botanical description from Michigan Flora
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    MifloraSynonymRecord:
+      type: object
+      description: A single taxonomic synonym from the Michigan Flora synonyms endpoint.
+      required:
+        - synonym
+      properties:
+        synonym:
+          type: string
+          description: The synonym scientific name
+        author:
+          type: string
+          nullable: true
+          description: Taxonomic authority for the synonym
+
+    MifloraSynonymsResponse:
+      type: object
+      description: >
+        FERNS envelope for Michigan Flora synonyms. data.synonyms is the array of
+        taxonomic synonyms (empty if none exist). Cached permanently (no TTL).
+      required:
+        - source_url
+        - found
+        - cache_status
+        - queried_at
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+          nullable: true
+          description: Michigan Flora species page URL.
+        found:
+          type: boolean
+          description: Whether any synonyms were found for this plant_id
+        cache_status:
+          type: string
+          enum: [hit, miss, bypassed, error]
+        queried_at:
+          type: string
+          format: date-time
+        data:
+          nullable: true
+          type: object
+          properties:
+            plant_id:
+              type: integer
+              nullable: true
+            synonyms:
+              type: array
+              items:
+                $ref: "#/components/schemas/MifloraSynonymRecord"
+        provenance:
+          $ref: "#/components/schemas/FernsProvenance"
+
+    MifloraPImageInfoResponse:
+      type: object
+      description: >
+        FERNS envelope for Michigan Flora pimage_info. data.image is the primary image
+        record enriched with image_url and thumbnail_url (null if no image exists).
+        Cached permanently (no TTL).
+      required:
+        - source_url
+        - found
+        - cache_status
+        - queried_at
+        - data
+        - provenance
+      properties:
+        source_url:
+          type: string
+          nullable: true
+          description: Michigan Flora species page URL.
+        found:
+          type: boolean
+          description: Whether a primary image was found for this plant_id
+        cache_status:
+          type: string
+          enum: [hit, miss, bypassed, error]
+        queried_at:
+          type: string
+          format: date-time
+        data:
+          nullable: true
+          type: object
+          properties:
+            plant_id:
+              type: integer
+              nullable: true
+            image:
+              nullable: true
+              $ref: "#/components/schemas/MifloraImageRecord"
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
 

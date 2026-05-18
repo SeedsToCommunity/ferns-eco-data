@@ -779,6 +779,94 @@ const tools: ToolDef[] = [
         provenance_verbosity: pv(args),
       }),
   },
+  {
+    tool: {
+      name: "michigan_flora__species_lookup",
+      description:
+        "Looks up a Michigan Flora species by scientific name via the flora_search_sp endpoint. Returns plant_id, family, native status (na: N=native, A=adventive), C-value, wetland indicator code (OBL/FACW/FAC/FACU/UPL), physiognomy, and common names. The plant_id is needed by michigan_flora__spec_text, michigan_flora__synonyms, and michigan_flora__pimage_info.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          name:    { type: "string", description: "Scientific name (e.g. Quercus rubra)" },
+          refresh: { type: "boolean", description: "Bypass cache" },
+          ...PV_PROP,
+        },
+        required: ["name"],
+      },
+    },
+    handler: async (args) =>
+      apiGet("/miflora/flora_search_sp", {
+        name:    String(args["name"]),
+        refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        provenance_verbosity: pv(args),
+      }),
+  },
+  {
+    tool: {
+      name: "michigan_flora__spec_text",
+      description:
+        "Returns the botanical description HTML text for a Michigan Flora species by plant_id. Use michigan_flora__species_lookup first to resolve a scientific name to a plant_id.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          id:      { type: "number", description: "Michigan Flora plant_id (integer, from species_lookup)" },
+          refresh: { type: "boolean", description: "Bypass cache" },
+          ...PV_PROP,
+        },
+        required: ["id"],
+      },
+    },
+    handler: async (args) =>
+      apiGet("/miflora/spec_text", {
+        id:      Number(args["id"]),
+        refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        provenance_verbosity: pv(args),
+      }),
+  },
+  {
+    tool: {
+      name: "michigan_flora__synonyms",
+      description:
+        "Returns taxonomic synonyms for a Michigan Flora species by plant_id. Returns an empty list if no synonyms exist. Use michigan_flora__species_lookup first to resolve a scientific name to a plant_id.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          id:      { type: "number", description: "Michigan Flora plant_id (integer, from species_lookup)" },
+          refresh: { type: "boolean", description: "Bypass cache" },
+          ...PV_PROP,
+        },
+        required: ["id"],
+      },
+    },
+    handler: async (args) =>
+      apiGet("/miflora/synonyms", {
+        id:      Number(args["id"]),
+        refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        provenance_verbosity: pv(args),
+      }),
+  },
+  {
+    tool: {
+      name: "michigan_flora__pimage_info",
+      description:
+        "Returns the primary (featured) image for a Michigan Flora species by plant_id, with constructed absolute image_url and thumbnail_url. Use michigan_flora__species_lookup first to resolve a scientific name to a plant_id.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          id:      { type: "number", description: "Michigan Flora plant_id (integer, from species_lookup)" },
+          refresh: { type: "boolean", description: "Bypass cache" },
+          ...PV_PROP,
+        },
+        required: ["id"],
+      },
+    },
+    handler: async (args) =>
+      apiGet("/miflora/pimage_info", {
+        id:      Number(args["id"]),
+        refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        provenance_verbosity: pv(args),
+      }),
+  },
 
   // ── coefficient-of-conservatism ─────────────────────────────────────────
   {
