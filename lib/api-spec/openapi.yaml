@@ -2889,14 +2889,18 @@ paths:
       tags: [natureserve]
       summary: Search NatureServe by record type (ecosystems, species, communities)
       description: >
-        Searches NatureServe Explorer using the general POST /api/data/search endpoint,
-        which accepts a recordType parameter to filter results by record kind.
+        FERNS GET wrapper over the upstream NatureServe Explorer POST /api/data/search endpoint.
+        Accepts a free-text query and a recordType filter; translates them into a POST body
+        (criteriaType: combined, recordTypeCriteria array, textCriteria quickSearch) and caches
+        the result so repeated queries are served without hitting the upstream API.
         Valid recordType values and what they return:
         ECOSYSTEM — NatureServe Ecological Systems and community types (global rank, US national rank, concept description, NatureServe Explorer URL);
         SPECIES — animal and plant species (prefer /natureserve/speciesSearch for richer per-species conservation status detail including state rank and federal listing);
         COMMUNITY — plant communities;
         GROUP — element groups;
         ASSOCIATION — plant associations.
+        Results are returned in data.ecosystems regardless of recordType (field name reflects the
+        primary use case; records for other recordType values are shaped identically).
         Results are cached 7 days per query+recordType+limit+page combination.
       parameters:
         - name: q
