@@ -586,7 +586,7 @@ export type InatObservationSummaryRecordAnnotationsItem = {
 export type InatObservationSummaryRecordOfvsItem = { [key: string]: unknown };
 
 /**
- * Expanded field subset of a single iNaturalist observation. Follow the uri field for the complete record on iNaturalist. Note: nativity data (native, introduced, endemic status) is NOT present on observation records — it lives in listed_taxa on the taxon record, available via GET /inat/taxon/{id}.
+ * Expanded field subset of a single iNaturalist observation. Follow the uri field for the complete record on iNaturalist. Note: nativity data (native, introduced, endemic status) is NOT present on observation records — it lives in listed_taxa on the taxon record, available via GET /inat/taxa/{id}.
 
  */
 export interface InatObservationSummaryRecord {
@@ -2636,13 +2636,6 @@ export type GetGbifMatchParams = {
   refresh?: boolean;
 };
 
-export type GetGbifReconcileParams = {
-  /**
-   * GBIF backbone usageKey for the accepted taxon
-   */
-  usageKey: number;
-};
-
 export type GetGbifOccurrencesParams = {
   /**
    * GBIF backbone usageKey
@@ -3366,18 +3359,6 @@ export const GetInatIdentificationsByIdProvenanceVerbosity = {
   none: "none",
 } as const;
 
-export type GetMifloraSpeciesParams = {
-  /**
-   * Scientific name to look up (e.g. Asclepias tuberosa)
-   * @minLength 1
-   */
-  name: string;
-  /**
-   * If true, bypasses cache and fetches fresh from Michigan Flora API
-   */
-  refresh?: boolean;
-};
-
 export type GetMifloraCountiesParams = {
   /**
    * Scientific name to look up county records for (e.g. Asclepias tuberosa)
@@ -3490,26 +3471,6 @@ export type GetLcscgSpeciesParams = {
   name: string;
 };
 
-export type GetUniversalFqaSpeciesParams = {
-  /**
-   * Scientific name to look up (e.g. Lobelia cardinalis)
-   * @minLength 1
-   */
-  name: string;
-  /**
- * Universal FQA database ID. Use /universal-fqa/databases to list all available databases with their region and citation strings.
-
- */
-  database_id: number;
-};
-
-export type GetUniversalFqaAssessmentsParams = {
-  /**
-   * Universal FQA database ID
-   */
-  database_id: number;
-};
-
 export type GetSourceRelationshipsParams = {
   /**
  * If provided, returns only relationships where this source_id is one of the two parties.
@@ -3566,18 +3527,6 @@ export type GetNatureserveSpeciesParams = {
 
  */
   state?: string;
-  /**
-   * If true, bypasses cache and fetches fresh from NatureServe Explorer
-   */
-  refresh?: boolean;
-};
-
-export type GetNatureserveEcosystemsParams = {
-  /**
-   * Ecosystem name or keyword to search (e.g. oak savanna, wet prairie)
-   * @minLength 1
-   */
-  name: string;
   /**
    * If true, bypasses cache and fetches fresh from NatureServe Explorer
    */

@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { useGetMifloraSpecies, useGetMifloraCounties, useGetMifloraImages, getGetMifloraSpeciesQueryKey, getGetMifloraCountiesQueryKey, getGetMifloraImagesQueryKey } from "@workspace/api-client-react";
+import { useGetMifloraCounties, useGetMifloraImages, getGetMifloraCountiesQueryKey, getGetMifloraImagesQueryKey } from "@workspace/api-client-react";
 import { SourceExplorerLayout } from "@/components/SourceExplorerLayout";
-import { Leaf, Search, Loader2, AlertCircle, MapPin, ExternalLink, Database, Code, ChevronDown, ChevronUp, Camera, ImageOff } from "lucide-react";
-import { stripHtml } from "@/lib/utils";
+import { Search, Loader2, MapPin, ExternalLink, Code, ChevronDown, ChevronUp, Camera, ImageOff } from "lucide-react";
 import type { MifloraImageRecord } from "@workspace/api-client-react";
 
 function RawPanel({ title, data }: { title: string; data: unknown }) {
@@ -135,10 +134,6 @@ export function MifloraPage() {
   const enabled = !!query;
   const mifloraParams = { name: query };
 
-  const { data: speciesRes, isLoading: speciesLoading, isError: speciesError } = useGetMifloraSpecies(
-    mifloraParams,
-    { query: { enabled, queryKey: getGetMifloraSpeciesQueryKey(mifloraParams) } }
-  );
   const { data: countiesRes, isLoading: countiesLoading } = useGetMifloraCounties(
     mifloraParams,
     { query: { enabled, queryKey: getGetMifloraCountiesQueryKey(mifloraParams) } }
@@ -158,24 +153,13 @@ export function MifloraPage() {
     setQuery(name);
   }
 
-  const speciesData = speciesRes?.data as Record<string, unknown> | null | undefined;
-  const searchRecords = (speciesData?.search_records as Record<string, unknown>[]) ?? [];
-  const primaryRecord = searchRecords.find((r) =>
-    String(r.scientific_name ?? "").toLowerCase().includes(
-      query.toLowerCase().split(" ").slice(1).join(" ")
-    )
-  ) ?? searchRecords[0] ?? null;
-  const specText = speciesData?.spec_text as Record<string, unknown> | null | undefined;
-  const synonyms = speciesData?.synonyms as Record<string, unknown> | null | undefined;
-  const pimageInfo = speciesData?.pimage_info as Record<string, unknown> | null | undefined;
-
   const countyData = countiesRes?.data as Record<string, unknown> | null | undefined;
   const locations = Array.isArray(countyData?.locations) ? (countyData!.locations as string[]) : [];
 
   const images = (imagesRes?.data ?? []) as MifloraImageRecord[];
 
-  const isLoading = speciesLoading || countiesLoading;
-  const hasResult = !!speciesRes;
+  const isLoading = countiesLoading || imagesLoading;
+  const hasResult = !!countiesRes || !!imagesRes;
 
   return (
     <SourceExplorerLayout sourceId="michigan-flora">
@@ -211,125 +195,9 @@ export function MifloraPage() {
           </p>
         </div>
 
-        {speciesError && (
-          <div className="flex items-center gap-3 p-4 bg-destructive/10 rounded-xl border border-destructive/20 text-destructive text-sm">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>Error loading species data</span>
-          </div>
-        )}
-
         {hasResult && (
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-            <div className="lg:col-span-3 space-y-4">
-              {primaryRecord && (
-                <div className="bg-card border border-border rounded-xl overflow-hidden">
-                  <div className="p-5 border-b border-border bg-muted/30">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-xl font-serif font-semibold italic text-foreground">
-                          {String(primaryRecord.scientific_name ?? "")}
-                        </p>
-                        {!!primaryRecord.common_name && (
-                          <p className="text-sm text-muted-foreground mt-0.5">{String(primaryRecord.common_name)}</p>
-                        )}
-                      </div>
-                      <div className="flex gap-2 shrink-0">
-                        <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
-                          <Database className="w-3 h-3" />
-                          #{String(primaryRecord.plant_id ?? "")}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {!!specText?.spec_text_html && (
-                    <div className="p-5 text-sm text-foreground/80 leading-relaxed border-b border-border">
-                      {stripHtml(String(specText.spec_text_html))}
-                    </div>
-                  )}
-
-                  {pimageInfo && (
-                    <div className="p-5 border-b border-border space-y-2">
-                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Primary Image</p>
-                      {!!pimageInfo.image_url && (
-                        <div className="flex flex-col gap-2">
-                          <img
-                            src={String(pimageInfo.image_url)}
-                            alt={`Primary image for ${String(primaryRecord.scientific_name ?? "")}`}
-                            className="rounded-lg max-h-48 object-cover border border-border"
-                            loading="lazy"
-                          />
-                          {!!pimageInfo.image_attribution && (
-                            <p className="text-xs text-muted-foreground">{String(pimageInfo.image_attribution)}</p>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {synonyms && Object.keys(synonyms).length > 0 && (
-                    <div className="p-5 border-b border-border">
-                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Synonyms / Related</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {Object.keys(synonyms).slice(0, 8).map((syn) => (
-                          <span key={syn} className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground italic">
-                            {syn}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="p-5 flex flex-wrap gap-3">
-                    {!!primaryRecord.url && (
-                      <a
-                        href={String(primaryRecord.url)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors"
-                      >
-                        <ExternalLink className="w-3 h-3" />
-                        Michigan Flora page
-                      </a>
-                    )}
-                    {!!primaryRecord.map_url && (
-                      <a
-                        href={String(primaryRecord.map_url)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-muted text-muted-foreground border border-border hover:bg-muted/70 transition-colors"
-                      >
-                        <MapPin className="w-3 h-3" />
-                        View map
-                      </a>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {searchRecords.length > 1 && (
-                <div className="bg-card border border-border rounded-xl p-4">
-                  <p className="text-xs font-medium text-muted-foreground mb-2">
-                    {searchRecords.length} records for this genus (showing primary match)
-                  </p>
-                  <div className="flex flex-wrap gap-1">
-                    {searchRecords.slice(0, 10).map((r, i) => (
-                      <span key={i} className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground italic">
-                        {String(r.scientific_name ?? "")}
-                      </span>
-                    ))}
-                    {searchRecords.length > 10 && (
-                      <span className="text-xs text-muted-foreground">+{searchRecords.length - 10} more</span>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              <RawPanel title="Raw species JSON" data={speciesRes} />
-            </div>
-
-            <div className="lg:col-span-2 space-y-4">
-              <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <div className="space-y-4">
+            <div className="bg-card border border-border rounded-xl overflow-hidden">
                 <div className="p-4 border-b border-border bg-muted/30">
                   <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                     <Camera className="w-4 h-4 text-primary" />
@@ -379,9 +247,8 @@ export function MifloraPage() {
                 ) : null}
               </div>
 
-              <RawPanel title="Raw images JSON" data={imagesRes} />
-              <RawPanel title="Raw counties JSON" data={countiesRes} />
-            </div>
+            <RawPanel title="Raw images JSON" data={imagesRes} />
+            <RawPanel title="Raw counties JSON" data={countiesRes} />
           </div>
         )}
 

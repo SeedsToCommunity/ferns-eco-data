@@ -294,7 +294,7 @@ export default function UsdaPlantsPage() {
     setSpeciesError(null);
     setSpeciesResult(null);
     try {
-      const resp = await fetch(`${API_BASE}/usda-plants?species=${encodeURIComponent(speciesInput.trim())}`);
+      const resp = await fetch(`${API_BASE}/usda-plants/PlantSearch?species=${encodeURIComponent(speciesInput.trim())}`);
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const data = await resp.json() as UsdaEnvelope;
       setSpeciesResult(data);
@@ -313,7 +313,7 @@ export default function UsdaPlantsPage() {
     setSearchResult(null);
     try {
       const resp = await fetch(
-        `${API_BASE}/usda-plants/search?q=${encodeURIComponent(searchInput.trim())}&field=${encodeURIComponent(searchField)}`,
+        `${API_BASE}/usda-plants/plants-search-results?q=${encodeURIComponent(searchInput.trim())}&field=${encodeURIComponent(searchField)}`,
       );
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const data = await resp.json() as SearchEnvelope;
@@ -427,9 +427,9 @@ export default function UsdaPlantsPage() {
             <MapPin className="w-3.5 h-3.5" /> API Endpoints
           </div>
           <div className="space-y-1 text-xs font-mono text-muted-foreground">
-            <div>GET /api/usda-plants?species=Asclepias+tuberosa</div>
-            <div>GET /api/usda-plants/profile?symbol=ASTU</div>
-            <div>GET /api/usda-plants/search?q=Trillium&amp;field=Scientific+Name</div>
+            <div>GET /api/usda-plants/PlantSearch?species=Asclepias+tuberosa</div>
+            <div>GET /api/usda-plants/PlantProfile?symbol=ASTU</div>
+            <div>GET /api/usda-plants/plants-search-results?q=Trillium&amp;field=Scientific+Name</div>
             <div>GET /api/usda-plants/metadata</div>
           </div>
         </div>

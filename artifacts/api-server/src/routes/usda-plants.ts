@@ -47,7 +47,7 @@ router.get("/usda-plants/metadata", async (req, res) => {
   }
 });
 
-router.get("/usda-plants", async (req, res) => {
+router.get("/usda-plants/PlantSearch", async (req, res) => {
   try {
     await ensureUsdaPlantsRegistryEntry();
 
@@ -87,7 +87,7 @@ router.get("/usda-plants", async (req, res) => {
       res.json({
         found: false,
         queried_at: new Date(),
-        source_url: resolveUrl(req, "/api/usda-plants"),
+        source_url: resolveUrl(req, "/api/usda-plants/PlantSearch"),
         provenance: filterProvenance(buildProvenance(nameMatch.upstream_url), verbosity),
         data: {
           species: speciesParam,
@@ -124,7 +124,7 @@ router.get("/usda-plants", async (req, res) => {
     res.json({
       found: true,
       queried_at: new Date(),
-      source_url: resolveUrl(req, "/api/usda-plants"),
+      source_url: resolveUrl(req, "/api/usda-plants/PlantSearch"),
       provenance: filterProvenance(buildProvenance(nameMatch.upstream_url), verbosity),
       data: {
         species: speciesParam,
@@ -154,7 +154,7 @@ router.get("/usda-plants", async (req, res) => {
   }
 });
 
-router.get("/usda-plants/profile", async (req, res) => {
+router.get("/usda-plants/PlantProfile", async (req, res) => {
   try {
     await ensureUsdaPlantsRegistryEntry();
 
@@ -197,7 +197,7 @@ router.get("/usda-plants/profile", async (req, res) => {
     res.json({
       found: hasData,
       queried_at: new Date(),
-      source_url: resolveUrl(req, "/api/usda-plants/profile"),
+      source_url: resolveUrl(req, "/api/usda-plants/PlantProfile"),
       provenance: filterProvenance(buildProvenance(profileRow.upstream_url), verbosity),
       data: {
         symbol: symbolParam,
@@ -211,7 +211,7 @@ router.get("/usda-plants/profile", async (req, res) => {
   }
 });
 
-router.get("/usda-plants/search", async (req, res) => {
+router.get("/usda-plants/plants-search-results", async (req, res) => {
   try {
     await ensureUsdaPlantsRegistryEntry();
 
@@ -247,7 +247,7 @@ router.get("/usda-plants/search", async (req, res) => {
     res.json({
       found: searchResult.total > 0,
       queried_at: new Date(),
-      source_url: resolveUrl(req, "/api/usda-plants/search"),
+      source_url: resolveUrl(req, "/api/usda-plants/plants-search-results"),
       provenance: filterProvenance(buildProvenance(searchResult.upstream_url), verbosity),
       data: {
         query: q,

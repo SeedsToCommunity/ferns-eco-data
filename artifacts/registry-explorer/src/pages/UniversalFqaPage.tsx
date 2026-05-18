@@ -5,15 +5,12 @@ import {
   getGetUniversalFqaDatabasesQueryKey,
   useGetUniversalFqaDatabase,
   getGetUniversalFqaDatabaseQueryKey,
-  useGetUniversalFqaSpecies,
-  getGetUniversalFqaSpeciesQueryKey,
   useGetUniversalFqaAssessments,
   getGetUniversalFqaAssessmentsQueryKey,
   useGetUniversalFqaAssessment,
   getGetUniversalFqaAssessmentQueryKey,
   type UniversalFqaDatabaseEntry,
   type UniversalFqaAssessmentSummary,
-  type UniversalFqaSpeciesRecord,
 } from "@workspace/api-client-react";
 import {
   Database,
@@ -71,7 +68,7 @@ function MetricRow({ label, value }: { label: string; value: unknown }) {
   );
 }
 
-type TabId = "databases" | "species" | "assessments";
+type TabId = "databases" | "assessments";
 
 function DatabaseDropdown({
   databases,
@@ -178,9 +175,6 @@ export function UniversalFqaPage() {
   const [dbFilter, setDbFilter] = useState("");
 
   const [selectedDbId, setSelectedDbId] = useState<number | null>(null);
-  const [speciesName, setSpeciesName] = useState("");
-  const [speciesQuery, setSpeciesQuery] = useState("");
-  const [speciesDbId, setSpeciesDbId] = useState<number | null>(null);
 
   const [assessmentsDbId, setAssessmentsDbId] = useState<number | null>(null);
   const [assessmentsLoaded, setAssessmentsLoaded] = useState<number | null>(null);
@@ -206,25 +200,13 @@ export function UniversalFqaPage() {
     );
   }, [databases, dbFilter]);
 
-  const speciesParams = { name: speciesQuery, database_id: speciesDbId ?? 0 };
-  const { data: speciesRes, isLoading: speciesLoading, error: speciesError } =
-    useGetUniversalFqaSpecies(
-      speciesParams,
-      {
-        query: {
-          queryKey: getGetUniversalFqaSpeciesQueryKey(speciesParams),
-          enabled: !!speciesQuery && speciesDbId !== null,
-        },
-      }
-    );
-
-  const assessmentsParams = { database_id: assessmentsLoaded ?? 0 };
+  const assessmentsId = assessmentsLoaded ?? 0;
   const { data: assessmentsRes, isLoading: assessmentsLoading } =
     useGetUniversalFqaAssessments(
-      assessmentsParams,
+      assessmentsId,
       {
         query: {
-          queryKey: getGetUniversalFqaAssessmentsQueryKey(assessmentsParams),
+          queryKey: getGetUniversalFqaAssessmentsQueryKey(assessmentsId),
           enabled: assessmentsLoaded !== null,
         },
       }
@@ -290,7 +272,6 @@ export function UniversalFqaPage() {
 
   const tabs: { id: TabId; label: string; icon: React.ReactNode }[] = [
     { id: "databases", label: "Databases", icon: <Database className="w-3.5 h-3.5" /> },
-    { id: "species", label: "Species Lookup", icon: <Leaf className="w-3.5 h-3.5" /> },
     { id: "assessments", label: "Assessments", icon: <ClipboardList className="w-3.5 h-3.5" /> },
   ];
 
@@ -397,7 +378,6 @@ export function UniversalFqaPage() {
                               <button
                                 onClick={() => {
                                   setSelectedDbId(db.id);
-                                  setSpeciesDbId(db.id);
                                   setAssessmentsDbId(db.id);
                                 }}
                                 className={`text-xs px-2 py-1 rounded border transition-colors ${
@@ -432,18 +412,11 @@ export function UniversalFqaPage() {
                         </p>
                         <div className="flex flex-wrap gap-2 pt-1">
                           <button
-                            onClick={() => setActiveTab("species")}
-                            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors"
-                          >
-                            <Leaf className="w-3 h-3" />
-                            Look up species in DB {db.id}
-                          </button>
-                          <button
                             onClick={() => {
                               setAssessmentsLoaded(db.id);
                               setActiveTab("assessments");
                             }}
-                            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-border bg-card text-foreground hover:border-emerald-400 transition-colors"
+                            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors"
                           >
                             <ClipboardList className="w-3 h-3" />
                             Browse assessments for DB {db.id}
@@ -465,7 +438,7 @@ export function UniversalFqaPage() {
                 </div>
               )}
             </div>
-            <RawPanel title="Raw API response — /api/universal-fqa/databases" data={dbsRes} />
+            <RawPanel title="Raw API response — /api/universal-fqa/get/database" data={dbsRes} />
           </div>
         )}
 
@@ -583,178 +556,7 @@ export function UniversalFqaPage() {
                 </>
               )}
             </div>
-            <RawPanel title="Raw API response — /api/universal-fqa/databases/:id" data={browseDbRes} />
-          </div>
-        )}
-
-        {activeTab === "species" && (
-          <div className="space-y-4">
-            <div className="bg-card border border-border rounded-xl p-5 space-y-4">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Species C-value Lookup
-              </p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-muted-foreground">
-                    Scientific name
-                  </label>
-                  <input
-                    type="text"
-                    value={speciesName}
-                    onChange={(e) => setSpeciesName(e.target.value)}
-                    placeholder="e.g. Lobelia cardinalis"
-                    className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 placeholder:text-muted-foreground"
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && speciesName.trim() && speciesDbId !== null) {
-                        setSpeciesQuery(speciesName.trim());
-                      }
-                    }}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-muted-foreground">
-                    Database
-                    {selectedDbId !== null && speciesDbId === selectedDbId && (
-                      <span className="ml-2 text-emerald-600 dark:text-emerald-400">
-                        (DB {selectedDbId} selected from Databases tab)
-                      </span>
-                    )}
-                  </label>
-                  <DatabaseDropdown
-                    databases={databases}
-                    value={speciesDbId}
-                    onChange={setSpeciesDbId}
-                    placeholder="Select a database…"
-                  />
-                </div>
-              </div>
-
-              <button
-                onClick={() => {
-                  if (speciesName.trim() && speciesDbId !== null) {
-                    setSpeciesQuery(speciesName.trim());
-                  }
-                }}
-                disabled={!speciesName.trim() || speciesDbId === null}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <Search className="w-3.5 h-3.5" />
-                Look up species
-              </button>
-
-              {speciesLoading && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground py-4">
-                  <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                  Loading database and searching…
-                </div>
-              )}
-
-              {speciesError && (
-                <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-xl p-4">
-                  <p className="text-sm text-red-700 dark:text-red-400">
-                    Failed to look up species. The database may be unavailable or malformed on universalfqa.org.
-                  </p>
-                </div>
-              )}
-
-              {!speciesLoading && speciesRes && (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className={`w-2 h-2 rounded-full ${speciesRes.found ? "bg-emerald-500" : "bg-amber-500"}`}
-                    />
-                    <p className="text-sm font-medium text-foreground">
-                      {speciesRes.found
-                        ? `Found in database ${speciesRes.data?.database_id}`
-                        : `"${speciesRes.data?.queried_name}" not found in database ${speciesRes.data?.database_id}`}
-                    </p>
-                    <span className="text-xs text-muted-foreground ml-auto">
-                      cache: {speciesRes.cache_status}
-                    </span>
-                  </div>
-
-                  {speciesRes.found && speciesRes.data?.species && (
-                    <div className="border border-border rounded-xl overflow-hidden overflow-x-auto">
-                      <table className="w-full text-sm min-w-[700px]">
-                        <thead>
-                          <tr className="bg-muted/50 border-b border-border">
-                            {[
-                              "Scientific Name",
-                              "Family",
-                              "Acronym",
-                              "Native",
-                              "C",
-                              "W",
-                              "Physiognomy",
-                              "Duration",
-                              "Common Name",
-                            ].map((h) => (
-                              <th
-                                key={h}
-                                className="text-left px-3 py-2 text-xs font-semibold text-foreground whitespace-nowrap"
-                              >
-                                {h}
-                              </th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td className="px-3 py-2.5 text-xs font-medium italic text-foreground">
-                              {speciesRes.data.species.scientific_name}
-                            </td>
-                            <td className="px-3 py-2.5 text-xs text-foreground">
-                              {speciesRes.data.species.family}
-                            </td>
-                            <td className="px-3 py-2.5 text-xs font-mono text-muted-foreground">
-                              {speciesRes.data.species.acronym}
-                            </td>
-                            <td className="px-3 py-2.5 text-xs">
-                              <span
-                                className={
-                                  speciesRes.data.species.native === "native"
-                                    ? "text-emerald-700 dark:text-emerald-400 font-medium"
-                                    : "text-amber-700 dark:text-amber-400"
-                                }
-                              >
-                                {speciesRes.data.species.native}
-                              </span>
-                            </td>
-                            <td className="px-3 py-2.5 text-xs font-bold tabular-nums text-foreground">
-                              {speciesRes.data.species.c !== null && speciesRes.data.species.c !== undefined ? String(speciesRes.data.species.c) : "—"}
-                            </td>
-                            <td className="px-3 py-2.5 text-xs tabular-nums text-foreground">
-                              {speciesRes.data.species.w !== null && speciesRes.data.species.w !== undefined ? String(speciesRes.data.species.w) : "—"}
-                            </td>
-                            <td className="px-3 py-2.5 text-xs text-foreground">
-                              {speciesRes.data.species.physiognomy}
-                            </td>
-                            <td className="px-3 py-2.5 text-xs text-foreground">
-                              {speciesRes.data.species.duration}
-                            </td>
-                            <td className="px-3 py-2.5 text-xs text-muted-foreground">
-                              {speciesRes.data.species.common_name}
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-
-                  {!speciesRes.found && (
-                    <p className="text-sm text-muted-foreground">
-                      This species is not in the selected database. Try a different database,
-                      or check the name spelling.
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
-            <RawPanel
-              title="Raw API response — /api/universal-fqa/species"
-              data={speciesRes}
-            />
+            <RawPanel title="Raw API response — /api/universal-fqa/get/database/:id" data={browseDbRes} />
           </div>
         )}
 
@@ -885,7 +687,7 @@ export function UniversalFqaPage() {
                   )}
                 </div>
                 <RawPanel
-                  title="Raw API response — /api/universal-fqa/assessments"
+                  title="Raw API response — /api/universal-fqa/get/database/:id/inventory"
                   data={assessmentsRes}
                 />
               </>
@@ -1052,7 +854,7 @@ export function UniversalFqaPage() {
                             Observed Species ({assessmentDetail.species.length})
                           </p>
                           <a
-                            href={`${apiBase}/api/universal-fqa/assessment/${assessmentDetail.id}`}
+                            href={`${apiBase}/api/universal-fqa/get/inventory/${assessmentDetail.id}`}
                             target="_blank"
                             rel="noreferrer"
                             className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary"
@@ -1139,7 +941,7 @@ export function UniversalFqaPage() {
                 )}
 
                 <RawPanel
-                  title={`Raw API response — /api/universal-fqa/assessment/${viewingAssessment}`}
+                  title={`Raw API response — /api/universal-fqa/get/inventory/${viewingAssessment}`}
                   data={assessmentDetailRes}
                 />
               </div>

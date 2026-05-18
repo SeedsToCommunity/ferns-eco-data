@@ -72,29 +72,9 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/gbif/match", {
+      apiGet("/gbif/species/match", {
         name:    String(args["name"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
-        provenance_verbosity: pv(args),
-      }),
-  },
-  {
-    tool: {
-      name: "gbif__reconcile",
-      description:
-        "Returns the full GBIF taxonomic record for a known usageKey, including vernacular names, higher taxonomy, and usage status.",
-      inputSchema: {
-        type: "object" as const,
-        properties: {
-          usageKey: { type: "number", description: "GBIF usage key (integer)" },
-          ...PV_PROP,
-        },
-        required: ["usageKey"],
-      },
-    },
-    handler: async (args) =>
-      apiGet("/gbif/reconcile", {
-        usageKey: Number(args["usageKey"]),
         provenance_verbosity: pv(args),
       }),
   },
@@ -117,7 +97,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/gbif/occurrences", {
+      apiGet("/gbif/occurrence/search", {
         usageKey:  Number(args["usageKey"]),
         countries: args["countries"] !== undefined ? String(args["countries"]) : undefined,
         continent: args["continent"] !== undefined ? String(args["continent"]) : undefined,
@@ -141,7 +121,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/gbif/search", {
+      apiGet("/gbif/species/search", {
         q: String(args["q"]),
         provenance_verbosity: pv(args),
       }),
@@ -707,28 +687,6 @@ const tools: ToolDef[] = [
   // ── michigan-flora ──────────────────────────────────────────────────────
   {
     tool: {
-      name: "michigan_flora__species",
-      description:
-        "Returns the full Michigan Flora species profile for a vascular plant, including family, nativity, habitat notes, and a link to the species page.",
-      inputSchema: {
-        type: "object" as const,
-        properties: {
-          name:    { type: "string", description: "Scientific name (e.g. Trillium grandiflorum)" },
-          refresh: { type: "boolean", description: "Bypass cache" },
-          ...PV_PROP,
-        },
-        required: ["name"],
-      },
-    },
-    handler: async (args) =>
-      apiGet("/miflora/species", {
-        name:    String(args["name"]),
-        refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
-        provenance_verbosity: pv(args),
-      }),
-  },
-  {
-    tool: {
       name: "michigan_flora__counties",
       description:
         "Returns county-level occurrence records for a species within Michigan from the Michigan Flora database.",
@@ -743,7 +701,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/miflora/counties", {
+      apiGet("/miflora/locs_sp", {
         name:    String(args["name"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
         provenance_verbosity: pv(args),
@@ -765,7 +723,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/miflora/images", {
+      apiGet("/miflora/allimage_info", {
         name:    String(args["name"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
         provenance_verbosity: pv(args),
@@ -1014,7 +972,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/universal-fqa/databases", {
+      apiGet("/universal-fqa/get/database", {
         provenance_verbosity: pv(args),
       }),
   },
@@ -1033,29 +991,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet(`/universal-fqa/databases/${Number(args["id"])}`, {
-        provenance_verbosity: pv(args),
-      }),
-  },
-  {
-    tool: {
-      name: "universal_fqa__species",
-      description:
-        "Returns the C-value and FQA attributes for a species within a specific regional FQA database.",
-      inputSchema: {
-        type: "object" as const,
-        properties: {
-          name:        { type: "string", description: "Scientific name to look up" },
-          database_id: { type: "number", description: "FQA database ID (integer)" },
-          ...PV_PROP,
-        },
-        required: ["name", "database_id"],
-      },
-    },
-    handler: async (args) =>
-      apiGet("/universal-fqa/species", {
-        name:        String(args["name"]),
-        database_id: Number(args["database_id"]),
+      apiGet(`/universal-fqa/get/database/${Number(args["id"])}`, {
         provenance_verbosity: pv(args),
       }),
   },
@@ -1074,8 +1010,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/universal-fqa/assessments", {
-        database_id: Number(args["database_id"]),
+      apiGet(`/universal-fqa/get/database/${Number(args["database_id"])}/inventory`, {
         provenance_verbosity: pv(args),
       }),
   },
@@ -1094,7 +1029,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet(`/universal-fqa/assessment/${Number(args["id"])}`, {
+      apiGet(`/universal-fqa/get/inventory/${Number(args["id"])}`, {
         provenance_verbosity: pv(args),
       }),
   },
@@ -1454,36 +1389,13 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/natureserve/species", {
+      apiGet("/natureserve/speciesSearch", {
         name:    String(args["name"]),
         state:   args["state"]   !== undefined ? String(args["state"])   : undefined,
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
         provenance_verbosity: pv(args),
       }),
   },
-  {
-    tool: {
-      name: "natureserve__ecosystems",
-      description:
-        "Returns NatureServe ecological system records matching a name query, including classification codes, descriptions, and associated species assemblages.",
-      inputSchema: {
-        type: "object" as const,
-        properties: {
-          name:    { type: "string", description: "Ecosystem name query" },
-          refresh: { type: "boolean", description: "Bypass cache" },
-          ...PV_PROP,
-        },
-        required: ["name"],
-      },
-    },
-    handler: async (args) =>
-      apiGet("/natureserve/ecosystems", {
-        name:    String(args["name"]),
-        refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
-        provenance_verbosity: pv(args),
-      }),
-  },
-
   // ── prairie-moon ─────────────────────────────────────────────────────────
   {
     tool: {
@@ -1545,7 +1457,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/usda-plants", {
+      apiGet("/usda-plants/PlantSearch", {
         species: String(args["species"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
         provenance_verbosity: pv(args),
@@ -1567,7 +1479,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/usda-plants/profile", {
+      apiGet("/usda-plants/PlantProfile", {
         symbol: String(args["symbol"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
         provenance_verbosity: pv(args),
@@ -1593,7 +1505,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/usda-plants/search", {
+      apiGet("/usda-plants/plants-search-results", {
         q: String(args["q"]),
         field: args["field"] !== undefined ? String(args["field"]) : undefined,
         page: args["page"] !== undefined ? String(args["page"]) : undefined,

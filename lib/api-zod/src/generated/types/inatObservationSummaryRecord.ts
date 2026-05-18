@@ -12,7 +12,7 @@ import type { InatObservationSummaryRecordTaxon } from "./inatObservationSummary
 import type { InatObservationSummaryRecordUser } from "./inatObservationSummaryRecordUser";
 
 /**
- * Expanded field subset of a single iNaturalist observation. Follow the uri field for the complete record on iNaturalist. Note: nativity data (native, introduced, endemic status) is NOT present on observation records — it lives in listed_taxa on the taxon record, available via GET /inat/taxon/{id}.
+ * Expanded field subset of a single iNaturalist observation. Follow the uri field for the complete record on iNaturalist. Note: nativity data (native, introduced, endemic status) is NOT present on observation records — it lives in listed_taxa on the taxon record, available via GET /inat/taxa/{id}.
 
  */
 export interface InatObservationSummaryRecord {

@@ -21,7 +21,6 @@ export async function runGbifComparators(
       : undefined;
 
     if (usageKey) {
-      results.push(await compareGbifReconcile(fernsBase, sp, usageKey));
       results.push(await compareGbifOccurrences(fernsBase, sp, usageKey));
     }
   }
@@ -34,7 +33,7 @@ export async function runGbifComparators(
 }
 
 async function compareGbifMatch(fernsBase: string, sp: TestSpecies): Promise<EndpointComparison> {
-  const fernsEndpoint = `/api/gbif/match`;
+  const fernsEndpoint = `/api/gbif/species/match`;
   const fernsUrl = `${fernsBase}${fernsEndpoint}?name=${encodeURIComponent(sp.name)}&refresh=true`;
   const gbifUrl = `${GBIF_API}/species/match?name=${encodeURIComponent(sp.name)}&kingdom=Plantae`;
   const label = `${sp.label} (${sp.name})`;
@@ -50,7 +49,7 @@ async function compareGbifMatch(fernsBase: string, sp: TestSpecies): Promise<End
     const fernsData = (fernsEnvelope.data ?? {}) as Record<string, unknown>;
 
     const findings = diffObjects(gbifObj, fernsData, "GBIF");
-    const urlsCollected = collectUrls(fernsEnvelope, `gbif/match:${sp.name}`);
+    const urlsCollected = collectUrls(fernsEnvelope, `gbif/species/match:${sp.name}`);
 
     return {
       source: "gbif",
@@ -75,83 +74,12 @@ async function compareGbifMatch(fernsBase: string, sp: TestSpecies): Promise<End
   }
 }
 
-async function compareGbifReconcile(
-  fernsBase: string,
-  sp: TestSpecies,
-  usageKey: number,
-): Promise<EndpointComparison> {
-  const fernsEndpoint = `/api/gbif/reconcile`;
-  const fernsUrl = `${fernsBase}${fernsEndpoint}?usageKey=${usageKey}&refresh=true`;
-  const label = `${sp.label} (${sp.name}) — GBIF reconcile (synonyms + vernacular)`;
-
-  try {
-    const [fernsRaw, upstreamSynonyms, upstreamVernacular] = await Promise.all([
-      fetchJson(fernsUrl) as Promise<Record<string, unknown>>,
-      fetchJson(`${GBIF_API}/species/${usageKey}/synonyms?limit=100`) as Promise<Record<string, unknown>>,
-      fetchJson(`${GBIF_API}/species/${usageKey}/vernacularNames?limit=100`) as Promise<Record<string, unknown>>,
-    ]);
-
-    const fernsEnvelope = fernsRaw as Record<string, unknown>;
-    const fernsData = (fernsEnvelope.data ?? {}) as Record<string, unknown>;
-    const urlsCollected = collectUrls(fernsEnvelope, `gbif/reconcile:${sp.name}`);
-
-    const findings: FieldFinding[] = [];
-
-    const fernsCount = fernsData.synonym_count as number | undefined;
-    const upstreamCount = upstreamSynonyms.count as number | undefined;
-    if (fernsCount !== undefined && upstreamCount !== undefined) {
-      if (fernsCount === upstreamCount) {
-        findings.push({ type: "ok", sourceField: "synonym_count", fernsField: "synonym_count", fernsValue: fernsCount, note: `synonym_count matches: ${fernsCount}` });
-      } else {
-        findings.push({ type: "mismatch", sourceField: "synonym_count", fernsField: "synonym_count", sourceValue: upstreamCount, fernsValue: fernsCount });
-      }
-    } else {
-      findings.push({ type: "ok", sourceField: "synonym_count", note: `FERNS: ${fernsCount ?? "n/a"} — upstream count not available for comparison` });
-    }
-
-    const fernsVernCount = fernsData.vernacular_name_count as number | undefined;
-    const upstreamVernCount = upstreamVernacular.count as number | undefined;
-    if (fernsVernCount !== undefined && upstreamVernCount !== undefined) {
-      if (fernsVernCount === upstreamVernCount) {
-        findings.push({ type: "ok", sourceField: "vernacular_name_count", fernsField: "vernacular_name_count", fernsValue: fernsVernCount, note: `vernacular_name_count matches: ${fernsVernCount}` });
-      } else {
-        findings.push({ type: "mismatch", sourceField: "vernacular_name_count", fernsField: "vernacular_name_count", sourceValue: upstreamVernCount, fernsValue: fernsVernCount });
-      }
-    }
-
-    if (fernsData.vernacular_name_primary !== undefined) {
-      findings.push({ type: "ok", sourceField: "vernacular_name_primary", fernsField: "vernacular_name_primary", fernsValue: fernsData.vernacular_name_primary, note: `primary vernacular name: "${fernsData.vernacular_name_primary}"` });
-    }
-
-    return {
-      source: "gbif",
-      endpoint: `${fernsEndpoint}?usageKey=${usageKey}`,
-      label,
-      ok: true,
-      rawSource: { synonyms: upstreamSynonyms, vernacular: upstreamVernacular },
-      rawFerns: fernsData,
-      findings,
-      urlsCollected,
-    };
-  } catch (err) {
-    return {
-      source: "gbif",
-      endpoint: `${fernsEndpoint}?usageKey=${usageKey}`,
-      label,
-      ok: false,
-      error: String(err),
-      findings: [],
-      urlsCollected: [],
-    };
-  }
-}
-
 async function compareGbifOccurrences(
   fernsBase: string,
   sp: TestSpecies,
   usageKey: number,
 ): Promise<EndpointComparison> {
-  const fernsEndpoint = `/api/gbif/occurrences`;
+  const fernsEndpoint = `/api/gbif/occurrence/search`;
   const fernsUrl = `${fernsBase}${fernsEndpoint}?usageKey=${usageKey}&countries=US&refresh=true`;
   const label = `${sp.label} (${sp.name}) — GBIF occurrences (US)`;
 
@@ -163,7 +91,7 @@ async function compareGbifOccurrences(
 
     const fernsEnvelope = fernsRaw as Record<string, unknown>;
     const fernsData = (fernsEnvelope.data ?? {}) as Record<string, unknown>;
-    const urlsCollected = collectUrls(fernsEnvelope, `gbif/occurrences:${sp.name}`);
+    const urlsCollected = collectUrls(fernsEnvelope, `gbif/occurrence/search:${sp.name}`);
 
     const findings: FieldFinding[] = [];
 
@@ -219,7 +147,7 @@ async function compareGbifSearch(
   q: string,
   label: string,
 ): Promise<EndpointComparison> {
-  const fernsEndpoint = `/api/gbif/search`;
+  const fernsEndpoint = `/api/gbif/species/search`;
   const fernsUrl = `${fernsBase}${fernsEndpoint}?q=${encodeURIComponent(q)}`;
   const gbifUrl = `${GBIF_API}/species/search?q=${encodeURIComponent(q)}&qField=VERNACULAR&limit=20`;
 
@@ -231,7 +159,7 @@ async function compareGbifSearch(
 
     const fernsEnvelope = fernsRaw as Record<string, unknown>;
     const fernsData = (fernsEnvelope.data ?? {}) as Record<string, unknown>;
-    const urlsCollected = collectUrls(fernsEnvelope, `gbif/search:${q}`);
+    const urlsCollected = collectUrls(fernsEnvelope, `gbif/species/search:${q}`);
 
     const findings: FieldFinding[] = [];
 

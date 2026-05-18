@@ -27,7 +27,6 @@ import type {
   GbifMatchResponse,
   GbifMetadataResponse,
   GbifOccurrencesResponse,
-  GbifReconcileResponse,
   GbifSearchResponse,
   GetAnnArborNpnNamesParams,
   GetAnnArborNpnSpeciesBulkParams,
@@ -36,7 +35,6 @@ import type {
   GetCoefficientByValueParams,
   GetGbifMatchParams,
   GetGbifOccurrencesParams,
-  GetGbifReconcileParams,
   GetGbifSearchParams,
   GetGobotanyParams,
   GetGobotanySpeciesTextParams,
@@ -65,21 +63,17 @@ import type {
   GetLcscgSpeciesParams,
   GetMifloraCountiesParams,
   GetMifloraImagesParams,
-  GetMifloraSpeciesParams,
   GetMinnesotaWildflowersParams,
   GetMinnesotaWildflowersSpeciesTextParams,
   GetMissouriPlantsParams,
   GetMissouriPlantsSpeciesTextParams,
   GetMnfiCommunitiesParams,
   GetMnfiCountyElementsParams,
-  GetNatureserveEcosystemsParams,
   GetNatureserveSpeciesParams,
   GetPrairieMoonParams,
   GetPrairieMoonSpeciesTextParams,
   GetS2CSpeciesByYearParams,
   GetSourceRelationshipsParams,
-  GetUniversalFqaAssessmentsParams,
-  GetUniversalFqaSpeciesParams,
   GetUsdaPlantsParams,
   GetUsdaPlantsProfileParams,
   GetUsdaPlantsSearchParams,
@@ -116,13 +110,11 @@ import type {
   MifloraCountiesResponse,
   MifloraImagesResponse,
   MifloraMetadataResponse,
-  MifloraSpeciesResponse,
   MnfiCommunitiesResponse,
   MnfiCommunityPlantsResponse,
   MnfiCommunityResponse,
   MnfiCountyElementsResponse,
   MnfiMetadataResponse,
-  NatureserveEcosystemsResponse,
   NatureserveMetadataResponse,
   NatureserveSpeciesResponse,
   NpnMetadataResponse,
@@ -144,7 +136,6 @@ import type {
   UniversalFqaDatabaseDetailResponse,
   UniversalFqaDatabasesResponse,
   UniversalFqaMetadataResponse,
-  UniversalFqaSpeciesResponse,
   UsdaPlantsMetadataResponse,
   UsdaPlantsProfileResponse,
   UsdaPlantsSearchResponse,
@@ -431,8 +422,8 @@ export const getGetGbifMatchUrl = (params: GetGbifMatchParams) => {
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/gbif/match?${stringifiedParams}`
-    : `/api/gbif/match`;
+    ? `/api/gbif/species/match?${stringifiedParams}`
+    : `/api/gbif/species/match`;
 };
 
 export const getGbifMatch = async (
@@ -446,7 +437,7 @@ export const getGbifMatch = async (
 };
 
 export const getGetGbifMatchQueryKey = (params?: GetGbifMatchParams) => {
-  return [`/api/gbif/match`, ...(params ? [params] : [])] as const;
+  return [`/api/gbif/species/match`, ...(params ? [params] : [])] as const;
 };
 
 export const getGetGbifMatchQueryOptions = <
@@ -511,105 +502,6 @@ export function useGetGbifMatch<
 }
 
 /**
- * Given a GBIF usageKey, returns all synonyms (all ranks, unfiltered) and vernacular names. Synonyms cached 30 days; vernacular names 90 days. If a synonym usageKey is passed, the server automatically resolves it to the accepted taxon's usageKey before fetching; the resolved_from_synonym_key field in the response indicates when this occurred. The resolved accepted taxon's synonyms and vernacular names are always returned.
-
- * @summary Fetch synonyms and common names for a GBIF taxon
- */
-export const getGetGbifReconcileUrl = (params: GetGbifReconcileParams) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0
-    ? `/api/gbif/reconcile?${stringifiedParams}`
-    : `/api/gbif/reconcile`;
-};
-
-export const getGbifReconcile = async (
-  params: GetGbifReconcileParams,
-  options?: RequestInit,
-): Promise<GbifReconcileResponse> => {
-  return customFetch<GbifReconcileResponse>(getGetGbifReconcileUrl(params), {
-    ...options,
-    method: "GET",
-  });
-};
-
-export const getGetGbifReconcileQueryKey = (
-  params?: GetGbifReconcileParams,
-) => {
-  return [`/api/gbif/reconcile`, ...(params ? [params] : [])] as const;
-};
-
-export const getGetGbifReconcileQueryOptions = <
-  TData = Awaited<ReturnType<typeof getGbifReconcile>>,
-  TError = ErrorType<ErrorResponse>,
->(
-  params: GetGbifReconcileParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getGbifReconcile>>,
-      TError,
-      TData
-    >;
-    request?: SecondParameter<typeof customFetch>;
-  },
-) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
-
-  const queryKey =
-    queryOptions?.queryKey ?? getGetGbifReconcileQueryKey(params);
-
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getGbifReconcile>>
-  > = ({ signal }) => getGbifReconcile(params, { signal, ...requestOptions });
-
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getGbifReconcile>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
-
-export type GetGbifReconcileQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getGbifReconcile>>
->;
-export type GetGbifReconcileQueryError = ErrorType<ErrorResponse>;
-
-/**
- * @summary Fetch synonyms and common names for a GBIF taxon
- */
-
-export function useGetGbifReconcile<
-  TData = Awaited<ReturnType<typeof getGbifReconcile>>,
-  TError = ErrorType<ErrorResponse>,
->(
-  params: GetGbifReconcileParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getGbifReconcile>>,
-      TError,
-      TData
-    >;
-    request?: SecondParameter<typeof customFetch>;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getGetGbifReconcileQueryOptions(params, options);
-
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-/**
  * Returns occurrence count and up to 300 recent georeferenced records from GBIF for the given taxon. Geography is configurable via three mutually exclusive modes: countries (comma-separated ISO codes, OR'd), continent (single GBIF continent value), or bbox (minLat,minLon,maxLat,maxLon). All records include hasCoordinate=true and hasGeospatialIssue=false filters. Cached 7 days per geography combination. Fetch on demand only.
 
  * @summary Fetch occurrence records for a GBIF taxon with configurable geography
@@ -626,8 +518,8 @@ export const getGetGbifOccurrencesUrl = (params: GetGbifOccurrencesParams) => {
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/gbif/occurrences?${stringifiedParams}`
-    : `/api/gbif/occurrences`;
+    ? `/api/gbif/occurrence/search?${stringifiedParams}`
+    : `/api/gbif/occurrence/search`;
 };
 
 export const getGbifOccurrences = async (
@@ -646,7 +538,7 @@ export const getGbifOccurrences = async (
 export const getGetGbifOccurrencesQueryKey = (
   params?: GetGbifOccurrencesParams,
 ) => {
-  return [`/api/gbif/occurrences`, ...(params ? [params] : [])] as const;
+  return [`/api/gbif/occurrence/search`, ...(params ? [params] : [])] as const;
 };
 
 export const getGetGbifOccurrencesQueryOptions = <
@@ -728,8 +620,8 @@ export const getGetGbifSearchUrl = (params: GetGbifSearchParams) => {
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/gbif/search?${stringifiedParams}`
-    : `/api/gbif/search`;
+    ? `/api/gbif/species/search?${stringifiedParams}`
+    : `/api/gbif/species/search`;
 };
 
 export const getGbifSearch = async (
@@ -743,7 +635,7 @@ export const getGbifSearch = async (
 };
 
 export const getGetGbifSearchQueryKey = (params?: GetGbifSearchParams) => {
-  return [`/api/gbif/search`, ...(params ? [params] : [])] as const;
+  return [`/api/gbif/species/search`, ...(params ? [params] : [])] as const;
 };
 
 export const getGetGbifSearchQueryOptions = <
@@ -2860,105 +2752,6 @@ export function useGetInatMetadata<
 }
 
 /**
- * Looks up a vascular plant species in the Michigan Flora REST API. Returns the complete passthrough response from Michigan Flora: all search records from flora_search_sp, spec_text (taxonomic details and description), synonyms, and plant images. Two to four API calls are required per lookup. Results are cached permanently (no TTL) — Michigan Flora data does not change; use ?refresh=true to force a re-fetch from upstream. The pimage_info object in the response is addtively enriched by FERNS with two computed fields: image_url and thumbnail_url (constructed from the plant_id and image_id using the Michigan Flora static asset URL formula). All other source fields are returned unchanged. The st field in source records uses the literal string 'NULL' (not JSON null) for unknown or absent status — this is a quirk of the Michigan Flora API. The c field is always a string; '*' indicates an adventive (non-native) species. Scientific names for adventive species are returned ALL-CAPS by the source API.
-
- * @summary Look up a species in Michigan Flora
- */
-export const getGetMifloraSpeciesUrl = (params: GetMifloraSpeciesParams) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0
-    ? `/api/miflora/species?${stringifiedParams}`
-    : `/api/miflora/species`;
-};
-
-export const getMifloraSpecies = async (
-  params: GetMifloraSpeciesParams,
-  options?: RequestInit,
-): Promise<MifloraSpeciesResponse> => {
-  return customFetch<MifloraSpeciesResponse>(getGetMifloraSpeciesUrl(params), {
-    ...options,
-    method: "GET",
-  });
-};
-
-export const getGetMifloraSpeciesQueryKey = (
-  params?: GetMifloraSpeciesParams,
-) => {
-  return [`/api/miflora/species`, ...(params ? [params] : [])] as const;
-};
-
-export const getGetMifloraSpeciesQueryOptions = <
-  TData = Awaited<ReturnType<typeof getMifloraSpecies>>,
-  TError = ErrorType<ErrorResponse>,
->(
-  params: GetMifloraSpeciesParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getMifloraSpecies>>,
-      TError,
-      TData
-    >;
-    request?: SecondParameter<typeof customFetch>;
-  },
-) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
-
-  const queryKey =
-    queryOptions?.queryKey ?? getGetMifloraSpeciesQueryKey(params);
-
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getMifloraSpecies>>
-  > = ({ signal }) => getMifloraSpecies(params, { signal, ...requestOptions });
-
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getMifloraSpecies>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
-
-export type GetMifloraSpeciesQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getMifloraSpecies>>
->;
-export type GetMifloraSpeciesQueryError = ErrorType<ErrorResponse>;
-
-/**
- * @summary Look up a species in Michigan Flora
- */
-
-export function useGetMifloraSpecies<
-  TData = Awaited<ReturnType<typeof getMifloraSpecies>>,
-  TError = ErrorType<ErrorResponse>,
->(
-  params: GetMifloraSpeciesParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getMifloraSpecies>>,
-      TError,
-      TData
-    >;
-    request?: SecondParameter<typeof customFetch>;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getGetMifloraSpeciesQueryOptions(params, options);
-
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-/**
  * Returns county-level occurrence records for all 83 Michigan counties for the given species name. Two-step lookup: first calls flora_search_sp?scientific_name={name} to resolve the plant_id, then calls locs_sp?id={plant_id} for county data. Results are the raw passthrough response from the Michigan Flora county API endpoint. Cached permanently (no TTL) — Michigan Flora data does not change; use ?refresh=true to force a re-fetch from upstream.
 
  * @summary Get county-level occurrence records for a Michigan Flora species by name
@@ -2975,8 +2768,8 @@ export const getGetMifloraCountiesUrl = (params: GetMifloraCountiesParams) => {
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/miflora/counties?${stringifiedParams}`
-    : `/api/miflora/counties`;
+    ? `/api/miflora/locs_sp?${stringifiedParams}`
+    : `/api/miflora/locs_sp`;
 };
 
 export const getMifloraCounties = async (
@@ -2995,7 +2788,7 @@ export const getMifloraCounties = async (
 export const getGetMifloraCountiesQueryKey = (
   params?: GetMifloraCountiesParams,
 ) => {
-  return [`/api/miflora/counties`, ...(params ? [params] : [])] as const;
+  return [`/api/miflora/locs_sp`, ...(params ? [params] : [])] as const;
 };
 
 export const getGetMifloraCountiesQueryOptions = <
@@ -3077,8 +2870,8 @@ export const getGetMifloraImagesUrl = (params: GetMifloraImagesParams) => {
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/miflora/images?${stringifiedParams}`
-    : `/api/miflora/images`;
+    ? `/api/miflora/allimage_info?${stringifiedParams}`
+    : `/api/miflora/allimage_info`;
 };
 
 export const getMifloraImages = async (
@@ -3094,7 +2887,7 @@ export const getMifloraImages = async (
 export const getGetMifloraImagesQueryKey = (
   params?: GetMifloraImagesParams,
 ) => {
-  return [`/api/miflora/images`, ...(params ? [params] : [])] as const;
+  return [`/api/miflora/allimage_info`, ...(params ? [params] : [])] as const;
 };
 
 export const getGetMifloraImagesQueryOptions = <
@@ -5144,7 +4937,7 @@ export function useGetUniversalFqaMetadata<
  * @summary List all Universal FQA regional databases
  */
 export const getGetUniversalFqaDatabasesUrl = () => {
-  return `/api/universal-fqa/databases`;
+  return `/api/universal-fqa/get/database`;
 };
 
 export const getUniversalFqaDatabases = async (
@@ -5160,7 +4953,7 @@ export const getUniversalFqaDatabases = async (
 };
 
 export const getGetUniversalFqaDatabasesQueryKey = () => {
-  return [`/api/universal-fqa/databases`] as const;
+  return [`/api/universal-fqa/get/database`] as const;
 };
 
 export const getGetUniversalFqaDatabasesQueryOptions = <
@@ -5225,7 +5018,7 @@ export function useGetUniversalFqaDatabases<
  * @summary Get a full Universal FQA database with all species records
  */
 export const getGetUniversalFqaDatabaseUrl = (id: number) => {
-  return `/api/universal-fqa/databases/${id}`;
+  return `/api/universal-fqa/get/database/${id}`;
 };
 
 export const getUniversalFqaDatabase = async (
@@ -5242,7 +5035,7 @@ export const getUniversalFqaDatabase = async (
 };
 
 export const getGetUniversalFqaDatabaseQueryKey = (id: number) => {
-  return [`/api/universal-fqa/databases/${id}`] as const;
+  return [`/api/universal-fqa/get/database/${id}`] as const;
 };
 
 export const getGetUniversalFqaDatabaseQueryOptions = <
@@ -5314,139 +5107,20 @@ export function useGetUniversalFqaDatabase<
 }
 
 /**
- * Looks up a species by scientific name within the specified Universal FQA database. On the first request for a given database_id, downloads the full database from universalfqa.org and stores it in the FERNS PostgreSQL cache. Subsequent lookups for the same database_id are served from the cache. Matching is exact and case-insensitive. Returns all nine source fields: scientific_name, family, acronym, native, c, w, physiognomy, duration, common_name.
-
- * @summary Look up a species by scientific name in a Universal FQA database
- */
-export const getGetUniversalFqaSpeciesUrl = (
-  params: GetUniversalFqaSpeciesParams,
-) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0
-    ? `/api/universal-fqa/species?${stringifiedParams}`
-    : `/api/universal-fqa/species`;
-};
-
-export const getUniversalFqaSpecies = async (
-  params: GetUniversalFqaSpeciesParams,
-  options?: RequestInit,
-): Promise<UniversalFqaSpeciesResponse> => {
-  return customFetch<UniversalFqaSpeciesResponse>(
-    getGetUniversalFqaSpeciesUrl(params),
-    {
-      ...options,
-      method: "GET",
-    },
-  );
-};
-
-export const getGetUniversalFqaSpeciesQueryKey = (
-  params?: GetUniversalFqaSpeciesParams,
-) => {
-  return [`/api/universal-fqa/species`, ...(params ? [params] : [])] as const;
-};
-
-export const getGetUniversalFqaSpeciesQueryOptions = <
-  TData = Awaited<ReturnType<typeof getUniversalFqaSpecies>>,
-  TError = ErrorType<ErrorResponse>,
->(
-  params: GetUniversalFqaSpeciesParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getUniversalFqaSpecies>>,
-      TError,
-      TData
-    >;
-    request?: SecondParameter<typeof customFetch>;
-  },
-) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
-
-  const queryKey =
-    queryOptions?.queryKey ?? getGetUniversalFqaSpeciesQueryKey(params);
-
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getUniversalFqaSpecies>>
-  > = ({ signal }) =>
-    getUniversalFqaSpecies(params, { signal, ...requestOptions });
-
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getUniversalFqaSpecies>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
-
-export type GetUniversalFqaSpeciesQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getUniversalFqaSpecies>>
->;
-export type GetUniversalFqaSpeciesQueryError = ErrorType<ErrorResponse>;
-
-/**
- * @summary Look up a species by scientific name in a Universal FQA database
- */
-
-export function useGetUniversalFqaSpecies<
-  TData = Awaited<ReturnType<typeof getUniversalFqaSpecies>>,
-  TError = ErrorType<ErrorResponse>,
->(
-  params: GetUniversalFqaSpeciesParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getUniversalFqaSpecies>>,
-      TError,
-      TData
-    >;
-    request?: SecondParameter<typeof customFetch>;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getGetUniversalFqaSpeciesQueryOptions(params, options);
-
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-/**
  * Returns all publicly shared site assessments for the specified database. Each entry contains the assessment id, name, date, site, and practitioner. Assessment county and state are only available in the individual assessment detail endpoint — the list does not include location fields. Michigan 2014 (ID 50) has 4800+ assessments; Michigan 2024 (ID 267) has 400+.
 
  * @summary List public site assessments for a Universal FQA database
  */
-export const getGetUniversalFqaAssessmentsUrl = (
-  params: GetUniversalFqaAssessmentsParams,
-) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0
-    ? `/api/universal-fqa/assessments?${stringifiedParams}`
-    : `/api/universal-fqa/assessments`;
+export const getGetUniversalFqaAssessmentsUrl = (id: number) => {
+  return `/api/universal-fqa/get/database/${id}/inventory`;
 };
 
 export const getUniversalFqaAssessments = async (
-  params: GetUniversalFqaAssessmentsParams,
+  id: number,
   options?: RequestInit,
 ): Promise<UniversalFqaAssessmentsResponse> => {
   return customFetch<UniversalFqaAssessmentsResponse>(
-    getGetUniversalFqaAssessmentsUrl(params),
+    getGetUniversalFqaAssessmentsUrl(id),
     {
       ...options,
       method: "GET",
@@ -5454,20 +5128,15 @@ export const getUniversalFqaAssessments = async (
   );
 };
 
-export const getGetUniversalFqaAssessmentsQueryKey = (
-  params?: GetUniversalFqaAssessmentsParams,
-) => {
-  return [
-    `/api/universal-fqa/assessments`,
-    ...(params ? [params] : []),
-  ] as const;
+export const getGetUniversalFqaAssessmentsQueryKey = (id: number) => {
+  return [`/api/universal-fqa/get/database/${id}/inventory`] as const;
 };
 
 export const getGetUniversalFqaAssessmentsQueryOptions = <
   TData = Awaited<ReturnType<typeof getUniversalFqaAssessments>>,
   TError = ErrorType<ErrorResponse>,
 >(
-  params: GetUniversalFqaAssessmentsParams,
+  id: number,
   options?: {
     query?: UseQueryOptions<
       Awaited<ReturnType<typeof getUniversalFqaAssessments>>,
@@ -5480,14 +5149,19 @@ export const getGetUniversalFqaAssessmentsQueryOptions = <
   const { query: queryOptions, request: requestOptions } = options ?? {};
 
   const queryKey =
-    queryOptions?.queryKey ?? getGetUniversalFqaAssessmentsQueryKey(params);
+    queryOptions?.queryKey ?? getGetUniversalFqaAssessmentsQueryKey(id);
 
   const queryFn: QueryFunction<
     Awaited<ReturnType<typeof getUniversalFqaAssessments>>
   > = ({ signal }) =>
-    getUniversalFqaAssessments(params, { signal, ...requestOptions });
+    getUniversalFqaAssessments(id, { signal, ...requestOptions });
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
     Awaited<ReturnType<typeof getUniversalFqaAssessments>>,
     TError,
     TData
@@ -5507,7 +5181,7 @@ export function useGetUniversalFqaAssessments<
   TData = Awaited<ReturnType<typeof getUniversalFqaAssessments>>,
   TError = ErrorType<ErrorResponse>,
 >(
-  params: GetUniversalFqaAssessmentsParams,
+  id: number,
   options?: {
     query?: UseQueryOptions<
       Awaited<ReturnType<typeof getUniversalFqaAssessments>>,
@@ -5517,10 +5191,7 @@ export function useGetUniversalFqaAssessments<
     request?: SecondParameter<typeof customFetch>;
   },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getGetUniversalFqaAssessmentsQueryOptions(
-    params,
-    options,
-  );
+  const queryOptions = getGetUniversalFqaAssessmentsQueryOptions(id, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;
@@ -5535,7 +5206,7 @@ export function useGetUniversalFqaAssessments<
  * @summary Get a single Universal FQA site assessment in full detail
  */
 export const getGetUniversalFqaAssessmentUrl = (id: number) => {
-  return `/api/universal-fqa/assessment/${id}`;
+  return `/api/universal-fqa/get/inventory/${id}`;
 };
 
 export const getUniversalFqaAssessment = async (
@@ -5552,7 +5223,7 @@ export const getUniversalFqaAssessment = async (
 };
 
 export const getGetUniversalFqaAssessmentQueryKey = (id: number) => {
-  return [`/api/universal-fqa/assessment/${id}`] as const;
+  return [`/api/universal-fqa/get/inventory/${id}`] as const;
 };
 
 export const getGetUniversalFqaAssessmentQueryOptions = <
@@ -6371,8 +6042,8 @@ export const getGetNatureserveSpeciesUrl = (
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/natureserve/species?${stringifiedParams}`
-    : `/api/natureserve/species`;
+    ? `/api/natureserve/speciesSearch?${stringifiedParams}`
+    : `/api/natureserve/speciesSearch`;
 };
 
 export const getNatureserveSpecies = async (
@@ -6391,7 +6062,10 @@ export const getNatureserveSpecies = async (
 export const getGetNatureserveSpeciesQueryKey = (
   params?: GetNatureserveSpeciesParams,
 ) => {
-  return [`/api/natureserve/species`, ...(params ? [params] : [])] as const;
+  return [
+    `/api/natureserve/speciesSearch`,
+    ...(params ? [params] : []),
+  ] as const;
 };
 
 export const getGetNatureserveSpeciesQueryOptions = <
@@ -6449,111 +6123,6 @@ export function useGetNatureserveSpecies<
   },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetNatureserveSpeciesQueryOptions(params, options);
-
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-/**
- * Queries NatureServe Explorer for ecological systems matching a name or description. Returns a list of matching NatureServe ecological system records including NatureServe identifier, name, and classification details. Results cached 30 days per query string. Useful for identifying NatureServe ecosystem types corresponding to MNFI natural community types or other ecological classification systems.
-
- * @summary Look up ecological systems from NatureServe Explorer
- */
-export const getGetNatureserveEcosystemsUrl = (
-  params: GetNatureserveEcosystemsParams,
-) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0
-    ? `/api/natureserve/ecosystems?${stringifiedParams}`
-    : `/api/natureserve/ecosystems`;
-};
-
-export const getNatureserveEcosystems = async (
-  params: GetNatureserveEcosystemsParams,
-  options?: RequestInit,
-): Promise<NatureserveEcosystemsResponse> => {
-  return customFetch<NatureserveEcosystemsResponse>(
-    getGetNatureserveEcosystemsUrl(params),
-    {
-      ...options,
-      method: "GET",
-    },
-  );
-};
-
-export const getGetNatureserveEcosystemsQueryKey = (
-  params?: GetNatureserveEcosystemsParams,
-) => {
-  return [`/api/natureserve/ecosystems`, ...(params ? [params] : [])] as const;
-};
-
-export const getGetNatureserveEcosystemsQueryOptions = <
-  TData = Awaited<ReturnType<typeof getNatureserveEcosystems>>,
-  TError = ErrorType<ErrorResponse>,
->(
-  params: GetNatureserveEcosystemsParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getNatureserveEcosystems>>,
-      TError,
-      TData
-    >;
-    request?: SecondParameter<typeof customFetch>;
-  },
-) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
-
-  const queryKey =
-    queryOptions?.queryKey ?? getGetNatureserveEcosystemsQueryKey(params);
-
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getNatureserveEcosystems>>
-  > = ({ signal }) =>
-    getNatureserveEcosystems(params, { signal, ...requestOptions });
-
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getNatureserveEcosystems>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
-
-export type GetNatureserveEcosystemsQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getNatureserveEcosystems>>
->;
-export type GetNatureserveEcosystemsQueryError = ErrorType<ErrorResponse>;
-
-/**
- * @summary Look up ecological systems from NatureServe Explorer
- */
-
-export function useGetNatureserveEcosystems<
-  TData = Awaited<ReturnType<typeof getNatureserveEcosystems>>,
-  TError = ErrorType<ErrorResponse>,
->(
-  params: GetNatureserveEcosystemsParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getNatureserveEcosystems>>,
-      TError,
-      TData
-    >;
-    request?: SecondParameter<typeof customFetch>;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getGetNatureserveEcosystemsQueryOptions(params, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;
@@ -8216,8 +7785,8 @@ export const getGetUsdaPlantsUrl = (params: GetUsdaPlantsParams) => {
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/usda-plants?${stringifiedParams}`
-    : `/api/usda-plants`;
+    ? `/api/usda-plants/PlantSearch?${stringifiedParams}`
+    : `/api/usda-plants/PlantSearch`;
 };
 
 export const getUsdaPlants = async (
@@ -8231,7 +7800,7 @@ export const getUsdaPlants = async (
 };
 
 export const getGetUsdaPlantsQueryKey = (params?: GetUsdaPlantsParams) => {
-  return [`/api/usda-plants`, ...(params ? [params] : [])] as const;
+  return [`/api/usda-plants/PlantSearch`, ...(params ? [params] : [])] as const;
 };
 
 export const getGetUsdaPlantsQueryOptions = <
@@ -8296,7 +7865,7 @@ export function useGetUsdaPlants<
 }
 
 /**
- * Fetches the PlantProfile for a known USDA symbol (e.g. ASTU for Asclepias tuberosa). Returns the complete raw profile object as returned by the USDA PLANTS API. Profiles are cached 30 days. Use ?refresh=true to bypass the cache. Use the /usda-plants?species= endpoint to resolve a scientific name to a symbol if the symbol is not already known.
+ * Fetches the PlantProfile for a known USDA symbol (e.g. ASTU for Asclepias tuberosa). Returns the complete raw profile object as returned by the USDA PLANTS API. Profiles are cached 30 days. Use ?refresh=true to bypass the cache. Use the /usda-plants/PlantSearch?species= endpoint to resolve a scientific name to a symbol if the symbol is not already known.
 
  * @summary Fetch the full USDA PLANTS profile for a known symbol
  */
@@ -8314,8 +7883,8 @@ export const getGetUsdaPlantsProfileUrl = (
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/usda-plants/profile?${stringifiedParams}`
-    : `/api/usda-plants/profile`;
+    ? `/api/usda-plants/PlantProfile?${stringifiedParams}`
+    : `/api/usda-plants/PlantProfile`;
 };
 
 export const getUsdaPlantsProfile = async (
@@ -8334,7 +7903,10 @@ export const getUsdaPlantsProfile = async (
 export const getGetUsdaPlantsProfileQueryKey = (
   params?: GetUsdaPlantsProfileParams,
 ) => {
-  return [`/api/usda-plants/profile`, ...(params ? [params] : [])] as const;
+  return [
+    `/api/usda-plants/PlantProfile`,
+    ...(params ? [params] : []),
+  ] as const;
 };
 
 export const getGetUsdaPlantsProfileQueryOptions = <
@@ -8419,8 +7991,8 @@ export const getGetUsdaPlantsSearchUrl = (
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/usda-plants/search?${stringifiedParams}`
-    : `/api/usda-plants/search`;
+    ? `/api/usda-plants/plants-search-results?${stringifiedParams}`
+    : `/api/usda-plants/plants-search-results`;
 };
 
 export const getUsdaPlantsSearch = async (
@@ -8439,7 +8011,10 @@ export const getUsdaPlantsSearch = async (
 export const getGetUsdaPlantsSearchQueryKey = (
   params?: GetUsdaPlantsSearchParams,
 ) => {
-  return [`/api/usda-plants/search`, ...(params ? [params] : [])] as const;
+  return [
+    `/api/usda-plants/plants-search-results`,
+    ...(params ? [params] : []),
+  ] as const;
 };
 
 export const getGetUsdaPlantsSearchQueryOptions = <

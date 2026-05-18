@@ -901,7 +901,7 @@ export async function runNatureserveChecks(fernsBase: string): Promise<EndpointC
 
   const speciesCheck = await checkEndpoint(
     "natureserve",
-    "/api/natureserve/species?name=Platanthera+leucophaea",
+    "/api/natureserve/speciesSearch?name=Platanthera+leucophaea",
     "NatureServe — species search (Platanthera leucophaea: G2G3, S1, USESA Threatened)",
     fernsBase,
     (envelope) => {
@@ -950,55 +950,7 @@ export async function runNatureserveChecks(fernsBase: string): Promise<EndpointC
     },
   );
 
-  const ecosystemsCheck = await checkEndpoint(
-    "natureserve",
-    "/api/natureserve/ecosystems?name=lakeplain+prairie",
-    "NatureServe — ecosystem search (lakeplain prairie: results present, Great Lakes Wet-Mesic Lakeplain Prairie)",
-    fernsBase,
-    (envelope) => {
-      const findings: FieldFinding[] = [];
-      const data = envelope.data as Record<string, unknown> | null | undefined;
-      if (!data) {
-        findings.push({ type: "mismatch", sourceField: "data", note: "No data in response" });
-        return findings;
-      }
-      const ecosystems = Array.isArray(data.ecosystems) ? (data.ecosystems as Record<string, unknown>[]) : [];
-      if (ecosystems.length > 0) {
-        findings.push({ type: "ok", sourceField: "data.ecosystems", note: `${ecosystems.length} ecosystem(s) returned` });
-      } else {
-        findings.push({ type: "mismatch", sourceField: "data.ecosystems", note: "No ecosystems returned for 'lakeplain prairie'" });
-      }
-      const lakeplain = ecosystems.find((e) =>
-        typeof e.system_name === "string" && e.system_name.toLowerCase().includes("lakeplain"),
-      );
-      if (lakeplain) {
-        findings.push({ type: "ok", sourceField: "data.ecosystems[lakeplain]", note: `Found: ${lakeplain.system_name}` });
-      } else {
-        findings.push({ type: "gap", sourceField: "data.ecosystems[lakeplain]", note: "No lakeplain ecosystem found in results" });
-      }
-      const hasUrls = ecosystems.every((e) => typeof e.natureserve_url === "string" && e.natureserve_url.includes("explorer.natureserve.org"));
-      if (hasUrls) {
-        findings.push({ type: "ok", sourceField: "data.ecosystems[].natureserve_url", note: "All ecosystem results have valid NatureServe URLs" });
-      } else {
-        findings.push({ type: "mismatch", sourceField: "data.ecosystems[].natureserve_url", note: "Some ecosystems missing NatureServe URL" });
-      }
-      const withDistribution = ecosystems.filter((e) => typeof e.national_distribution === "string" && (e.national_distribution as string).length > 0);
-      if (withDistribution.length > 0) {
-        findings.push({ type: "ok", sourceField: "data.ecosystems[].national_distribution", note: `${withDistribution.length}/${ecosystems.length} ecosystems have national_distribution` });
-      } else {
-        findings.push({ type: "gap", sourceField: "data.ecosystems[].national_distribution", note: "No ecosystems have national_distribution text" });
-      }
-      const withCharSpecies = ecosystems.filter((e) => Array.isArray(e.characteristic_species) && (e.characteristic_species as unknown[]).length > 0);
-      if (withCharSpecies.length > 0) {
-        findings.push({ type: "ok", sourceField: "data.ecosystems[].characteristic_species", note: `${withCharSpecies.length}/${ecosystems.length} ecosystems have characteristic_species` });
-      } else {
-        findings.push({ type: "gap", sourceField: "data.ecosystems[].characteristic_species", note: "No ecosystems have characteristic_species (data may be sparse)" });
-      }
-      return findings;
-    },
-  );
-
-  return [metadataCheck, speciesCheck, ecosystemsCheck];
+  return [metadataCheck, speciesCheck];
 }
 
 // ─── Species-Text Health Checks ───────────────────────────────────────────────

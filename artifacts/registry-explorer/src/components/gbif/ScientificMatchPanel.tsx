@@ -1,8 +1,8 @@
 import { useState, type ReactNode } from "react";
-import { useGetGbifMatch, useGetGbifReconcile, getGetGbifMatchQueryKey, getGetGbifReconcileQueryKey, type GbifVernacularRecord, type GbifSynonymRecord, type GbifReconcileData } from "@workspace/api-client-react";
+import { useGetGbifMatch, getGetGbifMatchQueryKey } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, CheckCircle, ChevronDown, ChevronRight, Info, ExternalLink, Leaf } from "lucide-react";
+import { AlertTriangle, CheckCircle, ChevronDown, ChevronRight, Info, ExternalLink } from "lucide-react";
 import { RawJsonPanel } from "@/components/RawJsonPanel";
 import { OccurrencesPanel } from "./OccurrencesPanel";
 
@@ -44,71 +44,6 @@ function ExpandableSection({ title, count, icon, children, defaultOpen = false }
   );
 }
 
-function ReconcilePanels({ data }: { data: GbifReconcileData }) {
-  return (
-    <div className="space-y-4">
-      {data.vernacular_name_primary && (
-        <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/30 px-4 py-3">
-          <Leaf className="w-5 h-5 text-primary flex-shrink-0" />
-          <div>
-            <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide leading-none mb-1">Primary Common Name</div>
-            <div className="text-base font-semibold">{data.vernacular_name_primary}</div>
-          </div>
-        </div>
-      )}
-
-      <div className="grid md:grid-cols-2 gap-4">
-        <ExpandableSection
-          title="Common Names"
-          count={data.vernacular_name_count}
-          icon={<Leaf className="w-5 h-5 text-primary" />}
-        >
-          {data.vernacular_names.length === 0 ? (
-            <p className="text-sm text-muted-foreground italic">No common names recorded.</p>
-          ) : (
-            <ul className="space-y-3">
-              {data.vernacular_names.map((vn: GbifVernacularRecord, i: number) => (
-                <li key={i} className="flex justify-between items-start border-b border-border/50 pb-2 last:border-0 last:pb-0">
-                  <span className="font-medium text-sm">{vn.vernacularName}</span>
-                  <div className="flex gap-2 ml-2 flex-shrink-0">
-                    {vn.language && <Badge variant="outline" className="text-[10px]">{vn.language.toUpperCase()}</Badge>}
-                    {vn.country && <Badge variant="outline" className="text-[10px] bg-muted">{vn.country}</Badge>}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </ExpandableSection>
-
-        <ExpandableSection
-          title="Synonyms"
-          count={data.synonyms.length}
-          icon={
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/></svg>
-          }
-        >
-          {data.synonyms.length === 0 ? (
-            <p className="text-sm text-muted-foreground italic">No synonyms recorded.</p>
-          ) : (
-            <ul className="space-y-3">
-              {data.synonyms.map((syn: GbifSynonymRecord, i: number) => (
-                <li key={i} className="text-sm border-b border-border/50 pb-2 last:border-0 last:pb-0">
-                  <div className="font-medium italic">{syn.canonicalName || syn.scientificName}</div>
-                  <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                    <span>{syn.taxonomicStatus}</span>
-                    <span>•</span>
-                    <span className="uppercase">{syn.rank}</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </ExpandableSection>
-      </div>
-    </div>
-  );
-}
-
 interface ScientificMatchPanelProps {
   scientificName: string;
 }
@@ -120,10 +55,6 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
 
   const matchData = matchQuery.data?.data;
   const reconcileKey = matchData?.status === 'SYNONYM' ? matchData.accepted_usage_key : matchData?.usageKey;
-  
-  const reconcileQuery = useGetGbifReconcile({ usageKey: reconcileKey || 0 }, {
-    query: { queryKey: getGetGbifReconcileQueryKey({ usageKey: reconcileKey || 0 }), enabled: !!reconcileKey }
-  });
 
   if (matchQuery.isLoading) {
     return <div className="p-8 text-center text-muted-foreground animate-pulse">Matching taxonomy...</div>;
@@ -258,17 +189,9 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
             </CardContent>
           </Card>
 
-          {/* Reconcile Section */}
-          {reconcileQuery.isLoading ? (
-            <div className="h-32 rounded-2xl bg-muted animate-pulse" />
-          ) : reconcileQuery.data?.data ? (
-            <ReconcilePanels data={reconcileQuery.data.data} />
-          ) : null}
-
           {reconcileKey && <OccurrencesPanel usageKey={reconcileKey} />}
 
           <RawJsonPanel title="Match Response" data={matchQuery.data} />
-          {reconcileQuery.data && <RawJsonPanel title="Reconcile Response" data={reconcileQuery.data} />}
         </>
       )}
     </div>

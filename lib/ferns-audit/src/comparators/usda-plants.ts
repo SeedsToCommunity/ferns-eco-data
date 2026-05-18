@@ -68,7 +68,7 @@ async function compareUsdaPlantsSpecies(
   fernsBase: string,
   sp: TestSpecies,
 ): Promise<EndpointComparison> {
-  const fernsEndpointPath = `/api/usda-plants`;
+  const fernsEndpointPath = `/api/usda-plants/PlantSearch`;
   const endpoint = `${fernsEndpointPath}?species=${encodeURIComponent(sp.name)}&refresh=true`;
   const fernsUrl = `${fernsBase}${endpoint}`;
   const label = `${sp.label} (${sp.name}) — USDA PLANTS species name lookup parity`;
@@ -81,7 +81,7 @@ async function compareUsdaPlantsSpecies(
 
     const fernsData = (fernsRaw.data ?? {}) as Record<string, unknown>;
     const findings: EndpointComparison["findings"] = [];
-    const urlsCollected = collectUrls(fernsRaw, `usda-plants:species:${sp.name}`);
+    const urlsCollected = collectUrls(fernsRaw, `usda-plants:PlantSearch:${sp.name}`);
 
     const fernsFound = Boolean(fernsRaw.found);
     const upstreamMatch = findExactMatch(sp.name, upstreamSearchResults);
@@ -252,10 +252,10 @@ async function compareUsdaPlantsProfile(
   speciesName: string,
   symbol: string,
 ): Promise<EndpointComparison> {
-  const fernsEndpointPath = `/api/usda-plants/profile`;
+  const fernsEndpointPath = `/api/usda-plants/PlantProfile`;
   const endpoint = `${fernsEndpointPath}?symbol=${encodeURIComponent(symbol)}&refresh=true`;
   const fernsUrl = `${fernsBase}${endpoint}`;
-  const label = `${speciesName} (${symbol}) — USDA PLANTS /profile endpoint parity`;
+  const label = `${speciesName} (${symbol}) — USDA PLANTS /PlantProfile endpoint parity`;
 
   try {
     const [fernsRaw, upstreamProfile] = await Promise.all([
@@ -266,7 +266,7 @@ async function compareUsdaPlantsProfile(
     const fernsData = (fernsRaw.data ?? {}) as Record<string, unknown>;
     const fernsProfile = (fernsData.profile ?? {}) as Record<string, unknown>;
     const findings: EndpointComparison["findings"] = [];
-    const urlsCollected = collectUrls(fernsRaw, `usda-plants:profile:${symbol}`);
+    const urlsCollected = collectUrls(fernsRaw, `usda-plants:PlantProfile:${symbol}`);
 
     const fernsFound = Boolean(fernsRaw.found);
     const upstreamHasData = typeof upstreamProfile["Id"] === "number";

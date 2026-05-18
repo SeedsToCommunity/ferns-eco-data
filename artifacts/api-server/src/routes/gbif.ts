@@ -1,24 +1,16 @@
 import { Router, type IRouter } from "express";
 import {
   buildMatchCacheKey,
-  buildSynonymsCacheKey,
-  buildVernacularCacheKey,
   buildOccurrencesCacheKey,
   fetchNameMatch,
-  fetchReconcile,
   fetchOccurrences,
   fetchVernacularSearch,
   parseGeography,
   buildProvenance,
-  resolveToAcceptedUsageKey,
 } from "../services/gbif/connector.js";
 import {
   lookupNameMatch,
   storeNameMatch,
-  lookupSynonyms,
-  storeSynonyms,
-  lookupVernacular,
-  storeVernacular,
   lookupOccurrences,
   storeOccurrences,
 } from "../services/gbif/cache.js";
@@ -38,7 +30,7 @@ import { filterProvenance } from "../lib/provenance.js";
 
 const router: IRouter = Router();
 
-router.get("/gbif/match", async (req, res) => {
+router.get("/gbif/species/match", async (req, res) => {
   const rawName = req.query.name;
   if (!rawName || typeof rawName !== "string" || rawName.trim() === "") {
     res.status(400).json({ error: "invalid_input", message: "name is required and must be a non-empty string" });
@@ -148,99 +140,9 @@ function buildMatchResponse(
   };
 }
 
-router.get("/gbif/reconcile", async (req, res) => {
-  const rawKey = req.query.usageKey;
-  const usageKey = Number(rawKey);
-  if (!rawKey || isNaN(usageKey) || usageKey <= 0) {
-    res.status(400).json({ error: "invalid_input", message: "usageKey is required and must be a positive integer" });
-    return;
-  }
-
-  const refresh = req.query.refresh === "true" || req.query.refresh === "1";
-  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
-
-  try {
-    const { resolvedKey, wasSynonym } = await resolveToAcceptedUsageKey(usageKey);
-
-    const synKey = buildSynonymsCacheKey(resolvedKey);
-    const vernKey = buildVernacularCacheKey(resolvedKey);
-
-    if (!refresh) {
-      const [cachedSyn, cachedVern] = await Promise.all([
-        lookupSynonyms(synKey),
-        lookupVernacular(vernKey),
-      ]);
-
-      if (cachedSyn && cachedVern) {
-        res.json(buildReconcileResponse(resolvedKey, cachedSyn, cachedVern, wasSynonym ? usageKey : null, verbosity));
-        return;
-      }
-    }
-
-    const result = await fetchReconcile(resolvedKey);
-
-    const [storedSyn, storedVern] = await Promise.all([
-      storeSynonyms(synKey, resolvedKey, result),
-      storeVernacular(vernKey, resolvedKey, result),
-    ]);
-
-    res.json(buildReconcileResponse(resolvedKey, storedSyn, storedVern, wasSynonym ? usageKey : null, verbosity));
-  } catch (err) {
-    req.log.error({ err }, "GBIF reconcile fetch failed");
-    res.status(502).json({ error: "upstream_error", message: "Failed to fetch from GBIF API" });
-  }
-});
-
-function buildReconcileResponse(
-  usageKey: number,
-  syn: {
-    synonyms: unknown;
-    synonym_count: number;
-    fetched_at: Date;
-    upstream_url: string;
-    source_id: string;
-    method: string;
-    general_summary: string;
-    technical_details: string;
-  },
-  vern: {
-    vernacular_names: unknown;
-    vernacular_name_primary: string | null;
-    vernacular_name_count: number;
-    fetched_at: Date;
-    upstream_url: string;
-  },
-  resolvedFromSynonymKey: number | null = null,
-  verbosity?: string,
-) {
-  return {
-    source_url: `https://www.gbif.org/species/${usageKey}`,
-    found: true,
-    data: {
-      usage_key: usageKey,
-      resolved_from_synonym_key: resolvedFromSynonymKey ?? null,
-      synonyms: syn.synonyms,
-      synonym_count: syn.synonym_count,
-      vernacular_names: vern.vernacular_names,
-      vernacular_name_primary: vern.vernacular_name_primary ?? null,
-      vernacular_name_count: vern.vernacular_name_count,
-      synonyms_fetched_at: syn.fetched_at,
-      vernacular_fetched_at: vern.fetched_at,
-    },
-    provenance: filterProvenance({
-      source_id: syn.source_id,
-      fetched_at: syn.fetched_at,
-      method: syn.method,
-      upstream_url: syn.upstream_url,
-      general_summary: syn.general_summary,
-      technical_details: syn.technical_details,
-    }, verbosity),
-  };
-}
-
 const VALID_CONTINENTS = new Set(["AFRICA","ANTARCTICA","ASIA","EUROPE","NORTH_AMERICA","OCEANIA","SOUTH_AMERICA"]);
 
-router.get("/gbif/occurrences", async (req, res) => {
+router.get("/gbif/occurrence/search", async (req, res) => {
   const rawKey = req.query.usageKey;
   const usageKey = Number(rawKey);
   if (!rawKey || isNaN(usageKey) || usageKey <= 0) {
@@ -349,7 +251,7 @@ function buildOccurrencesResponse(
   };
 }
 
-router.get("/gbif/search", async (req, res) => {
+router.get("/gbif/species/search", async (req, res) => {
   const rawQ = req.query.q;
   if (!rawQ || typeof rawQ !== "string" || rawQ.trim() === "") {
     res.status(400).json({ error: "invalid_input", message: "q is required and must be a non-empty string" });

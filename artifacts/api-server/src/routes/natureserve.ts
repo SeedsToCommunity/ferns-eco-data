@@ -1,16 +1,12 @@
 import { Router, type IRouter } from "express";
 import {
   searchSpecies,
-  searchEcosystems,
   buildSpeciesCacheKey,
-  buildEcosystemsCacheKey,
   buildProvenance,
 } from "../services/natureserve/connector.js";
 import {
   lookupSpeciesCache,
   storeSpeciesCache,
-  lookupEcosystemsCache,
-  storeEcosystemsCache,
 } from "../services/natureserve/cache.js";
 import {
   NATURESERVE_SOURCE_ID,
@@ -23,7 +19,7 @@ import {
 } from "../services/natureserve/metadata.js";
 import { ensureNatureserveRegistryEntry } from "../services/natureserve/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
-import { db, natureserveSpeciesCacheTable, natureserveEcosystemsCacheTable } from "@workspace/db";
+import { db, natureserveSpeciesCacheTable } from "@workspace/db";
 import { count } from "drizzle-orm";
 import { filterProvenance } from "../lib/provenance.js";
 
@@ -31,7 +27,7 @@ const router: IRouter = Router();
 
 const DEFAULT_STATE = "MI";
 
-router.get("/natureserve/species", async (req, res) => {
+router.get("/natureserve/speciesSearch", async (req, res) => {
   const rawName = req.query.name;
   if (!rawName || typeof rawName !== "string" || rawName.trim() === "") {
     res.status(400).json({ error: "invalid_input", message: "name is required and must be a non-empty string" });
@@ -110,75 +106,12 @@ function buildSpeciesResponse(
   };
 }
 
-router.get("/natureserve/ecosystems", async (req, res) => {
-  const rawName = req.query.name;
-  if (!rawName || typeof rawName !== "string" || rawName.trim() === "") {
-    res.status(400).json({ error: "invalid_input", message: "name is required and must be a non-empty string" });
-    return;
-  }
-
-  const name = rawName.trim();
-  const refresh = req.query.refresh === "true" || req.query.refresh === "1";
-  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
-  const cacheKey = buildEcosystemsCacheKey(name);
-
-  if (!refresh) {
-    const cached = await lookupEcosystemsCache(cacheKey);
-    if (cached) {
-      res.json(buildEcosystemsResponse(cached, "hit", verbosity));
-      return;
-    }
-  }
-
-  try {
-    const result = await searchEcosystems(name);
-    const stored = await storeEcosystemsCache(cacheKey, result);
-    res.json(buildEcosystemsResponse(stored, refresh ? "bypassed" : "miss", verbosity));
-  } catch (err) {
-    req.log.error({ err }, "NatureServe ecosystems fetch failed");
-    res.status(502).json({ error: "upstream_error", message: "Failed to fetch from NatureServe Explorer API" });
-  }
-});
-
-function buildEcosystemsResponse(
-  row: typeof natureserveEcosystemsCacheTable.$inferSelect,
-  cache_status: "hit" | "miss" | "bypassed",
-  verbosity?: string,
-) {
-  const items = Array.isArray(row.results) ? row.results : [];
-  return {
-    source_url: "https://explorer.natureserve.org",
-    found: items.length > 0,
-    attribution: "NatureServe Explorer (https://explorer.natureserve.org). Attribution required per NatureServe Terms of Use.",
-    data: {
-      ecosystems: items,
-      result_count: items.length,
-      total_ecosystem_results: items.length,
-      total_results_all_types: row.result_count ? parseInt(row.result_count, 10) : items.length,
-      cache_status,
-    },
-    provenance: filterProvenance({
-      source_id: row.source_id,
-      fetched_at: row.fetched_at,
-      method: row.method,
-      upstream_url: row.upstream_url,
-      general_summary: row.general_summary,
-      technical_details: row.technical_details,
-    }, verbosity),
-  };
-}
-
 router.get("/natureserve/metadata", async (req, res) => {
   await ensureNatureserveRegistryEntry();
   const queriedAt = new Date();
 
-  const [speciesCountRow, ecosystemsCountRow] = await Promise.all([
-    db.select({ count: count() }).from(natureserveSpeciesCacheTable),
-    db.select({ count: count() }).from(natureserveEcosystemsCacheTable),
-  ]);
-
+  const speciesCountRow = await db.select({ count: count() }).from(natureserveSpeciesCacheTable);
   const speciesCacheCount = speciesCountRow[0]?.count ?? 0;
-  const ecosystemsCacheCount = ecosystemsCountRow[0]?.count ?? 0;
 
   res.json({
     found: true,
@@ -190,7 +123,6 @@ router.get("/natureserve/metadata", async (req, res) => {
     attribution: NATURESERVE_ATTRIBUTION,
     cache_stats: {
       species_cached: speciesCacheCount,
-      ecosystems_cached: ecosystemsCacheCount,
       ttl_days: 30,
     },
     registry_entry: {

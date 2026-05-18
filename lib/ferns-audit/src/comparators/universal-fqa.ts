@@ -20,10 +20,6 @@ export async function runUniversalFqaComparators(
 
   results.push(await compareDatabaseBlob(fernsBase, AUDIT_DATABASE_ID, AUDIT_DATABASE_LABEL, upstream));
 
-  for (const sp of species) {
-    results.push(await compareSpeciesLookup(fernsBase, sp, upstream));
-  }
-
   for (const assessment of assessments) {
     results.push(await compareAssessment(fernsBase, assessment));
   }
@@ -32,7 +28,7 @@ export async function runUniversalFqaComparators(
 }
 
 async function checkDatabaseList(fernsBase: string): Promise<EndpointComparison> {
-  const fernsEndpoint = `/api/universal-fqa/databases`;
+  const fernsEndpoint = `/api/universal-fqa/get/database`;
   const fernsUrl = `${fernsBase}${fernsEndpoint}`;
   const label = `Universal FQA — database list`;
 
@@ -41,7 +37,7 @@ async function checkDatabaseList(fernsBase: string): Promise<EndpointComparison>
     const envelope = raw as Record<string, unknown>;
     const data = (envelope.data ?? {}) as Record<string, unknown>;
     const databases = (data.databases ?? []) as unknown[];
-    const urlsCollected = collectUrls(envelope, `universal-fqa/databases`);
+    const urlsCollected = collectUrls(envelope, `universal-fqa/get/database`);
 
     const findings: FieldFinding[] = [];
 
@@ -87,7 +83,7 @@ async function compareDatabaseBlob(
   databaseLabel: string,
   upstream: UpstreamDatabaseResult,
 ): Promise<EndpointComparison> {
-  const fernsEndpoint = `/api/universal-fqa/databases/${databaseId}`;
+  const fernsEndpoint = `/api/universal-fqa/get/database/${databaseId}`;
   const fernsUrl = `${fernsBase}${fernsEndpoint}`;
   const label = `Universal FQA — database blob (${databaseLabel})`;
 
@@ -95,7 +91,7 @@ async function compareDatabaseBlob(
     const fernsRaw = await fetchJson(fernsUrl) as Record<string, unknown>;
     const fernsEnvelope = fernsRaw as Record<string, unknown>;
     const fernsData = (fernsEnvelope.data ?? {}) as Record<string, unknown>;
-    const urlsCollected = collectUrls(fernsEnvelope, `universal-fqa/databases/${databaseId}`);
+    const urlsCollected = collectUrls(fernsEnvelope, `universal-fqa/get/database/${databaseId}`);
 
     const findings: FieldFinding[] = [];
 
@@ -305,144 +301,11 @@ async function fetchUpstreamDatabase(databaseId: number): Promise<UpstreamDataba
   }
 }
 
-async function compareSpeciesLookup(
-  fernsBase: string,
-  sp: TestSpecies,
-  upstream: UpstreamDatabaseResult,
-): Promise<EndpointComparison> {
-  const fernsEndpoint = `/api/universal-fqa/species`;
-  const fernsUrl = `${fernsBase}${fernsEndpoint}?name=${encodeURIComponent(sp.name)}&database_id=${AUDIT_DATABASE_ID}`;
-  const label = `${sp.label} (${sp.name}) — Universal FQA species in ${AUDIT_DATABASE_LABEL}`;
-
-  try {
-    const fernsRaw = await fetchJson(fernsUrl);
-    const fernsEnvelope = fernsRaw as Record<string, unknown>;
-    const fernsData = (fernsEnvelope.data ?? {}) as Record<string, unknown>;
-    const fernsSpecies = (fernsData.species ?? null) as Record<string, unknown> | null;
-    const urlsCollected = collectUrls(fernsEnvelope, `universal-fqa/species:${sp.name}`);
-
-    const findings: FieldFinding[] = [];
-
-    if (!upstream.ok) {
-      findings.push({
-        type: "ok",
-        sourceField: "(upstream)",
-        note: `Upstream database fetch failed: ${upstream.error} — cannot compare; FERNS returned found: ${fernsEnvelope.found}`,
-      });
-      return {
-        source: "universal-fqa",
-        endpoint: `${fernsEndpoint}?name=${encodeURIComponent(sp.name)}&database_id=${AUDIT_DATABASE_ID}`,
-        label,
-        ok: true,
-        rawFerns: fernsSpecies ?? undefined,
-        findings,
-        urlsCollected,
-      };
-    }
-
-    const upstreamMatch = upstream.species.get(sp.name.toLowerCase());
-
-    if (!upstreamMatch && !fernsEnvelope.found) {
-      findings.push({
-        type: "ok",
-        sourceField: "(match)",
-        note: `Species not found in either FERNS or upstream ${AUDIT_DATABASE_LABEL} — consistent`,
-      });
-    } else if (!upstreamMatch && fernsEnvelope.found) {
-      findings.push({
-        type: "mismatch",
-        sourceField: "found",
-        note: `FERNS returned found: true but species not present in upstream ${AUDIT_DATABASE_LABEL}`,
-      });
-    } else if (upstreamMatch && !fernsEnvelope.found) {
-      findings.push({
-        type: "gap",
-        sourceField: "found",
-        note: `Species IS in upstream ${AUDIT_DATABASE_LABEL} but FERNS returned found: false`,
-      });
-    } else if (upstreamMatch && fernsSpecies) {
-      const fields: Array<keyof UpstreamSpeciesRecord> = [
-        "scientific_name", "family", "acronym", "native", "physiognomy", "duration", "common_name",
-      ];
-
-      for (const field of fields) {
-        const sourceVal = String(upstreamMatch[field] ?? "");
-        const fernsVal = String((fernsSpecies[field] as unknown) ?? "");
-        if (sourceVal.toLowerCase() !== fernsVal.toLowerCase()) {
-          findings.push({
-            type: "mismatch",
-            sourceField: field,
-            fernsField: field,
-            sourceValue: sourceVal,
-            fernsValue: fernsVal,
-          });
-        } else {
-          findings.push({
-            type: "ok",
-            sourceField: field,
-            fernsField: field,
-            fernsValue: fernsVal,
-            note: `${field}: "${fernsVal}" matches upstream`,
-          });
-        }
-      }
-
-      for (const field of ["c", "w"] as const) {
-        const sourceVal = upstreamMatch[field];
-        const fernsVal = fernsSpecies[field];
-        if (String(sourceVal ?? "") !== String(fernsVal ?? "")) {
-          findings.push({
-            type: "mismatch",
-            sourceField: field,
-            fernsField: field,
-            sourceValue: sourceVal,
-            fernsValue: fernsVal,
-            note: `C/W values may differ due to type normalization (number vs string)`,
-          });
-        } else {
-          findings.push({
-            type: "ok",
-            sourceField: field,
-            fernsField: field,
-            fernsValue: fernsVal,
-            note: `${field}: "${fernsVal}" matches upstream`,
-          });
-        }
-      }
-    }
-
-    const upstreamRecord: Record<string, unknown> = upstreamMatch
-      ? { ...upstreamMatch }
-      : {};
-
-    return {
-      source: "universal-fqa",
-      endpoint: `${fernsEndpoint}?name=${encodeURIComponent(sp.name)}&database_id=${AUDIT_DATABASE_ID}`,
-      label,
-      ok: true,
-      rawSource: upstreamRecord,
-      rawFerns: fernsSpecies ?? undefined,
-      findings,
-      urlsCollected,
-    };
-  } catch (err) {
-    return {
-      source: "universal-fqa",
-      endpoint: `${fernsEndpoint}?name=${encodeURIComponent(sp.name)}&database_id=${AUDIT_DATABASE_ID}`,
-      label,
-      ok: false,
-      error: String(err),
-      findings: [],
-      urlsCollected: [],
-    };
-  }
-}
-
 async function compareAssessment(
   fernsBase: string,
   assessment: TestAssessment,
 ): Promise<EndpointComparison> {
-  const fernsEndpoint = `/api/universal-fqa/assessment/${assessment.id}`;
+  const fernsEndpoint = `/api/universal-fqa/get/inventory/${assessment.id}`;
   const fernsUrl = `${fernsBase}${fernsEndpoint}`;
   const label = `${assessment.label} — Universal FQA assessment`;
 
@@ -455,7 +318,7 @@ async function compareAssessment(
     const fernsEnvelope = fernsRaw as Record<string, unknown>;
     const fernsData = (fernsEnvelope.data ?? {}) as Record<string, unknown>;
     const upstreamData = (upstreamRaw.data ?? upstreamRaw) as Record<string, unknown>;
-    const urlsCollected = collectUrls(fernsEnvelope, `universal-fqa/assessment:${assessment.id}`);
+    const urlsCollected = collectUrls(fernsEnvelope, `universal-fqa/get/inventory:${assessment.id}`);
 
     const findings: FieldFinding[] = [];
 

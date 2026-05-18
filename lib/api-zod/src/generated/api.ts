@@ -371,97 +371,6 @@ export const GetGbifMatchResponse = zod.object({
 });
 
 /**
- * Given a GBIF usageKey, returns all synonyms (all ranks, unfiltered) and vernacular names. Synonyms cached 30 days; vernacular names 90 days. If a synonym usageKey is passed, the server automatically resolves it to the accepted taxon's usageKey before fetching; the resolved_from_synonym_key field in the response indicates when this occurred. The resolved accepted taxon's synonyms and vernacular names are always returned.
-
- * @summary Fetch synonyms and common names for a GBIF taxon
- */
-export const GetGbifReconcileQueryParams = zod.object({
-  usageKey: zod.coerce
-    .number()
-    .describe("GBIF backbone usageKey for the accepted taxon"),
-});
-
-export const GetGbifReconcileResponse = zod.object({
-  source_url: zod.string().nullable(),
-  found: zod.boolean(),
-  data: zod
-    .object({
-      usage_key: zod.number(),
-      resolved_from_synonym_key: zod
-        .number()
-        .nullish()
-        .describe(
-          "The original synonym usageKey if auto-resolution occurred, null otherwise",
-        ),
-      synonyms: zod.array(
-        zod.object({
-          key: zod.number(),
-          canonicalName: zod.string(),
-          scientificName: zod.string(),
-          rank: zod.string(),
-          taxonomicStatus: zod.string(),
-          nameType: zod.string(),
-          publishedIn: zod.string().nullish(),
-        }),
-      ),
-      synonym_count: zod.number(),
-      vernacular_names: zod.array(
-        zod.object({
-          vernacularName: zod.string(),
-          language: zod.string(),
-          country: zod.string().nullish(),
-          source: zod.string().nullish(),
-        }),
-      ),
-      vernacular_name_primary: zod.string().nullish(),
-      vernacular_name_count: zod.number(),
-      synonyms_fetched_at: zod.date(),
-      vernacular_fetched_at: zod.date(),
-    })
-    .nullable(),
-  provenance: zod
-    .object({
-      source_id: zod
-        .string()
-        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod
-        .date()
-        .describe("When this record was obtained from the source"),
-      method: zod
-        .string()
-        .describe(
-          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-        ),
-      upstream_url: zod
-        .string()
-        .describe(
-          "Where this data came from (API endpoint, file path, or registry entry)",
-        ),
-      general_summary: zod
-        .string()
-        .optional()
-        .describe(
-          "Plain language description readable by a homeowner or community member",
-        ),
-      technical_details: zod
-        .string()
-        .optional()
-        .describe(
-          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-        ),
-      matched_input: zod
-        .string()
-        .optional()
-        .describe(
-          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-        ),
-    })
-    .describe(
-      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-    ),
-});
-
-/**
  * Returns occurrence count and up to 300 recent georeferenced records from GBIF for the given taxon. Geography is configurable via three mutually exclusive modes: countries (comma-separated ISO codes, OR'd), continent (single GBIF continent value), or bbox (minLat,minLon,maxLat,maxLon). All records include hasCoordinate=true and hasGeospatialIssue=false filters. Cached 7 days per geography combination. Fetch on demand only.
 
  * @summary Fetch occurrence records for a GBIF taxon with configurable geography
@@ -1237,7 +1146,7 @@ export const GetInatObservationsResponse = zod.object({
             .describe("Observer field values (OFVs) on this observation"),
         })
         .describe(
-          "Expanded field subset of a single iNaturalist observation. Follow the uri field for the complete record on iNaturalist. Note: nativity data (native, introduced, endemic status) is NOT present on observation records — it lives in listed_taxa on the taxon record, available via GET \/inat\/taxon\/{id}.\n",
+          "Expanded field subset of a single iNaturalist observation. Follow the uri field for the complete record on iNaturalist. Note: nativity data (native, introduced, endemic status) is NOT present on observation records — it lives in listed_taxa on the taxon record, available via GET \/inat\/taxa\/{id}.\n",
         ),
     ),
   }),
@@ -2447,91 +2356,6 @@ export const GetInatMetadataResponse = zod.object({
       "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
 });
-
-/**
- * Looks up a vascular plant species in the Michigan Flora REST API. Returns the complete passthrough response from Michigan Flora: all search records from flora_search_sp, spec_text (taxonomic details and description), synonyms, and plant images. Two to four API calls are required per lookup. Results are cached permanently (no TTL) — Michigan Flora data does not change; use ?refresh=true to force a re-fetch from upstream. The pimage_info object in the response is addtively enriched by FERNS with two computed fields: image_url and thumbnail_url (constructed from the plant_id and image_id using the Michigan Flora static asset URL formula). All other source fields are returned unchanged. The st field in source records uses the literal string 'NULL' (not JSON null) for unknown or absent status — this is a quirk of the Michigan Flora API. The c field is always a string; '*' indicates an adventive (non-native) species. Scientific names for adventive species are returned ALL-CAPS by the source API.
-
- * @summary Look up a species in Michigan Flora
- */
-
-export const getMifloraSpeciesQueryRefreshDefault = false;
-
-export const GetMifloraSpeciesQueryParams = zod.object({
-  name: zod
-    .string()
-    .min(1)
-    .describe("Scientific name to look up (e.g. Asclepias tuberosa)"),
-  refresh: zod.coerce
-    .boolean()
-    .default(getMifloraSpeciesQueryRefreshDefault)
-    .describe(
-      "If true, bypasses cache and fetches fresh from Michigan Flora API",
-    ),
-});
-
-export const GetMifloraSpeciesResponse = zod
-  .object({
-    source_url: zod
-      .string()
-      .nullable()
-      .describe(
-        "Michigan Flora species page URL (https:\/\/michiganflora.net\/species\/{plant_id}). Null when species not found.\n",
-      ),
-    found: zod
-      .boolean()
-      .describe("Whether the species was found in Michigan Flora"),
-    cache_status: zod.enum(["hit", "miss", "error"]),
-    queried_at: zod.date(),
-    data: zod
-      .record(zod.string(), zod.unknown())
-      .nullish()
-      .describe(
-        "Passthrough response from Michigan Flora. Contains search_records (array from flora_search_sp — may include subspecies and varieties), spec_text (taxonomic details and description), synonyms (raw response — either {synonyms:[...]} or {message:'No synonyms found'}), and pimage_info (primary image metadata). pimage_info is additively enriched by FERNS with image_url and thumbnail_url (constructed absolute URLs). All other source fields are returned unchanged. The st field uses the literal string 'NULL' for unknown\/absent status. The c field is always a string; '\*' means adventive (non-native). Null when found is false.\n",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-        fetched_at: zod
-          .date()
-          .describe("When this record was obtained from the source"),
-        method: zod
-          .string()
-          .describe(
-            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-          ),
-        upstream_url: zod
-          .string()
-          .describe(
-            "Where this data came from (API endpoint, file path, or registry entry)",
-          ),
-        general_summary: zod
-          .string()
-          .optional()
-          .describe(
-            "Plain language description readable by a homeowner or community member",
-          ),
-        technical_details: zod
-          .string()
-          .optional()
-          .describe(
-            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-          ),
-        matched_input: zod
-          .string()
-          .optional()
-          .describe(
-            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-          ),
-      })
-      .describe(
-        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-      ),
-  })
-  .describe(
-    "FERNS envelope for Michigan Flora species lookup. data contains the passthrough response from Michigan Flora with one additive enrichment: pimage_info is augmented with image_url and thumbnail_url fields constructed from the plant_id and image_id using the Michigan Flora static asset URL formula. All other source fields are returned unchanged.\n",
-  );
 
 /**
  * Returns county-level occurrence records for all 83 Michigan counties for the given species name. Two-step lookup: first calls flora_search_sp?scientific_name={name} to resolve the plant_id, then calls locs_sp?id={plant_id} for county data. Results are the raw passthrough response from the Michigan Flora county API endpoint. Cached permanently (no TTL) — Michigan Flora data does not change; use ?refresh=true to force a re-fetch from upstream.
@@ -4983,131 +4807,12 @@ export const GetUniversalFqaDatabaseResponse = zod.object({
 });
 
 /**
- * Looks up a species by scientific name within the specified Universal FQA database. On the first request for a given database_id, downloads the full database from universalfqa.org and stores it in the FERNS PostgreSQL cache. Subsequent lookups for the same database_id are served from the cache. Matching is exact and case-insensitive. Returns all nine source fields: scientific_name, family, acronym, native, c, w, physiognomy, duration, common_name.
-
- * @summary Look up a species by scientific name in a Universal FQA database
- */
-
-export const GetUniversalFqaSpeciesQueryParams = zod.object({
-  name: zod
-    .string()
-    .min(1)
-    .describe("Scientific name to look up (e.g. Lobelia cardinalis)"),
-  database_id: zod.coerce
-    .number()
-    .describe(
-      "Universal FQA database ID. Use \/universal-fqa\/databases to list all available databases with their region and citation strings.\n",
-    ),
-});
-
-export const GetUniversalFqaSpeciesResponse = zod.object({
-  found: zod.boolean(),
-  cache_status: zod.string().nullable(),
-  queried_at: zod.date(),
-  source_url: zod.string(),
-  provenance: zod
-    .object({
-      source_id: zod
-        .string()
-        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod
-        .date()
-        .describe("When this record was obtained from the source"),
-      method: zod
-        .string()
-        .describe(
-          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-        ),
-      upstream_url: zod
-        .string()
-        .describe(
-          "Where this data came from (API endpoint, file path, or registry entry)",
-        ),
-      general_summary: zod
-        .string()
-        .optional()
-        .describe(
-          "Plain language description readable by a homeowner or community member",
-        ),
-      technical_details: zod
-        .string()
-        .optional()
-        .describe(
-          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-        ),
-      matched_input: zod
-        .string()
-        .optional()
-        .describe(
-          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-        ),
-    })
-    .describe(
-      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-    ),
-  data: zod
-    .union([
-      zod.object({
-        database_id: zod.number(),
-        queried_name: zod.string(),
-        found: zod.boolean(),
-        species: zod
-          .union([
-            zod.object({
-              scientific_name: zod
-                .string()
-                .describe(
-                  "Scientific name of the species as listed in this database",
-                ),
-              family: zod.string().describe("Plant family"),
-              acronym: zod
-                .string()
-                .describe("Abbreviated acronym used in this database"),
-              native: zod
-                .string()
-                .describe(
-                  'Nativity string as provided by the source database. Typically \"native\" or \"non-native\" but exact values depend on the database.\n',
-                ),
-              c: zod
-                .unknown()
-                .nullable()
-                .describe(
-                  "Coefficient of Conservatism (C-value) for this species in this database. Integer 0–10 for native species; null for non-native or unassigned species. Some databases use string representations. Always check the source database citation for the methodology used to assign C-values.\n",
-                ),
-              w: zod
-                .unknown()
-                .nullable()
-                .describe(
-                  "Coefficient of Wetness (W-value). Numeric, -5 (obligate wetland) to +5 (obligate upland). Null if not assigned.\n",
-                ),
-              physiognomy: zod
-                .string()
-                .describe(
-                  "Plant physiognomic type (e.g. Forb, Shrub, Tree, Grass, Sedge, Rush, Fern, Bryophyte, Vine)",
-                ),
-              duration: zod
-                .string()
-                .describe("Life duration (e.g. Annual, Perennial, Biennial)"),
-              common_name: zod
-                .string()
-                .describe("Common name in the source database"),
-            }),
-            zod.null(),
-          ])
-          .nullable(),
-      }),
-      zod.null(),
-    ])
-    .nullish(),
-});
-
-/**
  * Returns all publicly shared site assessments for the specified database. Each entry contains the assessment id, name, date, site, and practitioner. Assessment county and state are only available in the individual assessment detail endpoint — the list does not include location fields. Michigan 2014 (ID 50) has 4800+ assessments; Michigan 2024 (ID 267) has 400+.
 
  * @summary List public site assessments for a Universal FQA database
  */
-export const GetUniversalFqaAssessmentsQueryParams = zod.object({
-  database_id: zod.coerce.number().describe("Universal FQA database ID"),
+export const GetUniversalFqaAssessmentsParams = zod.object({
+  id: zod.coerce.number().describe("Universal FQA database ID"),
 });
 
 export const GetUniversalFqaAssessmentsResponse = zod.object({
@@ -6089,85 +5794,6 @@ export const GetNatureserveSpeciesResponse = zod.object({
       cosewic_description: zod.string().nullish(),
       natureserve_url: zod.string().nullish(),
       element_global_id: zod.string().nullish(),
-      cache_status: zod.enum(["hit", "miss", "bypassed"]).optional(),
-    })
-    .optional(),
-  provenance: zod
-    .object({
-      source_id: zod
-        .string()
-        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod
-        .date()
-        .describe("When this record was obtained from the source"),
-      method: zod
-        .string()
-        .describe(
-          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-        ),
-      upstream_url: zod
-        .string()
-        .describe(
-          "Where this data came from (API endpoint, file path, or registry entry)",
-        ),
-      general_summary: zod
-        .string()
-        .optional()
-        .describe(
-          "Plain language description readable by a homeowner or community member",
-        ),
-      technical_details: zod
-        .string()
-        .optional()
-        .describe(
-          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-        ),
-      matched_input: zod
-        .string()
-        .optional()
-        .describe(
-          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-        ),
-    })
-    .optional()
-    .describe(
-      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-    ),
-});
-
-/**
- * Queries NatureServe Explorer for ecological systems matching a name or description. Returns a list of matching NatureServe ecological system records including NatureServe identifier, name, and classification details. Results cached 30 days per query string. Useful for identifying NatureServe ecosystem types corresponding to MNFI natural community types or other ecological classification systems.
-
- * @summary Look up ecological systems from NatureServe Explorer
- */
-
-export const getNatureserveEcosystemsQueryRefreshDefault = false;
-
-export const GetNatureserveEcosystemsQueryParams = zod.object({
-  name: zod
-    .string()
-    .min(1)
-    .describe(
-      "Ecosystem name or keyword to search (e.g. oak savanna, wet prairie)",
-    ),
-  refresh: zod.coerce
-    .boolean()
-    .default(getNatureserveEcosystemsQueryRefreshDefault)
-    .describe(
-      "If true, bypasses cache and fetches fresh from NatureServe Explorer",
-    ),
-});
-
-export const GetNatureserveEcosystemsResponse = zod.object({
-  source_url: zod.string().optional(),
-  found: zod.boolean(),
-  attribution: zod.string().optional(),
-  data: zod
-    .object({
-      ecosystems: zod.array(zod.record(zod.string(), zod.unknown())).optional(),
-      result_count: zod.number().optional(),
-      total_ecosystem_results: zod.number().optional(),
-      total_results_all_types: zod.number().optional(),
       cache_status: zod.enum(["hit", "miss", "bypassed"]).optional(),
     })
     .optional(),
@@ -7942,7 +7568,7 @@ export const GetUsdaPlantsResponse = zod.object({
 });
 
 /**
- * Fetches the PlantProfile for a known USDA symbol (e.g. ASTU for Asclepias tuberosa). Returns the complete raw profile object as returned by the USDA PLANTS API. Profiles are cached 30 days. Use ?refresh=true to bypass the cache. Use the /usda-plants?species= endpoint to resolve a scientific name to a symbol if the symbol is not already known.
+ * Fetches the PlantProfile for a known USDA symbol (e.g. ASTU for Asclepias tuberosa). Returns the complete raw profile object as returned by the USDA PLANTS API. Profiles are cached 30 days. Use ?refresh=true to bypass the cache. Use the /usda-plants/PlantSearch?species= endpoint to resolve a scientific name to a symbol if the symbol is not already known.
 
  * @summary Fetch the full USDA PLANTS profile for a known symbol
  */

@@ -149,7 +149,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/BonapMetadataResponse"
 
-  /gbif/match:
+  /gbif/species/match:
     get:
       operationId: getGbifMatch
       tags: [gbif]
@@ -190,40 +190,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /gbif/reconcile:
-    get:
-      operationId: getGbifReconcile
-      tags: [gbif]
-      summary: Fetch synonyms and common names for a GBIF taxon
-      description: >
-        Given a GBIF usageKey, returns all synonyms (all ranks, unfiltered) and
-        vernacular names. Synonyms cached 30 days; vernacular names 90 days.
-        If a synonym usageKey is passed, the server automatically resolves it to
-        the accepted taxon's usageKey before fetching; the resolved_from_synonym_key
-        field in the response indicates when this occurred. The resolved accepted
-        taxon's synonyms and vernacular names are always returned.
-      parameters:
-        - name: usageKey
-          in: query
-          required: true
-          description: GBIF backbone usageKey for the accepted taxon
-          schema:
-            type: integer
-      responses:
-        "200":
-          description: Synonyms and vernacular names for this taxon
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GbifReconcileResponse"
-        "400":
-          description: Missing or invalid usageKey
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
-  /gbif/occurrences:
+  /gbif/occurrence/search:
     get:
       operationId: getGbifOccurrences
       tags: [gbif]
@@ -289,7 +256,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /gbif/search:
+  /gbif/species/search:
     get:
       operationId: getGbifSearch
       tags: [gbif]
@@ -1733,62 +1700,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/InatMetadataResponse"
 
-  /miflora/species:
-    get:
-      operationId: getMifloraSpecies
-      tags: [miflora]
-      summary: Look up a species in Michigan Flora
-      description: >
-        Looks up a vascular plant species in the Michigan Flora REST API.
-        Returns the complete passthrough response from Michigan Flora: all search
-        records from flora_search_sp, spec_text (taxonomic details and description),
-        synonyms, and plant images. Two to four API calls are required per lookup.
-        Results are cached permanently (no TTL) — Michigan Flora data does not change;
-        use ?refresh=true to force a re-fetch from upstream.
-        The pimage_info object in the response is addtively enriched by FERNS with two
-        computed fields: image_url and thumbnail_url (constructed from the plant_id and
-        image_id using the Michigan Flora static asset URL formula). All other source
-        fields are returned unchanged.
-        The st field in source records uses the literal string 'NULL' (not JSON null)
-        for unknown or absent status — this is a quirk of the Michigan Flora API.
-        The c field is always a string; '*' indicates an adventive (non-native) species.
-        Scientific names for adventive species are returned ALL-CAPS by the source API.
-      parameters:
-        - name: name
-          in: query
-          required: true
-          description: Scientific name to look up (e.g. Asclepias tuberosa)
-          schema:
-            type: string
-            minLength: 1
-        - name: refresh
-          in: query
-          required: false
-          description: If true, bypasses cache and fetches fresh from Michigan Flora API
-          schema:
-            type: boolean
-            default: false
-      responses:
-        "200":
-          description: Species lookup complete (found or not found — check the found field)
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/MifloraSpeciesResponse"
-        "400":
-          description: Missing or empty name parameter
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "502":
-          description: Michigan Flora API error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
-  /miflora/counties:
+  /miflora/locs_sp:
     get:
       operationId: getMifloraCounties
       tags: [miflora]
@@ -1835,7 +1747,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /miflora/images:
+  /miflora/allimage_info:
     get:
       operationId: getMifloraImages
       tags: [miflora]
@@ -2403,7 +2315,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/UniversalFqaMetadataResponse"
 
-  /universal-fqa/databases:
+  /universal-fqa/get/database:
     get:
       operationId: getUniversalFqaDatabases
       tags: [universal-fqa]
@@ -2428,7 +2340,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /universal-fqa/databases/{id}:
+  /universal-fqa/get/database/{id}:
     get:
       operationId: getUniversalFqaDatabase
       tags: [universal-fqa]
@@ -2468,56 +2380,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /universal-fqa/species:
-    get:
-      operationId: getUniversalFqaSpecies
-      tags: [universal-fqa]
-      summary: Look up a species by scientific name in a Universal FQA database
-      description: >
-        Looks up a species by scientific name within the specified Universal FQA database.
-        On the first request for a given database_id, downloads the full database from
-        universalfqa.org and stores it in the FERNS PostgreSQL cache. Subsequent lookups
-        for the same database_id are served from the cache. Matching is exact and
-        case-insensitive.
-        Returns all nine source fields: scientific_name, family, acronym, native, c, w,
-        physiognomy, duration, common_name.
-      parameters:
-        - name: name
-          in: query
-          required: true
-          description: Scientific name to look up (e.g. Lobelia cardinalis)
-          schema:
-            type: string
-            minLength: 1
-        - name: database_id
-          in: query
-          required: true
-          description: >
-            Universal FQA database ID. Use /universal-fqa/databases to list all available
-            databases with their region and citation strings.
-          schema:
-            type: integer
-      responses:
-        "200":
-          description: Species lookup result (check found field — false means not in this database)
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UniversalFqaSpeciesResponse"
-        "400":
-          description: Missing or invalid parameters
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "502":
-          description: universalfqa.org API error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
-  /universal-fqa/assessments:
+  /universal-fqa/get/database/{id}/inventory:
     get:
       operationId: getUniversalFqaAssessments
       tags: [universal-fqa]
@@ -2529,8 +2392,8 @@ paths:
         detail endpoint — the list does not include location fields.
         Michigan 2014 (ID 50) has 4800+ assessments; Michigan 2024 (ID 267) has 400+.
       parameters:
-        - name: database_id
-          in: query
+        - name: id
+          in: path
           required: true
           description: Universal FQA database ID
           schema:
@@ -2555,7 +2418,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /universal-fqa/assessment/{id}:
+  /universal-fqa/get/inventory/{id}:
     get:
       operationId: getUniversalFqaAssessment
       tags: [universal-fqa]
@@ -2828,7 +2691,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/NatureserveMetadataResponse"
 
-  /natureserve/species:
+  /natureserve/speciesSearch:
     get:
       operationId: getNatureserveSpecies
       tags: [natureserve]
@@ -2875,53 +2738,6 @@ paths:
                 $ref: "#/components/schemas/NatureserveSpeciesResponse"
         "400":
           description: Missing or invalid name or state parameter
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "502":
-          description: NatureServe Explorer API error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
-  /natureserve/ecosystems:
-    get:
-      operationId: getNatureserveEcosystems
-      tags: [natureserve]
-      summary: Look up ecological systems from NatureServe Explorer
-      description: >
-        Queries NatureServe Explorer for ecological systems matching a name or
-        description. Returns a list of matching NatureServe ecological system
-        records including NatureServe identifier, name, and classification details.
-        Results cached 30 days per query string. Useful for identifying NatureServe
-        ecosystem types corresponding to MNFI natural community types or other
-        ecological classification systems.
-      parameters:
-        - name: name
-          in: query
-          required: true
-          description: Ecosystem name or keyword to search (e.g. oak savanna, wet prairie)
-          schema:
-            type: string
-            minLength: 1
-        - name: refresh
-          in: query
-          required: false
-          description: If true, bypasses cache and fetches fresh from NatureServe Explorer
-          schema:
-            type: boolean
-            default: false
-      responses:
-        "200":
-          description: Ecosystem search results (found or empty — check the found field)
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/NatureserveEcosystemsResponse"
-        "400":
-          description: Missing or invalid name parameter
           content:
             application/json:
               schema:
@@ -3429,7 +3245,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /usda-plants:
+  /usda-plants/PlantSearch:
     get:
       operationId: getUsdaPlants
       tags: [usda-plants]
@@ -3476,7 +3292,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /usda-plants/profile:
+  /usda-plants/PlantProfile:
     get:
       operationId: getUsdaPlantsProfile
       tags: [usda-plants]
@@ -3485,7 +3301,7 @@ paths:
         Fetches the PlantProfile for a known USDA symbol (e.g. ASTU for Asclepias
         tuberosa). Returns the complete raw profile object as returned by the USDA
         PLANTS API. Profiles are cached 30 days. Use ?refresh=true to bypass the cache.
-        Use the /usda-plants?species= endpoint to resolve a scientific name to a symbol
+        Use the /usda-plants/PlantSearch?species= endpoint to resolve a scientific name to a symbol
         if the symbol is not already known.
       parameters:
         - name: symbol
@@ -3522,7 +3338,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /usda-plants/search:
+  /usda-plants/plants-search-results:
     get:
       operationId: getUsdaPlantsSearch
       tags: [usda-plants]
