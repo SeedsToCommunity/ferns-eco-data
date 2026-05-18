@@ -64,13 +64,15 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
   const reconcileKey = matchData?.status === 'SYNONYM' ? matchData.accepted_usage_key : matchData?.usageKey;
 
   const synonymsQuery = useGetGbifSpeciesSynonyms(
-    { usageKey: reconcileKey ?? 0 },
-    { query: { queryKey: getGetGbifSpeciesSynonymsQueryKey({ usageKey: reconcileKey ?? 0 }), enabled: !!reconcileKey } }
+    reconcileKey ?? 0,
+    undefined,
+    { query: { queryKey: getGetGbifSpeciesSynonymsQueryKey(reconcileKey ?? 0), enabled: !!reconcileKey } }
   );
 
   const vernacularQuery = useGetGbifSpeciesVernacularNames(
-    { usageKey: reconcileKey ?? 0 },
-    { query: { queryKey: getGetGbifSpeciesVernacularNamesQueryKey({ usageKey: reconcileKey ?? 0 }), enabled: !!reconcileKey } }
+    reconcileKey ?? 0,
+    undefined,
+    { query: { queryKey: getGetGbifSpeciesVernacularNamesQueryKey(reconcileKey ?? 0), enabled: !!reconcileKey } }
   );
 
   if (matchQuery.isLoading) {

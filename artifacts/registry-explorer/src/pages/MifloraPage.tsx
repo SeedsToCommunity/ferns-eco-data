@@ -9,6 +9,10 @@ import {
   useGetMifloraPImageInfo,
   getGetMifloraCountiesQueryKey,
   getGetMifloraImagesQueryKey,
+  getGetMifloraFloraSearchQueryKey,
+  getGetMifloraSpecTextQueryKey,
+  getGetMifloraSynonymsQueryKey,
+  getGetMifloraPImageInfoQueryKey,
 } from "@workspace/api-client-react";
 import { SourceExplorerLayout } from "@/components/SourceExplorerLayout";
 import {
@@ -159,7 +163,7 @@ export default function MifloraPage() {
 
   const { data: floraRes, isLoading: floraLoading } = useGetMifloraFloraSearch(
     nameParams,
-    { query: { enabled } }
+    { query: { queryKey: getGetMifloraFloraSearchQueryKey(nameParams), enabled } }
   );
 
   const plantId = floraRes?.data?.plant_id ?? null;
@@ -168,15 +172,15 @@ export default function MifloraPage() {
 
   const { data: specTextRes, isLoading: specTextLoading } = useGetMifloraSpecText(
     idParams,
-    { query: { enabled: plantIdEnabled } }
+    { query: { queryKey: getGetMifloraSpecTextQueryKey(idParams), enabled: plantIdEnabled } }
   );
   const { data: synonymsRes, isLoading: synonymsLoading } = useGetMifloraSynonyms(
     idParams,
-    { query: { enabled: plantIdEnabled } }
+    { query: { queryKey: getGetMifloraSynonymsQueryKey(idParams), enabled: plantIdEnabled } }
   );
   const { data: pimageRes, isLoading: pimageLoading } = useGetMifloraPImageInfo(
     idParams,
-    { query: { enabled: plantIdEnabled } }
+    { query: { queryKey: getGetMifloraPImageInfoQueryKey(idParams), enabled: plantIdEnabled } }
   );
   const { data: countiesRes, isLoading: countiesLoading } = useGetMifloraCounties(
     nameParams,

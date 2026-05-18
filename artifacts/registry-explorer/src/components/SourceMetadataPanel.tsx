@@ -166,6 +166,9 @@ export function SourceMetadataPanel({ metadataApiPath }: { metadataApiPath: stri
             {serviceId && <KVRow label="ID" value={<span className="font-mono text-xs bg-muted px-2 py-1 rounded">{serviceId}</span>} />}
             {data_vintage && <KVRow label="Data Vintage" value={data_vintage} />}
             {queried_at && <KVRow label="Queried At" value={new Date(queried_at).toLocaleString()} />}
+            {licenses && licenses.length > 0 && (
+              <KVRow label="Licenses" value={<LicenseBadges licenses={licenses} />} />
+            )}
           </div>
         </Section>
       )}
