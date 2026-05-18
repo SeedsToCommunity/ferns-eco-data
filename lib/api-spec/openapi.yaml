@@ -3956,49 +3956,6 @@ components:
           type: string
           format: date-time
 
-    GbifSynonymRecord:
-      type: object
-      required:
-        - key
-        - canonicalName
-        - scientificName
-        - rank
-        - taxonomicStatus
-        - nameType
-      properties:
-        key:
-          type: integer
-        canonicalName:
-          type: string
-        scientificName:
-          type: string
-        rank:
-          type: string
-        taxonomicStatus:
-          type: string
-        nameType:
-          type: string
-        publishedIn:
-          type: string
-          nullable: true
-
-    GbifVernacularRecord:
-      type: object
-      required:
-        - vernacularName
-        - language
-      properties:
-        vernacularName:
-          type: string
-        language:
-          type: string
-        country:
-          type: string
-          nullable: true
-        source:
-          type: string
-          nullable: true
-
     GbifOccurrenceRecord:
       type: object
       required:
@@ -4160,66 +4117,6 @@ components:
           nullable: true
           allOf:
             - $ref: "#/components/schemas/GbifMatchData"
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
-
-    GbifReconcileData:
-      type: object
-      required:
-        - usage_key
-        - synonyms
-        - synonym_count
-        - vernacular_names
-        - vernacular_name_count
-        - synonyms_fetched_at
-        - vernacular_fetched_at
-      properties:
-        usage_key:
-          type: integer
-        resolved_from_synonym_key:
-          type: integer
-          nullable: true
-          description: The original synonym usageKey if auto-resolution occurred, null otherwise
-        synonyms:
-          type: array
-          items:
-            $ref: "#/components/schemas/GbifSynonymRecord"
-        synonym_count:
-          type: integer
-        vernacular_names:
-          type: array
-          items:
-            $ref: "#/components/schemas/GbifVernacularRecord"
-        vernacular_name_primary:
-          type: string
-          nullable: true
-        vernacular_name_count:
-          type: integer
-
-        synonyms_fetched_at:
-          type: string
-          format: date-time
-        vernacular_fetched_at:
-          type: string
-          format: date-time
-
-    GbifReconcileResponse:
-      type: object
-      required:
-        - source_url
-        - found
-        - data
-        - provenance
-      properties:
-        source_url:
-          type: string
-          nullable: true
-        found:
-          type: boolean
-        data:
-          nullable: true
-          allOf:
-            - $ref: "#/components/schemas/GbifReconcileData"
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
 
@@ -5304,53 +5201,6 @@ components:
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
 
-    MifloraSpeciesResponse:
-      type: object
-      description: >
-        FERNS envelope for Michigan Flora species lookup.
-        data contains the passthrough response from Michigan Flora with one additive
-        enrichment: pimage_info is augmented with image_url and thumbnail_url fields
-        constructed from the plant_id and image_id using the Michigan Flora static
-        asset URL formula. All other source fields are returned unchanged.
-      required:
-        - source_url
-        - found
-        - cache_status
-        - queried_at
-        - provenance
-      properties:
-        source_url:
-          type: string
-          nullable: true
-          description: >
-            Michigan Flora species page URL (https://michiganflora.net/species/{plant_id}).
-            Null when species not found.
-        found:
-          type: boolean
-          description: Whether the species was found in Michigan Flora
-        cache_status:
-          type: string
-          enum: [hit, miss, error]
-        queried_at:
-          type: string
-          format: date-time
-        data:
-          nullable: true
-          description: >
-            Passthrough response from Michigan Flora. Contains search_records (array from
-            flora_search_sp — may include subspecies and varieties), spec_text (taxonomic
-            details and description), synonyms (raw response — either {synonyms:[...]} or
-            {message:'No synonyms found'}), and pimage_info (primary image metadata).
-            pimage_info is additively enriched by FERNS with image_url and thumbnail_url
-            (constructed absolute URLs). All other source fields are returned unchanged.
-            The st field uses the literal string 'NULL' for unknown/absent status.
-            The c field is always a string; '*' means adventive (non-native).
-            Null when found is false.
-          type: object
-          additionalProperties: true
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
-
     MifloraCountiesResponse:
       type: object
       description: >
@@ -6158,53 +6008,6 @@ components:
           nullable: true
           oneOf:
             - $ref: "#/components/schemas/UniversalFqaDatabasesData"
-            - type: "null"
-
-    UniversalFqaSpeciesData:
-      type: object
-      required:
-        - database_id
-        - queried_name
-        - found
-        - species
-      properties:
-        database_id:
-          type: integer
-        queried_name:
-          type: string
-        found:
-          type: boolean
-        species:
-          nullable: true
-          oneOf:
-            - $ref: "#/components/schemas/UniversalFqaSpeciesRecord"
-            - type: "null"
-
-    UniversalFqaSpeciesResponse:
-      type: object
-      required:
-        - found
-        - cache_status
-        - queried_at
-        - source_url
-        - provenance
-      properties:
-        found:
-          type: boolean
-        cache_status:
-          type: string
-          nullable: true
-        queried_at:
-          type: string
-          format: date-time
-        source_url:
-          type: string
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
-        data:
-          nullable: true
-          oneOf:
-            - $ref: "#/components/schemas/UniversalFqaSpeciesData"
             - type: "null"
 
     UniversalFqaAssessmentSummary:
@@ -7170,8 +6973,6 @@ components:
           properties:
             species_cached:
               type: integer
-            ecosystems_cached:
-              type: integer
             ttl_days:
               type: integer
         registry_entry:
@@ -7264,37 +7065,6 @@ components:
             element_global_id:
               type: string
               nullable: true
-            cache_status:
-              type: string
-              enum: [hit, miss, bypassed]
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
-
-    NatureserveEcosystemsResponse:
-      type: object
-      required:
-        - found
-      properties:
-        source_url:
-          type: string
-        found:
-          type: boolean
-        attribution:
-          type: string
-        data:
-          type: object
-          properties:
-            ecosystems:
-              type: array
-              items:
-                type: object
-                additionalProperties: true
-            result_count:
-              type: integer
-            total_ecosystem_results:
-              type: integer
-            total_results_all_types:
-              type: integer
             cache_status:
               type: string
               enum: [hit, miss, bypassed]

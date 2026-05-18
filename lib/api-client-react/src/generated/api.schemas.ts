@@ -170,23 +170,6 @@ export interface BonapMetadataResponse {
   queried_at: string;
 }
 
-export interface GbifSynonymRecord {
-  key: number;
-  canonicalName: string;
-  scientificName: string;
-  rank: string;
-  taxonomicStatus: string;
-  nameType: string;
-  publishedIn?: string | null;
-}
-
-export interface GbifVernacularRecord {
-  vernacularName: string;
-  language: string;
-  country?: string | null;
-  source?: string | null;
-}
-
 export interface GbifOccurrenceRecord {
   gbifID: string;
   decimalLatitude: number;
@@ -265,26 +248,6 @@ export interface GbifMatchResponse {
   source_url: string | null;
   found: boolean;
   data: GbifMatchData | null;
-  provenance: FernsProvenance;
-}
-
-export interface GbifReconcileData {
-  usage_key: number;
-  /** The original synonym usageKey if auto-resolution occurred, null otherwise */
-  resolved_from_synonym_key?: number | null;
-  synonyms: GbifSynonymRecord[];
-  synonym_count: number;
-  vernacular_names: GbifVernacularRecord[];
-  vernacular_name_primary?: string | null;
-  vernacular_name_count: number;
-  synonyms_fetched_at: string;
-  vernacular_fetched_at: string;
-}
-
-export interface GbifReconcileResponse {
-  source_url: string | null;
-  found: boolean;
-  data: GbifReconcileData | null;
   provenance: FernsProvenance;
 }
 
@@ -941,39 +904,6 @@ export interface SourcesMetadataResponse {
   provenance: FernsProvenance;
 }
 
-export type MifloraSpeciesResponseCacheStatus =
-  (typeof MifloraSpeciesResponseCacheStatus)[keyof typeof MifloraSpeciesResponseCacheStatus];
-
-export const MifloraSpeciesResponseCacheStatus = {
-  hit: "hit",
-  miss: "miss",
-  error: "error",
-} as const;
-
-/**
- * Passthrough response from Michigan Flora. Contains search_records (array from flora_search_sp — may include subspecies and varieties), spec_text (taxonomic details and description), synonyms (raw response — either {synonyms:[...]} or {message:'No synonyms found'}), and pimage_info (primary image metadata). pimage_info is additively enriched by FERNS with image_url and thumbnail_url (constructed absolute URLs). All other source fields are returned unchanged. The st field uses the literal string 'NULL' for unknown/absent status. The c field is always a string; '*' means adventive (non-native). Null when found is false.
-
- */
-export type MifloraSpeciesResponseData = { [key: string]: unknown } | null;
-
-/**
- * FERNS envelope for Michigan Flora species lookup. data contains the passthrough response from Michigan Flora with one additive enrichment: pimage_info is augmented with image_url and thumbnail_url fields constructed from the plant_id and image_id using the Michigan Flora static asset URL formula. All other source fields are returned unchanged.
-
- */
-export interface MifloraSpeciesResponse {
-  /** Michigan Flora species page URL (https://michiganflora.net/species/{plant_id}). Null when species not found.
-   */
-  source_url: string | null;
-  /** Whether the species was found in Michigan Flora */
-  found: boolean;
-  cache_status: MifloraSpeciesResponseCacheStatus;
-  queried_at: string;
-  /** Passthrough response from Michigan Flora. Contains search_records (array from flora_search_sp — may include subspecies and varieties), spec_text (taxonomic details and description), synonyms (raw response — either {synonyms:[...]} or {message:'No synonyms found'}), and pimage_info (primary image metadata). pimage_info is additively enriched by FERNS with image_url and thumbnail_url (constructed absolute URLs). All other source fields are returned unchanged. The st field uses the literal string 'NULL' for unknown/absent status. The c field is always a string; '*' means adventive (non-native). Null when found is false.
-   */
-  data?: MifloraSpeciesResponseData;
-  provenance: FernsProvenance;
-}
-
 export type MifloraCountiesResponseCacheStatus =
   (typeof MifloraCountiesResponseCacheStatus)[keyof typeof MifloraCountiesResponseCacheStatus];
 
@@ -1426,22 +1356,6 @@ export interface UniversalFqaDatabasesResponse {
   source_url: string;
   provenance: FernsProvenance;
   data?: UniversalFqaDatabasesData | null;
-}
-
-export interface UniversalFqaSpeciesData {
-  database_id: number;
-  queried_name: string;
-  found: boolean;
-  species: UniversalFqaSpeciesRecord | null;
-}
-
-export interface UniversalFqaSpeciesResponse {
-  found: boolean;
-  cache_status: string | null;
-  queried_at: string;
-  source_url: string;
-  provenance: FernsProvenance;
-  data?: UniversalFqaSpeciesData | null;
 }
 
 export interface UniversalFqaAssessmentSummary {
@@ -1928,7 +1842,6 @@ export interface MnfiCountyElementsResponse {
 
 export type NatureserveMetadataResponseCacheStats = {
   species_cached?: number;
-  ecosystems_cached?: number;
   ttl_days?: number;
 };
 
@@ -1994,35 +1907,6 @@ export interface NatureserveSpeciesResponse {
   found: boolean;
   attribution?: string;
   data?: NatureserveSpeciesResponseData;
-  provenance?: FernsProvenance;
-}
-
-export type NatureserveEcosystemsResponseDataEcosystemsItem = {
-  [key: string]: unknown;
-};
-
-export type NatureserveEcosystemsResponseDataCacheStatus =
-  (typeof NatureserveEcosystemsResponseDataCacheStatus)[keyof typeof NatureserveEcosystemsResponseDataCacheStatus];
-
-export const NatureserveEcosystemsResponseDataCacheStatus = {
-  hit: "hit",
-  miss: "miss",
-  bypassed: "bypassed",
-} as const;
-
-export type NatureserveEcosystemsResponseData = {
-  ecosystems?: NatureserveEcosystemsResponseDataEcosystemsItem[];
-  result_count?: number;
-  total_ecosystem_results?: number;
-  total_results_all_types?: number;
-  cache_status?: NatureserveEcosystemsResponseDataCacheStatus;
-};
-
-export interface NatureserveEcosystemsResponse {
-  source_url?: string;
-  found: boolean;
-  attribution?: string;
-  data?: NatureserveEcosystemsResponseData;
   provenance?: FernsProvenance;
 }
 

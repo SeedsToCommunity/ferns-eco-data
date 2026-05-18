@@ -8,6 +8,5 @@
 
 export type NatureserveMetadataResponseCacheStats = {
   species_cached?: number;
-  ecosystems_cached?: number;
   ttl_days?: number;
 };

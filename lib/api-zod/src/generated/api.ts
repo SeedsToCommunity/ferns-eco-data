@@ -5674,7 +5674,6 @@ export const GetNatureserveMetadataResponse = zod.object({
   cache_stats: zod
     .object({
       species_cached: zod.number().optional(),
-      ecosystems_cached: zod.number().optional(),
       ttl_days: zod.number().optional(),
     })
     .optional(),
