@@ -10,7 +10,7 @@ import {
   type GbifVernacularNames,
 } from "@workspace/db";
 import { eq } from "drizzle-orm";
-import type { GbifMatchResult, GbifOccurrencesResult, GeographyParams, GbifSynonymRecord, GbifVernacularRecord } from "./connector.js";
+import type { GbifMatchResult, GbifOccurrencesResult, GeographyParams } from "./connector.js";
 import { serializeGeography } from "./connector.js";
 import { GBIF_SOURCE_ID, GBIF_GENERAL_SUMMARY, GBIF_TECHNICAL_DETAILS } from "./metadata.js";
 
@@ -200,14 +200,14 @@ export async function lookupSynonyms(cacheKey: string): Promise<GbifSynonyms | n
 export async function storeSynonyms(
   cacheKey: string,
   usageKey: number,
-  result: { synonyms: GbifSynonymRecord[]; synonym_count: number; upstream_url: string },
+  result: { results: Record<string, unknown>[]; count: number; upstream_url: string },
 ): Promise<GbifSynonyms> {
   const now = new Date();
   const insert = {
     cache_key: cacheKey,
     usage_key: usageKey,
-    synonyms: result.synonyms,
-    synonym_count: result.synonym_count,
+    synonyms: result.results,
+    synonym_count: result.count,
     expires_at: daysFromNow(SYNONYMS_TTL_DAYS),
     source_id: GBIF_SOURCE_ID,
     fetched_at: now,
@@ -252,15 +252,15 @@ export async function lookupVernacularNames(cacheKey: string): Promise<GbifVerna
 export async function storeVernacularNames(
   cacheKey: string,
   usageKey: number,
-  result: { vernacular_names: GbifVernacularRecord[]; vernacular_name_primary: string | null; vernacular_name_count: number; upstream_url: string },
+  result: { results: Record<string, unknown>[]; vernacular_name_primary: string | null; count: number; upstream_url: string },
 ): Promise<GbifVernacularNames> {
   const now = new Date();
   const insert = {
     cache_key: cacheKey,
     usage_key: usageKey,
-    vernacular_names: result.vernacular_names,
+    vernacular_names: result.results,
     vernacular_name_primary: result.vernacular_name_primary,
-    vernacular_name_count: result.vernacular_name_count,
+    vernacular_name_count: result.count,
     expires_at: daysFromNow(VERNACULAR_TTL_DAYS),
     source_id: GBIF_SOURCE_ID,
     fetched_at: now,

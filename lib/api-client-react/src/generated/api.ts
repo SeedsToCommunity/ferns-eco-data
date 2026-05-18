@@ -783,8 +783,12 @@ export function useGetGbifMetadata<
 /**
  * @summary Get all taxonomic synonyms for a GBIF taxon
  */
-export const getGetGbifSpeciesSynonymsUrl = (params: GetGbifSpeciesSynonymsParams) =>
-  `/api/gbif/species/${params.usageKey}/synonyms${params.refresh !== undefined || params.provenance_verbosity !== undefined ? `?${new URLSearchParams(Object.fromEntries(Object.entries({ refresh: params.refresh, provenance_verbosity: params.provenance_verbosity }).filter(([, v]) => v !== undefined).map(([k, v]) => [k, String(v)])) as Record<string, string>).toString()}` : ""}`;
+export const getGetGbifSpeciesSynonymsUrl = (params: GetGbifSpeciesSynonymsParams) => {
+  const qs = Object.entries({ limit: params.limit, offset: params.offset, refresh: params.refresh, provenance_verbosity: params.provenance_verbosity })
+    .filter(([, v]) => v !== undefined)
+    .map(([k, v]) => [k, String(v)] as [string, string]);
+  return `/api/gbif/species/${params.usageKey}/synonyms${qs.length ? `?${new URLSearchParams(qs).toString()}` : ""}`;
+};
 
 export const getGbifSpeciesSynonyms = async (
   params: GetGbifSpeciesSynonymsParams,
@@ -855,8 +859,12 @@ export function useGetGbifSpeciesSynonyms<
 /**
  * @summary Get all vernacular (common) names for a GBIF taxon
  */
-export const getGetGbifSpeciesVernacularNamesUrl = (params: GetGbifSpeciesVernacularNamesParams) =>
-  `/api/gbif/species/${params.usageKey}/vernacularNames${params.refresh !== undefined || params.provenance_verbosity !== undefined ? `?${new URLSearchParams(Object.fromEntries(Object.entries({ refresh: params.refresh, provenance_verbosity: params.provenance_verbosity }).filter(([, v]) => v !== undefined).map(([k, v]) => [k, String(v)])) as Record<string, string>).toString()}` : ""}`;
+export const getGetGbifSpeciesVernacularNamesUrl = (params: GetGbifSpeciesVernacularNamesParams) => {
+  const qs = Object.entries({ limit: params.limit, offset: params.offset, refresh: params.refresh, provenance_verbosity: params.provenance_verbosity })
+    .filter(([, v]) => v !== undefined)
+    .map(([k, v]) => [k, String(v)] as [string, string]);
+  return `/api/gbif/species/${params.usageKey}/vernacularNames${qs.length ? `?${new URLSearchParams(qs).toString()}` : ""}`;
+};
 
 export const getGbifSpeciesVernacularNames = async (
   params: GetGbifSpeciesVernacularNamesParams,

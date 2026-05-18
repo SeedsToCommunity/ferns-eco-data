@@ -296,7 +296,7 @@ paths:
       description: >
         Returns all names that are considered synonyms of the accepted taxon
         identified by the given usage key. Mirrors GBIF's GET /v1/species/{usageKey}/synonyms.
-        Cached 30 days per usageKey.
+        Cached 30 days per (usageKey, limit, offset).
       parameters:
         - name: usageKey
           in: path
@@ -304,6 +304,23 @@ paths:
           description: GBIF backbone usage key (integer)
           schema:
             type: integer
+        - name: limit
+          in: query
+          required: false
+          description: Number of results to return (1–1000, default 100)
+          schema:
+            type: integer
+            default: 100
+            minimum: 1
+            maximum: 1000
+        - name: offset
+          in: query
+          required: false
+          description: Zero-based offset for pagination (default 0)
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
         - name: refresh
           in: query
           required: false
@@ -339,7 +356,7 @@ paths:
       description: >
         Returns all vernacular names across all languages and countries for the
         taxon identified by the given usage key. Mirrors GBIF's GET /v1/species/{usageKey}/vernacularNames.
-        Cached 30 days per usageKey.
+        Cached 30 days per (usageKey, limit, offset).
       parameters:
         - name: usageKey
           in: path
@@ -347,6 +364,23 @@ paths:
           description: GBIF backbone usage key (integer)
           schema:
             type: integer
+        - name: limit
+          in: query
+          required: false
+          description: Number of results to return (1–1000, default 100)
+          schema:
+            type: integer
+            default: 100
+            minimum: 1
+            maximum: 1000
+        - name: offset
+          in: query
+          required: false
+          description: Zero-based offset for pagination (default 0)
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
         - name: refresh
           in: query
           required: false
@@ -4188,13 +4222,7 @@ components:
 
     GbifSynonymRecord:
       type: object
-      required:
-        - key
-        - canonicalName
-        - scientificName
-        - rank
-        - taxonomicStatus
-        - nameType
+      additionalProperties: true
       properties:
         key:
           type: integer
@@ -4216,17 +4244,32 @@ components:
       type: object
       required:
         - usage_key
-        - synonyms
-        - synonym_count
+        - offset
+        - limit
+        - endOfRecords
+        - count
+        - results
       properties:
         usage_key:
           type: integer
-        synonyms:
+          description: GBIF backbone usage key for the accepted taxon (FERNS addition)
+        offset:
+          type: integer
+          description: Zero-based offset of the first result (mirrors upstream envelope)
+        limit:
+          type: integer
+          description: Maximum number of results requested (mirrors upstream envelope)
+        endOfRecords:
+          type: boolean
+          description: True when no more results are available after this page (mirrors upstream envelope)
+        count:
+          type: integer
+          description: Total number of synonyms for this taxon (mirrors upstream envelope)
+        results:
           type: array
+          description: Synonym records as returned by GBIF (verbatim upstream fields)
           items:
             $ref: "#/components/schemas/GbifSynonymRecord"
-        synonym_count:
-          type: integer
         cache_status:
           type: string
           enum: [hit, miss, bypassed]
@@ -4254,9 +4297,7 @@ components:
 
     GbifVernacularRecord:
       type: object
-      required:
-        - vernacularName
-        - language
+      additionalProperties: true
       properties:
         vernacularName:
           type: string
@@ -4273,20 +4314,36 @@ components:
       type: object
       required:
         - usage_key
-        - vernacular_names
-        - vernacular_name_count
+        - offset
+        - limit
+        - endOfRecords
+        - count
+        - results
       properties:
         usage_key:
           type: integer
-        vernacular_names:
+          description: GBIF backbone usage key for the taxon (FERNS addition)
+        offset:
+          type: integer
+          description: Zero-based offset of the first result (mirrors upstream envelope)
+        limit:
+          type: integer
+          description: Maximum number of results requested (mirrors upstream envelope)
+        endOfRecords:
+          type: boolean
+          description: True when no more results are available after this page (mirrors upstream envelope)
+        count:
+          type: integer
+          description: Total number of vernacular names for this taxon (mirrors upstream envelope)
+        results:
           type: array
+          description: Vernacular name records as returned by GBIF (verbatim upstream fields)
           items:
             $ref: "#/components/schemas/GbifVernacularRecord"
         vernacular_name_primary:
           type: string
           nullable: true
-        vernacular_name_count:
-          type: integer
+          description: First English-language vernacular name found, or first name of any language (FERNS convenience field)
         cache_status:
           type: string
           enum: [hit, miss, bypassed]

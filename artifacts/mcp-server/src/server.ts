@@ -60,11 +60,13 @@ const tools: ToolDef[] = [
     tool: {
       name: "gbif__species_synonyms",
       description:
-        "Returns all taxonomic synonyms for a GBIF taxon identified by its usage key. A synonym is a name that was once considered valid but is now superseded by the accepted name. Use gbif__match first to resolve a scientific name to a usageKey.",
+        "Returns all taxonomic synonyms for a GBIF taxon identified by its usage key. A synonym is a name that was once considered valid but is now superseded by the accepted name. Response mirrors the GBIF upstream envelope: offset, limit, endOfRecords, count, results. Use gbif__match first to resolve a scientific name to a usageKey.",
       inputSchema: {
         type: "object" as const,
         properties: {
           usageKey: { type: "number", description: "GBIF usage key (integer)" },
+          limit:    { type: "number", description: "Number of results to return (1–1000, default 100)" },
+          offset:   { type: "number", description: "Zero-based offset for pagination (default 0)" },
           refresh:  { type: "boolean", description: "Bypass cache and re-fetch from GBIF" },
           ...PV_PROP,
         },
@@ -73,7 +75,9 @@ const tools: ToolDef[] = [
     },
     handler: async (args) =>
       apiGet(`/gbif/species/${Number(args["usageKey"])}/synonyms`, {
-        refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        limit:    args["limit"]   !== undefined ? String(args["limit"])   : undefined,
+        offset:   args["offset"]  !== undefined ? String(args["offset"])  : undefined,
+        refresh:  args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
         provenance_verbosity: pv(args),
       }),
   },
@@ -81,11 +85,13 @@ const tools: ToolDef[] = [
     tool: {
       name: "gbif__species_vernacular_names",
       description:
-        "Returns all vernacular (common) names for a GBIF taxon identified by its usage key, across all languages and countries in the GBIF backbone. Use gbif__match first to resolve a scientific name to a usageKey.",
+        "Returns all vernacular (common) names for a GBIF taxon identified by its usage key, across all languages and countries in the GBIF backbone. Response mirrors the GBIF upstream envelope: offset, limit, endOfRecords, count, results. vernacular_name_primary is a FERNS convenience field with the first English name. Use gbif__match first to resolve a scientific name to a usageKey.",
       inputSchema: {
         type: "object" as const,
         properties: {
           usageKey: { type: "number", description: "GBIF usage key (integer)" },
+          limit:    { type: "number", description: "Number of results to return (1–1000, default 100)" },
+          offset:   { type: "number", description: "Zero-based offset for pagination (default 0)" },
           refresh:  { type: "boolean", description: "Bypass cache and re-fetch from GBIF" },
           ...PV_PROP,
         },
@@ -94,7 +100,9 @@ const tools: ToolDef[] = [
     },
     handler: async (args) =>
       apiGet(`/gbif/species/${Number(args["usageKey"])}/vernacularNames`, {
-        refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        limit:    args["limit"]   !== undefined ? String(args["limit"])   : undefined,
+        offset:   args["offset"]  !== undefined ? String(args["offset"])  : undefined,
+        refresh:  args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
         provenance_verbosity: pv(args),
       }),
   },

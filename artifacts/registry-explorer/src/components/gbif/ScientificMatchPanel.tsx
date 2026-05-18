@@ -93,10 +93,10 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
 
   const isNotFound = !matchQuery.data.found || !matchData || matchData.matchType === "NONE";
 
-  const synonyms = synonymsQuery.data?.data?.synonyms ?? [];
-  const synonymCount = synonymsQuery.data?.data?.synonym_count ?? 0;
-  const vernacularNames = vernacularQuery.data?.data?.vernacular_names ?? [];
-  const vernacularCount = vernacularQuery.data?.data?.vernacular_name_count ?? 0;
+  const synonyms = synonymsQuery.data?.data?.results ?? [];
+  const synonymCount = synonymsQuery.data?.data?.count ?? 0;
+  const vernacularNames = vernacularQuery.data?.data?.results ?? [];
+  const vernacularCount = vernacularQuery.data?.data?.count ?? 0;
   const enNames = vernacularNames.filter(v => v.language === "eng" || v.language === "en");
 
   return (

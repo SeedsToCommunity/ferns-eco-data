@@ -39,22 +39,6 @@ export interface GbifMatchResult {
   upstream_url: string;
 }
 
-export interface GbifSynonymRecord {
-  key: number;
-  canonicalName: string;
-  scientificName: string;
-  rank: string;
-  taxonomicStatus: string;
-  nameType: string;
-  publishedIn: string | null;
-}
-
-export interface GbifVernacularRecord {
-  vernacularName: string;
-  language: string;
-  country: string | null;
-  source: string | null;
-}
 
 export interface GbifOccurrenceRecord {
   gbifID: string;
@@ -359,64 +343,56 @@ export async function fetchVernacularSearch(q: string): Promise<{
   };
 }
 
-export function buildSynonymsCacheKey(usageKey: number): string {
-  return `gbif:synonyms:${usageKey}`;
+export function buildSynonymsCacheKey(usageKey: number, limit: number, offset: number): string {
+  return `gbif:synonyms:${usageKey}:${limit}:${offset}`;
 }
 
-export function buildVernacularNamesCacheKey(usageKey: number): string {
-  return `gbif:vernacular:${usageKey}`;
+export function buildVernacularNamesCacheKey(usageKey: number, limit: number, offset: number): string {
+  return `gbif:vernacular:${usageKey}:${limit}:${offset}`;
 }
 
-export async function fetchSynonyms(usageKey: number): Promise<{
-  synonyms: GbifSynonymRecord[];
-  synonym_count: number;
+export async function fetchSynonyms(usageKey: number, limit = 100, offset = 0): Promise<{
+  offset: number;
+  limit: number;
+  endOfRecords: boolean;
+  count: number;
+  results: Record<string, unknown>[];
   upstream_url: string;
 }> {
-  const url = `${GBIF_API_BASE}/species/${usageKey}/synonyms?limit=100`;
+  const url = `${GBIF_API_BASE}/species/${usageKey}/synonyms?limit=${limit}&offset=${offset}`;
   const raw = (await gbifFetch(url)) as Record<string, unknown>;
-  const results = (raw.results as Record<string, unknown>[]) || [];
-
-  const synonyms: GbifSynonymRecord[] = results.map((r) => ({
-    key: r.key as number,
-    canonicalName: (r.canonicalName as string) || "",
-    scientificName: (r.scientificName as string) || "",
-    rank: (r.rank as string) || "",
-    taxonomicStatus: (r.taxonomicStatus as string) || "",
-    nameType: (r.nameType as string) || "",
-    publishedIn: (r.publishedIn as string) || null,
-  }));
-
+  const results = (raw.results as Record<string, unknown>[]) ?? [];
   return {
-    synonyms,
-    synonym_count: (raw.count as number) ?? synonyms.length,
+    offset: (raw.offset as number) ?? offset,
+    limit: (raw.limit as number) ?? limit,
+    endOfRecords: (raw.endOfRecords as boolean) ?? true,
+    count: (raw.count as number) ?? results.length,
+    results,
     upstream_url: url,
   };
 }
 
-export async function fetchVernacularNames(usageKey: number): Promise<{
-  vernacular_names: GbifVernacularRecord[];
+export async function fetchVernacularNames(usageKey: number, limit = 100, offset = 0): Promise<{
+  offset: number;
+  limit: number;
+  endOfRecords: boolean;
+  count: number;
+  results: Record<string, unknown>[];
   vernacular_name_primary: string | null;
-  vernacular_name_count: number;
   upstream_url: string;
 }> {
-  const url = `${GBIF_API_BASE}/species/${usageKey}/vernacularNames?limit=100`;
+  const url = `${GBIF_API_BASE}/species/${usageKey}/vernacularNames?limit=${limit}&offset=${offset}`;
   const raw = (await gbifFetch(url)) as Record<string, unknown>;
-  const results = (raw.results as Record<string, unknown>[]) || [];
-
-  const vernacular_names: GbifVernacularRecord[] = results.map((r) => ({
-    vernacularName: (r.vernacularName as string) || "",
-    language: (r.language as string) || "",
-    country: (r.country as string) || null,
-    source: (r.source as string) || null,
-  }));
-
-  const enName = vernacular_names.find((v) => v.language === "eng" || v.language === "en");
-  const vernacular_name_primary = enName?.vernacularName ?? vernacular_names[0]?.vernacularName ?? null;
-
+  const results = (raw.results as Record<string, unknown>[]) ?? [];
+  const enRecord = results.find((v) => v.language === "eng" || v.language === "en");
+  const vernacular_name_primary = (enRecord?.vernacularName as string) ?? (results[0]?.vernacularName as string) ?? null;
   return {
-    vernacular_names,
+    offset: (raw.offset as number) ?? offset,
+    limit: (raw.limit as number) ?? limit,
+    endOfRecords: (raw.endOfRecords as boolean) ?? true,
+    count: (raw.count as number) ?? results.length,
+    results,
     vernacular_name_primary,
-    vernacular_name_count: (raw.count as number) ?? vernacular_names.length,
     upstream_url: url,
   };
 }

@@ -570,6 +570,106 @@ export const GetGbifSearchResponse = zod.object({
 });
 
 /**
+ * Pagination query parameters for GBIF synonym and vernacular name endpoints.
+ */
+export const GetGbifSpeciesSynonymsParams = zod.object({
+  limit: zod
+    .number()
+    .min(1)
+    .max(1000)
+    .optional()
+    .describe("Number of results to return (1–1000, default 100)"),
+  offset: zod
+    .number()
+    .min(0)
+    .optional()
+    .describe("Zero-based offset for pagination (default 0)"),
+  refresh: zod.boolean().optional(),
+  provenance_verbosity: zod.string().optional(),
+});
+
+export const GetGbifSpeciesVernacularNamesParams = zod.object({
+  limit: zod
+    .number()
+    .min(1)
+    .max(1000)
+    .optional()
+    .describe("Number of results to return (1–1000, default 100)"),
+  offset: zod
+    .number()
+    .min(0)
+    .optional()
+    .describe("Zero-based offset for pagination (default 0)"),
+  refresh: zod.boolean().optional(),
+  provenance_verbosity: zod.string().optional(),
+});
+
+const GbifSynonymRecord = zod.record(zod.string(), zod.unknown());
+
+const GbifVernacularRecord = zod.record(zod.string(), zod.unknown());
+
+const GbifProvenanceBlock = zod
+  .object({
+    source_id: zod.string(),
+    fetched_at: zod.date(),
+    method: zod.string(),
+    upstream_url: zod.string(),
+    general_summary: zod.string().optional(),
+    technical_details: zod.string().optional(),
+    matched_input: zod.string().optional(),
+  })
+  .describe(
+    "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
+  );
+
+/**
+ * Returns all taxonomic synonyms for a GBIF taxon. Mirrors the upstream GBIF
+ * /v1/species/{usageKey}/synonyms envelope. Cached 30 days per (usageKey, limit, offset).
+ *
+ * @summary Get GBIF species synonyms
+ */
+export const GetGbifSpeciesSynonymsResponse = zod.object({
+  source_url: zod.string().nullable(),
+  found: zod.boolean(),
+  data: zod
+    .object({
+      usage_key: zod.number(),
+      offset: zod.number(),
+      limit: zod.number(),
+      endOfRecords: zod.boolean(),
+      count: zod.number(),
+      results: zod.array(GbifSynonymRecord),
+      cache_status: zod.enum(["hit", "miss", "bypassed"]).nullable().optional(),
+    })
+    .nullable(),
+  provenance: GbifProvenanceBlock,
+});
+
+/**
+ * Returns all vernacular (common) names for a GBIF taxon. Mirrors the upstream GBIF
+ * /v1/species/{usageKey}/vernacularNames envelope. Cached 30 days per (usageKey, limit, offset).
+ *
+ * @summary Get GBIF species vernacular names
+ */
+export const GetGbifSpeciesVernacularNamesResponse = zod.object({
+  source_url: zod.string().nullable(),
+  found: zod.boolean(),
+  data: zod
+    .object({
+      usage_key: zod.number(),
+      offset: zod.number(),
+      limit: zod.number(),
+      endOfRecords: zod.boolean(),
+      count: zod.number(),
+      results: zod.array(GbifVernacularRecord),
+      vernacular_name_primary: zod.string().nullable().optional(),
+      cache_status: zod.enum(["hit", "miss", "bypassed"]).nullable().optional(),
+    })
+    .nullable(),
+  provenance: GbifProvenanceBlock,
+});
+
+/**
  * Returns service identity, attribution, permission status, controlled vocabulary definitions (basisOfRecord, matchType, taxonomicStatus, occurrenceStatus), and the registry entry for the GBIF service.
 
  * @summary GBIF service metadata and controlled vocabularies

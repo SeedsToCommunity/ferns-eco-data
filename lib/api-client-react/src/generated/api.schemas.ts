@@ -326,19 +326,23 @@ export const GbifSynonymsDataCacheStatus = {
 } as const;
 
 export interface GbifSynonymRecord {
-  key: number;
-  canonicalName: string;
-  scientificName: string;
-  rank: string;
-  taxonomicStatus: string;
-  nameType: string;
+  key?: number;
+  canonicalName?: string;
+  scientificName?: string;
+  rank?: string;
+  taxonomicStatus?: string;
+  nameType?: string;
   publishedIn?: string | null;
+  [key: string]: unknown;
 }
 
 export interface GbifSynonymsData {
   usage_key: number;
-  synonyms: GbifSynonymRecord[];
-  synonym_count: number;
+  offset: number;
+  limit: number;
+  endOfRecords: boolean;
+  count: number;
+  results: GbifSynonymRecord[];
   cache_status?: GbifSynonymsDataCacheStatus;
 }
 
@@ -360,17 +364,21 @@ export const GbifVernacularNamesDataCacheStatus = {
 } as const;
 
 export interface GbifVernacularRecord {
-  vernacularName: string;
-  language: string;
+  vernacularName?: string;
+  language?: string;
   country?: string | null;
   source?: string | null;
+  [key: string]: unknown;
 }
 
 export interface GbifVernacularNamesData {
   usage_key: number;
-  vernacular_names: GbifVernacularRecord[];
+  offset: number;
+  limit: number;
+  endOfRecords: boolean;
+  count: number;
+  results: GbifVernacularRecord[];
   vernacular_name_primary?: string | null;
-  vernacular_name_count: number;
   cache_status?: GbifVernacularNamesDataCacheStatus;
 }
 
@@ -383,12 +391,16 @@ export interface GbifVernacularNamesResponse {
 
 export type GetGbifSpeciesSynonymsParams = {
   usageKey: number;
+  limit?: number;
+  offset?: number;
   refresh?: boolean;
   provenance_verbosity?: string;
 };
 
 export type GetGbifSpeciesVernacularNamesParams = {
   usageKey: number;
+  limit?: number;
+  offset?: number;
   refresh?: boolean;
   provenance_verbosity?: string;
 };

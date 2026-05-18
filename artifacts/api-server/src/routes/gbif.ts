@@ -303,22 +303,24 @@ router.get("/gbif/species/:usageKey/synonyms", async (req, res) => {
     return;
   }
 
+  const limit = Math.min(Math.max(Number(req.query.limit) || 100, 1), 1000);
+  const offset = Math.max(Number(req.query.offset) || 0, 0);
   const refresh = req.query.refresh === "true" || req.query.refresh === "1";
   const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
-  const cacheKey = buildSynonymsCacheKey(usageKey);
+  const cacheKey = buildSynonymsCacheKey(usageKey, limit, offset);
 
   if (!refresh) {
     const cached = await lookupSynonyms(cacheKey);
     if (cached) {
-      res.json(buildSynonymsResponse(cached, "hit", verbosity));
+      res.json(buildSynonymsResponse(cached, limit, offset, "hit", verbosity));
       return;
     }
   }
 
   try {
-    const result = await fetchSynonyms(usageKey);
+    const result = await fetchSynonyms(usageKey, limit, offset);
     const stored = await storeSynonyms(cacheKey, usageKey, result);
-    res.json(buildSynonymsResponse(stored, refresh ? "bypassed" : "miss", verbosity));
+    res.json(buildSynonymsResponse(stored, result.limit, result.offset, refresh ? "bypassed" : "miss", verbosity, result.endOfRecords));
   } catch (err) {
     req.log.error({ err }, "GBIF synonyms fetch failed");
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from GBIF API" });
@@ -337,16 +339,24 @@ function buildSynonymsResponse(
     general_summary: string;
     technical_details: string;
   },
+  limit: number,
+  offset: number,
   cache_status: "hit" | "miss" | "bypassed",
   verbosity?: string,
+  endOfRecords?: boolean,
 ) {
+  const results = Array.isArray(row.synonyms) ? (row.synonyms as Record<string, unknown>[]) : [];
+  const computedEndOfRecords = endOfRecords ?? (offset + results.length >= row.synonym_count);
   return {
     source_url: `https://www.gbif.org/species/${row.usage_key}`,
     found: true,
     data: {
       usage_key: row.usage_key,
-      synonyms: row.synonyms,
-      synonym_count: row.synonym_count,
+      offset,
+      limit,
+      endOfRecords: computedEndOfRecords,
+      count: row.synonym_count,
+      results,
       cache_status,
     },
     provenance: filterProvenance({
@@ -368,22 +378,24 @@ router.get("/gbif/species/:usageKey/vernacularNames", async (req, res) => {
     return;
   }
 
+  const limit = Math.min(Math.max(Number(req.query.limit) || 100, 1), 1000);
+  const offset = Math.max(Number(req.query.offset) || 0, 0);
   const refresh = req.query.refresh === "true" || req.query.refresh === "1";
   const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
-  const cacheKey = buildVernacularNamesCacheKey(usageKey);
+  const cacheKey = buildVernacularNamesCacheKey(usageKey, limit, offset);
 
   if (!refresh) {
     const cached = await lookupVernacularNames(cacheKey);
     if (cached) {
-      res.json(buildVernacularNamesResponse(cached, "hit", verbosity));
+      res.json(buildVernacularNamesResponse(cached, limit, offset, "hit", verbosity));
       return;
     }
   }
 
   try {
-    const result = await fetchVernacularNames(usageKey);
+    const result = await fetchVernacularNames(usageKey, limit, offset);
     const stored = await storeVernacularNames(cacheKey, usageKey, result);
-    res.json(buildVernacularNamesResponse(stored, refresh ? "bypassed" : "miss", verbosity));
+    res.json(buildVernacularNamesResponse(stored, result.limit, result.offset, refresh ? "bypassed" : "miss", verbosity, result.endOfRecords));
   } catch (err) {
     req.log.error({ err }, "GBIF vernacular names fetch failed");
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from GBIF API" });
@@ -403,17 +415,25 @@ function buildVernacularNamesResponse(
     general_summary: string;
     technical_details: string;
   },
+  limit: number,
+  offset: number,
   cache_status: "hit" | "miss" | "bypassed",
   verbosity?: string,
+  endOfRecords?: boolean,
 ) {
+  const results = Array.isArray(row.vernacular_names) ? (row.vernacular_names as Record<string, unknown>[]) : [];
+  const computedEndOfRecords = endOfRecords ?? (offset + results.length >= row.vernacular_name_count);
   return {
     source_url: `https://www.gbif.org/species/${row.usage_key}`,
     found: true,
     data: {
       usage_key: row.usage_key,
-      vernacular_names: row.vernacular_names,
+      offset,
+      limit,
+      endOfRecords: computedEndOfRecords,
+      count: row.vernacular_name_count,
+      results,
       vernacular_name_primary: row.vernacular_name_primary,
-      vernacular_name_count: row.vernacular_name_count,
       cache_status,
     },
     provenance: filterProvenance({
