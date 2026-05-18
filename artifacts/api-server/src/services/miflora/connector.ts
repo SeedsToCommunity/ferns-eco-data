@@ -192,7 +192,11 @@ export async function fetchFloraSearchSp(name: string): Promise<MifloraFloraSear
   const trimmed = name.trim();
   const url = `${MIFLORA_API_BASE}/flora_search_sp?scientific_name=${encodeURIComponent(trimmed)}`;
   const raw = await mifloraFetch(url);
-  const rawArr: unknown[] = Array.isArray(raw) ? raw : [];
+  const rawArr: unknown[] = Array.isArray(raw)
+    ? raw
+    : Array.isArray((raw as Record<string, unknown>)?.search_records)
+      ? ((raw as Record<string, unknown>).search_records as unknown[])
+      : [];
   const records: MifloraSpeciesRecord[] = rawArr.map((item) => {
     const r = item as Record<string, unknown>;
     return {

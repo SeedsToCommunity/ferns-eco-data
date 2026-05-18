@@ -209,7 +209,7 @@ export default function MifloraPage() {
   );
   const primaryImage = pimageRes?.data?.image ?? null;
 
-  const isLoading = floraLoading || countiesLoading || imagesLoading;
+  const isLoading = floraLoading || countiesLoading || imagesLoading || specTextLoading || synonymsLoading || pimageLoading;
   const hasResult = !!floraRes || !!countiesRes || !!imagesRes;
 
   const naLabel = speciesData?.na === "N" ? "Native" : speciesData?.na === "A" ? "Adventive (non-native)" : speciesData?.na ?? null;
