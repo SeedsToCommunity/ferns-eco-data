@@ -168,17 +168,17 @@ async function compareGbifSynonyms(
 
     const gbifResults = (gbifRaw.results as unknown[]) ?? [];
     const gbifCount = gbifRaw.count as number | undefined;
-    const fernsSynonyms = (fernsData.synonyms as unknown[]) ?? [];
-    const fernsCount = fernsData.synonym_count as number | undefined;
+    const fernsResults = (fernsData.results as unknown[]) ?? [];
+    const fernsCount = fernsData.count as number | undefined;
 
     if (fernsCount !== undefined && gbifCount !== undefined) {
       if (fernsCount === gbifCount) {
-        findings.push({ type: "ok", sourceField: "synonym_count", fernsField: "synonym_count", fernsValue: fernsCount, note: `Synonym count matches: ${fernsCount}` });
+        findings.push({ type: "ok", sourceField: "count", fernsField: "count", fernsValue: fernsCount, note: `Synonym count matches: ${fernsCount}` });
       } else {
         findings.push({
           type: "mismatch",
-          sourceField: "synonym_count",
-          fernsField: "synonym_count",
+          sourceField: "count",
+          fernsField: "count",
           sourceValue: gbifCount,
           fernsValue: fernsCount,
           note: "Counts may differ if GBIF updated between requests",
@@ -186,10 +186,10 @@ async function compareGbifSynonyms(
       }
     }
 
-    if (fernsSynonyms.length > 0 || gbifResults.length > 0) {
-      findings.push({ type: "ok", sourceField: "synonyms", note: `FERNS: ${fernsSynonyms.length} synonyms vs upstream: ${gbifResults.length}` });
+    if (fernsResults.length > 0 || gbifResults.length > 0) {
+      findings.push({ type: "ok", sourceField: "results", note: `FERNS: ${fernsResults.length} synonyms vs upstream: ${gbifResults.length}` });
     } else {
-      findings.push({ type: "ok", sourceField: "synonyms", note: `No synonyms for usageKey ${usageKey}` });
+      findings.push({ type: "ok", sourceField: "results", note: `No synonyms for usageKey ${usageKey}` });
     }
 
     return {
@@ -239,17 +239,17 @@ async function compareGbifVernacularNames(
 
     const gbifResults = (gbifRaw.results as unknown[]) ?? [];
     const gbifCount = gbifRaw.count as number | undefined;
-    const fernsNames = (fernsData.vernacular_names as unknown[]) ?? [];
-    const fernsCount = fernsData.vernacular_name_count as number | undefined;
+    const fernsResults = (fernsData.results as unknown[]) ?? [];
+    const fernsCount = fernsData.count as number | undefined;
 
     if (fernsCount !== undefined && gbifCount !== undefined) {
       if (fernsCount === gbifCount) {
-        findings.push({ type: "ok", sourceField: "vernacular_name_count", fernsField: "vernacular_name_count", fernsValue: fernsCount, note: `Vernacular name count matches: ${fernsCount}` });
+        findings.push({ type: "ok", sourceField: "count", fernsField: "count", fernsValue: fernsCount, note: `Vernacular name count matches: ${fernsCount}` });
       } else {
         findings.push({
           type: "mismatch",
-          sourceField: "vernacular_name_count",
-          fernsField: "vernacular_name_count",
+          sourceField: "count",
+          fernsField: "count",
           sourceValue: gbifCount,
           fernsValue: fernsCount,
           note: "Counts may differ if GBIF updated between requests",
@@ -257,10 +257,10 @@ async function compareGbifVernacularNames(
       }
     }
 
-    if (fernsNames.length > 0 || gbifResults.length > 0) {
-      findings.push({ type: "ok", sourceField: "vernacular_names", note: `FERNS: ${fernsNames.length} names vs upstream: ${gbifResults.length}` });
+    if (fernsResults.length > 0 || gbifResults.length > 0) {
+      findings.push({ type: "ok", sourceField: "results", note: `FERNS: ${fernsResults.length} names vs upstream: ${gbifResults.length}` });
     } else {
-      findings.push({ type: "ok", sourceField: "vernacular_names", note: `No vernacular names for usageKey ${usageKey}` });
+      findings.push({ type: "ok", sourceField: "results", note: `No vernacular names for usageKey ${usageKey}` });
     }
 
     if (fernsData.vernacular_name_primary !== undefined) {
