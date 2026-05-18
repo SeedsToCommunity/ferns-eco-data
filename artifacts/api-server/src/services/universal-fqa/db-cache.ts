@@ -3,7 +3,7 @@ import {
   universalFqaDatabasesTable,
   universalFqaSpeciesTable,
 } from "@workspace/db";
-import { eq, and, ilike, sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { fetchDatabase } from "./client.js";
 import type { UniversalFqaDatabaseDetail, UniversalFqaSpeciesRecord } from "./client.js";
 import { logger } from "../../lib/logger.js";
@@ -159,40 +159,3 @@ export async function getOrFetchDatabase(
   return { detail, cache_hit: false };
 }
 
-export async function lookupSpeciesFromDb(
-  databaseId: number,
-  scientificName: string
-): Promise<{ found: boolean; species: UniversalFqaSpeciesRecord | null; cache_hit: boolean }> {
-  const dbRows = await db
-    .select()
-    .from(universalFqaDatabasesTable)
-    .where(eq(universalFqaDatabasesTable.database_id, databaseId))
-    .limit(1);
-
-  let cache_hit = dbRows.length > 0;
-
-  if (!cache_hit) {
-    await getOrFetchDatabase(databaseId);
-    cache_hit = false;
-  }
-
-  const normalized = scientificName.trim();
-  const speciesRows = await db
-    .select()
-    .from(universalFqaSpeciesTable)
-    .where(
-      and(
-        eq(universalFqaSpeciesTable.database_id, databaseId),
-        ilike(universalFqaSpeciesTable.scientific_name, normalized),
-      )
-    )
-    .limit(1);
-
-  const match = speciesRows.length > 0 ? rowToSpeciesRecord(speciesRows[0]) : null;
-
-  return {
-    found: match !== null,
-    species: match,
-    cache_hit,
-  };
-}
