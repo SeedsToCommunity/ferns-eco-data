@@ -278,7 +278,7 @@ async function compareMifloraFloraSearch(
     const upstreamRaw = await fetchJson(`${MIFLORA_API}/flora_search_sp?scientific_name=${encodeURIComponent(sp.name)}`);
     const upstreamRecords: Array<Record<string, unknown>> = Array.isArray(upstreamRaw)
       ? (upstreamRaw as Record<string, unknown>[])
-      : [];
+      : (((upstreamRaw as Record<string, unknown>)?.search_records as Array<Record<string, unknown>> | undefined) ?? []);
     const upstreamFirst = upstreamRecords[0] ?? null;
 
     if (!upstreamFirst && !fernsData.plant_id) {

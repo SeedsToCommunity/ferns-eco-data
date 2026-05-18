@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import DOMPurify from "dompurify";
 import {
   useGetMifloraCounties,
   useGetMifloraImages,
@@ -202,6 +203,10 @@ export default function MifloraPage() {
   const images = (imagesRes?.data ?? []) as MifloraImageRecord[];
   const synonyms = synonymsRes?.data?.synonyms ?? [];
   const specText = specTextRes?.data?.text ?? null;
+  const sanitizedSpecText = useMemo(
+    () => specText ? DOMPurify.sanitize(specText, { ALLOWED_TAGS: ["b", "i", "em", "strong", "p", "br", "span", "ul", "ol", "li"], ALLOWED_ATTR: [] }) : null,
+    [specText]
+  );
   const primaryImage = pimageRes?.data?.image ?? null;
 
   const isLoading = floraLoading || countiesLoading || imagesLoading;
@@ -342,7 +347,7 @@ export default function MifloraPage() {
                 {specText ? (
                   <div
                     className="p-5 prose prose-sm max-w-none text-sm text-foreground/90 [&_p]:mb-2 [&_b]:font-semibold [&_i]:italic"
-                    dangerouslySetInnerHTML={{ __html: specText }}
+                    dangerouslySetInnerHTML={{ __html: sanitizedSpecText! }}
                   />
                 ) : specTextRes && !specTextRes.found ? (
                   <div className="p-5 text-sm text-muted-foreground">No description available.</div>
