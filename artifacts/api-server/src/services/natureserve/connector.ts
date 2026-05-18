@@ -272,14 +272,16 @@ export async function searchByRecordType(
     const ecosystemGlobal = r.ecosystemGlobal as Record<string, unknown> | null | undefined;
     const nations = r.nations as Record<string, unknown>[] | undefined;
     const usNation = nations?.find((n) => (n.nationCode as string) === "US");
-    const roundedNRank = (usNation?.roundedNRank as string) ?? null;
+    // The search endpoint only provides roundedNRank (not a separate nrank).
+    // We surface it as us_national_rank so the UI can display it.
+    const usNationalRank = (usNation?.roundedNRank as string) ?? null;
 
     return {
       system_name: (r.scientificName as string) ?? "",
       global_rank: (r.gRank as string) ?? null,
       rounded_global_rank: (r.roundedGRank as string) ?? null,
-      us_national_rank: null,
-      rounded_us_national_rank: roundedNRank,
+      us_national_rank: usNationalRank,
+      rounded_us_national_rank: usNationalRank,
       description_excerpt: (ecosystemGlobal?.conceptSentence as string) ?? null,
       national_distribution: null,
       characteristic_species: [],

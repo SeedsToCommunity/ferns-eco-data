@@ -1004,6 +1004,13 @@ export async function runNatureserveChecks(fernsBase: string): Promise<EndpointC
         } else {
           findings.push({ type: "gap", sourceField: "data.ecosystems[0].record_type", note: "record_type missing" });
         }
+        // us_national_rank: the search endpoint surfaces roundedNRank from the US nations record.
+        // It may be "NNR" (Not Ranked) for many ecosystem types — the key check is the field exists.
+        if (first.us_national_rank !== undefined) {
+          findings.push({ type: "ok", sourceField: "data.ecosystems[0].us_national_rank", note: `us_national_rank=${first.us_national_rank}` });
+        } else {
+          findings.push({ type: "gap", sourceField: "data.ecosystems[0].us_national_rank", note: "us_national_rank field missing from result" });
+        }
       } else {
         findings.push({ type: "gap", sourceField: "data.ecosystems", note: "No results for 'oak savanna' — may be upstream API change" });
       }
