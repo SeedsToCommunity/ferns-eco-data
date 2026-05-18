@@ -4,8 +4,8 @@ import {
   UNIVERSAL_FQA_GENERAL_SUMMARY,
   UNIVERSAL_FQA_TECHNICAL_DETAILS,
   UNIVERSAL_FQA_REGISTRY_ENTRY,
-  UNIVERSAL_FQA_PERMISSION_GRANTED,
-  UNIVERSAL_FQA_PERMISSION_STATUS,
+  UNIVERSAL_FQA_LICENSES,
+  UNIVERSAL_FQA_LICENSE_NOTES,
   UNIVERSAL_FQA_ATTRIBUTION,
   UNIVERSAL_FQA_API_BASE,
 } from "../services/universal-fqa/metadata.js";
@@ -41,8 +41,8 @@ router.get("/universal-fqa/metadata", async (req, res) => {
   res.json({
     source_id: UNIVERSAL_FQA_SOURCE_ID,
     name: UNIVERSAL_FQA_REGISTRY_ENTRY.name,
-    permission_granted: UNIVERSAL_FQA_PERMISSION_GRANTED,
-    permission_status: UNIVERSAL_FQA_PERMISSION_STATUS,
+    licenses: UNIVERSAL_FQA_LICENSES,
+    license_notes: UNIVERSAL_FQA_LICENSE_NOTES,
     attribution: UNIVERSAL_FQA_ATTRIBUTION,
     registry_entry: {
       ...UNIVERSAL_FQA_REGISTRY_ENTRY,

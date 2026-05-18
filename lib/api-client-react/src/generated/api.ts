@@ -68,9 +68,9 @@ import type {
   GetMifloraCountiesParams,
   GetMifloraFloraSearchParams,
   GetMifloraImagesParams,
+  GetMifloraPImageInfoParams,
   GetMifloraSpecTextParams,
   GetMifloraSynonymsParams,
-  GetMifloraPImageInfoParams,
   GetMinnesotaWildflowersParams,
   GetMinnesotaWildflowersSpeciesTextParams,
   GetMissouriPlantsParams,
@@ -79,7 +79,6 @@ import type {
   GetMnfiCountyElementsParams,
   GetNatureserveSearchParams,
   GetNatureserveSpeciesParams,
-  NatureserveSearchResponse,
   GetPrairieMoonParams,
   GetPrairieMoonSpeciesTextParams,
   GetS2CSpeciesByYearParams,
@@ -121,15 +120,16 @@ import type {
   MifloraFloraSearchResponse,
   MifloraImagesResponse,
   MifloraMetadataResponse,
+  MifloraPImageInfoResponse,
   MifloraSpecTextResponse,
   MifloraSynonymsResponse,
-  MifloraPImageInfoResponse,
   MnfiCommunitiesResponse,
   MnfiCommunityPlantsResponse,
   MnfiCommunityResponse,
   MnfiCountyElementsResponse,
   MnfiMetadataResponse,
   NatureserveMetadataResponse,
+  NatureserveSearchResponse,
   NatureserveSpeciesResponse,
   NpnMetadataResponse,
   NpnNamesResponse,
@@ -714,6 +714,255 @@ export function useGetGbifSearch<
 }
 
 /**
+ * Returns all names that are considered synonyms of the accepted taxon identified by the given usage key. Mirrors GBIF's GET /v1/species/{usageKey}/synonyms. Cached 30 days per (usageKey, limit, offset).
+
+ * @summary Get all taxonomic synonyms for a GBIF taxon
+ */
+export const getGetGbifSpeciesSynonymsUrl = (
+  usageKey: number,
+  params?: GetGbifSpeciesSynonymsParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/gbif/species/${usageKey}/synonyms?${stringifiedParams}`
+    : `/api/gbif/species/${usageKey}/synonyms`;
+};
+
+export const getGbifSpeciesSynonyms = async (
+  usageKey: number,
+  params?: GetGbifSpeciesSynonymsParams,
+  options?: RequestInit,
+): Promise<GbifSynonymsResponse> => {
+  return customFetch<GbifSynonymsResponse>(
+    getGetGbifSpeciesSynonymsUrl(usageKey, params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetGbifSpeciesSynonymsQueryKey = (
+  usageKey: number,
+  params?: GetGbifSpeciesSynonymsParams,
+) => {
+  return [
+    `/api/gbif/species/${usageKey}/synonyms`,
+    ...(params ? [params] : []),
+  ] as const;
+};
+
+export const getGetGbifSpeciesSynonymsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getGbifSpeciesSynonyms>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  usageKey: number,
+  params?: GetGbifSpeciesSynonymsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getGbifSpeciesSynonyms>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ??
+    getGetGbifSpeciesSynonymsQueryKey(usageKey, params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getGbifSpeciesSynonyms>>
+  > = ({ signal }) =>
+    getGbifSpeciesSynonyms(usageKey, params, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!usageKey,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getGbifSpeciesSynonyms>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetGbifSpeciesSynonymsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getGbifSpeciesSynonyms>>
+>;
+export type GetGbifSpeciesSynonymsQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get all taxonomic synonyms for a GBIF taxon
+ */
+
+export function useGetGbifSpeciesSynonyms<
+  TData = Awaited<ReturnType<typeof getGbifSpeciesSynonyms>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  usageKey: number,
+  params?: GetGbifSpeciesSynonymsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getGbifSpeciesSynonyms>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetGbifSpeciesSynonymsQueryOptions(
+    usageKey,
+    params,
+    options,
+  );
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns all vernacular names across all languages and countries for the taxon identified by the given usage key. Mirrors GBIF's GET /v1/species/{usageKey}/vernacularNames. Cached 30 days per (usageKey, limit, offset).
+
+ * @summary Get all vernacular (common) names for a GBIF taxon
+ */
+export const getGetGbifSpeciesVernacularNamesUrl = (
+  usageKey: number,
+  params?: GetGbifSpeciesVernacularNamesParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/gbif/species/${usageKey}/vernacularNames?${stringifiedParams}`
+    : `/api/gbif/species/${usageKey}/vernacularNames`;
+};
+
+export const getGbifSpeciesVernacularNames = async (
+  usageKey: number,
+  params?: GetGbifSpeciesVernacularNamesParams,
+  options?: RequestInit,
+): Promise<GbifVernacularNamesResponse> => {
+  return customFetch<GbifVernacularNamesResponse>(
+    getGetGbifSpeciesVernacularNamesUrl(usageKey, params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetGbifSpeciesVernacularNamesQueryKey = (
+  usageKey: number,
+  params?: GetGbifSpeciesVernacularNamesParams,
+) => {
+  return [
+    `/api/gbif/species/${usageKey}/vernacularNames`,
+    ...(params ? [params] : []),
+  ] as const;
+};
+
+export const getGetGbifSpeciesVernacularNamesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getGbifSpeciesVernacularNames>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  usageKey: number,
+  params?: GetGbifSpeciesVernacularNamesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getGbifSpeciesVernacularNames>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ??
+    getGetGbifSpeciesVernacularNamesQueryKey(usageKey, params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getGbifSpeciesVernacularNames>>
+  > = ({ signal }) =>
+    getGbifSpeciesVernacularNames(usageKey, params, {
+      signal,
+      ...requestOptions,
+    });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!usageKey,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getGbifSpeciesVernacularNames>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetGbifSpeciesVernacularNamesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getGbifSpeciesVernacularNames>>
+>;
+export type GetGbifSpeciesVernacularNamesQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get all vernacular (common) names for a GBIF taxon
+ */
+
+export function useGetGbifSpeciesVernacularNames<
+  TData = Awaited<ReturnType<typeof getGbifSpeciesVernacularNames>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  usageKey: number,
+  params?: GetGbifSpeciesVernacularNamesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getGbifSpeciesVernacularNames>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetGbifSpeciesVernacularNamesQueryOptions(
+    usageKey,
+    params,
+    options,
+  );
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
  * Returns service identity, attribution, permission status, controlled vocabulary definitions (basisOfRecord, matchType, taxonomicStatus, occurrenceStatus), and the registry entry for the GBIF service.
 
  * @summary GBIF service metadata and controlled vocabularies
@@ -787,158 +1036,6 @@ export function useGetGbifMetadata<
     queryKey: QueryKey;
   };
 
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-/**
- * @summary Get all taxonomic synonyms for a GBIF taxon
- */
-export const getGetGbifSpeciesSynonymsUrl = (params: GetGbifSpeciesSynonymsParams) => {
-  const qs = Object.entries({ limit: params.limit, offset: params.offset, refresh: params.refresh, provenance_verbosity: params.provenance_verbosity })
-    .filter(([, v]) => v !== undefined)
-    .map(([k, v]) => [k, String(v)] as [string, string]);
-  return `/api/gbif/species/${params.usageKey}/synonyms${qs.length ? `?${new URLSearchParams(qs).toString()}` : ""}`;
-};
-
-export const getGbifSpeciesSynonyms = async (
-  params: GetGbifSpeciesSynonymsParams,
-  options?: RequestInit,
-): Promise<GbifSynonymsResponse> => {
-  return customFetch<GbifSynonymsResponse>(getGetGbifSpeciesSynonymsUrl(params), {
-    ...options,
-    method: "GET",
-  });
-};
-
-export const getGetGbifSpeciesSynonymsQueryKey = (params: GetGbifSpeciesSynonymsParams) => {
-  return [`/api/gbif/species/${params.usageKey}/synonyms`, params] as const;
-};
-
-export const getGetGbifSpeciesSynonymsQueryOptions = <
-  TData = Awaited<ReturnType<typeof getGbifSpeciesSynonyms>>,
-  TError = ErrorType<ErrorResponse>,
->(
-  params: GetGbifSpeciesSynonymsParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getGbifSpeciesSynonyms>>,
-      TError,
-      TData
-    >;
-    request?: SecondParameter<typeof customFetch>;
-  },
-) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
-  const queryKey = queryOptions?.queryKey ?? getGetGbifSpeciesSynonymsQueryKey(params);
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getGbifSpeciesSynonyms>>> = ({
-    signal,
-  }) => getGbifSpeciesSynonyms(params, { signal, ...requestOptions });
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getGbifSpeciesSynonyms>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
-
-export type GetGbifSpeciesSynonymsQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getGbifSpeciesSynonyms>>
->;
-export type GetGbifSpeciesSynonymsQueryError = ErrorType<ErrorResponse>;
-
-export function useGetGbifSpeciesSynonyms<
-  TData = Awaited<ReturnType<typeof getGbifSpeciesSynonyms>>,
-  TError = ErrorType<ErrorResponse>,
->(
-  params: GetGbifSpeciesSynonymsParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getGbifSpeciesSynonyms>>,
-      TError,
-      TData
-    >;
-    request?: SecondParameter<typeof customFetch>;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getGetGbifSpeciesSynonymsQueryOptions(params, options);
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-/**
- * @summary Get all vernacular (common) names for a GBIF taxon
- */
-export const getGetGbifSpeciesVernacularNamesUrl = (params: GetGbifSpeciesVernacularNamesParams) => {
-  const qs = Object.entries({ limit: params.limit, offset: params.offset, refresh: params.refresh, provenance_verbosity: params.provenance_verbosity })
-    .filter(([, v]) => v !== undefined)
-    .map(([k, v]) => [k, String(v)] as [string, string]);
-  return `/api/gbif/species/${params.usageKey}/vernacularNames${qs.length ? `?${new URLSearchParams(qs).toString()}` : ""}`;
-};
-
-export const getGbifSpeciesVernacularNames = async (
-  params: GetGbifSpeciesVernacularNamesParams,
-  options?: RequestInit,
-): Promise<GbifVernacularNamesResponse> => {
-  return customFetch<GbifVernacularNamesResponse>(getGetGbifSpeciesVernacularNamesUrl(params), {
-    ...options,
-    method: "GET",
-  });
-};
-
-export const getGetGbifSpeciesVernacularNamesQueryKey = (params: GetGbifSpeciesVernacularNamesParams) => {
-  return [`/api/gbif/species/${params.usageKey}/vernacularNames`, params] as const;
-};
-
-export const getGetGbifSpeciesVernacularNamesQueryOptions = <
-  TData = Awaited<ReturnType<typeof getGbifSpeciesVernacularNames>>,
-  TError = ErrorType<ErrorResponse>,
->(
-  params: GetGbifSpeciesVernacularNamesParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getGbifSpeciesVernacularNames>>,
-      TError,
-      TData
-    >;
-    request?: SecondParameter<typeof customFetch>;
-  },
-) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
-  const queryKey = queryOptions?.queryKey ?? getGetGbifSpeciesVernacularNamesQueryKey(params);
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getGbifSpeciesVernacularNames>>> = ({
-    signal,
-  }) => getGbifSpeciesVernacularNames(params, { signal, ...requestOptions });
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getGbifSpeciesVernacularNames>>,
-    TError,
-    TData
-  > & { queryKey: QueryKey };
-};
-
-export type GetGbifSpeciesVernacularNamesQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getGbifSpeciesVernacularNames>>
->;
-export type GetGbifSpeciesVernacularNamesQueryError = ErrorType<ErrorResponse>;
-
-export function useGetGbifSpeciesVernacularNames<
-  TData = Awaited<ReturnType<typeof getGbifSpeciesVernacularNames>>,
-  TError = ErrorType<ErrorResponse>,
->(
-  params: GetGbifSpeciesVernacularNamesParams,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getGbifSpeciesVernacularNames>>,
-      TError,
-      TData
-    >;
-    request?: SecondParameter<typeof customFetch>;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getGetGbifSpeciesVernacularNamesQueryOptions(params, options);
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
@@ -3119,17 +3216,23 @@ export function useGetMifloraImages<
 }
 
 /**
+ * Mirrors the Michigan Flora flora_search_sp endpoint verbatim. Returns the first matching species record for the given scientific name, including plant_id, family, native status (na: N=native, A=adventive), C-value, wetland indicator code, physiognomy, and common names. The plant_id is required for the spec_text, synonyms, and pimage_info endpoints. Cached permanently (no TTL) — use ?refresh=true to force a re-fetch.
+
  * @summary Look up a Michigan Flora species by scientific name
  */
-
-export const getGetMifloraFloraSearchUrl = (params: GetMifloraFloraSearchParams) => {
+export const getGetMifloraFloraSearchUrl = (
+  params: GetMifloraFloraSearchParams,
+) => {
   const normalizedParams = new URLSearchParams();
+
   Object.entries(params || {}).forEach(([key, value]) => {
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? "null" : value.toString());
     }
   });
+
   const stringifiedParams = normalizedParams.toString();
+
   return stringifiedParams.length > 0
     ? `/api/miflora/flora_search_sp?${stringifiedParams}`
     : `/api/miflora/flora_search_sp`;
@@ -3139,13 +3242,18 @@ export const getMifloraFloraSearch = async (
   params: GetMifloraFloraSearchParams,
   options?: RequestInit,
 ): Promise<MifloraFloraSearchResponse> => {
-  return customFetch<MifloraFloraSearchResponse>(getGetMifloraFloraSearchUrl(params), {
-    ...options,
-    method: "GET",
-  });
+  return customFetch<MifloraFloraSearchResponse>(
+    getGetMifloraFloraSearchUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
 };
 
-export const getGetMifloraFloraSearchQueryKey = (params?: GetMifloraFloraSearchParams) => {
+export const getGetMifloraFloraSearchQueryKey = (
+  params?: GetMifloraFloraSearchParams,
+) => {
   return [`/api/miflora/flora_search_sp`, ...(params ? [params] : [])] as const;
 };
 
@@ -3155,14 +3263,24 @@ export const getGetMifloraFloraSearchQueryOptions = <
 >(
   params: GetMifloraFloraSearchParams,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getMifloraFloraSearch>>, TError, TData>;
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMifloraFloraSearch>>,
+      TError,
+      TData
+    >;
     request?: SecondParameter<typeof customFetch>;
   },
 ) => {
   const { query: queryOptions, request: requestOptions } = options ?? {};
-  const queryKey = queryOptions?.queryKey ?? getGetMifloraFloraSearchQueryKey(params);
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getMifloraFloraSearch>>> = ({ signal }) =>
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetMifloraFloraSearchQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getMifloraFloraSearch>>
+  > = ({ signal }) =>
     getMifloraFloraSearch(params, { signal, ...requestOptions });
+
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof getMifloraFloraSearch>>,
     TError,
@@ -3170,8 +3288,14 @@ export const getGetMifloraFloraSearchQueryOptions = <
   > & { queryKey: QueryKey };
 };
 
-export type GetMifloraFloraSearchQueryResult = NonNullable<Awaited<ReturnType<typeof getMifloraFloraSearch>>>;
+export type GetMifloraFloraSearchQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMifloraFloraSearch>>
+>;
 export type GetMifloraFloraSearchQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Look up a Michigan Flora species by scientific name
+ */
 
 export function useGetMifloraFloraSearch<
   TData = Awaited<ReturnType<typeof getMifloraFloraSearch>>,
@@ -3179,27 +3303,39 @@ export function useGetMifloraFloraSearch<
 >(
   params: GetMifloraFloraSearchParams,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getMifloraFloraSearch>>, TError, TData>;
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMifloraFloraSearch>>,
+      TError,
+      TData
+    >;
     request?: SecondParameter<typeof customFetch>;
   },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetMifloraFloraSearchQueryOptions(params, options);
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
 /**
+ * Mirrors the Michigan Flora spec_text endpoint. Returns the botanical description HTML text for the given plant_id. Use flora_search_sp to resolve a scientific name to a plant_id first. Cached permanently (no TTL) — use ?refresh=true to re-fetch.
+
  * @summary Get botanical description text for a Michigan Flora species by plant_id
  */
-
 export const getGetMifloraSpecTextUrl = (params: GetMifloraSpecTextParams) => {
   const normalizedParams = new URLSearchParams();
+
   Object.entries(params || {}).forEach(([key, value]) => {
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? "null" : value.toString());
     }
   });
+
   const stringifiedParams = normalizedParams.toString();
+
   return stringifiedParams.length > 0
     ? `/api/miflora/spec_text?${stringifiedParams}`
     : `/api/miflora/spec_text`;
@@ -3209,13 +3345,18 @@ export const getMifloraSpecText = async (
   params: GetMifloraSpecTextParams,
   options?: RequestInit,
 ): Promise<MifloraSpecTextResponse> => {
-  return customFetch<MifloraSpecTextResponse>(getGetMifloraSpecTextUrl(params), {
-    ...options,
-    method: "GET",
-  });
+  return customFetch<MifloraSpecTextResponse>(
+    getGetMifloraSpecTextUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
 };
 
-export const getGetMifloraSpecTextQueryKey = (params?: GetMifloraSpecTextParams) => {
+export const getGetMifloraSpecTextQueryKey = (
+  params?: GetMifloraSpecTextParams,
+) => {
   return [`/api/miflora/spec_text`, ...(params ? [params] : [])] as const;
 };
 
@@ -3225,14 +3366,23 @@ export const getGetMifloraSpecTextQueryOptions = <
 >(
   params: GetMifloraSpecTextParams,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getMifloraSpecText>>, TError, TData>;
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMifloraSpecText>>,
+      TError,
+      TData
+    >;
     request?: SecondParameter<typeof customFetch>;
   },
 ) => {
   const { query: queryOptions, request: requestOptions } = options ?? {};
-  const queryKey = queryOptions?.queryKey ?? getGetMifloraSpecTextQueryKey(params);
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getMifloraSpecText>>> = ({ signal }) =>
-    getMifloraSpecText(params, { signal, ...requestOptions });
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetMifloraSpecTextQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getMifloraSpecText>>
+  > = ({ signal }) => getMifloraSpecText(params, { signal, ...requestOptions });
+
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof getMifloraSpecText>>,
     TError,
@@ -3240,8 +3390,14 @@ export const getGetMifloraSpecTextQueryOptions = <
   > & { queryKey: QueryKey };
 };
 
-export type GetMifloraSpecTextQueryResult = NonNullable<Awaited<ReturnType<typeof getMifloraSpecText>>>;
+export type GetMifloraSpecTextQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMifloraSpecText>>
+>;
 export type GetMifloraSpecTextQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get botanical description text for a Michigan Flora species by plant_id
+ */
 
 export function useGetMifloraSpecText<
   TData = Awaited<ReturnType<typeof getMifloraSpecText>>,
@@ -3249,27 +3405,39 @@ export function useGetMifloraSpecText<
 >(
   params: GetMifloraSpecTextParams,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getMifloraSpecText>>, TError, TData>;
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMifloraSpecText>>,
+      TError,
+      TData
+    >;
     request?: SecondParameter<typeof customFetch>;
   },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetMifloraSpecTextQueryOptions(params, options);
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
 /**
+ * Mirrors the Michigan Flora synonyms endpoint. Returns an array of taxonomic synonyms for the given plant_id, or an empty array if none exist. Use flora_search_sp to resolve a scientific name to a plant_id first. Cached permanently (no TTL) — use ?refresh=true to re-fetch.
+
  * @summary Get taxonomic synonyms for a Michigan Flora species by plant_id
  */
-
 export const getGetMifloraSynonymsUrl = (params: GetMifloraSynonymsParams) => {
   const normalizedParams = new URLSearchParams();
+
   Object.entries(params || {}).forEach(([key, value]) => {
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? "null" : value.toString());
     }
   });
+
   const stringifiedParams = normalizedParams.toString();
+
   return stringifiedParams.length > 0
     ? `/api/miflora/synonyms?${stringifiedParams}`
     : `/api/miflora/synonyms`;
@@ -3279,13 +3447,18 @@ export const getMifloraSynonyms = async (
   params: GetMifloraSynonymsParams,
   options?: RequestInit,
 ): Promise<MifloraSynonymsResponse> => {
-  return customFetch<MifloraSynonymsResponse>(getGetMifloraSynonymsUrl(params), {
-    ...options,
-    method: "GET",
-  });
+  return customFetch<MifloraSynonymsResponse>(
+    getGetMifloraSynonymsUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
 };
 
-export const getGetMifloraSynonymsQueryKey = (params?: GetMifloraSynonymsParams) => {
+export const getGetMifloraSynonymsQueryKey = (
+  params?: GetMifloraSynonymsParams,
+) => {
   return [`/api/miflora/synonyms`, ...(params ? [params] : [])] as const;
 };
 
@@ -3295,14 +3468,23 @@ export const getGetMifloraSynonymsQueryOptions = <
 >(
   params: GetMifloraSynonymsParams,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getMifloraSynonyms>>, TError, TData>;
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMifloraSynonyms>>,
+      TError,
+      TData
+    >;
     request?: SecondParameter<typeof customFetch>;
   },
 ) => {
   const { query: queryOptions, request: requestOptions } = options ?? {};
-  const queryKey = queryOptions?.queryKey ?? getGetMifloraSynonymsQueryKey(params);
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getMifloraSynonyms>>> = ({ signal }) =>
-    getMifloraSynonyms(params, { signal, ...requestOptions });
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetMifloraSynonymsQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getMifloraSynonyms>>
+  > = ({ signal }) => getMifloraSynonyms(params, { signal, ...requestOptions });
+
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof getMifloraSynonyms>>,
     TError,
@@ -3310,8 +3492,14 @@ export const getGetMifloraSynonymsQueryOptions = <
   > & { queryKey: QueryKey };
 };
 
-export type GetMifloraSynonymsQueryResult = NonNullable<Awaited<ReturnType<typeof getMifloraSynonyms>>>;
+export type GetMifloraSynonymsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMifloraSynonyms>>
+>;
 export type GetMifloraSynonymsQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get taxonomic synonyms for a Michigan Flora species by plant_id
+ */
 
 export function useGetMifloraSynonyms<
   TData = Awaited<ReturnType<typeof getMifloraSynonyms>>,
@@ -3319,27 +3507,41 @@ export function useGetMifloraSynonyms<
 >(
   params: GetMifloraSynonymsParams,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getMifloraSynonyms>>, TError, TData>;
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMifloraSynonyms>>,
+      TError,
+      TData
+    >;
     request?: SecondParameter<typeof customFetch>;
   },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetMifloraSynonymsQueryOptions(params, options);
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
 /**
+ * Mirrors the Michigan Flora pimage_info endpoint. Returns the primary (featured) image record for the given plant_id, enriched with constructed absolute image_url and thumbnail_url fields. Use flora_search_sp to resolve a scientific name to a plant_id first. Cached permanently (no TTL) — use ?refresh=true to re-fetch.
+
  * @summary Get the primary image for a Michigan Flora species by plant_id
  */
-
-export const getGetMifloraPImageInfoUrl = (params: GetMifloraPImageInfoParams) => {
+export const getGetMifloraPImageInfoUrl = (
+  params: GetMifloraPImageInfoParams,
+) => {
   const normalizedParams = new URLSearchParams();
+
   Object.entries(params || {}).forEach(([key, value]) => {
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? "null" : value.toString());
     }
   });
+
   const stringifiedParams = normalizedParams.toString();
+
   return stringifiedParams.length > 0
     ? `/api/miflora/pimage_info?${stringifiedParams}`
     : `/api/miflora/pimage_info`;
@@ -3349,13 +3551,18 @@ export const getMifloraPImageInfo = async (
   params: GetMifloraPImageInfoParams,
   options?: RequestInit,
 ): Promise<MifloraPImageInfoResponse> => {
-  return customFetch<MifloraPImageInfoResponse>(getGetMifloraPImageInfoUrl(params), {
-    ...options,
-    method: "GET",
-  });
+  return customFetch<MifloraPImageInfoResponse>(
+    getGetMifloraPImageInfoUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
 };
 
-export const getGetMifloraPImageInfoQueryKey = (params?: GetMifloraPImageInfoParams) => {
+export const getGetMifloraPImageInfoQueryKey = (
+  params?: GetMifloraPImageInfoParams,
+) => {
   return [`/api/miflora/pimage_info`, ...(params ? [params] : [])] as const;
 };
 
@@ -3365,14 +3572,24 @@ export const getGetMifloraPImageInfoQueryOptions = <
 >(
   params: GetMifloraPImageInfoParams,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getMifloraPImageInfo>>, TError, TData>;
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMifloraPImageInfo>>,
+      TError,
+      TData
+    >;
     request?: SecondParameter<typeof customFetch>;
   },
 ) => {
   const { query: queryOptions, request: requestOptions } = options ?? {};
-  const queryKey = queryOptions?.queryKey ?? getGetMifloraPImageInfoQueryKey(params);
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getMifloraPImageInfo>>> = ({ signal }) =>
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetMifloraPImageInfoQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getMifloraPImageInfo>>
+  > = ({ signal }) =>
     getMifloraPImageInfo(params, { signal, ...requestOptions });
+
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof getMifloraPImageInfo>>,
     TError,
@@ -3380,8 +3597,14 @@ export const getGetMifloraPImageInfoQueryOptions = <
   > & { queryKey: QueryKey };
 };
 
-export type GetMifloraPImageInfoQueryResult = NonNullable<Awaited<ReturnType<typeof getMifloraPImageInfo>>>;
+export type GetMifloraPImageInfoQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMifloraPImageInfo>>
+>;
 export type GetMifloraPImageInfoQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get the primary image for a Michigan Flora species by plant_id
+ */
 
 export function useGetMifloraPImageInfo<
   TData = Awaited<ReturnType<typeof getMifloraPImageInfo>>,
@@ -3389,12 +3612,20 @@ export function useGetMifloraPImageInfo<
 >(
   params: GetMifloraPImageInfoParams,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getMifloraPImageInfo>>, TError, TData>;
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMifloraPImageInfo>>,
+      TError,
+      TData
+    >;
     request?: SecondParameter<typeof customFetch>;
   },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetMifloraPImageInfoQueryOptions(params, options);
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
@@ -6578,9 +6809,8 @@ export function useGetNatureserveSpecies<
 }
 
 /**
- * Searches NatureServe Explorer using the general POST /api/data/search endpoint.
- * recordType controls what kind of records are returned (default: ECOSYSTEM).
- *
+ * FERNS GET wrapper over the upstream NatureServe Explorer POST /api/data/search endpoint. Accepts a free-text query and a recordType filter; translates them into a POST body (criteriaType: combined, recordTypeCriteria array, textCriteria quickSearch) and caches the result so repeated queries are served without hitting the upstream API. Valid recordType values and what they return: ECOSYSTEM — NatureServe Ecological Systems and community types (global rank, US national rank, concept description, NatureServe Explorer URL); SPECIES — animal and plant species (prefer /natureserve/speciesSearch for richer per-species conservation status detail including state rank and federal listing); COMMUNITY — plant communities; GROUP — element groups; ASSOCIATION — plant associations. Results are returned in data.ecosystems regardless of recordType (field name reflects the primary use case; records for other recordType values are shaped identically). Results are cached 7 days per query+recordType+limit+page combination.
+
  * @summary Search NatureServe by record type (ecosystems, species, communities)
  */
 export const getGetNatureserveSearchUrl = (
@@ -6617,10 +6847,7 @@ export const getNatureserveSearch = async (
 export const getGetNatureserveSearchQueryKey = (
   params?: GetNatureserveSearchParams,
 ) => {
-  return [
-    `/api/natureserve/search`,
-    ...(params ? [params] : []),
-  ] as const;
+  return [`/api/natureserve/search`, ...(params ? [params] : [])] as const;
 };
 
 export const getGetNatureserveSearchQueryOptions = <

@@ -13,8 +13,8 @@ export interface InatMetadataResponse {
   service_id: string;
   service_name: string;
   /** True if FERNS has permission to use and expose this data. iNaturalist is open access — no permission request required. */
-  permission_granted: boolean;
-  permission_status: string;
+  licenses: string[];
+  license_notes: string;
   attribution: InatAttribution;
   /** Full registry entry for this iNaturalist service source */
   registry_entry?: InatMetadataResponseRegistryEntry;

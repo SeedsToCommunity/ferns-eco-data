@@ -1,8 +1,8 @@
 export const GOBOTANY_SOURCE_ID = "gobotany";
 
-export const GOBOTANY_PERMISSION_GRANTED = true;
+export const GOBOTANY_LICENSES = ["cc-by"];
 
-export const GOBOTANY_PERMISSION_STATUS =
+export const GOBOTANY_LICENSE_NOTES =
   "OPEN — Go Botany is a free public botanical reference maintained by the Native Plant Trust (formerly New England Wild Flower Society). " +
   "No authentication required. URLs are constructed directly from scientific names without scraping.";
 
@@ -63,8 +63,8 @@ export const GOBOTANY_REGISTRY_ENTRY = {
     "Taxonomic synonyms not recognized by Go Botany will return 404 even if the species occurs in New England.",
   metadata_url: "/api/gobotany/metadata",
   explorer_url: "/source/gobotany",
-  permission_granted: GOBOTANY_PERMISSION_GRANTED,
-  permission_status: GOBOTANY_PERMISSION_STATUS,
+  licenses: GOBOTANY_LICENSES,
+  license_notes: GOBOTANY_LICENSE_NOTES,
   general_summary: GOBOTANY_GENERAL_SUMMARY,
   technical_details: GOBOTANY_TECHNICAL_DETAILS,
 };

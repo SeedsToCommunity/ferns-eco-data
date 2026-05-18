@@ -126,15 +126,15 @@ export const GetBonapMapResponse = zod
           .describe(
             "NAPA maps: December 15, 2014. Color key documentation: February 8, 2024.",
           ),
-        permission_granted: zod
-          .boolean()
+        licenses: zod
+          .array(zod.string())
           .describe(
-            "Whether FERNS has received written permission from BONAP to reproduce and display map materials. Currently false. Applications must surface this field.\n",
+            "Whether FERNS has received written permission from BONAP to reproduce and display map materials. Currently false. Applications should display this when restricted licenses apply.\n",
           ),
-        permission_status: zod
+        license_notes: zod
           .string()
           .describe(
-            "Human-readable permission status string. Matches the value from the metadata endpoint. Applications should display this when permission_granted is false.\n",
+            "Human-readable permission status string. Matches the value from the metadata endpoint. Applications should display license_notes when restricted licenses apply.\n",
           ),
         attribution: zod.object({
           source_name: zod.string(),
@@ -208,8 +208,8 @@ export const GetBonapMetadataResponse = zod.object({
   service_id: zod.string(),
   service_name: zod.string(),
   data_vintage: zod.string(),
-  permission_granted: zod.boolean(),
-  permission_status: zod.string(),
+  licenses: zod.array(zod.string()),
+  license_notes: zod.string(),
   attribution: zod.object({
     source_name: zod.string(),
     maintainer: zod.string(),
@@ -570,103 +570,262 @@ export const GetGbifSearchResponse = zod.object({
 });
 
 /**
- * Pagination query parameters for GBIF synonym and vernacular name endpoints.
+ * Returns all names that are considered synonyms of the accepted taxon identified by the given usage key. Mirrors GBIF's GET /v1/species/{usageKey}/synonyms. Cached 30 days per (usageKey, limit, offset).
+
+ * @summary Get all taxonomic synonyms for a GBIF taxon
  */
 export const GetGbifSpeciesSynonymsParams = zod.object({
-  limit: zod
-    .number()
-    .min(1)
-    .max(1000)
-    .optional()
-    .describe("Number of results to return (1–1000, default 100)"),
-  offset: zod
-    .number()
-    .min(0)
-    .optional()
-    .describe("Zero-based offset for pagination (default 0)"),
-  refresh: zod.boolean().optional(),
-  provenance_verbosity: zod.string().optional(),
+  usageKey: zod.coerce.number().describe("GBIF backbone usage key (integer)"),
 });
 
-export const GetGbifSpeciesVernacularNamesParams = zod.object({
-  limit: zod
+export const getGbifSpeciesSynonymsQueryLimitDefault = 100;
+export const getGbifSpeciesSynonymsQueryLimitMax = 1000;
+
+export const getGbifSpeciesSynonymsQueryOffsetDefault = 0;
+export const getGbifSpeciesSynonymsQueryOffsetMin = 0;
+
+export const getGbifSpeciesSynonymsQueryRefreshDefault = false;
+
+export const GetGbifSpeciesSynonymsQueryParams = zod.object({
+  limit: zod.coerce
     .number()
     .min(1)
-    .max(1000)
-    .optional()
+    .max(getGbifSpeciesSynonymsQueryLimitMax)
+    .default(getGbifSpeciesSynonymsQueryLimitDefault)
     .describe("Number of results to return (1–1000, default 100)"),
-  offset: zod
+  offset: zod.coerce
     .number()
-    .min(0)
-    .optional()
+    .min(getGbifSpeciesSynonymsQueryOffsetMin)
+    .default(getGbifSpeciesSynonymsQueryOffsetDefault)
     .describe("Zero-based offset for pagination (default 0)"),
-  refresh: zod.boolean().optional(),
-  provenance_verbosity: zod.string().optional(),
+  refresh: zod.coerce
+    .boolean()
+    .default(getGbifSpeciesSynonymsQueryRefreshDefault)
+    .describe("If true, bypasses cache and fetches fresh from GBIF"),
+  provenance_verbosity: zod
+    .enum(["full", "summary", "none"])
+    .optional()
+    .describe("Controls provenance text fields: full | summary | none"),
 });
 
-const GbifSynonymRecord = zod.record(zod.string(), zod.unknown());
-
-const GbifVernacularRecord = zod.record(zod.string(), zod.unknown());
-
-const GbifProvenanceBlock = zod
-  .object({
-    source_id: zod.string(),
-    fetched_at: zod.date(),
-    method: zod.string(),
-    upstream_url: zod.string(),
-    general_summary: zod.string().optional(),
-    technical_details: zod.string().optional(),
-    matched_input: zod.string().optional(),
-  })
-  .describe(
-    "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-  );
-
-/**
- * Returns all taxonomic synonyms for a GBIF taxon. Mirrors the upstream GBIF
- * /v1/species/{usageKey}/synonyms envelope. Cached 30 days per (usageKey, limit, offset).
- *
- * @summary Get GBIF species synonyms
- */
 export const GetGbifSpeciesSynonymsResponse = zod.object({
   source_url: zod.string().nullable(),
   found: zod.boolean(),
   data: zod
     .object({
-      usage_key: zod.number(),
-      offset: zod.number(),
-      limit: zod.number(),
-      endOfRecords: zod.boolean(),
-      count: zod.number(),
-      results: zod.array(GbifSynonymRecord),
-      cache_status: zod.enum(["hit", "miss", "bypassed"]).nullable().optional(),
+      usage_key: zod
+        .number()
+        .describe(
+          "GBIF backbone usage key for the accepted taxon (FERNS addition)",
+        ),
+      offset: zod
+        .number()
+        .describe(
+          "Zero-based offset of the first result (mirrors upstream envelope)",
+        ),
+      limit: zod
+        .number()
+        .describe(
+          "Maximum number of results requested (mirrors upstream envelope)",
+        ),
+      endOfRecords: zod
+        .boolean()
+        .describe(
+          "True when no more results are available after this page (mirrors upstream envelope)",
+        ),
+      count: zod
+        .number()
+        .describe(
+          "Total number of synonyms for this taxon (mirrors upstream envelope)",
+        ),
+      results: zod
+        .array(
+          zod.object({
+            key: zod.number().optional(),
+            canonicalName: zod.string().optional(),
+            scientificName: zod.string().optional(),
+            rank: zod.string().optional(),
+            taxonomicStatus: zod.string().optional(),
+            nameType: zod.string().optional(),
+            publishedIn: zod.string().nullish(),
+          }),
+        )
+        .describe(
+          "Synonym records as returned by GBIF (verbatim upstream fields)",
+        ),
+      cache_status: zod.enum(["hit", "miss", "bypassed"]).nullish(),
     })
     .nullable(),
-  provenance: GbifProvenanceBlock,
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      general_summary: zod
+        .string()
+        .optional()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      technical_details: zod
+        .string()
+        .optional()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
+    ),
 });
 
 /**
- * Returns all vernacular (common) names for a GBIF taxon. Mirrors the upstream GBIF
- * /v1/species/{usageKey}/vernacularNames envelope. Cached 30 days per (usageKey, limit, offset).
- *
- * @summary Get GBIF species vernacular names
+ * Returns all vernacular names across all languages and countries for the taxon identified by the given usage key. Mirrors GBIF's GET /v1/species/{usageKey}/vernacularNames. Cached 30 days per (usageKey, limit, offset).
+
+ * @summary Get all vernacular (common) names for a GBIF taxon
  */
+export const GetGbifSpeciesVernacularNamesParams = zod.object({
+  usageKey: zod.coerce.number().describe("GBIF backbone usage key (integer)"),
+});
+
+export const getGbifSpeciesVernacularNamesQueryLimitDefault = 100;
+export const getGbifSpeciesVernacularNamesQueryLimitMax = 1000;
+
+export const getGbifSpeciesVernacularNamesQueryOffsetDefault = 0;
+export const getGbifSpeciesVernacularNamesQueryOffsetMin = 0;
+
+export const getGbifSpeciesVernacularNamesQueryRefreshDefault = false;
+
+export const GetGbifSpeciesVernacularNamesQueryParams = zod.object({
+  limit: zod.coerce
+    .number()
+    .min(1)
+    .max(getGbifSpeciesVernacularNamesQueryLimitMax)
+    .default(getGbifSpeciesVernacularNamesQueryLimitDefault)
+    .describe("Number of results to return (1–1000, default 100)"),
+  offset: zod.coerce
+    .number()
+    .min(getGbifSpeciesVernacularNamesQueryOffsetMin)
+    .default(getGbifSpeciesVernacularNamesQueryOffsetDefault)
+    .describe("Zero-based offset for pagination (default 0)"),
+  refresh: zod.coerce
+    .boolean()
+    .default(getGbifSpeciesVernacularNamesQueryRefreshDefault)
+    .describe("If true, bypasses cache and fetches fresh from GBIF"),
+  provenance_verbosity: zod
+    .enum(["full", "summary", "none"])
+    .optional()
+    .describe("Controls provenance text fields: full | summary | none"),
+});
+
 export const GetGbifSpeciesVernacularNamesResponse = zod.object({
   source_url: zod.string().nullable(),
   found: zod.boolean(),
   data: zod
     .object({
-      usage_key: zod.number(),
-      offset: zod.number(),
-      limit: zod.number(),
-      endOfRecords: zod.boolean(),
-      count: zod.number(),
-      results: zod.array(GbifVernacularRecord),
-      vernacular_name_primary: zod.string().nullable().optional(),
-      cache_status: zod.enum(["hit", "miss", "bypassed"]).nullable().optional(),
+      usage_key: zod
+        .number()
+        .describe("GBIF backbone usage key for the taxon (FERNS addition)"),
+      offset: zod
+        .number()
+        .describe(
+          "Zero-based offset of the first result (mirrors upstream envelope)",
+        ),
+      limit: zod
+        .number()
+        .describe(
+          "Maximum number of results requested (mirrors upstream envelope)",
+        ),
+      endOfRecords: zod
+        .boolean()
+        .describe(
+          "True when no more results are available after this page (mirrors upstream envelope)",
+        ),
+      count: zod
+        .number()
+        .describe(
+          "Total number of vernacular names for this taxon (mirrors upstream envelope)",
+        ),
+      results: zod
+        .array(
+          zod.object({
+            vernacularName: zod.string().optional(),
+            language: zod.string().optional(),
+            country: zod.string().nullish(),
+            source: zod.string().nullish(),
+          }),
+        )
+        .describe(
+          "Vernacular name records as returned by GBIF (verbatim upstream fields)",
+        ),
+      vernacular_name_primary: zod
+        .string()
+        .nullish()
+        .describe(
+          "First English-language vernacular name found, or first name of any language (FERNS convenience field)",
+        ),
+      cache_status: zod.enum(["hit", "miss", "bypassed"]).nullish(),
     })
     .nullable(),
-  provenance: GbifProvenanceBlock,
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      general_summary: zod
+        .string()
+        .optional()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      technical_details: zod
+        .string()
+        .optional()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .describe(
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
+    ),
 });
 
 /**
@@ -677,8 +836,8 @@ export const GetGbifSpeciesVernacularNamesResponse = zod.object({
 export const GetGbifMetadataResponse = zod.object({
   service_id: zod.string(),
   service_name: zod.string(),
-  permission_granted: zod.boolean(),
-  permission_status: zod.string(),
+  licenses: zod.array(zod.string()),
+  license_notes: zod.string(),
   attribution: zod.object({
     source_name: zod.string().optional(),
     website: zod.string().optional(),
@@ -2384,12 +2543,12 @@ export const GetInatIdentificationsByIdResponse = zod.object({
 export const GetInatMetadataResponse = zod.object({
   service_id: zod.string(),
   service_name: zod.string(),
-  permission_granted: zod
-    .boolean()
+  licenses: zod
+    .array(zod.string())
     .describe(
       "True if FERNS has permission to use and expose this data. iNaturalist is open access — no permission request required.",
     ),
-  permission_status: zod.string(),
+  license_notes: zod.string(),
   attribution: zod.object({
     source_name: zod.string(),
     website: zod.string(),
@@ -2662,7 +2821,8 @@ export const GetMifloraImagesResponse = zod
   );
 
 /**
- * Look up a Michigan Flora species by scientific name via flora_search_sp.
+ * Mirrors the Michigan Flora flora_search_sp endpoint verbatim. Returns the first matching species record for the given scientific name, including plant_id, family, native status (na: N=native, A=adventive), C-value, wetland indicator code, physiognomy, and common names. The plant_id is required for the spec_text, synonyms, and pimage_info endpoints. Cached permanently (no TTL) — use ?refresh=true to force a re-fetch.
+
  * @summary Look up a Michigan Flora species by scientific name
  */
 
@@ -2676,173 +2836,448 @@ export const GetMifloraFloraSearchQueryParams = zod.object({
   refresh: zod.coerce
     .boolean()
     .default(getMifloraFloraSearchQueryRefreshDefault)
-    .describe("If true, bypasses cache and fetches fresh from Michigan Flora API"),
+    .describe(
+      "If true, bypasses cache and fetches fresh from Michigan Flora API",
+    ),
 });
 
 export const GetMifloraFloraSearchResponse = zod
   .object({
-    source_url: zod.string().nullable().describe("Michigan Flora species page URL. Null when species not found."),
-    found: zod.boolean().describe("Whether a species record was found for this name"),
+    source_url: zod
+      .string()
+      .nullable()
+      .describe(
+        "Michigan Flora species page URL. Null when species not found.",
+      ),
+    found: zod
+      .boolean()
+      .describe("Whether a species record was found for this name"),
     cache_status: zod.enum(["hit", "miss", "bypassed", "error"]),
     queried_at: zod.date(),
     data: zod
       .object({
-        plant_id: zod.number().nullable(),
-        scientific_name: zod.string().nullable(),
-        family_name: zod.string().nullable(),
-        na: zod.string().nullable(),
-        c: zod.string().nullable(),
-        wet: zod.string().nullable(),
-        phys: zod.string().nullable(),
-        common_name: zod.array(zod.string()),
-        records: zod.array(
-          zod.object({
-            plant_id: zod.number(),
-            scientific_name: zod.string(),
-            c: zod.string().nullable(),
-            st: zod.string().nullable(),
-            w: zod.number().nullable(),
-            wet: zod.string().nullable(),
-            phys: zod.string().nullable(),
-            na: zod.string().nullable(),
-            family_name: zod.string().nullable(),
-            author: zod.string().nullable(),
-            acronym: zod.string().nullable(),
-            common_name: zod.array(zod.string()),
-          }),
-        ),
+        plant_id: zod.number().nullish(),
+        scientific_name: zod.string().nullish(),
+        family_name: zod.string().nullish(),
+        na: zod.string().nullish(),
+        c: zod.string().nullish(),
+        wet: zod.string().nullish(),
+        phys: zod.string().nullish(),
+        common_name: zod.array(zod.string()).optional(),
+        records: zod
+          .array(
+            zod
+              .object({
+                plant_id: zod
+                  .number()
+                  .describe("Michigan Flora internal plant ID"),
+                scientific_name: zod
+                  .string()
+                  .describe("Scientific name of the species"),
+                c: zod
+                  .string()
+                  .nullish()
+                  .describe(
+                    "Coefficient of Conservatism (0–10, or null if not assigned)",
+                  ),
+                st: zod
+                  .string()
+                  .nullish()
+                  .describe(
+                    "State status code (T=threatened, E=endangered, X=probably extirpated, etc.)",
+                  ),
+                w: zod
+                  .number()
+                  .nullish()
+                  .describe("Coefficient of Wetness (-5 to +5)"),
+                wet: zod
+                  .string()
+                  .nullish()
+                  .describe(
+                    "Wetland indicator status code (OBL\/FACW\/FAC\/FACU\/UPL)",
+                  ),
+                phys: zod
+                  .string()
+                  .nullish()
+                  .describe("Physiognomy code (e.g. Wt, Sh, Fo, Gr)"),
+                na: zod
+                  .string()
+                  .nullish()
+                  .describe(
+                    "Native status (N=native, A=adventive\/non-native)",
+                  ),
+                family_name: zod
+                  .string()
+                  .nullish()
+                  .describe("Plant family name"),
+                author: zod.string().nullish().describe("Taxonomic authority"),
+                acronym: zod
+                  .string()
+                  .nullish()
+                  .describe("Short species code used in Michigan Flora"),
+                common_name: zod
+                  .array(zod.string())
+                  .describe("Array of common names for this species"),
+              })
+              .describe(
+                "A single species record from the Michigan Flora flora_search_sp endpoint.",
+              ),
+          )
+          .optional(),
       })
       .nullable()
-      .describe("Species data from the first matching record, plus full records array."),
-    provenance: zod.object({
-      source_id: zod.string(),
-      fetched_at: zod.date(),
-      method: zod.string(),
-      upstream_url: zod.string(),
-      general_summary: zod.string().optional(),
-      technical_details: zod.string().optional(),
-      matched_input: zod.string().optional(),
-    }),
+      .describe(
+        "Species data extracted from the first matching record, plus full records array.",
+      ),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+        fetched_at: zod
+          .date()
+          .describe("When this record was obtained from the source"),
+        method: zod
+          .string()
+          .describe(
+            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+          ),
+        upstream_url: zod
+          .string()
+          .describe(
+            "Where this data came from (API endpoint, file path, or registry entry)",
+          ),
+        general_summary: zod
+          .string()
+          .optional()
+          .describe(
+            "Plain language description readable by a homeowner or community member",
+          ),
+        technical_details: zod
+          .string()
+          .optional()
+          .describe(
+            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+          ),
+        matched_input: zod
+          .string()
+          .optional()
+          .describe(
+            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+          ),
+      })
+      .describe(
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
+      ),
   })
-  .describe("FERNS envelope for Michigan Flora flora_search_sp.\n");
+  .describe(
+    "FERNS envelope for Michigan Flora flora_search_sp. data contains the first matching species record plus the full records array. Cached permanently (no TTL).\n",
+  );
 
 /**
- * Get botanical description text for a Michigan Flora species by plant_id.
- * @summary Get botanical description text
+ * Mirrors the Michigan Flora spec_text endpoint. Returns the botanical description HTML text for the given plant_id. Use flora_search_sp to resolve a scientific name to a plant_id first. Cached permanently (no TTL) — use ?refresh=true to re-fetch.
+
+ * @summary Get botanical description text for a Michigan Flora species by plant_id
  */
 
 export const getMifloraSpecTextQueryRefreshDefault = false;
 
 export const GetMifloraSpecTextQueryParams = zod.object({
-  id: zod.coerce.number().int().min(1).describe("Michigan Flora plant_id (positive integer, from flora_search_sp)"),
+  id: zod.coerce
+    .number()
+    .min(1)
+    .describe(
+      "Michigan Flora plant_id (positive integer, from flora_search_sp)",
+    ),
   refresh: zod.coerce
     .boolean()
     .default(getMifloraSpecTextQueryRefreshDefault)
-    .describe("If true, bypasses cache and fetches fresh from Michigan Flora API"),
+    .describe(
+      "If true, bypasses cache and fetches fresh from Michigan Flora API",
+    ),
 });
 
 export const GetMifloraSpecTextResponse = zod
   .object({
-    source_url: zod.string().nullable(),
-    found: zod.boolean(),
+    source_url: zod
+      .string()
+      .nullable()
+      .describe("Michigan Flora species page URL."),
+    found: zod
+      .boolean()
+      .describe("Whether a description was found for this plant_id"),
     cache_status: zod.enum(["hit", "miss", "bypassed", "error"]),
     queried_at: zod.date(),
-    data: zod.object({ plant_id: zod.number().nullable(), text: zod.string().nullable() }).nullable(),
-    provenance: zod.object({
-      source_id: zod.string(),
-      fetched_at: zod.date(),
-      method: zod.string(),
-      upstream_url: zod.string(),
-      general_summary: zod.string().optional(),
-      technical_details: zod.string().optional(),
-    }),
+    data: zod
+      .object({
+        plant_id: zod.number().nullish(),
+        text: zod
+          .string()
+          .nullish()
+          .describe("Raw HTML botanical description from Michigan Flora"),
+      })
+      .nullable(),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+        fetched_at: zod
+          .date()
+          .describe("When this record was obtained from the source"),
+        method: zod
+          .string()
+          .describe(
+            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+          ),
+        upstream_url: zod
+          .string()
+          .describe(
+            "Where this data came from (API endpoint, file path, or registry entry)",
+          ),
+        general_summary: zod
+          .string()
+          .optional()
+          .describe(
+            "Plain language description readable by a homeowner or community member",
+          ),
+        technical_details: zod
+          .string()
+          .optional()
+          .describe(
+            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+          ),
+        matched_input: zod
+          .string()
+          .optional()
+          .describe(
+            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+          ),
+      })
+      .describe(
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
+      ),
   })
-  .describe("FERNS envelope for Michigan Flora spec_text.\n");
+  .describe(
+    "FERNS envelope for Michigan Flora spec_text. data.text is the raw HTML botanical description from Michigan Flora. Cached permanently (no TTL).\n",
+  );
 
 /**
- * Get taxonomic synonyms for a Michigan Flora species by plant_id.
- * @summary Get taxonomic synonyms
+ * Mirrors the Michigan Flora synonyms endpoint. Returns an array of taxonomic synonyms for the given plant_id, or an empty array if none exist. Use flora_search_sp to resolve a scientific name to a plant_id first. Cached permanently (no TTL) — use ?refresh=true to re-fetch.
+
+ * @summary Get taxonomic synonyms for a Michigan Flora species by plant_id
  */
 
 export const getMifloraSynonymsQueryRefreshDefault = false;
 
 export const GetMifloraSynonymsQueryParams = zod.object({
-  id: zod.coerce.number().int().min(1).describe("Michigan Flora plant_id (positive integer, from flora_search_sp)"),
+  id: zod.coerce
+    .number()
+    .min(1)
+    .describe(
+      "Michigan Flora plant_id (positive integer, from flora_search_sp)",
+    ),
   refresh: zod.coerce
     .boolean()
     .default(getMifloraSynonymsQueryRefreshDefault)
-    .describe("If true, bypasses cache and fetches fresh from Michigan Flora API"),
+    .describe(
+      "If true, bypasses cache and fetches fresh from Michigan Flora API",
+    ),
 });
 
 export const GetMifloraSynonymsResponse = zod
   .object({
-    source_url: zod.string().nullable(),
-    found: zod.boolean(),
+    source_url: zod
+      .string()
+      .nullable()
+      .describe("Michigan Flora species page URL."),
+    found: zod
+      .boolean()
+      .describe("Whether any synonyms were found for this plant_id"),
     cache_status: zod.enum(["hit", "miss", "bypassed", "error"]),
     queried_at: zod.date(),
     data: zod
       .object({
-        plant_id: zod.number().nullable(),
-        synonyms: zod.array(zod.object({ synonym: zod.string(), author: zod.string().nullable() })),
+        plant_id: zod.number().nullish(),
+        synonyms: zod
+          .array(
+            zod
+              .object({
+                synonym: zod.string().describe("The synonym scientific name"),
+                author: zod
+                  .string()
+                  .nullish()
+                  .describe("Taxonomic authority for the synonym"),
+              })
+              .describe(
+                "A single taxonomic synonym from the Michigan Flora synonyms endpoint.",
+              ),
+          )
+          .optional(),
       })
       .nullable(),
-    provenance: zod.object({
-      source_id: zod.string(),
-      fetched_at: zod.date(),
-      method: zod.string(),
-      upstream_url: zod.string(),
-      general_summary: zod.string().optional(),
-      technical_details: zod.string().optional(),
-    }),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+        fetched_at: zod
+          .date()
+          .describe("When this record was obtained from the source"),
+        method: zod
+          .string()
+          .describe(
+            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+          ),
+        upstream_url: zod
+          .string()
+          .describe(
+            "Where this data came from (API endpoint, file path, or registry entry)",
+          ),
+        general_summary: zod
+          .string()
+          .optional()
+          .describe(
+            "Plain language description readable by a homeowner or community member",
+          ),
+        technical_details: zod
+          .string()
+          .optional()
+          .describe(
+            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+          ),
+        matched_input: zod
+          .string()
+          .optional()
+          .describe(
+            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+          ),
+      })
+      .describe(
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
+      ),
   })
-  .describe("FERNS envelope for Michigan Flora synonyms.\n");
+  .describe(
+    "FERNS envelope for Michigan Flora synonyms. data.synonyms is the array of taxonomic synonyms (empty if none exist). Cached permanently (no TTL).\n",
+  );
 
 /**
- * Get the primary image for a Michigan Flora species by plant_id.
- * @summary Get primary image
+ * Mirrors the Michigan Flora pimage_info endpoint. Returns the primary (featured) image record for the given plant_id, enriched with constructed absolute image_url and thumbnail_url fields. Use flora_search_sp to resolve a scientific name to a plant_id first. Cached permanently (no TTL) — use ?refresh=true to re-fetch.
+
+ * @summary Get the primary image for a Michigan Flora species by plant_id
  */
 
 export const getMifloraPImageInfoQueryRefreshDefault = false;
 
 export const GetMifloraPImageInfoQueryParams = zod.object({
-  id: zod.coerce.number().int().min(1).describe("Michigan Flora plant_id (positive integer, from flora_search_sp)"),
+  id: zod.coerce
+    .number()
+    .min(1)
+    .describe(
+      "Michigan Flora plant_id (positive integer, from flora_search_sp)",
+    ),
   refresh: zod.coerce
     .boolean()
     .default(getMifloraPImageInfoQueryRefreshDefault)
-    .describe("If true, bypasses cache and fetches fresh from Michigan Flora API"),
+    .describe(
+      "If true, bypasses cache and fetches fresh from Michigan Flora API",
+    ),
 });
 
 export const GetMifloraPImageInfoResponse = zod
   .object({
-    source_url: zod.string().nullable(),
-    found: zod.boolean(),
+    source_url: zod
+      .string()
+      .nullable()
+      .describe("Michigan Flora species page URL."),
+    found: zod
+      .boolean()
+      .describe("Whether a primary image was found for this plant_id"),
     cache_status: zod.enum(["hit", "miss", "bypassed", "error"]),
     queried_at: zod.date(),
     data: zod
       .object({
-        plant_id: zod.number().nullable(),
+        plant_id: zod.number().nullish(),
         image: zod
           .object({
-            image_id: zod.union([zod.number(), zod.string()]),
-            image_name: zod.string().nullish(),
-            caption: zod.string().nullish(),
-            photographer: zod.string().nullish(),
-            image_url: zod.string(),
-            thumbnail_url: zod.string(),
+            image_id: zod
+              .union([zod.number(), zod.string()])
+              .describe("Michigan Flora internal image ID"),
+            image_name: zod
+              .string()
+              .nullish()
+              .describe(
+                'Short descriptive name for the image (e.g. \"flowers\", \"fruit\")',
+              ),
+            caption: zod
+              .string()
+              .nullish()
+              .describe("Caption text from Michigan Flora for this image"),
+            photographer: zod
+              .string()
+              .nullish()
+              .describe("Photographer credit for this image"),
+            image_url: zod
+              .string()
+              .describe(
+                "Absolute URL to the full-size image on Michigan Flora's server. Constructed as: https:\/\/michiganflora.net\/static\/species_images\/_pid_{plant_id}\/{image_id}.jpg\n",
+              ),
+            thumbnail_url: zod
+              .string()
+              .describe(
+                "Absolute URL to the thumbnail image on Michigan Flora's server. Constructed as: https:\/\/michiganflora.net\/static\/species_images\/_pid_{plant_id}\/thumb_{image_id}.jpg\n",
+              ),
           })
-          .nullable(),
+          .nullish()
+          .describe(
+            "A single image record from the Michigan Flora allimage_info endpoint, enriched with constructed absolute image_url and thumbnail_url fields.\n",
+          ),
       })
       .nullable(),
-    provenance: zod.object({
-      source_id: zod.string(),
-      fetched_at: zod.date(),
-      method: zod.string(),
-      upstream_url: zod.string(),
-      general_summary: zod.string().optional(),
-      technical_details: zod.string().optional(),
-    }),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+        fetched_at: zod
+          .date()
+          .describe("When this record was obtained from the source"),
+        method: zod
+          .string()
+          .describe(
+            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+          ),
+        upstream_url: zod
+          .string()
+          .describe(
+            "Where this data came from (API endpoint, file path, or registry entry)",
+          ),
+        general_summary: zod
+          .string()
+          .optional()
+          .describe(
+            "Plain language description readable by a homeowner or community member",
+          ),
+        technical_details: zod
+          .string()
+          .optional()
+          .describe(
+            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+          ),
+        matched_input: zod
+          .string()
+          .optional()
+          .describe(
+            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+          ),
+      })
+      .describe(
+        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
+      ),
   })
-  .describe("FERNS envelope for Michigan Flora pimage_info.\n");
+  .describe(
+    "FERNS envelope for Michigan Flora pimage_info. data.image is the primary image record enriched with image_url and thumbnail_url (null if no image exists). Cached permanently (no TTL).\n",
+  );
 
 /**
  * Returns service identity, attribution, permission status, and the full registry entry for the Michigan Flora service. Use this to populate 'About this data' panels in any application displaying Michigan Flora data. Also seeds the Michigan Flora entry in the FERNS source registry.
@@ -2852,8 +3287,8 @@ export const GetMifloraPImageInfoResponse = zod
 export const GetMifloraMetadataResponse = zod.object({
   service_id: zod.string(),
   service_name: zod.string(),
-  permission_granted: zod.boolean(),
-  permission_status: zod.string(),
+  licenses: zod.array(zod.string()),
+  license_notes: zod.string(),
   attribution: zod.object({
     source_name: zod.string(),
     website: zod.string(),
@@ -3085,8 +3520,8 @@ export const GetAllCoefficientValuesResponse = zod.object({
 export const GetCoefficientMetadataResponse = zod.object({
   service_id: zod.string(),
   service_name: zod.string(),
-  permission_granted: zod.boolean(),
-  permission_status: zod.string(),
+  licenses: zod.array(zod.string()),
+  license_notes: zod.string(),
   registry_entry: zod
     .object({
       source_id: zod.string().optional(),
@@ -3397,8 +3832,8 @@ export const GetAllWetlandIndicatorsResponse = zod.object({
 export const GetWetlandIndicatorMetadataResponse = zod.object({
   service_id: zod.string(),
   service_name: zod.string(),
-  permission_granted: zod.boolean(),
-  permission_status: zod.string(),
+  licenses: zod.array(zod.string()),
+  license_notes: zod.string(),
   registry_entry: zod
     .object({
       source_id: zod.string().optional(),
@@ -3631,8 +4066,8 @@ export const GetAllWucolsResponse = zod.object({
 export const GetWucolsMetadataResponse = zod.object({
   service_id: zod.string(),
   service_name: zod.string(),
-  permission_granted: zod.boolean(),
-  permission_status: zod.string(),
+  licenses: zod.array(zod.string()),
+  license_notes: zod.string(),
   registry_entry: zod
     .object({
       source_id: zod.string().optional(),
@@ -3865,8 +4300,8 @@ export const GetS2CYearsResponse = zod.object({
 export const GetS2CMetadataResponse = zod.object({
   service_id: zod.string(),
   service_name: zod.string(),
-  permission_granted: zod.boolean(),
-  permission_status: zod.string(),
+  licenses: zod.array(zod.string()),
+  license_notes: zod.string(),
   registry_entry: zod
     .object({
       source_id: zod.string().optional(),
@@ -3935,8 +4370,8 @@ export const GetS2CMetadataResponse = zod.object({
 export const GetLcscgMetadataResponse = zod.object({
   service_id: zod.string(),
   service_name: zod.string(),
-  permission_granted: zod.boolean(),
-  permission_status: zod.string(),
+  licenses: zod.array(zod.string()),
+  license_notes: zod.string(),
   guide_count: zod.number(),
   species_count: zod.number(),
   registry_entry: zod.record(zod.string(), zod.unknown()),
@@ -4427,13 +4862,13 @@ export const GetSourcesIndexResponse = zod.object({
         explorer_url: zod
           .string()
           .describe("Link to this service's Source Explorer UI"),
-        permission_granted: zod
-          .boolean()
-          .nullish()
+        licenses: zod
+          .array(zod.string())
+          .optional()
           .describe(
             "Whether FERNS has verified that use of this source is explicitly permitted. true = permission confirmed; null = not yet evaluated.\n",
           ),
-        permission_status: zod
+        license_notes: zod
           .string()
           .optional()
           .describe(
@@ -4752,13 +5187,13 @@ export const GetTrustGroupSourcesResponse = zod.object({
               explorer_url: zod
                 .string()
                 .describe("Link to this service's Source Explorer UI"),
-              permission_granted: zod
-                .boolean()
-                .nullish()
+              licenses: zod
+                .array(zod.string())
+                .optional()
                 .describe(
                   "Whether FERNS has verified that use of this source is explicitly permitted. true = permission confirmed; null = not yet evaluated.\n",
                 ),
-              permission_status: zod
+              license_notes: zod
                 .string()
                 .optional()
                 .describe(
@@ -4832,8 +5267,8 @@ export const GetTrustGroupSourcesResponse = zod.object({
 export const GetUniversalFqaMetadataResponse = zod.object({
   source_id: zod.string(),
   name: zod.string(),
-  permission_granted: zod.boolean(),
-  permission_status: zod.string(),
+  licenses: zod.array(zod.string()),
+  license_notes: zod.string(),
   attribution: zod.record(zod.string(), zod.unknown()),
   registry_entry: zod.record(zod.string(), zod.unknown()),
   queried_at: zod.date().optional(),
@@ -5403,13 +5838,13 @@ export const GetSourcesMetadataResponse = zod.object({
     explorer_url: zod
       .string()
       .describe("Link to this service's Source Explorer UI"),
-    permission_granted: zod
-      .boolean()
-      .nullish()
+    licenses: zod
+      .array(zod.string())
+      .optional()
       .describe(
         "Whether FERNS has verified that use of this source is explicitly permitted. true = permission confirmed; null = not yet evaluated.\n",
       ),
-    permission_status: zod
+    license_notes: zod
       .string()
       .optional()
       .describe(
@@ -5605,8 +6040,8 @@ export const GetMnfiMetadataResponse = zod.object({
     .array(zod.string())
     .optional()
     .describe("List of Michigan counties with at least one element occurrence"),
-  permission_granted: zod.boolean().optional(),
-  permission_status: zod.string().optional(),
+  licenses: zod.array(zod.string()).optional(),
+  license_notes: zod.string().optional(),
   attribution: zod.string().optional(),
   registry_entry: zod.record(zod.string(), zod.unknown()).optional(),
 });
@@ -5951,8 +6386,8 @@ export const GetNatureserveMetadataResponse = zod.object({
   source_url: zod.string().optional(),
   service_id: zod.string(),
   service_name: zod.string(),
-  permission_granted: zod.boolean().optional(),
-  permission_status: zod.string().optional(),
+  licenses: zod.array(zod.string()).optional(),
+  license_notes: zod.string().optional(),
   attribution: zod.string().optional(),
   cache_stats: zod
     .object({
@@ -6003,90 +6438,6 @@ export const GetNatureserveMetadataResponse = zod.object({
     .describe(
       "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
     ),
-});
-
-/**
- * Searches NatureServe Explorer using the general POST /api/data/search endpoint.
- * recordType controls what kind of records are returned (default: ECOSYSTEM).
- *
- * @summary Search NatureServe by record type (ecosystems, species, communities)
- */
-
-export const getNatureserveSearchQueryRecordTypeDefault = `ECOSYSTEM`;
-export const getNatureserveSearchQueryLimitDefault = 10;
-export const getNatureserveSearchQueryPageDefault = 0;
-export const getNatureserveSearchQueryRefreshDefault = false;
-
-export const GetNatureserveSearchQueryParams = zod.object({
-  q: zod.string().min(1).describe("Search text (e.g. oak savanna, tallgrass prairie)"),
-  recordType: zod
-    .enum(["ECOSYSTEM", "SPECIES", "COMMUNITY", "GROUP", "ASSOCIATION"])
-    .default(getNatureserveSearchQueryRecordTypeDefault)
-    .describe("Type of records to return (default: ECOSYSTEM)"),
-  limit: zod.coerce
-    .number()
-    .min(1)
-    .max(50)
-    .default(getNatureserveSearchQueryLimitDefault)
-    .describe("Results per page (1–50, default 10)"),
-  page: zod.coerce
-    .number()
-    .min(0)
-    .default(getNatureserveSearchQueryPageDefault)
-    .describe("Zero-indexed page number (default 0)"),
-  refresh: zod.coerce
-    .boolean()
-    .default(getNatureserveSearchQueryRefreshDefault)
-    .describe("If true, bypasses cache and fetches fresh from NatureServe Explorer"),
-});
-
-export const GetNatureserveSearchResponse = zod.object({
-  source_url: zod.string().nullish(),
-  found: zod.boolean(),
-  attribution: zod.string().optional(),
-  data: zod
-    .object({
-      ecosystems: zod
-        .array(
-          zod.object({
-            system_name: zod.string().optional(),
-            global_rank: zod.string().nullish().describe("NatureServe G-rank (e.g. G3, G4G5)"),
-            rounded_global_rank: zod.string().nullish(),
-            us_national_rank: zod.string().nullish().describe("NatureServe N-rank for the US"),
-            rounded_us_national_rank: zod.string().nullish(),
-            description_excerpt: zod.string().nullish().describe("Concept sentence from ecosystemGlobal.conceptSentence"),
-            national_distribution: zod.string().nullish(),
-            characteristic_species: zod
-              .array(
-                zod.object({
-                  scientific_name: zod.string().optional(),
-                  stratum: zod.string().nullish(),
-                  constancy_percent: zod.number().nullish(),
-                  cover_class_percent: zod.number().nullish(),
-                }),
-              )
-              .optional(),
-            natureserve_url: zod.string().nullish().describe("Direct link to this record on NatureServe Explorer"),
-            element_global_id: zod.string().optional().describe("NatureServe element global identifier"),
-            record_type: zod.string().optional(),
-          }),
-        )
-        .optional(),
-      result_count: zod.number().optional(),
-      total_results: zod.number().optional(),
-      cache_status: zod.enum(["hit", "miss", "bypassed"]).optional(),
-    })
-    .optional(),
-  provenance: zod
-    .object({
-      source_id: zod.string().describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod.date().describe("When this record was obtained from the source"),
-      method: zod.string().describe("How the data was obtained: api_fetch | blob_import | llm_synthesis"),
-      upstream_url: zod.string().describe("Where this data came from (API endpoint, file path, or registry entry)"),
-      general_summary: zod.string().optional().describe("Plain language description readable by a homeowner or community member"),
-      technical_details: zod.string().optional().describe("Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n"),
-    })
-    .optional(),
 });
 
 /**
@@ -6160,6 +6511,180 @@ export const GetNatureserveSpeciesResponse = zod.object({
       cosewic_description: zod.string().nullish(),
       natureserve_url: zod.string().nullish(),
       element_global_id: zod.string().nullish(),
+      cache_status: zod.enum(["hit", "miss", "bypassed"]).optional(),
+    })
+    .optional(),
+  provenance: zod
+    .object({
+      source_id: zod
+        .string()
+        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
+      fetched_at: zod
+        .date()
+        .describe("When this record was obtained from the source"),
+      method: zod
+        .string()
+        .describe(
+          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
+        ),
+      upstream_url: zod
+        .string()
+        .describe(
+          "Where this data came from (API endpoint, file path, or registry entry)",
+        ),
+      general_summary: zod
+        .string()
+        .optional()
+        .describe(
+          "Plain language description readable by a homeowner or community member",
+        ),
+      technical_details: zod
+        .string()
+        .optional()
+        .describe(
+          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
+        ),
+      matched_input: zod
+        .string()
+        .optional()
+        .describe(
+          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
+        ),
+    })
+    .optional()
+    .describe(
+      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
+    ),
+});
+
+/**
+ * FERNS GET wrapper over the upstream NatureServe Explorer POST /api/data/search endpoint. Accepts a free-text query and a recordType filter; translates them into a POST body (criteriaType: combined, recordTypeCriteria array, textCriteria quickSearch) and caches the result so repeated queries are served without hitting the upstream API. Valid recordType values and what they return: ECOSYSTEM — NatureServe Ecological Systems and community types (global rank, US national rank, concept description, NatureServe Explorer URL); SPECIES — animal and plant species (prefer /natureserve/speciesSearch for richer per-species conservation status detail including state rank and federal listing); COMMUNITY — plant communities; GROUP — element groups; ASSOCIATION — plant associations. Results are returned in data.ecosystems regardless of recordType (field name reflects the primary use case; records for other recordType values are shaped identically). Results are cached 7 days per query+recordType+limit+page combination.
+
+ * @summary Search NatureServe by record type (ecosystems, species, communities)
+ */
+
+export const getNatureserveSearchQueryRecordTypeDefault = `ECOSYSTEM`;
+export const getNatureserveSearchQueryLimitDefault = 10;
+export const getNatureserveSearchQueryLimitMax = 50;
+
+export const getNatureserveSearchQueryPageDefault = 0;
+export const getNatureserveSearchQueryPageMin = 0;
+
+export const getNatureserveSearchQueryRefreshDefault = false;
+
+export const GetNatureserveSearchQueryParams = zod.object({
+  q: zod
+    .string()
+    .min(1)
+    .describe(
+      "Search text (e.g. oak savanna, tallgrass prairie, Platanthera leucophaea)",
+    ),
+  recordType: zod
+    .enum(["ECOSYSTEM", "SPECIES", "COMMUNITY", "GROUP", "ASSOCIATION"])
+    .default(getNatureserveSearchQueryRecordTypeDefault)
+    .describe(
+      "Type of records to return (default: ECOSYSTEM). ECOSYSTEM — ecological systems and community types; SPECIES — animal and plant species; COMMUNITY — plant communities; GROUP — element groups; ASSOCIATION — plant associations.\n",
+    ),
+  limit: zod.coerce
+    .number()
+    .min(1)
+    .max(getNatureserveSearchQueryLimitMax)
+    .default(getNatureserveSearchQueryLimitDefault)
+    .describe("Number of results per page (1–50, default 10)"),
+  page: zod.coerce
+    .number()
+    .min(getNatureserveSearchQueryPageMin)
+    .default(getNatureserveSearchQueryPageDefault)
+    .describe("Zero-indexed page number (default 0)"),
+  refresh: zod.coerce
+    .boolean()
+    .default(getNatureserveSearchQueryRefreshDefault)
+    .describe(
+      "If true, bypasses cache and fetches fresh from NatureServe Explorer",
+    ),
+  provenance_verbosity: zod
+    .enum(["full", "summary", "none"])
+    .optional()
+    .describe(
+      "Controls how much provenance text is returned. full (default) returns both general_summary and technical_details; summary returns general_summary only; none omits both.\n",
+    ),
+});
+
+export const GetNatureserveSearchResponse = zod.object({
+  source_url: zod.string().nullish(),
+  found: zod.boolean(),
+  attribution: zod.string().optional(),
+  data: zod
+    .object({
+      ecosystems: zod
+        .array(
+          zod.object({
+            system_name: zod
+              .string()
+              .optional()
+              .describe(
+                "Scientific name of the ecological system, species, or community",
+              ),
+            global_rank: zod
+              .string()
+              .nullish()
+              .describe("NatureServe G-rank (e.g. G3, G4G5)"),
+            rounded_global_rank: zod.string().nullish(),
+            us_national_rank: zod
+              .string()
+              .nullish()
+              .describe("NatureServe N-rank for the US (e.g. N3, N4)"),
+            rounded_us_national_rank: zod.string().nullish(),
+            description_excerpt: zod
+              .string()
+              .nullish()
+              .describe(
+                "Concept sentence from ecosystemGlobal.conceptSentence (ecosystem records only)",
+              ),
+            national_distribution: zod.string().nullish(),
+            characteristic_species: zod
+              .array(
+                zod.object({
+                  scientific_name: zod.string().optional(),
+                  stratum: zod.string().nullish(),
+                  constancy_percent: zod.number().nullish(),
+                  cover_class_percent: zod.number().nullish(),
+                }),
+              )
+              .optional()
+              .describe(
+                "Characteristic plant species (not populated from search endpoint; empty array)",
+              ),
+            natureserve_url: zod
+              .string()
+              .nullish()
+              .describe("Direct link to this record on NatureServe Explorer"),
+            element_global_id: zod
+              .string()
+              .optional()
+              .describe(
+                "NatureServe element global identifier (e.g. ELEMENT_GLOBAL.2.12345)",
+              ),
+            record_type: zod
+              .string()
+              .optional()
+              .describe(
+                "Record type as returned by NatureServe (e.g. ECOSYSTEM, SPECIES)",
+              ),
+          }),
+        )
+        .optional()
+        .describe(
+          "Array of matching records (ecosystems, species, communities, etc. depending on recordType)",
+        ),
+      result_count: zod
+        .number()
+        .optional()
+        .describe("Number of records in this page"),
+      total_results: zod
+        .number()
+        .optional()
+        .describe("Total matching records across all pages"),
       cache_status: zod.enum(["hit", "miss", "bypassed"]).optional(),
     })
     .optional(),
@@ -6320,8 +6845,8 @@ export const GetGobotanyMetadataResponse = zod
   .object({
     service_id: zod.string(),
     service_name: zod.string(),
-    permission_granted: zod.boolean().optional(),
-    permission_status: zod.string().optional(),
+    licenses: zod.array(zod.string()).optional(),
+    license_notes: zod.string().optional(),
     url_strategy: zod
       .string()
       .optional()
@@ -6612,8 +7137,8 @@ export const GetGoogleImagesMetadataResponse = zod
   .object({
     service_id: zod.string(),
     service_name: zod.string(),
-    permission_granted: zod.boolean().optional(),
-    permission_status: zod.string().optional(),
+    licenses: zod.array(zod.string()).optional(),
+    license_notes: zod.string().optional(),
     url_strategy: zod
       .string()
       .optional()
@@ -6791,8 +7316,8 @@ export const GetIllinoisWildflowersMetadataResponse = zod
   .object({
     service_id: zod.string(),
     service_name: zod.string(),
-    permission_granted: zod.boolean().optional(),
-    permission_status: zod.string().optional(),
+    licenses: zod.array(zod.string()).optional(),
+    license_notes: zod.string().optional(),
     url_strategy: zod
       .string()
       .optional()
@@ -7077,8 +7602,8 @@ export const GetMinnesotaWildflowersMetadataResponse = zod
   .object({
     service_id: zod.string(),
     service_name: zod.string(),
-    permission_granted: zod.boolean().optional(),
-    permission_status: zod.string().optional(),
+    licenses: zod.array(zod.string()).optional(),
+    license_notes: zod.string().optional(),
     url_strategy: zod
       .string()
       .optional()
@@ -7363,8 +7888,8 @@ export const GetMissouriPlantsMetadataResponse = zod
   .object({
     service_id: zod.string(),
     service_name: zod.string(),
-    permission_granted: zod.boolean().optional(),
-    permission_status: zod.string().optional(),
+    licenses: zod.array(zod.string()).optional(),
+    license_notes: zod.string().optional(),
     url_strategy: zod
       .string()
       .optional()
@@ -7649,8 +8174,8 @@ export const GetPrairieMoonMetadataResponse = zod
   .object({
     service_id: zod.string(),
     service_name: zod.string(),
-    permission_granted: zod.boolean().optional(),
-    permission_status: zod.string().optional(),
+    licenses: zod.array(zod.string()).optional(),
+    license_notes: zod.string().optional(),
     url_strategy: zod
       .string()
       .optional()
@@ -8119,8 +8644,8 @@ export const GetUsdaPlantsSearchResponse = zod.object({
 export const GetUsdaPlantsMetadataResponse = zod.object({
   service_id: zod.string().optional(),
   service_name: zod.string().optional(),
-  permission_granted: zod.boolean().optional(),
-  permission_status: zod.string().optional(),
+  licenses: zod.array(zod.string()).optional(),
+  license_notes: zod.string().optional(),
   access_method: zod.string().optional(),
   api_base: zod.string().optional(),
   registry_entry: zod.record(zod.string(), zod.unknown()).optional(),
@@ -8401,8 +8926,8 @@ export const GetLadyBirdJohnsonMetadataResponse = zod
   .object({
     service_id: zod.string(),
     service_name: zod.string(),
-    permission_granted: zod.boolean().optional(),
-    permission_status: zod.string().optional(),
+    licenses: zod.array(zod.string()).optional(),
+    license_notes: zod.string().optional(),
     url_strategy: zod
       .string()
       .optional()
@@ -8480,8 +9005,8 @@ export const GetAnnArborNpnMetadataResponse = zod
   .object({
     service_id: zod.string(),
     service_name: zod.string(),
-    permission_granted: zod.boolean(),
-    permission_status: zod.string(),
+    licenses: zod.array(zod.string()),
+    license_notes: zod.string(),
     species_count: zod.number(),
     registry_entry: zod.record(zod.string(), zod.unknown()),
     queried_at: zod.date(),

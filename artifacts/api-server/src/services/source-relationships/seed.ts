@@ -30,8 +30,8 @@ const REGISTRY_ENTRY = {
     "New sources added to FERNS may not immediately have all relationships documented.",
   metadata_url: "/api/v1/source-relationships",
   explorer_url: "/source-relationships",
-  permission_granted: true,
-  permission_status:
+  licenses: ["cc0"],
+  license_notes:
     "OPEN — FERNS is a self-hosted internal system. The source relationships endpoint is unauthenticated and intended for use by FERNS consumers and agents.",
   general_summary:
     "FERNS Source Relationships is a curated graph of cross-source interactions within the FERNS Data Layer. " +
@@ -80,8 +80,8 @@ export async function ensureSourceRelationshipsRegistryEntry(): Promise<void> {
         known_limitations: REGISTRY_ENTRY.known_limitations,
         metadata_url: REGISTRY_ENTRY.metadata_url,
         explorer_url: REGISTRY_ENTRY.explorer_url,
-        permission_granted: REGISTRY_ENTRY.permission_granted,
-        permission_status: REGISTRY_ENTRY.permission_status,
+        licenses: REGISTRY_ENTRY.licenses,
+        license_notes: REGISTRY_ENTRY.license_notes,
         general_summary: REGISTRY_ENTRY.general_summary,
         technical_details: REGISTRY_ENTRY.technical_details,
         updated_at: new Date(),

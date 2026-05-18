@@ -4,8 +4,8 @@ import {
   GOOGLE_IMAGES_GENERAL_SUMMARY,
   GOOGLE_IMAGES_TECHNICAL_DETAILS,
   GOOGLE_IMAGES_REGISTRY_ENTRY,
-  GOOGLE_IMAGES_PERMISSION_GRANTED,
-  GOOGLE_IMAGES_PERMISSION_STATUS,
+  GOOGLE_IMAGES_LICENSES,
+  GOOGLE_IMAGES_LICENSE_NOTES,
 } from "../services/google-images/metadata.js";
 import { ensureGoogleImagesRegistryEntry } from "../services/google-images/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
@@ -29,8 +29,8 @@ router.get("/google-images/metadata", async (req, res) => {
   res.json({
     service_id: GOOGLE_IMAGES_SOURCE_ID,
     service_name: GOOGLE_IMAGES_REGISTRY_ENTRY.name,
-    permission_granted: GOOGLE_IMAGES_PERMISSION_GRANTED,
-    permission_status: GOOGLE_IMAGES_PERMISSION_STATUS,
+    licenses: GOOGLE_IMAGES_LICENSES,
+    license_notes: GOOGLE_IMAGES_LICENSE_NOTES,
     url_strategy: "direct_construction",
     url_pattern: "https://www.google.com/search?tbm=isch&q={scientific+name}",
     validation: "none",

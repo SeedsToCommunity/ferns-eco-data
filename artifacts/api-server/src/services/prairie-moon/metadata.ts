@@ -1,8 +1,8 @@
 export const PRAIRIE_MOON_SOURCE_ID = "prairie-moon";
 
-export const PRAIRIE_MOON_PERMISSION_GRANTED = true;
+export const PRAIRIE_MOON_LICENSES = ["proprietary"];
 
-export const PRAIRIE_MOON_PERMISSION_STATUS =
+export const PRAIRIE_MOON_LICENSE_NOTES =
   "OPEN — prairiemoon.com is a public e-commerce and reference site for native plants. " +
   "FERNS indexes plant URLs from the publicly accessible sitemap.xml " +
   "and stores species-to-URL mappings in its local database. " +
@@ -68,8 +68,8 @@ export const PRAIRIE_MOON_REGISTRY_ENTRY = {
     "Species not in the nursery catalog return found: false.",
   metadata_url: "/api/prairie-moon/metadata",
   explorer_url: "/source/prairie-moon",
-  permission_granted: PRAIRIE_MOON_PERMISSION_GRANTED,
-  permission_status: PRAIRIE_MOON_PERMISSION_STATUS,
+  licenses: PRAIRIE_MOON_LICENSES,
+  license_notes: PRAIRIE_MOON_LICENSE_NOTES,
   general_summary: PRAIRIE_MOON_GENERAL_SUMMARY,
   technical_details: PRAIRIE_MOON_TECHNICAL_DETAILS,
 };

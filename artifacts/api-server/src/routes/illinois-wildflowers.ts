@@ -7,8 +7,8 @@ import {
   ILLINOIS_WILDFLOWERS_GENERAL_SUMMARY,
   ILLINOIS_WILDFLOWERS_TECHNICAL_DETAILS,
   ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY,
-  ILLINOIS_WILDFLOWERS_PERMISSION_GRANTED,
-  ILLINOIS_WILDFLOWERS_PERMISSION_STATUS,
+  ILLINOIS_WILDFLOWERS_LICENSES,
+  ILLINOIS_WILDFLOWERS_LICENSE_NOTES,
 } from "../services/illinois-wildflowers/metadata.js";
 import { ensureIllinoisWildflowersRegistryEntry } from "../services/illinois-wildflowers/seed.js";
 import { importIllinoisWildflowers } from "../services/botanical-refs/importers/illinois-wildflowers.js";
@@ -46,8 +46,8 @@ router.get("/illinois-wildflowers/metadata", async (req, res) => {
   res.json({
     service_id: SITE_ID,
     service_name: ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY.name,
-    permission_granted: ILLINOIS_WILDFLOWERS_PERMISSION_GRANTED,
-    permission_status: ILLINOIS_WILDFLOWERS_PERMISSION_STATUS,
+    licenses: ILLINOIS_WILDFLOWERS_LICENSES,
+    license_notes: ILLINOIS_WILDFLOWERS_LICENSE_NOTES,
     url_strategy: "species_list_scrape",
     indexed_entries_count: Number(totalCount),
     sections: sectionCounts,

@@ -7,8 +7,8 @@ import {
   PRAIRIE_MOON_GENERAL_SUMMARY,
   PRAIRIE_MOON_TECHNICAL_DETAILS,
   PRAIRIE_MOON_REGISTRY_ENTRY,
-  PRAIRIE_MOON_PERMISSION_GRANTED,
-  PRAIRIE_MOON_PERMISSION_STATUS,
+  PRAIRIE_MOON_LICENSES,
+  PRAIRIE_MOON_LICENSE_NOTES,
 } from "../services/prairie-moon/metadata.js";
 import { ensurePrairieMoonRegistryEntry } from "../services/prairie-moon/seed.js";
 import { importPrairieMoon } from "../services/botanical-refs/importers/prairie-moon.js";
@@ -36,8 +36,8 @@ router.get("/prairie-moon/metadata", async (req, res) => {
   res.json({
     service_id: SITE_ID,
     service_name: PRAIRIE_MOON_REGISTRY_ENTRY.name,
-    permission_granted: PRAIRIE_MOON_PERMISSION_GRANTED,
-    permission_status: PRAIRIE_MOON_PERMISSION_STATUS,
+    licenses: PRAIRIE_MOON_LICENSES,
+    license_notes: PRAIRIE_MOON_LICENSE_NOTES,
     url_strategy: "sitemap_scrape",
     indexed_species_count: Number(count),
     sitemap_source: "https://www.prairiemoon.com/sitemap.xml",

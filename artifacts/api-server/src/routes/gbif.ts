@@ -25,8 +25,8 @@ import {
 import {
   GBIF_SOURCE_ID,
   GBIF_ATTRIBUTION,
-  GBIF_PERMISSION_GRANTED,
-  GBIF_PERMISSION_STATUS,
+  GBIF_LICENSES,
+  GBIF_LICENSE_NOTES,
   GBIF_VOCABULARIES,
   GBIF_GENERAL_SUMMARY,
   GBIF_TECHNICAL_DETAILS,
@@ -454,8 +454,8 @@ router.get("/gbif/metadata", async (req, res) => {
   res.json({
     service_id: GBIF_SOURCE_ID,
     service_name: "GBIF — Taxonomic Backbone, Name Reconciliation, and Occurrence Records",
-    permission_granted: GBIF_PERMISSION_GRANTED,
-    permission_status: GBIF_PERMISSION_STATUS,
+    licenses: GBIF_LICENSES,
+    license_notes: GBIF_LICENSE_NOTES,
     attribution: GBIF_ATTRIBUTION,
     vocabularies: GBIF_VOCABULARIES,
     registry_entry: {

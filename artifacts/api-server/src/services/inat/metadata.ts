@@ -6,9 +6,9 @@ export const INAT_USER_AGENT = "FERNS/1.0";
 
 export const INAT_REQUEST_TIMEOUT_MS = 30000;
 
-export const INAT_PERMISSION_GRANTED = true;
+export const INAT_LICENSES = ["cc0", "cc-by", "cc-by-nc"];
 
-export const INAT_PERMISSION_STATUS = "OPEN — No authentication required for read operations. Attribution required.";
+export const INAT_LICENSE_NOTES = "OPEN — No authentication required for read operations. Attribution required.";
 
 export const INAT_ATTRIBUTION = {
   source_name: "iNaturalist",
@@ -78,8 +78,8 @@ export const INAT_REGISTRY_ENTRY = {
     "Observation timing data reflects observer effort and seasonal accessibility as much as actual species biology.",
   metadata_url: "/api/inat/metadata",
   explorer_url: "/source/inaturalist",
-  permission_granted: INAT_PERMISSION_GRANTED,
-  permission_status: INAT_PERMISSION_STATUS,
+  licenses: INAT_LICENSES,
+  license_notes: INAT_LICENSE_NOTES,
   general_summary: INAT_GENERAL_SUMMARY,
   technical_details: INAT_TECHNICAL_DETAILS,
 };

@@ -14,8 +14,8 @@ import type { FernsProvenance } from "./fernsProvenance";
 export interface BotanicalWebRefMetadataResponse {
   service_id: string;
   service_name: string;
-  permission_granted?: boolean;
-  permission_status?: string;
+  licenses?: string[];
+  license_notes?: string;
   /** URL construction strategy: direct_construction | sitemap_scrape | species_list_scrape */
   url_strategy?: string;
   /** URL template pattern used for direct construction sources */

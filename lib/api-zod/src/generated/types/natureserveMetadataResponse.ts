@@ -14,8 +14,8 @@ export interface NatureserveMetadataResponse {
   source_url?: string;
   service_id: string;
   service_name: string;
-  permission_granted?: boolean;
-  permission_status?: string;
+  licenses?: string[];
+  license_notes?: string;
   attribution?: string;
   cache_stats?: NatureserveMetadataResponseCacheStats;
   registry_entry?: NatureserveMetadataResponseRegistryEntry;

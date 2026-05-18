@@ -12,8 +12,8 @@ import type { UniversalFqaMetadataResponseRegistryEntry } from "./universalFqaMe
 export interface UniversalFqaMetadataResponse {
   source_id: string;
   name: string;
-  permission_granted: boolean;
-  permission_status: string;
+  licenses: string[];
+  license_notes: string;
   attribution: UniversalFqaMetadataResponseAttribution;
   registry_entry: UniversalFqaMetadataResponseRegistryEntry;
   queried_at?: Date;

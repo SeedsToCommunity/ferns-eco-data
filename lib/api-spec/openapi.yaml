@@ -4224,8 +4224,8 @@ components:
         - color_key_image_url
         - color_key
         - data_vintage
-        - permission_granted
-        - permission_status
+        - licenses
+        - license_notes
         - attribution
         - cache_status
         - queried_at
@@ -4272,16 +4272,18 @@ components:
         data_vintage:
           type: string
           description: "NAPA maps: December 15, 2014. Color key documentation: February 8, 2024."
-        permission_granted:
-          type: boolean
+        licenses:
+          type: array
+          items:
+            type: string
           description: >
             Whether FERNS has received written permission from BONAP to reproduce
-            and display map materials. Currently false. Applications must surface this field.
-        permission_status:
+            and display map materials. Currently false. Applications should display this when restricted licenses apply.
+        license_notes:
           type: string
           description: >
             Human-readable permission status string. Matches the value from the metadata endpoint.
-            Applications should display this when permission_granted is false.
+            Applications should display license_notes when restricted licenses apply.
         attribution:
           $ref: "#/components/schemas/BonapAttribution"
         cache_status:
@@ -4329,8 +4331,8 @@ components:
         - service_id
         - service_name
         - data_vintage
-        - permission_granted
-        - permission_status
+        - licenses
+        - license_notes
         - attribution
         - color_key
         - color_key_url
@@ -4343,9 +4345,11 @@ components:
           type: string
         data_vintage:
           type: string
-        permission_granted:
-          type: boolean
-        permission_status:
+        licenses:
+          type: array
+          items:
+            type: string
+        license_notes:
           type: string
         attribution:
           $ref: "#/components/schemas/BonapAttribution"
@@ -4813,8 +4817,8 @@ components:
       required:
         - service_id
         - service_name
-        - permission_granted
-        - permission_status
+        - licenses
+        - license_notes
         - attribution
         - vocabularies
         - queried_at
@@ -4824,9 +4828,11 @@ components:
           type: string
         service_name:
           type: string
-        permission_granted:
-          type: boolean
-        permission_status:
+        licenses:
+          type: array
+          items:
+            type: string
+        license_notes:
           type: string
         attribution:
           type: object
@@ -5589,8 +5595,8 @@ components:
       required:
         - service_id
         - service_name
-        - permission_granted
-        - permission_status
+        - licenses
+        - license_notes
         - attribution
         - queried_at
         - provenance
@@ -5599,10 +5605,12 @@ components:
           type: string
         service_name:
           type: string
-        permission_granted:
-          type: boolean
+        licenses:
+          type: array
+          items:
+            type: string
           description: True if FERNS has permission to use and expose this data. iNaturalist is open access — no permission request required.
-        permission_status:
+        license_notes:
           type: string
         attribution:
           $ref: "#/components/schemas/InatAttribution"
@@ -5696,13 +5704,14 @@ components:
         explorer_url:
           type: string
           description: Link to this service's Source Explorer UI
-        permission_granted:
-          type: boolean
-          nullable: true
+        licenses:
+          type: array
+          items:
+            type: string
           description: >
             Whether FERNS has verified that use of this source is explicitly permitted.
             true = permission confirmed; null = not yet evaluated.
-        permission_status:
+        license_notes:
           type: string
           description: >
             Plain-English description of the permission situation for this source.
@@ -6146,8 +6155,8 @@ components:
       required:
         - service_id
         - service_name
-        - permission_granted
-        - permission_status
+        - licenses
+        - license_notes
         - attribution
         - queried_at
         - provenance
@@ -6156,9 +6165,11 @@ components:
           type: string
         service_name:
           type: string
-        permission_granted:
-          type: boolean
-        permission_status:
+        licenses:
+          type: array
+          items:
+            type: string
+        license_notes:
           type: string
         attribution:
           $ref: "#/components/schemas/MifloraAttribution"
@@ -6451,8 +6462,8 @@ components:
       required:
         - service_id
         - service_name
-        - permission_granted
-        - permission_status
+        - licenses
+        - license_notes
         - queried_at
         - provenance
       properties:
@@ -6460,9 +6471,11 @@ components:
           type: string
         service_name:
           type: string
-        permission_granted:
-          type: boolean
-        permission_status:
+        licenses:
+          type: array
+          items:
+            type: string
+        license_notes:
           type: string
         registry_entry:
           type: object
@@ -7148,8 +7161,8 @@ components:
       required:
         - source_id
         - name
-        - permission_granted
-        - permission_status
+        - licenses
+        - license_notes
         - attribution
         - registry_entry
         - provenance
@@ -7158,9 +7171,11 @@ components:
           type: string
         name:
           type: string
-        permission_granted:
-          type: boolean
-        permission_status:
+        licenses:
+          type: array
+          items:
+            type: string
+        license_notes:
           type: string
         attribution:
           type: object
@@ -7427,8 +7442,8 @@ components:
       required:
         - service_id
         - service_name
-        - permission_granted
-        - permission_status
+        - licenses
+        - license_notes
         - guide_count
         - species_count
         - registry_entry
@@ -7438,9 +7453,11 @@ components:
           type: string
         service_name:
           type: string
-        permission_granted:
-          type: boolean
-        permission_status:
+        licenses:
+          type: array
+          items:
+            type: string
+        license_notes:
           type: string
         guide_count:
           type: integer
@@ -7575,9 +7592,11 @@ components:
           description: List of Michigan counties with at least one element occurrence
           items:
             type: string
-        permission_granted:
-          type: boolean
-        permission_status:
+        licenses:
+          type: array
+          items:
+            type: string
+        license_notes:
           type: string
         attribution:
           type: string
@@ -7773,9 +7792,11 @@ components:
           type: string
         service_name:
           type: string
-        permission_granted:
-          type: boolean
-        permission_status:
+        licenses:
+          type: array
+          items:
+            type: string
+        license_notes:
           type: string
         attribution:
           type: string
@@ -8204,9 +8225,11 @@ components:
           type: string
         service_name:
           type: string
-        permission_granted:
-          type: boolean
-        permission_status:
+        licenses:
+          type: array
+          items:
+            type: string
+        license_notes:
           type: string
         url_strategy:
           type: string
@@ -8470,9 +8493,11 @@ components:
           type: string
         service_name:
           type: string
-        permission_granted:
-          type: boolean
-        permission_status:
+        licenses:
+          type: array
+          items:
+            type: string
+        license_notes:
           type: string
         access_method:
           type: string
@@ -8857,16 +8882,18 @@ components:
     NpnMetadataResponse:
       type: object
       description: Metadata response for the Ann Arbor Native Plant Nursery source.
-      required: [service_id, service_name, permission_granted, permission_status, species_count, registry_entry, queried_at, provenance]
+      required: [service_id, service_name, licenses, license_notes, species_count, registry_entry, queried_at, provenance]
       properties:
         service_id:
           type: string
           example: ann-arbor-npn
         service_name:
           type: string
-        permission_granted:
-          type: boolean
-        permission_status:
+        licenses:
+          type: array
+          items:
+            type: string
+        license_notes:
           type: string
         species_count:
           type: integer

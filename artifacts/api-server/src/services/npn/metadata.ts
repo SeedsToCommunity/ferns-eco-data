@@ -1,8 +1,8 @@
 export const NPN_SOURCE_ID = "ann-arbor-npn";
 
-export const NPN_PERMISSION_GRANTED = false;
+export const NPN_LICENSES = ["cc-by"];
 
-export const NPN_PERMISSION_STATUS =
+export const NPN_LICENSE_NOTES =
   "NOT REQUESTED — The Native Plant Nursery (nativeplant.com) is a small Ann Arbor nursery operated " +
   "by Greg Vaclavek. FERNS imports and caches Greg's species data locally for research and " +
   "ecological commons purposes. No formal data-sharing agreement has been established. " +
@@ -65,8 +65,8 @@ export const NPN_REGISTRY_ENTRY = {
     "Carex species use CX prefix (not CAR) in acronyms.",
   metadata_url: "/api/ann-arbor-npn/metadata",
   explorer_url: "/source/ann-arbor-npn",
-  permission_granted: NPN_PERMISSION_GRANTED,
-  permission_status: NPN_PERMISSION_STATUS,
+  licenses: NPN_LICENSES,
+  license_notes: NPN_LICENSE_NOTES,
   general_summary: NPN_GENERAL_SUMMARY,
   technical_details: NPN_TECHNICAL_DETAILS,
 };

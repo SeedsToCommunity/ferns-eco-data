@@ -33,14 +33,24 @@ function KVRow({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
-function PermissionBadge({ granted }: { granted: boolean }) {
-  return granted ? (
-    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-green-500/10 text-green-700 border border-green-500/20">
-      <ShieldCheck className="w-3.5 h-3.5" /> Open / Permitted
-    </span>
-  ) : (
-    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-700 border border-amber-500/20">
-      <ShieldOff className="w-3.5 h-3.5" /> Permission Required
+const LICENSE_LABEL: Record<string, string> = {
+  "cc0": "CC0", "cc-by": "CC BY", "cc-by-sa": "CC BY-SA",
+  "cc-by-nc": "CC BY-NC", "proprietary": "Proprietary", "restricted": "Restricted",
+};
+
+function LicenseBadges({ licenses }: { licenses: string[] }) {
+  const isRestricted = licenses.includes("proprietary") || licenses.includes("restricted");
+  if (licenses.length === 0) return null;
+  return (
+    <span className="inline-flex flex-wrap gap-1.5">
+      {licenses.map((lic) => (
+        <span key={lic} className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${
+          isRestricted ? "bg-amber-500/10 text-amber-700 border-amber-500/20" : "bg-green-500/10 text-green-700 border-green-500/20"
+        }`}>
+          {isRestricted ? <ShieldOff className="w-3.5 h-3.5" /> : <ShieldCheck className="w-3.5 h-3.5" />}
+          {LICENSE_LABEL[lic] ?? lic}
+        </span>
+      ))}
     </span>
   );
 }
@@ -240,8 +250,8 @@ export default function MetadataPage() {
   const serviceName = (root.service_name ?? root.name) as string | undefined;
   const dataVintage = root.data_vintage as string | undefined;
   const queriedAt = (unwrapped.queried_at ?? (innerData as Record<string, unknown> | null)?.updated_at) as string | undefined;
-  const permissionGranted = root.permission_granted as boolean | undefined;
-  const permissionStatus = root.permission_status as string | undefined;
+  const licenses = root.licenses as string[] | undefined;
+  const licenseNotes = root.license_notes as string | undefined;
   const attribution = root.attribution as Record<string, string> | undefined;
   const colorKey = root.color_key as Array<unknown> | undefined;
   const colorKeyUrl = root.color_key_url as string | undefined;
@@ -297,9 +307,9 @@ export default function MetadataPage() {
                     </span>
                   </p>
                 </div>
-                {permissionGranted !== undefined && (
+                {licenses && licenses.length > 0 && (
                   <div className="mt-1">
-                    <PermissionBadge granted={permissionGranted} />
+                    <LicenseBadges licenses={licenses} />
                   </div>
                 )}
               </div>
@@ -368,14 +378,14 @@ export default function MetadataPage() {
             {/* Metadata endpoint: content */}
             {!metaLoading && meta && (
               <>
-                {/* Permission status */}
-                {permissionStatus && (
+                {/* License notes */}
+                {licenseNotes && (
                   <div className={`rounded-xl px-5 py-4 border text-sm leading-relaxed ${
-                    permissionGranted
-                      ? "bg-green-500/5 border-green-500/20 text-green-800"
-                      : "bg-amber-500/5 border-amber-500/20 text-amber-800"
+                    licenses?.some(l => l === "proprietary" || l === "restricted")
+                      ? "bg-amber-500/5 border-amber-500/20 text-amber-800"
+                      : "bg-green-500/5 border-green-500/20 text-green-800"
                   }`}>
-                    {permissionStatus}
+                    {licenseNotes}
                   </div>
                 )}
 

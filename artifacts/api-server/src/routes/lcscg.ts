@@ -6,8 +6,8 @@ import {
   LCSCG_GENERAL_SUMMARY,
   LCSCG_TECHNICAL_DETAILS,
   LCSCG_REGISTRY_ENTRY,
-  LCSCG_PERMISSION_GRANTED,
-  LCSCG_PERMISSION_STATUS,
+  LCSCG_LICENSES,
+  LCSCG_LICENSE_NOTES,
 } from "../services/lcscg/metadata.js";
 import { ensureLcscgRegistryEntry } from "../services/lcscg/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
@@ -37,8 +37,8 @@ router.get("/lcscg/metadata", async (req, res) => {
   res.json({
     service_id: LCSCG_SOURCE_ID,
     service_name: LCSCG_REGISTRY_ENTRY.name,
-    permission_granted: LCSCG_PERMISSION_GRANTED,
-    permission_status: LCSCG_PERMISSION_STATUS,
+    licenses: LCSCG_LICENSES,
+    license_notes: LCSCG_LICENSE_NOTES,
     guide_count: Number(guideCount),
     species_count: Number(speciesCount),
     registry_entry: {

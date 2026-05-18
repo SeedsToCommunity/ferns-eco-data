@@ -1,8 +1,8 @@
 export const MISSOURI_PLANTS_SOURCE_ID = "missouri-plants";
 
-export const MISSOURI_PLANTS_PERMISSION_GRANTED = true;
+export const MISSOURI_PLANTS_LICENSES: string[] = [];
 
-export const MISSOURI_PLANTS_PERMISSION_STATUS =
+export const MISSOURI_PLANTS_LICENSE_NOTES =
   "OPEN — missouriplants.com is a public botanical reference site. " +
   "FERNS indexes the species list from the publicly accessible All_Species_list.html page " +
   "and stores species-to-URL mappings in its local database. " +
@@ -64,8 +64,8 @@ export const MISSOURI_PLANTS_REGISTRY_ENTRY = {
     "Exact name match required (genus + species, case-insensitive); subspecies and varieties not individually listed.",
   metadata_url: "/api/missouri-plants/metadata",
   explorer_url: "/source/missouri-plants",
-  permission_granted: MISSOURI_PLANTS_PERMISSION_GRANTED,
-  permission_status: MISSOURI_PLANTS_PERMISSION_STATUS,
+  licenses: MISSOURI_PLANTS_LICENSES,
+  license_notes: MISSOURI_PLANTS_LICENSE_NOTES,
   general_summary: MISSOURI_PLANTS_GENERAL_SUMMARY,
   technical_details: MISSOURI_PLANTS_TECHNICAL_DETAILS,
 };

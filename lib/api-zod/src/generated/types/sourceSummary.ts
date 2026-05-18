@@ -33,10 +33,10 @@ export interface SourceSummary {
   explorer_url: string;
   /** Whether FERNS has verified that use of this source is explicitly permitted. true = permission confirmed; null = not yet evaluated.
    */
-  permission_granted?: boolean | null;
+  licenses?: string[];
   /** Plain-English description of the permission situation for this source. Covers license type, access model, and any restrictions on use.
    */
-  permission_status?: string;
+  license_notes?: string;
   /** One-paragraph plain-English description of this source suitable for non-technical users, agents, and routing decisions.
    */
   general_summary?: string;

@@ -60,8 +60,8 @@ function mapSourceRow(
     known_limitations: r.known_limitations ?? "",
     metadata_url: resolveUrl(req, r.metadata_url ?? ""),
     explorer_url: resolveUrl(req, r.explorer_url ?? ""),
-    permission_granted: r.permission_granted ?? null,
-    permission_status: r.permission_status ?? "",
+    licenses: r.licenses ?? [],
+    license_notes: r.license_notes ?? "",
     general_summary: r.general_summary ?? "",
     technical_details: r.technical_details ?? "",
   };

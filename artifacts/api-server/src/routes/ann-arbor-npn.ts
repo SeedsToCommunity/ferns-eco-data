@@ -6,8 +6,8 @@ import {
   NPN_GENERAL_SUMMARY,
   NPN_TECHNICAL_DETAILS,
   NPN_REGISTRY_ENTRY,
-  NPN_PERMISSION_GRANTED,
-  NPN_PERMISSION_STATUS,
+  NPN_LICENSES,
+  NPN_LICENSE_NOTES,
 } from "../services/npn/metadata.js";
 import { ensureNpnRegistryEntry } from "../services/npn/seed.js";
 import { importNpn } from "../services/npn/import.js";
@@ -40,8 +40,8 @@ router.get("/ann-arbor-npn/metadata", async (req, res) => {
   res.json({
     service_id: NPN_SOURCE_ID,
     service_name: NPN_REGISTRY_ENTRY.name,
-    permission_granted: NPN_PERMISSION_GRANTED,
-    permission_status: NPN_PERMISSION_STATUS,
+    licenses: NPN_LICENSES,
+    license_notes: NPN_LICENSE_NOTES,
     species_count: speciesCount,
     registry_entry: {
       ...NPN_REGISTRY_ENTRY,

@@ -7,8 +7,8 @@ import {
   MISSOURI_PLANTS_GENERAL_SUMMARY,
   MISSOURI_PLANTS_TECHNICAL_DETAILS,
   MISSOURI_PLANTS_REGISTRY_ENTRY,
-  MISSOURI_PLANTS_PERMISSION_GRANTED,
-  MISSOURI_PLANTS_PERMISSION_STATUS,
+  MISSOURI_PLANTS_LICENSES,
+  MISSOURI_PLANTS_LICENSE_NOTES,
 } from "../services/missouri-plants/metadata.js";
 import { ensureMissouriPlantsRegistryEntry } from "../services/missouri-plants/seed.js";
 import { importMissouriPlants } from "../services/botanical-refs/importers/missouri-plants.js";
@@ -36,8 +36,8 @@ router.get("/missouri-plants/metadata", async (req, res) => {
   res.json({
     service_id: SITE_ID,
     service_name: MISSOURI_PLANTS_REGISTRY_ENTRY.name,
-    permission_granted: MISSOURI_PLANTS_PERMISSION_GRANTED,
-    permission_status: MISSOURI_PLANTS_PERMISSION_STATUS,
+    licenses: MISSOURI_PLANTS_LICENSES,
+    license_notes: MISSOURI_PLANTS_LICENSE_NOTES,
     url_strategy: "species_list_scrape",
     indexed_species_count: Number(count),
     list_source: "https://missouriplants.com/All_Species_list.html",

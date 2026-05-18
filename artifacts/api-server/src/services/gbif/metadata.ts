@@ -2,9 +2,9 @@ export const GBIF_SOURCE_ID = "gbif";
 
 export const GBIF_API_BASE = "https://api.gbif.org/v1";
 
-export const GBIF_PERMISSION_GRANTED = true;
+export const GBIF_LICENSES = ["cc-by"];
 
-export const GBIF_PERMISSION_STATUS = "OPEN — CC BY 4.0. Attribution required. No permission letter needed.";
+export const GBIF_LICENSE_NOTES = "OPEN — CC BY 4.0. Attribution required. No permission letter needed.";
 
 export const GBIF_ATTRIBUTION = {
   source_name: "Global Biodiversity Information Facility (GBIF)",
@@ -188,8 +188,8 @@ export const GBIF_REGISTRY_ENTRY = {
     "found: true means the name resolved to something in the GBIF backbone, but applications must check match_type to determine whether that match is at the species level or fell back to a higher rank (HIGHERRANK). A HIGHERRANK result should not be treated as a confirmed species identification. Vernacular names are uncontrolled and of variable quality. iNaturalist records are included in GBIF occurrence counts. usageKeys may change across annual backbone rebuilds.",
   metadata_url: "/api/gbif/metadata",
   explorer_url: "/source/gbif",
-  permission_granted: GBIF_PERMISSION_GRANTED,
-  permission_status: GBIF_PERMISSION_STATUS,
+  licenses: GBIF_LICENSES,
+  license_notes: GBIF_LICENSE_NOTES,
   general_summary: GBIF_GENERAL_SUMMARY,
   technical_details: GBIF_TECHNICAL_DETAILS,
 };

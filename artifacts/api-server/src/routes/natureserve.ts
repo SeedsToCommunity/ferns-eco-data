@@ -16,8 +16,8 @@ import {
 import {
   NATURESERVE_SOURCE_ID,
   NATURESERVE_ATTRIBUTION,
-  NATURESERVE_PERMISSION_GRANTED,
-  NATURESERVE_PERMISSION_STATUS,
+  NATURESERVE_LICENSES,
+  NATURESERVE_LICENSE_NOTES,
   NATURESERVE_GENERAL_SUMMARY,
   NATURESERVE_TECHNICAL_DETAILS,
   NATURESERVE_REGISTRY_ENTRY,
@@ -193,8 +193,8 @@ router.get("/natureserve/metadata", async (req, res) => {
     source_url: resolveUrl(req, "/api/natureserve/metadata"),
     service_id: NATURESERVE_SOURCE_ID,
     service_name: "NatureServe Explorer — Species Conservation Status and Ecological Systems",
-    permission_granted: NATURESERVE_PERMISSION_GRANTED,
-    permission_status: NATURESERVE_PERMISSION_STATUS,
+    licenses: NATURESERVE_LICENSES,
+    license_notes: NATURESERVE_LICENSE_NOTES,
     attribution: NATURESERVE_ATTRIBUTION,
     cache_stats: {
       species_cached: speciesCacheCount,

@@ -2,8 +2,8 @@ import { Router, type IRouter } from "express";
 import {
   USDA_PLANTS_SOURCE_ID,
   USDA_PLANTS_REGISTRY_ENTRY,
-  USDA_PLANTS_PERMISSION_GRANTED,
-  USDA_PLANTS_PERMISSION_STATUS,
+  USDA_PLANTS_LICENSES,
+  USDA_PLANTS_LICENSE_NOTES,
 } from "../services/usda-plants/metadata.js";
 import { ensureUsdaPlantsRegistryEntry } from "../services/usda-plants/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
@@ -30,8 +30,8 @@ router.get("/usda-plants/metadata", async (req, res) => {
     res.json({
       service_id: USDA_PLANTS_SOURCE_ID,
       service_name: USDA_PLANTS_REGISTRY_ENTRY.name,
-      permission_granted: USDA_PLANTS_PERMISSION_GRANTED,
-      permission_status: USDA_PLANTS_PERMISSION_STATUS,
+      licenses: USDA_PLANTS_LICENSES,
+      license_notes: USDA_PLANTS_LICENSE_NOTES,
       access_method: "api_fetch",
       api_base: "https://plantsservices.sc.egov.usda.gov/api/",
       registry_entry: {

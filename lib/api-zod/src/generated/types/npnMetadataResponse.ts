@@ -14,8 +14,8 @@ import type { NpnMetadataResponseRegistryEntry } from "./npnMetadataResponseRegi
 export interface NpnMetadataResponse {
   service_id: string;
   service_name: string;
-  permission_granted: boolean;
-  permission_status: string;
+  licenses: string[];
+  license_notes: string;
   species_count: number;
   registry_entry: NpnMetadataResponseRegistryEntry;
   queried_at: Date;

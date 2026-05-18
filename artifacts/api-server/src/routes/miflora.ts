@@ -32,8 +32,8 @@ import {
 import {
   MIFLORA_SOURCE_ID,
   MIFLORA_ATTRIBUTION,
-  MIFLORA_PERMISSION_GRANTED,
-  MIFLORA_PERMISSION_STATUS,
+  MIFLORA_LICENSES,
+  MIFLORA_LICENSE_NOTES,
   MIFLORA_GENERAL_SUMMARY,
   MIFLORA_TECHNICAL_DETAILS,
   MIFLORA_REGISTRY_ENTRY,
@@ -485,8 +485,8 @@ router.get("/miflora/metadata", async (req, res) => {
   res.json(GetMifloraMetadataResponse.parse({
     service_id: MIFLORA_SOURCE_ID,
     service_name: MIFLORA_REGISTRY_ENTRY.name,
-    permission_granted: MIFLORA_PERMISSION_GRANTED,
-    permission_status: MIFLORA_PERMISSION_STATUS,
+    licenses: MIFLORA_LICENSES,
+    license_notes: MIFLORA_LICENSE_NOTES,
     attribution: MIFLORA_ATTRIBUTION,
     registry_entry: {
       ...MIFLORA_REGISTRY_ENTRY,

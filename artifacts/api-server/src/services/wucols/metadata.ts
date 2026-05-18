@@ -1,8 +1,8 @@
 export const WUCOLS_SOURCE_ID = "wucols-water-use";
 
-export const WUCOLS_PERMISSION_GRANTED = true;
+export const WUCOLS_LICENSES = ["cc-by"];
 
-export const WUCOLS_PERMISSION_STATUS =
+export const WUCOLS_LICENSE_NOTES =
   "OPEN — Static reference data. WUCOLS methodology published by the University of California Cooperative Extension. No authentication required.";
 
 export const WUCOLS_GENERAL_SUMMARY =
@@ -57,8 +57,8 @@ export const WUCOLS_REGISTRY_ENTRY = {
     "The UC WUCOLS database contains species-level ratings but is not integrated into this source.",
   metadata_url: "/api/wucols/metadata",
   explorer_url: "/vocabulary/wucols",
-  permission_granted: WUCOLS_PERMISSION_GRANTED,
-  permission_status: WUCOLS_PERMISSION_STATUS,
+  licenses: WUCOLS_LICENSES,
+  license_notes: WUCOLS_LICENSE_NOTES,
   general_summary: WUCOLS_GENERAL_SUMMARY,
   technical_details: WUCOLS_TECHNICAL_DETAILS,
 };

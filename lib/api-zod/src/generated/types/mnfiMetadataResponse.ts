@@ -23,8 +23,8 @@ export interface MnfiMetadataResponse {
   class_summary?: MnfiMetadataResponseClassSummaryItem[];
   /** List of Michigan counties with at least one element occurrence */
   counties_with_data?: string[];
-  permission_granted?: boolean;
-  permission_status?: string;
+  licenses?: string[];
+  license_notes?: string;
   attribution?: string;
   registry_entry?: MnfiMetadataResponseRegistryEntry;
 }

@@ -7,8 +7,8 @@ import {
   GOBOTANY_GENERAL_SUMMARY,
   GOBOTANY_TECHNICAL_DETAILS,
   GOBOTANY_REGISTRY_ENTRY,
-  GOBOTANY_PERMISSION_GRANTED,
-  GOBOTANY_PERMISSION_STATUS,
+  GOBOTANY_LICENSES,
+  GOBOTANY_LICENSE_NOTES,
 } from "../services/gobotany/metadata.js";
 import { ensureGobotanyRegistryEntry } from "../services/gobotany/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
@@ -45,8 +45,8 @@ router.get("/gobotany/metadata", async (req, res) => {
   res.json({
     service_id: GOBOTANY_SOURCE_ID,
     service_name: GOBOTANY_REGISTRY_ENTRY.name,
-    permission_granted: GOBOTANY_PERMISSION_GRANTED,
-    permission_status: GOBOTANY_PERMISSION_STATUS,
+    licenses: GOBOTANY_LICENSES,
+    license_notes: GOBOTANY_LICENSE_NOTES,
     url_strategy: "direct_construction",
     url_pattern: `${GOBOTANY_BASE}/species/{genus}/{species}/`,
     validation: "http_get",

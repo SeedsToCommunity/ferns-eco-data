@@ -4,8 +4,8 @@ import {
   COEFFICIENT_GENERAL_SUMMARY,
   COEFFICIENT_TECHNICAL_DETAILS,
   COEFFICIENT_REGISTRY_ENTRY,
-  COEFFICIENT_PERMISSION_GRANTED,
-  COEFFICIENT_PERMISSION_STATUS,
+  COEFFICIENT_LICENSES,
+  COEFFICIENT_LICENSE_NOTES,
 } from "../services/coefficient/metadata.js";
 import { COEFFICIENT_DATA, lookupByValue } from "../services/coefficient/data.js";
 import { ensureCoefficientRegistryEntry } from "../services/coefficient/seed.js";
@@ -68,8 +68,8 @@ router.get("/coefficient-of-conservatism/metadata", async (req, res) => {
   res.json({
     service_id: COEFFICIENT_SOURCE_ID,
     service_name: COEFFICIENT_REGISTRY_ENTRY.name,
-    permission_granted: COEFFICIENT_PERMISSION_GRANTED,
-    permission_status: COEFFICIENT_PERMISSION_STATUS,
+    licenses: COEFFICIENT_LICENSES,
+    license_notes: COEFFICIENT_LICENSE_NOTES,
     registry_entry: {
       ...COEFFICIENT_REGISTRY_ENTRY,
       metadata_url: resolveUrl(req, COEFFICIENT_REGISTRY_ENTRY.metadata_url),

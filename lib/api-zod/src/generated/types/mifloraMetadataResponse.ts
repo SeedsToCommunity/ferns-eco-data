@@ -12,8 +12,8 @@ import type { MifloraMetadataResponseRegistryEntry } from "./mifloraMetadataResp
 export interface MifloraMetadataResponse {
   service_id: string;
   service_name: string;
-  permission_granted: boolean;
-  permission_status: string;
+  licenses: string[];
+  license_notes: string;
   attribution: MifloraAttribution;
   /** Full registry entry for the Michigan Flora service */
   registry_entry?: MifloraMetadataResponseRegistryEntry;

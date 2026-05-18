@@ -1,8 +1,8 @@
 export const LCSCG_SOURCE_ID = "lcscg";
 
-export const LCSCG_PERMISSION_GRANTED = true;
+export const LCSCG_LICENSES = ["cc-by"];
 
-export const LCSCG_PERMISSION_STATUS =
+export const LCSCG_LICENSE_NOTES =
   "GRANTED — Lake County Seed Collection Guides are published by the Lake County Forest Preserve District " +
   "under a CC BY-NC 4.0 license. The guides are freely available on the Field Museum Field Guides platform. " +
   "FERNS serves static data extracted from those publicly licensed PDF documents.";
@@ -74,8 +74,8 @@ export const LCSCG_REGISTRY_ENTRY = {
     "Geographic scope is Lake County, Illinois only.",
   metadata_url: "/api/lcscg/metadata",
   explorer_url: "/source/lcscg",
-  permission_granted: LCSCG_PERMISSION_GRANTED,
-  permission_status: LCSCG_PERMISSION_STATUS,
+  licenses: LCSCG_LICENSES,
+  license_notes: LCSCG_LICENSE_NOTES,
   general_summary: LCSCG_GENERAL_SUMMARY,
   technical_details: LCSCG_TECHNICAL_DETAILS,
 };

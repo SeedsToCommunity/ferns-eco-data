@@ -126,13 +126,13 @@ export function SourceExplorerLayout({ sourceId, children }: SourceExplorerLayou
 
       {!isLoading && source && (
         <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-5">
-          {/* Permission warning banner */}
-          {source.permission_granted === false && source.permission_status && (
+          {/* Restricted license warning banner */}
+          {source.licenses?.some(l => l === "proprietary" || l === "restricted") && source.license_notes && (
             <div className="flex items-start gap-3 px-4 py-3.5 rounded-xl border bg-amber-50 border-amber-200 text-amber-900 text-sm">
               <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-600" />
               <div>
-                <span className="font-semibold">Permission required — </span>
-                {source.permission_status}
+                <span className="font-semibold">Restricted license — </span>
+                {source.license_notes}
               </div>
             </div>
           )}
@@ -179,8 +179,18 @@ export function SourceExplorerLayout({ sourceId, children }: SourceExplorerLayou
               {source.status && (
                 <MetaRow label="Status" value={source.status} />
               )}
-              {source.permission_status && (
-                <MetaRow label="Permission" value={source.permission_status} />
+              {source.licenses && source.licenses.length > 0 && (
+                <div className="flex gap-4 py-2.5 border-b border-border/40 last:border-0">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider w-44 shrink-0 pt-0.5">Licenses</span>
+                  <span className="text-sm text-foreground/80 flex-1 leading-relaxed flex flex-wrap gap-1.5">
+                    {source.licenses.map(l => (
+                      <span key={l} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">{l}</span>
+                    ))}
+                  </span>
+                </div>
+              )}
+              {source.license_notes && (
+                <MetaRow label="License Notes" value={source.license_notes} />
               )}
               {source.dependencies && source.dependencies.length > 0 && (
                 <MetaRow label="Dependencies" value={source.dependencies.join(", ")} />

@@ -12,8 +12,8 @@ export interface BonapMetadataResponse {
   service_id: string;
   service_name: string;
   data_vintage: string;
-  permission_granted: boolean;
-  permission_status: string;
+  licenses: string[];
+  license_notes: string;
   attribution: BonapAttribution;
   color_key: ColorKeyEntry[];
   /** URL of the BONAP map key reference page */

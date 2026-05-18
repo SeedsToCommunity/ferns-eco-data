@@ -34,12 +34,12 @@ export interface BonapMapData {
   color_key: ColorKeyEntry[];
   /** NAPA maps: December 15, 2014. Color key documentation: February 8, 2024. */
   data_vintage: string;
-  /** Whether FERNS has received written permission from BONAP to reproduce and display map materials. Currently false. Applications must surface this field.
+  /** Whether FERNS has received written permission from BONAP to reproduce and display map materials. Currently false. Applications should display this when restricted licenses apply.
    */
-  permission_granted: boolean;
-  /** Human-readable permission status string. Matches the value from the metadata endpoint. Applications should display this when permission_granted is false.
+  licenses: string[];
+  /** Human-readable permission status string. Matches the value from the metadata endpoint. Applications should display license_notes when restricted licenses apply.
    */
-  permission_status: string;
+  license_notes: string;
   attribution: BonapAttribution;
   cache_status: BonapMapDataCacheStatus;
   queried_at: Date;

@@ -4,8 +4,8 @@ import {
   S2C_GENERAL_SUMMARY,
   S2C_TECHNICAL_DETAILS,
   S2C_REGISTRY_ENTRY,
-  S2C_PERMISSION_GRANTED,
-  S2C_PERMISSION_STATUS,
+  S2C_LICENSES,
+  S2C_LICENSE_NOTES,
 } from "../services/s2c/metadata.js";
 import {
   S2C_YEARS,
@@ -99,8 +99,8 @@ router.get("/s2c/metadata", async (req, res) => {
   res.json({
     service_id: S2C_SOURCE_ID,
     service_name: S2C_REGISTRY_ENTRY.name,
-    permission_granted: S2C_PERMISSION_GRANTED,
-    permission_status: S2C_PERMISSION_STATUS,
+    licenses: S2C_LICENSES,
+    license_notes: S2C_LICENSE_NOTES,
     registry_entry: {
       ...S2C_REGISTRY_ENTRY,
       metadata_url: resolveUrl(req, S2C_REGISTRY_ENTRY.metadata_url),

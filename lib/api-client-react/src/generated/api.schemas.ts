@@ -127,12 +127,12 @@ export interface BonapMapData {
   color_key: ColorKeyEntry[];
   /** NAPA maps: December 15, 2014. Color key documentation: February 8, 2024. */
   data_vintage: string;
-  /** Whether FERNS has received written permission from BONAP to reproduce and display map materials. Currently false. Applications must surface this field.
+  /** Whether FERNS has received written permission from BONAP to reproduce and display map materials. Currently false. Applications should display this when restricted licenses apply.
    */
-  permission_granted: boolean;
-  /** Human-readable permission status string. Matches the value from the metadata endpoint. Applications should display this when permission_granted is false.
+  licenses: string[];
+  /** Human-readable permission status string. Matches the value from the metadata endpoint. Applications should display license_notes when restricted licenses apply.
    */
-  permission_status: string;
+  license_notes: string;
   attribution: BonapAttribution;
   cache_status: BonapMapDataCacheStatus;
   queried_at: string;
@@ -158,8 +158,8 @@ export interface BonapMetadataResponse {
   service_id: string;
   service_name: string;
   data_vintage: string;
-  permission_granted: boolean;
-  permission_status: string;
+  licenses: string[];
+  license_notes: string;
   attribution: BonapAttribution;
   color_key: ColorKeyEntry[];
   /** URL of the BONAP map key reference page */
@@ -244,6 +244,93 @@ export interface GbifMatchData {
   cache_status?: GbifMatchDataCacheStatus;
 }
 
+export interface GbifSynonymRecord {
+  key?: number;
+  canonicalName?: string;
+  scientificName?: string;
+  rank?: string;
+  taxonomicStatus?: string;
+  nameType?: string;
+  publishedIn?: string | null;
+  [key: string]: unknown;
+}
+
+export type GbifSynonymsDataCacheStatus =
+  | (typeof GbifSynonymsDataCacheStatus)[keyof typeof GbifSynonymsDataCacheStatus]
+  | null;
+
+export const GbifSynonymsDataCacheStatus = {
+  hit: "hit",
+  miss: "miss",
+  bypassed: "bypassed",
+} as const;
+
+export interface GbifSynonymsData {
+  /** GBIF backbone usage key for the accepted taxon (FERNS addition) */
+  usage_key: number;
+  /** Zero-based offset of the first result (mirrors upstream envelope) */
+  offset: number;
+  /** Maximum number of results requested (mirrors upstream envelope) */
+  limit: number;
+  /** True when no more results are available after this page (mirrors upstream envelope) */
+  endOfRecords: boolean;
+  /** Total number of synonyms for this taxon (mirrors upstream envelope) */
+  count: number;
+  /** Synonym records as returned by GBIF (verbatim upstream fields) */
+  results: GbifSynonymRecord[];
+  cache_status?: GbifSynonymsDataCacheStatus;
+}
+
+export interface GbifSynonymsResponse {
+  source_url: string | null;
+  found: boolean;
+  data: GbifSynonymsData | null;
+  provenance: FernsProvenance;
+}
+
+export interface GbifVernacularRecord {
+  vernacularName?: string;
+  language?: string;
+  country?: string | null;
+  source?: string | null;
+  [key: string]: unknown;
+}
+
+export type GbifVernacularNamesDataCacheStatus =
+  | (typeof GbifVernacularNamesDataCacheStatus)[keyof typeof GbifVernacularNamesDataCacheStatus]
+  | null;
+
+export const GbifVernacularNamesDataCacheStatus = {
+  hit: "hit",
+  miss: "miss",
+  bypassed: "bypassed",
+} as const;
+
+export interface GbifVernacularNamesData {
+  /** GBIF backbone usage key for the taxon (FERNS addition) */
+  usage_key: number;
+  /** Zero-based offset of the first result (mirrors upstream envelope) */
+  offset: number;
+  /** Maximum number of results requested (mirrors upstream envelope) */
+  limit: number;
+  /** True when no more results are available after this page (mirrors upstream envelope) */
+  endOfRecords: boolean;
+  /** Total number of vernacular names for this taxon (mirrors upstream envelope) */
+  count: number;
+  /** Vernacular name records as returned by GBIF (verbatim upstream fields) */
+  results: GbifVernacularRecord[];
+  /** First English-language vernacular name found, or first name of any language (FERNS convenience field) */
+  vernacular_name_primary?: string | null;
+  cache_status?: GbifVernacularNamesDataCacheStatus;
+}
+
+export interface GbifVernacularNamesResponse {
+  source_url: string | null;
+  found: boolean;
+  data: GbifVernacularNamesData | null;
+  provenance: FernsProvenance;
+}
+
 export interface GbifMatchResponse {
   source_url: string | null;
   found: boolean;
@@ -315,96 +402,6 @@ export interface GbifSearchResponse {
   provenance: FernsProvenance;
 }
 
-export type GbifSynonymsDataCacheStatus =
-  | (typeof GbifSynonymsDataCacheStatus)[keyof typeof GbifSynonymsDataCacheStatus]
-  | null;
-
-export const GbifSynonymsDataCacheStatus = {
-  hit: "hit",
-  miss: "miss",
-  bypassed: "bypassed",
-} as const;
-
-export interface GbifSynonymRecord {
-  key?: number;
-  canonicalName?: string;
-  scientificName?: string;
-  rank?: string;
-  taxonomicStatus?: string;
-  nameType?: string;
-  publishedIn?: string | null;
-  [key: string]: unknown;
-}
-
-export interface GbifSynonymsData {
-  usage_key: number;
-  offset: number;
-  limit: number;
-  endOfRecords: boolean;
-  count: number;
-  results: GbifSynonymRecord[];
-  cache_status?: GbifSynonymsDataCacheStatus;
-}
-
-export interface GbifSynonymsResponse {
-  source_url: string | null;
-  found: boolean;
-  data: GbifSynonymsData | null;
-  provenance: FernsProvenance;
-}
-
-export type GbifVernacularNamesDataCacheStatus =
-  | (typeof GbifVernacularNamesDataCacheStatus)[keyof typeof GbifVernacularNamesDataCacheStatus]
-  | null;
-
-export const GbifVernacularNamesDataCacheStatus = {
-  hit: "hit",
-  miss: "miss",
-  bypassed: "bypassed",
-} as const;
-
-export interface GbifVernacularRecord {
-  vernacularName?: string;
-  language?: string;
-  country?: string | null;
-  source?: string | null;
-  [key: string]: unknown;
-}
-
-export interface GbifVernacularNamesData {
-  usage_key: number;
-  offset: number;
-  limit: number;
-  endOfRecords: boolean;
-  count: number;
-  results: GbifVernacularRecord[];
-  vernacular_name_primary?: string | null;
-  cache_status?: GbifVernacularNamesDataCacheStatus;
-}
-
-export interface GbifVernacularNamesResponse {
-  source_url: string | null;
-  found: boolean;
-  data: GbifVernacularNamesData | null;
-  provenance: FernsProvenance;
-}
-
-export type GetGbifSpeciesSynonymsParams = {
-  usageKey: number;
-  limit?: number;
-  offset?: number;
-  refresh?: boolean;
-  provenance_verbosity?: string;
-};
-
-export type GetGbifSpeciesVernacularNamesParams = {
-  usageKey: number;
-  limit?: number;
-  offset?: number;
-  refresh?: boolean;
-  provenance_verbosity?: string;
-};
-
 export interface GbifVocabularyEntry {
   code: string;
   label: string;
@@ -447,8 +444,8 @@ export type GbifMetadataResponseRegistryEntry = {
 export interface GbifMetadataResponse {
   service_id: string;
   service_name: string;
-  permission_granted: boolean;
-  permission_status: string;
+  licenses: string[];
+  license_notes: string;
   attribution: GbifMetadataResponseAttribution;
   vocabularies: GbifMetadataResponseVocabularies;
   /** Full registry entry for this GBIF service source */
@@ -928,8 +925,8 @@ export interface InatMetadataResponse {
   service_id: string;
   service_name: string;
   /** True if FERNS has permission to use and expose this data. iNaturalist is open access — no permission request required. */
-  permission_granted: boolean;
-  permission_status: string;
+  licenses: string[];
+  license_notes: string;
   attribution: InatAttribution;
   /** Full registry entry for this iNaturalist service source */
   registry_entry?: InatMetadataResponseRegistryEntry;
@@ -964,10 +961,10 @@ export interface SourceSummary {
   explorer_url: string;
   /** Whether FERNS has verified that use of this source is explicitly permitted. true = permission confirmed; null = not yet evaluated.
    */
-  permission_granted?: boolean | null;
+  licenses?: string[];
   /** Plain-English description of the permission situation for this source. Covers license type, access model, and any restrictions on use.
    */
-  permission_status?: string;
+  license_notes?: string;
   /** One-paragraph plain-English description of this source suitable for non-technical users, agents, and routing decisions.
    */
   general_summary?: string;
@@ -1067,19 +1064,34 @@ export interface MifloraImagesResponse {
   provenance: FernsProvenance;
 }
 
+/**
+ * A single species record from the Michigan Flora flora_search_sp endpoint.
+ */
 export interface MifloraSpeciesRecord {
+  /** Michigan Flora internal plant ID */
   plant_id: number;
+  /** Scientific name of the species */
   scientific_name: string;
+  /** Coefficient of Conservatism (0–10, or null if not assigned) */
   c?: string | null;
+  /** State status code (T=threatened, E=endangered, X=probably extirpated, etc.) */
   st?: string | null;
+  /** Coefficient of Wetness (-5 to +5) */
   w?: number | null;
+  /** Wetland indicator status code (OBL/FACW/FAC/FACU/UPL) */
   wet?: string | null;
+  /** Physiognomy code (e.g. Wt, Sh, Fo, Gr) */
   phys?: string | null;
+  /** Native status (N=native, A=adventive/non-native) */
   na?: string | null;
+  /** Plant family name */
   family_name?: string | null;
+  /** Taxonomic authority */
   author?: string | null;
+  /** Short species code used in Michigan Flora */
   acronym?: string | null;
-  common_name?: string[];
+  /** Array of common names for this species */
+  common_name: string[];
 }
 
 export type MifloraFloraSearchResponseCacheStatus =
@@ -1092,22 +1104,34 @@ export const MifloraFloraSearchResponseCacheStatus = {
   error: "error",
 } as const;
 
+/**
+ * Species data extracted from the first matching record, plus full records array.
+ */
+export type MifloraFloraSearchResponseData = {
+  plant_id?: number | null;
+  scientific_name?: string | null;
+  family_name?: string | null;
+  na?: string | null;
+  c?: string | null;
+  wet?: string | null;
+  phys?: string | null;
+  common_name?: string[];
+  records?: MifloraSpeciesRecord[];
+} | null;
+
+/**
+ * FERNS envelope for Michigan Flora flora_search_sp. data contains the first matching species record plus the full records array. Cached permanently (no TTL).
+
+ */
 export interface MifloraFloraSearchResponse {
+  /** Michigan Flora species page URL. Null when species not found. */
   source_url: string | null;
+  /** Whether a species record was found for this name */
   found: boolean;
   cache_status: MifloraFloraSearchResponseCacheStatus;
   queried_at: string;
-  data?: {
-    plant_id: number | null;
-    scientific_name: string | null;
-    family_name: string | null;
-    na: string | null;
-    c: string | null;
-    wet: string | null;
-    phys: string | null;
-    common_name: string[];
-    records: MifloraSpeciesRecord[];
-  } | null;
+  /** Species data extracted from the first matching record, plus full records array. */
+  data: MifloraFloraSearchResponseData;
   provenance: FernsProvenance;
 }
 
@@ -1121,17 +1145,34 @@ export const MifloraSpecTextResponseCacheStatus = {
   error: "error",
 } as const;
 
+export type MifloraSpecTextResponseData = {
+  plant_id?: number | null;
+  /** Raw HTML botanical description from Michigan Flora */
+  text?: string | null;
+} | null;
+
+/**
+ * FERNS envelope for Michigan Flora spec_text. data.text is the raw HTML botanical description from Michigan Flora. Cached permanently (no TTL).
+
+ */
 export interface MifloraSpecTextResponse {
+  /** Michigan Flora species page URL. */
   source_url: string | null;
+  /** Whether a description was found for this plant_id */
   found: boolean;
   cache_status: MifloraSpecTextResponseCacheStatus;
   queried_at: string;
-  data?: { plant_id: number | null; text: string | null } | null;
+  data: MifloraSpecTextResponseData;
   provenance: FernsProvenance;
 }
 
+/**
+ * A single taxonomic synonym from the Michigan Flora synonyms endpoint.
+ */
 export interface MifloraSynonymRecord {
+  /** The synonym scientific name */
   synonym: string;
+  /** Taxonomic authority for the synonym */
   author?: string | null;
 }
 
@@ -1145,12 +1186,23 @@ export const MifloraSynonymsResponseCacheStatus = {
   error: "error",
 } as const;
 
+export type MifloraSynonymsResponseData = {
+  plant_id?: number | null;
+  synonyms?: MifloraSynonymRecord[];
+} | null;
+
+/**
+ * FERNS envelope for Michigan Flora synonyms. data.synonyms is the array of taxonomic synonyms (empty if none exist). Cached permanently (no TTL).
+
+ */
 export interface MifloraSynonymsResponse {
+  /** Michigan Flora species page URL. */
   source_url: string | null;
+  /** Whether any synonyms were found for this plant_id */
   found: boolean;
   cache_status: MifloraSynonymsResponseCacheStatus;
   queried_at: string;
-  data?: { plant_id: number | null; synonyms: MifloraSynonymRecord[] } | null;
+  data: MifloraSynonymsResponseData;
   provenance: FernsProvenance;
 }
 
@@ -1164,12 +1216,23 @@ export const MifloraPImageInfoResponseCacheStatus = {
   error: "error",
 } as const;
 
+export type MifloraPImageInfoResponseData = {
+  plant_id?: number | null;
+  image?: MifloraImageRecord | null;
+} | null;
+
+/**
+ * FERNS envelope for Michigan Flora pimage_info. data.image is the primary image record enriched with image_url and thumbnail_url (null if no image exists). Cached permanently (no TTL).
+
+ */
 export interface MifloraPImageInfoResponse {
+  /** Michigan Flora species page URL. */
   source_url: string | null;
+  /** Whether a primary image was found for this plant_id */
   found: boolean;
   cache_status: MifloraPImageInfoResponseCacheStatus;
   queried_at: string;
-  data?: { plant_id: number | null; image: MifloraImageRecord | null } | null;
+  data: MifloraPImageInfoResponseData;
   provenance: FernsProvenance;
 }
 
@@ -1202,8 +1265,8 @@ export type MifloraMetadataResponseRegistryEntry = {
 export interface MifloraMetadataResponse {
   service_id: string;
   service_name: string;
-  permission_granted: boolean;
-  permission_status: string;
+  licenses: string[];
+  license_notes: string;
   attribution: MifloraAttribution;
   /** Full registry entry for the Michigan Flora service */
   registry_entry?: MifloraMetadataResponseRegistryEntry;
@@ -1412,8 +1475,8 @@ export type VocabularyMetadataResponseRegistryEntry = {
 export interface VocabularyMetadataResponse {
   service_id: string;
   service_name: string;
-  permission_granted: boolean;
-  permission_status: string;
+  licenses: string[];
+  license_notes: string;
   /** Full registry entry for this vocabulary source */
   registry_entry?: VocabularyMetadataResponseRegistryEntry;
   queried_at: string;
@@ -1684,8 +1747,8 @@ export type UniversalFqaMetadataResponseRegistryEntry = {
 export interface UniversalFqaMetadataResponse {
   source_id: string;
   name: string;
-  permission_granted: boolean;
-  permission_status: string;
+  licenses: string[];
+  license_notes: string;
   attribution: UniversalFqaMetadataResponseAttribution;
   registry_entry: UniversalFqaMetadataResponseRegistryEntry;
   queried_at?: string;
@@ -1823,8 +1886,8 @@ export type LcscgMetadataResponseRegistryEntry = { [key: string]: unknown };
 export interface LcscgMetadataResponse {
   service_id: string;
   service_name: string;
-  permission_granted: boolean;
-  permission_status: string;
+  licenses: string[];
+  license_notes: string;
   guide_count: number;
   species_count: number;
   registry_entry: LcscgMetadataResponseRegistryEntry;
@@ -1915,8 +1978,8 @@ export interface MnfiMetadataResponse {
   class_summary?: MnfiMetadataResponseClassSummaryItem[];
   /** List of Michigan counties with at least one element occurrence */
   counties_with_data?: string[];
-  permission_granted?: boolean;
-  permission_status?: string;
+  licenses?: string[];
+  license_notes?: string;
   attribution?: string;
   registry_entry?: MnfiMetadataResponseRegistryEntry;
 }
@@ -2050,8 +2113,8 @@ export interface NatureserveMetadataResponse {
   source_url?: string;
   service_id: string;
   service_name: string;
-  permission_granted?: boolean;
-  permission_status?: string;
+  licenses?: string[];
+  license_notes?: string;
   attribution?: string;
   cache_stats?: NatureserveMetadataResponseCacheStats;
   registry_entry?: NatureserveMetadataResponseRegistryEntry;
@@ -2103,6 +2166,62 @@ export interface NatureserveSpeciesResponse {
   found: boolean;
   attribution?: string;
   data?: NatureserveSpeciesResponseData;
+  provenance?: FernsProvenance;
+}
+
+export type NatureserveSearchResponseDataCacheStatus =
+  (typeof NatureserveSearchResponseDataCacheStatus)[keyof typeof NatureserveSearchResponseDataCacheStatus];
+
+export const NatureserveSearchResponseDataCacheStatus = {
+  hit: "hit",
+  miss: "miss",
+  bypassed: "bypassed",
+} as const;
+
+export type NatureserveSearchResponseItemCharacteristicSpeciesItem = {
+  scientific_name?: string;
+  stratum?: string | null;
+  constancy_percent?: number | null;
+  cover_class_percent?: number | null;
+};
+
+export interface NatureserveSearchResponseItem {
+  /** Scientific name of the ecological system, species, or community */
+  system_name?: string;
+  /** NatureServe G-rank (e.g. G3, G4G5) */
+  global_rank?: string | null;
+  rounded_global_rank?: string | null;
+  /** NatureServe N-rank for the US (e.g. N3, N4) */
+  us_national_rank?: string | null;
+  rounded_us_national_rank?: string | null;
+  /** Concept sentence from ecosystemGlobal.conceptSentence (ecosystem records only) */
+  description_excerpt?: string | null;
+  national_distribution?: string | null;
+  /** Characteristic plant species (not populated from search endpoint; empty array) */
+  characteristic_species?: NatureserveSearchResponseItemCharacteristicSpeciesItem[];
+  /** Direct link to this record on NatureServe Explorer */
+  natureserve_url?: string | null;
+  /** NatureServe element global identifier (e.g. ELEMENT_GLOBAL.2.12345) */
+  element_global_id?: string;
+  /** Record type as returned by NatureServe (e.g. ECOSYSTEM, SPECIES) */
+  record_type?: string;
+}
+
+export type NatureserveSearchResponseData = {
+  /** Array of matching records (ecosystems, species, communities, etc. depending on recordType) */
+  ecosystems?: NatureserveSearchResponseItem[];
+  /** Number of records in this page */
+  result_count?: number;
+  /** Total matching records across all pages */
+  total_results?: number;
+  cache_status?: NatureserveSearchResponseDataCacheStatus;
+};
+
+export interface NatureserveSearchResponse {
+  source_url?: string | null;
+  found: boolean;
+  attribution?: string;
+  data?: NatureserveSearchResponseData;
   provenance?: FernsProvenance;
 }
 
@@ -2310,8 +2429,8 @@ export type BotanicalWebRefMetadataResponseRegistryEntry = {
 export interface BotanicalWebRefMetadataResponse {
   service_id: string;
   service_name: string;
-  permission_granted?: boolean;
-  permission_status?: string;
+  licenses?: string[];
+  license_notes?: string;
   /** URL construction strategy: direct_construction | sitemap_scrape | species_list_scrape */
   url_strategy?: string;
   /** URL template pattern used for direct construction sources */
@@ -2446,8 +2565,8 @@ export type UsdaPlantsMetadataResponseRegistryEntry = {
 export interface UsdaPlantsMetadataResponse {
   service_id?: string;
   service_name?: string;
-  permission_granted?: boolean;
-  permission_status?: string;
+  licenses?: string[];
+  license_notes?: string;
   access_method?: string;
   api_base?: string;
   registry_entry?: UsdaPlantsMetadataResponseRegistryEntry;
@@ -2665,8 +2784,8 @@ export type NpnMetadataResponseRegistryEntry = { [key: string]: unknown };
 export interface NpnMetadataResponse {
   service_id: string;
   service_name: string;
-  permission_granted: boolean;
-  permission_status: string;
+  licenses: string[];
+  license_notes: string;
   species_count: number;
   registry_entry: NpnMetadataResponseRegistryEntry;
   queried_at: string;
@@ -2762,6 +2881,68 @@ export type GetGbifSearchParams = {
    */
   q: string;
 };
+
+export type GetGbifSpeciesSynonymsParams = {
+  /**
+   * Number of results to return (1–1000, default 100)
+   * @minimum 1
+   * @maximum 1000
+   */
+  limit?: number;
+  /**
+   * Zero-based offset for pagination (default 0)
+   * @minimum 0
+   */
+  offset?: number;
+  /**
+   * If true, bypasses cache and fetches fresh from GBIF
+   */
+  refresh?: boolean;
+  /**
+   * Controls provenance text fields: full | summary | none
+   */
+  provenance_verbosity?: GetGbifSpeciesSynonymsProvenanceVerbosity;
+};
+
+export type GetGbifSpeciesSynonymsProvenanceVerbosity =
+  (typeof GetGbifSpeciesSynonymsProvenanceVerbosity)[keyof typeof GetGbifSpeciesSynonymsProvenanceVerbosity];
+
+export const GetGbifSpeciesSynonymsProvenanceVerbosity = {
+  full: "full",
+  summary: "summary",
+  none: "none",
+} as const;
+
+export type GetGbifSpeciesVernacularNamesParams = {
+  /**
+   * Number of results to return (1–1000, default 100)
+   * @minimum 1
+   * @maximum 1000
+   */
+  limit?: number;
+  /**
+   * Zero-based offset for pagination (default 0)
+   * @minimum 0
+   */
+  offset?: number;
+  /**
+   * If true, bypasses cache and fetches fresh from GBIF
+   */
+  refresh?: boolean;
+  /**
+   * Controls provenance text fields: full | summary | none
+   */
+  provenance_verbosity?: GetGbifSpeciesVernacularNamesProvenanceVerbosity;
+};
+
+export type GetGbifSpeciesVernacularNamesProvenanceVerbosity =
+  (typeof GetGbifSpeciesVernacularNamesProvenanceVerbosity)[keyof typeof GetGbifSpeciesVernacularNamesProvenanceVerbosity];
+
+export const GetGbifSpeciesVernacularNamesProvenanceVerbosity = {
+  full: "full",
+  summary: "summary",
+  none: "none",
+} as const;
 
 export type GetInatPlacesAutocompleteParams = {
   /**
@@ -3644,68 +3825,6 @@ export const GetMnfiCountyElementsType = {
   community: "community",
 } as const;
 
-export type GetNatureserveSearchParams = {
-  /**
-   * Search text (e.g. oak savanna, tallgrass prairie, Platanthera leucophaea)
-   * @minLength 1
-   */
-  q: string;
-  /**
-   * Type of records to return (default: ECOSYSTEM).
-   * ECOSYSTEM — ecological systems and community types;
-   * SPECIES — animal and plant species;
-   * COMMUNITY — plant communities;
-   * GROUP — element groups;
-   * ASSOCIATION — plant associations.
-   */
-  recordType?: string;
-  /** Number of results per page (1–50, default 10) */
-  limit?: number;
-  /** Zero-indexed page number (default 0) */
-  page?: number;
-  /** If true, bypasses cache and fetches fresh from NatureServe Explorer */
-  refresh?: boolean;
-  /** Controls provenance verbosity: full | summary | none */
-  provenance_verbosity?: string;
-};
-
-export type NatureserveSearchResponseItemCharacteristicSpecies = {
-  scientific_name?: string;
-  stratum?: string | null;
-  constancy_percent?: number | null;
-  cover_class_percent?: number | null;
-};
-
-export type NatureserveSearchResponseItem = {
-  system_name?: string;
-  global_rank?: string | null;
-  rounded_global_rank?: string | null;
-  us_national_rank?: string | null;
-  rounded_us_national_rank?: string | null;
-  /** Concept sentence from ecosystemGlobal.conceptSentence (ecosystem records only) */
-  description_excerpt?: string | null;
-  national_distribution?: string | null;
-  characteristic_species?: NatureserveSearchResponseItemCharacteristicSpecies[];
-  natureserve_url?: string | null;
-  element_global_id?: string;
-  record_type?: string;
-};
-
-export type NatureserveSearchResponseData = {
-  ecosystems?: NatureserveSearchResponseItem[];
-  result_count?: number;
-  total_results?: number;
-  cache_status?: NatureserveSpeciesResponseDataCacheStatus;
-};
-
-export interface NatureserveSearchResponse {
-  source_url?: string | null;
-  found: boolean;
-  attribution?: string;
-  data?: NatureserveSearchResponseData;
-  provenance?: FernsProvenance;
-}
-
 export type GetNatureserveSpeciesParams = {
   /**
    * Scientific name to look up (e.g. Asclepias tuberosa)
@@ -3722,6 +3841,59 @@ export type GetNatureserveSpeciesParams = {
    */
   refresh?: boolean;
 };
+
+export type GetNatureserveSearchParams = {
+  /**
+   * Search text (e.g. oak savanna, tallgrass prairie, Platanthera leucophaea)
+   * @minLength 1
+   */
+  q: string;
+  /**
+ * Type of records to return (default: ECOSYSTEM). ECOSYSTEM — ecological systems and community types; SPECIES — animal and plant species; COMMUNITY — plant communities; GROUP — element groups; ASSOCIATION — plant associations.
+
+ */
+  recordType?: GetNatureserveSearchRecordType;
+  /**
+   * Number of results per page (1–50, default 10)
+   * @minimum 1
+   * @maximum 50
+   */
+  limit?: number;
+  /**
+   * Zero-indexed page number (default 0)
+   * @minimum 0
+   */
+  page?: number;
+  /**
+   * If true, bypasses cache and fetches fresh from NatureServe Explorer
+   */
+  refresh?: boolean;
+  /**
+ * Controls how much provenance text is returned. full (default) returns both general_summary and technical_details; summary returns general_summary only; none omits both.
+
+ */
+  provenance_verbosity?: GetNatureserveSearchProvenanceVerbosity;
+};
+
+export type GetNatureserveSearchRecordType =
+  (typeof GetNatureserveSearchRecordType)[keyof typeof GetNatureserveSearchRecordType];
+
+export const GetNatureserveSearchRecordType = {
+  ECOSYSTEM: "ECOSYSTEM",
+  SPECIES: "SPECIES",
+  COMMUNITY: "COMMUNITY",
+  GROUP: "GROUP",
+  ASSOCIATION: "ASSOCIATION",
+} as const;
+
+export type GetNatureserveSearchProvenanceVerbosity =
+  (typeof GetNatureserveSearchProvenanceVerbosity)[keyof typeof GetNatureserveSearchProvenanceVerbosity];
+
+export const GetNatureserveSearchProvenanceVerbosity = {
+  full: "full",
+  summary: "summary",
+  none: "none",
+} as const;
 
 export type GetGobotanyParams = {
   /**

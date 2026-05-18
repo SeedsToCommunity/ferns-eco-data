@@ -1,8 +1,8 @@
 export const LADY_BIRD_JOHNSON_SOURCE_ID = "lady-bird-johnson";
 
-export const LADY_BIRD_JOHNSON_PERMISSION_GRANTED = true;
+export const LADY_BIRD_JOHNSON_LICENSES: string[] = [];
 
-export const LADY_BIRD_JOHNSON_PERMISSION_STATUS =
+export const LADY_BIRD_JOHNSON_LICENSE_NOTES =
   "OPEN — The Lady Bird Johnson Wildflower Center plant database (wildflower.org/plants) is a public reference " +
   "maintained by the Lady Bird Johnson Wildflower Center at The University of Texas at Austin. " +
   "No authentication or API key is required. " +
@@ -68,8 +68,8 @@ export const LADY_BIRD_JOHNSON_REGISTRY_ENTRY = {
     "Site blocks non-browser User-Agents (403); FERNS uses a browser-like UA.",
   metadata_url: "/api/lady-bird-johnson/metadata",
   explorer_url: "/source/lady-bird-johnson",
-  permission_granted: LADY_BIRD_JOHNSON_PERMISSION_GRANTED,
-  permission_status: LADY_BIRD_JOHNSON_PERMISSION_STATUS,
+  licenses: LADY_BIRD_JOHNSON_LICENSES,
+  license_notes: LADY_BIRD_JOHNSON_LICENSE_NOTES,
   general_summary: LADY_BIRD_JOHNSON_GENERAL_SUMMARY,
   technical_details: LADY_BIRD_JOHNSON_TECHNICAL_DETAILS,
 };

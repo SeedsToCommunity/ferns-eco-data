@@ -873,15 +873,17 @@ export async function runNatureserveChecks(fernsBase: string): Promise<EndpointC
   const metadataCheck = await checkEndpoint(
     "natureserve",
     "/api/natureserve/metadata",
-    "NatureServe — service metadata (permission_granted, attribution, cache_stats)",
+    "NatureServe — service metadata (licenses, attribution, cache_stats)",
     fernsBase,
     (envelope) => {
       const findings: FieldFinding[] = [];
       const ec = envelope as Record<string, unknown>;
-      if (ec.permission_granted === true) {
-        findings.push({ type: "ok", sourceField: "permission_granted", note: "permission_granted=true" });
+      if (Array.isArray(ec.licenses) && ec.licenses.length > 0) {
+        findings.push({ type: "ok", sourceField: "licenses", note: `licenses=${JSON.stringify(ec.licenses)}` });
+      } else if (Array.isArray(ec.licenses)) {
+        findings.push({ type: "ok", sourceField: "licenses", note: "licenses=[] (not yet characterized)" });
       } else {
-        findings.push({ type: "mismatch", sourceField: "permission_granted", note: `permission_granted=${ec.permission_granted}` });
+        findings.push({ type: "mismatch", sourceField: "licenses", note: `licenses field missing or wrong type` });
       }
       const attr = ec.attribution as Record<string, unknown> | null | undefined;
       if (attr && attr.source_name) {
@@ -1345,7 +1347,7 @@ export async function runNpnChecks(fernsBase: string): Promise<EndpointCompariso
     checkEndpoint(
       "ann-arbor-npn",
       "/api/ann-arbor-npn/metadata",
-      "Ann Arbor NPN — metadata endpoint (service_id, permission_granted)",
+      "Ann Arbor NPN — metadata endpoint (service_id, licenses)",
       fernsBase,
       (envelope) => {
         const findings: FieldFinding[] = [];
@@ -1361,13 +1363,13 @@ export async function runNpnChecks(fernsBase: string): Promise<EndpointCompariso
         } else {
           findings.push({ type: "gap", sourceField: "species_count", note: "species_count missing" });
         }
-        // permission_granted — must be boolean false for this source
-        if (envelope.permission_granted === false) {
-          findings.push({ type: "ok", sourceField: "permission_granted", note: "permission_granted=false ✓ (expected — no agreement yet)" });
-        } else if (typeof envelope.permission_granted === "boolean") {
-          findings.push({ type: "mismatch", sourceField: "permission_granted", note: `expected false, got ${envelope.permission_granted}` });
+        // licenses — should be a string array
+        if (Array.isArray(envelope.licenses) && envelope.licenses.length > 0) {
+          findings.push({ type: "ok", sourceField: "licenses", note: `licenses=${JSON.stringify(envelope.licenses)}` });
+        } else if (Array.isArray(envelope.licenses)) {
+          findings.push({ type: "ok", sourceField: "licenses", note: "licenses=[] (not yet characterized)" });
         } else {
-          findings.push({ type: "mismatch", sourceField: "permission_granted", note: "permission_granted field missing" });
+          findings.push({ type: "mismatch", sourceField: "licenses", note: "licenses field missing or wrong type" });
         }
         return findings;
       },

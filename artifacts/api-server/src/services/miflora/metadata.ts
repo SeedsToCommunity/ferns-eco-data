@@ -6,9 +6,9 @@ export const MIFLORA_USER_AGENT = "FERNS/1.0";
 
 export const MIFLORA_REQUEST_TIMEOUT_MS = 30000;
 
-export const MIFLORA_PERMISSION_GRANTED = true;
+export const MIFLORA_LICENSES = ["cc-by"];
 
-export const MIFLORA_PERMISSION_STATUS =
+export const MIFLORA_LICENSE_NOTES =
   "OPEN — No authentication required for read operations. Attribution required.";
 
 export const MIFLORA_ATTRIBUTION = {
@@ -96,8 +96,8 @@ export const MIFLORA_REGISTRY_ENTRY = {
     "for one query. Two API calls minimum for any species query; four for full species data.",
   metadata_url: "/api/miflora/metadata",
   explorer_url: "/source/michigan-flora",
-  permission_granted: MIFLORA_PERMISSION_GRANTED,
-  permission_status: MIFLORA_PERMISSION_STATUS,
+  licenses: MIFLORA_LICENSES,
+  license_notes: MIFLORA_LICENSE_NOTES,
   general_summary: MIFLORA_GENERAL_SUMMARY,
   technical_details: MIFLORA_TECHNICAL_DETAILS,
 };

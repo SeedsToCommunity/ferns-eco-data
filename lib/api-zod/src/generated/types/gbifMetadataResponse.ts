@@ -13,8 +13,8 @@ import type { GbifMetadataResponseVocabularies } from "./gbifMetadataResponseVoc
 export interface GbifMetadataResponse {
   service_id: string;
   service_name: string;
-  permission_granted: boolean;
-  permission_status: string;
+  licenses: string[];
+  license_notes: string;
   attribution: GbifMetadataResponseAttribution;
   vocabularies: GbifMetadataResponseVocabularies;
   /** Full registry entry for this GBIF service source */

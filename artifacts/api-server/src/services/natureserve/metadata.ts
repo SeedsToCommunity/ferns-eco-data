@@ -3,9 +3,9 @@ export const NATURESERVE_SOURCE_ID = "natureserve";
 export const NATURESERVE_API_BASE = "https://explorer.natureserve.org/api/data";
 export const NATURESERVE_EXPLORER_BASE = "https://explorer.natureserve.org";
 
-export const NATURESERVE_PERMISSION_GRANTED = true;
+export const NATURESERVE_LICENSES = ["cc-by"];
 
-export const NATURESERVE_PERMISSION_STATUS =
+export const NATURESERVE_LICENSE_NOTES =
   "OPEN — Free public API. Attribution required per NatureServe Terms of Use.";
 
 export const NATURESERVE_ATTRIBUTION = {
@@ -82,8 +82,8 @@ export const NATURESERVE_REGISTRY_ENTRY = {
     "NatureServe's Element Occurrence spatial data (precise localities) is restricted to member programs and is not available through this integration.",
   metadata_url: "/api/natureserve/metadata",
   explorer_url: "/source/natureserve",
-  permission_granted: NATURESERVE_PERMISSION_GRANTED,
-  permission_status: NATURESERVE_PERMISSION_STATUS,
+  licenses: NATURESERVE_LICENSES,
+  license_notes: NATURESERVE_LICENSE_NOTES,
   general_summary: NATURESERVE_GENERAL_SUMMARY,
   technical_details: NATURESERVE_TECHNICAL_DETAILS,
 };

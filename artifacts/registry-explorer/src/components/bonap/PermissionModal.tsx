@@ -3,13 +3,14 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
 interface PermissionModalProps {
-  permissionGranted: boolean;
-  permissionStatus: string;
+  licenses: string[];
+  licenseNotes: string;
   onAcknowledge: () => void;
 }
 
-export function PermissionModal({ permissionGranted, permissionStatus, onAcknowledge }: PermissionModalProps) {
-  if (permissionGranted) return null;
+export function PermissionModal({ licenses, licenseNotes, onAcknowledge }: PermissionModalProps) {
+  const isRestricted = licenses.includes("proprietary") || licenses.includes("restricted");
+  if (!isRestricted) return null;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-foreground/40 backdrop-blur-md">
@@ -39,7 +40,7 @@ export function PermissionModal({ permissionGranted, permissionStatus, onAcknowl
             <div className="bg-secondary/50 p-4 rounded-xl border border-secondary text-sm flex gap-3 items-start mt-6">
               <Info className="w-5 h-5 text-primary shrink-0 mt-0.5" />
               <p className="text-secondary-foreground font-medium">
-                Status: <span className="text-muted-foreground font-normal">{permissionStatus}</span>
+                License notes: <span className="text-muted-foreground font-normal">{licenseNotes}</span>
               </p>
             </div>
           </div>

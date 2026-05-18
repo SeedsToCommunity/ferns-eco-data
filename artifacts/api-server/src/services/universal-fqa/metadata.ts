@@ -2,9 +2,9 @@ export const UNIVERSAL_FQA_SOURCE_ID = "universal-fqa";
 
 export const UNIVERSAL_FQA_API_BASE = "http://universalfqa.org/get";
 
-export const UNIVERSAL_FQA_PERMISSION_GRANTED = true;
+export const UNIVERSAL_FQA_LICENSES = ["cc-by"];
 
-export const UNIVERSAL_FQA_PERMISSION_STATUS =
+export const UNIVERSAL_FQA_LICENSE_NOTES =
   "OPEN — No authentication required. All endpoints are publicly accessible without registration. Attribution required.";
 
 export const UNIVERSAL_FQA_ATTRIBUTION = {
@@ -118,8 +118,8 @@ export const UNIVERSAL_FQA_REGISTRY_ENTRY = {
     "C-values are calibrated per database — the same species may have different C-values in different regional databases.",
   metadata_url: "/api/universal-fqa/metadata",
   explorer_url: "/source/universal-fqa",
-  permission_granted: UNIVERSAL_FQA_PERMISSION_GRANTED,
-  permission_status: UNIVERSAL_FQA_PERMISSION_STATUS,
+  licenses: UNIVERSAL_FQA_LICENSES,
+  license_notes: UNIVERSAL_FQA_LICENSE_NOTES,
   general_summary: UNIVERSAL_FQA_GENERAL_SUMMARY,
   technical_details: UNIVERSAL_FQA_TECHNICAL_DETAILS,
 };

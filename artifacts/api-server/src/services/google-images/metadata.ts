@@ -1,8 +1,8 @@
 export const GOOGLE_IMAGES_SOURCE_ID = "google-images";
 
-export const GOOGLE_IMAGES_PERMISSION_GRANTED = true;
+export const GOOGLE_IMAGES_LICENSES = ["proprietary"];
 
-export const GOOGLE_IMAGES_PERMISSION_STATUS =
+export const GOOGLE_IMAGES_LICENSE_NOTES =
   "OPEN — Google Images search URLs are publicly accessible without authentication. " +
   "FERNS constructs a search URL from the scientific name; no Google API key is required. " +
   "This source returns a search results page URL, not a direct image URL.";
@@ -49,8 +49,8 @@ export const GOOGLE_IMAGES_REGISTRY_ENTRY = {
     "Google may change its URL format; this source should be periodically verified.",
   metadata_url: "/api/google-images/metadata",
   explorer_url: "/source/google-images",
-  permission_granted: GOOGLE_IMAGES_PERMISSION_GRANTED,
-  permission_status: GOOGLE_IMAGES_PERMISSION_STATUS,
+  licenses: GOOGLE_IMAGES_LICENSES,
+  license_notes: GOOGLE_IMAGES_LICENSE_NOTES,
   general_summary: GOOGLE_IMAGES_GENERAL_SUMMARY,
   technical_details: GOOGLE_IMAGES_TECHNICAL_DETAILS,
 };

@@ -28,14 +28,35 @@ function KVRow({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
-function PermissionBadge({ granted }: { granted: boolean }) {
-  return granted ? (
-    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-green-500/10 text-green-700 border border-green-500/20">
-      <ShieldCheck className="w-3.5 h-3.5" /> Open / Permitted
-    </span>
-  ) : (
-    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-700 border border-amber-500/20">
-      <ShieldOff className="w-3.5 h-3.5" /> Permission Required
+const LICENSE_LABEL: Record<string, string> = {
+  "cc0": "CC0",
+  "cc-by": "CC BY",
+  "cc-by-sa": "CC BY-SA",
+  "cc-by-nc": "CC BY-NC",
+  "proprietary": "Proprietary",
+  "restricted": "Restricted",
+};
+
+function LicenseBadges({ licenses }: { licenses: string[] }) {
+  const isRestricted = licenses.includes("proprietary") || licenses.includes("restricted");
+  if (licenses.length === 0) return null;
+  return (
+    <span className="inline-flex flex-wrap gap-1.5">
+      {licenses.map((lic) => (
+        <span
+          key={lic}
+          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${
+            isRestricted
+              ? "bg-amber-500/10 text-amber-700 border-amber-500/20"
+              : "bg-green-500/10 text-green-700 border-green-500/20"
+          }`}
+        >
+          {isRestricted
+            ? <ShieldOff className="w-3.5 h-3.5" />
+            : <ShieldCheck className="w-3.5 h-3.5" />}
+          {LICENSE_LABEL[lic] ?? lic}
+        </span>
+      ))}
     </span>
   );
 }
@@ -59,8 +80,8 @@ interface MetadataShape {
   name?: string;
   data_vintage?: string;
   queried_at?: string;
-  permission_granted?: boolean;
-  permission_status?: string;
+  licenses?: string[];
+  license_notes?: string;
   attribution?: Record<string, string>;
   provenance?: {
     fetched_at?: string;
@@ -118,21 +139,22 @@ export function SourceMetadataPanel({ metadataApiPath }: { metadataApiPath: stri
 
   const serviceId = meta.service_id ?? meta.source_id;
   const serviceName = meta.service_name ?? meta.name;
-  const { data_vintage, queried_at, permission_granted, permission_status, attribution, provenance } = meta;
+  const { data_vintage, queried_at, licenses, license_notes, attribution, provenance } = meta;
+  const isRestricted = licenses?.includes("proprietary") || licenses?.includes("restricted");
 
   return (
     <div className="space-y-4">
-      {/* Permission status banner */}
-      {permission_status && (
+      {/* License notes banner */}
+      {license_notes && (
         <div className={`rounded-xl px-5 py-3 border text-sm leading-relaxed flex items-start gap-3 ${
-          permission_granted
-            ? "bg-green-500/5 border-green-500/20 text-green-800"
-            : "bg-amber-500/5 border-amber-500/20 text-amber-800"
+          isRestricted
+            ? "bg-amber-500/5 border-amber-500/20 text-amber-800"
+            : "bg-green-500/5 border-green-500/20 text-green-800"
         }`}>
-          {permission_granted
-            ? <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" />
-            : <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />}
-          <span>{permission_status}</span>
+          {isRestricted
+            ? <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+            : <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" />}
+          <span>{license_notes}</span>
         </div>
       )}
 

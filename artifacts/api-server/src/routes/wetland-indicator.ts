@@ -4,8 +4,8 @@ import {
   WETLAND_INDICATOR_GENERAL_SUMMARY,
   WETLAND_INDICATOR_TECHNICAL_DETAILS,
   WETLAND_INDICATOR_REGISTRY_ENTRY,
-  WETLAND_INDICATOR_PERMISSION_GRANTED,
-  WETLAND_INDICATOR_PERMISSION_STATUS,
+  WETLAND_INDICATOR_LICENSES,
+  WETLAND_INDICATOR_LICENSE_NOTES,
 } from "../services/wetland-indicator/metadata.js";
 import {
   WETLAND_INDICATOR_DATA,
@@ -106,8 +106,8 @@ router.get("/wetland-indicator/metadata", async (req, res) => {
   res.json({
     service_id: WETLAND_INDICATOR_SOURCE_ID,
     service_name: WETLAND_INDICATOR_REGISTRY_ENTRY.name,
-    permission_granted: WETLAND_INDICATOR_PERMISSION_GRANTED,
-    permission_status: WETLAND_INDICATOR_PERMISSION_STATUS,
+    licenses: WETLAND_INDICATOR_LICENSES,
+    license_notes: WETLAND_INDICATOR_LICENSE_NOTES,
     registry_entry: {
       ...WETLAND_INDICATOR_REGISTRY_ENTRY,
       metadata_url: resolveUrl(req, WETLAND_INDICATOR_REGISTRY_ENTRY.metadata_url),

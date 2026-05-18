@@ -11,8 +11,8 @@ import type { LcscgMetadataResponseRegistryEntry } from "./lcscgMetadataResponse
 export interface LcscgMetadataResponse {
   service_id: string;
   service_name: string;
-  permission_granted: boolean;
-  permission_status: string;
+  licenses: string[];
+  license_notes: string;
   guide_count: number;
   species_count: number;
   registry_entry: LcscgMetadataResponseRegistryEntry;

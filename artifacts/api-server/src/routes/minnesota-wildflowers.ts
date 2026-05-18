@@ -7,8 +7,8 @@ import {
   MINNESOTA_WILDFLOWERS_GENERAL_SUMMARY,
   MINNESOTA_WILDFLOWERS_TECHNICAL_DETAILS,
   MINNESOTA_WILDFLOWERS_REGISTRY_ENTRY,
-  MINNESOTA_WILDFLOWERS_PERMISSION_GRANTED,
-  MINNESOTA_WILDFLOWERS_PERMISSION_STATUS,
+  MINNESOTA_WILDFLOWERS_LICENSES,
+  MINNESOTA_WILDFLOWERS_LICENSE_NOTES,
 } from "../services/minnesota-wildflowers/metadata.js";
 import { ensureMinnesotaWildflowersRegistryEntry } from "../services/minnesota-wildflowers/seed.js";
 import { importMinnesotaWildflowers } from "../services/botanical-refs/importers/minnesota-wildflowers.js";
@@ -36,8 +36,8 @@ router.get("/minnesota-wildflowers/metadata", async (req, res) => {
   res.json({
     service_id: SITE_ID,
     service_name: MINNESOTA_WILDFLOWERS_REGISTRY_ENTRY.name,
-    permission_granted: MINNESOTA_WILDFLOWERS_PERMISSION_GRANTED,
-    permission_status: MINNESOTA_WILDFLOWERS_PERMISSION_STATUS,
+    licenses: MINNESOTA_WILDFLOWERS_LICENSES,
+    license_notes: MINNESOTA_WILDFLOWERS_LICENSE_NOTES,
     url_strategy: "species_list_scrape",
     indexed_species_count: Number(count),
     list_source: "https://www.minnesotawildflowers.info/page/plants-by-name",

@@ -4,8 +4,8 @@ import {
   WUCOLS_GENERAL_SUMMARY,
   WUCOLS_TECHNICAL_DETAILS,
   WUCOLS_REGISTRY_ENTRY,
-  WUCOLS_PERMISSION_GRANTED,
-  WUCOLS_PERMISSION_STATUS,
+  WUCOLS_LICENSES,
+  WUCOLS_LICENSE_NOTES,
 } from "../services/wucols/metadata.js";
 import { WUCOLS_DATA, lookupByCode } from "../services/wucols/data.js";
 import { ensureWucolsRegistryEntry } from "../services/wucols/seed.js";
@@ -71,8 +71,8 @@ router.get("/wucols/metadata", async (req, res) => {
   res.json({
     service_id: WUCOLS_SOURCE_ID,
     service_name: WUCOLS_REGISTRY_ENTRY.name,
-    permission_granted: WUCOLS_PERMISSION_GRANTED,
-    permission_status: WUCOLS_PERMISSION_STATUS,
+    licenses: WUCOLS_LICENSES,
+    license_notes: WUCOLS_LICENSE_NOTES,
     registry_entry: {
       ...WUCOLS_REGISTRY_ENTRY,
       metadata_url: resolveUrl(req, WUCOLS_REGISTRY_ENTRY.metadata_url),

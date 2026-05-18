@@ -6,8 +6,8 @@ import {
   LADY_BIRD_JOHNSON_GENERAL_SUMMARY,
   LADY_BIRD_JOHNSON_TECHNICAL_DETAILS,
   LADY_BIRD_JOHNSON_REGISTRY_ENTRY,
-  LADY_BIRD_JOHNSON_PERMISSION_GRANTED,
-  LADY_BIRD_JOHNSON_PERMISSION_STATUS,
+  LADY_BIRD_JOHNSON_LICENSES,
+  LADY_BIRD_JOHNSON_LICENSE_NOTES,
 } from "../services/lady-bird-johnson/metadata.js";
 import { ensureLadyBirdJohnsonRegistryEntry } from "../services/lady-bird-johnson/seed.js";
 import { extractLadyBirdJohnson, removeNoiseBlocks } from "../services/botanical-refs/scraper.js";
@@ -171,8 +171,8 @@ router.get("/lady-bird-johnson/metadata", async (req, res) => {
   res.json({
     service_id: LADY_BIRD_JOHNSON_SOURCE_ID,
     service_name: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.name,
-    permission_granted: LADY_BIRD_JOHNSON_PERMISSION_GRANTED,
-    permission_status: LADY_BIRD_JOHNSON_PERMISSION_STATUS,
+    licenses: LADY_BIRD_JOHNSON_LICENSES,
+    license_notes: LADY_BIRD_JOHNSON_LICENSE_NOTES,
     url_strategy: LBJ_VERIFICATION_METHOD,
     url_pattern: `${LBJ_PROFILE_BASE}?id_plant={USDA_SYMBOL}`,
     validation: "http_get with redirect:manual (200=found, 3xx=not_found)",

@@ -7,9 +7,9 @@ export const BONAP_COLOR_KEY_URL = "http://www.bonap.org/MapKey.html";
 
 export const BONAP_COLOR_KEY_IMAGE_URL = "http://www.bonap.org/Help/elements/Color%20Key.gif";
 
-export const BONAP_PERMISSION_GRANTED = false;
+export const BONAP_LICENSES = ["proprietary"];
 
-export const BONAP_PERMISSION_STATUS =
+export const BONAP_LICENSE_NOTES =
   "REQUIRED — NOT YET REQUESTED. Written permission required from BONAP before any public deployment. Partnership letter drafted.";
 
 export const BONAP_ATTRIBUTION = {
@@ -206,8 +206,8 @@ export const BONAP_REGISTRY_ENTRY = {
     "Data vintage 2014. No subspecies-level maps. Family-level maps exist at bonap.net but are not implemented. Color key hex codes are approximate. Written permission from BONAP is required before any public deployment.",
   metadata_url: "/api/bonap/metadata",
   explorer_url: "/source/bonap-napa",
-  permission_granted: BONAP_PERMISSION_GRANTED,
-  permission_status: BONAP_PERMISSION_STATUS,
+  licenses: BONAP_LICENSES,
+  license_notes: BONAP_LICENSE_NOTES,
   general_summary: BONAP_GENERAL_SUMMARY,
   technical_details: BONAP_TECHNICAL_DETAILS,
 };

@@ -1,4 +1,4 @@
-import { pgTable, serial, text, boolean, timestamp, unique } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, timestamp, unique } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -16,8 +16,8 @@ export const fernsSourcesTable = pgTable("ferns_sources", {
   known_limitations: text("known_limitations"),
   metadata_url: text("metadata_url"),
   explorer_url: text("explorer_url"),
-  permission_granted: boolean("permission_granted"),
-  permission_status: text("permission_status"),
+  licenses: text("licenses").array().notNull().default([]),
+  license_notes: text("license_notes").notNull().default(""),
   general_summary: text("general_summary"),
   technical_details: text("technical_details"),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),

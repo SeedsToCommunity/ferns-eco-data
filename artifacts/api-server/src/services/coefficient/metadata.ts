@@ -1,8 +1,8 @@
 export const COEFFICIENT_SOURCE_ID = "coefficient-of-conservatism";
 
-export const COEFFICIENT_PERMISSION_GRANTED = true;
+export const COEFFICIENT_LICENSES = ["cc-by"];
 
-export const COEFFICIENT_PERMISSION_STATUS =
+export const COEFFICIENT_LICENSE_NOTES =
   "OPEN — Static reference data. Methodology published by Swink & Wilhelm (1994). No authentication required.";
 
 export const COEFFICIENT_GENERAL_SUMMARY =
@@ -53,8 +53,8 @@ export const COEFFICIENT_REGISTRY_ENTRY = {
     "species-level values are provided by individual flora sources (e.g., Michigan Flora).",
   metadata_url: "/api/coefficient-of-conservatism/metadata",
   explorer_url: "/vocabulary/coefficient",
-  permission_granted: COEFFICIENT_PERMISSION_GRANTED,
-  permission_status: COEFFICIENT_PERMISSION_STATUS,
+  licenses: COEFFICIENT_LICENSES,
+  license_notes: COEFFICIENT_LICENSE_NOTES,
   general_summary: COEFFICIENT_GENERAL_SUMMARY,
   technical_details: COEFFICIENT_TECHNICAL_DETAILS,
 };

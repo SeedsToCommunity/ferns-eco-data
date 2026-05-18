@@ -1,9 +1,9 @@
 export const USDA_PLANTS_SOURCE_ID = "usda-plants";
 export const USDA_PLANTS_API_BASE = "https://plantsservices.sc.egov.usda.gov/api";
 
-export const USDA_PLANTS_PERMISSION_GRANTED = true;
+export const USDA_PLANTS_LICENSES = ["cc0"];
 
-export const USDA_PLANTS_PERMISSION_STATUS =
+export const USDA_PLANTS_LICENSE_NOTES =
   "OPEN — USDA PLANTS Database (plants.sc.egov.usda.gov) is a public-domain government resource maintained by the " +
   "USDA Natural Resources Conservation Service (NRCS). " +
   "No authentication or API key is required. " +
@@ -76,8 +76,8 @@ export const USDA_PLANTS_REGISTRY_ENTRY = {
     "ScientificName fields returned by the API contain HTML italic tags.",
   metadata_url: "/api/usda-plants/metadata",
   explorer_url: "/source/usda-plants",
-  permission_granted: USDA_PLANTS_PERMISSION_GRANTED,
-  permission_status: USDA_PLANTS_PERMISSION_STATUS,
+  licenses: USDA_PLANTS_LICENSES,
+  license_notes: USDA_PLANTS_LICENSE_NOTES,
   general_summary: USDA_PLANTS_GENERAL_SUMMARY,
   technical_details: USDA_PLANTS_TECHNICAL_DETAILS,
 };

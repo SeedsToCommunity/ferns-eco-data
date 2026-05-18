@@ -44,8 +44,8 @@ import {
 import {
   INAT_SOURCE_ID,
   INAT_ATTRIBUTION,
-  INAT_PERMISSION_GRANTED,
-  INAT_PERMISSION_STATUS,
+  INAT_LICENSES,
+  INAT_LICENSE_NOTES,
   INAT_GENERAL_SUMMARY,
   INAT_TECHNICAL_DETAILS,
   INAT_REGISTRY_ENTRY,
@@ -1004,8 +1004,8 @@ router.get("/inat/metadata", async (req, res) => {
   res.json(GetInatMetadataResponse.parse({
     service_id: INAT_SOURCE_ID,
     service_name: "iNaturalist — Observations, Phenology, and Species Appearance",
-    permission_granted: INAT_PERMISSION_GRANTED,
-    permission_status: INAT_PERMISSION_STATUS,
+    licenses: INAT_LICENSES,
+    license_notes: INAT_LICENSE_NOTES,
     attribution: INAT_ATTRIBUTION,
     registry_entry: {
       ...INAT_REGISTRY_ENTRY,

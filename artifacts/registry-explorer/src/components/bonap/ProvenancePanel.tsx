@@ -25,13 +25,16 @@ export function ProvenancePanel({ response }: { response: BonapMapResponse }) {
         </div>
         <div className="space-y-1.5">
           <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium">
-            <Shield className="w-4 h-4" /> Permission
+            <Shield className="w-4 h-4" /> Licenses
           </div>
-          <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${meta.permission_granted ? 'bg-primary' : 'bg-destructive'}`} />
-            <p className={meta.permission_granted ? "text-foreground" : "text-destructive font-medium"}>
-              {meta.permission_granted ? "Granted" : "Not Granted"}
-            </p>
+          <div className="flex flex-wrap gap-1.5">
+            {meta.licenses && meta.licenses.length > 0 ? (
+              meta.licenses.map(l => (
+                <span key={l} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">{l}</span>
+              ))
+            ) : (
+              <span className="text-muted-foreground text-sm">—</span>
+            )}
           </div>
         </div>
       </div>
