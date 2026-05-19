@@ -200,7 +200,7 @@ export const GetBonapMapResponse = zod
   .describe("Standard FERNS response envelope for BONAP map lookups");
 
 /**
- * Returns static service identity, data vintage, attribution, permission status, and the full color key array. Use this to populate 'About this data' panels in any application displaying BONAP maps.
+ * Returns static service identity, data vintage, attribution, licenses and license notes, and the full color key array. Use this to populate 'About this data' panels in any application displaying BONAP maps.
 
  * @summary BONAP service metadata
  */
@@ -829,7 +829,7 @@ export const GetGbifSpeciesVernacularNamesResponse = zod.object({
 });
 
 /**
- * Returns service identity, attribution, permission status, controlled vocabulary definitions (basisOfRecord, matchType, taxonomicStatus, occurrenceStatus), and the registry entry for the GBIF service.
+ * Returns service identity, attribution, licenses and license notes, controlled vocabulary definitions (basisOfRecord, matchType, taxonomicStatus, occurrenceStatus), and the registry entry for the GBIF service.
 
  * @summary GBIF service metadata and controlled vocabularies
  */
@@ -962,6 +962,10 @@ export const GetInatPlacesAutocompleteQueryParams = zod.object({
     .boolean()
     .default(getInatPlacesAutocompleteQueryRefreshDefault)
     .describe("If true, bypasses cache and fetches fresh from iNaturalist"),
+  provenance_verbosity: zod
+    .enum(["full", "summary", "none"])
+    .optional()
+    .describe("Controls provenance text: full (default), summary, or none"),
 });
 
 export const GetInatPlacesAutocompleteResponse = zod.object({
@@ -1081,6 +1085,10 @@ export const GetInatObservationsHistogramQueryParams = zod.object({
     .boolean()
     .default(getInatObservationsHistogramQueryRefreshDefault)
     .describe("If true, bypasses cache and fetches fresh from iNaturalist"),
+  provenance_verbosity: zod
+    .enum(["full", "summary", "none"])
+    .optional()
+    .describe("Controls provenance text: full (default), summary, or none"),
 });
 
 export const GetInatObservationsHistogramResponse = zod.object({
@@ -1167,6 +1175,10 @@ export const GetInatObservationsPopularFieldValuesQueryParams = zod.object({
     .boolean()
     .default(getInatObservationsPopularFieldValuesQueryRefreshDefault)
     .describe("If true, bypasses cache and fetches fresh from iNaturalist"),
+  provenance_verbosity: zod
+    .enum(["full", "summary", "none"])
+    .optional()
+    .describe("Controls provenance text: full (default), summary, or none"),
 });
 
 export const GetInatObservationsPopularFieldValuesResponse = zod.object({
@@ -1240,10 +1252,10 @@ export const GetInatObservationsQueryParams = zod.object({
     .number()
     .optional()
     .describe("iNaturalist taxon ID to filter by"),
-  place_id: zod.coerce
-    .number()
+  place_id: zod
+    .string()
     .optional()
-    .describe("iNaturalist place ID to filter by"),
+    .describe("Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)"),
   quality_grade: zod
     .enum(["research", "needs_id", "casual"])
     .optional()
@@ -1291,6 +1303,10 @@ export const GetInatObservationsQueryParams = zod.object({
     .number()
     .optional()
     .describe("Southwest corner longitude for bounding box filter."),
+  provenance_verbosity: zod
+    .enum(["full", "summary", "none"])
+    .optional()
+    .describe("Controls provenance text: full (default), summary, or none"),
 });
 
 export const GetInatObservationsResponse = zod.object({
@@ -1462,10 +1478,10 @@ export const getInatObservationsSpeciesCountsQueryPerPageMax = 500;
 export const getInatObservationsSpeciesCountsQueryPageDefault = 1;
 
 export const GetInatObservationsSpeciesCountsQueryParams = zod.object({
-  place_id: zod.coerce
-    .number()
+  place_id: zod
+    .string()
     .optional()
-    .describe("iNaturalist place ID to filter by"),
+    .describe("Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)"),
   quality_grade: zod
     .enum(["research", "needs_id", "casual"])
     .optional()
@@ -1541,6 +1557,10 @@ export const GetInatObservationsSpeciesCountsQueryParams = zod.object({
     .number()
     .optional()
     .describe("Southwest corner longitude for bounding box filter."),
+  provenance_verbosity: zod
+    .enum(["full", "summary", "none"])
+    .optional()
+    .describe("Controls provenance text: full (default), summary, or none"),
 });
 
 export const GetInatObservationsSpeciesCountsResponse = zod.object({
@@ -2120,7 +2140,10 @@ export const GetInatIdentificationsSimilarSpeciesQueryParams = zod.object({
   taxon_id: zod.coerce
     .number()
     .describe("iNaturalist taxon ID to find similar species for"),
-  place_id: zod.coerce.number().optional(),
+  place_id: zod
+    .string()
+    .optional()
+    .describe("Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)"),
   quality_grade: zod.enum(["research", "needs_id", "casual"]).optional(),
   lat: zod.coerce.number().optional(),
   lng: zod.coerce.number().optional(),
@@ -2193,7 +2216,10 @@ export const GetInatIdentificationsSimilarSpeciesResponse = zod.object({
 
 export const GetInatIdentificationsSpeciesCountsQueryParams = zod.object({
   taxon_id: zod.coerce.number().optional(),
-  place_id: zod.coerce.number().optional(),
+  place_id: zod
+    .string()
+    .optional()
+    .describe("Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)"),
   quality_grade: zod.enum(["research", "needs_id", "casual"]).optional(),
   per_page: zod.coerce.number().min(1).optional(),
   page: zod.coerce.number().min(1).optional(),
@@ -2291,7 +2317,10 @@ export const GetInatIdentificationsSpeciesCountsResponse = zod.object({
  */
 
 export const GetInatIdentificationsRecentTaxaQueryParams = zod.object({
-  place_id: zod.coerce.number().optional(),
+  place_id: zod
+    .string()
+    .optional()
+    .describe("Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)"),
   taxon_id: zod.coerce.number().optional(),
   quality_grade: zod.enum(["research", "needs_id", "casual"]).optional(),
   per_page: zod.coerce.number().min(1).optional(),
@@ -2363,7 +2392,10 @@ export const getInatIdentificationsQueryPerPageMax = 200;
 
 export const GetInatIdentificationsQueryParams = zod.object({
   taxon_id: zod.coerce.number().optional(),
-  place_id: zod.coerce.number().optional(),
+  place_id: zod
+    .string()
+    .optional()
+    .describe("Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)"),
   quality_grade: zod.enum(["research", "needs_id", "casual"]).optional(),
   per_page: zod.coerce
     .number()
@@ -2536,7 +2568,7 @@ export const GetInatIdentificationsByIdResponse = zod.object({
 });
 
 /**
- * Returns service identity, attribution, permission status, and the full registry entry for the iNaturalist service. Use this to populate 'About this data' panels in any application displaying iNaturalist data. Also seeds the iNaturalist entry in the FERNS source registry.
+ * Returns service identity, attribution, licenses and license notes, and the full registry entry for the iNaturalist service. Use this to populate 'About this data' panels in any application displaying iNaturalist data. Also seeds the iNaturalist entry in the FERNS source registry.
 
  * @summary iNaturalist service metadata
  */
@@ -3280,7 +3312,7 @@ export const GetMifloraPImageInfoResponse = zod
   );
 
 /**
- * Returns service identity, attribution, permission status, and the full registry entry for the Michigan Flora service. Use this to populate 'About this data' panels in any application displaying Michigan Flora data. Also seeds the Michigan Flora entry in the FERNS source registry.
+ * Returns service identity, attribution, licenses and license notes, and the full registry entry for the Michigan Flora service. Use this to populate 'About this data' panels in any application displaying Michigan Flora data. Also seeds the Michigan Flora entry in the FERNS source registry.
 
  * @summary Michigan Flora service metadata
  */
@@ -3513,7 +3545,7 @@ export const GetAllCoefficientValuesResponse = zod.object({
 });
 
 /**
- * Returns service identity, permission status, and the full registry entry for the Coefficient of Conservatism source. Also seeds the registry entry on first call.
+ * Returns service identity, licenses and license notes, and the full registry entry for the Coefficient of Conservatism source. Also seeds the registry entry on first call.
 
  * @summary Coefficient of Conservatism service metadata
  */
@@ -3825,7 +3857,7 @@ export const GetAllWetlandIndicatorsResponse = zod.object({
 });
 
 /**
- * Returns service identity, permission status, and the full registry entry for the Wetland Indicator Status source. Also seeds the registry entry on first call.
+ * Returns service identity, licenses and license notes, and the full registry entry for the Wetland Indicator Status source. Also seeds the registry entry on first call.
 
  * @summary Wetland Indicator Status service metadata
  */
@@ -4059,7 +4091,7 @@ export const GetAllWucolsResponse = zod.object({
 });
 
 /**
- * Returns service identity, permission status, and the full registry entry for the WUCOLS source. Also seeds the registry entry on first call.
+ * Returns service identity, licenses and license notes, and the full registry entry for the WUCOLS source. Also seeds the registry entry on first call.
 
  * @summary WUCOLS service metadata
  */
@@ -4293,7 +4325,7 @@ export const GetS2CYearsResponse = zod.object({
 });
 
 /**
- * Returns service identity, permission status, and the full registry entry for the Seeds to Community Washtenaw source. Also seeds the registry entry on first call.
+ * Returns service identity, licenses and license notes, and the full registry entry for the Seeds to Community Washtenaw source. Also seeds the registry entry on first call.
 
  * @summary Seeds to Community Washtenaw service metadata
  */
@@ -4363,7 +4395,7 @@ export const GetS2CMetadataResponse = zod.object({
 });
 
 /**
- * Returns service identity, permission status, guide count, species count, and the full registry entry for the Lake County Seed Collection Guides source. Also seeds the registry entry on first call.
+ * Returns service identity, licenses and license notes, guide count, species count, and the full registry entry for the Lake County Seed Collection Guides source. Also seeds the registry entry on first call.
 
  * @summary Lake County Seed Collection Guides service metadata
  */
@@ -5260,7 +5292,7 @@ export const GetTrustGroupSourcesResponse = zod.object({
 });
 
 /**
- * Returns service identity, attribution, permission status, derivation descriptions, and the registry entry for the Universal FQA source.
+ * Returns service identity, attribution, licenses and license notes, derivation descriptions, and the registry entry for the Universal FQA source.
 
  * @summary Universal FQA service metadata
  */
@@ -6007,7 +6039,7 @@ export const GetSourceRelationshipsResponse = zod.object({
 });
 
 /**
- * Returns service identity, attribution, permission status, community class counts, county coverage, and cache statistics for the Michigan Natural Features Inventory (MNFI) service. Also seeds the MNFI entry in the FERNS source registry. Use this to populate 'About this data' panels in any application displaying MNFI community or county element data.
+ * Returns service identity, attribution, licenses and license notes, community class counts, county coverage, and cache statistics for the Michigan Natural Features Inventory (MNFI) service. Also seeds the MNFI entry in the FERNS source registry. Use this to populate 'About this data' panels in any application displaying MNFI community or county element data.
 
  * @summary MNFI service metadata
  */
@@ -6377,7 +6409,7 @@ export const GetMnfiCountyElementsResponse = zod.object({
 });
 
 /**
- * Returns service identity, attribution, permission status, cache statistics, and the full registry entry for the NatureServe Explorer service. Use this to populate 'About this data' panels in any application displaying NatureServe conservation status or ecosystem data. Also seeds the NatureServe entry in the FERNS source registry.
+ * Returns service identity, attribution, licenses and license notes, cache statistics, and the full registry entry for the NatureServe Explorer service. Use this to populate 'About this data' panels in any application displaying NatureServe conservation status or ecosystem data. Also seeds the NatureServe entry in the FERNS source registry.
 
  * @summary NatureServe service metadata
  */
@@ -8997,7 +9029,7 @@ export const GetLadyBirdJohnsonMetadataResponse = zod
   .describe("Service metadata response for botanical web reference sources.");
 
 /**
- * Returns service identity, current species count, permission status, and the full registry entry for The Native Plant Nursery (nativeplant.com, Ann Arbor, MI — Greg Vaclavek). Includes known limitations, update frequency, and technical details.
+ * Returns service identity, current species count, licenses and license notes, and the full registry entry for The Native Plant Nursery (nativeplant.com, Ann Arbor, MI — Greg Vaclavek). Includes known limitations, update frequency, and technical details.
 
  * @summary Ann Arbor Native Plant Nursery service metadata
  */

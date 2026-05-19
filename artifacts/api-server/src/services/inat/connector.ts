@@ -205,7 +205,7 @@ export async function fetchHistogram(
 }
 
 export interface InatSpeciesCountsParams {
-  place_id?: number;
+  place_id?: string;
   quality_grade?: string;
   iconic_taxon_name?: string;
   native?: boolean;
@@ -400,7 +400,7 @@ export async function fetchTaxonSummary(observationId: number): Promise<InatPass
 
 export interface InatSimilarSpeciesParams {
   taxon_id: number;
-  place_id?: number;
+  place_id?: string;
   quality_grade?: string;
   lat?: number;
   lng?: number;
@@ -435,7 +435,7 @@ export async function fetchSimilarSpecies(params: InatSimilarSpeciesParams): Pro
 
 export interface InatIdentSpeciesCountsParams {
   taxon_id?: number;
-  place_id?: number;
+  place_id?: string;
   quality_grade?: string;
   per_page?: number;
   page?: number;
@@ -491,7 +491,7 @@ export async function fetchIdentSpeciesCounts(params: InatIdentSpeciesCountsPara
 }
 
 export interface InatRecentTaxaParams {
-  place_id?: number;
+  place_id?: string;
   taxon_id?: number;
   quality_grade?: string;
   per_page?: number;
@@ -521,7 +521,7 @@ export async function fetchRecentTaxa(params: InatRecentTaxaParams): Promise<Ina
 
 export interface InatIdentificationsParams {
   taxon_id?: number;
-  place_id?: number;
+  place_id?: string;
   quality_grade?: string;
   per_page?: number;
   page?: number;
@@ -634,7 +634,7 @@ export interface InatObservationSummaryResult {
 
 export interface InatObservationSummaryParams {
   taxon_id?: number | null;
-  place_id?: number | null;
+  place_id?: string | null;
   quality_grade?: string | null;
   per_page?: number;
   page?: number;
@@ -649,7 +649,7 @@ export interface InatObservationSummaryParams {
 
 export async function fetchObservationSummary(
   taxonId: number | null,
-  placeId: number | null,
+  placeId: string | null,
   qualityGrade: string | null,
   perPage: number,
   page: number,

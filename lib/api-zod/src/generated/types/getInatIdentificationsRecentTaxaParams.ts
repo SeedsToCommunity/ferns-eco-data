@@ -9,7 +9,10 @@ import type { GetInatIdentificationsRecentTaxaProvenanceVerbosity } from "./getI
 import type { GetInatIdentificationsRecentTaxaQualityGrade } from "./getInatIdentificationsRecentTaxaQualityGrade";
 
 export type GetInatIdentificationsRecentTaxaParams = {
-  place_id?: number;
+  /**
+   * Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
+   */
+  place_id?: string;
   taxon_id?: number;
   quality_grade?: GetInatIdentificationsRecentTaxaQualityGrade;
   /**

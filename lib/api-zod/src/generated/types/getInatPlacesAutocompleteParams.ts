@@ -5,6 +5,7 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
+import type { GetInatPlacesAutocompleteProvenanceVerbosity } from "./getInatPlacesAutocompleteProvenanceVerbosity";
 
 export type GetInatPlacesAutocompleteParams = {
   /**
@@ -16,4 +17,8 @@ export type GetInatPlacesAutocompleteParams = {
    * If true, bypasses cache and fetches fresh from iNaturalist
    */
   refresh?: boolean;
+  /**
+   * Controls provenance text: full (default), summary, or none
+   */
+  provenance_verbosity?: GetInatPlacesAutocompleteProvenanceVerbosity;
 };

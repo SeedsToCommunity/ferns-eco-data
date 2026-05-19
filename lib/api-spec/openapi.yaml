@@ -138,7 +138,7 @@ paths:
       tags: [bonap]
       summary: BONAP service metadata
       description: >
-        Returns static service identity, data vintage, attribution, permission status,
+        Returns static service identity, data vintage, attribution, licenses and license notes,
         and the full color key array. Use this to populate 'About this data' panels
         in any application displaying BONAP maps.
       responses:
@@ -428,7 +428,7 @@ paths:
       tags: [gbif]
       summary: GBIF service metadata and controlled vocabularies
       description: >
-        Returns service identity, attribution, permission status, controlled
+        Returns service identity, attribution, licenses and license notes, controlled
         vocabulary definitions (basisOfRecord, matchType, taxonomicStatus,
         occurrenceStatus), and the registry entry for the GBIF service.
       responses:
@@ -465,6 +465,13 @@ paths:
           schema:
             type: boolean
             default: false
+        - name: provenance_verbosity
+          in: query
+          required: false
+          description: "Controls provenance text: full (default), summary, or none"
+          schema:
+            type: string
+            enum: [full, summary, none]
       responses:
         "200":
           description: Place lookup complete (found or not found — check the found field)
@@ -535,6 +542,13 @@ paths:
           schema:
             type: boolean
             default: false
+        - name: provenance_verbosity
+          in: query
+          required: false
+          description: "Controls provenance text: full (default), summary, or none"
+          schema:
+            type: string
+            enum: [full, summary, none]
       responses:
         "200":
           description: Raw iNaturalist histogram response in FERNS envelope
@@ -598,6 +612,13 @@ paths:
           schema:
             type: boolean
             default: false
+        - name: provenance_verbosity
+          in: query
+          required: false
+          description: "Controls provenance text: full (default), summary, or none"
+          schema:
+            type: string
+            enum: [full, summary, none]
       responses:
         "200":
           description: Raw iNaturalist popular_field_values response in FERNS envelope
@@ -641,9 +662,9 @@ paths:
         - name: place_id
           in: query
           required: false
-          description: iNaturalist place ID to filter by
+          description: Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
           schema:
-            type: integer
+            type: string
         - name: quality_grade
           in: query
           required: false
@@ -710,6 +731,13 @@ paths:
           description: Southwest corner longitude for bounding box filter.
           schema:
             type: number
+        - name: provenance_verbosity
+          in: query
+          required: false
+          description: "Controls provenance text: full (default), summary, or none"
+          schema:
+            type: string
+            enum: [full, summary, none]
       responses:
         "200":
           description: Paged slim observation records
@@ -746,9 +774,9 @@ paths:
         - name: place_id
           in: query
           required: false
-          description: iNaturalist place ID to filter by
+          description: Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
           schema:
-            type: integer
+            type: string
         - name: quality_grade
           in: query
           required: false
@@ -851,6 +879,13 @@ paths:
           description: Southwest corner longitude for bounding box filter.
           schema:
             type: number
+        - name: provenance_verbosity
+          in: query
+          required: false
+          description: "Controls provenance text: full (default), summary, or none"
+          schema:
+            type: string
+            enum: [full, summary, none]
       responses:
         "200":
           description: Raw iNaturalist species_counts response in FERNS envelope
@@ -1289,8 +1324,9 @@ paths:
         - name: place_id
           in: query
           required: false
+          description: Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
           schema:
-            type: integer
+            type: string
         - name: quality_grade
           in: query
           required: false
@@ -1378,8 +1414,9 @@ paths:
         - name: place_id
           in: query
           required: false
+          description: Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
           schema:
-            type: integer
+            type: string
         - name: quality_grade
           in: query
           required: false
@@ -1527,8 +1564,9 @@ paths:
         - name: place_id
           in: query
           required: false
+          description: Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
           schema:
-            type: integer
+            type: string
         - name: taxon_id
           in: query
           required: false
@@ -1611,8 +1649,9 @@ paths:
         - name: place_id
           in: query
           required: false
+          description: Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
           schema:
-            type: integer
+            type: string
         - name: quality_grade
           in: query
           required: false
@@ -1822,7 +1861,7 @@ paths:
       tags: [inat]
       summary: iNaturalist service metadata
       description: >
-        Returns service identity, attribution, permission status, and the full
+        Returns service identity, attribution, licenses and license notes, and the full
         registry entry for the iNaturalist service. Use this to populate
         'About this data' panels in any application displaying iNaturalist data.
         Also seeds the iNaturalist entry in the FERNS source registry.
@@ -2116,7 +2155,7 @@ paths:
       tags: [miflora]
       summary: Michigan Flora service metadata
       description: >
-        Returns service identity, attribution, permission status, and the full
+        Returns service identity, attribution, licenses and license notes, and the full
         registry entry for the Michigan Flora service. Use this to populate
         'About this data' panels in any application displaying Michigan Flora data.
         Also seeds the Michigan Flora entry in the FERNS source registry.
@@ -2183,7 +2222,7 @@ paths:
       tags: [coefficient]
       summary: Coefficient of Conservatism service metadata
       description: >
-        Returns service identity, permission status, and the full registry entry for the
+        Returns service identity, licenses and license notes, and the full registry entry for the
         Coefficient of Conservatism source. Also seeds the registry entry on first call.
       responses:
         "200":
@@ -2277,7 +2316,7 @@ paths:
       tags: [wetland-indicator]
       summary: Wetland Indicator Status service metadata
       description: >
-        Returns service identity, permission status, and the full registry entry for the
+        Returns service identity, licenses and license notes, and the full registry entry for the
         Wetland Indicator Status source. Also seeds the registry entry on first call.
       responses:
         "200":
@@ -2342,7 +2381,7 @@ paths:
       tags: [wucols]
       summary: WUCOLS service metadata
       description: >
-        Returns service identity, permission status, and the full registry entry for the
+        Returns service identity, licenses and license notes, and the full registry entry for the
         WUCOLS source. Also seeds the registry entry on first call.
       responses:
         "200":
@@ -2407,7 +2446,7 @@ paths:
       tags: [s2c]
       summary: Seeds to Community Washtenaw service metadata
       description: >
-        Returns service identity, permission status, and the full registry entry for the
+        Returns service identity, licenses and license notes, and the full registry entry for the
         Seeds to Community Washtenaw source. Also seeds the registry entry on first call.
       responses:
         "200":
@@ -2423,7 +2462,7 @@ paths:
       tags: [lcscg]
       summary: Lake County Seed Collection Guides service metadata
       description: >
-        Returns service identity, permission status, guide count, species count, and the full registry
+        Returns service identity, licenses and license notes, guide count, species count, and the full registry
         entry for the Lake County Seed Collection Guides source. Also seeds the registry entry on first call.
       responses:
         "200":
@@ -2619,7 +2658,7 @@ paths:
       tags: [universal-fqa]
       summary: Universal FQA service metadata
       description: >
-        Returns service identity, attribution, permission status, derivation descriptions,
+        Returns service identity, attribution, licenses and license notes, derivation descriptions,
         and the registry entry for the Universal FQA source.
       responses:
         "200":
@@ -2822,7 +2861,7 @@ paths:
       tags: [mnfi]
       summary: MNFI service metadata
       description: >
-        Returns service identity, attribution, permission status, community class
+        Returns service identity, attribution, licenses and license notes, community class
         counts, county coverage, and cache statistics for the Michigan Natural
         Features Inventory (MNFI) service. Also seeds the MNFI entry in the FERNS
         source registry. Use this to populate 'About this data' panels in any
@@ -2992,7 +3031,7 @@ paths:
       tags: [natureserve]
       summary: NatureServe service metadata
       description: >
-        Returns service identity, attribution, permission status, cache statistics,
+        Returns service identity, attribution, licenses and license notes, cache statistics,
         and the full registry entry for the NatureServe Explorer service. Use this
         to populate 'About this data' panels in any application displaying NatureServe
         conservation status or ecosystem data. Also seeds the NatureServe entry in
@@ -3920,7 +3959,7 @@ paths:
       tags: [ann-arbor-npn]
       summary: Ann Arbor Native Plant Nursery service metadata
       description: >
-        Returns service identity, current species count, permission status, and the full
+        Returns service identity, current species count, licenses and license notes, and the full
         registry entry for The Native Plant Nursery (nativeplant.com, Ann Arbor, MI —
         Greg Vaclavek). Includes known limitations, update frequency, and technical details.
       responses:

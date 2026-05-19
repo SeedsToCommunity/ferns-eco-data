@@ -46,7 +46,7 @@ export function ObservationsTab({
 
   const [submitted, setSubmitted]           = useState(false);
   const [committedTaxonId, setCommittedTaxonId] = useState<number | undefined>(undefined);
-  const [committedPlaceId, setCommittedPlaceId] = useState<number | undefined>(undefined);
+  const [committedPlaceId, setCommittedPlaceId] = useState<string | undefined>(undefined);
   const [committedQuality, setCommittedQuality] = useState<string | undefined>(undefined);
   const [committedPage, setCommittedPage]   = useState(1);
 
@@ -63,7 +63,7 @@ export function ObservationsTab({
     { query: { enabled: submitted, queryKey: getGetInatObservationsQueryKey(params) } },
   );
 
-  function commit(taxId: number | undefined, plId: number | undefined, quality: string, pg: number) {
+  function commit(taxId: number | undefined, plId: string | undefined, quality: string, pg: number) {
     setCommittedTaxonId(taxId);
     setCommittedPlaceId(plId);
     setCommittedQuality(quality || undefined);
@@ -74,9 +74,8 @@ export function ObservationsTab({
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const rawTax = Number(taxonIdInput.trim());
-    const rawPl  = Number(placeIdInput.trim());
     const taxId  = taxonIdInput.trim() && !isNaN(rawTax) && rawTax > 0 ? rawTax : undefined;
-    const plId   = placeIdInput.trim()  && !isNaN(rawPl)  && rawPl  > 0 ? rawPl  : undefined;
+    const plId   = placeIdInput.trim() || undefined;
     setPage(1);
     commit(taxId, plId, qualityGrade, 1);
   }
@@ -87,7 +86,7 @@ export function ObservationsTab({
     setQualityGrade("research");
     setPage(1);
     const taxId = taxon ? Number(taxon) : undefined;
-    const plId  = place ? Number(place) : undefined;
+    const plId  = place || undefined;
     commit(taxId, plId, "research", 1);
   }
 
@@ -133,10 +132,10 @@ export function ObservationsTab({
             <div>
               <label className="block text-xs font-medium text-muted-foreground mb-1">Place ID (optional)</label>
               <input
-                type="number"
+                type="text"
                 value={placeIdInput}
                 onChange={(e) => setPlaceIdInput(e.target.value)}
-                placeholder="e.g. 10"
+                placeholder="e.g. 10 or 10,2649"
                 className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>

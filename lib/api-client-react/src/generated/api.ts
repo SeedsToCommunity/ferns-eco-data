@@ -343,7 +343,7 @@ export function useGetBonapMap<
 }
 
 /**
- * Returns static service identity, data vintage, attribution, permission status, and the full color key array. Use this to populate 'About this data' panels in any application displaying BONAP maps.
+ * Returns static service identity, data vintage, attribution, licenses and license notes, and the full color key array. Use this to populate 'About this data' panels in any application displaying BONAP maps.
 
  * @summary BONAP service metadata
  */
@@ -963,7 +963,7 @@ export function useGetGbifSpeciesVernacularNames<
 }
 
 /**
- * Returns service identity, attribution, permission status, controlled vocabulary definitions (basisOfRecord, matchType, taxonomicStatus, occurrenceStatus), and the registry entry for the GBIF service.
+ * Returns service identity, attribution, licenses and license notes, controlled vocabulary definitions (basisOfRecord, matchType, taxonomicStatus, occurrenceStatus), and the registry entry for the GBIF service.
 
  * @summary GBIF service metadata and controlled vocabularies
  */
@@ -2938,7 +2938,7 @@ export function useGetInatIdentificationsById<
 }
 
 /**
- * Returns service identity, attribution, permission status, and the full registry entry for the iNaturalist service. Use this to populate 'About this data' panels in any application displaying iNaturalist data. Also seeds the iNaturalist entry in the FERNS source registry.
+ * Returns service identity, attribution, licenses and license notes, and the full registry entry for the iNaturalist service. Use this to populate 'About this data' panels in any application displaying iNaturalist data. Also seeds the iNaturalist entry in the FERNS source registry.
 
  * @summary iNaturalist service metadata
  */
@@ -3630,7 +3630,7 @@ export function useGetMifloraPImageInfo<
 }
 
 /**
- * Returns service identity, attribution, permission status, and the full registry entry for the Michigan Flora service. Use this to populate 'About this data' panels in any application displaying Michigan Flora data. Also seeds the Michigan Flora entry in the FERNS source registry.
+ * Returns service identity, attribution, licenses and license notes, and the full registry entry for the Michigan Flora service. Use this to populate 'About this data' panels in any application displaying Michigan Flora data. Also seeds the Michigan Flora entry in the FERNS source registry.
 
  * @summary Michigan Flora service metadata
  */
@@ -3890,7 +3890,7 @@ export function useGetAllCoefficientValues<
 }
 
 /**
- * Returns service identity, permission status, and the full registry entry for the Coefficient of Conservatism source. Also seeds the registry entry on first call.
+ * Returns service identity, licenses and license notes, and the full registry entry for the Coefficient of Conservatism source. Also seeds the registry entry on first call.
 
  * @summary Coefficient of Conservatism service metadata
  */
@@ -4265,7 +4265,7 @@ export function useGetAllWetlandIndicators<
 }
 
 /**
- * Returns service identity, permission status, and the full registry entry for the Wetland Indicator Status source. Also seeds the registry entry on first call.
+ * Returns service identity, licenses and license notes, and the full registry entry for the Wetland Indicator Status source. Also seeds the registry entry on first call.
 
  * @summary Wetland Indicator Status service metadata
  */
@@ -4520,7 +4520,7 @@ export function useGetAllWucols<
 }
 
 /**
- * Returns service identity, permission status, and the full registry entry for the WUCOLS source. Also seeds the registry entry on first call.
+ * Returns service identity, licenses and license notes, and the full registry entry for the WUCOLS source. Also seeds the registry entry on first call.
 
  * @summary WUCOLS service metadata
  */
@@ -4776,7 +4776,7 @@ export function useGetS2CYears<
 }
 
 /**
- * Returns service identity, permission status, and the full registry entry for the Seeds to Community Washtenaw source. Also seeds the registry entry on first call.
+ * Returns service identity, licenses and license notes, and the full registry entry for the Seeds to Community Washtenaw source. Also seeds the registry entry on first call.
 
  * @summary Seeds to Community Washtenaw service metadata
  */
@@ -4853,7 +4853,7 @@ export function useGetS2CMetadata<
 }
 
 /**
- * Returns service identity, permission status, guide count, species count, and the full registry entry for the Lake County Seed Collection Guides source. Also seeds the registry entry on first call.
+ * Returns service identity, licenses and license notes, guide count, species count, and the full registry entry for the Lake County Seed Collection Guides source. Also seeds the registry entry on first call.
 
  * @summary Lake County Seed Collection Guides service metadata
  */
@@ -5528,7 +5528,7 @@ export function useGetTrustGroupSources<
 }
 
 /**
- * Returns service identity, attribution, permission status, derivation descriptions, and the registry entry for the Universal FQA source.
+ * Returns service identity, attribution, licenses and license notes, derivation descriptions, and the registry entry for the Universal FQA source.
 
  * @summary Universal FQA service metadata
  */
@@ -6154,7 +6154,7 @@ export function useGetSourceRelationships<
 }
 
 /**
- * Returns service identity, attribution, permission status, community class counts, county coverage, and cache statistics for the Michigan Natural Features Inventory (MNFI) service. Also seeds the MNFI entry in the FERNS source registry. Use this to populate 'About this data' panels in any application displaying MNFI community or county element data.
+ * Returns service identity, attribution, licenses and license notes, community class counts, county coverage, and cache statistics for the Michigan Natural Features Inventory (MNFI) service. Also seeds the MNFI entry in the FERNS source registry. Use this to populate 'About this data' panels in any application displaying MNFI community or county element data.
 
  * @summary MNFI service metadata
  */
@@ -6620,7 +6620,7 @@ export function useGetMnfiCountyElements<
 }
 
 /**
- * Returns service identity, attribution, permission status, cache statistics, and the full registry entry for the NatureServe Explorer service. Use this to populate 'About this data' panels in any application displaying NatureServe conservation status or ecosystem data. Also seeds the NatureServe entry in the FERNS source registry.
+ * Returns service identity, attribution, licenses and license notes, cache statistics, and the full registry entry for the NatureServe Explorer service. Use this to populate 'About this data' panels in any application displaying NatureServe conservation status or ecosystem data. Also seeds the NatureServe entry in the FERNS source registry.
 
  * @summary NatureServe service metadata
  */
@@ -9234,7 +9234,7 @@ export function useGetLadyBirdJohnsonMetadata<
 }
 
 /**
- * Returns service identity, current species count, permission status, and the full registry entry for The Native Plant Nursery (nativeplant.com, Ann Arbor, MI — Greg Vaclavek). Includes known limitations, update frequency, and technical details.
+ * Returns service identity, current species count, licenses and license notes, and the full registry entry for The Native Plant Nursery (nativeplant.com, Ann Arbor, MI — Greg Vaclavek). Includes known limitations, update frequency, and technical details.
 
  * @summary Ann Arbor Native Plant Nursery service metadata
  */

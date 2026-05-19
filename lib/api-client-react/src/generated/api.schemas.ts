@@ -2954,7 +2954,20 @@ export type GetInatPlacesAutocompleteParams = {
    * If true, bypasses cache and fetches fresh from iNaturalist
    */
   refresh?: boolean;
+  /**
+   * Controls provenance text: full (default), summary, or none
+   */
+  provenance_verbosity?: GetInatPlacesAutocompleteProvenanceVerbosity;
 };
+
+export type GetInatPlacesAutocompleteProvenanceVerbosity =
+  (typeof GetInatPlacesAutocompleteProvenanceVerbosity)[keyof typeof GetInatPlacesAutocompleteProvenanceVerbosity];
+
+export const GetInatPlacesAutocompleteProvenanceVerbosity = {
+  full: "full",
+  summary: "summary",
+  none: "none",
+} as const;
 
 export type GetInatObservationsHistogramParams = {
   /**
@@ -2980,7 +2993,20 @@ export type GetInatObservationsHistogramParams = {
    * If true, bypasses cache and fetches fresh from iNaturalist
    */
   refresh?: boolean;
+  /**
+   * Controls provenance text: full (default), summary, or none
+   */
+  provenance_verbosity?: GetInatObservationsHistogramProvenanceVerbosity;
 };
+
+export type GetInatObservationsHistogramProvenanceVerbosity =
+  (typeof GetInatObservationsHistogramProvenanceVerbosity)[keyof typeof GetInatObservationsHistogramProvenanceVerbosity];
+
+export const GetInatObservationsHistogramProvenanceVerbosity = {
+  full: "full",
+  summary: "summary",
+  none: "none",
+} as const;
 
 export type GetInatObservationsPopularFieldValuesParams = {
   /**
@@ -3001,7 +3027,20 @@ export type GetInatObservationsPopularFieldValuesParams = {
    * If true, bypasses cache and fetches fresh from iNaturalist
    */
   refresh?: boolean;
+  /**
+   * Controls provenance text: full (default), summary, or none
+   */
+  provenance_verbosity?: GetInatObservationsPopularFieldValuesProvenanceVerbosity;
 };
+
+export type GetInatObservationsPopularFieldValuesProvenanceVerbosity =
+  (typeof GetInatObservationsPopularFieldValuesProvenanceVerbosity)[keyof typeof GetInatObservationsPopularFieldValuesProvenanceVerbosity];
+
+export const GetInatObservationsPopularFieldValuesProvenanceVerbosity = {
+  full: "full",
+  summary: "summary",
+  none: "none",
+} as const;
 
 export type GetInatObservationsParams = {
   /**
@@ -3009,9 +3048,9 @@ export type GetInatObservationsParams = {
    */
   taxon_id?: number;
   /**
-   * iNaturalist place ID to filter by
+   * Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
    */
-  place_id?: number;
+  place_id?: string;
   /**
    * Filter by quality grade: research, needs_id, or casual
    */
@@ -3055,6 +3094,10 @@ export type GetInatObservationsParams = {
    * Southwest corner longitude for bounding box filter.
    */
   swlng?: number;
+  /**
+   * Controls provenance text: full (default), summary, or none
+   */
+  provenance_verbosity?: GetInatObservationsProvenanceVerbosity;
 };
 
 export type GetInatObservationsQualityGrade =
@@ -3066,11 +3109,20 @@ export const GetInatObservationsQualityGrade = {
   casual: "casual",
 } as const;
 
+export type GetInatObservationsProvenanceVerbosity =
+  (typeof GetInatObservationsProvenanceVerbosity)[keyof typeof GetInatObservationsProvenanceVerbosity];
+
+export const GetInatObservationsProvenanceVerbosity = {
+  full: "full",
+  summary: "summary",
+  none: "none",
+} as const;
+
 export type GetInatObservationsSpeciesCountsParams = {
   /**
-   * iNaturalist place ID to filter by
+   * Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
    */
-  place_id?: number;
+  place_id?: string;
   /**
    * Filter by quality grade: research, needs_id, or casual
    */
@@ -3138,6 +3190,10 @@ export type GetInatObservationsSpeciesCountsParams = {
    * Southwest corner longitude for bounding box filter.
    */
   swlng?: number;
+  /**
+   * Controls provenance text: full (default), summary, or none
+   */
+  provenance_verbosity?: GetInatObservationsSpeciesCountsProvenanceVerbosity;
 };
 
 export type GetInatObservationsSpeciesCountsQualityGrade =
@@ -3147,6 +3203,15 @@ export const GetInatObservationsSpeciesCountsQualityGrade = {
   research: "research",
   needs_id: "needs_id",
   casual: "casual",
+} as const;
+
+export type GetInatObservationsSpeciesCountsProvenanceVerbosity =
+  (typeof GetInatObservationsSpeciesCountsProvenanceVerbosity)[keyof typeof GetInatObservationsSpeciesCountsProvenanceVerbosity];
+
+export const GetInatObservationsSpeciesCountsProvenanceVerbosity = {
+  full: "full",
+  summary: "summary",
+  none: "none",
 } as const;
 
 export type GetInatControlledTermsParams = {
@@ -3345,7 +3410,10 @@ export type GetInatIdentificationsSimilarSpeciesParams = {
    * iNaturalist taxon ID to find similar species for
    */
   taxon_id: number;
-  place_id?: number;
+  /**
+   * Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
+   */
+  place_id?: string;
   quality_grade?: GetInatIdentificationsSimilarSpeciesQualityGrade;
   lat?: number;
   lng?: number;
@@ -3380,7 +3448,10 @@ export const GetInatIdentificationsSimilarSpeciesProvenanceVerbosity = {
 
 export type GetInatIdentificationsSpeciesCountsParams = {
   taxon_id?: number;
-  place_id?: number;
+  /**
+   * Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
+   */
+  place_id?: string;
   quality_grade?: GetInatIdentificationsSpeciesCountsQualityGrade;
   /**
    * @minimum 1
@@ -3468,7 +3539,10 @@ export const GetInatIdentificationsSpeciesCountsProvenanceVerbosity = {
 } as const;
 
 export type GetInatIdentificationsRecentTaxaParams = {
-  place_id?: number;
+  /**
+   * Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
+   */
+  place_id?: string;
   taxon_id?: number;
   quality_grade?: GetInatIdentificationsRecentTaxaQualityGrade;
   /**
@@ -3513,7 +3587,10 @@ export const GetInatIdentificationsRecentTaxaProvenanceVerbosity = {
 
 export type GetInatIdentificationsParams = {
   taxon_id?: number;
-  place_id?: number;
+  /**
+   * Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
+   */
+  place_id?: string;
   quality_grade?: GetInatIdentificationsQualityGrade;
   /**
    * @minimum 1

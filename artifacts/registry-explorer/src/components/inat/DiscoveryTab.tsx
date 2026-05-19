@@ -110,7 +110,7 @@ function SimilarSpeciesPanel({
 }) {
   const [taxonIdInput, setTaxonIdInput] = useState(preloadedTaxonId ? String(preloadedTaxonId) : "");
   const [placeIdInput, setPlaceIdInput] = useState(preloadedPlaceId ?? "");
-  const [submitted, setSubmitted] = useState<{ taxonId: number; placeId?: number } | null>(null);
+  const [submitted, setSubmitted] = useState<{ taxonId: number; placeId?: string } | null>(null);
   const [enrichedPhotos, setEnrichedPhotos] = useState<Record<number, string | null>>({});
   const enrichingRef = useRef<number>(0);
 
@@ -155,7 +155,7 @@ function SimilarSpeciesPanel({
     e.preventDefault();
     const tid = Number(taxonIdInput.trim());
     if (!tid) return;
-    const pid = placeIdInput.trim() ? Number(placeIdInput.trim()) : undefined;
+    const pid = placeIdInput.trim() || undefined;
     setSubmitted({ taxonId: tid, placeId: pid });
   }
 
@@ -187,10 +187,10 @@ function SimilarSpeciesPanel({
           <div>
             <label className="block text-xs font-medium text-muted-foreground mb-1">Place ID (optional)</label>
             <input
-              type="number"
+              type="text"
               value={placeIdInput}
               onChange={(e) => setPlaceIdInput(e.target.value)}
-              placeholder="e.g. 2649"
+              placeholder="e.g. 2649 or 2649,986"
               className="w-36 px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
@@ -206,7 +206,7 @@ function SimilarSpeciesPanel({
         <p className="text-xs text-muted-foreground mt-2">
           Try:{" "}
           <button
-            onClick={() => { setTaxonIdInput("47486"); setPlaceIdInput("2649"); setSubmitted({ taxonId: 47486, placeId: 2649 }); }}
+            onClick={() => { setTaxonIdInput("47486"); setPlaceIdInput("2649"); setSubmitted({ taxonId: 47486, placeId: "2649" }); }}
             className="underline text-primary hover:no-underline"
           >
             Trillium grandiflorum (47486) in Washtenaw Co
@@ -346,7 +346,7 @@ function IdentCountsPanel({
 
   function buildParams(pg: number) {
     return {
-      place_id:      placeIdInput.trim() ? Number(placeIdInput.trim()) : undefined,
+      place_id:      placeIdInput.trim() || undefined,
       quality_grade: qualityGrade || undefined,
       iconic_taxa:   iconicTaxon || undefined,
       native:        nativeFilter === "native" ? "true" : undefined,
@@ -371,7 +371,7 @@ function IdentCountsPanel({
     setPlaceIdInput(placeId); setQualityGrade(quality); setIconicTaxon(iconic); setNativeFilter(nativity);
     setPage(1);
     setSubmittedParams({
-      place_id: placeId ? Number(placeId) : undefined,
+      place_id: placeId || undefined,
       quality_grade: quality || undefined,
       iconic_taxa: iconic || undefined,
       native: nativity === "native" ? "true" : undefined,
@@ -403,10 +403,10 @@ function IdentCountsPanel({
             <div>
               <label className="block text-xs font-medium text-muted-foreground mb-1">Place ID</label>
               <input
-                type="number"
+                type="text"
                 value={placeIdInput}
                 onChange={(e) => setPlaceIdInput(e.target.value)}
-                placeholder="e.g. 2649"
+                placeholder="e.g. 2649 or 2649,986"
                 className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
@@ -595,7 +595,7 @@ function RecentTaxaPanel({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const pid = placeIdInput.trim() ? Number(placeIdInput.trim()) : undefined;
+    const pid = placeIdInput.trim() || undefined;
     setSubmittedParams({ place_id: pid, quality_grade: qualityGrade || undefined, per_page: perPage });
   }
 
@@ -612,10 +612,10 @@ function RecentTaxaPanel({
           <div>
             <label className="block text-xs font-medium text-muted-foreground mb-1">Place ID</label>
             <input
-              type="number"
+              type="text"
               value={placeIdInput}
               onChange={(e) => setPlaceIdInput(e.target.value)}
-              placeholder="e.g. 2649"
+              placeholder="e.g. 2649 or 2649,986"
               className="w-32 px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
@@ -645,7 +645,7 @@ function RecentTaxaPanel({
         <p className="text-xs text-muted-foreground mt-2">
           Try:{" "}
           <button
-            onClick={() => { setPlaceIdInput("10"); setQualityGrade("research"); setSubmittedParams({ place_id: 10, quality_grade: "research", per_page: 20 }); }}
+            onClick={() => { setPlaceIdInput("10"); setQualityGrade("research"); setSubmittedParams({ place_id: "10", quality_grade: "research", per_page: 20 }); }}
             className="underline text-primary hover:no-underline"
           >
             Michigan (10), research
@@ -891,7 +891,7 @@ function IdentificationsPanel({
     const preset = TERM_PRESETS[termPresetIdx];
     return {
       taxon_id:      taxonIdInput.trim() ? Number(taxonIdInput.trim()) : undefined,
-      place_id:      placeIdInput.trim() ? Number(placeIdInput.trim()) : undefined,
+      place_id:      placeIdInput.trim() || undefined,
       quality_grade: qualityGrade || undefined,
       native:        nativeFilter === "native" ? "true" : undefined,
       introduced:    nativeFilter === "introduced" ? "true" : undefined,
@@ -944,8 +944,8 @@ function IdentificationsPanel({
             </div>
             <div>
               <label className="block text-xs font-medium text-muted-foreground mb-1">Place ID</label>
-              <input type="number" value={placeIdInput} onChange={(e) => setPlaceIdInput(e.target.value)}
-                placeholder="e.g. 2649"
+              <input type="text" value={placeIdInput} onChange={(e) => setPlaceIdInput(e.target.value)}
+                placeholder="e.g. 2649 or 2649,986"
                 className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
@@ -1081,7 +1081,7 @@ function IdentificationsPanel({
             onClick={() => {
               setTaxonIdInput("47486"); setPlaceIdInput("2649"); setQualityGrade("research");
               setNativeFilter(""); setPage(1);
-              setSubmittedParams({ taxon_id: 47486, place_id: 2649, quality_grade: "research", per_page: 20, page: 1 });
+              setSubmittedParams({ taxon_id: 47486, place_id: "2649", quality_grade: "research", per_page: 20, page: 1 });
             }}
             className="underline text-primary hover:no-underline"
           >

@@ -263,7 +263,7 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           taxon_id:     { type: "number",  description: "iNaturalist taxon ID (integer)" },
-          place_id:     { type: "number",  description: "iNaturalist place ID (integer)" },
+          place_id:     { type: "string",  description: "Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)" },
           quality_grade:{ type: "string",  description: "research | needs_id | casual" },
           per_page:     { type: "number",  description: "Results per page (default 30, max 200)" },
           page:         { type: "number",  description: "Page number, 1-indexed (default 1)" },
@@ -275,7 +275,7 @@ const tools: ToolDef[] = [
     handler: async (args) =>
       apiGet("/inat/observations", {
         taxon_id:      args["taxon_id"]      !== undefined ? Number(args["taxon_id"])   : undefined,
-        place_id:      args["place_id"]      !== undefined ? Number(args["place_id"])   : undefined,
+        place_id:      args["place_id"]      !== undefined ? String(args["place_id"])   : undefined,
         quality_grade: args["quality_grade"] !== undefined ? String(args["quality_grade"]) : undefined,
         per_page:      args["per_page"]      !== undefined ? Number(args["per_page"])   : undefined,
         page:          args["page"]          !== undefined ? Number(args["page"])        : undefined,
@@ -291,7 +291,7 @@ const tools: ToolDef[] = [
       inputSchema: {
         type: "object" as const,
         properties: {
-          place_id:          { type: "number",  description: "iNaturalist place ID to filter by" },
+          place_id:          { type: "string",  description: "Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)" },
           quality_grade:     { type: "string",  description: "research | needs_id | casual" },
           iconic_taxon_name: { type: "string",  description: "Iconic taxon group: Plantae, Aves, Fungi, Mammalia, Reptilia, Amphibia, Actinopterygii, Mollusca, Arachnida, Insecta, Animalia" },
           native:            { type: "boolean", description: "Only native taxa" },
@@ -315,7 +315,7 @@ const tools: ToolDef[] = [
     },
     handler: async (args) =>
       apiGet("/inat/observations/species_counts", {
-        place_id:          args["place_id"]          !== undefined ? Number(args["place_id"])          : undefined,
+        place_id:          args["place_id"]          !== undefined ? String(args["place_id"])          : undefined,
         quality_grade:     args["quality_grade"]     !== undefined ? String(args["quality_grade"])     : undefined,
         iconic_taxon_name: args["iconic_taxon_name"] !== undefined ? String(args["iconic_taxon_name"]) : undefined,
         native:            args["native"]            !== undefined ? String(args["native"])            : undefined,
@@ -488,7 +488,7 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           taxon_id:      { type: "number",  description: "iNaturalist taxon ID to find similar species for (integer)" },
-          place_id:      { type: "number",  description: "iNaturalist place ID to filter by" },
+          place_id:      { type: "string",  description: "Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)" },
           quality_grade: { type: "string",  description: "research | needs_id | casual" },
           lat:           { type: "number",  description: "Center latitude for radius filter" },
           lng:           { type: "number",  description: "Center longitude for radius filter" },
@@ -505,7 +505,7 @@ const tools: ToolDef[] = [
     handler: async (args) =>
       apiGet("/inat/identifications/similar_species", {
         taxon_id:      Number(args["taxon_id"]),
-        place_id:      args["place_id"]      !== undefined ? Number(args["place_id"])      : undefined,
+        place_id:      args["place_id"]      !== undefined ? String(args["place_id"])      : undefined,
         quality_grade: args["quality_grade"] !== undefined ? String(args["quality_grade"]) : undefined,
         lat:           args["lat"]           !== undefined ? Number(args["lat"])           : undefined,
         lng:           args["lng"]           !== undefined ? Number(args["lng"])           : undefined,
@@ -527,7 +527,7 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           taxon_id:      { type: "number",  description: "iNaturalist taxon ID to filter by" },
-          place_id:      { type: "number",  description: "iNaturalist place ID to filter by" },
+          place_id:      { type: "string",  description: "Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)" },
           quality_grade: { type: "string",  description: "research | needs_id | casual" },
           per_page:      { type: "number",  description: "Results per page (max 500)" },
           page:          { type: "number",  description: "Page number, 1-indexed" },
@@ -555,7 +555,7 @@ const tools: ToolDef[] = [
     handler: async (args) =>
       apiGet("/inat/identifications/species_counts", {
         taxon_id:      args["taxon_id"]      !== undefined ? Number(args["taxon_id"])      : undefined,
-        place_id:      args["place_id"]      !== undefined ? Number(args["place_id"])      : undefined,
+        place_id:      args["place_id"]      !== undefined ? String(args["place_id"])      : undefined,
         quality_grade: args["quality_grade"] !== undefined ? String(args["quality_grade"]) : undefined,
         per_page:      args["per_page"]      !== undefined ? Number(args["per_page"])      : undefined,
         page:          args["page"]          !== undefined ? Number(args["page"])          : undefined,
@@ -587,7 +587,7 @@ const tools: ToolDef[] = [
       inputSchema: {
         type: "object" as const,
         properties: {
-          place_id:      { type: "number", description: "iNaturalist place ID" },
+          place_id:      { type: "string", description: "Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)" },
           taxon_id:      { type: "number", description: "Filter to a specific taxon and its children" },
           quality_grade: { type: "string", description: "research | needs_id | casual" },
           per_page:      { type: "number", description: "Results per page" },
@@ -601,7 +601,7 @@ const tools: ToolDef[] = [
     },
     handler: async (args) =>
       apiGet("/inat/identifications/recent_taxa", {
-        place_id:      args["place_id"]      !== undefined ? Number(args["place_id"])      : undefined,
+        place_id:      args["place_id"]      !== undefined ? String(args["place_id"])      : undefined,
         taxon_id:      args["taxon_id"]      !== undefined ? Number(args["taxon_id"])      : undefined,
         quality_grade: args["quality_grade"] !== undefined ? String(args["quality_grade"]) : undefined,
         per_page:      args["per_page"]      !== undefined ? Number(args["per_page"])      : undefined,
@@ -621,7 +621,7 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           taxon_id:      { type: "number",  description: "iNaturalist taxon ID" },
-          place_id:      { type: "number",  description: "iNaturalist place ID" },
+          place_id:      { type: "string",  description: "Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)" },
           quality_grade: { type: "string",  description: "research | needs_id | casual" },
           per_page:      { type: "number",  description: "Results per page (max 200)" },
           page:          { type: "number",  description: "Page number, 1-indexed" },
@@ -654,7 +654,7 @@ const tools: ToolDef[] = [
     handler: async (args) =>
       apiGet("/inat/identifications", {
         taxon_id:      args["taxon_id"]      !== undefined ? Number(args["taxon_id"])      : undefined,
-        place_id:      args["place_id"]      !== undefined ? Number(args["place_id"])      : undefined,
+        place_id:      args["place_id"]      !== undefined ? String(args["place_id"])      : undefined,
         quality_grade: args["quality_grade"] !== undefined ? String(args["quality_grade"]) : undefined,
         per_page:      args["per_page"]      !== undefined ? Number(args["per_page"])      : undefined,
         page:          args["page"]          !== undefined ? Number(args["page"])          : undefined,

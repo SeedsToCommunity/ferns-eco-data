@@ -411,3 +411,54 @@ The ecological/botanical domain contains several metrics whose names are superfi
 -   **ORM**: Drizzle
 -   **Framework**: Express 5
 -   **Codegen**: Orval (from OpenAPI spec)
+
+---
+
+## API Mirroring Checklist
+
+Every time a query parameter is added, removed, or has its type changed in `lib/api-spec/openapi.yaml`, all four layers below must be updated in the same task. Use this checklist to verify completeness.
+
+### 1. OpenAPI spec (`lib/api-spec/openapi.yaml`)
+
+- [ ] Parameter added/removed/changed in `parameters:` block of the affected endpoint(s)
+- [ ] `type:` is correct (e.g. `string` for comma-separated IDs, not `integer`)
+- [ ] `description:` explains accepted values (e.g. "Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)")
+- [ ] `required:` is set correctly
+- [ ] `enum:` is present if the parameter has a fixed set of values
+
+### 2. Zod codegen (`lib/api-zod/` and `lib/api-client-react/`)
+
+- [ ] Run `pnpm --filter @workspace/api-spec run generate` after spec changes
+- [ ] Verify generated Zod schemas in `lib/api-zod/src/generated/` reflect the new type
+- [ ] Verify generated React Query hooks in `lib/api-client-react/src/generated/` accept the new type
+- [ ] Note: the Orval coerce config (`orval.config.ts`) coerces `boolean` and `number` query params from strings — it does NOT coerce `string` params, so changing `integer` → `string` removes coercion for that param
+
+### 3. API server connector (`artifacts/api-server/src/services/<source>/connector.ts`)
+
+- [ ] The relevant params interface has the correct TypeScript type (e.g. `place_id?: string` not `place_id?: number`)
+- [ ] Any function signature that takes the param as a positional argument is updated (e.g. `fetchObservationSummary(placeId: string | null, ...)`)
+- [ ] Any `Number(params.place_id)` or `String(params.place_id)` coercions are consistent with the new type
+- [ ] Route handler in `artifacts/api-server/src/routes/<source>.ts` passes the value through without incorrect coercion
+
+### 4. MCP server (`artifacts/mcp-server/src/server.ts`)
+
+- [ ] `inputSchema.properties.<param>.type` is updated (e.g. `"string"` not `"number"`)
+- [ ] `inputSchema.properties.<param>.description` matches the spec description
+- [ ] Handler call uses `String(args["<param>"])` for string params, `Number(...)` for number params
+- [ ] Both the `inputSchema` block AND the `handler` call are updated — they are separate and both must change
+
+### 5. Registry-Explorer UI (`artifacts/registry-explorer/src/components/`)
+
+- [ ] Any `<input type="number">` for the param is changed to `<input type="text">` if the type is now `string` (to allow comma-separated values)
+- [ ] Placeholder text updated to show comma-separated example (e.g. `"e.g. 2649 or 2649,986"`)
+- [ ] Any `Number(inputValue.trim())` coercion before passing to the API is removed (pass the string directly)
+- [ ] Hardcoded example values in "Try:" buttons are strings, not numeric literals (e.g. `placeId: "2649"` not `placeId: 2649`)
+- [ ] State variable types match the new param type (e.g. `useState<string | undefined>` not `useState<number | undefined>`)
+
+### Codegen command
+
+```
+pnpm --filter @workspace/api-spec run generate
+```
+
+Run from the workspace root after any spec change. Commit the generated files alongside the spec change.

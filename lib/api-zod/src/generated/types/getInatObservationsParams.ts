@@ -5,6 +5,7 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
+import type { GetInatObservationsProvenanceVerbosity } from "./getInatObservationsProvenanceVerbosity";
 import type { GetInatObservationsQualityGrade } from "./getInatObservationsQualityGrade";
 
 export type GetInatObservationsParams = {
@@ -13,9 +14,9 @@ export type GetInatObservationsParams = {
    */
   taxon_id?: number;
   /**
-   * iNaturalist place ID to filter by
+   * Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
    */
-  place_id?: number;
+  place_id?: string;
   /**
    * Filter by quality grade: research, needs_id, or casual
    */
@@ -59,4 +60,8 @@ export type GetInatObservationsParams = {
    * Southwest corner longitude for bounding box filter.
    */
   swlng?: number;
+  /**
+   * Controls provenance text: full (default), summary, or none
+   */
+  provenance_verbosity?: GetInatObservationsProvenanceVerbosity;
 };
