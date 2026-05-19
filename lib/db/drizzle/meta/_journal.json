@@ -85,6 +85,13 @@
       "when": 1747353600000,
       "tag": "0011_inat_reference_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1747440000000,
+      "tag": "0012_licenses_field_rename",
+      "breakpoints": true
     }
   ]
 }
