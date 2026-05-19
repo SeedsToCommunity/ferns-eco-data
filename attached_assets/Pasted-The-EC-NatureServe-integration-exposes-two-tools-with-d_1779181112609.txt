@@ -1,0 +1,37 @@
+The EC NatureServe integration exposes two tools with different behaviors:
+
+natureserve__species — a point lookup, returns one record:
+
+{
+  "source_url": "https://explorer.natureserve.org/Taxon/ELEMENT_GLOBAL.2.142318/Baptisia_aberrans",
+  "found": true,
+  "data": {
+    "scientific_name": "Baptisia aberrans",   ← wrong species
+    "common_name": "Tall Blue Wild Indigo",
+    "global_rank": "G2",
+    "rounded_global_rank": "G2",
+    "national_rank": "N2",
+    "state_code": "MI",                        ← hardcoded to Michigan
+    "state_rank": null,
+    ...
+  }
+}
+Two problems here: first, it's returning Baptisia aberrans when asked for Baptisia australis — appears to be matching on something wrong (possibly first alphabetical hit on "Baptisia a..."). Second, the state_code field is hardcoded to "MI" in every response — a leftover from the tool's Michigan-specific origins that never got generalized.
+
+natureserve__search — a search returning a list of records:
+
+{
+  "data": {
+    "result_count": 3,
+    "ecosystems": [
+      { "system_name": "Baptisia aberrans", "global_rank": "G2", "us_national_rank": "N2" },
+      { "system_name": "Baptisia australis", "global_rank": "G3G4", "us_national_rank": "N3" },
+      { "system_name": "Baptisia minor",    "global_rank": "G5",   "us_national_rank": "N5" }
+    ]
+  }
+}
+This one works correctly — Baptisia australis is in the list at position 2 with the right ranks (G3G4, N3). No state-specific data at all though.
+
+What Claude did: recognized the mismatch ("the tool returned Baptisia aberrans instead of Baptisia australis"), discarded that result, and fell back to natureserve__search which found the right species. The final answer was accurate. So Claude caught it — but only because the wrong name was visible in the response. If EC fixes the __species tool to silently return wrong data that looks plausible, that protection disappears.
+
+Summary for EC: natureserve__species has two bugs — wrong-taxon matching for names in the "Baptisia a..." space, and state_code hardcoded to "MI". The __search tool works but returns no state-level ranks.
