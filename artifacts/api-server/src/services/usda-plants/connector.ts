@@ -35,14 +35,6 @@ export interface UsdaSearchPlantResult {
   wetland_data: unknown[];
 }
 
-function stripHtml(html: string): string {
-  return html.replace(/<[^>]*>/g, "").trim();
-}
-
-function extractNameWithoutAuthor(strippedSciName: string, wordCount: number): string {
-  return strippedSciName.split(/\s+/).slice(0, wordCount).join(" ");
-}
-
 async function usdaFetch(url: string, options?: RequestInit): Promise<unknown> {
   const resp = await fetch(url, {
     ...options,
@@ -90,7 +82,8 @@ export async function lookupByName(name: string): Promise<UsdaNameLookupResult> 
     }
     const sciName = item.Plant["ScientificName"] as string | null;
     if (!sciName) return false;
-    const nameWithoutAuthor = extractNameWithoutAuthor(stripHtml(sciName), inputWordCount);
+    const stripped = sciName.replace(/<[^>]*>/g, "").trim();
+    const nameWithoutAuthor = stripped.split(/\s+/).slice(0, inputWordCount).join(" ");
     return nameWithoutAuthor.toLowerCase() === inputLower;
   });
 
@@ -108,12 +101,11 @@ export async function lookupByName(name: string): Promise<UsdaNameLookupResult> 
   }
 
   const plant = match.Plant;
-  const rawSciName = (plant["ScientificName"] as string) || "";
 
   return {
     found: true,
     symbol: (plant["Symbol"] as string) || null,
-    canonical_name: stripHtml(rawSciName),
+    canonical_name: (plant["ScientificName"] as string) || null,
     common_name: (plant["CommonName"] as string) || null,
     rank: (plant["Rank"] as string) || null,
     usda_id: typeof plant["Id"] === "number" ? (plant["Id"] as number) : null,

@@ -1,6 +1,6 @@
 import { db, natureserveSpeciesCacheTable, natureserveEcosystemsCacheTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
-import type { NatureserveSpeciesResult, NatureserveSearchItem } from "./connector.js";
+import type { NatureserveSpeciesSearchResult, NatureserveSearchItem } from "./connector.js";
 import { NATURESERVE_SOURCE_ID, NATURESERVE_GENERAL_SUMMARY, NATURESERVE_TECHNICAL_DETAILS } from "./metadata.js";
 
 const SPECIES_TTL_DAYS = 30;
@@ -27,39 +27,17 @@ export async function lookupSpeciesCache(cacheKey: string): Promise<typeof natur
 
 export async function storeSpeciesCache(
   cacheKey: string,
-  result: NatureserveSpeciesResult,
-  upstreamUrl: string,
+  result: NatureserveSpeciesSearchResult,
 ): Promise<typeof natureserveSpeciesCacheTable.$inferSelect> {
   const now = new Date();
   const insert = {
     cache_key: cacheKey,
-    scientific_name: result.scientific_name,
-    common_name: result.common_name,
-    global_rank: result.global_rank,
-    rounded_global_rank: result.rounded_global_rank,
-    national_rank: result.national_rank,
-    rounded_national_rank: result.rounded_national_rank,
-    state_code: result.state_code,
-    state_rank: result.state_rank,
-    rounded_state_rank: result.rounded_state_rank,
-    iucn_category: result.iucn_category,
-    iucn_description: result.iucn_description,
-    federal_status: result.federal_status,
-    federal_status_description: result.federal_status_description,
-    state_status: result.state_status,
-    cites_description: result.cites_description,
-    cosewic_code: result.cosewic_code,
-    cosewic_description: result.cosewic_description,
-    natureserve_url: result.natureserve_url,
-    element_global_id: result.element_global_id,
-    raw_summary: {
-      detail_upstream_url: result.detail_upstream_url,
-    },
+    raw_response: result.raw_response,
     expires_at: daysFromNow(SPECIES_TTL_DAYS),
     source_id: NATURESERVE_SOURCE_ID,
     fetched_at: now,
     method: "api_fetch",
-    upstream_url: upstreamUrl,
+    upstream_url: result.upstream_url,
     general_summary: NATURESERVE_GENERAL_SUMMARY,
     technical_details: NATURESERVE_TECHNICAL_DETAILS,
   };
@@ -70,26 +48,7 @@ export async function storeSpeciesCache(
     .onConflictDoUpdate({
       target: natureserveSpeciesCacheTable.cache_key,
       set: {
-        scientific_name: insert.scientific_name,
-        common_name: insert.common_name,
-        global_rank: insert.global_rank,
-        rounded_global_rank: insert.rounded_global_rank,
-        national_rank: insert.national_rank,
-        rounded_national_rank: insert.rounded_national_rank,
-        state_code: insert.state_code,
-        state_rank: insert.state_rank,
-        rounded_state_rank: insert.rounded_state_rank,
-        iucn_category: insert.iucn_category,
-        iucn_description: insert.iucn_description,
-        federal_status: insert.federal_status,
-        federal_status_description: insert.federal_status_description,
-        state_status: insert.state_status,
-        cites_description: insert.cites_description,
-        cosewic_code: insert.cosewic_code,
-        cosewic_description: insert.cosewic_description,
-        natureserve_url: insert.natureserve_url,
-        element_global_id: insert.element_global_id,
-        raw_summary: insert.raw_summary,
+        raw_response: insert.raw_response,
         fetched_at: insert.fetched_at,
         upstream_url: insert.upstream_url,
         expires_at: insert.expires_at,
@@ -150,4 +109,3 @@ export async function storeEcosystemsCache(
     .returning();
   return rows[0];
 }
-

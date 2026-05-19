@@ -52,7 +52,7 @@ export async function storeNameMatch(
     scientific_name: result.scientific_name,
     usage_key: result.usage_key,
     accepted_usage_key: result.accepted_usage_key,
-    accepted_canonical_name: result.accepted_canonical_name,
+    accepted_canonical_name: null,
     rank: result.rank,
     status: result.status,
     confidence: result.confidence,
@@ -92,7 +92,7 @@ export async function storeNameMatch(
         scientific_name: insert.scientific_name,
         usage_key: insert.usage_key,
         accepted_usage_key: insert.accepted_usage_key,
-        accepted_canonical_name: insert.accepted_canonical_name,
+        accepted_canonical_name: null,
         rank: insert.rank,
         status: insert.status,
         confidence: insert.confidence,
@@ -252,14 +252,14 @@ export async function lookupVernacularNames(cacheKey: string): Promise<GbifVerna
 export async function storeVernacularNames(
   cacheKey: string,
   usageKey: number,
-  result: { results: Record<string, unknown>[]; vernacular_name_primary: string | null; count: number; upstream_url: string },
+  result: { results: Record<string, unknown>[]; count: number; upstream_url: string },
 ): Promise<GbifVernacularNames> {
   const now = new Date();
   const insert = {
     cache_key: cacheKey,
     usage_key: usageKey,
     vernacular_names: result.results,
-    vernacular_name_primary: result.vernacular_name_primary,
+    vernacular_name_primary: null,
     vernacular_name_count: result.count,
     expires_at: daysFromNow(VERNACULAR_TTL_DAYS),
     source_id: GBIF_SOURCE_ID,
@@ -277,7 +277,7 @@ export async function storeVernacularNames(
       target: gbifVernacularNamesTable.cache_key,
       set: {
         vernacular_names: insert.vernacular_names,
-        vernacular_name_primary: insert.vernacular_name_primary,
+        vernacular_name_primary: null,
         vernacular_name_count: insert.vernacular_name_count,
         fetched_at: insert.fetched_at,
         upstream_url: insert.upstream_url,

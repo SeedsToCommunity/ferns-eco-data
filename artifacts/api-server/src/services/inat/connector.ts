@@ -11,7 +11,6 @@ export interface InatPlaceResult {
   id: number;
   display_name: string;
   place_type: number;
-  place_type_name: string;
 }
 
 export interface InatPlaceLookupResult {
@@ -115,34 +114,6 @@ async function inatFetch(url: string): Promise<unknown> {
   return response.json();
 }
 
-const INAT_PLACE_TYPE_NAMES: Record<number, string> = {
-  1: "Building",
-  2: "Street Segment",
-  4: "ZIP Code",
-  5: "Intersection",
-  6: "Street",
-  7: "Town",
-  8: "State",
-  9: "County",
-  10: "Local Government Area",
-  11: "Municipality",
-  12: "Country",
-  13: "Farm",
-  100: "Open Space",
-  101: "Territory",
-  102: "Subdivision",
-  103: "Park",
-  104: "Point of Interest",
-  105: "Nation",
-  106: "Region",
-  108: "Province",
-  109: "District",
-  110: "County",
-  111: "Parish",
-  112: "Borough",
-  113: "Unincorporated Area",
-};
-
 export async function fetchPlaces(query: string): Promise<InatPlaceLookupResult> {
   const encoded = encodeURIComponent(query.trim());
   const url = `${INAT_API_BASE}/places/autocomplete?q=${encoded}&per_page=5`;
@@ -150,15 +121,11 @@ export async function fetchPlaces(query: string): Promise<InatPlaceLookupResult>
   const raw = (await inatFetch(url)) as Record<string, unknown>;
   const rawResults = (raw.results as Record<string, unknown>[]) || [];
 
-  const results: InatPlaceResult[] = rawResults.map((r) => {
-    const placeType = (r.place_type as number) ?? 0;
-    return {
-      id: r.id as number,
-      display_name: (r.display_name as string) || "",
-      place_type: placeType,
-      place_type_name: INAT_PLACE_TYPE_NAMES[placeType] || `Type ${placeType}`,
-    };
-  });
+  const results: InatPlaceResult[] = rawResults.map((r) => ({
+    id: r.id as number,
+    display_name: (r.display_name as string) || "",
+    place_type: (r.place_type as number) ?? 0,
+  }));
 
   const found = results.length > 0;
   const source_url = found ? `https://www.inaturalist.org/places/${results[0].id}` : null;

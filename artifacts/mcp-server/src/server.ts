@@ -85,7 +85,7 @@ const tools: ToolDef[] = [
     tool: {
       name: "gbif__species_vernacular_names",
       description:
-        "Returns all vernacular (common) names for a GBIF taxon identified by its usage key, across all languages and countries in the GBIF backbone. Response mirrors the GBIF upstream envelope: offset, limit, endOfRecords, count, results. vernacular_name_primary is a FERNS convenience field with the first English name. Use gbif__match first to resolve a scientific name to a usageKey.",
+        "Returns all vernacular (common) names for a GBIF taxon identified by its usage key, across all languages and countries in the GBIF backbone. Response mirrors the GBIF upstream envelope: offset, limit, endOfRecords, count, results. Use gbif__match first to resolve a scientific name to a usageKey.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -1559,12 +1559,11 @@ const tools: ToolDef[] = [
     tool: {
       name: "natureserve__species",
       description:
-        "Returns NatureServe global (G-rank) and state (S-rank) conservation status for a species, optionally filtered to a specific US state. Ranks reflect the relative rarity and vulnerability of the species.",
+        "Returns the raw NatureServe Explorer species search response for a scientific name. The response preserves the upstream NatureServe JSON structure unchanged under data.raw_response, with results[0] containing the full species record including global (G-rank) and national (N-rank) conservation status.",
       inputSchema: {
         type: "object" as const,
         properties: {
           name:    { type: "string", description: "Scientific name (e.g. Trillium grandiflorum)" },
-          state:   { type: "string", description: "Two-letter US state code (e.g. MI)" },
           refresh: { type: "boolean", description: "Bypass cache" },
           ...PV_PROP,
         },
@@ -1574,7 +1573,6 @@ const tools: ToolDef[] = [
     handler: async (args) =>
       apiGet("/natureserve/speciesSearch", {
         name:    String(args["name"]),
-        state:   args["state"]   !== undefined ? String(args["state"])   : undefined,
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
         provenance_verbosity: pv(args),
       }),

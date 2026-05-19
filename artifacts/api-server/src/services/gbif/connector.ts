@@ -17,7 +17,6 @@ export interface GbifMatchResult {
   rank: string | null;
   status: string | null;
   accepted_usage_key: number | null;
-  accepted_canonical_name: string | null;
   confidence: number | null;
   match_type: "EXACT" | "FUZZY" | "HIGHERRANK" | "NONE";
   kingdom: string | null;
@@ -160,7 +159,6 @@ export async function fetchNameMatch(name: string): Promise<GbifMatchResult> {
       rank: null,
       status: null,
       accepted_usage_key: null,
-      accepted_canonical_name: null,
       confidence: null,
       match_type: "NONE",
       kingdom: null,
@@ -184,19 +182,7 @@ export async function fetchNameMatch(name: string): Promise<GbifMatchResult> {
   }
 
   const usageKey = raw.usageKey as number;
-  let acceptedUsageKey: number | null = null;
-  let acceptedCanonicalName: string | null = null;
-
-  if (raw.status === "SYNONYM" && raw.acceptedUsageKey) {
-    acceptedUsageKey = raw.acceptedUsageKey as number;
-    const acceptedUrl = `${GBIF_API_BASE}/species/${acceptedUsageKey}`;
-    try {
-      const acceptedRaw = (await gbifFetch(acceptedUrl)) as Record<string, unknown>;
-      acceptedCanonicalName = (acceptedRaw.canonicalName as string) || null;
-    } catch {
-      acceptedCanonicalName = (raw.acceptedCanonicalName as string) || null;
-    }
-  }
+  const acceptedUsageKey = raw.acceptedUsageKey != null ? (raw.acceptedUsageKey as number) : null;
 
   return {
     usage_key: usageKey,
@@ -205,7 +191,6 @@ export async function fetchNameMatch(name: string): Promise<GbifMatchResult> {
     rank: (raw.rank as string) || null,
     status: (raw.status as string) || null,
     accepted_usage_key: acceptedUsageKey,
-    accepted_canonical_name: acceptedCanonicalName,
     confidence: typeof raw.confidence === "number" ? raw.confidence : null,
     match_type: matchType as GbifMatchResult["match_type"],
     kingdom: (raw.kingdom as string) || null,
@@ -378,21 +363,17 @@ export async function fetchVernacularNames(usageKey: number, limit = 100, offset
   endOfRecords: boolean;
   count: number;
   results: Record<string, unknown>[];
-  vernacular_name_primary: string | null;
   upstream_url: string;
 }> {
   const url = `${GBIF_API_BASE}/species/${usageKey}/vernacularNames?limit=${limit}&offset=${offset}`;
   const raw = (await gbifFetch(url)) as Record<string, unknown>;
   const results = (raw.results as Record<string, unknown>[]) ?? [];
-  const enRecord = results.find((v) => v.language === "eng" || v.language === "en");
-  const vernacular_name_primary = (enRecord?.vernacularName as string) ?? (results[0]?.vernacularName as string) ?? null;
   return {
     offset: (raw.offset as number) ?? offset,
     limit: (raw.limit as number) ?? limit,
     endOfRecords: (raw.endOfRecords as boolean) ?? true,
     count: (raw.count as number) ?? results.length,
     results,
-    vernacular_name_primary,
     upstream_url: url,
   };
 }
