@@ -213,6 +213,8 @@ export interface InatSpeciesCountsParams {
   term_id?: number;
   term_value_id?: number;
   month?: string;
+  d1?: string;
+  d2?: string;
   per_page?: number;
   page?: number;
   lat?: number;
@@ -240,6 +242,8 @@ export async function fetchSpeciesCounts(params: InatSpeciesCountsParams): Promi
   if (params.term_id !== undefined) q.set("term_id", String(params.term_id));
   if (params.term_value_id !== undefined) q.set("term_value_id", String(params.term_value_id));
   if (params.month) q.set("month", params.month);
+  if (params.d1) q.set("d1", params.d1);
+  if (params.d2) q.set("d2", params.d2);
   if (params.per_page !== undefined) q.set("per_page", String(params.per_page));
   if (params.page !== undefined) q.set("page", String(params.page));
   if (params.lat !== undefined) q.set("lat", String(params.lat));
@@ -257,6 +261,8 @@ export async function fetchSpeciesCounts(params: InatSpeciesCountsParams): Promi
   if (params.place_id !== undefined) sourceParts.push(`place_id=${params.place_id}`);
   if (params.quality_grade) sourceParts.push(`quality_grade=${params.quality_grade}`);
   if (params.iconic_taxon_name) sourceParts.push(`iconic_taxon_name=${encodeURIComponent(params.iconic_taxon_name)}`);
+  if (params.d1) sourceParts.push(`d1=${params.d1}`);
+  if (params.d2) sourceParts.push(`d2=${params.d2}`);
   const source_url = `https://www.inaturalist.org/observations${sourceParts.length ? `?${sourceParts.join("&")}` : ""}`;
 
   return { raw_response: raw, source_url, upstream_url: url };
@@ -662,6 +668,10 @@ export async function fetchObservationSummary(
     swlat?: number | null;
     swlng?: number | null;
   },
+  dateParams?: {
+    d1?: string;
+    d2?: string;
+  },
 ): Promise<InatObservationSummaryResult> {
   const params = new URLSearchParams();
   if (taxonId !== null) params.set("taxon_id", String(taxonId));
@@ -678,6 +688,8 @@ export async function fetchObservationSummary(
   if (geoParams?.nelng != null) params.set("nelng", String(geoParams.nelng));
   if (geoParams?.swlat != null) params.set("swlat", String(geoParams.swlat));
   if (geoParams?.swlng != null) params.set("swlng", String(geoParams.swlng));
+  if (dateParams?.d1) params.set("d1", dateParams.d1);
+  if (dateParams?.d2) params.set("d2", dateParams.d2);
 
   const url = `${INAT_API_BASE}/observations?${params.toString()}`;
   const raw = (await inatFetch(url)) as Record<string, unknown>;
@@ -752,6 +764,8 @@ export async function fetchObservationSummary(
   if (taxonId !== null) sourceUrlParts.push(`taxon_id=${taxonId}`);
   if (placeId !== null) sourceUrlParts.push(`place_id=${placeId}`);
   if (qualityGrade) sourceUrlParts.push(`quality_grade=${qualityGrade}`);
+  if (dateParams?.d1) sourceUrlParts.push(`d1=${dateParams.d1}`);
+  if (dateParams?.d2) sourceUrlParts.push(`d2=${dateParams.d2}`);
   const source_url = `https://www.inaturalist.org/observations${sourceUrlParts.length ? `?${sourceUrlParts.join("&")}` : ""}`;
 
   return { total_results: totalResults, page, per_page: perPage, total_pages: totalPages, results, source_url, upstream_url: url };

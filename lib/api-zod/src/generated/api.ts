@@ -1260,6 +1260,14 @@ export const GetInatObservationsQueryParams = zod.object({
     .enum(["research", "needs_id", "casual"])
     .optional()
     .describe("Filter by quality grade: research, needs_id, or casual"),
+  d1: zod
+    .string()
+    .optional()
+    .describe("Earliest observed date to include (YYYY-MM-DD)"),
+  d2: zod
+    .string()
+    .optional()
+    .describe("Latest observed date to include (YYYY-MM-DD)"),
   per_page: zod.coerce
     .number()
     .min(1)
@@ -1514,6 +1522,14 @@ export const GetInatObservationsSpeciesCountsQueryParams = zod.object({
     .describe(
       "Comma-separated month numbers to filter by (e.g. 4,5,6 for Apr–Jun)",
     ),
+  d1: zod
+    .string()
+    .optional()
+    .describe("Earliest observed date to include (YYYY-MM-DD)"),
+  d2: zod
+    .string()
+    .optional()
+    .describe("Latest observed date to include (YYYY-MM-DD)"),
   per_page: zod.coerce
     .number()
     .min(1)

@@ -34,6 +34,8 @@ export function ObservationsTab({
   const [taxonIdInput, setTaxonIdInput]     = useState(preloadedTaxonId ? String(preloadedTaxonId) : "");
   const [placeIdInput, setPlaceIdInput]     = useState(preloadedPlaceId ?? "");
   const [qualityGrade, setQualityGrade]     = useState("");
+  const [d1Input, setD1Input]               = useState("");
+  const [d2Input, setD2Input]               = useState("");
   const [page, setPage]                     = useState(1);
 
   useEffect(() => {
@@ -48,12 +50,16 @@ export function ObservationsTab({
   const [committedTaxonId, setCommittedTaxonId] = useState<number | undefined>(undefined);
   const [committedPlaceId, setCommittedPlaceId] = useState<string | undefined>(undefined);
   const [committedQuality, setCommittedQuality] = useState<string | undefined>(undefined);
+  const [committedD1, setCommittedD1]       = useState<string | undefined>(undefined);
+  const [committedD2, setCommittedD2]       = useState<string | undefined>(undefined);
   const [committedPage, setCommittedPage]   = useState(1);
 
   const params: GetInatObservationsParams = {
     taxon_id:      committedTaxonId,
     place_id:      committedPlaceId,
     quality_grade: (committedQuality || undefined) as GetInatObservationsParams["quality_grade"],
+    d1:            committedD1,
+    d2:            committedD2,
     per_page:      30,
     page:          committedPage,
   };
@@ -63,10 +69,12 @@ export function ObservationsTab({
     { query: { enabled: submitted, queryKey: getGetInatObservationsQueryKey(params) } },
   );
 
-  function commit(taxId: number | undefined, plId: string | undefined, quality: string, pg: number) {
+  function commit(taxId: number | undefined, plId: string | undefined, quality: string, pg: number, d1?: string, d2?: string) {
     setCommittedTaxonId(taxId);
     setCommittedPlaceId(plId);
     setCommittedQuality(quality || undefined);
+    setCommittedD1(d1);
+    setCommittedD2(d2);
     setCommittedPage(pg);
     setSubmitted(true);
   }
@@ -77,22 +85,24 @@ export function ObservationsTab({
     const taxId  = taxonIdInput.trim() && !isNaN(rawTax) && rawTax > 0 ? rawTax : undefined;
     const plId   = placeIdInput.trim() || undefined;
     setPage(1);
-    commit(taxId, plId, qualityGrade, 1);
+    commit(taxId, plId, qualityGrade, 1, d1Input.trim() || undefined, d2Input.trim() || undefined);
   }
 
   function runExample(taxon: string, place: string) {
     setTaxonIdInput(taxon);
     setPlaceIdInput(place);
     setQualityGrade("research");
+    setD1Input("");
+    setD2Input("");
     setPage(1);
     const taxId = taxon ? Number(taxon) : undefined;
     const plId  = place || undefined;
-    commit(taxId, plId, "research", 1);
+    commit(taxId, plId, "research", 1, undefined, undefined);
   }
 
   function goToPage(pg: number) {
     setPage(pg);
-    commit(committedTaxonId, committedPlaceId, committedQuality ?? "", pg);
+    commit(committedTaxonId, committedPlaceId, committedQuality ?? "", pg, committedD1, committedD2);
   }
 
   const obsData  = data?.data;
@@ -150,6 +160,27 @@ export function ObservationsTab({
                   <option key={g.value} value={g.value}>{g.label}</option>
                 ))}
               </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Start date (d1)</label>
+              <input
+                type="date"
+                value={d1Input}
+                onChange={(e) => setD1Input(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">End date (d2)</label>
+              <input
+                type="date"
+                value={d2Input}
+                onChange={(e) => setD2Input(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
             </div>
           </div>
 

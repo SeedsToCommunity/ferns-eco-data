@@ -317,6 +317,9 @@ router.get("/inat/observations", async (req, res) => {
       nelng: parsed.data.nelng ?? null,
       swlat: parsed.data.swlat ?? null,
       swlng: parsed.data.swlng ?? null,
+    }, {
+      d1: parsed.data.d1 ?? undefined,
+      d2: parsed.data.d2 ?? undefined,
     });
     const prov = buildProvenance(result.upstream_url, "api_fetch");
 
@@ -364,6 +367,8 @@ router.get("/inat/observations/species_counts", async (req, res) => {
       term_id:           parsed.data.term_id ?? undefined,
       term_value_id:     parsed.data.term_value_id ?? undefined,
       month:             parsed.data.month ?? undefined,
+      d1:                parsed.data.d1 ?? undefined,
+      d2:                parsed.data.d2 ?? undefined,
       per_page:          parsed.data.per_page ?? undefined,
       page:              parsed.data.page ?? undefined,
       lat:               parsed.data.lat ?? undefined,

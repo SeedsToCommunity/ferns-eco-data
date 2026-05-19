@@ -3056,6 +3056,14 @@ export type GetInatObservationsParams = {
    */
   quality_grade?: GetInatObservationsQualityGrade;
   /**
+   * Earliest observed date to include (YYYY-MM-DD)
+   */
+  d1?: string;
+  /**
+   * Latest observed date to include (YYYY-MM-DD)
+   */
+  d2?: string;
+  /**
    * Number of results per page (default 30, max 200)
    * @minimum 1
    * @maximum 200
@@ -3151,6 +3159,14 @@ export type GetInatObservationsSpeciesCountsParams = {
    * Comma-separated month numbers to filter by (e.g. 4,5,6 for Apr–Jun)
    */
   month?: string;
+  /**
+   * Earliest observed date to include (YYYY-MM-DD)
+   */
+  d1?: string;
+  /**
+   * Latest observed date to include (YYYY-MM-DD)
+   */
+  d2?: string;
   /**
    * Number of results (default 500, max 500)
    * @minimum 1
