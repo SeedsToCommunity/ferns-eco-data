@@ -244,6 +244,7 @@ export async function runMigrations(): Promise<void> {
   const entry11 = journal.entries[11];
   const entry12 = journal.entries[12];
   const entry13 = journal.entries[13];
+  const entry14 = journal.entries[14];
 
   await applyMigration0000(entry0.when);
   await applyMigration0001(entry1.when);
@@ -294,6 +295,12 @@ export async function runMigrations(): Promise<void> {
   // TRUNCATE + DROP COLUMN + ADD COLUMN; safe because the cache is repopulated on demand.
   if (entry13) {
     await runSqlMigration("0013_natureserve_raw_response", entry13.when, "0013 (natureserve raw_response)", true);
+  }
+
+  // Migration 0014: Add raw_response jsonb to gbif_name_matches for verbatim GBIF pass-through.
+  // ADD COLUMN IF NOT EXISTS guard makes it safe to re-run.
+  if (entry14) {
+    await runSqlMigration("0014_gbif_match_raw_response", entry14.when, "0014 (gbif match raw_response)", false);
   }
 
   console.info("[migrate] All migrations complete.");

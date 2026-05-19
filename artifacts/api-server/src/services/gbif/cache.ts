@@ -48,6 +48,7 @@ export async function storeNameMatch(
 
   const insert = {
     cache_key: cacheKey,
+    raw_response: result.raw_response,
     canonical_name: result.canonical_name,
     scientific_name: result.scientific_name,
     usage_key: result.usage_key,
@@ -88,6 +89,7 @@ export async function storeNameMatch(
     .onConflictDoUpdate({
       target: gbifNameMatchesTable.cache_key,
       set: {
+        raw_response: insert.raw_response,
         canonical_name: insert.canonical_name,
         scientific_name: insert.scientific_name,
         usage_key: insert.usage_key,

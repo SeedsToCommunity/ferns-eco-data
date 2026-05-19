@@ -244,7 +244,6 @@ export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
               </div>
               <div className="flex flex-col items-end gap-2 text-right">
                 <div className="flex items-center gap-2">
-                  <Badge variant="outline">{occQuery.data.data.cache_status}</Badge>
                   <span className="text-xs text-muted-foreground">
                     As of{" "}
                     {format(

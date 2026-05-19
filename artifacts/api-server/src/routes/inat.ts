@@ -150,17 +150,12 @@ function buildPlaceResponse(
 
   const source_url = row.upstream_url ?? null;
 
-  const resultsWithUrl = results.map((r) => ({
-    ...r,
-    inat_url: `https://www.inaturalist.org/places/${r.id}`,
-  }));
-
   return {
     source_url,
     found: row.found,
     data: {
       query: row.query,
-      results: resultsWithUrl,
+      results,
       resolved_at: row.fetched_at,
       cache_status,
     },

@@ -71,6 +71,7 @@ router.get("/gbif/species/match", async (req, res) => {
 
 function buildMatchResponse(
   row: {
+    raw_response: unknown;
     usage_key: number | null;
     canonical_name: string | null;
     scientific_name: string | null;
@@ -102,38 +103,37 @@ function buildMatchResponse(
     general_summary: string;
     technical_details: string;
   },
-  cache_status: "hit" | "miss" | "bypassed",
+  _cache_status: "hit" | "miss" | "bypassed",
   verbosity?: string,
 ) {
+  const data = (row.raw_response as Record<string, unknown> | null) ?? {
+    usageKey: row.usage_key ?? null,
+    canonicalName: row.canonical_name ?? null,
+    scientificName: row.scientific_name ?? null,
+    rank: row.rank ?? null,
+    status: row.status ?? null,
+    ...(row.accepted_usage_key != null ? { acceptedUsageKey: row.accepted_usage_key } : {}),
+    confidence: row.confidence ?? null,
+    matchType: row.match_type,
+    kingdom: row.kingdom ?? null,
+    phylum: row.phylum ?? null,
+    "class": row.class_ ?? null,
+    "order": row.order_ ?? null,
+    family: row.family ?? null,
+    genus: row.genus ?? null,
+    species: row.species ?? null,
+    kingdomKey: row.kingdom_key ?? null,
+    phylumKey: row.phylum_key ?? null,
+    classKey: row.class_key ?? null,
+    orderKey: row.order_key ?? null,
+    familyKey: row.family_key ?? null,
+    genusKey: row.genus_key ?? null,
+    speciesKey: row.species_key ?? null,
+  };
   return {
     source_url: row.source_url ?? null,
     found: row.match_type !== "NONE",
-    data: {
-      usageKey: row.usage_key ?? null,
-      canonicalName: row.canonical_name ?? null,
-      scientificName: row.scientific_name ?? null,
-      rank: row.rank ?? null,
-      status: row.status ?? null,
-      ...(row.accepted_usage_key != null ? { acceptedUsageKey: row.accepted_usage_key } : {}),
-      confidence: row.confidence ?? null,
-      matchType: row.match_type,
-      kingdom: row.kingdom ?? null,
-      phylum: row.phylum ?? null,
-      "class": row.class_ ?? null,
-      "order": row.order_ ?? null,
-      family: row.family ?? null,
-      genus: row.genus ?? null,
-      species: row.species ?? null,
-      kingdomKey: row.kingdom_key ?? null,
-      phylumKey: row.phylum_key ?? null,
-      classKey: row.class_key ?? null,
-      orderKey: row.order_key ?? null,
-      familyKey: row.family_key ?? null,
-      genusKey: row.genus_key ?? null,
-      speciesKey: row.species_key ?? null,
-      source_url: row.source_url ?? null,
-      cache_status,
-    },
+    data,
     provenance: filterProvenance({
       source_id: row.source_id,
       fetched_at: row.fetched_at,
@@ -236,7 +236,7 @@ function buildOccurrencesResponse(
     source_url: row.source_url ?? null,
     found: true,
     data: {
-      usage_key: row.usage_key,
+      usageKey: row.usage_key,
       geography_mode: row.geography_mode,
       geography_params: row.geography_params,
       occurrence_count: row.occurrence_count,
@@ -244,7 +244,6 @@ function buildOccurrencesResponse(
       recent_occurrences: row.recent_occurrences,
       occurrence_last_fetched: row.occurrence_last_fetched,
       source_url: row.source_url ?? null,
-      cache_status,
     },
     provenance: filterProvenance({
       source_id: row.source_id,
@@ -339,7 +338,7 @@ function buildSynonymsResponse(
   },
   limit: number,
   offset: number,
-  cache_status: "hit" | "miss" | "bypassed",
+  _cache_status: "hit" | "miss" | "bypassed",
   verbosity?: string,
   endOfRecords?: boolean,
 ) {
@@ -349,13 +348,11 @@ function buildSynonymsResponse(
     source_url: `https://www.gbif.org/species/${row.usage_key}`,
     found: true,
     data: {
-      usage_key: row.usage_key,
       offset,
       limit,
       endOfRecords: computedEndOfRecords,
       count: row.synonym_count,
       results,
-      cache_status,
     },
     provenance: filterProvenance({
       source_id: row.source_id,
@@ -414,7 +411,7 @@ function buildVernacularNamesResponse(
   },
   limit: number,
   offset: number,
-  cache_status: "hit" | "miss" | "bypassed",
+  _cache_status: "hit" | "miss" | "bypassed",
   verbosity?: string,
   endOfRecords?: boolean,
 ) {
@@ -424,13 +421,11 @@ function buildVernacularNamesResponse(
     source_url: `https://www.gbif.org/species/${row.usage_key}`,
     found: true,
     data: {
-      usage_key: row.usage_key,
       offset,
       limit,
       endOfRecords: computedEndOfRecords,
       count: row.vernacular_name_count,
       results,
-      cache_status,
     },
     provenance: filterProvenance({
       source_id: row.source_id,

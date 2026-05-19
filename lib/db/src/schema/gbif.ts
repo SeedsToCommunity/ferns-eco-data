@@ -5,6 +5,7 @@ import { z } from "zod/v4";
 export const gbifNameMatchesTable = pgTable("gbif_name_matches", {
   id: serial("id").primaryKey(),
   cache_key: text("cache_key").notNull().unique(),
+  raw_response: jsonb("raw_response"),
   canonical_name: text("canonical_name"),
   scientific_name: text("scientific_name"),
   usage_key: integer("usage_key"),
