@@ -5,6 +5,7 @@ import { Content as InfoFrontierContent } from "../content/information-frontier.
 import { Content as ComputingFrontierContent } from "../content/computing-frontier.md";
 import { Content as BuiltContent } from "../content/built.md";
 import { Content as TrustGroupsContent } from "../content/trust-groups.md";
+import { Content as SharingModelContent } from "../content/sharing-model.md";
 import { Content as NamingLayerContent } from "../content/naming-layer.md";
 import { Content as WorksheetContent } from "../content/worksheet.md";
 import { Content as JustifyingContent } from "../content/justifying-the-structure.md";
@@ -15,6 +16,7 @@ const TABS = [
   { id: "idea", label: "The Idea" },
   { id: "built", label: "What's Built" },
   { id: "trust-groups", label: "Trust Groups" },
+  { id: "sharing-model", label: "Sharing Model" },
   { id: "justifying-the-structure", label: "Justifying the Structure" },
   { id: "naming-layer", label: "The Naming Layer" },
   { id: "worksheet", label: "Worksheet" },
@@ -94,6 +96,14 @@ const TABS = [
         </div>
       </section>
 
+      <section id="sharing-model" class="tab-section">
+        <div style="max-width: 720px; margin: 0 auto; padding: 3rem 1.5rem;">
+          <article class="prose max-w-none">
+            <SharingModelContent />
+          </article>
+        </div>
+      </section>
+
       <section id="justifying-the-structure" class="tab-section">
         <div style="max-width: 720px; margin: 0 auto; padding: 3rem 1.5rem;">
           <article class="prose max-w-none">
@@ -121,7 +131,7 @@ const TABS = [
 
     <script>
       (function () {
-        const TABS = ["home", "idea", "built", "trust-groups", "justifying-the-structure", "naming-layer", "worksheet"];
+        const TABS = ["home", "idea", "built", "trust-groups", "sharing-model", "justifying-the-structure", "naming-layer", "worksheet"];
 
         function activate(id: string) {
           if (!TABS.includes(id)) id = "home";
