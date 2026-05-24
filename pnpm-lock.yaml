@@ -607,6 +607,18 @@ importers:
         specifier: 'catalog:'
         version: 5.90.21(react@19.1.0)
 
+  lib/api-envelope:
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.3.5
+      tsx:
+        specifier: 'catalog:'
+        version: 4.21.0
+      typescript:
+        specifier: ^5.9.0
+        version: 5.9.3
+
   lib/api-spec:
     devDependencies:
       orval:
