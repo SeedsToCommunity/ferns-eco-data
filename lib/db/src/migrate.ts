@@ -241,6 +241,7 @@ export async function runMigrations(): Promise<void> {
   const entry8 = journal.entries[8];
   const entry9 = journal.entries[9];
   const entry10 = journal.entries[10];
+  const entry13 = journal.entries[13];
 
   await applyMigration0000(entry0.when);
   await applyMigration0001(entry1.when);
@@ -272,6 +273,12 @@ export async function runMigrations(): Promise<void> {
   // ADD COLUMN IF NOT EXISTS guards make it safe to re-run.
   if (entry10) {
     await runSqlMigration("0010_npn_flower_color_physiography", entry10.when, "0010 (npn flower_color + physiography)", false);
+  }
+
+  // Migration 0013: Envelope Contract v1 columns on ferns_sources.
+  // ADD COLUMN IF NOT EXISTS guards make it safe to re-run.
+  if (entry13) {
+    await runSqlMigration("0013_envelope_v1_columns", entry13.when, "0013 (envelope v1 columns)", false);
   }
 
   console.info("[migrate] All migrations complete.");

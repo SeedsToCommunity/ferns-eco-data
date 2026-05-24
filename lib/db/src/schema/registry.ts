@@ -1,4 +1,4 @@
-import { pgTable, serial, text, timestamp, unique } from "drizzle-orm/pg-core";
+import { jsonb, pgTable, serial, text, timestamp, unique } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -20,6 +20,12 @@ export const fernsSourcesTable = pgTable("ferns_sources", {
   license_notes: text("license_notes").notNull().default(""),
   general_summary: text("general_summary"),
   technical_details: text("technical_details"),
+  // Envelope Contract v1 columns (added by Task #160 — see replit.md "FERNS Response Envelope Contract v1").
+  license: text("license").notNull().default("unknown"),
+  rights: text("rights").notNull().default(""),
+  website_url_patterns: jsonb("website_url_patterns").notNull().default({}),
+  // PRIVATE — never exposed via /api/v1/sources. See replit.md "Endpoint Kinds".
+  non_passthrough_endpoints: jsonb("non_passthrough_endpoints").notNull().default([]),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updated_at: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });

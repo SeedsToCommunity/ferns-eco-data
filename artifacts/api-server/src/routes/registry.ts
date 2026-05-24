@@ -85,6 +85,11 @@ router.get("/v1/sources", async (req, res) => {
       license_notes: r.license_notes ?? "",
       general_summary: r.general_summary ?? "",
       technical_details: r.technical_details ?? "",
+      // Envelope Contract v1 columns. `non_passthrough_endpoints` is intentionally
+      // omitted — it is a private server-side declaration (see replit.md "Endpoint Kinds").
+      license: r.license ?? "unknown",
+      rights: r.rights ?? "",
+      website_url_patterns: r.website_url_patterns ?? {},
     }))
     .sort(sortSources);
 
