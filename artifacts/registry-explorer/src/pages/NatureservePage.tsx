@@ -69,7 +69,25 @@ function RankBadge({ rank, label }: { rank: string | null; label: string }) {
 }
 
 interface SpeciesData {
-  raw_response: Record<string, unknown>;
+  scientific_name: string | null;
+  common_name: string | null;
+  global_rank: string | null;
+  rounded_global_rank: string | null;
+  national_rank: string | null;
+  rounded_national_rank: string | null;
+  state_code: string;
+  state_rank: string | null;
+  rounded_state_rank: string | null;
+  iucn_category: string | null;
+  iucn_description: string | null;
+  federal_status: string | null;
+  federal_status_description: string | null;
+  state_status: string | null;
+  cites_description: string | null;
+  cosewic_code: string | null;
+  cosewic_description: string | null;
+  natureserve_url: string | null;
+  element_global_id: string | null;
   cache_status: string;
 }
 
@@ -131,10 +149,7 @@ interface EcosystemsEnvelope {
 
 function SpeciesResultPanel({ result }: { result: SpeciesEnvelope }) {
   const d = result.data;
-  const rawResults = (d.raw_response?.results as Record<string, unknown>[]) ?? [];
-  const hit = rawResults[0] ?? null;
-
-  if (!result.found || !hit) {
+  if (!result.found || !d.scientific_name) {
     return (
       <div className="bg-muted/50 border border-border rounded-xl p-6 text-center">
         <AlertTriangle className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
@@ -143,38 +158,17 @@ function SpeciesResultPanel({ result }: { result: SpeciesEnvelope }) {
     );
   }
 
-  const scientificName = hit.scientificName as string | null;
-  const primaryCommonName = hit.primaryCommonName as string | null;
-  const gRank = hit.gRank as string | null;
-  const roundedGRank = hit.roundedGRank as string | null;
-  const nsxUrl = hit.nsxUrl as string | null;
-  const explorerUrl = nsxUrl ? `https://explorer.natureserve.org${nsxUrl}` : null;
-
-  const nations = (hit.nations as Record<string, unknown>[]) ?? [];
-  const usNation = nations.find((n) => (n.nationCode as string) === "US");
-  const nRank = usNation ? (usNation.nRank as string | null) : null;
-  const roundedNRank = usNation ? (usNation.roundedNRank as string | null) : null;
-
-  const iucnStatus = hit.iucnStatus as Record<string, unknown> | null | undefined;
-  const iucnCategory = iucnStatus ? (iucnStatus.category as string | null) : null;
-  const iucnDescription = iucnStatus ? (iucnStatus.categoryName as string | null) : null;
-
-  const esaStatuses = hit.usEsaStatus as Record<string, unknown>[] | null | undefined;
-  const esaStatus = esaStatuses && esaStatuses.length > 0 ? esaStatuses[0] : null;
-  const esaCode = esaStatus ? (esaStatus.status as string | null) : null;
-  const esaDescription = esaStatus ? (esaStatus.statusName as string | null) : null;
-
   return (
     <div className="space-y-4">
       <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
         <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
           <div>
-            <h2 className="text-xl font-bold text-foreground italic">{scientificName}</h2>
-            {primaryCommonName && <p className="text-muted-foreground mt-0.5">{primaryCommonName}</p>}
+            <h2 className="text-xl font-bold text-foreground italic">{d.scientific_name}</h2>
+            {d.common_name && <p className="text-muted-foreground mt-0.5">{d.common_name}</p>}
           </div>
-          {explorerUrl && (
+          {d.natureserve_url && (
             <a
-              href={explorerUrl}
+              href={d.natureserve_url}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 text-sm text-primary hover:underline shrink-0"
@@ -186,23 +180,43 @@ function SpeciesResultPanel({ result }: { result: SpeciesEnvelope }) {
         </div>
 
         <div className="flex flex-wrap gap-6 mb-6">
-          <RankBadge rank={roundedGRank ?? gRank} label="Global Rank" />
-          <RankBadge rank={roundedNRank ?? nRank} label="US National" />
+          <RankBadge rank={d.global_rank} label="Global Rank" />
+          <RankBadge rank={d.national_rank} label="US National" />
+          <RankBadge rank={d.state_rank} label={`${d.state_code} State`} />
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {iucnCategory && (
+          {d.iucn_category && (
             <div className="bg-muted/50 rounded-lg p-3">
               <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-1">IUCN Red List</div>
-              <div className="font-bold text-foreground">{iucnCategory}</div>
-              {iucnDescription && <div className="text-xs text-muted-foreground mt-0.5">{iucnDescription}</div>}
+              <div className="font-bold text-foreground">{d.iucn_category}</div>
+              {d.iucn_description && <div className="text-xs text-muted-foreground mt-0.5">{d.iucn_description}</div>}
             </div>
           )}
-          {esaCode && (
+          {d.federal_status && (
             <div className="bg-muted/50 rounded-lg p-3">
               <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-1">US ESA Status</div>
-              <div className="font-bold text-foreground">{esaCode}</div>
-              {esaDescription && <div className="text-xs text-muted-foreground mt-0.5">{esaDescription}</div>}
+              <div className="font-bold text-foreground">{d.federal_status}</div>
+              {d.federal_status_description && <div className="text-xs text-muted-foreground mt-0.5">{d.federal_status_description}</div>}
+            </div>
+          )}
+          {d.state_status && (
+            <div className="bg-muted/50 rounded-lg p-3">
+              <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-1">{d.state_code} State Status</div>
+              <div className="text-sm text-foreground font-medium">{d.state_status}</div>
+            </div>
+          )}
+          {d.cites_description && (
+            <div className="bg-muted/50 rounded-lg p-3">
+              <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-1">CITES</div>
+              <div className="text-sm text-foreground font-medium">{d.cites_description}</div>
+            </div>
+          )}
+          {d.cosewic_code && (
+            <div className="bg-muted/50 rounded-lg p-3">
+              <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-1">COSEWIC (Canada)</div>
+              <div className="font-bold text-foreground">{d.cosewic_code}</div>
+              {d.cosewic_description && <div className="text-xs text-muted-foreground mt-0.5">{d.cosewic_description}</div>}
             </div>
           )}
         </div>
@@ -326,8 +340,9 @@ function EcosystemsResultPanel({ result }: { result: EcosystemsEnvelope }) {
 export function NatureservePage() {
   const [activeTab, setActiveTab] = useState<Tab>("species");
   const [nameInput, setNameInput] = useState("");
+  const [stateInput, setStateInput] = useState("MI");
 
-  const [speciesQuery, setSpeciesQuery] = useState<{ name: string } | null>(null);
+  const [speciesQuery, setSpeciesQuery] = useState<{ name: string; state: string } | null>(null);
   const [ecosystemsQuery, setEcosystemsQuery] = useState<{ q: string } | null>(null);
 
   const [speciesResult, setSpeciesResult] = useState<SpeciesEnvelope | null>(null);
@@ -346,8 +361,9 @@ export function NatureservePage() {
     try {
       if (activeTab === "species") {
         setSpeciesResult(null);
-        setSpeciesQuery({ name });
-        const url = `${API_BASE}/natureserve/speciesSearch?name=${encodeURIComponent(name)}`;
+        const state = stateInput.trim().toUpperCase() || "MI";
+        setSpeciesQuery({ name, state });
+        const url = `${API_BASE}/natureserve/speciesSearch?name=${encodeURIComponent(name)}&state=${encodeURIComponent(state)}`;
         const r = await fetch(url);
         if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
         const data = (await r.json()) as SpeciesEnvelope;
@@ -409,6 +425,15 @@ export function NatureservePage() {
               className="h-11"
             />
           </div>
+          {activeTab === "species" && (
+            <Input
+              value={stateInput}
+              onChange={(e) => setStateInput(e.target.value)}
+              placeholder="State (e.g. MI)"
+              className="h-11 w-24"
+              maxLength={2}
+            />
+          )}
           <Button type="submit" disabled={loading || !nameInput.trim()} className="h-11 px-6">
             <Search className="w-4 h-4 mr-2" />
             {loading ? "Searching…" : "Search"}
@@ -453,7 +478,7 @@ export function NatureservePage() {
           <div>
             {speciesQuery && (
               <p className="text-xs text-muted-foreground mb-3">
-                Results for <strong className="italic">{speciesQuery.name}</strong>
+                Results for <strong className="italic">{speciesQuery.name}</strong> · State: {speciesQuery.state}
               </p>
             )}
             <SpeciesResultPanel result={speciesResult} />

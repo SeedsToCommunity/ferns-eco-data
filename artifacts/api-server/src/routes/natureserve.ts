@@ -30,6 +30,8 @@ import { filterProvenance } from "../lib/provenance.js";
 
 const router: IRouter = Router();
 
+const DEFAULT_STATE = "MI";
+
 router.get("/natureserve/speciesSearch", async (req, res) => {
   const rawName = req.query.name;
   if (!rawName || typeof rawName !== "string" || rawName.trim() === "") {
@@ -38,9 +40,15 @@ router.get("/natureserve/speciesSearch", async (req, res) => {
   }
 
   const name = rawName.trim();
+  const rawState = typeof req.query.state === "string" ? req.query.state.trim().toUpperCase() : DEFAULT_STATE;
+  if (!/^[A-Z]{2}$/.test(rawState)) {
+    res.status(400).json({ error: "invalid_input", message: "state must be a 2-letter US state code (e.g. MI, WI, OH)" });
+    return;
+  }
+  const state = rawState;
   const refresh = req.query.refresh === "true" || req.query.refresh === "1";
   const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
-  const cacheKey = buildSpeciesCacheKey(name);
+  const cacheKey = buildSpeciesCacheKey(name, state);
 
   if (!refresh) {
     const cached = await lookupSpeciesCache(cacheKey);
@@ -51,8 +59,8 @@ router.get("/natureserve/speciesSearch", async (req, res) => {
   }
 
   try {
-    const result = await searchSpecies(name);
-    const stored = await storeSpeciesCache(cacheKey, result);
+    const result = await searchSpecies(name, state);
+    const stored = await storeSpeciesCache(cacheKey, result, result.search_upstream_url);
     res.json(buildSpeciesResponse(stored, refresh ? "bypassed" : "miss", verbosity));
   } catch (err) {
     req.log.error({ err }, "NatureServe species fetch failed");
@@ -65,16 +73,31 @@ function buildSpeciesResponse(
   cache_status: "hit" | "miss" | "bypassed",
   verbosity?: string,
 ) {
-  const raw = row.raw_response as Record<string, unknown>;
-  const results = raw.results as unknown[] | undefined;
-  const found = !!(results && results.length > 0);
-
   return {
-    source_url: "https://explorer.natureserve.org",
-    found,
+    source_url: row.natureserve_url ?? null,
+    found: row.scientific_name !== null,
     attribution: "NatureServe Explorer (https://explorer.natureserve.org). Attribution required per NatureServe Terms of Use.",
     data: {
-      raw_response: raw,
+      scientific_name: row.scientific_name ?? null,
+      common_name: row.common_name ?? null,
+      global_rank: row.global_rank ?? null,
+      rounded_global_rank: row.rounded_global_rank ?? null,
+      national_rank: row.national_rank ?? null,
+      rounded_national_rank: row.rounded_national_rank ?? null,
+      state_code: row.state_code,
+      state_rank: row.state_rank ?? null,
+      rounded_state_rank: row.rounded_state_rank ?? null,
+      iucn_category: row.iucn_category ?? null,
+      iucn_description: row.iucn_description ?? null,
+      federal_status: row.federal_status ?? null,
+      federal_status_description: row.federal_status_description ?? null,
+      state_status: row.state_status ?? null,
+      state_status_note: row.state_status ? "Derived from NatureServe S-rank; reflects rarity status, not a formal statutory state listing" : null,
+      cites_description: row.cites_description ?? null,
+      cosewic_code: row.cosewic_code ?? null,
+      cosewic_description: row.cosewic_description ?? null,
+      natureserve_url: row.natureserve_url ?? null,
+      element_global_id: row.element_global_id ?? null,
       cache_status,
     },
     provenance: filterProvenance({

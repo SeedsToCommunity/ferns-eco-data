@@ -146,6 +146,7 @@ function buildPlaceResponse(
     id: number;
     display_name: string;
     place_type: number;
+    place_type_name: string;
   }>) || [];
 
   const source_url = row.upstream_url ?? null;

@@ -235,15 +235,12 @@ export async function runMigrations(): Promise<void> {
   await ensureMigrationsTable();
 
   const journal = readJournal();
-  const entry0  = journal.entries[0];
-  const entry1  = journal.entries[1];
-  const entry7  = journal.entries[7];
-  const entry8  = journal.entries[8];
-  const entry9  = journal.entries[9];
+  const entry0 = journal.entries[0];
+  const entry1 = journal.entries[1];
+  const entry7 = journal.entries[7];
+  const entry8 = journal.entries[8];
+  const entry9 = journal.entries[9];
   const entry10 = journal.entries[10];
-  const entry11 = journal.entries[11];
-  const entry12 = journal.entries[12];
-  const entry13 = journal.entries[13];
 
   await applyMigration0000(entry0.when);
   await applyMigration0001(entry1.when);
@@ -275,25 +272,6 @@ export async function runMigrations(): Promise<void> {
   // ADD COLUMN IF NOT EXISTS guards make it safe to re-run.
   if (entry10) {
     await runSqlMigration("0010_npn_flower_color_physiography", entry10.when, "0010 (npn flower_color + physiography)", false);
-  }
-
-  // Migration 0011: iNaturalist reference tables (inat_place_cache, inat_taxon_cache, etc.).
-  // CREATE TABLE IF NOT EXISTS guards make it safe to re-run.
-  if (entry11) {
-    await runSqlMigration("0011_inat_reference_tables", entry11.when, "0011 (inat reference tables)", true);
-  }
-
-  // Migration 0012: rename licenses field across source-registry tables.
-  // ADD COLUMN IF NOT EXISTS + UPDATE + DROP COLUMN pattern; safe to re-run if
-  // old column already gone.
-  if (entry12) {
-    await runSqlMigration("0012_licenses_field_rename", entry12.when, "0012 (licenses field rename)", false);
-  }
-
-  // Migration 0013: NatureServe species cache — replace flat columns with raw_response jsonb.
-  // TRUNCATE + DROP COLUMN + ADD COLUMN; safe because the cache is repopulated on demand.
-  if (entry13) {
-    await runSqlMigration("0013_natureserve_raw_response", entry13.when, "0013 (natureserve raw_response)", true);
   }
 
   console.info("[migrate] All migrations complete.");

@@ -92,13 +92,6 @@
       "when": 1747440000000,
       "tag": "0012_licenses_field_rename",
       "breakpoints": true
-    },
-    {
-      "idx": 13,
-      "version": "7",
-      "when": 1747526400000,
-      "tag": "0013_natureserve_raw_response",
-      "breakpoints": true
     }
   ]
 }

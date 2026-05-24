@@ -77,6 +77,7 @@ function buildMatchResponse(
     rank: string | null;
     status: string | null;
     accepted_usage_key: number | null;
+    accepted_canonical_name: string | null;
     confidence: number | null;
     match_type: string;
     kingdom: string | null;
@@ -114,7 +115,8 @@ function buildMatchResponse(
       scientificName: row.scientific_name ?? null,
       rank: row.rank ?? null,
       status: row.status ?? null,
-      ...(row.accepted_usage_key != null ? { acceptedUsageKey: row.accepted_usage_key } : {}),
+      ...(row.accepted_usage_key != null ? { accepted_usage_key: row.accepted_usage_key } : {}),
+      ...(row.accepted_canonical_name != null ? { accepted_canonical_name: row.accepted_canonical_name } : {}),
       confidence: row.confidence ?? null,
       matchType: row.match_type,
       kingdom: row.kingdom ?? null,
@@ -404,6 +406,7 @@ function buildVernacularNamesResponse(
   row: {
     usage_key: number;
     vernacular_names: unknown;
+    vernacular_name_primary: string | null;
     vernacular_name_count: number;
     source_id: string;
     fetched_at: Date;
@@ -430,6 +433,7 @@ function buildVernacularNamesResponse(
       endOfRecords: computedEndOfRecords,
       count: row.vernacular_name_count,
       results,
+      vernacular_name_primary: row.vernacular_name_primary,
       cache_status,
     },
     provenance: filterProvenance({
