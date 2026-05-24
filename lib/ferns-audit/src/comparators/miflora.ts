@@ -311,7 +311,7 @@ async function compareMifloraFloraSearch(
       endpoint: `${fernsEndpoint}?name=${encodeURIComponent(sp.name)}`,
       label,
       ok: true,
-      rawSource: upstreamFirst ? { plant_id: upstreamFirst.plant_id, scientific_name: upstreamFirst.scientific_name } : null,
+      rawSource: upstreamFirst ? { plant_id: upstreamFirst.plant_id, scientific_name: upstreamFirst.scientific_name } : undefined,
       rawFerns: fernsData,
       findings,
       urlsCollected,

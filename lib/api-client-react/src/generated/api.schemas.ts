@@ -3067,6 +3067,14 @@ export type GetInatObservationsParams = {
    */
   page?: number;
   /**
+   * Start date filter (YYYY-MM-DD)
+   */
+  d1?: string;
+  /**
+   * End date filter (YYYY-MM-DD)
+   */
+  d2?: string;
+  /**
    * Center latitude for radius-based geographic filter. Requires lng and radius.
    */
   lat?: number;
@@ -3162,6 +3170,14 @@ export type GetInatObservationsSpeciesCountsParams = {
    * @minimum 1
    */
   page?: number;
+  /**
+   * Start date filter (YYYY-MM-DD)
+   */
+  d1?: string;
+  /**
+   * End date filter (YYYY-MM-DD)
+   */
+  d2?: string;
   /**
    * Center latitude for radius-based geographic filter. Requires lng and radius.
    */

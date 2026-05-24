@@ -1271,6 +1271,8 @@ export const GetInatObservationsQueryParams = zod.object({
     .min(1)
     .default(getInatObservationsQueryPageDefault)
     .describe("Page number (1-indexed, default 1)"),
+  d1: zod.string().optional().describe("Start date filter (YYYY-MM-DD)"),
+  d2: zod.string().optional().describe("End date filter (YYYY-MM-DD)"),
   lat: zod.coerce
     .number()
     .optional()
@@ -1525,6 +1527,8 @@ export const GetInatObservationsSpeciesCountsQueryParams = zod.object({
     .min(1)
     .default(getInatObservationsSpeciesCountsQueryPageDefault)
     .describe("Page number (1-indexed, default 1)"),
+  d1: zod.string().optional().describe("Start date filter (YYYY-MM-DD)"),
+  d2: zod.string().optional().describe("End date filter (YYYY-MM-DD)"),
   lat: zod.coerce
     .number()
     .optional()

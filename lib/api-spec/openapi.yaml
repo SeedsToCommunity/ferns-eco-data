@@ -689,6 +689,18 @@ paths:
             type: integer
             minimum: 1
             default: 1
+        - name: d1
+          in: query
+          required: false
+          description: Start date filter (YYYY-MM-DD)
+          schema:
+            type: string
+        - name: d2
+          in: query
+          required: false
+          description: End date filter (YYYY-MM-DD)
+          schema:
+            type: string
         - name: lat
           in: query
           required: false
@@ -837,6 +849,18 @@ paths:
             type: integer
             minimum: 1
             default: 1
+        - name: d1
+          in: query
+          required: false
+          description: Start date filter (YYYY-MM-DD)
+          schema:
+            type: string
+        - name: d2
+          in: query
+          required: false
+          description: End date filter (YYYY-MM-DD)
+          schema:
+            type: string
         - name: lat
           in: query
           required: false
