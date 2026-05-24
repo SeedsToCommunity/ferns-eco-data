@@ -38,6 +38,13 @@ const REG = stubRegistry({
   vocab: {
     license: "https://creativecommons.org/publicdomain/zero/1.0/",
     rights: "FERNS vocabulary, CC0.",
+    permission_granted: true,
+  },
+  // Deliberately missing permission_granted — used to test that the builder
+  // throws when no permission decision is available from any source.
+  "no-perm": {
+    license: "unknown",
+    rights: "",
   },
 });
 
@@ -291,6 +298,44 @@ test("buildEnvelope rejects when source is not registered", async () => {
       ),
     EnvelopeContractError,
   );
+});
+
+test("buildEnvelope rejects when permission_granted is absent from both call and registry", async () => {
+  await assert.rejects(
+    () =>
+      buildEnvelope(
+        {
+          sourceId: "no-perm",
+          sourceKind: "single-source-proxy",
+          found: true,
+          data: {},
+          method: "api_fetch",
+          cacheStatus: "miss",
+          sourceUrl: "https://example.org/x",
+          queriedAt: NOW,
+        },
+        { registry: REG },
+      ),
+    EnvelopeContractError,
+  );
+});
+
+test("buildEnvelope accepts no-perm source when per-call permissionGranted is supplied", async () => {
+  const env = await buildEnvelope(
+    {
+      sourceId: "no-perm",
+      sourceKind: "single-source-proxy",
+      found: true,
+      data: {},
+      method: "api_fetch",
+      cacheStatus: "miss",
+      sourceUrl: "https://example.org/x",
+      queriedAt: NOW,
+      permissionGranted: false,
+    },
+    { registry: REG },
+  );
+  assert.equal(env.permission_granted, false);
 });
 
 test("buildEnvelope propagates pair-violation as EnvelopeContractError", async () => {

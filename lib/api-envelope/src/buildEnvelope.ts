@@ -49,11 +49,19 @@ export async function buildEnvelope<T>(
   const license = input.licenseOverride ?? record.license;
   const rights = input.rightsOverride ?? record.rights;
 
-  // Per-endpoint permission_granted with source-level fallback. If neither is
-  // provided we default to true — same as the prototype-mode behavior recorded
-  // in replit.md (the launch-time behavior is still an open question).
-  const permissionGranted =
-    input.permissionGranted ?? record.permission_granted ?? true;
+  // Per-endpoint permission_granted with source-level fallback. There is NO
+  // silent default — if neither the per-call value nor the registry value is
+  // present, the builder throws. A missing permission decision is an auth
+  // contract bug and must surface, not be papered over with `true`.
+  const permissionGranted = input.permissionGranted ?? record.permission_granted;
+  if (typeof permissionGranted !== "boolean") {
+    throw new EnvelopeContractError(
+      `permission_granted is required: neither a per-call value nor a registry ` +
+        `value was provided for sourceId="${input.sourceId}". The caller must ` +
+        `compute the per-endpoint decision (from non_passthrough_endpoints) or ` +
+        `the registry record must declare a source-level permission_granted.`,
+    );
+  }
 
   return {
     found: input.found,
