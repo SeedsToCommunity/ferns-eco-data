@@ -89,7 +89,7 @@ import type {
   GetWetlandIndicatorByCodeParams,
   GetWetlandIndicatorByWParams,
   GetWucolsByCodeParams,
-  HealthStatus,
+  HealthCheck200,
   ImportAnnArborNpn200,
   ImportAnnArborNpnBody,
   InatControlledTermsForTaxonResponse,
@@ -171,7 +171,8 @@ type Awaited<O> = O extends AwaitedInput<infer T> ? T : never;
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 /**
- * Returns server health status
+ * Returns server health status wrapped in the FERNS Response Envelope. Smoke-test consumer for the FernsEnvelope schema component — the inner data payload is a HealthStatus.
+
  * @summary Health check
  */
 export const getHealthCheckUrl = () => {
@@ -180,8 +181,8 @@ export const getHealthCheckUrl = () => {
 
 export const healthCheck = async (
   options?: RequestInit,
-): Promise<HealthStatus> => {
-  return customFetch<HealthStatus>(getHealthCheckUrl(), {
+): Promise<HealthCheck200> => {
+  return customFetch<HealthCheck200>(getHealthCheckUrl(), {
     ...options,
     method: "GET",
   });
