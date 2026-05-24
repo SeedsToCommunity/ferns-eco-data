@@ -11,7 +11,6 @@ export interface GeographyParams {
 }
 
 export interface GbifMatchResult {
-  raw_response: Record<string, unknown>;
   usage_key: number | null;
   canonical_name: string | null;
   scientific_name: string | null;
@@ -154,7 +153,6 @@ export async function fetchNameMatch(name: string): Promise<GbifMatchResult> {
 
   if (!("usageKey" in raw) || raw.usageKey === undefined || raw.usageKey === null) {
     return {
-      raw_response: raw,
       usage_key: null,
       canonical_name: null,
       scientific_name: null,
@@ -187,7 +185,6 @@ export async function fetchNameMatch(name: string): Promise<GbifMatchResult> {
   const acceptedUsageKey = raw.acceptedUsageKey != null ? (raw.acceptedUsageKey as number) : null;
 
   return {
-    raw_response: raw,
     usage_key: usageKey,
     canonical_name: (raw.canonicalName as string) || null,
     scientific_name: (raw.scientificName as string) || null,

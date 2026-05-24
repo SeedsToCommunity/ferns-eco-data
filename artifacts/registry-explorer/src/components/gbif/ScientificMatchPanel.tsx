@@ -61,8 +61,7 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
   });
 
   const matchData = matchQuery.data?.data;
-  const matchSourceUrl = matchQuery.data?.source_url;
-  const reconcileKey = matchData?.status === 'SYNONYM' ? (matchData.acceptedUsageKey as number | undefined) : matchData?.usageKey;
+  const reconcileKey = matchData?.status === 'SYNONYM' ? matchData.accepted_usage_key : matchData?.usageKey;
 
   const synonymsQuery = useGetGbifSpeciesSynonyms(
     reconcileKey ?? 0,
@@ -110,7 +109,7 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
             <Info className="w-8 h-8 text-warning" />
             <h3 className="text-lg font-bold text-foreground">No Match Found</h3>
             <p className="text-muted-foreground">GBIF backbone taxonomy returned no results for "{scientificName}".</p>
-            <Badge variant="outline" className="mt-2">GBIF</Badge>
+            <Badge variant="outline" className="mt-2">Cache: {matchData?.cache_status || 'miss'}</Badge>
           </CardContent>
         </Card>
       ) : (
@@ -128,14 +127,17 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
                         {matchData.confidence}% Confidence
                       </span>
                     )}
+                    <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
+                      {matchData.cache_status}
+                    </Badge>
                   </div>
                   <CardTitle className="text-3xl italic text-primary mt-2">
                     {matchData.canonicalName || matchData.scientificName}
                   </CardTitle>
                 </div>
-                {matchSourceUrl && (
+                {matchData.source_url && (
                   <a 
-                    href={matchSourceUrl} 
+                    href={matchData.source_url} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="p-2 rounded-lg bg-background border border-border hover:bg-muted transition-colors text-muted-foreground"
@@ -154,7 +156,8 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
                   <div>
                     <p className="font-semibold text-secondary-foreground">This is a synonym.</p>
                     <p className="text-sm text-secondary-foreground/80 mt-1">
-                      Occurrence and synonym data below is retrieved for the accepted taxon.
+                      The currently accepted name is <span className="italic font-medium">{matchData.accepted_canonical_name}</span>. 
+                      Subsequent data below is retrieved for the accepted taxon.
                     </p>
                   </div>
                 </div>

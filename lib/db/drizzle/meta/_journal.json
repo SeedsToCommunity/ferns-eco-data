@@ -99,13 +99,6 @@
       "when": 1747526400000,
       "tag": "0013_natureserve_raw_response",
       "breakpoints": true
-    },
-    {
-      "idx": 14,
-      "version": "7",
-      "when": 1747699200000,
-      "tag": "0014_gbif_match_raw_response",
-      "breakpoints": true
     }
   ]
 }

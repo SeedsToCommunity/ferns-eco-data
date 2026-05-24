@@ -91,6 +91,7 @@ router.get("/usda-plants/PlantSearch", async (req, res) => {
         provenance: filterProvenance(buildProvenance(nameMatch.upstream_url), verbosity),
         data: {
           species: speciesParam,
+          cache_status: cacheStatus,
         },
       });
       return;
@@ -145,6 +146,7 @@ router.get("/usda-plants/PlantSearch", async (req, res) => {
         PlantGuideUrls: profile["PlantGuideUrls"] ?? [],
         OtherCommonNames: profile["OtherCommonNames"] ?? null,
         ProfileImageFilename: profile["ProfileImageFilename"] ?? null,
+        cache_status: `name:${cacheStatus};profile:${profileCacheStatus}`,
       },
     });
   } catch (err) {

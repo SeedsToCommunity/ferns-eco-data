@@ -97,7 +97,7 @@ async function compareGbifOccurrences(
 
     const findings: FieldFinding[] = [];
 
-    const fernsOccCount = (fernsData.occurrence_count_us ?? fernsData.occurrenceCountUs) as number | undefined;
+    const fernsOccCount = fernsData.occurrence_count_us as number | undefined;
     const upstreamOccCount = typeof upstreamCount === "number" ? upstreamCount : undefined;
 
     if (fernsOccCount !== undefined && upstreamOccCount !== undefined) {
@@ -261,6 +261,10 @@ async function compareGbifVernacularNames(
       findings.push({ type: "ok", sourceField: "results", note: `FERNS: ${fernsResults.length} names vs upstream: ${gbifResults.length}` });
     } else {
       findings.push({ type: "ok", sourceField: "results", note: `No vernacular names for usageKey ${usageKey}` });
+    }
+
+    if (fernsData.vernacular_name_primary !== undefined) {
+      findings.push({ type: "ok", sourceField: "vernacular_name_primary", fernsField: "vernacular_name_primary", fernsValue: fernsData.vernacular_name_primary, note: `Primary English name: "${fernsData.vernacular_name_primary}"` });
     }
 
     return {

@@ -73,26 +73,18 @@ export async function lookupByName(name: string): Promise<UsdaNameLookupResult> 
   }
 
   const inputLower = trimmed.toLowerCase();
+  const inputWordCount = trimmed.split(/\s+/).length;
 
   const match = raw.find((item) => {
     const swoa = item.Plant["ScientificNameWithoutAuthor"] as string | null;
-    if (swoa) return swoa.toLowerCase() === inputLower;
-    // Fallback for USDA PlantSearch results where ScientificNameWithoutAuthor is always
-    // null. ScientificName contains HTML italic tags (e.g. "<i>Quercus alba</i> L.");
-    // strip tags for comparison only — the original HTML value is never modified.
+    if (swoa) {
+      return swoa.toLowerCase() === inputLower;
+    }
     const sciName = item.Plant["ScientificName"] as string | null;
     if (!sciName) return false;
-    const strippedRaw = sciName.replace(/<[^>]*>/g, "").trim(); // preserve original case
-    const strippedLower = strippedRaw.toLowerCase();
-    if (strippedLower === inputLower) return true;
-    if (!strippedLower.startsWith(inputLower + " ")) return false;
-    // Discriminate against hybrids and infraspecific names: the token immediately
-    // following the input in the original-cased string must begin with an uppercase
-    // letter or "(" (author abbreviation or parenthetical author), not "×" (hybrid)
-    // or a lowercase continuation (bare subspecific epithet).
-    const rest = strippedRaw.slice(inputLower.length + 1);
-    const nextToken = rest.split(/\s+/)[0] ?? "";
-    return /^[A-Z(["]/.test(nextToken);
+    const stripped = sciName.replace(/<[^>]*>/g, "").trim();
+    const nameWithoutAuthor = stripped.split(/\s+/).slice(0, inputWordCount).join(" ");
+    return nameWithoutAuthor.toLowerCase() === inputLower;
   });
 
   if (!match) {

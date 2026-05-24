@@ -110,7 +110,7 @@ const tools: ToolDef[] = [
     tool: {
       name: "gbif__match",
       description:
-        "Matches a scientific name string to the GBIF taxonomic backbone. Returns the verbatim GBIF match response in data — fields include usageKey, canonicalName, scientificName, rank, status, confidence, matchType, full classification (kingdom through species with *Key integer fields), and acceptedUsageKey when status is SYNONYM. matchType NONE means no match. Use usageKey (or acceptedUsageKey for synonyms) in subsequent occurrence and synonym calls.",
+        "Matches a scientific name string to the GBIF taxonomic backbone, returning the accepted usage key, rank, confidence score, and synonym chain. Use this first to resolve a name before calling occurrence or reconcile endpoints.",
       inputSchema: {
         type: "object" as const,
         properties: {

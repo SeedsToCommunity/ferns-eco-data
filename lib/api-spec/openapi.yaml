@@ -4457,20 +4457,15 @@ components:
 
     GbifMatchData:
       type: object
-      additionalProperties: true
-      description: >
-        The verbatim GBIF backbone match response. All fields are passed through
-        unchanged from the GBIF species/match API. Key fields include usageKey,
-        canonicalName, scientificName, rank, status, confidence, matchType,
-        classification (kingdom through species with corresponding *Key integers),
-        and acceptedUsageKey when status is SYNONYM. Additional fields may be
-        present as returned by GBIF.
       required:
         - matchType
+        - matched_input
+        - source_url
       properties:
         usageKey:
           type: integer
-          description: GBIF backbone usageKey. Absent when matchType is NONE.
+          nullable: true
+          description: GBIF backbone usageKey. Null when matchType is NONE.
         canonicalName:
           type: string
           nullable: true
@@ -4483,10 +4478,15 @@ components:
         status:
           type: string
           nullable: true
-          description: ACCEPTED, SYNONYM, DOUBTFUL, or other GBIF taxonomic status
-        acceptedUsageKey:
+          description: ACCEPTED, SYNONYM, or DOUBTFUL
+        accepted_usage_key:
           type: integer
-          description: Present when status is SYNONYM (verbatim GBIF field)
+          nullable: true
+          description: Present when status is SYNONYM. FERNS addition.
+        accepted_canonical_name:
+          type: string
+          nullable: true
+          description: Present when status is SYNONYM. FERNS addition.
         confidence:
           type: integer
           nullable: true
@@ -4499,12 +4499,14 @@ components:
         phylum:
           type: string
           nullable: true
-        class:
+        class_:
           type: string
           nullable: true
-        order:
+          description: GBIF 'class' field (JS reserved word renamed to class_)
+        order_:
           type: string
           nullable: true
+          description: GBIF 'order' field (JS reserved word renamed to order_)
         family:
           type: string
           nullable: true
@@ -4535,6 +4537,20 @@ components:
         speciesKey:
           type: integer
           nullable: true
+        source_url:
+          type: string
+          nullable: true
+          description: https://www.gbif.org/species/{usageKey} when usageKey is known
+        matched_input:
+          type: string
+        matched_at:
+          type: string
+          format: date-time
+          nullable: true
+        cache_status:
+          type: string
+          enum: [hit, miss, bypassed]
+          nullable: true
 
     GbifSynonymRecord:
       type: object
@@ -4559,12 +4575,16 @@ components:
     GbifSynonymsData:
       type: object
       required:
+        - usage_key
         - offset
         - limit
         - endOfRecords
         - count
         - results
       properties:
+        usage_key:
+          type: integer
+          description: GBIF backbone usage key for the accepted taxon (FERNS addition)
         offset:
           type: integer
           description: Zero-based offset of the first result (mirrors upstream envelope)
@@ -4582,6 +4602,10 @@ components:
           description: Synonym records as returned by GBIF (verbatim upstream fields)
           items:
             $ref: "#/components/schemas/GbifSynonymRecord"
+        cache_status:
+          type: string
+          enum: [hit, miss, bypassed]
+          nullable: true
 
     GbifSynonymsResponse:
       type: object
@@ -4621,12 +4645,16 @@ components:
     GbifVernacularNamesData:
       type: object
       required:
+        - usage_key
         - offset
         - limit
         - endOfRecords
         - count
         - results
       properties:
+        usage_key:
+          type: integer
+          description: GBIF backbone usage key for the taxon (FERNS addition)
         offset:
           type: integer
           description: Zero-based offset of the first result (mirrors upstream envelope)
@@ -4644,6 +4672,14 @@ components:
           description: Vernacular name records as returned by GBIF (verbatim upstream fields)
           items:
             $ref: "#/components/schemas/GbifVernacularRecord"
+        vernacular_name_primary:
+          type: string
+          nullable: true
+          description: First English-language vernacular name found, or first name of any language (FERNS convenience field)
+        cache_status:
+          type: string
+          enum: [hit, miss, bypassed]
+          nullable: true
 
     GbifVernacularNamesResponse:
       type: object
@@ -4688,7 +4724,7 @@ components:
     GbifOccurrencesData:
       type: object
       required:
-        - usageKey
+        - usage_key
         - geography_mode
         - geography_params
         - occurrence_count
@@ -4696,7 +4732,7 @@ components:
         - occurrence_last_fetched
         - source_url
       properties:
-        usageKey:
+        usage_key:
           type: integer
         geography_mode:
           type: string
@@ -4720,6 +4756,10 @@ components:
           type: string
           nullable: true
           description: GBIF occurrence search URL for this taxon and geography
+        cache_status:
+          type: string
+          enum: [hit, miss, bypassed]
+          nullable: true
 
     GbifOccurrencesResponse:
       type: object
@@ -4903,12 +4943,12 @@ components:
 
     InatPlaceResult:
       type: object
-      additionalProperties: true
-      description: iNaturalist place record passed through verbatim from the iNaturalist autocomplete API.
       required:
         - id
         - display_name
         - place_type
+        - place_type_name
+        - inat_url
       properties:
         id:
           type: integer
@@ -4919,6 +4959,12 @@ components:
         place_type:
           type: integer
           description: iNaturalist numeric place type code
+        place_type_name:
+          type: string
+          description: Human-readable place type (e.g. County, State, Nation)
+        inat_url:
+          type: string
+          description: https://www.inaturalist.org/places/{id}
 
     InatPlaceData:
       type: object
@@ -7890,6 +7936,9 @@ components:
             element_global_id:
               type: string
               nullable: true
+            cache_status:
+              type: string
+              enum: [hit, miss, bypassed]
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
 
@@ -8258,98 +8307,88 @@ components:
 
     UsdaPlantsSpeciesData:
       type: object
-      description: >
-        USDA PLANTS species data. PascalCase fields (Symbol, ScientificName,
-        CommonName, Rank, NativeStatuses, etc.) are passed through verbatim from
-        USDA PLANTS. snake_case fields (species, usda_id, profile_url) are
-        FERNS-derived.
       properties:
         species:
           type: string
-          description: The queried species name (FERNS input echo)
-        Symbol:
+        symbol:
           type: string
           nullable: true
-          description: USDA PLANTS symbol code
-        ScientificName:
+        canonical_name:
           type: string
           nullable: true
-          description: Scientific name as returned by USDA PLANTS
-        CommonName:
+        common_name:
           type: string
           nullable: true
-          description: Common name as returned by USDA PLANTS
-        Rank:
+        rank:
           type: string
           nullable: true
-          description: Taxonomic rank as returned by USDA PLANTS
         usda_id:
           type: integer
           nullable: true
-          description: USDA PLANTS internal numeric ID (FERNS derived)
         profile_url:
           type: string
           nullable: true
-          description: URL to USDA PLANTS profile page (FERNS derived)
-        NativeStatuses:
+        native_statuses:
           type: array
           nullable: true
           items:
             $ref: "#/components/schemas/UsdaPlantsNativeStatus"
-        WetlandData:
+        wetland_data:
           type: array
           nullable: true
           items:
             type: object
             additionalProperties: true
-        LegalStatuses:
+        legal_statuses:
           type: array
           nullable: true
           items:
             type: object
             additionalProperties: true
-        Durations:
+        durations:
           type: array
           nullable: true
           items:
             type: string
-        GrowthHabits:
+        growth_habits:
           type: array
           nullable: true
           items:
             type: string
-        Group:
+        group:
           type: string
           nullable: true
-        Ancestors:
+        ancestors:
           type: array
           nullable: true
           description: Taxonomy hierarchy from Kingdom to parent rank
           items:
             type: object
             additionalProperties: true
-        Synonyms:
+        synonyms:
           type: array
           nullable: true
           items:
             type: object
             additionalProperties: true
-        FactSheetUrls:
+        fact_sheet_urls:
           type: array
           items:
             type: string
-        PlantGuideUrls:
+        plant_guide_urls:
           type: array
           items:
             type: string
-        OtherCommonNames:
+        other_common_names:
           type: array
           nullable: true
           items:
             type: string
-        ProfileImageFilename:
+        profile_image_filename:
           type: string
           nullable: true
+        cache_status:
+          type: string
 
     UsdaPlantsSpeciesResponse:
       type: object
