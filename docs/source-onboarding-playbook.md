@@ -20,10 +20,10 @@ Implement data ingestion in `artifacts/api-server/src/services/{source-id}/`. Do
 Create `artifacts/api-server/src/services/{source-id}/metadata.ts` with the source constants (SOURCE_ID, GENERAL_SUMMARY, TECHNICAL_DETAILS, REGISTRY_ENTRY, PERMISSION_GRANTED, PERMISSION_STATUS). Create `artifacts/api-server/src/services/{source-id}/seed.ts` that upserts into `fernsSourcesTable`. The three description fields (`description`, `general_summary`, `technical_details`) must conform to the standards defined below before this step is considered done. A source is not complete if any description field fails its audience test. Done when `GET /api/v1/sources` includes the new source with description fields that meet the defined standards.
 
 **Step 6: Route Handler**
-Create `artifacts/api-server/src/routes/{source-id}.ts`. Implement `GET /api/{source-id}` (data endpoint) and `GET /api/{source-id}/metadata` (metadata endpoint). The metadata endpoint must return the same envelope shape as all existing sources — read `artifacts/api-server/src/routes/miflora.ts` before writing the new one. Register the router in `artifacts/api-server/src/index.ts`. Done when both endpoints return 200 with a correct envelope.
+If the upstream source has multiple endpoints, create one FERNS route per upstream endpoint. Do not merge upstream responses. See 'data-layer-contract.md` `Pass-Through Rules`. Create `artifacts/api-server/src/routes/{source-id}.ts`. Implement `GET /api/{source-id}` (data endpoint) and `GET /api/{source-id}/metadata` (metadata endpoint). The metadata endpoint must return the same envelope shape as all existing sources — read `artifacts/api-server/src/routes/miflora.ts` before writing the new one. Register the router in `artifacts/api-server/src/index.ts`. Done when both endpoints return 200 with a correct envelope.
 
 **Step 7: OpenAPI Spec**
-Add the new endpoints to `lib/api-spec/openapi.yaml`. Follow existing path, parameter, response schema, and tag conventions. Done when the spec is valid and covers the new endpoints.
+Add the new endpoints to `lib/api-spec/openapi.yaml`. Follow existing path, parameter, response schema, and tag conventions. Done when the spec is valid and covers the new endpoints. All 
 
 **Step 8: Spec Drift Check**
 Run: `pnpm --filter @workspace/api-server run spec:check`. This script cross-checks every GET route in code against the spec and reports any gap in either direction. Done when the command exits 0 with no drift reported.
