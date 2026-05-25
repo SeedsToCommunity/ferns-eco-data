@@ -91,3 +91,118 @@ Only the following pairs are valid. Any other pair is a defective response.
 - `method`: `api_fetch` · `cache_hit` · `computed`
 - `cache_status`: `hit` · `miss` · `stale` · `bypass`
 - `license`: a license URI, or the literal string `"unknown"` (open-ended with one defined escape value).
+
+
+
+## Pass-Through Rules (non-negotiable)
+
+These rules formalize "Source Fidelity" for routes that call an upstream source. They are testable assertions; the audit (later task) enforces them.
+
+1. **Verbatim path after the source prefix.** Everything after `/api/{source-id}/` must match the upstream's own path character-for-character. No renaming, no camelCase↔snake_case conversion, no omitted path segments.
+2. **Single upstream endpoint per route.** Each FERNS route maps to exactly one upstream call. No fan-out, no merging of two upstream responses into one.
+3. **Argument-name parity with the upstream's parameter names.** Query string parameters keep the upstream's exact spelling and case. If the upstream uses `taxon_id`, FERNS uses `taxon_id` — not `taxonId`, not `id`.
+4. **No FERNS-produced fields inside `data`.** Everything FERNS generates goes in the envelope. `data` is the upstream's verbatim payload.
+5. **Absolute URLs in registry/metadata responses.** `source_url`, `metadata_url`, and `explorer_url` are absolute. (This restates the existing "Self-Describing Registry" rule and applies it to envelope `source_url`.)
+6. **Envelope shape conformance.** Every route returns the exact envelope defined in the contract above — no extra top-level keys, no missing required keys.
+
+Any endpoint that cannot satisfy these rules must be declared as a non-passthrough endpoint kind (see "Endpoint Kinds" below) with its kind recorded in the source's `non_passthrough_endpoints` registry field.
+
+## Endpoint Kinds
+
+Every FERNS endpoint has one of seven kinds. The default is `passthrough`. Any endpoint that is neither `passthrough` nor explicitly declared in the source's `non_passthrough_endpoints` registry field is an audit hard-fail.
+
+| Kind             | Purpose                                                                                                  |
+|------------------|----------------------------------------------------------------------------------------------------------|
+| `passthrough`    | One-to-one mirror of a single upstream API endpoint. Default if not declared.                            |
+| `url_lookup`     | Returns a URL into the source's website for a given entity. No upstream API call required.               |
+| `scraped_text`   | Returns text content scraped from the source's website (no structured upstream API exists).              |
+| `in_memory`      | Serves data that lives permanently inside FERNS (e.g. a vocabulary table).                               |
+| `admin`          | Server-side admin/management endpoint, auth-gated, not exposed in `/api/v1/sources` as a public surface. |
+| `url_resolver`   | Resolves a website URL via a small computation (used by `website_url_patterns` resolver strategy).       |
+| `metadata`       | The standard `/metadata` route per source, returning the registry entry inside the envelope's `data`.    |
+
+Rules:
+
+- Kind declarations live in a **server-side `non_passthrough_endpoints`** registry field. **This field is NOT exposed in `/api/v1/sources`** — it is an internal correctness contract between the route implementation and the audit, not a public capability advertisement.
+- Convention rule: any endpoint with `text` in its path is `scraped_text` and must be declared as such (or moved off the `text` naming).
+- Any endpoint that is neither declared in `non_passthrough_endpoints` nor matches a verbatim upstream path = audit hard-fail.
+
+## Permission Rules
+
+- `permission_granted` is **per-endpoint** and is returned in every response envelope.
+- The source-level `permission_granted` field in the registry (`ferns_sources`) is the **most-restrictive** value across all of that source's endpoints. A source with three `true` endpoints and one `false` endpoint reports `false` at the source level.
+- Defaults by endpoint kind:
+  - `url_lookup` → defaults to `true` (URLs into a public website are CC0-equivalent).
+  - `metadata` → defaults to `true` (CC0; the registry describes FERNS's own metadata about a source).
+  - `scraped_text` → defaults to `false` until permission is explicitly recorded for that source/endpoint.
+  - `passthrough` → based on the source's published terms, recorded per endpoint.
+  - `admin` → auth-gated; the public-permission question does not apply. The envelope still carries `permission_granted` but its value reflects the caller's authorization, not a public license decision.
+- **Prototype-mode note (deliberate, will change at launch):** while FERNS is in prototype mode, `permission_granted: false` still returns the requested `data`. This is intentional during build-out so the team can see real responses while permission classifications are being worked out. The launch-time behavior — whether `data` is withheld, partially redacted, or replaced with a citation-only stub — is recorded in "Open Questions" below.
+
+## Companion Website URL Patterns
+
+Every source has both an upstream API (or scraped surface) and a human-readable companion website. The companion website is **not a separate FERNS source** — a source is the upstream organization, and its website is one of its forms. The registry declares per-entity URL templates for that website in a `website_url_patterns` field on the source.
+
+Two forms:
+
+1. **Trivial form** — a template string with `{...}` placeholders for entity fields:
+   ```json
+   "website_url_patterns": {
+     "place": "https://www.inaturalist.org/places/{id}"
+   }
+   ```
+
+2. **Resolver form** — when the URL cannot be reduced to a single template (e.g., the upstream slugifies a name, or the URL depends on a lookup table). A resolver descriptor names a FERNS endpoint that returns the URL:
+   ```json
+   "website_url_patterns": {
+     "species": { "strategy": "url_resolver", "endpoint": "/api/{source}/website-resolver?entity=species&id={id}" }
+   }
+   ```
+   The resolver endpoint must be declared as kind `url_resolver` in the source's `non_passthrough_endpoints`. The endpoint's response envelope follows the standard contract; the resolved URL lives in `data`.
+
+## System Architecture
+
+FERNS follows a three-layered architecture: External Sources, the FERNS Data Layer, and Applications. This repository focuses on the FERNS Data Layer.
+
+**Core Architectural Pattern (Per Source):**
+
+Every external data source integrated follows a consistent four-component pattern:
+
+1.  **Connector**: Ingests data from the source. This data could be remote or could be held within this application.
+2.  **Database**: Stores source data in dedicated tables, each record including provenance fields.
+3.  **Knowledge API**: Provides programmatic access to the data. Every EC route path after the source identifier prefix MUST use the upstream source's own path verbatim — this is a non-negotiable prohibition. Each route maps to exactly one upstream endpoint; caching is the only permitted efficiency measure. Composite or aggregated routes that have no upstream equivalent are forbidden. If an experience requires data from multiple upstream calls, the application layer orchestrates those calls — the Knowledge API does not. Any deviation from upstream path structure requires explicit user approval and must be documented; it is not permitted for cosmetic or convenience reasons.
+4.  **Registry Entry**: Declares the service's exposed data and dependencies within the FERNS Registry.
+
+**Key Design Principles and Features:**
+
+-   **Provenance Tracking**: Every API response carries a `provenance` object as defined by FERNS Response Envelope Contract v1 (see the dedicated section below): `source_id`, `source_url`, `method`, `cache_status`, `queried_at`, `derived_from`, `license`, `rights`. Per-response provenance does NOT include `general_summary` or `technical_details` — those live in the registry only (per refinement #2 of the contract). Database cache tables record their own ingestion-time provenance fields (e.g. `fetched_at`, `upstream_url`); those are storage-level columns, not envelope fields, and are mapped into the envelope at response time.
+-   **API Response Envelope**: All API responses are wrapped in the FERNS Response Envelope Contract v1 (see the dedicated section below — that section is authoritative; this bullet only points to it).
+-   **Permission Enforcement**: Source metadata includes a `permission_granted` flag, and Explorer UIs display blocking modals when permission is not granted.
+-   **Source Fidelity**: FERNS API route paths after the source identifier prefix MUST be verbatim copies of the upstream source's own paths — no renaming, no compositing, no omission. Each route maps to exactly one upstream endpoint; caching is the only permitted efficiency measure. If an experience requires data from multiple upstream calls, the application layer orchestrates those calls — the Knowledge API does not. Any deviation requires explicit user approval and must be documented. Field values and response structure are preserved unchanged.
+-   **Source Descriptions**: Every source has three structured description fields — `description`, `general_summary`, and `technical_details` — that together serve as a complete self-contained reference for any reader. Standards and examples are defined in the Source Onboarding Playbook below.
+-   **No Normalization**: FERNS preserves the distinctness of each source; it does not collapse sources into a common data model or imply equivalence.
+-   **Fat Registry Index**: The `/api/v1/sources` endpoint is the single source of truth for all source metadata. Each `SourceSummary` in the sources array includes the full set of identity, description, permission, and capability fields: `source_id`, `name`, `knowledge_type`, `status`, `description`, `input_summary`, `output_summary`, `dependencies`, `update_frequency`, `known_limitations`, `metadata_url`, `explorer_url`, `permission_granted`, `permission_status`, `general_summary`, and `technical_details`. These are persisted to the `ferns_sources` DB table via each source's `seed.ts` `onConflictDoUpdate` and read back on every registry request. An agent or application can make a single call to `/api/v1/sources` and have enough information to make a fully informed routing decision without calling any individual `/metadata` endpoint.
+-   **Self-Describing Registry**: All `metadata_url`, `explorer_url`, and `source_url` fields in registry and metadata responses must be absolute URLs.
+-   **Metadata response structure**: Every source's `/metadata` endpoint returns the standard envelope (see "FERNS Response Envelope Contract v1" below). The `description`, `general_summary`, and `technical_details` text lives inside `data` — it is the source's own descriptive payload — and is NOT placed in `provenance`. `provenance` is reserved for FERNS-produced provenance fields (see the contract). Some existing metadata routes still nest `general_summary`/`technical_details` under `provenance`; those routes will be migrated in a later task (envelope route migration). New metadata routes must follow the contract.
+-   **Description field completeness**: The `description`, `general_summary`, and `technical_details` fields in every source's registry metadata must be fully self-contained. Together they must give any reader — general user, developer, researcher — a complete understanding of the source without consulting any external documentation. For sources with encoded fields (e.g. coded values like `OBL`, `C5`, `FACW`), `technical_details` must enumerate every possible value and its meaning. If a consumer cannot interpret the data from these fields alone, the registry entry is incomplete.
+-   **Disambiguation requirement**: A source's `general_summary` and `technical_details` must fully describe the source's own data fields — including the name, scale, authority, and disambiguation of any vocabulary-defined datatype that the source actually returns. For example, a source that returns a C-value field must describe what a C-value is, its 0–10 scale, its authority (Swink & Wilhelm), and how it differs from superficially similar metrics (Coefficient of Wetness, WUCOLS ratings). This is field-level documentation of the source's own output and is always required. What does NOT belong in individual source metadata is cross-source routing guidance: naming other FERNS sources, recommending which source to use for a given need, or describing how two FERNS sources interact. That belongs exclusively in the `source_relationships` table.
+-   **Clarity for humans and agents**: All metadata, description text, and documentation must be written to be understood by both human readers and AI agents. Avoid unexplained abbreviations. Spell out acronyms on first use. Prefer complete sentences over terse field lists.
+-   **Dedicated vocabulary sources**: If a data type (such as the Coefficient of Conservatism) is a standalone, well-defined standard with a published authority and a use across multiple FERNS sources, it may have its own registry entry, API, and explorer so that its definition is authoritative and centrally queryable. This is a design option to consider, not a mandatory pattern — the user decides whether a given metric warrants a standalone source. Cross-source relationship information — how two FERNS sources overlap, conflict, complement each other, or where one supersedes another — lives in the `source_relationships` table (added in Task #50) and is accessible via `GET /api/v1/source-relationships`. Individual source metadata does not duplicate this information.
+-   **Non-standard conventions**: When a data field uses a convention that is not backed by a published standard (e.g., a 1–10 numeric wetness scale used by some nursery databases), document it explicitly as a non-standard convention. State that different publishers may implement it differently, and that FERNS does not treat it as authoritative.
+
+## Approved Exceptions
+
+This section records explicit user-approved exceptions to the rules above. Each entry must name the rule it relaxes, the endpoint or surface it applies to, and the date / context of the approval. The audit (later task) reads this section to know which findings have been pre-approved and should not be flagged.
+
+- none yet
+
+## Open Questions
+
+Recorded so they are not lost and so the omission is not mistaken for an oversight. Each will be answered in a later task; until then, this section is the authoritative parking lot.
+
+1. **HTTP status code for `found: false` responses.** Currently a 200 in most routes, but no rule says it must be. Candidates: 200 with `found: false` (honest absence is not an error), 404 (REST-traditional), or per-source policy.
+2. **Final per-endpoint response behavior when `permission_granted: false`** at launch. Prototype mode returns `data`; launch behavior is undecided (withhold `data` entirely / return a citation stub / return partial fields / return data with a stronger machine-checkable warning).
+3. **Whether a request/trace ID belongs in the envelope.** A top-level `request_id` would help debugging and audit correlation. Not added yet because it slightly expands the envelope; pending user decision.
+4. **Whether `provenance.license` should be derived from per-element rights inside `data`** (more accurate, but means FERNS interprets source-specific structures) or asserted from the source's registered site-wide policy (simpler, less accurate). Refinement #3 above adopts the latter for v1; this question is whether to revisit for v2.
+5. **Whether the FERNS-asserted nature of a supplied `rights` statement should also be carried as a separate machine-checkable flag**, in addition to being stated in plain language inside `rights`.
+6. **The error condition** — how a genuine failure is reported, as distinct from `found: false`. v1 covers success and absence; the failure envelope is its own piece of work.
