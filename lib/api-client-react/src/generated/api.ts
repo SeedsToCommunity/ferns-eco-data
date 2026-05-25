@@ -42,6 +42,8 @@ import type {
   GetGbifSpeciesVernacularNamesParams,
   GetGobotanyParams,
   GetGobotanySpeciesTextParams,
+  GetGoogleImages200,
+  GetGoogleImagesMetadata200,
   GetGoogleImagesParams,
   GetIllinoisWildflowersParams,
   GetIllinoisWildflowersSpeciesTextParams,
@@ -81,7 +83,10 @@ import type {
   GetNatureserveSpeciesParams,
   GetPrairieMoonParams,
   GetPrairieMoonSpeciesTextParams,
+  GetS2CMetadata200,
+  GetS2CSpeciesByYear200,
   GetS2CSpeciesByYearParams,
+  GetS2CYears200,
   GetSourceRelationshipsParams,
   GetUsdaPlantsParams,
   GetUsdaPlantsProfileParams,
@@ -136,8 +141,6 @@ import type {
   NpnNotFoundResponse,
   NpnSpeciesBulkResponse,
   NpnSpeciesResponse,
-  S2CSpeciesResponse,
-  S2CYearsResponse,
   SourceRelationshipsResponse,
   SourcesIndexResponse,
   SourcesMetadataResponse,
@@ -4598,7 +4601,7 @@ export function useGetWucolsMetadata<
 }
 
 /**
- * Returns the list of botanical names offered by Seeds to Community Washtenaw for the specified program year. Program years are labeled by the calendar year in which the January–March growing workshops occur. Available years: 2023, 2024, 2025, 2026. Where tracked, includes neat_and_tidy and sweet_and_simple metadata flags.
+ * Returns the list of botanical names offered by Seeds to Community Washtenaw for the specified program year. Program years are labeled by the calendar year in which the January–March growing workshops occur. Available years: 2023, 2024, 2025, 2026. Where tracked, includes neat_and_tidy and sweet_and_simple metadata flags. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
  * @summary Get species list for a given Seeds to Community Washtenaw program year
  */
@@ -4623,11 +4626,14 @@ export const getGetS2CSpeciesByYearUrl = (
 export const getS2CSpeciesByYear = async (
   params: GetS2CSpeciesByYearParams,
   options?: RequestInit,
-): Promise<S2CSpeciesResponse> => {
-  return customFetch<S2CSpeciesResponse>(getGetS2CSpeciesByYearUrl(params), {
-    ...options,
-    method: "GET",
-  });
+): Promise<GetS2CSpeciesByYear200> => {
+  return customFetch<GetS2CSpeciesByYear200>(
+    getGetS2CSpeciesByYearUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
 };
 
 export const getGetS2CSpeciesByYearQueryKey = (
@@ -4700,7 +4706,7 @@ export function useGetS2CSpeciesByYear<
 }
 
 /**
- * Returns all available program years with species counts and source notes. Use this to discover what data is available before querying /s2c?year=.
+ * Returns all available program years with species counts and source notes. Use this to discover what data is available before querying /s2c?year=. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
  * @summary List available Seeds to Community Washtenaw program years
  */
@@ -4710,8 +4716,8 @@ export const getGetS2CYearsUrl = () => {
 
 export const getS2CYears = async (
   options?: RequestInit,
-): Promise<S2CYearsResponse> => {
-  return customFetch<S2CYearsResponse>(getGetS2CYearsUrl(), {
+): Promise<GetS2CYears200> => {
+  return customFetch<GetS2CYears200>(getGetS2CYearsUrl(), {
     ...options,
     method: "GET",
   });
@@ -4777,9 +4783,9 @@ export function useGetS2CYears<
 }
 
 /**
- * Returns service identity, licenses and license notes, and the full registry entry for the Seeds to Community Washtenaw source. Also seeds the registry entry on first call.
+ * Returns the registry entry for the Seeds to Community Washtenaw source, wrapped in the FERNS Response Envelope. The data payload contains the source's descriptive fields (description, general_summary, technical_details, licenses, etc.). Also seeds the registry entry on first call.
 
- * @summary Seeds to Community Washtenaw service metadata
+ * @summary Seeds to Community Washtenaw source metadata
  */
 export const getGetS2CMetadataUrl = () => {
   return `/api/s2c/metadata`;
@@ -4787,8 +4793,8 @@ export const getGetS2CMetadataUrl = () => {
 
 export const getS2CMetadata = async (
   options?: RequestInit,
-): Promise<VocabularyMetadataResponse> => {
-  return customFetch<VocabularyMetadataResponse>(getGetS2CMetadataUrl(), {
+): Promise<GetS2CMetadata200> => {
+  return customFetch<GetS2CMetadata200>(getGetS2CMetadataUrl(), {
     ...options,
     method: "GET",
   });
@@ -4830,7 +4836,7 @@ export type GetS2CMetadataQueryResult = NonNullable<
 export type GetS2CMetadataQueryError = ErrorType<unknown>;
 
 /**
- * @summary Seeds to Community Washtenaw service metadata
+ * @summary Seeds to Community Washtenaw source metadata
  */
 
 export function useGetS2CMetadata<
@@ -7196,7 +7202,7 @@ export function useGetGobotanySpeciesText<
 }
 
 /**
- * Constructs a Google Images search URL for a given scientific name. This endpoint always returns found=true and a direct Google Images URL — no validation is performed. The URL is constructed from the species parameter and is not cached. Useful for quickly providing a visual reference link without requiring an image database.
+ * Constructs a Google Images search URL for a given scientific name. This endpoint always returns found=true and a direct Google Images URL — no validation is performed. The URL is constructed from the species parameter and is not cached. Useful for quickly providing a visual reference link without requiring an image database. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
  * @summary Construct a Google Images search URL for a species
  */
@@ -7219,8 +7225,8 @@ export const getGetGoogleImagesUrl = (params: GetGoogleImagesParams) => {
 export const getGoogleImages = async (
   params: GetGoogleImagesParams,
   options?: RequestInit,
-): Promise<BotanicalWebRefResponse> => {
-  return customFetch<BotanicalWebRefResponse>(getGetGoogleImagesUrl(params), {
+): Promise<GetGoogleImages200> => {
+  return customFetch<GetGoogleImages200>(getGetGoogleImagesUrl(params), {
     ...options,
     method: "GET",
   });
@@ -7292,9 +7298,9 @@ export function useGetGoogleImages<
 }
 
 /**
- * Returns service identity, URL construction strategy, attribution, and the full registry entry for the Google Images species search service.
+ * Returns the registry entry for the Google Images source, wrapped in the FERNS Response Envelope. The data payload contains the source's descriptive fields (description, general_summary, technical_details, licenses, etc.).
 
- * @summary Google Images service metadata
+ * @summary Google Images source metadata
  */
 export const getGetGoogleImagesMetadataUrl = () => {
   return `/api/google-images/metadata`;
@@ -7302,8 +7308,8 @@ export const getGetGoogleImagesMetadataUrl = () => {
 
 export const getGoogleImagesMetadata = async (
   options?: RequestInit,
-): Promise<BotanicalWebRefMetadataResponse> => {
-  return customFetch<BotanicalWebRefMetadataResponse>(
+): Promise<GetGoogleImagesMetadata200> => {
+  return customFetch<GetGoogleImagesMetadata200>(
     getGetGoogleImagesMetadataUrl(),
     {
       ...options,
@@ -7349,7 +7355,7 @@ export type GetGoogleImagesMetadataQueryResult = NonNullable<
 export type GetGoogleImagesMetadataQueryError = ErrorType<unknown>;
 
 /**
- * @summary Google Images service metadata
+ * @summary Google Images source metadata
  */
 
 export function useGetGoogleImagesMetadata<

@@ -53,6 +53,10 @@ export const GOOGLE_IMAGES_REGISTRY_ENTRY = {
   license_notes: GOOGLE_IMAGES_LICENSE_NOTES,
   general_summary: GOOGLE_IMAGES_GENERAL_SUMMARY,
   technical_details: GOOGLE_IMAGES_TECHNICAL_DETAILS,
-  non_passthrough_endpoints: [{ endpoint: "/api/google-images/metadata", kind: "metadata" }],
+  non_passthrough_endpoints: [
+    { endpoint: "/api/google-images/metadata", kind: "metadata" },
+    { endpoint: "/api/google-images", kind: "url_lookup" },
+  ],
+  website_url_patterns: { image_search: "https://www.google.com/search?tbm=isch&q={species}" },
   permission_granted: true,
 };

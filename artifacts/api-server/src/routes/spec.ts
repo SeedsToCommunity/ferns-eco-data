@@ -1,3 +1,6 @@
+// Admin/infrastructure exemption — this route serves the OpenAPI spec document and does NOT use
+// buildEnvelope(). Exempt per docs/data-layer-contract.md §"Admin / Infrastructure Route Exemption".
+// Do not add envelope wrapping to this file.
 import { Router, type IRouter } from "express";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";

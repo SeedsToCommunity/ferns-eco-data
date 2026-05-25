@@ -2875,6 +2875,39 @@ export interface NpnNamesResponse {
   data: NpnNamesResponseData;
 }
 
+/**
+ * Data payload for the /google-images endpoint (FernsEnvelope data field).
+ */
+export interface GoogleImagesData {
+  /** Scientific name as provided in the query. */
+  species: string;
+  /** Constructed Google Images search URL for the species. */
+  url: string;
+}
+
+/**
+ * Data payload for any source's /metadata endpoint (FernsEnvelope data field). Contains the source's registry descriptive payload.
+
+ */
+export interface SourceMetadataData {
+  source_id: string;
+  name: string;
+  knowledge_type: string;
+  status: string;
+  description: string;
+  input_summary?: string;
+  output_summary?: string;
+  dependencies?: string[];
+  update_frequency?: string;
+  known_limitations?: string;
+  metadata_url?: string;
+  explorer_url?: string;
+  licenses?: string[];
+  license_notes?: string;
+  general_summary?: string;
+  technical_details?: string;
+}
+
 export type NpnMetadataResponseRegistryEntry = { [key: string]: unknown };
 
 /**
@@ -3967,6 +4000,18 @@ export const GetS2CSpeciesByYearYear = {
   NUMBER_2026: 2026,
 } as const;
 
+export type GetS2CSpeciesByYear200 = FernsEnvelope & {
+  data?: S2CSpeciesListData;
+};
+
+export type GetS2CYears200 = FernsEnvelope & {
+  data?: S2CYearsData;
+};
+
+export type GetS2CMetadata200 = FernsEnvelope & {
+  data?: SourceMetadataData;
+};
+
 export type GetLcscgSpeciesParams = {
   /**
  * Scientific or common name to search (partial match, case-insensitive).
@@ -4126,6 +4171,14 @@ export type GetGoogleImagesParams = {
    * @minLength 1
    */
   species: string;
+};
+
+export type GetGoogleImages200 = FernsEnvelope & {
+  data?: GoogleImagesData;
+};
+
+export type GetGoogleImagesMetadata200 = FernsEnvelope & {
+  data?: SourceMetadataData;
 };
 
 export type GetIllinoisWildflowersParams = {

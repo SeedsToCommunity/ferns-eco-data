@@ -1,3 +1,6 @@
+// Admin/infrastructure exemption — this route is an MCP gateway and does NOT use buildEnvelope().
+// Exempt per docs/data-layer-contract.md §"Admin / Infrastructure Route Exemption".
+// Do not add envelope wrapping to this file.
 import { Router } from "express";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";

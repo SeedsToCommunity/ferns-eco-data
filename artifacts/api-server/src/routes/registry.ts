@@ -1,3 +1,6 @@
+// Admin/infrastructure exemption — this route is NOT a FERNS data source and does NOT use
+// buildEnvelope(). Exempt per docs/data-layer-contract.md §"Admin / Infrastructure Route Exemption".
+// Do not add envelope wrapping to this file.
 import { Router, type IRouter } from "express";
 import { db, fernsSourcesTable } from "@workspace/db";
 import { asc } from "drizzle-orm";

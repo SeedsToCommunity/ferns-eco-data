@@ -1,3 +1,8 @@
+// Admin/infrastructure exemption — health is not a registered FERNS source and does not use
+// buildEnvelope(). It emits a literal envelope-shaped response (validated via HealthCheckResponse)
+// as a smoke test for the FernsEnvelope schema component.
+// Exempt per docs/data-layer-contract.md §"Admin / Infrastructure Route Exemption".
+// Do not add buildEnvelope() wrapping to this file.
 import { Router, type IRouter } from "express";
 import { HealthCheckResponse } from "@workspace/api-zod";
 

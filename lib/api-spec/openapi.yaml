@@ -2434,6 +2434,7 @@ paths:
         in which the January–March growing workshops occur.
         Available years: 2023, 2024, 2025, 2026.
         Where tracked, includes neat_and_tidy and sweet_and_simple metadata flags.
+        Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
       parameters:
         - name: year
           in: query
@@ -2444,11 +2445,16 @@ paths:
             enum: [2023, 2024, 2025, 2026]
       responses:
         "200":
-          description: Species list for the given year, or not-found response
+          description: Species list for the given year, wrapped in FernsEnvelope
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/S2CSpeciesResponse"
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/S2CSpeciesListData"
         "400":
           description: Missing or invalid year parameter
           content:
@@ -2464,29 +2470,42 @@ paths:
       description: >
         Returns all available program years with species counts and source notes.
         Use this to discover what data is available before querying /s2c?year=.
+        Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
       responses:
         "200":
-          description: Available program years
+          description: Available program years, wrapped in FernsEnvelope
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/S2CYearsResponse"
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/S2CYearsData"
 
   /s2c/metadata:
     get:
       operationId: getS2CMetadata
       tags: [s2c]
-      summary: Seeds to Community Washtenaw service metadata
+      summary: Seeds to Community Washtenaw source metadata
       description: >
-        Returns service identity, licenses and license notes, and the full registry entry for the
-        Seeds to Community Washtenaw source. Also seeds the registry entry on first call.
+        Returns the registry entry for the Seeds to Community Washtenaw source,
+        wrapped in the FERNS Response Envelope. The data payload contains the
+        source's descriptive fields (description, general_summary, technical_details,
+        licenses, etc.). Also seeds the registry entry on first call.
       responses:
         "200":
-          description: Service metadata
+          description: Source metadata wrapped in FernsEnvelope
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/VocabularyMetadataResponse"
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/SourceMetadataData"
 
   /lcscg/metadata:
     get:
@@ -3331,6 +3350,7 @@ paths:
         no validation is performed. The URL is constructed from the species
         parameter and is not cached. Useful for quickly providing a visual
         reference link without requiring an image database.
+        Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
       parameters:
         - name: species
           in: query
@@ -3341,11 +3361,16 @@ paths:
             minLength: 1
       responses:
         "200":
-          description: Google Images search URL for the species
+          description: Google Images search URL for the species, wrapped in FernsEnvelope
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BotanicalWebRefResponse"
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/GoogleImagesData"
         "400":
           description: Missing species parameter
           content:
@@ -3357,17 +3382,23 @@ paths:
     get:
       operationId: getGoogleImagesMetadata
       tags: [google-images]
-      summary: Google Images service metadata
+      summary: Google Images source metadata
       description: >
-        Returns service identity, URL construction strategy, attribution, and the
-        full registry entry for the Google Images species search service.
+        Returns the registry entry for the Google Images source, wrapped in the
+        FERNS Response Envelope. The data payload contains the source's descriptive
+        fields (description, general_summary, technical_details, licenses, etc.).
       responses:
         "200":
-          description: Google Images service metadata
+          description: Source metadata wrapped in FernsEnvelope
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BotanicalWebRefMetadataResponse"
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/SourceMetadataData"
 
   /illinois-wildflowers:
     get:
@@ -9093,6 +9124,62 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/NpnNameGroup"
+
+    GoogleImagesData:
+      type: object
+      description: Data payload for the /google-images endpoint (FernsEnvelope data field).
+      required: [species, url]
+      properties:
+        species:
+          type: string
+          description: Scientific name as provided in the query.
+        url:
+          type: string
+          description: Constructed Google Images search URL for the species.
+
+    SourceMetadataData:
+      type: object
+      description: >
+        Data payload for any source's /metadata endpoint (FernsEnvelope data field).
+        Contains the source's registry descriptive payload.
+      required: [source_id, name, knowledge_type, status, description]
+      properties:
+        source_id:
+          type: string
+        name:
+          type: string
+        knowledge_type:
+          type: string
+        status:
+          type: string
+        description:
+          type: string
+        input_summary:
+          type: string
+        output_summary:
+          type: string
+        dependencies:
+          type: array
+          items:
+            type: string
+        update_frequency:
+          type: string
+        known_limitations:
+          type: string
+        metadata_url:
+          type: string
+        explorer_url:
+          type: string
+        licenses:
+          type: array
+          items:
+            type: string
+        license_notes:
+          type: string
+        general_summary:
+          type: string
+        technical_details:
+          type: string
 
     NpnMetadataResponse:
       type: object
