@@ -38,21 +38,21 @@ A simple test for any field: did the upstream source produce it, or did FERNS pr
 ### Provenance field definitions
 
 - `source_id` (string) — Stable identifier of the registered FERNS source. Always present.
-- `source_url` (string or `null`) — The exact upstream endpoint FERNS contacted. For an `in_memory` or `computed` source that contacts no external system, `null`. **Refinement #1: on a cache hit, `source_url` is the original fetch URL — not `null`.**
+- `source_url` (string or `null`) — The exact upstream endpoint FERNS contacted. For an `in_memory` or `computed` source that contacts no external system, `null`. On a cache hit, `source_url` is the original fetch URL — not `null`.
 - `method` (string, fixed set) — `api_fetch`, `cache_hit`, or `computed`.
 - `cache_status` (string, fixed set) — `hit`, `miss`, `stale`, or `bypass`.
 - `queried_at` (string, ISO 8601) — When FERNS obtained this data. For a live fetch, the moment of the fetch. For a cache hit, the moment the cached copy was originally fetched (not served), so the consumer can judge data age. For a computed result, the moment the computation ran.
 - `derived_from` (array or `null`) — For multi-source computed results, the list of contributing FERNS sources, each as `{ source_id, queried_at }`. `null` for all other source types.
-- `license` (string — license URI, or the literal string `"unknown"`) — The single most restrictive license that applies to any part of `data`. For a computed source, the most restrictive across `derived_from`. **Refinement #3: populated from the source's registry entry (a most-restrictive summary). Per-element license info inside `data` stays untouched.**
-- `rights` (string, free text) — Human-readable rights statement. Describes per-element license breakdowns where they exist, names rights holders, and states conditions the URI alone cannot express. When FERNS supplies a rights statement the source did not provide, that fact is stated in plain language. **Refinement #3 also applies: populated from the source's registry entry.**
+- `license` (string — license URI, or the literal string `"unknown"`) — The single most restrictive license that applies to any part of `data`. For a computed source, the most restrictive across `derived_from`. Populated from the source's registry entry (a most-restrictive summary). Per-element license info inside `data` stays untouched.
+- `rights` (string, free text) — Human-readable rights statement. Describes per-element license breakdowns where they exist, names rights holders, and states conditions the URI alone cannot express. When FERNS supplies a rights statement the source did not provide, that fact is stated in plain language. Populated from the source's registry entry.**
 
 ### Data field
 
 - `data` (object, array, or `null`) — The verbatim payload the source produced. Same field names, same structure, same content. FERNS adds nothing to it and removes nothing from it. If a source attaches its own license/rights to individual elements, that information stays inside `data`.
-  - **Refinement #4: on `found: false`, `data` is the source's verbatim "not found" payload, or `null` when none exists. Never an invented placeholder, never an empty object dressed up to look like a hit.**
-  - **Refinement #5: FERNS-injected fields are removed from envelopes. The following are forbidden inside `data` (they were injected by various older routes): `matched_input`, `inat_url`, `place_type_name`, `query`, `resolved_at`, and any duplicated `source_url`. If the upstream genuinely returns one of these names, it stays; the prohibition is on FERNS adding them.**
+  - On `found: false`, `data` is the source's verbatim "not found" payload, or `null` when none exists. Never an invented placeholder, never an empty object dressed up to look like a hit.
+  - Fields the data layer generates must not be injected into data. In particular, the following names are reserved and must not be added by the data layer: matched_input, query, resolved_at, and any duplicated source_url. If an upstream source genuinely returns one of these names, it stays; the prohibition is only on the data layer adding them.
 
-### Refinement #2 — `general_summary` and `technical_details` are not envelope fields
+### `general_summary` and `technical_details` are not envelope fields
 
 `general_summary` and `technical_details` are removed from per-response provenance. They live only in:
 - the registry (`ferns_sources` table, surfaced by `/api/v1/sources` and inside the `data` payload of each `/metadata` endpoint as the source's own descriptive content);
@@ -61,11 +61,11 @@ A simple test for any field: did the upstream source produce it, or did FERNS pr
 
 They never appear inside `provenance` on a per-response envelope.
 
-### Refinement #6 — Composite routes are forbidden
+### Composite routes are forbidden
 
 A route that calls more than one upstream endpoint and merges the results into a single response is forbidden. Each FERNS route maps to exactly one upstream call (caching is the only permitted efficiency measure). If an experience requires data from multiple upstream calls, the application layer orchestrates them.
 
-### Refinement #7 — `method` and `cache_status` are coupled
+### `method` and `cache_status` are coupled
 
 Only the following pairs are valid. Any other pair is a defective response.
 
@@ -83,7 +83,7 @@ Only the following pairs are valid. Any other pair is a defective response.
 |------------------------|----------------------|----------------------------|--------------------------|------------------------------|
 | In-memory table        | `cache_hit`          | `hit`                      | `null`                   | `null`                       |
 | Pure algorithm         | `computed`           | `bypass`                   | `null`                   | `null`                       |
-| Single-source proxy    | `api_fetch`/`cache_hit` | `miss`/`hit`/`stale`    | Exact upstream URL (also on cache hit — refinement #1) | `null`                       |
+| Single-source proxy    | `api_fetch`/`cache_hit` | `miss`/`hit`/`stale`    | Exact upstream URL | `null`                       |
 | Multi-source algorithm | `computed`           | `bypass` (or `hit` if cached) | `null`                | List of contributing sources |
 
 ### Enumerations
@@ -173,7 +173,7 @@ Every external data source integrated follows a consistent four-component patter
 
 **Key Design Principles and Features:**
 
--   **Provenance Tracking**: Every API response carries a `provenance` object as defined by FERNS Response Envelope Contract v1 (see the dedicated section below): `source_id`, `source_url`, `method`, `cache_status`, `queried_at`, `derived_from`, `license`, `rights`. Per-response provenance does NOT include `general_summary` or `technical_details` — those live in the registry only (per refinement #2 of the contract). Database cache tables record their own ingestion-time provenance fields (e.g. `fetched_at`, `upstream_url`); those are storage-level columns, not envelope fields, and are mapped into the envelope at response time.
+-   **Provenance Tracking**: Every API response carries a `provenance` object as defined by FERNS Response Envelope Contract v1 (see the dedicated section below): `source_id`, `source_url`, `method`, `cache_status`, `queried_at`, `derived_from`, `license`, `rights`. Per-response provenance does NOT include `general_summary` or `technical_details` — those live in the registry only. Database cache tables record their own ingestion-time provenance fields (e.g. `fetched_at`, `upstream_url`); those are storage-level columns, not envelope fields, and are mapped into the envelope at response time.
 -   **API Response Envelope**: All API responses are wrapped in the FERNS Response Envelope Contract v1 (see the dedicated section below — that section is authoritative; this bullet only points to it).
 -   **Permission Enforcement**: Source metadata includes a `permission_granted` flag, and Explorer UIs display blocking modals when permission is not granted.
 -   **Source Fidelity**: FERNS API route paths after the source identifier prefix MUST be verbatim copies of the upstream source's own paths — no renaming, no compositing, no omission. Each route maps to exactly one upstream endpoint; caching is the only permitted efficiency measure. If an experience requires data from multiple upstream calls, the application layer orchestrates those calls — the Knowledge API does not. Any deviation requires explicit user approval and must be documented. Field values and response structure are preserved unchanged.
@@ -201,6 +201,6 @@ Recorded so they are not lost and so the omission is not mistaken for an oversig
 1. **HTTP status code for `found: false` responses.** Currently a 200 in most routes, but no rule says it must be. Candidates: 200 with `found: false` (honest absence is not an error), 404 (REST-traditional), or per-source policy.
 2. **Final per-endpoint response behavior when `permission_granted: false`** at launch. Prototype mode returns `data`; launch behavior is undecided (withhold `data` entirely / return a citation stub / return partial fields / return data with a stronger machine-checkable warning).
 3. **Whether a request/trace ID belongs in the envelope.** A top-level `request_id` would help debugging and audit correlation. Not added yet because it slightly expands the envelope; pending user decision.
-4. **Whether `provenance.license` should be derived from per-element rights inside `data`** (more accurate, but means FERNS interprets source-specific structures) or asserted from the source's registered site-wide policy (simpler, less accurate). Refinement #3 above adopts the latter for v1; this question is whether to revisit for v2.
+4. **Whether `provenance.license` should be derived from per-element rights inside `data`** (more accurate, but means FERNS interprets source-specific structures) or asserted from the source's registered site-wide policy (simpler, less accurate). The current contract adopts the latter (registry-asserted). This question is whether to revisit that choice.
 5. **Whether the FERNS-asserted nature of a supplied `rights` statement should also be carried as a separate machine-checkable flag**, in addition to being stated in plain language inside `rights`.
 6. **The error condition** — how a genuine failure is reported, as distinct from `found: false`. v1 covers success and absence; the failure envelope is its own piece of work.
