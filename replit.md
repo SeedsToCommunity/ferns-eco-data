@@ -27,7 +27,7 @@ The stack is unremarkable. The value of this approach is in the disciplined sepa
 ## User Preferences
 
 -   **Communication**: Provide clear explanations that enable the user to make high level decisions.
--   **New Source Workflow**: When asked or modifying a source, the _source-onboarding-playbook.md_ should be referenced and followed. 
+-   **New Source Workflow**: When asked or modifying a source, the docs/source-onboarding-playbook.md should be referenced and followed. 
 -   **Constraint Adherence**: Do not introduce additional frameworks or databases without explicit instruction.
 -   **Task sizing (hard limit, overrides skill defaults)**: When proposing a project task for this codebase, split before proposing if any of these are true: (a) the task plausibly modifies more than ~800 source lines, (b) it touches more than 3 packages, (c) its "Done looks like" section has more than 6 distinct observable outcomes, or (d) it requires holding more than one upstream data source's quirks in mind simultaneously. The `project_tasks` skill's default "prefer fewer tasks" bias is explicitly overridden for this repo — prefer many small atomic tasks over few large ones. Acceptable exception: a single cohesive file or single upstream source that cannot be split without breaking atomicity; document the exception explicitly in the plan file. Apply the same limits when decomposing work in Build mode (`.local/session_plan.md`).
 -   **Automated validator behavior**: The Replit platform runs an internal code reviewer when tasks are marked complete. Fix code reviewer issues autonomously — do not surface them to the user unless they conflict with the project's general objectives (e.g. a reviewer demands removing a data source or changing a core architectural decision). Minor implementation issues, security hardening, documentation cleanup, and stylistic concerns are handled without user involvement.
@@ -41,9 +41,10 @@ The stack is unremarkable. The value of this approach is in the disciplined sepa
     6. **What the user should decide or review** — flag anything that requires a human judgment call, approval, or follow-up action.
 
 ## System Guidance Documents
+Read these on demand — not every session. Each entry says when to open it.
+- **`docs/data-layer-contract.md`** — Authoritative spec for the FERNS response envelope, pass-through rules, endpoint kinds, permission rules, companion website URL patterns, and the per-source architectural pattern. **Read when**: designing or modifying any API route, judging whether a response is correctly shaped, deciding whether something belongs in `data` vs the envelope, classifying an endpoint kind, or evaluating an audit finding. This is the document that "wins" if anything else contradicts it.
+- **`docs/source-onboarding-playbook.md`** — The 14-step mandatory checklist for adding a new source, the Source Research Proposal template, the standards for `description` / `general_summary` / `technical_details`, the no-internal-TTL rule, the autonomy guidance, and the API Mirroring Checklist for parameter changes. **Read when**: adding a new source, modifying an existing source's metadata or description fields, or changing any query parameter (the API Mirroring Checklist covers spec → Zod → connector → MCP → Explorer in one place).
+- **`docs/url-architecture.md`** — Decisions about domain structure (`ecologicalcommons.org` vs `data.ecologicalcommons.org`), why subdomain-per-product was rejected (ALA cautionary tale), how the single Express process routes by `Host` header in production, and the DNS setup the user must do manually. **Read when**: touching production routing, the api-server's static-serving block, deployment configuration, or anything that proposes a new subdomain or a new top-level URL surface.
+- **`docs/vocabulary-disambiguation.md`** — Reference table for ecological metrics whose names are easily confused (C-value, Coefficient of Wetness, WIS, WUCOLS, the non-standard 1–10 wetness convention), with scales, authorities, and "what it is NOT" for each. **Read when**: writing or reviewing description fields that mention any coefficient, wetness, or water-use metric; building UI that displays these values; or judging whether a source's `technical_details` correctly disambiguates its own fields.
+- **`docs/operational-notes.md`** — Dev-mode routing quirk (api-server proxies to the Astro dev server), the ecological-commons-site Astro structure, cache policy summary, Drizzle migration workflow and the `uniqueIndex` quirk, the TypeScript-declarations rebuild rule for `composite: true` packages, and the codegen command. **Read when**: debugging preview issues, changing a DB schema, hitting "no exported member" TS errors across packages, or running codegen.
 
-docs/data-layer-contract.md
-docs/url-architecture.md
-docs/vocabulary-disambiguation.md
-docs/operational-notes.md
-docs/source-onboarding-playbook.md
