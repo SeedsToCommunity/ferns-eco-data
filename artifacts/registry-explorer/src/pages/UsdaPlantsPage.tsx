@@ -22,6 +22,12 @@ function sanitizeItalicOnly(html: string): string {
 const BASE_URL = import.meta.env.BASE_URL.replace(/\/$/, "");
 const API_BASE = `${BASE_URL}/api`;
 
+const USDA_PLANT_PROFILE_URL_PATTERN = "https://plants.usda.gov/plant-profile/{symbol}";
+
+function buildPlantProfileUrl(symbol: string): string {
+  return USDA_PLANT_PROFILE_URL_PATTERN.replace("{symbol}", encodeURIComponent(symbol));
+}
+
 const REGION_LABELS: Record<string, string> = {
   L48: "Contiguous US",
   AK: "Alaska",
@@ -68,12 +74,11 @@ interface NativeStatus {
 }
 
 interface UsdaData {
-  species: string;
   symbol: string | null;
   canonical_name: string | null;
   common_name: string | null;
   rank: string | null;
-  profile_url: string | null;
+  usda_id: number | null;
   native_statuses: NativeStatus[] | null;
   wetland_data: unknown[] | null;
   legal_statuses: unknown[] | null;
@@ -83,19 +88,23 @@ interface UsdaData {
   synonyms: unknown[] | null;
   fact_sheet_urls: string[] | null;
   plant_guide_urls: string[] | null;
-  cache_status: string;
 }
 
 interface UsdaEnvelope {
   found: boolean;
-  queried_at: string;
+  permission_granted: boolean;
   data: UsdaData;
   provenance: {
     source_id: string;
-    fetched_at: string;
+    source_url: string | null;
     method: string;
-    upstream_url: string;
+    cache_status: string;
+    queried_at: string;
+    license: string;
+    rights: string;
+    derived_from: null;
   };
+  pagination: null;
 }
 
 interface SearchResultItem {
@@ -110,12 +119,17 @@ interface SearchResultItem {
 
 interface SearchEnvelope {
   found: boolean;
+  permission_granted: boolean;
   data: {
-    query: string;
-    field: string;
-    page: number;
     total: number;
     results: SearchResultItem[];
+  };
+  pagination: null;
+  provenance: {
+    source_id: string;
+    source_url: string | null;
+    method: string;
+    cache_status: string;
   };
 }
 
@@ -160,7 +174,7 @@ function TaxonomyChain({ ancestors }: { ancestors: Array<{ Symbol: string; Rank:
   );
 }
 
-function SpeciesResultCard({ result }: { result: UsdaEnvelope }) {
+function SpeciesResultCard({ result, inputSpecies }: { result: UsdaEnvelope; inputSpecies: string }) {
   const d = result.data;
 
   return (
@@ -174,9 +188,9 @@ function SpeciesResultCard({ result }: { result: UsdaEnvelope }) {
               {d.common_name && <div className="text-sm font-medium mt-0.5">{d.common_name}</div>}
               {d.rank && <div className="text-xs text-muted-foreground mt-0.5">{d.rank}</div>}
             </div>
-            {d.profile_url && (
+            {d.symbol && (
               <a
-                href={d.profile_url}
+                href={buildPlantProfileUrl(d.symbol)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 text-xs text-primary hover:underline shrink-0"
@@ -222,7 +236,7 @@ function SpeciesResultCard({ result }: { result: UsdaEnvelope }) {
         </div>
       ) : (
         <div className="rounded-xl border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
-          No USDA PLANTS record found for <span className="font-medium">{d.species}</span>.
+          No USDA PLANTS record found for <span className="font-medium">{inputSpecies}</span>.
         </div>
       )}
 
@@ -231,12 +245,12 @@ function SpeciesResultCard({ result }: { result: UsdaEnvelope }) {
   );
 }
 
-function SearchResultsCard({ result }: { result: SearchEnvelope }) {
+function SearchResultsCard({ result, inputQuery, inputField }: { result: SearchEnvelope; inputQuery: string; inputField: string }) {
   const d = result.data;
   return (
     <div className="space-y-3">
       <div className="text-sm text-muted-foreground">
-        {d.total} result{d.total !== 1 ? "s" : ""} for <span className="font-medium">"{d.query}"</span> by {d.field}
+        {d.total} result{d.total !== 1 ? "s" : ""} for <span className="font-medium">"{inputQuery}"</span> by {inputField}
       </div>
       {d.results.length === 0 ? (
         <div className="rounded-xl border border-border bg-muted/30 p-4 text-sm text-muted-foreground">No results found.</div>
@@ -254,7 +268,7 @@ function SearchResultsCard({ result }: { result: SearchEnvelope }) {
                 {r.family_name && <div className="text-[10px] text-muted-foreground">{r.family_name}</div>}
               </div>
               <a
-                href={`https://plants.sc.egov.usda.gov/?symbol=${encodeURIComponent(r.symbol)}`}
+                href={buildPlantProfileUrl(r.symbol)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs text-primary hover:underline shrink-0 flex items-center gap-1"
@@ -280,12 +294,15 @@ export default function UsdaPlantsPage() {
   const [speciesResult, setSpeciesResult] = useState<UsdaEnvelope | null>(null);
   const [speciesLoading, setSpeciesLoading] = useState(false);
   const [speciesError, setSpeciesError] = useState<string | null>(null);
+  const [submittedSpecies, setSubmittedSpecies] = useState("");
 
   const [searchInput, setSearchInput] = useState("");
   const [searchField, setSearchField] = useState("Scientific Name");
   const [searchResult, setSearchResult] = useState<SearchEnvelope | null>(null);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const [submittedQuery, setSubmittedQuery] = useState("");
+  const [submittedField, setSubmittedField] = useState("Scientific Name");
 
   async function handleSpeciesSubmit(e: FormEvent) {
     e.preventDefault();
@@ -293,6 +310,7 @@ export default function UsdaPlantsPage() {
     setSpeciesLoading(true);
     setSpeciesError(null);
     setSpeciesResult(null);
+    setSubmittedSpecies(speciesInput.trim());
     try {
       const resp = await fetch(`${API_BASE}/usda-plants/PlantSearch?species=${encodeURIComponent(speciesInput.trim())}`);
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
@@ -311,6 +329,8 @@ export default function UsdaPlantsPage() {
     setSearchLoading(true);
     setSearchError(null);
     setSearchResult(null);
+    setSubmittedQuery(searchInput.trim());
+    setSubmittedField(searchField);
     try {
       const resp = await fetch(
         `${API_BASE}/usda-plants/plants-search-results?q=${encodeURIComponent(searchInput.trim())}&field=${encodeURIComponent(searchField)}`,
@@ -378,7 +398,7 @@ export default function UsdaPlantsPage() {
                 {speciesError}
               </div>
             )}
-            {speciesResult && <SpeciesResultCard result={speciesResult} />}
+            {speciesResult && <SpeciesResultCard result={speciesResult} inputSpecies={submittedSpecies} />}
           </div>
         )}
 
@@ -418,7 +438,7 @@ export default function UsdaPlantsPage() {
                 {searchError}
               </div>
             )}
-            {searchResult && <SearchResultsCard result={searchResult} />}
+            {searchResult && <SearchResultsCard result={searchResult} inputQuery={submittedQuery} inputField={submittedField} />}
           </div>
         )}
 

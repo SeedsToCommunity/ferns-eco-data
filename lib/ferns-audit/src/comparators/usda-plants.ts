@@ -1,4 +1,4 @@
-import { fetchJson, isAbsoluteUrl, collectUrls } from "../http.js";
+import { fetchJson, collectUrls } from "../http.js";
 import type { EndpointComparison } from "../types.js";
 import type { TestSpecies } from "../corpus.js";
 
@@ -129,7 +129,6 @@ async function compareUsdaPlantsSpecies(
     const fernsCanonicalName = fernsData.canonical_name as string | null;
     const fernsCommonName = fernsData.common_name as string | null;
     const fernsRank = fernsData.rank as string | null;
-    const fernsProfileUrl = fernsData.profile_url as string | null;
 
     if (fernsSymbol !== upstreamSymbol) {
       findings.push({
@@ -201,37 +200,13 @@ async function compareUsdaPlantsSpecies(
       });
     }
 
-    if (fernsProfileUrl) {
-      if (!isAbsoluteUrl(fernsProfileUrl)) {
-        findings.push({
-          type: "mismatch",
-          sourceField: "profile_url",
-          fernsField: "profile_url",
-          fernsValue: fernsProfileUrl,
-          note: "profile_url is not absolute — passthrough URL rule violation",
-        });
-      } else if (!fernsProfileUrl.startsWith("https://plants.sc.egov.usda.gov/")) {
-        findings.push({
-          type: "mismatch",
-          sourceField: "profile_url",
-          fernsField: "profile_url",
-          fernsValue: fernsProfileUrl,
-          note: "profile_url does not point to expected USDA PLANTS domain",
-        });
-      } else {
-        findings.push({
-          type: "ok",
-          sourceField: "profile_url",
-          note: `profile_url valid: ${fernsProfileUrl}`,
-        });
-      }
-    } else {
-      findings.push({
-        type: "gap",
-        sourceField: "profile_url",
-        note: "profile_url is null",
-      });
-    }
+    // profile_url removed from data in envelope migration (plan 07). Client constructs
+    // from website_url_patterns. No profile_url check needed.
+    findings.push({
+      type: "ok",
+      sourceField: "profile_url",
+      note: "profile_url removed from data per envelope migration (plan 07); client constructs from website_url_patterns",
+    });
 
     return { source: SOURCE, endpoint, label, ok: true, rawFerns: fernsData, findings, urlsCollected };
   } catch (err) {
@@ -384,12 +359,14 @@ async function compareUsdaPlantsProfile(
       });
     }
 
-    const cacheStatus = fernsData.cache_status as string | undefined;
-    if (cacheStatus) {
+    // cache_status moved to provenance.cache_status in envelope migration (plan 07)
+    const provenance = (fernsRaw.provenance ?? {}) as Record<string, unknown>;
+    const envelopeCacheStatus = provenance["cache_status"] as string | undefined;
+    if (envelopeCacheStatus) {
       findings.push({
         type: "ok",
         sourceField: "cache_status",
-        note: `Cache: ${cacheStatus}`,
+        note: `Cache: ${envelopeCacheStatus} (from provenance)`,
       });
     }
 

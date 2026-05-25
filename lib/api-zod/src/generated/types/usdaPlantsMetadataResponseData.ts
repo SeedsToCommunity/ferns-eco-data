@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type UsdaPlantsMetadataResponseRegistryEntry = {
-  [key: string]: unknown;
-};
+/**
+ * Registry entry descriptive payload for the USDA PLANTS source
+ */
+export type UsdaPlantsMetadataResponseData = { [key: string]: unknown };

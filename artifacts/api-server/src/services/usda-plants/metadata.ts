@@ -1,6 +1,17 @@
 export const USDA_PLANTS_SOURCE_ID = "usda-plants";
 export const USDA_PLANTS_API_BASE = "https://plantsservices.sc.egov.usda.gov/api";
 
+export const USDA_PLANTS_LICENSE = "https://www.usa.gov/government-works";
+
+export const USDA_PLANTS_RIGHTS =
+  "USDA PLANTS Database is a US Government Work in the public domain. No restrictions on use or redistribution. " +
+  "Maintained by USDA Natural Resources Conservation Service (NRCS). " +
+  "No formal citation required; attribution to USDA NRCS is standard practice.";
+
+export const USDA_PLANTS_WEBSITE_URL_PATTERNS: Record<string, string> = {
+  plant: "https://plants.usda.gov/plant-profile/{symbol}",
+};
+
 export const USDA_PLANTS_LICENSES = ["cc0"];
 
 export const USDA_PLANTS_LICENSE_NOTES =
@@ -80,6 +91,11 @@ export const USDA_PLANTS_REGISTRY_ENTRY = {
   license_notes: USDA_PLANTS_LICENSE_NOTES,
   general_summary: USDA_PLANTS_GENERAL_SUMMARY,
   technical_details: USDA_PLANTS_TECHNICAL_DETAILS,
+  // VIOLATION: /api/usda-plants/PlantSearch is a composite route that calls PlantSearch then PlantProfile
+  // sequentially. Known violation deferred to plan 18 (audit triage). Do not add it here without plan 18.
   non_passthrough_endpoints: [{ endpoint: "/api/usda-plants/metadata", kind: "metadata" }],
   permission_granted: true,
+  license: USDA_PLANTS_LICENSE,
+  rights: USDA_PLANTS_RIGHTS,
+  website_url_patterns: USDA_PLANTS_WEBSITE_URL_PATTERNS,
 };

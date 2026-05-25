@@ -335,7 +335,7 @@ export * from "./universalFqaMetadataResponseRegistryEntry";
 export * from "./universalFqaMetrics";
 export * from "./universalFqaSpeciesRecord";
 export * from "./usdaPlantsMetadataResponse";
-export * from "./usdaPlantsMetadataResponseRegistryEntry";
+export * from "./usdaPlantsMetadataResponseData";
 export * from "./usdaPlantsNativeStatus";
 export * from "./usdaPlantsProfileResponse";
 export * from "./usdaPlantsProfileResponseData";

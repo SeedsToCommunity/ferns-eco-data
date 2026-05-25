@@ -2116,13 +2116,11 @@ export type UsdaPlantsSpeciesDataAncestorsItem = { [key: string]: unknown };
 export type UsdaPlantsSpeciesDataSynonymsItem = { [key: string]: unknown };
 
 export interface UsdaPlantsSpeciesData {
-  species?: string;
   symbol?: string | null;
   canonical_name?: string | null;
   common_name?: string | null;
   rank?: string | null;
   usda_id?: number | null;
-  profile_url?: string | null;
   native_statuses?: UsdaPlantsNativeStatus[] | null;
   wetland_data?: UsdaPlantsSpeciesDataWetlandDataItem[] | null;
   legal_statuses?: UsdaPlantsSpeciesDataLegalStatusesItem[] | null;
@@ -2136,16 +2134,11 @@ export interface UsdaPlantsSpeciesData {
   plant_guide_urls?: string[];
   other_common_names?: string[] | null;
   profile_image_filename?: string | null;
-  cache_status?: string;
 }
 
-export interface UsdaPlantsSpeciesResponse {
-  found: boolean;
-  queried_at: string;
-  source_url?: string;
-  provenance: FernsProvenance;
-  data: UsdaPlantsSpeciesData;
-}
+export type UsdaPlantsSpeciesResponse = FernsEnvelope & {
+  data?: UsdaPlantsSpeciesData;
+};
 
 /**
  * Raw PlantProfile object from the USDA PLANTS API
@@ -2154,19 +2147,13 @@ export type UsdaPlantsProfileResponseDataProfile = { [key: string]: unknown };
 
 export type UsdaPlantsProfileResponseData = {
   symbol?: string;
-  profile_url?: string;
   /** Raw PlantProfile object from the USDA PLANTS API */
   profile?: UsdaPlantsProfileResponseDataProfile;
-  cache_status?: string;
 };
 
-export interface UsdaPlantsProfileResponse {
-  found: boolean;
-  queried_at: string;
-  source_url?: string;
-  provenance: FernsProvenance;
-  data: UsdaPlantsProfileResponseData;
-}
+export type UsdaPlantsProfileResponse = FernsEnvelope & {
+  data?: UsdaPlantsProfileResponseData;
+};
 
 export type UsdaPlantsSearchResultLegalStatusesItem = {
   [key: string]: unknown;
@@ -2194,36 +2181,23 @@ export interface UsdaPlantsSearchResult {
 }
 
 export type UsdaPlantsSearchResponseData = {
-  query?: string;
-  field?: string;
-  page?: number;
   total?: number;
   results?: UsdaPlantsSearchResult[];
 };
 
-export interface UsdaPlantsSearchResponse {
-  found: boolean;
-  queried_at: string;
-  source_url?: string;
-  provenance: FernsProvenance;
-  data: UsdaPlantsSearchResponseData;
-}
-
-export type UsdaPlantsMetadataResponseRegistryEntry = {
-  [key: string]: unknown;
+export type UsdaPlantsSearchResponse = FernsEnvelope & {
+  data?: UsdaPlantsSearchResponseData;
 };
 
-export interface UsdaPlantsMetadataResponse {
-  service_id?: string;
-  service_name?: string;
-  licenses?: string[];
-  license_notes?: string;
-  access_method?: string;
-  api_base?: string;
-  registry_entry?: UsdaPlantsMetadataResponseRegistryEntry;
-  queried_at?: string;
-  provenance?: FernsProvenance;
-}
+/**
+ * Registry entry descriptive payload for the USDA PLANTS source
+ */
+export type UsdaPlantsMetadataResponseData = { [key: string]: unknown };
+
+export type UsdaPlantsMetadataResponse = FernsEnvelope & {
+  /** Registry entry descriptive payload for the USDA PLANTS source */
+  data?: UsdaPlantsMetadataResponseData;
+};
 
 export interface TrustGroupSummary {
   /** Stable internal identifier for the trust group */

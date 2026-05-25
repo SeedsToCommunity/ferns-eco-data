@@ -1,13 +1,12 @@
 import { Router, type IRouter } from "express";
+import { buildEnvelope } from "@workspace/api-envelope";
 import {
   USDA_PLANTS_SOURCE_ID,
   USDA_PLANTS_REGISTRY_ENTRY,
-  USDA_PLANTS_LICENSES,
-  USDA_PLANTS_LICENSE_NOTES,
 } from "../services/usda-plants/metadata.js";
 import { ensureUsdaPlantsRegistryEntry } from "../services/usda-plants/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
-import { lookupByName, fetchProfile, searchPlants, buildProvenance } from "../services/usda-plants/connector.js";
+import { lookupByName, fetchProfile, searchPlants } from "../services/usda-plants/connector.js";
 import {
   buildNameMatchCacheKey,
   buildProfileCacheKey,
@@ -16,42 +15,40 @@ import {
   lookupProfile,
   storeProfile,
 } from "../services/usda-plants/cache.js";
-import { filterProvenance } from "../lib/provenance.js";
+import { dbRegistryAccessor } from "../lib/registry-accessor.js";
 
 const router: IRouter = Router();
-
-function profileUrl(symbol: string): string {
-  return `https://plants.sc.egov.usda.gov/?symbol=${encodeURIComponent(symbol)}`;
-}
 
 router.get("/usda-plants/metadata", async (req, res) => {
   try {
     await ensureUsdaPlantsRegistryEntry();
-    res.json({
-      service_id: USDA_PLANTS_SOURCE_ID,
-      service_name: USDA_PLANTS_REGISTRY_ENTRY.name,
-      licenses: USDA_PLANTS_LICENSES,
-      license_notes: USDA_PLANTS_LICENSE_NOTES,
-      access_method: "api_fetch",
-      api_base: "https://plantsservices.sc.egov.usda.gov/api/",
-      registry_entry: {
-        ...USDA_PLANTS_REGISTRY_ENTRY,
-        metadata_url: resolveUrl(req, USDA_PLANTS_REGISTRY_ENTRY.metadata_url),
-        explorer_url: resolveUrl(req, USDA_PLANTS_REGISTRY_ENTRY.explorer_url),
+    const envelope = await buildEnvelope(
+      {
+        sourceId: USDA_PLANTS_SOURCE_ID,
+        sourceKind: "in-memory",
+        found: true,
+        data: {
+          ...USDA_PLANTS_REGISTRY_ENTRY,
+          metadata_url: resolveUrl(req, USDA_PLANTS_REGISTRY_ENTRY.metadata_url),
+          explorer_url: resolveUrl(req, USDA_PLANTS_REGISTRY_ENTRY.explorer_url),
+        },
+        method: "cache_hit",
+        cacheStatus: "hit",
+        sourceUrl: null,
+        queriedAt: new Date().toISOString(),
       },
-      queried_at: new Date(),
-      provenance: buildProvenance("https://plantsservices.sc.egov.usda.gov/api/"),
-    });
+      { registry: dbRegistryAccessor },
+    );
+    res.json(envelope);
   } catch (err) {
     res.status(500).json({ error: "internal_error", message: String(err) });
   }
 });
 
 router.get("/usda-plants/PlantSearch", async (req, res) => {
+  // VIOLATION: composite route — calls PlantSearch then PlantProfile. Known violation deferred to plan 18 (audit triage). Do not "fix" this without plan 18.
   try {
     await ensureUsdaPlantsRegistryEntry();
-
-    const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
 
     const speciesParam = typeof req.query["species"] === "string" ? req.query["species"].trim() : null;
     if (!speciesParam) {
@@ -66,7 +63,7 @@ router.get("/usda-plants/PlantSearch", async (req, res) => {
     const nameCacheKey = buildNameMatchCacheKey(speciesParam);
 
     let nameMatch = forceRefresh ? null : await lookupNameMatch(nameCacheKey);
-    let cacheStatus = nameMatch ? "hit" : "miss";
+    const nameCacheStatus: "hit" | "miss" = nameMatch ? "hit" : "miss";
 
     if (!nameMatch) {
       let lookupResult;
@@ -80,20 +77,23 @@ router.get("/usda-plants/PlantSearch", async (req, res) => {
         return;
       }
       nameMatch = await storeNameMatch(nameCacheKey, lookupResult);
-      cacheStatus = "miss";
     }
 
     if (!nameMatch.found || !nameMatch.symbol) {
-      res.json({
-        found: false,
-        queried_at: new Date(),
-        source_url: resolveUrl(req, "/api/usda-plants/PlantSearch"),
-        provenance: filterProvenance(buildProvenance(nameMatch.upstream_url), verbosity),
-        data: {
-          species: speciesParam,
-          cache_status: cacheStatus,
+      const envelope = await buildEnvelope(
+        {
+          sourceId: USDA_PLANTS_SOURCE_ID,
+          sourceKind: "single-source-proxy",
+          found: false,
+          data: {},
+          method: nameCacheStatus === "hit" ? "cache_hit" : "api_fetch",
+          cacheStatus: nameCacheStatus,
+          sourceUrl: nameMatch.upstream_url,
+          queriedAt: new Date().toISOString(),
         },
-      });
+        { registry: dbRegistryAccessor },
+      );
+      res.json(envelope);
       return;
     }
 
@@ -101,7 +101,7 @@ router.get("/usda-plants/PlantSearch", async (req, res) => {
     const profileCacheKey = buildProfileCacheKey(symbol);
 
     let profileRow = forceRefresh ? null : await lookupProfile(profileCacheKey);
-    let profileCacheStatus = profileRow ? "hit" : "miss";
+    const profileCacheStatus: "hit" | "miss" = profileRow ? "hit" : "miss";
 
     if (!profileRow) {
       const profileUpstreamUrl = `https://plantsservices.sc.egov.usda.gov/api/PlantProfile?symbol=${encodeURIComponent(symbol)}`;
@@ -116,39 +116,45 @@ router.get("/usda-plants/PlantSearch", async (req, res) => {
         return;
       }
       profileRow = await storeProfile(profileCacheKey, symbol, rawProfile, profileUpstreamUrl);
-      profileCacheStatus = "miss";
     }
 
     const profile = profileRow.profile as Record<string, unknown>;
 
-    res.json({
-      found: true,
-      queried_at: new Date(),
-      source_url: resolveUrl(req, "/api/usda-plants/PlantSearch"),
-      provenance: filterProvenance(buildProvenance(nameMatch.upstream_url), verbosity),
-      data: {
-        species: speciesParam,
-        symbol,
-        canonical_name: nameMatch.canonical_name,
-        common_name: nameMatch.common_name,
-        rank: nameMatch.rank,
-        usda_id: nameMatch.usda_id,
-        profile_url: profileUrl(symbol),
-        native_statuses: profile["NativeStatuses"] ?? null,
-        wetland_data: profile["WetlandData"] ?? null,
-        legal_statuses: profile["LegalStatuses"] ?? null,
-        durations: profile["Durations"] ?? null,
-        growth_habits: profile["GrowthHabits"] ?? null,
-        group: profile["Group"] ?? null,
-        ancestors: profile["Ancestors"] ?? null,
-        synonyms: profile["Synonyms"] ?? null,
-        fact_sheet_urls: profile["FactSheetUrls"] ?? [],
-        plant_guide_urls: profile["PlantGuideUrls"] ?? [],
-        other_common_names: profile["OtherCommonNames"] ?? null,
-        profile_image_filename: profile["ProfileImageFilename"] ?? null,
-        cache_status: `name:${cacheStatus};profile:${profileCacheStatus}`,
+    const effectiveCacheStatus: "hit" | "miss" =
+      nameCacheStatus === "hit" && profileCacheStatus === "hit" ? "hit" : "miss";
+
+    const envelope = await buildEnvelope(
+      {
+        sourceId: USDA_PLANTS_SOURCE_ID,
+        sourceKind: "single-source-proxy",
+        found: true,
+        data: {
+          symbol,
+          canonical_name: nameMatch.canonical_name,
+          common_name: nameMatch.common_name,
+          rank: nameMatch.rank,
+          usda_id: nameMatch.usda_id,
+          native_statuses: profile["NativeStatuses"] ?? null,
+          wetland_data: profile["WetlandData"] ?? null,
+          legal_statuses: profile["LegalStatuses"] ?? null,
+          durations: profile["Durations"] ?? null,
+          growth_habits: profile["GrowthHabits"] ?? null,
+          group: profile["Group"] ?? null,
+          ancestors: profile["Ancestors"] ?? null,
+          synonyms: profile["Synonyms"] ?? null,
+          fact_sheet_urls: profile["FactSheetUrls"] ?? [],
+          plant_guide_urls: profile["PlantGuideUrls"] ?? [],
+          other_common_names: profile["OtherCommonNames"] ?? null,
+          profile_image_filename: profile["ProfileImageFilename"] ?? null,
+        },
+        method: effectiveCacheStatus === "hit" ? "cache_hit" : "api_fetch",
+        cacheStatus: effectiveCacheStatus,
+        sourceUrl: nameMatch.upstream_url,
+        queriedAt: new Date().toISOString(),
       },
-    });
+      { registry: dbRegistryAccessor },
+    );
+    res.json(envelope);
   } catch (err) {
     res.status(500).json({ error: "internal_error", message: String(err) });
   }
@@ -157,8 +163,6 @@ router.get("/usda-plants/PlantSearch", async (req, res) => {
 router.get("/usda-plants/PlantProfile", async (req, res) => {
   try {
     await ensureUsdaPlantsRegistryEntry();
-
-    const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
 
     const symbolParam = typeof req.query["symbol"] === "string" ? req.query["symbol"].trim().toUpperCase() : null;
     if (!symbolParam) {
@@ -173,7 +177,7 @@ router.get("/usda-plants/PlantProfile", async (req, res) => {
     const cacheKey = buildProfileCacheKey(symbolParam);
 
     let profileRow = forceRefresh ? null : await lookupProfile(cacheKey);
-    let cacheStatus = profileRow ? "hit" : "miss";
+    const cacheStatus: "hit" | "miss" = profileRow ? "hit" : "miss";
 
     if (!profileRow) {
       const upstreamUrl = `https://plantsservices.sc.egov.usda.gov/api/PlantProfile?symbol=${encodeURIComponent(symbolParam)}`;
@@ -188,24 +192,28 @@ router.get("/usda-plants/PlantProfile", async (req, res) => {
         return;
       }
       profileRow = await storeProfile(cacheKey, symbolParam, rawProfile, upstreamUrl);
-      cacheStatus = "miss";
     }
 
     const profile = profileRow.profile as Record<string, unknown>;
     const hasData = profile && typeof profile["Id"] === "number";
 
-    res.json({
-      found: hasData,
-      queried_at: new Date(),
-      source_url: resolveUrl(req, "/api/usda-plants/PlantProfile"),
-      provenance: filterProvenance(buildProvenance(profileRow.upstream_url), verbosity),
-      data: {
-        symbol: symbolParam,
-        profile_url: profileUrl(symbolParam),
-        profile,
-        cache_status: cacheStatus,
+    const envelope = await buildEnvelope(
+      {
+        sourceId: USDA_PLANTS_SOURCE_ID,
+        sourceKind: "single-source-proxy",
+        found: hasData,
+        data: {
+          symbol: symbolParam,
+          profile,
+        },
+        method: cacheStatus === "hit" ? "cache_hit" : "api_fetch",
+        cacheStatus,
+        sourceUrl: profileRow.upstream_url,
+        queriedAt: new Date().toISOString(),
       },
-    });
+      { registry: dbRegistryAccessor },
+    );
+    res.json(envelope);
   } catch (err) {
     res.status(500).json({ error: "internal_error", message: String(err) });
   }
@@ -214,8 +222,6 @@ router.get("/usda-plants/PlantProfile", async (req, res) => {
 router.get("/usda-plants/plants-search-results", async (req, res) => {
   try {
     await ensureUsdaPlantsRegistryEntry();
-
-    const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
 
     const q = typeof req.query["q"] === "string" ? req.query["q"].trim() : null;
     if (!q) {
@@ -244,19 +250,23 @@ router.get("/usda-plants/plants-search-results", async (req, res) => {
       return;
     }
 
-    res.json({
-      found: searchResult.total > 0,
-      queried_at: new Date(),
-      source_url: resolveUrl(req, "/api/usda-plants/plants-search-results"),
-      provenance: filterProvenance(buildProvenance(searchResult.upstream_url), verbosity),
-      data: {
-        query: q,
-        field,
-        page,
-        total: searchResult.total,
-        results: searchResult.results,
+    const envelope = await buildEnvelope(
+      {
+        sourceId: USDA_PLANTS_SOURCE_ID,
+        sourceKind: "single-source-proxy",
+        found: searchResult.total > 0,
+        data: {
+          total: searchResult.total,
+          results: searchResult.results,
+        },
+        method: "api_fetch",
+        cacheStatus: "miss",
+        sourceUrl: searchResult.upstream_url,
+        queriedAt: new Date().toISOString(),
       },
-    });
+      { registry: dbRegistryAccessor },
+    );
+    res.json(envelope);
   } catch (err) {
     res.status(500).json({ error: "internal_error", message: String(err) });
   }

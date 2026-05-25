@@ -9,8 +9,6 @@ import type { UsdaPlantsProfileResponseDataProfile } from "./usdaPlantsProfileRe
 
 export type UsdaPlantsProfileResponseData = {
   symbol?: string;
-  profile_url?: string;
   /** Raw PlantProfile object from the USDA PLANTS API */
   profile?: UsdaPlantsProfileResponseDataProfile;
-  cache_status?: string;
 };

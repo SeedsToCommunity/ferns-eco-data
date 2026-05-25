@@ -8,9 +8,6 @@
 import type { UsdaPlantsSearchResult } from "./usdaPlantsSearchResult";
 
 export type UsdaPlantsSearchResponseData = {
-  query?: string;
-  field?: string;
-  page?: number;
   total?: number;
   results?: UsdaPlantsSearchResult[];
 };

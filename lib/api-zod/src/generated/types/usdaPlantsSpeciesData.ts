@@ -12,13 +12,11 @@ import type { UsdaPlantsSpeciesDataSynonymsItem } from "./usdaPlantsSpeciesDataS
 import type { UsdaPlantsSpeciesDataWetlandDataItem } from "./usdaPlantsSpeciesDataWetlandDataItem";
 
 export interface UsdaPlantsSpeciesData {
-  species?: string;
   symbol?: string | null;
   canonical_name?: string | null;
   common_name?: string | null;
   rank?: string | null;
   usda_id?: number | null;
-  profile_url?: string | null;
   native_statuses?: UsdaPlantsNativeStatus[] | null;
   wetland_data?: UsdaPlantsSpeciesDataWetlandDataItem[] | null;
   legal_statuses?: UsdaPlantsSpeciesDataLegalStatusesItem[] | null;
@@ -32,5 +30,4 @@ export interface UsdaPlantsSpeciesData {
   plant_guide_urls?: string[];
   other_common_names?: string[] | null;
   profile_image_filename?: string | null;
-  cache_status?: string;
 }
