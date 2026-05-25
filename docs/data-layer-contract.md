@@ -44,13 +44,13 @@ A simple test for any field: did the upstream source produce it, or did FERNS pr
 - `queried_at` (string, ISO 8601) — When FERNS obtained this data. For a live fetch, the moment of the fetch. For a cache hit, the moment the cached copy was originally fetched (not served), so the consumer can judge data age. For a computed result, the moment the computation ran.
 - `derived_from` (array or `null`) — For multi-source computed results, the list of contributing FERNS sources, each as `{ source_id, queried_at }`. `null` for all other source types.
 - `license` (string — license URI, or the literal string `"unknown"`) — The single most restrictive license that applies to any part of `data`. For a computed source, the most restrictive across `derived_from`. Populated from the source's registry entry (a most-restrictive summary). Per-element license info inside `data` stays untouched.
-- `rights` (string, free text) — Human-readable rights statement. Describes per-element license breakdowns where they exist, names rights holders, and states conditions the URI alone cannot express. When FERNS supplies a rights statement the source did not provide, that fact is stated in plain language. Populated from the source's registry entry.**
+- `rights` (string, free text) — Human-readable rights statement. Describes per-element license breakdowns where they exist, names rights holders, and states conditions the URI alone cannot express. When FERNS supplies a rights statement the source did not provide, that fact is stated in plain language. Populated from the source's registry entry.
 
 ### Data field
 
 - `data` (object, array, or `null`) — The verbatim payload the source produced. Same field names, same structure, same content. FERNS adds nothing to it and removes nothing from it. If a source attaches its own license/rights to individual elements, that information stays inside `data`.
   - On `found: false`, `data` is the source's verbatim "not found" payload, or `null` when none exists. Never an invented placeholder, never an empty object dressed up to look like a hit.
-  - Fields the data layer generates must not be injected into data. In particular, the following names are reserved and must not be added by the data layer: matched_input, query, resolved_at, and any duplicated source_url. If an upstream source genuinely returns one of these names, it stays; the prohibition is only on the data layer adding them.
+  - Fields the data layer generates must not be injected into data. In particular, the following names are reserved and must not be added by the data layer: `matched_input`, `query`, `resolved_at`, and any duplicated `source_url`. If an upstream source genuinely returns one of these names, it stays; the prohibition is only on the data layer adding them.
 
 ### `general_summary` and `technical_details` are not envelope fields
 
@@ -174,7 +174,7 @@ Every external data source integrated follows a consistent four-component patter
 **Key Design Principles and Features:**
 
 -   **Provenance Tracking**: Every API response carries a `provenance` object as defined by FERNS Response Envelope Contract v1 (see the dedicated section below): `source_id`, `source_url`, `method`, `cache_status`, `queried_at`, `derived_from`, `license`, `rights`. Per-response provenance does NOT include `general_summary` or `technical_details` — those live in the registry only. Database cache tables record their own ingestion-time provenance fields (e.g. `fetched_at`, `upstream_url`); those are storage-level columns, not envelope fields, and are mapped into the envelope at response time.
--   **API Response Envelope**: All API responses are wrapped in the FERNS Response Envelope Contract v1 (see the dedicated section below — that section is authoritative; this bullet only points to it).
+-   **API Response Envelope**: All API responses are wrapped in the FERNS Response Envelope Contract v1.
 -   **Permission Enforcement**: Source metadata includes a `permission_granted` flag, and Explorer UIs display blocking modals when permission is not granted.
 -   **Source Fidelity**: FERNS API route paths after the source identifier prefix MUST be verbatim copies of the upstream source's own paths — no renaming, no compositing, no omission. Each route maps to exactly one upstream endpoint; caching is the only permitted efficiency measure. If an experience requires data from multiple upstream calls, the application layer orchestrates those calls — the Knowledge API does not. Any deviation requires explicit user approval and must be documented. Field values and response structure are preserved unchanged.
 -   **Source Descriptions**: Every source has three structured description fields — `description`, `general_summary`, and `technical_details` — that together serve as a complete self-contained reference for any reader. Standards and examples are defined in the Source Onboarding Playbook below.
@@ -195,8 +195,6 @@ This section records explicit user-approved exceptions to the rules above. Each 
 - none yet
 
 ## Open Questions
-
-Recorded so they are not lost and so the omission is not mistaken for an oversight. This section is the authoritative parking lot.
 
 1. **HTTP status code for `found: false` responses.** Currently a 200 in most routes, but no rule says it must be. Candidates: 200 with `found: false` (honest absence is not an error), 404 (REST-traditional), or per-source policy.
 2. **Final per-endpoint response behavior when `permission_granted: false`** at launch. Prototype mode returns `data`; launch behavior is undecided (withhold `data` entirely / return a citation stub / return partial fields / return data with a stronger machine-checkable warning).
