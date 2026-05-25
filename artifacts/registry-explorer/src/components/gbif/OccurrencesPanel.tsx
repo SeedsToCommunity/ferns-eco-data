@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from "react";
+import { useState, lazy, Suspense, useCallback } from "react";
 import {
   useGetGbifOccurrences,
   getGetGbifOccurrencesQueryKey,
@@ -8,10 +8,11 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Map, MapPin, RefreshCw, ExternalLink, Globe2 } from "lucide-react";
+import { Map, MapPin, RefreshCw, ExternalLink, Globe2, ChevronLeft, ChevronRight } from "lucide-react";
 import { formatNumber, cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { RawJsonPanel } from "@/components/RawJsonPanel";
+import type { GbifBboxParams } from "./BboxMapPicker";
 
 const BboxMapPicker = lazy(() =>
   import("./BboxMapPicker").then((m) => ({ default: m.BboxMapPicker })),
@@ -38,13 +39,6 @@ interface GbifOccurrence {
 
 type GeoMode = "all" | "country" | "continent" | "bbox";
 
-interface BboxValues {
-  minLat: string;
-  minLon: string;
-  maxLat: string;
-  maxLon: string;
-}
-
 const COUNTRY_OPTIONS = [
   { value: "US", label: "United States (US)" },
   { value: "CA", label: "Canada (CA)" },
@@ -57,26 +51,49 @@ const COUNTRY_OPTIONS = [
 ];
 
 const CONTINENT_VALUES = Object.values(GetGbifOccurrencesContinent);
+const PAGE_SIZE = 20;
 
 export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
   const [geoMode, setGeoMode] = useState<GeoMode>("all");
   const [country, setCountry] = useState<string>("US");
   const [continent, setContinent] = useState<GetGbifOccurrencesContinent>(GetGbifOccurrencesContinent.NORTH_AMERICA);
-  const [bbox, setBbox] = useState<BboxValues>({
-    minLat: "24.4",
-    minLon: "-125.0",
-    maxLat: "49.4",
-    maxLon: "-66.9",
+  const [gbifBbox, setGbifBbox] = useState<GbifBboxParams>({
+    decimalLatitude: "24.4,49.4",
+    decimalLongitude: "-125.0,-66.9",
   });
 
+  const [offset, setOffset] = useState(0);
   const [hasTriggered, setHasTriggered] = useState(false);
-  const [refreshToggle, setRefreshToggle] = useState(false);
+  const [refreshFlag, setRefreshFlag] = useState(false);
+
+  const resetOffset = useCallback(() => setOffset(0), []);
+
+  const handleGeoModeChange = (mode: GeoMode) => {
+    setGeoMode(mode);
+    resetOffset();
+  };
+
+  const handleCountryChange = (val: string) => {
+    setCountry(val);
+    resetOffset();
+  };
+
+  const handleContinentChange = (val: GetGbifOccurrencesContinent) => {
+    setContinent(val);
+    resetOffset();
+  };
+
+  const handleBboxChange = (params: GbifBboxParams) => {
+    setGbifBbox(params);
+    resetOffset();
+  };
 
   const baseParams: GetGbifOccurrencesParams = {
     taxonKey: usageKey,
     hasCoordinate: true,
     hasGeospatialIssue: false,
-    limit: 20,
+    limit: PAGE_SIZE,
+    offset,
   };
 
   const geoParams: Record<string, unknown> = {};
@@ -85,20 +102,14 @@ export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
   } else if (geoMode === "continent") {
     geoParams.continent = continent;
   } else if (geoMode === "bbox") {
-    const minLat = parseFloat(bbox.minLat);
-    const maxLat = parseFloat(bbox.maxLat);
-    const minLon = parseFloat(bbox.minLon);
-    const maxLon = parseFloat(bbox.maxLon);
-    if (!isNaN(minLat) && !isNaN(maxLat) && !isNaN(minLon) && !isNaN(maxLon)) {
-      geoParams.decimalLatitude = `${minLat},${maxLat}`;
-      geoParams.decimalLongitude = `${minLon},${maxLon}`;
-    }
+    geoParams.decimalLatitude = gbifBbox.decimalLatitude;
+    geoParams.decimalLongitude = gbifBbox.decimalLongitude;
   }
 
   const queryParams = {
     ...baseParams,
     ...geoParams,
-    ...(refreshToggle ? { refresh: true } : {}),
+    ...(refreshFlag ? { refresh: true } : {}),
   } as GetGbifOccurrencesParams;
 
   const occQuery = useGetGbifOccurrences(queryParams, {
@@ -106,23 +117,37 @@ export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
   });
 
   const handleFetch = () => {
-    setRefreshToggle(false);
-    setHasTriggered(true);
-    if (hasTriggered) {
+    setRefreshFlag(false);
+    if (!hasTriggered) {
+      setHasTriggered(true);
+    } else {
       occQuery.refetch();
     }
   };
 
   const handleRefresh = () => {
-    setRefreshToggle(true);
+    setRefreshFlag(true);
     setTimeout(() => occQuery.refetch(), 0);
+  };
+
+  const handlePrevPage = () => {
+    setOffset((o) => Math.max(0, o - PAGE_SIZE));
+  };
+
+  const handleNextPage = () => {
+    setOffset((o) => o + PAGE_SIZE);
   };
 
   const occData = occQuery.data?.data as Record<string, unknown> | undefined;
   const occCount = occData?.count as number | undefined;
   const occResults = (occData?.results as GbifOccurrence[] | undefined) ?? [];
+  const endOfRecords = occData?.endOfRecords as boolean | undefined;
   const cacheStatus = occQuery.data?.provenance?.cache_status;
   const sourceUrl = occQuery.data?.provenance?.source_url;
+
+  const currentPage = Math.floor(offset / PAGE_SIZE) + 1;
+  const hasPrev = offset > 0;
+  const hasNext = endOfRecords === false || (occResults.length === PAGE_SIZE);
 
   return (
     <Card className="mt-8 border-primary/20 overflow-hidden">
@@ -132,7 +157,7 @@ export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
           Occurrence Data
         </CardTitle>
         <p className="text-sm text-muted-foreground mt-1">
-          Configure geographic bounds and fetch georeferenced records via GBIF's native occurrence search.
+          Configure geographic bounds and fetch georeferenced records via GBIF native occurrence search.
         </p>
       </CardHeader>
 
@@ -150,7 +175,7 @@ export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
                   type="radio"
                   name="geoMode"
                   checked={geoMode === mode}
-                  onChange={() => setGeoMode(mode)}
+                  onChange={() => handleGeoModeChange(mode)}
                   className="w-4 h-4 text-primary accent-primary"
                 />
                 <span className="text-sm font-medium capitalize">
@@ -165,7 +190,7 @@ export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
               <select
                 className="h-11 w-full max-w-xs rounded-xl border-2 border-border bg-background px-3 py-2 text-sm focus:outline-none focus:border-primary"
                 value={country}
-                onChange={(e) => setCountry(e.target.value)}
+                onChange={(e) => handleCountryChange(e.target.value)}
               >
                 {COUNTRY_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -177,7 +202,7 @@ export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
               <select
                 className="h-11 w-full max-w-xs rounded-xl border-2 border-border bg-background px-3 py-2 text-sm focus:outline-none focus:border-primary"
                 value={continent}
-                onChange={(e) => setContinent(e.target.value as GetGbifOccurrencesContinent)}
+                onChange={(e) => handleContinentChange(e.target.value as GetGbifOccurrencesContinent)}
               >
                 {CONTINENT_VALUES.map((c) => (
                   <option key={c} value={c}>
@@ -196,10 +221,14 @@ export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
                     </div>
                   }
                 >
-                  <BboxMapPicker bbox={bbox} onChange={setBbox} />
+                  <BboxMapPicker
+                    defaultDecimalLatitude={gbifBbox.decimalLatitude}
+                    defaultDecimalLongitude={gbifBbox.decimalLongitude}
+                    onChange={handleBboxChange}
+                  />
                 </Suspense>
                 <p className="text-xs text-muted-foreground">
-                  Bbox is sent as GBIF native <code>decimalLatitude</code> and <code>decimalLongitude</code> range params.
+                  GBIF native <code>decimalLatitude</code> and <code>decimalLongitude</code> range params are forwarded verbatim.
                 </p>
               </div>
             )}
@@ -290,12 +319,15 @@ export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
-                      {occResults.slice(0, 20).map((occ, i) => (
+                      {occResults.map((occ, i) => (
                         <tr key={i} className="hover:bg-muted/30 transition-colors">
                           <td className="px-4 py-3 whitespace-nowrap">
                             {occ.eventDate
-                              ? format(new Date(occ.eventDate), "yyyy-MM-dd")
-                              : occ.year || "Unknown"}
+                              ? (() => {
+                                  try { return format(new Date(occ.eventDate), "yyyy-MM-dd"); }
+                                  catch { return String(occ.eventDate); }
+                                })()
+                              : (occ.year || "Unknown")}
                           </td>
                           <td className="px-4 py-3">
                             <div className="font-medium">{occ.country || "—"}</div>
@@ -305,17 +337,14 @@ export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
                           </td>
                           <td className="px-4 py-3">
                             {occ.basisOfRecord && (
-                              <Badge
-                                variant="secondary"
-                                className="text-[10px] whitespace-nowrap"
-                              >
+                              <Badge variant="secondary" className="text-[10px] whitespace-nowrap">
                                 {occ.basisOfRecord.replace(/_/g, " ")}
                               </Badge>
                             )}
                           </td>
                           <td
                             className="px-4 py-3 text-xs max-w-[150px] truncate"
-                            title={occ.institutionCode || occ.datasetName || "Unknown"}
+                            title={String(occ.institutionCode || occ.datasetName || "")}
                           >
                             {occ.institutionCode || occ.datasetName || "—"}
                           </td>
@@ -341,11 +370,35 @@ export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
                     </tbody>
                   </table>
                 </div>
-                {occResults.length > 20 && (
-                  <div className="px-4 py-3 text-center border-t border-border bg-muted/20 text-xs text-muted-foreground">
-                    Showing 20 of {occResults.length} fetched records (total matched: {occCount !== undefined ? formatNumber(occCount) : "?"}).
+
+                <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-muted/20">
+                  <p className="text-xs text-muted-foreground">
+                    Page {currentPage} · offset {offset} · {occResults.length} records
+                    {endOfRecords ? " · end of results" : ""}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handlePrevPage}
+                      disabled={!hasPrev || occQuery.isFetching}
+                      className="h-7 text-xs gap-1"
+                    >
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                      Prev
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleNextPage}
+                      disabled={!hasNext || occQuery.isFetching}
+                      className="h-7 text-xs gap-1"
+                    >
+                      Next
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </Button>
                   </div>
-                )}
+                </div>
               </div>
             ) : (
               <div className="p-8 text-center text-muted-foreground border border-border rounded-xl bg-muted/10">

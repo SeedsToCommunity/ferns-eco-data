@@ -3,16 +3,22 @@ import { MapContainer, TileLayer, Rectangle, useMapEvents } from "react-leaflet"
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-interface BboxValues {
-  minLat: string;
-  minLon: string;
-  maxLat: string;
-  maxLon: string;
+export interface GbifBboxParams {
+  decimalLatitude: string;
+  decimalLongitude: string;
+}
+
+interface BboxDisplayValues {
+  minLat: number;
+  maxLat: number;
+  minLon: number;
+  maxLon: number;
 }
 
 interface BboxMapPickerProps {
-  bbox: BboxValues;
-  onChange: (bbox: BboxValues) => void;
+  defaultDecimalLatitude?: string;
+  defaultDecimalLongitude?: string;
+  onChange: (params: GbifBboxParams) => void;
 }
 
 type LayerId = "osm" | "esri-imagery" | "esri-topo";
@@ -38,17 +44,16 @@ const LAYERS: { id: LayerId; label: string; url: string; attribution: string }[]
   },
 ];
 
-function parseBbox(bbox: BboxValues): [[number, number], [number, number]] | null {
-  const minLat = parseFloat(bbox.minLat);
-  const minLon = parseFloat(bbox.minLon);
-  const maxLat = parseFloat(bbox.maxLat);
-  const maxLon = parseFloat(bbox.maxLon);
-  if ([minLat, minLon, maxLat, maxLon].some(isNaN)) return null;
+function parseGbifBboxToDisplay(
+  decimalLatitude?: string,
+  decimalLongitude?: string,
+): BboxDisplayValues | null {
+  if (!decimalLatitude || !decimalLongitude) return null;
+  const [minLat, maxLat] = decimalLatitude.split(",").map(parseFloat);
+  const [minLon, maxLon] = decimalLongitude.split(",").map(parseFloat);
+  if ([minLat, maxLat, minLon, maxLon].some(isNaN)) return null;
   if (minLat >= maxLat || minLon >= maxLon) return null;
-  return [
-    [minLat, minLon],
-    [maxLat, maxLon],
-  ];
+  return { minLat, maxLat, minLon, maxLon };
 }
 
 function rubberBandBounds(
@@ -102,20 +107,35 @@ function DrawHandler({ onDraw, onDragStart, onDragMove, onDragEnd }: DrawHandler
   return null;
 }
 
-export function BboxMapPicker({ bbox, onChange }: BboxMapPickerProps) {
+export function BboxMapPicker({
+  defaultDecimalLatitude,
+  defaultDecimalLongitude,
+  onChange,
+}: BboxMapPickerProps) {
   const [activeLayer, setActiveLayer] = useState<LayerId>("osm");
   const [rubber, setRubber] = useState<{ c1: L.LatLng; c2: L.LatLng } | null>(null);
 
+  const [currentDisplay, setCurrentDisplay] = useState<BboxDisplayValues | null>(
+    () => parseGbifBboxToDisplay(
+      defaultDecimalLatitude ?? "24.4,49.4",
+      defaultDecimalLongitude ?? "-125.0,-66.9",
+    ),
+  );
+
   const layer = LAYERS.find((l) => l.id === activeLayer)!;
-  const bounds = parseBbox(bbox);
 
   const handleDraw = useCallback(
     (sw: L.LatLng, ne: L.LatLng) => {
+      const display: BboxDisplayValues = {
+        minLat: Math.round(sw.lat * 10000) / 10000,
+        maxLat: Math.round(ne.lat * 10000) / 10000,
+        minLon: Math.round(sw.lng * 10000) / 10000,
+        maxLon: Math.round(ne.lng * 10000) / 10000,
+      };
+      setCurrentDisplay(display);
       onChange({
-        minLat: sw.lat.toFixed(4),
-        minLon: sw.lng.toFixed(4),
-        maxLat: ne.lat.toFixed(4),
-        maxLon: ne.lng.toFixed(4),
+        decimalLatitude: `${display.minLat},${display.maxLat}`,
+        decimalLongitude: `${display.minLon},${display.maxLon}`,
       });
     },
     [onChange],
@@ -133,8 +153,12 @@ export function BboxMapPicker({ bbox, onChange }: BboxMapPickerProps) {
     setRubber(null);
   }, []);
 
-  const center: [number, number] = bounds
-    ? [(bounds[0][0] + bounds[1][0]) / 2, (bounds[0][1] + bounds[1][1]) / 2]
+  const boundsForLeaflet = currentDisplay
+    ? ([[currentDisplay.minLat, currentDisplay.minLon], [currentDisplay.maxLat, currentDisplay.maxLon]] as [[number, number], [number, number]])
+    : null;
+
+  const center: [number, number] = boundsForLeaflet
+    ? [(boundsForLeaflet[0][0] + boundsForLeaflet[1][0]) / 2, (boundsForLeaflet[0][1] + boundsForLeaflet[1][1]) / 2]
     : [38.5, -96.0];
 
   const rubberRect = rubber ? rubberBandBounds(rubber.c1, rubber.c2) : null;
@@ -162,6 +186,13 @@ export function BboxMapPicker({ bbox, onChange }: BboxMapPickerProps) {
         </span>
       </div>
 
+      {currentDisplay && !rubber && (
+        <p className="text-xs text-muted-foreground font-mono">
+          decimalLatitude={currentDisplay.minLat},{currentDisplay.maxLat}&nbsp;
+          decimalLongitude={currentDisplay.minLon},{currentDisplay.maxLon}
+        </p>
+      )}
+
       <div
         className="rounded-xl overflow-hidden border border-border"
         style={{ height: 280, cursor: "crosshair" }}
@@ -174,9 +205,9 @@ export function BboxMapPicker({ bbox, onChange }: BboxMapPickerProps) {
         >
           <TileLayer url={layer.url} attribution={layer.attribution} key={layer.id} />
 
-          {bounds && !rubber && (
+          {boundsForLeaflet && !rubber && (
             <Rectangle
-              bounds={bounds}
+              bounds={boundsForLeaflet}
               pathOptions={{ color: "hsl(var(--primary, 200 100% 40%))", weight: 2, fillOpacity: 0.15 }}
             />
           )}

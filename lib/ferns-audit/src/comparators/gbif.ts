@@ -5,6 +5,83 @@ import type { TestSpecies } from "../corpus.js";
 
 const GBIF_API = "https://api.gbif.org/v1";
 
+const REQUIRED_ENVELOPE_KEYS = ["found", "permission_granted", "pagination", "provenance", "data"] as const;
+
+const REQUIRED_PROVENANCE_KEYS = ["source_url", "method", "cache_status", "queried_at", "license", "rights"] as const;
+
+const RESERVED_DATA_FIELDS = [
+  "matched_input",
+  "vernacular_name_primary",
+  "accepted_canonical_name",
+  "geography_mode",
+  "geography_params",
+  "occurrence_count_us",
+  "recent_occurrences",
+  "candidates",
+] as const;
+
+function assertEnvelopeShape(
+  envelope: Record<string, unknown>,
+  findings: FieldFinding[],
+): void {
+  for (const key of REQUIRED_ENVELOPE_KEYS) {
+    if (!(key in envelope)) {
+      findings.push({
+        type: "gap",
+        sourceField: `envelope.${key}`,
+        note: `MISSING required envelope key: "${key}"`,
+      });
+    }
+  }
+
+  const extraKeys = Object.keys(envelope).filter(
+    (k) => !(REQUIRED_ENVELOPE_KEYS as readonly string[]).includes(k),
+  );
+  if (extraKeys.length > 0) {
+    findings.push({
+      type: "gap",
+      sourceField: "envelope",
+      note: `Unexpected top-level envelope keys (contract allows only ${REQUIRED_ENVELOPE_KEYS.join(", ")}): ${extraKeys.join(", ")}`,
+    });
+  }
+
+  const provenance = (envelope["provenance"] ?? {}) as Record<string, unknown>;
+  for (const key of REQUIRED_PROVENANCE_KEYS) {
+    if (!(key in provenance)) {
+      findings.push({
+        type: "gap",
+        sourceField: `provenance.${key}`,
+        note: `MISSING required provenance key: "${key}"`,
+      });
+    } else if (provenance[key] === undefined) {
+      findings.push({
+        type: "gap",
+        sourceField: `provenance.${key}`,
+        note: `provenance.${key} is undefined`,
+      });
+    } else {
+      findings.push({
+        type: "ok",
+        sourceField: `provenance.${key}`,
+        fernsField: `provenance.${key}`,
+        fernsValue: provenance[key],
+        note: `provenance.${key} = ${JSON.stringify(provenance[key])}`,
+      });
+    }
+  }
+
+  const data = (envelope["data"] ?? {}) as Record<string, unknown>;
+  for (const field of RESERVED_DATA_FIELDS) {
+    if (field in data) {
+      findings.push({
+        type: "gap",
+        sourceField: `data.${field}`,
+        note: `RESERVED/stale field "${field}" present in data — FERNS should not inject this; data must be verbatim GBIF`,
+      });
+    }
+  }
+}
+
 export async function runGbifComparators(
   fernsBase: string,
   species: TestSpecies[],
@@ -49,9 +126,11 @@ async function compareGbifMatch(fernsBase: string, sp: TestSpecies): Promise<End
 
     const gbifObj = gbifRaw as Record<string, unknown>;
     const fernsEnvelope = fernsRaw as Record<string, unknown>;
-    const fernsData = (fernsEnvelope.data ?? {}) as Record<string, unknown>;
+    const fernsData = (fernsEnvelope["data"] ?? {}) as Record<string, unknown>;
 
-    const findings = diffObjects(gbifObj, fernsData, "GBIF");
+    const findings: FieldFinding[] = [];
+    assertEnvelopeShape(fernsEnvelope, findings);
+    findings.push(...diffObjects(gbifObj, fernsData, "GBIF"));
     const urlsCollected = collectUrls(fernsEnvelope, `gbif/species/match:${sp.name}`);
 
     return {
@@ -94,10 +173,12 @@ async function compareGbifSpecies(
     ]);
 
     const fernsEnvelope = fernsRaw as Record<string, unknown>;
-    const fernsData = (fernsEnvelope.data ?? {}) as Record<string, unknown>;
+    const fernsData = (fernsEnvelope["data"] ?? {}) as Record<string, unknown>;
     const urlsCollected = collectUrls(fernsEnvelope, `gbif/species/${usageKey}`);
 
-    const findings = diffObjects(gbifRaw as Record<string, unknown>, fernsData, "GBIF");
+    const findings: FieldFinding[] = [];
+    assertEnvelopeShape(fernsEnvelope, findings);
+    findings.push(...diffObjects(gbifRaw as Record<string, unknown>, fernsData, "GBIF"));
 
     return {
       source: "gbif",
@@ -138,14 +219,15 @@ async function compareGbifOccurrences(
     ]);
 
     const fernsEnvelope = fernsRaw as Record<string, unknown>;
-    const fernsData = (fernsEnvelope.data ?? {}) as Record<string, unknown>;
+    const fernsData = (fernsEnvelope["data"] ?? {}) as Record<string, unknown>;
     const urlsCollected = collectUrls(fernsEnvelope, `gbif/occurrence/search:${sp.name}`);
     const upstreamObj = upstreamRaw as Record<string, unknown>;
 
     const findings: FieldFinding[] = [];
+    assertEnvelopeShape(fernsEnvelope, findings);
 
-    const fernsCount = fernsData.count as number | undefined;
-    const upstreamCount = upstreamObj.count as number | undefined;
+    const fernsCount = fernsData["count"] as number | undefined;
+    const upstreamCount = upstreamObj["count"] as number | undefined;
 
     if (fernsCount !== undefined && upstreamCount !== undefined) {
       if (fernsCount === upstreamCount) {
@@ -164,15 +246,15 @@ async function compareGbifOccurrences(
       findings.push({ type: "ok", sourceField: "count", note: `FERNS count: ${fernsCount ?? "n/a"} — upstream count: ${upstreamCount ?? "n/a"}` });
     }
 
-    const fernsResults = (fernsData.results as unknown[] | undefined) ?? [];
+    const fernsResults = (fernsData["results"] as unknown[] | undefined) ?? [];
     findings.push({ type: "ok", sourceField: "results", note: `FERNS returned ${fernsResults.length} occurrence records (limit 20)` });
 
-    const provenanceFields = (fernsEnvelope.provenance ?? {}) as Record<string, unknown>;
-    if (provenanceFields.method) {
-      findings.push({ type: "ok", sourceField: "provenance.method", fernsField: "provenance.method", fernsValue: provenanceFields.method, note: `method: "${provenanceFields.method}"` });
-    }
-    if (provenanceFields.cache_status) {
-      findings.push({ type: "ok", sourceField: "provenance.cache_status", fernsField: "provenance.cache_status", fernsValue: provenanceFields.cache_status, note: `cache_status: "${provenanceFields.cache_status}"` });
+    for (const required of ["offset", "limit", "endOfRecords"] as const) {
+      if (required in fernsData) {
+        findings.push({ type: "ok", sourceField: required, fernsField: required, fernsValue: fernsData[required], note: `GBIF native pagination field present: ${required}` });
+      } else {
+        findings.push({ type: "gap", sourceField: required, note: `MISSING GBIF native pagination field: ${required}` });
+      }
     }
 
     return {
@@ -215,15 +297,16 @@ async function compareGbifSynonyms(
     ]);
 
     const fernsEnvelope = fernsRaw as Record<string, unknown>;
-    const fernsData = (fernsEnvelope.data ?? {}) as Record<string, unknown>;
+    const fernsData = (fernsEnvelope["data"] ?? {}) as Record<string, unknown>;
     const urlsCollected = collectUrls(fernsEnvelope, `gbif/species/${usageKey}/synonyms`);
 
     const findings: FieldFinding[] = [];
+    assertEnvelopeShape(fernsEnvelope, findings);
 
-    const gbifResults = (gbifRaw.results as unknown[]) ?? [];
-    const gbifCount = gbifRaw.count as number | undefined;
-    const fernsResults = (fernsData.results as unknown[]) ?? [];
-    const fernsCount = fernsData.count as number | undefined;
+    const gbifResults = (gbifRaw["results"] as unknown[]) ?? [];
+    const gbifCount = gbifRaw["count"] as number | undefined;
+    const fernsResults = (fernsData["results"] as unknown[]) ?? [];
+    const fernsCount = fernsData["count"] as number | undefined;
 
     if (fernsCount !== undefined && gbifCount !== undefined) {
       if (fernsCount === gbifCount) {
@@ -286,15 +369,16 @@ async function compareGbifVernacularNames(
     ]);
 
     const fernsEnvelope = fernsRaw as Record<string, unknown>;
-    const fernsData = (fernsEnvelope.data ?? {}) as Record<string, unknown>;
+    const fernsData = (fernsEnvelope["data"] ?? {}) as Record<string, unknown>;
     const urlsCollected = collectUrls(fernsEnvelope, `gbif/species/${usageKey}/vernacularNames`);
 
     const findings: FieldFinding[] = [];
+    assertEnvelopeShape(fernsEnvelope, findings);
 
-    const gbifResults = (gbifRaw.results as unknown[]) ?? [];
-    const gbifCount = gbifRaw.count as number | undefined;
-    const fernsResults = (fernsData.results as unknown[]) ?? [];
-    const fernsCount = fernsData.count as number | undefined;
+    const gbifResults = (gbifRaw["results"] as unknown[]) ?? [];
+    const gbifCount = gbifRaw["count"] as number | undefined;
+    const fernsResults = (fernsData["results"] as unknown[]) ?? [];
+    const fernsCount = fernsData["count"] as number | undefined;
 
     if (fernsCount !== undefined && gbifCount !== undefined) {
       if (fernsCount === gbifCount) {
@@ -356,15 +440,16 @@ async function compareGbifSearch(
     ]);
 
     const fernsEnvelope = fernsRaw as Record<string, unknown>;
-    const fernsData = (fernsEnvelope.data ?? {}) as Record<string, unknown>;
+    const fernsData = (fernsEnvelope["data"] ?? {}) as Record<string, unknown>;
     const urlsCollected = collectUrls(fernsEnvelope, `gbif/species/search:${q}`);
 
     const findings: FieldFinding[] = [];
+    assertEnvelopeShape(fernsEnvelope, findings);
 
-    const fernsResults = (fernsData.results as unknown[]) ?? [];
-    const gbifResults = (gbifRaw.results as unknown[]) ?? [];
-    const gbifCount = gbifRaw.count as number | undefined;
-    const fernsCount = fernsData.count as number | undefined;
+    const fernsResults = (fernsData["results"] as unknown[]) ?? [];
+    const gbifResults = (gbifRaw["results"] as unknown[]) ?? [];
+    const gbifCount = gbifRaw["count"] as number | undefined;
+    const fernsCount = fernsData["count"] as number | undefined;
 
     if (fernsCount !== undefined && gbifCount !== undefined) {
       if (fernsCount === gbifCount) {
