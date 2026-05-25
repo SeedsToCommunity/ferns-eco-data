@@ -14,6 +14,11 @@ import { format } from "date-fns";
 import { RawJsonPanel } from "@/components/RawJsonPanel";
 import type { GbifBboxParams } from "./BboxMapPicker";
 
+type GbifOccurrenceQuery = Omit<GetGbifOccurrencesParams, "decimalLatitude" | "decimalLongitude"> & {
+  decimalLatitude?: string | number;
+  decimalLongitude?: string | number;
+};
+
 const BboxMapPicker = lazy(() =>
   import("./BboxMapPicker").then((m) => ({ default: m.BboxMapPicker })),
 );
@@ -96,24 +101,19 @@ export function OccurrencesPanel({ usageKey }: OccurrencesPanelProps) {
     offset,
   };
 
-  const geoParams: Record<string, unknown> = {};
-  if (geoMode === "country") {
-    geoParams.country = country;
-  } else if (geoMode === "continent") {
-    geoParams.continent = continent;
-  } else if (geoMode === "bbox") {
-    geoParams.decimalLatitude = gbifBbox.decimalLatitude;
-    geoParams.decimalLongitude = gbifBbox.decimalLongitude;
-  }
-
-  const queryParams = {
+  const queryParams: GbifOccurrenceQuery = {
     ...baseParams,
-    ...geoParams,
-    ...(refreshFlag ? { refresh: true } : {}),
-  } as GetGbifOccurrencesParams;
+    ...(geoMode === "country" ? { country } : {}),
+    ...(geoMode === "continent" ? { continent } : {}),
+    ...(geoMode === "bbox"
+      ? { decimalLatitude: gbifBbox.decimalLatitude, decimalLongitude: gbifBbox.decimalLongitude }
+      : {}),
+  };
 
-  const occQuery = useGetGbifOccurrences(queryParams, {
-    query: { queryKey: getGetGbifOccurrencesQueryKey(queryParams), enabled: hasTriggered },
+  const hookParams = queryParams as GetGbifOccurrencesParams;
+
+  const occQuery = useGetGbifOccurrences(hookParams, {
+    query: { queryKey: getGetGbifOccurrencesQueryKey(hookParams), enabled: hasTriggered },
   });
 
   const handleFetch = () => {

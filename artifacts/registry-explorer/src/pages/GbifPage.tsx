@@ -6,6 +6,10 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ScientificMatchPanel } from "@/components/gbif/ScientificMatchPanel";
 import { CommonSearchPanel } from "@/components/gbif/CommonSearchPanel";
+import { useGetSourcesIndex, getGetSourcesIndexQueryKey } from "@workspace/api-client-react";
+
+const BASE_URL = import.meta.env.BASE_URL.replace(/\/$/, "");
+const API_BASE = `${BASE_URL}/api`;
 
 type Tab = "scientific" | "common";
 
@@ -14,6 +18,14 @@ export function GbifPage() {
   const [inputValue, setInputValue] = useState("");
   const [scientificQuery, setScientificQuery] = useState("");
   const [commonQuery, setCommonQuery] = useState("");
+
+  const { data: sourcesData } = useGetSourcesIndex({
+    query: { queryKey: getGetSourcesIndexQueryKey() },
+  });
+  const gbifSource = sourcesData?.data?.sources?.find((s) => s.source_id === "gbif");
+  const gbifSourceRaw = gbifSource as Record<string, unknown> | undefined;
+  const websiteUrlPatterns = gbifSourceRaw?.website_url_patterns as Record<string, string> | undefined;
+  const speciesUrlPattern = websiteUrlPatterns?.species ?? `${API_BASE}/gbif/species/{usageKey}`;
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -79,7 +91,7 @@ export function GbifPage() {
 
       <div className="min-h-[400px]">
         {activeTab === "scientific" && scientificQuery ? (
-          <ScientificMatchPanel scientificName={scientificQuery} />
+          <ScientificMatchPanel scientificName={scientificQuery} speciesUrlPattern={speciesUrlPattern} />
         ) : activeTab === "common" && commonQuery ? (
           <CommonSearchPanel query={commonQuery} onSelectCanonical={handleSelectFromCommon} />
         ) : (

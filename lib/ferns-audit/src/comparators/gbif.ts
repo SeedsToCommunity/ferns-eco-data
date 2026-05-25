@@ -11,6 +11,10 @@ const REQUIRED_PROVENANCE_KEYS = ["source_url", "method", "cache_status", "queri
 
 const RESERVED_DATA_FIELDS = [
   "matched_input",
+  "query",
+  "resolved_at",
+  "source_url",
+  "cache_status",
   "vernacular_name_primary",
   "accepted_canonical_name",
   "geography_mode",

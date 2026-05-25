@@ -55,6 +55,7 @@ function ExpandableSection({ title, count, icon, children, defaultOpen = false }
 
 interface ScientificMatchPanelProps {
   scientificName: string;
+  speciesUrlPattern?: string;
 }
 
 interface MatchFields {
@@ -91,7 +92,7 @@ interface AcceptedSpeciesFields {
   [key: string]: unknown;
 }
 
-export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelProps) {
+export function ScientificMatchPanel({ scientificName, speciesUrlPattern }: ScientificMatchPanelProps) {
   const matchQuery = useGetGbifMatch({ name: scientificName }, {
     query: { queryKey: getGetGbifMatchQueryKey({ name: scientificName }), enabled: !!scientificName }
   });
@@ -146,7 +147,11 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
   const vernacularCount = vernacularQuery.data?.data?.count as number ?? 0;
   const enNames = vernacularNames.filter(v => v.language === "eng" || v.language === "en");
 
-  const gbifSpeciesUrl = md?.usageKey ? `https://www.gbif.org/species/${md.usageKey}` : null;
+  const gbifSpeciesUrl = md?.usageKey
+    ? (speciesUrlPattern
+        ? speciesUrlPattern.replace("{usageKey}", String(md.usageKey))
+        : `https://www.gbif.org/species/${md.usageKey}`)
+    : null;
 
   return (
     <div className="space-y-6">
