@@ -6,12 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetGbifSearchParams = {
-  /**
-   * Common name search string (e.g. butterfly milkweed)
-   * @minLength 1
-   */
-  q: string;
+export type GetGbifSpeciesParams = {
   /**
    * If true, bypasses cache and fetches fresh from GBIF.
    */

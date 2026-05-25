@@ -5,12 +5,9 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { FernsProvenance } from "./fernsProvenance";
+import type { FernsEnvelope } from "./fernsEnvelope";
 import type { GbifSynonymsData } from "./gbifSynonymsData";
 
-export interface GbifSynonymsResponse {
-  source_url: string | null;
-  found: boolean;
-  data: GbifSynonymsData | null;
-  provenance: FernsProvenance;
-}
+export type GbifSynonymsResponse = FernsEnvelope & {
+  data?: GbifSynonymsData;
+};

@@ -5,21 +5,11 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GbifSynonymRecord } from "./gbifSynonymRecord";
-import type { GbifSynonymsDataCacheStatus } from "./gbifSynonymsDataCacheStatus";
 
+/**
+ * Verbatim GBIF species/{usageKey}/synonyms upstream response. Includes count, offset, limit, endOfRecords, and results array.
+
+ */
 export interface GbifSynonymsData {
-  /** GBIF backbone usage key for the accepted taxon (FERNS addition) */
-  usage_key: number;
-  /** Zero-based offset of the first result (mirrors upstream envelope) */
-  offset: number;
-  /** Maximum number of results requested (mirrors upstream envelope) */
-  limit: number;
-  /** True when no more results are available after this page (mirrors upstream envelope) */
-  endOfRecords: boolean;
-  /** Total number of synonyms for this taxon (mirrors upstream envelope) */
-  count: number;
-  /** Synonym records as returned by GBIF (verbatim upstream fields) */
-  results: GbifSynonymRecord[];
-  cache_status?: GbifSynonymsDataCacheStatus;
+  [key: string]: unknown;
 }

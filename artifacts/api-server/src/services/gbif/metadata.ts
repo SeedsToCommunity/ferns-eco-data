@@ -174,6 +174,12 @@ export const GBIF_REGISTRY_ENTRY = {
   name: "GBIF — Taxonomic Backbone, Name Reconciliation, and Occurrence Records",
   knowledge_type: "source_wrapper",
   status: "live",
+  license: "https://creativecommons.org/licenses/by/4.0/",
+  rights: "GBIF data licensed CC-BY 4.0; cite GBIF.org as the source.",
+  website_url_patterns: {
+    species: "https://www.gbif.org/species/{usageKey}",
+    occurrence: "https://www.gbif.org/occurrence/{gbifID}",
+  },
   description:
     "Plant scientific name lookup and verification — checks whether a name is currently accepted or has been replaced by a newer one — plus synonym lists, common names, and location-tagged sighting records across North America. " +
     "From the Global Biodiversity Information Facility (GBIF), an intergovernmental organization aggregating biodiversity records from nearly 2,000 institutions worldwide.",

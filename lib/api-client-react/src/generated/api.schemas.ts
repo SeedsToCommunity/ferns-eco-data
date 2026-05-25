@@ -286,61 +286,12 @@ export interface GbifOccurrenceRecord {
   gbifOccurrenceUrl: string;
 }
 
-export type GbifMatchDataMatchType =
-  (typeof GbifMatchDataMatchType)[keyof typeof GbifMatchDataMatchType];
+/**
+ * Verbatim GBIF species/match upstream response. matchType is NONE when no match was found. usageKey is absent or null when matchType is NONE. GBIF always returns HTTP 200 regardless of match outcome.
 
-export const GbifMatchDataMatchType = {
-  EXACT: "EXACT",
-  FUZZY: "FUZZY",
-  HIGHERRANK: "HIGHERRANK",
-  NONE: "NONE",
-} as const;
-
-export type GbifMatchDataCacheStatus =
-  | (typeof GbifMatchDataCacheStatus)[keyof typeof GbifMatchDataCacheStatus]
-  | null;
-
-export const GbifMatchDataCacheStatus = {
-  hit: "hit",
-  miss: "miss",
-  bypassed: "bypassed",
-} as const;
-
+ */
 export interface GbifMatchData {
-  /** GBIF backbone usageKey. Null when matchType is NONE. */
-  usageKey?: number | null;
-  canonicalName?: string | null;
-  scientificName?: string | null;
-  rank?: string | null;
-  /** ACCEPTED, SYNONYM, or DOUBTFUL */
-  status?: string | null;
-  /** Present when status is SYNONYM. FERNS addition. */
-  accepted_usage_key?: number | null;
-  /** Present when status is SYNONYM. FERNS addition. */
-  accepted_canonical_name?: string | null;
-  confidence?: number | null;
-  matchType: GbifMatchDataMatchType;
-  kingdom?: string | null;
-  phylum?: string | null;
-  /** GBIF 'class' field (JS reserved word renamed to class_) */
-  class_?: string | null;
-  /** GBIF 'order' field (JS reserved word renamed to order_) */
-  order_?: string | null;
-  family?: string | null;
-  genus?: string | null;
-  species?: string | null;
-  kingdomKey?: number | null;
-  phylumKey?: number | null;
-  classKey?: number | null;
-  orderKey?: number | null;
-  familyKey?: number | null;
-  genusKey?: number | null;
-  speciesKey?: number | null;
-  /** https://www.gbif.org/species/{usageKey} when usageKey is known */
-  source_url: string | null;
-  matched_input: string;
-  matched_at?: string | null;
-  cache_status?: GbifMatchDataCacheStatus;
+  [key: string]: unknown;
 }
 
 export interface GbifSynonymRecord {
@@ -354,38 +305,17 @@ export interface GbifSynonymRecord {
   [key: string]: unknown;
 }
 
-export type GbifSynonymsDataCacheStatus =
-  | (typeof GbifSynonymsDataCacheStatus)[keyof typeof GbifSynonymsDataCacheStatus]
-  | null;
+/**
+ * Verbatim GBIF species/{usageKey}/synonyms upstream response. Includes count, offset, limit, endOfRecords, and results array.
 
-export const GbifSynonymsDataCacheStatus = {
-  hit: "hit",
-  miss: "miss",
-  bypassed: "bypassed",
-} as const;
-
+ */
 export interface GbifSynonymsData {
-  /** GBIF backbone usage key for the accepted taxon (FERNS addition) */
-  usage_key: number;
-  /** Zero-based offset of the first result (mirrors upstream envelope) */
-  offset: number;
-  /** Maximum number of results requested (mirrors upstream envelope) */
-  limit: number;
-  /** True when no more results are available after this page (mirrors upstream envelope) */
-  endOfRecords: boolean;
-  /** Total number of synonyms for this taxon (mirrors upstream envelope) */
-  count: number;
-  /** Synonym records as returned by GBIF (verbatim upstream fields) */
-  results: GbifSynonymRecord[];
-  cache_status?: GbifSynonymsDataCacheStatus;
+  [key: string]: unknown;
 }
 
-export interface GbifSynonymsResponse {
-  source_url: string | null;
-  found: boolean;
-  data: GbifSynonymsData | null;
-  provenance: FernsProvenance;
-}
+export type GbifSynonymsResponse = FernsEnvelope & {
+  data?: GbifSynonymsData;
+};
 
 export interface GbifVernacularRecord {
   vernacularName?: string;
@@ -395,111 +325,57 @@ export interface GbifVernacularRecord {
   [key: string]: unknown;
 }
 
-export type GbifVernacularNamesDataCacheStatus =
-  | (typeof GbifVernacularNamesDataCacheStatus)[keyof typeof GbifVernacularNamesDataCacheStatus]
-  | null;
+/**
+ * Verbatim GBIF species/{usageKey}/vernacularNames upstream response. Includes count, offset, limit, endOfRecords, and results array.
 
-export const GbifVernacularNamesDataCacheStatus = {
-  hit: "hit",
-  miss: "miss",
-  bypassed: "bypassed",
-} as const;
-
+ */
 export interface GbifVernacularNamesData {
-  /** GBIF backbone usage key for the taxon (FERNS addition) */
-  usage_key: number;
-  /** Zero-based offset of the first result (mirrors upstream envelope) */
-  offset: number;
-  /** Maximum number of results requested (mirrors upstream envelope) */
-  limit: number;
-  /** True when no more results are available after this page (mirrors upstream envelope) */
-  endOfRecords: boolean;
-  /** Total number of vernacular names for this taxon (mirrors upstream envelope) */
-  count: number;
-  /** Vernacular name records as returned by GBIF (verbatim upstream fields) */
-  results: GbifVernacularRecord[];
-  /** First English-language vernacular name found, or first name of any language (FERNS convenience field) */
-  vernacular_name_primary?: string | null;
-  cache_status?: GbifVernacularNamesDataCacheStatus;
+  [key: string]: unknown;
 }
 
-export interface GbifVernacularNamesResponse {
-  source_url: string | null;
-  found: boolean;
-  data: GbifVernacularNamesData | null;
-  provenance: FernsProvenance;
-}
+export type GbifVernacularNamesResponse = FernsEnvelope & {
+  data?: GbifVernacularNamesData;
+};
 
-export interface GbifMatchResponse {
-  source_url: string | null;
-  found: boolean;
-  data: GbifMatchData | null;
-  provenance: FernsProvenance;
-}
+export type GbifMatchResponse = FernsEnvelope & {
+  data?: GbifMatchData;
+};
 
-export type GbifOccurrencesDataGeographyMode =
-  (typeof GbifOccurrencesDataGeographyMode)[keyof typeof GbifOccurrencesDataGeographyMode];
+/**
+ * Verbatim GBIF occurrence/search upstream response. Includes count, offset, limit, endOfRecords, and results array.
 
-export const GbifOccurrencesDataGeographyMode = {
-  countries: "countries",
-  continent: "continent",
-  bbox: "bbox",
-} as const;
-
-export type GbifOccurrencesDataCacheStatus =
-  | (typeof GbifOccurrencesDataCacheStatus)[keyof typeof GbifOccurrencesDataCacheStatus]
-  | null;
-
-export const GbifOccurrencesDataCacheStatus = {
-  hit: "hit",
-  miss: "miss",
-  bypassed: "bypassed",
-} as const;
-
+ */
 export interface GbifOccurrencesData {
-  usage_key: number;
-  geography_mode: GbifOccurrencesDataGeographyMode;
-  /** Serialized geography parameters for display */
-  geography_params: string;
-  occurrence_count: number;
-  occurrence_count_us?: number | null;
-  recent_occurrences: GbifOccurrenceRecord[];
-  occurrence_last_fetched: string;
-  /** GBIF occurrence search URL for this taxon and geography */
-  source_url: string | null;
-  cache_status?: GbifOccurrencesDataCacheStatus;
+  [key: string]: unknown;
 }
 
-export interface GbifOccurrencesResponse {
-  source_url: string | null;
-  found: boolean;
-  data: GbifOccurrencesData | null;
-  provenance: FernsProvenance;
+export type GbifOccurrencesResponse = FernsEnvelope & {
+  data?: GbifOccurrencesData;
+};
+
+/**
+ * Verbatim GBIF species/search upstream response filtered to vernacular name matches. Includes count, offset, limit, endOfRecords, and results array.
+
+ */
+export interface GbifSearchData {
+  [key: string]: unknown;
 }
 
-export interface GbifSearchCandidate {
-  usageKey: number;
-  canonicalName: string;
-  scientificName: string;
-  rank: string;
-  status: string;
-  family?: string | null;
-  vernacularName?: string | null;
-  source_url?: string;
+export type GbifSearchResponse = FernsEnvelope & {
+  data?: GbifSearchData;
+};
+
+/**
+ * Verbatim GBIF species/{usageKey} upstream response.
+
+ */
+export interface GbifSpeciesData {
+  [key: string]: unknown;
 }
 
-export type GbifSearchResponseData = {
-  query?: string;
-  candidates?: GbifSearchCandidate[];
-  count?: number;
-} | null;
-
-export interface GbifSearchResponse {
-  source_url: string | null;
-  found: boolean;
-  data: GbifSearchResponseData;
-  provenance: FernsProvenance;
-}
+export type GbifSpeciesResponse = FernsEnvelope & {
+  data?: GbifSpeciesData;
+};
 
 export interface GbifVocabularyEntry {
   code: string;
@@ -507,7 +383,7 @@ export interface GbifVocabularyEntry {
   description: string;
 }
 
-export type GbifMetadataResponseAttribution = {
+export type GbifMetadataDataAttribution = {
   source_name?: string;
   website?: string;
   license?: string;
@@ -515,43 +391,28 @@ export type GbifMetadataResponseAttribution = {
   api_base_url?: string;
 };
 
-export type GbifMetadataResponseVocabularies = {
+export type GbifMetadataDataVocabularies = {
   basisOfRecord?: GbifVocabularyEntry[];
   matchType?: GbifVocabularyEntry[];
   taxonomicStatus?: GbifVocabularyEntry[];
   occurrenceStatus?: GbifVocabularyEntry[];
 };
 
-/**
- * Full registry entry for this GBIF service source
- */
-export type GbifMetadataResponseRegistryEntry = {
-  source_id?: string;
-  name?: string;
-  knowledge_type?: string;
-  status?: string;
+export interface GbifMetadataData {
   description?: string;
-  input_summary?: string;
-  output_summary?: string;
-  dependencies?: string[];
-  update_frequency?: string;
-  known_limitations?: string;
+  general_summary?: string;
+  technical_details?: string;
+  licenses?: string[];
+  license_notes?: string;
+  attribution?: GbifMetadataDataAttribution;
+  vocabularies?: GbifMetadataDataVocabularies;
   metadata_url?: string;
   explorer_url?: string;
-};
-
-export interface GbifMetadataResponse {
-  service_id: string;
-  service_name: string;
-  licenses: string[];
-  license_notes: string;
-  attribution: GbifMetadataResponseAttribution;
-  vocabularies: GbifMetadataResponseVocabularies;
-  /** Full registry entry for this GBIF service source */
-  registry_entry?: GbifMetadataResponseRegistryEntry;
-  queried_at: string;
-  provenance: FernsProvenance;
 }
+
+export type GbifMetadataResponse = FernsEnvelope & {
+  data?: GbifMetadataData;
+};
 
 export interface InatPlaceResult {
   /** iNaturalist numeric place ID. Use this in taxon_id + place_id queries. */
@@ -2967,26 +2828,49 @@ export type GetGbifMatchParams = {
 
 export type GetGbifOccurrencesParams = {
   /**
-   * GBIF backbone usageKey
+   * GBIF backbone taxon key (integer). The GBIF native parameter name for taxon filtering.
    */
-  usageKey: number;
+  taxonKey?: number;
   /**
- * Comma-separated ISO 3166-1 alpha-2 country codes (e.g. US,CA,MX). Mutually exclusive with continent and bbox.
+ * ISO 3166-1 alpha-2 country code (e.g. US). Repeatable for multiple countries.
 
  */
-  countries?: string;
+  country?: string;
   /**
- * GBIF continent value. One of AFRICA, ANTARCTICA, ASIA, EUROPE, NORTH_AMERICA, OCEANIA, SOUTH_AMERICA. Mutually exclusive with countries and bbox.
+ * GBIF continent value. One of AFRICA, ANTARCTICA, ASIA, EUROPE, NORTH_AMERICA, OCEANIA, SOUTH_AMERICA.
 
  */
   continent?: GetGbifOccurrencesContinent;
   /**
- * Bounding box as minLat,minLon,maxLat,maxLon (decimal degrees, WGS84). e.g. 24.396,-125.0,49.384,-66.93 for continental US. Mutually exclusive with countries and continent.
+   * Filter to records with coordinates (true/false).
+   */
+  hasCoordinate?: boolean;
+  /**
+   * Include/exclude records with geospatial issues (false recommended).
+   */
+  hasGeospatialIssue?: boolean;
+  /**
+ * Filter by basis of record. One of PRESERVED_SPECIMEN, HUMAN_OBSERVATION, MACHINE_OBSERVATION, MATERIAL_CITATION, LIVING_SPECIMEN, FOSSIL_SPECIMEN, OCCURRENCE.
 
  */
-  bbox?: string;
+  basisOfRecord?: string;
   /**
-   * If true, bypasses cache and fetches fresh from GBIF
+   * Filter by year (single value or range, e.g. 2020 or 2010,2020).
+   */
+  year?: string;
+  /**
+   * Number of results to return (GBIF default 20, max 300).
+   * @minimum 1
+   * @maximum 300
+   */
+  limit?: number;
+  /**
+   * Zero-based offset for pagination.
+   * @minimum 0
+   */
+  offset?: number;
+  /**
+   * If true, bypasses cache and fetches fresh from GBIF.
    */
   refresh?: boolean;
 };
@@ -3010,6 +2894,17 @@ export type GetGbifSearchParams = {
    * @minLength 1
    */
   q: string;
+  /**
+   * If true, bypasses cache and fetches fresh from GBIF.
+   */
+  refresh?: boolean;
+};
+
+export type GetGbifSpeciesParams = {
+  /**
+   * If true, bypasses cache and fetches fresh from GBIF.
+   */
+  refresh?: boolean;
 };
 
 export type GetGbifSpeciesSynonymsParams = {
@@ -3028,20 +2923,7 @@ export type GetGbifSpeciesSynonymsParams = {
    * If true, bypasses cache and fetches fresh from GBIF
    */
   refresh?: boolean;
-  /**
-   * Controls provenance text fields: full | summary | none
-   */
-  provenance_verbosity?: GetGbifSpeciesSynonymsProvenanceVerbosity;
 };
-
-export type GetGbifSpeciesSynonymsProvenanceVerbosity =
-  (typeof GetGbifSpeciesSynonymsProvenanceVerbosity)[keyof typeof GetGbifSpeciesSynonymsProvenanceVerbosity];
-
-export const GetGbifSpeciesSynonymsProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
-} as const;
 
 export type GetGbifSpeciesVernacularNamesParams = {
   /**
@@ -3059,20 +2941,7 @@ export type GetGbifSpeciesVernacularNamesParams = {
    * If true, bypasses cache and fetches fresh from GBIF
    */
   refresh?: boolean;
-  /**
-   * Controls provenance text fields: full | summary | none
-   */
-  provenance_verbosity?: GetGbifSpeciesVernacularNamesProvenanceVerbosity;
 };
-
-export type GetGbifSpeciesVernacularNamesProvenanceVerbosity =
-  (typeof GetGbifSpeciesVernacularNamesProvenanceVerbosity)[keyof typeof GetGbifSpeciesVernacularNamesProvenanceVerbosity];
-
-export const GetGbifSpeciesVernacularNamesProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
-} as const;
 
 export type GetInatPlacesAutocompleteParams = {
   /**

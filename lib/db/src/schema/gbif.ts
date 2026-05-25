@@ -1,4 +1,4 @@
-import { pgTable, serial, text, timestamp, integer, jsonb, real } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, timestamp, integer, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -28,15 +28,13 @@ export const gbifNameMatchesTable = pgTable("gbif_name_matches", {
   family_key: integer("family_key"),
   genus_key: integer("genus_key"),
   species_key: integer("species_key"),
-  source_url: text("source_url"),
   matched_input: text("matched_input").notNull(),
+  upstream_response: jsonb("upstream_response").notNull(),
   expires_at: timestamp("expires_at", { withTimezone: true }),
   source_id: text("source_id").notNull().default("gbif"),
   fetched_at: timestamp("fetched_at", { withTimezone: true }).notNull(),
   method: text("method").notNull().default("api_fetch"),
   upstream_url: text("upstream_url").notNull(),
-  general_summary: text("general_summary").notNull(),
-  technical_details: text("technical_details").notNull(),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
@@ -44,15 +42,12 @@ export const gbifSynonymsTable = pgTable("gbif_synonyms", {
   id: serial("id").primaryKey(),
   cache_key: text("cache_key").notNull().unique(),
   usage_key: integer("usage_key").notNull(),
-  synonyms: jsonb("synonyms").notNull().default([]),
-  synonym_count: integer("synonym_count").notNull().default(0),
+  upstream_response: jsonb("upstream_response").notNull(),
   expires_at: timestamp("expires_at", { withTimezone: true }),
   source_id: text("source_id").notNull().default("gbif"),
   fetched_at: timestamp("fetched_at", { withTimezone: true }).notNull(),
   method: text("method").notNull().default("api_fetch"),
   upstream_url: text("upstream_url").notNull(),
-  general_summary: text("general_summary").notNull(),
-  technical_details: text("technical_details").notNull(),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
@@ -60,37 +55,48 @@ export const gbifVernacularNamesTable = pgTable("gbif_vernacular_names", {
   id: serial("id").primaryKey(),
   cache_key: text("cache_key").notNull().unique(),
   usage_key: integer("usage_key").notNull(),
-  vernacular_names: jsonb("vernacular_names").notNull().default([]),
-  vernacular_name_primary: text("vernacular_name_primary"),
-  vernacular_name_count: integer("vernacular_name_count").notNull().default(0),
+  upstream_response: jsonb("upstream_response").notNull(),
   expires_at: timestamp("expires_at", { withTimezone: true }),
   source_id: text("source_id").notNull().default("gbif"),
   fetched_at: timestamp("fetched_at", { withTimezone: true }).notNull(),
   method: text("method").notNull().default("api_fetch"),
   upstream_url: text("upstream_url").notNull(),
-  general_summary: text("general_summary").notNull(),
-  technical_details: text("technical_details").notNull(),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export const gbifOccurrencesTable = pgTable("gbif_occurrences", {
   id: serial("id").primaryKey(),
   cache_key: text("cache_key").notNull().unique(),
-  usage_key: integer("usage_key").notNull(),
-  geography_mode: text("geography_mode").notNull(),
-  geography_params: text("geography_params").notNull(),
-  occurrence_count: integer("occurrence_count").notNull().default(0),
-  occurrence_count_us: integer("occurrence_count_us"),
-  recent_occurrences: jsonb("recent_occurrences").notNull().default([]),
-  source_url: text("source_url"),
-  occurrence_last_fetched: timestamp("occurrence_last_fetched", { withTimezone: true }).notNull(),
+  upstream_response: jsonb("upstream_response").notNull(),
+  upstream_url: text("upstream_url").notNull(),
+  fetched_at: timestamp("fetched_at", { withTimezone: true }).notNull(),
   expires_at: timestamp("expires_at", { withTimezone: true }),
   source_id: text("source_id").notNull().default("gbif"),
-  fetched_at: timestamp("fetched_at", { withTimezone: true }).notNull(),
   method: text("method").notNull().default("api_fetch"),
+  created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const gbifSpeciesTable = pgTable("gbif_species", {
+  id: serial("id").primaryKey(),
+  cache_key: text("cache_key").notNull().unique(),
+  upstream_response: jsonb("upstream_response").notNull(),
   upstream_url: text("upstream_url").notNull(),
-  general_summary: text("general_summary").notNull(),
-  technical_details: text("technical_details").notNull(),
+  fetched_at: timestamp("fetched_at", { withTimezone: true }).notNull(),
+  expires_at: timestamp("expires_at", { withTimezone: true }),
+  source_id: text("source_id").notNull().default("gbif"),
+  method: text("method").notNull().default("api_fetch"),
+  created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const gbifSpeciesSearchesTable = pgTable("gbif_species_searches", {
+  id: serial("id").primaryKey(),
+  cache_key: text("cache_key").notNull().unique(),
+  upstream_response: jsonb("upstream_response").notNull(),
+  upstream_url: text("upstream_url").notNull(),
+  fetched_at: timestamp("fetched_at", { withTimezone: true }).notNull(),
+  expires_at: timestamp("expires_at", { withTimezone: true }),
+  source_id: text("source_id").notNull().default("gbif"),
+  method: text("method").notNull().default("api_fetch"),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
@@ -102,6 +108,10 @@ export const insertGbifVernacularNamesSchema = createInsertSchema(gbifVernacular
 export const selectGbifVernacularNamesSchema = createSelectSchema(gbifVernacularNamesTable);
 export const insertGbifOccurrencesSchema = createInsertSchema(gbifOccurrencesTable).omit({ id: true });
 export const selectGbifOccurrencesSchema = createSelectSchema(gbifOccurrencesTable);
+export const insertGbifSpeciesSchema = createInsertSchema(gbifSpeciesTable).omit({ id: true });
+export const selectGbifSpeciesSchema = createSelectSchema(gbifSpeciesTable);
+export const insertGbifSpeciesSearchesSchema = createInsertSchema(gbifSpeciesSearchesTable).omit({ id: true });
+export const selectGbifSpeciesSearchesSchema = createSelectSchema(gbifSpeciesSearchesTable);
 
 export type InsertGbifNameMatch = z.infer<typeof insertGbifNameMatchSchema>;
 export type GbifNameMatch = typeof gbifNameMatchesTable.$inferSelect;
@@ -111,3 +121,7 @@ export type InsertGbifVernacularNames = z.infer<typeof insertGbifVernacularNames
 export type GbifVernacularNames = typeof gbifVernacularNamesTable.$inferSelect;
 export type InsertGbifOccurrences = z.infer<typeof insertGbifOccurrencesSchema>;
 export type GbifOccurrences = typeof gbifOccurrencesTable.$inferSelect;
+export type InsertGbifSpecies = z.infer<typeof insertGbifSpeciesSchema>;
+export type GbifSpecies = typeof gbifSpeciesTable.$inferSelect;
+export type InsertGbifSpeciesSearches = z.infer<typeof insertGbifSpeciesSearchesSchema>;
+export type GbifSpeciesSearches = typeof gbifSpeciesSearchesTable.$inferSelect;

@@ -7,7 +7,7 @@
  */
 import type { GbifVocabularyEntry } from "./gbifVocabularyEntry";
 
-export type GbifMetadataResponseVocabularies = {
+export type GbifMetadataDataVocabularies = {
   basisOfRecord?: GbifVocabularyEntry[];
   matchType?: GbifVocabularyEntry[];
   taxonomicStatus?: GbifVocabularyEntry[];

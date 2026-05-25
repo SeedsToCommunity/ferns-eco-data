@@ -28,6 +28,7 @@ import type {
   GbifMetadataResponse,
   GbifOccurrencesResponse,
   GbifSearchResponse,
+  GbifSpeciesResponse,
   GbifSynonymsResponse,
   GbifVernacularNamesResponse,
   GetAnnArborNpnNamesParams,
@@ -38,6 +39,7 @@ import type {
   GetGbifMatchParams,
   GetGbifOccurrencesParams,
   GetGbifSearchParams,
+  GetGbifSpeciesParams,
   GetGbifSpeciesSynonymsParams,
   GetGbifSpeciesVernacularNamesParams,
   GetGobotanyParams,
@@ -520,11 +522,11 @@ export function useGetGbifMatch<
 }
 
 /**
- * Returns occurrence count and up to 300 recent georeferenced records from GBIF for the given taxon. Geography is configurable via three mutually exclusive modes: countries (comma-separated ISO codes, OR'd), continent (single GBIF continent value), or bbox (minLat,minLon,maxLat,maxLon). All records include hasCoordinate=true and hasGeospatialIssue=false filters. Cached 7 days per geography combination. Fetch on demand only.
+ * True passthrough to GBIF occurrence/search. Accepts GBIF's native query parameters and forwards them verbatim to https://api.gbif.org/v1/occurrence/search. One upstream call; GBIF's response (including count, offset, limit, endOfRecords, results) is returned in data unchanged. Cached 7 days by MD5 hash of canonicalized query params. BREAKING CHANGE from previous version: accepts taxonKey (GBIF native) instead of usageKey (old FERNS alias). Geography is now expressed using GBIF native params (country, continent, decimalLatitude/Longitude) rather than FERNS geography modes.
 
- * @summary Fetch occurrence records for a GBIF taxon with configurable geography
+ * @summary Search GBIF occurrence records (GBIF native parameters passthrough)
  */
-export const getGetGbifOccurrencesUrl = (params: GetGbifOccurrencesParams) => {
+export const getGetGbifOccurrencesUrl = (params?: GetGbifOccurrencesParams) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -541,7 +543,7 @@ export const getGetGbifOccurrencesUrl = (params: GetGbifOccurrencesParams) => {
 };
 
 export const getGbifOccurrences = async (
-  params: GetGbifOccurrencesParams,
+  params?: GetGbifOccurrencesParams,
   options?: RequestInit,
 ): Promise<GbifOccurrencesResponse> => {
   return customFetch<GbifOccurrencesResponse>(
@@ -563,7 +565,7 @@ export const getGetGbifOccurrencesQueryOptions = <
   TData = Awaited<ReturnType<typeof getGbifOccurrences>>,
   TError = ErrorType<ErrorResponse>,
 >(
-  params: GetGbifOccurrencesParams,
+  params?: GetGbifOccurrencesParams,
   options?: {
     query?: UseQueryOptions<
       Awaited<ReturnType<typeof getGbifOccurrences>>,
@@ -595,14 +597,14 @@ export type GetGbifOccurrencesQueryResult = NonNullable<
 export type GetGbifOccurrencesQueryError = ErrorType<ErrorResponse>;
 
 /**
- * @summary Fetch occurrence records for a GBIF taxon with configurable geography
+ * @summary Search GBIF occurrence records (GBIF native parameters passthrough)
  */
 
 export function useGetGbifOccurrences<
   TData = Awaited<ReturnType<typeof getGbifOccurrences>>,
   TError = ErrorType<ErrorResponse>,
 >(
-  params: GetGbifOccurrencesParams,
+  params?: GetGbifOccurrencesParams,
   options?: {
     query?: UseQueryOptions<
       Awaited<ReturnType<typeof getGbifOccurrences>>,
@@ -622,7 +624,7 @@ export function useGetGbifOccurrences<
 }
 
 /**
- * Searches GBIF for species whose vernacular names match the query string. Returns a ranked list of candidate species. Not cached — query space is too wide for meaningful caching. Applications are responsible for disambiguation when multiple candidates are returned.
+ * Searches GBIF for species whose vernacular names match the query string. Returns the verbatim GBIF species/search response (count, offset, limit, endOfRecords, results). Cached 7 days per normalized query string. Applications are responsible for disambiguation when multiple candidates are returned.
 
  * @summary Search GBIF species by common (vernacular) name
  */
@@ -718,7 +720,124 @@ export function useGetGbifSearch<
 }
 
 /**
- * Returns all names that are considered synonyms of the accepted taxon identified by the given usage key. Mirrors GBIF's GET /v1/species/{usageKey}/synonyms. Cached 30 days per (usageKey, limit, offset).
+ * Returns the verbatim GBIF species record for the given usageKey. Mirrors GBIF's GET /v1/species/{usageKey}. Cached 30 days per usageKey. Use this to resolve an acceptedUsageKey from a SYNONYM match result.
+
+ * @summary Get GBIF species record by usageKey
+ */
+export const getGetGbifSpeciesUrl = (
+  usageKey: number,
+  params?: GetGbifSpeciesParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/gbif/species/${usageKey}?${stringifiedParams}`
+    : `/api/gbif/species/${usageKey}`;
+};
+
+export const getGbifSpecies = async (
+  usageKey: number,
+  params?: GetGbifSpeciesParams,
+  options?: RequestInit,
+): Promise<GbifSpeciesResponse> => {
+  return customFetch<GbifSpeciesResponse>(
+    getGetGbifSpeciesUrl(usageKey, params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetGbifSpeciesQueryKey = (
+  usageKey: number,
+  params?: GetGbifSpeciesParams,
+) => {
+  return [
+    `/api/gbif/species/${usageKey}`,
+    ...(params ? [params] : []),
+  ] as const;
+};
+
+export const getGetGbifSpeciesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getGbifSpecies>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  usageKey: number,
+  params?: GetGbifSpeciesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getGbifSpecies>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetGbifSpeciesQueryKey(usageKey, params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getGbifSpecies>>> = ({
+    signal,
+  }) => getGbifSpecies(usageKey, params, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!usageKey,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getGbifSpecies>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetGbifSpeciesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getGbifSpecies>>
+>;
+export type GetGbifSpeciesQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get GBIF species record by usageKey
+ */
+
+export function useGetGbifSpecies<
+  TData = Awaited<ReturnType<typeof getGbifSpecies>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  usageKey: number,
+  params?: GetGbifSpeciesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getGbifSpecies>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetGbifSpeciesQueryOptions(usageKey, params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns the verbatim GBIF synonyms response for the accepted taxon identified by the given usage key. Mirrors GBIF's GET /v1/species/{usageKey}/synonyms. Cached 30 days per (usageKey, limit, offset). Pagination is surfaced in the envelope pagination field (has_more, total).
 
  * @summary Get all taxonomic synonyms for a GBIF taxon
  */
@@ -841,7 +960,7 @@ export function useGetGbifSpeciesSynonyms<
 }
 
 /**
- * Returns all vernacular names across all languages and countries for the taxon identified by the given usage key. Mirrors GBIF's GET /v1/species/{usageKey}/vernacularNames. Cached 30 days per (usageKey, limit, offset).
+ * Returns the verbatim GBIF vernacular names response for the taxon identified by the given usage key. Mirrors GBIF's GET /v1/species/{usageKey}/vernacularNames. Cached 30 days per (usageKey, limit, offset). Pagination is surfaced in the envelope pagination field (has_more, total).
 
  * @summary Get all vernacular (common) names for a GBIF taxon
  */

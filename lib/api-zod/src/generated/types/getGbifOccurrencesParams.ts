@@ -9,26 +9,49 @@ import type { GetGbifOccurrencesContinent } from "./getGbifOccurrencesContinent"
 
 export type GetGbifOccurrencesParams = {
   /**
-   * GBIF backbone usageKey
+   * GBIF backbone taxon key (integer). The GBIF native parameter name for taxon filtering.
    */
-  usageKey: number;
+  taxonKey?: number;
   /**
- * Comma-separated ISO 3166-1 alpha-2 country codes (e.g. US,CA,MX). Mutually exclusive with continent and bbox.
+ * ISO 3166-1 alpha-2 country code (e.g. US). Repeatable for multiple countries.
 
  */
-  countries?: string;
+  country?: string;
   /**
- * GBIF continent value. One of AFRICA, ANTARCTICA, ASIA, EUROPE, NORTH_AMERICA, OCEANIA, SOUTH_AMERICA. Mutually exclusive with countries and bbox.
+ * GBIF continent value. One of AFRICA, ANTARCTICA, ASIA, EUROPE, NORTH_AMERICA, OCEANIA, SOUTH_AMERICA.
 
  */
   continent?: GetGbifOccurrencesContinent;
   /**
- * Bounding box as minLat,minLon,maxLat,maxLon (decimal degrees, WGS84). e.g. 24.396,-125.0,49.384,-66.93 for continental US. Mutually exclusive with countries and continent.
+   * Filter to records with coordinates (true/false).
+   */
+  hasCoordinate?: boolean;
+  /**
+   * Include/exclude records with geospatial issues (false recommended).
+   */
+  hasGeospatialIssue?: boolean;
+  /**
+ * Filter by basis of record. One of PRESERVED_SPECIMEN, HUMAN_OBSERVATION, MACHINE_OBSERVATION, MATERIAL_CITATION, LIVING_SPECIMEN, FOSSIL_SPECIMEN, OCCURRENCE.
 
  */
-  bbox?: string;
+  basisOfRecord?: string;
   /**
-   * If true, bypasses cache and fetches fresh from GBIF
+   * Filter by year (single value or range, e.g. 2020 or 2010,2020).
+   */
+  year?: string;
+  /**
+   * Number of results to return (GBIF default 20, max 300).
+   * @minimum 1
+   * @maximum 300
+   */
+  limit?: number;
+  /**
+   * Zero-based offset for pagination.
+   * @minimum 0
+   */
+  offset?: number;
+  /**
+   * If true, bypasses cache and fetches fresh from GBIF.
    */
   refresh?: boolean;
 };

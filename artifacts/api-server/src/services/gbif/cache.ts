@@ -4,21 +4,25 @@ import {
   gbifOccurrencesTable,
   gbifSynonymsTable,
   gbifVernacularNamesTable,
+  gbifSpeciesTable,
+  gbifSpeciesSearchesTable,
   type GbifNameMatch,
   type GbifOccurrences,
   type GbifSynonyms,
   type GbifVernacularNames,
+  type GbifSpecies,
+  type GbifSpeciesSearches,
 } from "@workspace/db";
 import { eq } from "drizzle-orm";
-import type { GbifMatchResult, GbifOccurrencesResult, GeographyParams } from "./connector.js";
-import { serializeGeography } from "./connector.js";
-import { GBIF_SOURCE_ID, GBIF_GENERAL_SUMMARY, GBIF_TECHNICAL_DETAILS } from "./metadata.js";
+import { GBIF_SOURCE_ID } from "./metadata.js";
 
 const MATCH_HIT_TTL_DAYS = 30;
 const MATCH_NOMATCH_TTL_DAYS = 7;
 const OCCURRENCES_TTL_DAYS = 7;
 const SYNONYMS_TTL_DAYS = 30;
 const VERNACULAR_TTL_DAYS = 30;
+const SPECIES_TTL_DAYS = 30;
+const SPECIES_SEARCH_TTL_DAYS = 7;
 
 function daysFromNow(days: number): Date {
   return new Date(Date.now() + days * 24 * 60 * 60 * 1000);
@@ -41,45 +45,46 @@ export async function lookupNameMatch(cacheKey: string): Promise<GbifNameMatch |
 
 export async function storeNameMatch(
   cacheKey: string,
-  result: GbifMatchResult,
+  name: string,
+  result: { raw: unknown; upstream_url: string },
 ): Promise<GbifNameMatch> {
-  const isNoMatch = result.match_type === "NONE";
+  const raw = result.raw as Record<string, unknown>;
+  const matchType = (raw.matchType as string) || "NONE";
+  const isNoMatch = matchType === "NONE" || !("usageKey" in raw);
   const expiresAt = daysFromNow(isNoMatch ? MATCH_NOMATCH_TTL_DAYS : MATCH_HIT_TTL_DAYS);
 
   const insert = {
     cache_key: cacheKey,
-    canonical_name: result.canonical_name,
-    scientific_name: result.scientific_name,
-    usage_key: result.usage_key,
-    accepted_usage_key: result.accepted_usage_key,
-    accepted_canonical_name: result.accepted_canonical_name,
-    rank: result.rank,
-    status: result.status,
-    confidence: result.confidence,
-    match_type: result.match_type,
-    kingdom: result.kingdom,
-    phylum: result.phylum,
-    class_: result.class_,
-    order_: result.order_,
-    family: result.family,
-    genus: result.genus,
-    species: result.species,
-    kingdom_key: result.kingdom_key,
-    phylum_key: result.phylum_key,
-    class_key: result.class_key,
-    order_key: result.order_key,
-    family_key: result.family_key,
-    genus_key: result.genus_key,
-    species_key: result.species_key,
-    source_url: result.source_url,
-    matched_input: result.matched_input,
+    canonical_name: (raw.canonicalName as string) ?? null,
+    scientific_name: (raw.scientificName as string) ?? null,
+    usage_key: typeof raw.usageKey === "number" ? raw.usageKey : null,
+    accepted_usage_key: typeof raw.acceptedUsageKey === "number" ? raw.acceptedUsageKey : null,
+    accepted_canonical_name: (raw.acceptedCanonicalName as string) ?? null,
+    rank: (raw.rank as string) ?? null,
+    status: (raw.status as string) ?? null,
+    confidence: typeof raw.confidence === "number" ? raw.confidence : null,
+    match_type: matchType,
+    kingdom: (raw.kingdom as string) ?? null,
+    phylum: (raw.phylum as string) ?? null,
+    class_: (raw.class as string) ?? null,
+    order_: (raw.order as string) ?? null,
+    family: (raw.family as string) ?? null,
+    genus: (raw.genus as string) ?? null,
+    species: (raw.species as string) ?? null,
+    kingdom_key: typeof raw.kingdomKey === "number" ? raw.kingdomKey : null,
+    phylum_key: typeof raw.phylumKey === "number" ? raw.phylumKey : null,
+    class_key: typeof raw.classKey === "number" ? raw.classKey : null,
+    order_key: typeof raw.orderKey === "number" ? raw.orderKey : null,
+    family_key: typeof raw.familyKey === "number" ? raw.familyKey : null,
+    genus_key: typeof raw.genusKey === "number" ? raw.genusKey : null,
+    species_key: typeof raw.speciesKey === "number" ? raw.speciesKey : null,
+    matched_input: name.trim(),
+    upstream_response: raw,
     expires_at: expiresAt,
     source_id: GBIF_SOURCE_ID,
     fetched_at: new Date(),
     method: "api_fetch",
     upstream_url: result.upstream_url,
-    general_summary: GBIF_GENERAL_SUMMARY,
-    technical_details: GBIF_TECHNICAL_DETAILS,
   };
 
   const rows = await db
@@ -111,7 +116,8 @@ export async function storeNameMatch(
         family_key: insert.family_key,
         genus_key: insert.genus_key,
         species_key: insert.species_key,
-        source_url: insert.source_url,
+        matched_input: insert.matched_input,
+        upstream_response: insert.upstream_response,
         fetched_at: insert.fetched_at,
         upstream_url: insert.upstream_url,
         expires_at: insert.expires_at,
@@ -138,28 +144,17 @@ export async function lookupOccurrences(cacheKey: string): Promise<GbifOccurrenc
 
 export async function storeOccurrences(
   cacheKey: string,
-  usageKey: number,
-  geo: GeographyParams,
-  result: GbifOccurrencesResult,
+  result: { raw: unknown; upstream_url: string },
 ): Promise<GbifOccurrences> {
   const now = new Date();
   const insert = {
     cache_key: cacheKey,
-    usage_key: usageKey,
-    geography_mode: geo.mode,
-    geography_params: serializeGeography(geo),
-    occurrence_count: result.occurrence_count,
-    occurrence_count_us: result.occurrence_count_us,
-    recent_occurrences: result.recent_occurrences,
-    source_url: result.source_url,
-    occurrence_last_fetched: now,
+    upstream_response: result.raw,
+    upstream_url: result.upstream_url,
+    fetched_at: now,
     expires_at: daysFromNow(OCCURRENCES_TTL_DAYS),
     source_id: GBIF_SOURCE_ID,
-    fetched_at: now,
     method: "api_fetch",
-    upstream_url: result.upstream_url,
-    general_summary: GBIF_GENERAL_SUMMARY,
-    technical_details: GBIF_TECHNICAL_DETAILS,
   };
 
   const rows = await db
@@ -168,13 +163,9 @@ export async function storeOccurrences(
     .onConflictDoUpdate({
       target: gbifOccurrencesTable.cache_key,
       set: {
-        occurrence_count: insert.occurrence_count,
-        occurrence_count_us: insert.occurrence_count_us,
-        recent_occurrences: insert.recent_occurrences,
-        source_url: insert.source_url,
-        occurrence_last_fetched: insert.occurrence_last_fetched,
-        fetched_at: insert.fetched_at,
+        upstream_response: insert.upstream_response,
         upstream_url: insert.upstream_url,
+        fetched_at: insert.fetched_at,
         expires_at: insert.expires_at,
       },
     })
@@ -200,21 +191,18 @@ export async function lookupSynonyms(cacheKey: string): Promise<GbifSynonyms | n
 export async function storeSynonyms(
   cacheKey: string,
   usageKey: number,
-  result: { results: Record<string, unknown>[]; count: number; upstream_url: string },
+  result: { raw: unknown; upstream_url: string },
 ): Promise<GbifSynonyms> {
   const now = new Date();
   const insert = {
     cache_key: cacheKey,
     usage_key: usageKey,
-    synonyms: result.results,
-    synonym_count: result.count,
+    upstream_response: result.raw,
     expires_at: daysFromNow(SYNONYMS_TTL_DAYS),
     source_id: GBIF_SOURCE_ID,
     fetched_at: now,
     method: "api_fetch",
     upstream_url: result.upstream_url,
-    general_summary: GBIF_GENERAL_SUMMARY,
-    technical_details: GBIF_TECHNICAL_DETAILS,
   };
 
   const rows = await db
@@ -223,8 +211,7 @@ export async function storeSynonyms(
     .onConflictDoUpdate({
       target: gbifSynonymsTable.cache_key,
       set: {
-        synonyms: insert.synonyms,
-        synonym_count: insert.synonym_count,
+        upstream_response: insert.upstream_response,
         fetched_at: insert.fetched_at,
         upstream_url: insert.upstream_url,
         expires_at: insert.expires_at,
@@ -252,22 +239,18 @@ export async function lookupVernacularNames(cacheKey: string): Promise<GbifVerna
 export async function storeVernacularNames(
   cacheKey: string,
   usageKey: number,
-  result: { results: Record<string, unknown>[]; vernacular_name_primary: string | null; count: number; upstream_url: string },
+  result: { raw: unknown; upstream_url: string },
 ): Promise<GbifVernacularNames> {
   const now = new Date();
   const insert = {
     cache_key: cacheKey,
     usage_key: usageKey,
-    vernacular_names: result.results,
-    vernacular_name_primary: result.vernacular_name_primary,
-    vernacular_name_count: result.count,
+    upstream_response: result.raw,
     expires_at: daysFromNow(VERNACULAR_TTL_DAYS),
     source_id: GBIF_SOURCE_ID,
     fetched_at: now,
     method: "api_fetch",
     upstream_url: result.upstream_url,
-    general_summary: GBIF_GENERAL_SUMMARY,
-    technical_details: GBIF_TECHNICAL_DETAILS,
   };
 
   const rows = await db
@@ -276,11 +259,101 @@ export async function storeVernacularNames(
     .onConflictDoUpdate({
       target: gbifVernacularNamesTable.cache_key,
       set: {
-        vernacular_names: insert.vernacular_names,
-        vernacular_name_primary: insert.vernacular_name_primary,
-        vernacular_name_count: insert.vernacular_name_count,
+        upstream_response: insert.upstream_response,
         fetched_at: insert.fetched_at,
         upstream_url: insert.upstream_url,
+        expires_at: insert.expires_at,
+      },
+    })
+    .returning();
+  return rows[0];
+}
+
+export async function lookupSpecies(cacheKey: string): Promise<GbifSpecies | null> {
+  const rows = await db
+    .select()
+    .from(gbifSpeciesTable)
+    .where(eq(gbifSpeciesTable.cache_key, cacheKey))
+    .limit(1);
+  if (!rows.length) return null;
+  const row = rows[0];
+  if (row.expires_at && row.expires_at < new Date()) {
+    await db.delete(gbifSpeciesTable).where(eq(gbifSpeciesTable.cache_key, cacheKey));
+    return null;
+  }
+  return row;
+}
+
+export async function storeSpecies(
+  cacheKey: string,
+  result: { raw: unknown; upstream_url: string },
+): Promise<GbifSpecies> {
+  const now = new Date();
+  const insert = {
+    cache_key: cacheKey,
+    upstream_response: result.raw,
+    upstream_url: result.upstream_url,
+    fetched_at: now,
+    expires_at: daysFromNow(SPECIES_TTL_DAYS),
+    source_id: GBIF_SOURCE_ID,
+    method: "api_fetch",
+  };
+
+  const rows = await db
+    .insert(gbifSpeciesTable)
+    .values(insert)
+    .onConflictDoUpdate({
+      target: gbifSpeciesTable.cache_key,
+      set: {
+        upstream_response: insert.upstream_response,
+        upstream_url: insert.upstream_url,
+        fetched_at: insert.fetched_at,
+        expires_at: insert.expires_at,
+      },
+    })
+    .returning();
+  return rows[0];
+}
+
+export async function lookupSpeciesSearch(cacheKey: string): Promise<GbifSpeciesSearches | null> {
+  const rows = await db
+    .select()
+    .from(gbifSpeciesSearchesTable)
+    .where(eq(gbifSpeciesSearchesTable.cache_key, cacheKey))
+    .limit(1);
+  if (!rows.length) return null;
+  const row = rows[0];
+  if (row.expires_at && row.expires_at < new Date()) {
+    await db.delete(gbifSpeciesSearchesTable).where(eq(gbifSpeciesSearchesTable.cache_key, cacheKey));
+    return null;
+  }
+  return row;
+}
+
+export async function storeSpeciesSearch(
+  cacheKey: string,
+  result: { raw: unknown; upstream_url: string },
+): Promise<GbifSpeciesSearches> {
+  const now = new Date();
+  const insert = {
+    cache_key: cacheKey,
+    upstream_response: result.raw,
+    upstream_url: result.upstream_url,
+    fetched_at: now,
+    expires_at: daysFromNow(SPECIES_SEARCH_TTL_DAYS),
+    source_id: GBIF_SOURCE_ID,
+    method: "api_fetch",
+  };
+
+  const rows = await db
+    .insert(gbifSpeciesSearchesTable)
+    .values(insert)
+    .onConflictDoUpdate({
+      target: gbifSpeciesSearchesTable.cache_key,
+      set: {
+        upstream_response: insert.upstream_response,
+        upstream_url: insert.upstream_url,
+        fetched_at: insert.fetched_at,
         expires_at: insert.expires_at,
       },
     })

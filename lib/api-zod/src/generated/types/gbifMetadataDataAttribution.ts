@@ -6,7 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GbifMetadataResponseAttribution = {
+export type GbifMetadataDataAttribution = {
   source_name?: string;
   website?: string;
   license?: string;

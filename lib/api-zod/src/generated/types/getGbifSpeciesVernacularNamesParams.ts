@@ -5,7 +5,6 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetGbifSpeciesVernacularNamesProvenanceVerbosity } from "./getGbifSpeciesVernacularNamesProvenanceVerbosity";
 
 export type GetGbifSpeciesVernacularNamesParams = {
   /**
@@ -23,8 +22,4 @@ export type GetGbifSpeciesVernacularNamesParams = {
    * If true, bypasses cache and fetches fresh from GBIF
    */
   refresh?: boolean;
-  /**
-   * Controls provenance text fields: full | summary | none
-   */
-  provenance_verbosity?: GetGbifSpeciesVernacularNamesProvenanceVerbosity;
 };

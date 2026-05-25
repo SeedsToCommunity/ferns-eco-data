@@ -202,27 +202,27 @@ paths:
     get:
       operationId: getGbifOccurrences
       tags: [gbif]
-      summary: Fetch occurrence records for a GBIF taxon with configurable geography
+      summary: Search GBIF occurrence records (GBIF native parameters passthrough)
       description: >
-        Returns occurrence count and up to 300 recent georeferenced records from GBIF
-        for the given taxon. Geography is configurable via three mutually exclusive modes:
-        countries (comma-separated ISO codes, OR'd), continent (single GBIF continent
-        value), or bbox (minLat,minLon,maxLat,maxLon). All records include
-        hasCoordinate=true and hasGeospatialIssue=false filters. Cached 7 days per
-        geography combination. Fetch on demand only.
+        True passthrough to GBIF occurrence/search. Accepts GBIF's native query parameters
+        and forwards them verbatim to https://api.gbif.org/v1/occurrence/search. One upstream
+        call; GBIF's response (including count, offset, limit, endOfRecords, results) is
+        returned in data unchanged. Cached 7 days by MD5 hash of canonicalized query params.
+        BREAKING CHANGE from previous version: accepts taxonKey (GBIF native) instead of
+        usageKey (old FERNS alias). Geography is now expressed using GBIF native params
+        (country, continent, decimalLatitude/Longitude) rather than FERNS geography modes.
       parameters:
-        - name: usageKey
+        - name: taxonKey
           in: query
-          required: true
-          description: GBIF backbone usageKey
+          required: false
+          description: GBIF backbone taxon key (integer). The GBIF native parameter name for taxon filtering.
           schema:
             type: integer
-        - name: countries
+        - name: country
           in: query
           required: false
           description: >
-            Comma-separated ISO 3166-1 alpha-2 country codes (e.g. US,CA,MX).
-            Mutually exclusive with continent and bbox.
+            ISO 3166-1 alpha-2 country code (e.g. US). Repeatable for multiple countries.
           schema:
             type: string
         - name: continent
@@ -230,35 +230,69 @@ paths:
           required: false
           description: >
             GBIF continent value. One of AFRICA, ANTARCTICA, ASIA, EUROPE,
-            NORTH_AMERICA, OCEANIA, SOUTH_AMERICA. Mutually exclusive with countries and bbox.
+            NORTH_AMERICA, OCEANIA, SOUTH_AMERICA.
           schema:
             type: string
             enum: [AFRICA, ANTARCTICA, ASIA, EUROPE, NORTH_AMERICA, OCEANIA, SOUTH_AMERICA]
-        - name: bbox
+        - name: hasCoordinate
+          in: query
+          required: false
+          description: Filter to records with coordinates (true/false).
+          schema:
+            type: boolean
+        - name: hasGeospatialIssue
+          in: query
+          required: false
+          description: Include/exclude records with geospatial issues (false recommended).
+          schema:
+            type: boolean
+        - name: basisOfRecord
           in: query
           required: false
           description: >
-            Bounding box as minLat,minLon,maxLat,maxLon (decimal degrees, WGS84).
-            e.g. 24.396,-125.0,49.384,-66.93 for continental US.
-            Mutually exclusive with countries and continent.
+            Filter by basis of record. One of PRESERVED_SPECIMEN, HUMAN_OBSERVATION,
+            MACHINE_OBSERVATION, MATERIAL_CITATION, LIVING_SPECIMEN, FOSSIL_SPECIMEN, OCCURRENCE.
           schema:
             type: string
+        - name: year
+          in: query
+          required: false
+          description: Filter by year (single value or range, e.g. 2020 or 2010,2020).
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: Number of results to return (GBIF default 20, max 300).
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 300
+        - name: offset
+          in: query
+          required: false
+          description: Zero-based offset for pagination.
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
         - name: refresh
           in: query
           required: false
-          description: If true, bypasses cache and fetches fresh from GBIF
+          description: If true, bypasses cache and fetches fresh from GBIF.
           schema:
             type: boolean
             default: false
       responses:
         "200":
-          description: Occurrence count and recent records
+          description: GBIF occurrence search result wrapped in FernsEnvelope
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/GbifOccurrencesResponse"
-        "400":
-          description: Missing usageKey or invalid geography parameters
+        "502":
+          description: GBIF API error
           content:
             application/json:
               schema:
@@ -271,9 +305,10 @@ paths:
       summary: Search GBIF species by common (vernacular) name
       description: >
         Searches GBIF for species whose vernacular names match the query string.
-        Returns a ranked list of candidate species. Not cached — query space is
-        too wide for meaningful caching. Applications are responsible for
-        disambiguation when multiple candidates are returned.
+        Returns the verbatim GBIF species/search response (count, offset, limit,
+        endOfRecords, results). Cached 7 days per normalized query string.
+        Applications are responsible for disambiguation when multiple candidates
+        are returned.
       parameters:
         - name: q
           in: query
@@ -282,15 +317,71 @@ paths:
           schema:
             type: string
             minLength: 1
+        - name: refresh
+          in: query
+          required: false
+          description: If true, bypasses cache and fetches fresh from GBIF.
+          schema:
+            type: boolean
+            default: false
       responses:
         "200":
-          description: List of candidate species matching the common name query
+          description: GBIF species search result wrapped in FernsEnvelope
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/GbifSearchResponse"
         "400":
           description: Missing query parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: GBIF API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /gbif/species/{usageKey}:
+    get:
+      operationId: getGbifSpecies
+      tags: [gbif]
+      summary: Get GBIF species record by usageKey
+      description: >
+        Returns the verbatim GBIF species record for the given usageKey.
+        Mirrors GBIF's GET /v1/species/{usageKey}. Cached 30 days per usageKey.
+        Use this to resolve an acceptedUsageKey from a SYNONYM match result.
+      parameters:
+        - name: usageKey
+          in: path
+          required: true
+          description: GBIF backbone usage key (integer)
+          schema:
+            type: integer
+        - name: refresh
+          in: query
+          required: false
+          description: If true, bypasses cache and fetches fresh from GBIF.
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: GBIF species record wrapped in FernsEnvelope
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GbifSpeciesResponse"
+        "400":
+          description: Invalid usageKey
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: GBIF API error
           content:
             application/json:
               schema:
@@ -302,9 +393,10 @@ paths:
       tags: [gbif]
       summary: Get all taxonomic synonyms for a GBIF taxon
       description: >
-        Returns all names that are considered synonyms of the accepted taxon
+        Returns the verbatim GBIF synonyms response for the accepted taxon
         identified by the given usage key. Mirrors GBIF's GET /v1/species/{usageKey}/synonyms.
-        Cached 30 days per (usageKey, limit, offset).
+        Cached 30 days per (usageKey, limit, offset). Pagination is surfaced in the
+        envelope pagination field (has_more, total).
       parameters:
         - name: usageKey
           in: path
@@ -336,16 +428,9 @@ paths:
           schema:
             type: boolean
             default: false
-        - name: provenance_verbosity
-          in: query
-          required: false
-          description: "Controls provenance text fields: full | summary | none"
-          schema:
-            type: string
-            enum: [full, summary, none]
       responses:
         "200":
-          description: List of synonyms for the taxon
+          description: GBIF synonyms response wrapped in FernsEnvelope
           content:
             application/json:
               schema:
@@ -369,9 +454,10 @@ paths:
       tags: [gbif]
       summary: Get all vernacular (common) names for a GBIF taxon
       description: >
-        Returns all vernacular names across all languages and countries for the
-        taxon identified by the given usage key. Mirrors GBIF's GET /v1/species/{usageKey}/vernacularNames.
-        Cached 30 days per (usageKey, limit, offset).
+        Returns the verbatim GBIF vernacular names response for the taxon
+        identified by the given usage key. Mirrors GBIF's GET /v1/species/{usageKey}/vernacularNames.
+        Cached 30 days per (usageKey, limit, offset). Pagination is surfaced in the
+        envelope pagination field (has_more, total).
       parameters:
         - name: usageKey
           in: path
@@ -403,16 +489,9 @@ paths:
           schema:
             type: boolean
             default: false
-        - name: provenance_verbosity
-          in: query
-          required: false
-          description: "Controls provenance text fields: full | summary | none"
-          schema:
-            type: string
-            enum: [full, summary, none]
       responses:
         "200":
-          description: List of vernacular names for the taxon
+          description: GBIF vernacular names response wrapped in FernsEnvelope
           content:
             application/json:
               schema:
@@ -4664,100 +4743,11 @@ components:
 
     GbifMatchData:
       type: object
-      required:
-        - matchType
-        - matched_input
-        - source_url
-      properties:
-        usageKey:
-          type: integer
-          nullable: true
-          description: GBIF backbone usageKey. Null when matchType is NONE.
-        canonicalName:
-          type: string
-          nullable: true
-        scientificName:
-          type: string
-          nullable: true
-        rank:
-          type: string
-          nullable: true
-        status:
-          type: string
-          nullable: true
-          description: ACCEPTED, SYNONYM, or DOUBTFUL
-        accepted_usage_key:
-          type: integer
-          nullable: true
-          description: Present when status is SYNONYM. FERNS addition.
-        accepted_canonical_name:
-          type: string
-          nullable: true
-          description: Present when status is SYNONYM. FERNS addition.
-        confidence:
-          type: integer
-          nullable: true
-        matchType:
-          type: string
-          enum: [EXACT, FUZZY, HIGHERRANK, NONE]
-        kingdom:
-          type: string
-          nullable: true
-        phylum:
-          type: string
-          nullable: true
-        class_:
-          type: string
-          nullable: true
-          description: GBIF 'class' field (JS reserved word renamed to class_)
-        order_:
-          type: string
-          nullable: true
-          description: GBIF 'order' field (JS reserved word renamed to order_)
-        family:
-          type: string
-          nullable: true
-        genus:
-          type: string
-          nullable: true
-        species:
-          type: string
-          nullable: true
-        kingdomKey:
-          type: integer
-          nullable: true
-        phylumKey:
-          type: integer
-          nullable: true
-        classKey:
-          type: integer
-          nullable: true
-        orderKey:
-          type: integer
-          nullable: true
-        familyKey:
-          type: integer
-          nullable: true
-        genusKey:
-          type: integer
-          nullable: true
-        speciesKey:
-          type: integer
-          nullable: true
-        source_url:
-          type: string
-          nullable: true
-          description: https://www.gbif.org/species/{usageKey} when usageKey is known
-        matched_input:
-          type: string
-        matched_at:
-          type: string
-          format: date-time
-          nullable: true
-        cache_status:
-          type: string
-          enum: [hit, miss, bypassed]
-          nullable: true
+      additionalProperties: true
+      description: >
+        Verbatim GBIF species/match upstream response. matchType is NONE when no match
+        was found. usageKey is absent or null when matchType is NONE.
+        GBIF always returns HTTP 200 regardless of match outcome.
 
     GbifSynonymRecord:
       type: object
@@ -4781,58 +4771,18 @@ components:
 
     GbifSynonymsData:
       type: object
-      required:
-        - usage_key
-        - offset
-        - limit
-        - endOfRecords
-        - count
-        - results
-      properties:
-        usage_key:
-          type: integer
-          description: GBIF backbone usage key for the accepted taxon (FERNS addition)
-        offset:
-          type: integer
-          description: Zero-based offset of the first result (mirrors upstream envelope)
-        limit:
-          type: integer
-          description: Maximum number of results requested (mirrors upstream envelope)
-        endOfRecords:
-          type: boolean
-          description: True when no more results are available after this page (mirrors upstream envelope)
-        count:
-          type: integer
-          description: Total number of synonyms for this taxon (mirrors upstream envelope)
-        results:
-          type: array
-          description: Synonym records as returned by GBIF (verbatim upstream fields)
-          items:
-            $ref: "#/components/schemas/GbifSynonymRecord"
-        cache_status:
-          type: string
-          enum: [hit, miss, bypassed]
-          nullable: true
+      additionalProperties: true
+      description: >
+        Verbatim GBIF species/{usageKey}/synonyms upstream response.
+        Includes count, offset, limit, endOfRecords, and results array.
 
     GbifSynonymsResponse:
-      type: object
-      required:
-        - source_url
-        - found
-        - data
-        - provenance
-      properties:
-        source_url:
-          type: string
-          nullable: true
-        found:
-          type: boolean
-        data:
-          nullable: true
-          allOf:
-            - $ref: "#/components/schemas/GbifSynonymsData"
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/GbifSynonymsData"
 
     GbifVernacularRecord:
       type: object
@@ -4851,198 +4801,70 @@ components:
 
     GbifVernacularNamesData:
       type: object
-      required:
-        - usage_key
-        - offset
-        - limit
-        - endOfRecords
-        - count
-        - results
-      properties:
-        usage_key:
-          type: integer
-          description: GBIF backbone usage key for the taxon (FERNS addition)
-        offset:
-          type: integer
-          description: Zero-based offset of the first result (mirrors upstream envelope)
-        limit:
-          type: integer
-          description: Maximum number of results requested (mirrors upstream envelope)
-        endOfRecords:
-          type: boolean
-          description: True when no more results are available after this page (mirrors upstream envelope)
-        count:
-          type: integer
-          description: Total number of vernacular names for this taxon (mirrors upstream envelope)
-        results:
-          type: array
-          description: Vernacular name records as returned by GBIF (verbatim upstream fields)
-          items:
-            $ref: "#/components/schemas/GbifVernacularRecord"
-        vernacular_name_primary:
-          type: string
-          nullable: true
-          description: First English-language vernacular name found, or first name of any language (FERNS convenience field)
-        cache_status:
-          type: string
-          enum: [hit, miss, bypassed]
-          nullable: true
+      additionalProperties: true
+      description: >
+        Verbatim GBIF species/{usageKey}/vernacularNames upstream response.
+        Includes count, offset, limit, endOfRecords, and results array.
 
     GbifVernacularNamesResponse:
-      type: object
-      required:
-        - source_url
-        - found
-        - data
-        - provenance
-      properties:
-        source_url:
-          type: string
-          nullable: true
-        found:
-          type: boolean
-        data:
-          nullable: true
-          allOf:
-            - $ref: "#/components/schemas/GbifVernacularNamesData"
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/GbifVernacularNamesData"
 
     GbifMatchResponse:
-      type: object
-      required:
-        - source_url
-        - found
-        - data
-        - provenance
-      properties:
-        source_url:
-          type: string
-          nullable: true
-        found:
-          type: boolean
-        data:
-          nullable: true
-          allOf:
-            - $ref: "#/components/schemas/GbifMatchData"
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/GbifMatchData"
 
     GbifOccurrencesData:
       type: object
-      required:
-        - usage_key
-        - geography_mode
-        - geography_params
-        - occurrence_count
-        - recent_occurrences
-        - occurrence_last_fetched
-        - source_url
-      properties:
-        usage_key:
-          type: integer
-        geography_mode:
-          type: string
-          enum: [countries, continent, bbox]
-        geography_params:
-          type: string
-          description: Serialized geography parameters for display
-        occurrence_count:
-          type: integer
-        occurrence_count_us:
-          type: integer
-          nullable: true
-        recent_occurrences:
-          type: array
-          items:
-            $ref: "#/components/schemas/GbifOccurrenceRecord"
-        occurrence_last_fetched:
-          type: string
-          format: date-time
-        source_url:
-          type: string
-          nullable: true
-          description: GBIF occurrence search URL for this taxon and geography
-        cache_status:
-          type: string
-          enum: [hit, miss, bypassed]
-          nullable: true
+      additionalProperties: true
+      description: >
+        Verbatim GBIF occurrence/search upstream response.
+        Includes count, offset, limit, endOfRecords, and results array.
 
     GbifOccurrencesResponse:
-      type: object
-      required:
-        - source_url
-        - found
-        - data
-        - provenance
-      properties:
-        source_url:
-          type: string
-          nullable: true
-        found:
-          type: boolean
-        data:
-          nullable: true
-          allOf:
-            - $ref: "#/components/schemas/GbifOccurrencesData"
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/GbifOccurrencesData"
 
-    GbifSearchCandidate:
+    GbifSearchData:
       type: object
-      required:
-        - usageKey
-        - canonicalName
-        - scientificName
-        - rank
-        - status
-      properties:
-        usageKey:
-          type: integer
-        canonicalName:
-          type: string
-        scientificName:
-          type: string
-        rank:
-          type: string
-        status:
-          type: string
-        family:
-          type: string
-          nullable: true
-        vernacularName:
-          type: string
-          nullable: true
-        source_url:
-          type: string
+      additionalProperties: true
+      description: >
+        Verbatim GBIF species/search upstream response filtered to vernacular name matches.
+        Includes count, offset, limit, endOfRecords, and results array.
 
     GbifSearchResponse:
-      type: object
-      required:
-        - source_url
-        - found
-        - data
-        - provenance
-      properties:
-        source_url:
-          type: string
-          nullable: true
-        found:
-          type: boolean
-        data:
-          type: object
-          nullable: true
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
+        - type: object
           properties:
-            query:
-              type: string
-            candidates:
-              type: array
-              items:
-                $ref: "#/components/schemas/GbifSearchCandidate"
-            count:
-              type: integer
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
+            data:
+              $ref: "#/components/schemas/GbifSearchData"
+
+    GbifSpeciesData:
+      type: object
+      additionalProperties: true
+      description: >
+        Verbatim GBIF species/{usageKey} upstream response.
+
+    GbifSpeciesResponse:
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/GbifSpeciesData"
 
     GbifVocabularyEntry:
       type: object
@@ -5058,21 +4880,14 @@ components:
         description:
           type: string
 
-    GbifMetadataResponse:
+    GbifMetadataData:
       type: object
-      required:
-        - service_id
-        - service_name
-        - licenses
-        - license_notes
-        - attribution
-        - vocabularies
-        - queried_at
-        - provenance
       properties:
-        service_id:
+        description:
           type: string
-        service_name:
+        general_summary:
+          type: string
+        technical_details:
           type: string
         licenses:
           type: array
@@ -5112,41 +4927,18 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/GbifVocabularyEntry"
-        registry_entry:
-          type: object
-          description: Full registry entry for this GBIF service source
-          properties:
-            source_id:
-              type: string
-            name:
-              type: string
-            knowledge_type:
-              type: string
-            status:
-              type: string
-            description:
-              type: string
-            input_summary:
-              type: string
-            output_summary:
-              type: string
-            dependencies:
-              type: array
-              items:
-                type: string
-            update_frequency:
-              type: string
-            known_limitations:
-              type: string
-            metadata_url:
-              type: string
-            explorer_url:
-              type: string
-        queried_at:
+        metadata_url:
           type: string
-          format: date-time
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
+        explorer_url:
+          type: string
+
+    GbifMetadataResponse:
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/GbifMetadataData"
 
     InatPlaceResult:
       type: object

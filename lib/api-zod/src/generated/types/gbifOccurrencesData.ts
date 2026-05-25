@@ -5,20 +5,11 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GbifOccurrenceRecord } from "./gbifOccurrenceRecord";
-import type { GbifOccurrencesDataCacheStatus } from "./gbifOccurrencesDataCacheStatus";
-import type { GbifOccurrencesDataGeographyMode } from "./gbifOccurrencesDataGeographyMode";
 
+/**
+ * Verbatim GBIF occurrence/search upstream response. Includes count, offset, limit, endOfRecords, and results array.
+
+ */
 export interface GbifOccurrencesData {
-  usage_key: number;
-  geography_mode: GbifOccurrencesDataGeographyMode;
-  /** Serialized geography parameters for display */
-  geography_params: string;
-  occurrence_count: number;
-  occurrence_count_us?: number | null;
-  recent_occurrences: GbifOccurrenceRecord[];
-  occurrence_last_fetched: Date;
-  /** GBIF occurrence search URL for this taxon and geography */
-  source_url: string | null;
-  cache_status?: GbifOccurrencesDataCacheStatus;
+  [key: string]: unknown;
 }

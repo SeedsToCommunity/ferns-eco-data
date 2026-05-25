@@ -5,42 +5,11 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GbifMatchDataCacheStatus } from "./gbifMatchDataCacheStatus";
-import type { GbifMatchDataMatchType } from "./gbifMatchDataMatchType";
 
+/**
+ * Verbatim GBIF species/match upstream response. matchType is NONE when no match was found. usageKey is absent or null when matchType is NONE. GBIF always returns HTTP 200 regardless of match outcome.
+
+ */
 export interface GbifMatchData {
-  /** GBIF backbone usageKey. Null when matchType is NONE. */
-  usageKey?: number | null;
-  canonicalName?: string | null;
-  scientificName?: string | null;
-  rank?: string | null;
-  /** ACCEPTED, SYNONYM, or DOUBTFUL */
-  status?: string | null;
-  /** Present when status is SYNONYM. FERNS addition. */
-  accepted_usage_key?: number | null;
-  /** Present when status is SYNONYM. FERNS addition. */
-  accepted_canonical_name?: string | null;
-  confidence?: number | null;
-  matchType: GbifMatchDataMatchType;
-  kingdom?: string | null;
-  phylum?: string | null;
-  /** GBIF 'class' field (JS reserved word renamed to class_) */
-  class_?: string | null;
-  /** GBIF 'order' field (JS reserved word renamed to order_) */
-  order_?: string | null;
-  family?: string | null;
-  genus?: string | null;
-  species?: string | null;
-  kingdomKey?: number | null;
-  phylumKey?: number | null;
-  classKey?: number | null;
-  orderKey?: number | null;
-  familyKey?: number | null;
-  genusKey?: number | null;
-  speciesKey?: number | null;
-  /** https://www.gbif.org/species/{usageKey} when usageKey is known */
-  source_url: string | null;
-  matched_input: string;
-  matched_at?: Date | null;
-  cache_status?: GbifMatchDataCacheStatus;
+  [key: string]: unknown;
 }

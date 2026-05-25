@@ -6,8 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { FernsEnvelope } from "./fernsEnvelope";
-import type { GbifMetadataData } from "./gbifMetadataData";
+import type { GbifSpeciesData } from "./gbifSpeciesData";
 
-export type GbifMetadataResponse = FernsEnvelope & {
-  data?: GbifMetadataData;
+export type GbifSpeciesResponse = FernsEnvelope & {
+  data?: GbifSpeciesData;
 };
