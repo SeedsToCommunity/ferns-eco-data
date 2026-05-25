@@ -125,10 +125,45 @@ Rules:
 - Convention rule: any endpoint with `text` in its path is `scraped_text` and must be declared as such (or moved off the `text` naming).
 - Any endpoint that is neither declared in `non_passthrough_endpoints` nor matches a verbatim upstream path = audit hard-fail.
 
+### `non_passthrough_endpoints` field shape
+
+The field is a JSON array. Each element is an object with exactly two keys:
+
+```json
+[
+  { "endpoint": "/api/{source-id}/path", "kind": "metadata" }
+]
+```
+
+- `endpoint` — the full FERNS path (e.g. `"/api/gbif/metadata"`, `"/api/s2c/years"`). Must be an exact string match for the route path; no wildcards.
+- `kind` — one of the six non-`passthrough` kinds: `metadata`, `in_memory`, `url_lookup`, `scraped_text`, `url_resolver`, `admin`. `passthrough` is the default and is never declared here.
+
+Every source's `/metadata` endpoint must appear in this field with kind `metadata`.
+
+## Admin / Infrastructure Route Exemption
+
+Some routes are FERNS internals — they describe, manage, or connect FERNS itself rather than serving data from a registered external source. These routes are **not registered as sources** and **do not carry the response envelope**. `permission_granted` does not apply to them in the public-license sense; they are auth-gated at the transport layer where applicable.
+
+Exempt routes (current surface):
+
+| Route file | Paths | Reason |
+|---|---|---|
+| `routes/registry.ts` | `GET /api/v1/sources`, `GET /api/v1/sources/{source_id}` | FERNS self-description — the registry index, not a data source |
+| `routes/source-relationships.ts` | `GET /api/v1/source-relationships` and related | Admin surface for inter-source relationship metadata |
+| `routes/trust-groups.ts` | All trust-group CRUD paths | Admin management surface |
+| `routes/health.ts` | `GET /health` | Liveness probe |
+| `routes/spec.ts` | `GET /api/spec` (or similar) | OpenAPI YAML pass-through |
+| `routes/mcp.ts` | MCP gateway transport paths | Agent transport, not a data source |
+
+**Audit consequence**: the audit must skip these routes when checking envelope conformance. A route listed here that returns a non-envelope JSON shape is not a violation.
+
+**The inverse rule — internal-data sources are still real sources**: a source whose data lives inside FERNS (rather than being fetched from an external API) is still a registered source. It gets a real `source_id`, a real registry row, and a real envelope. Its endpoint kind is `in_memory`. Example: `s2c`.
+
 ## Permission Rules
 
 - `permission_granted` is **per-endpoint** and is returned in every response envelope.
 - The source-level `permission_granted` field in the registry (`ferns_sources`) is the **most-restrictive** value across all of that source's endpoints. A source with three `true` endpoints and one `false` endpoint reports `false` at the source level.
+- **Registry default + per-response override**: `buildEnvelope()` reads `permission_granted` from the source's registry row (`ferns_sources.permission_granted`) when the route handler does not supply a per-call value. The route handler may pass a per-call `permissionGranted` to override the registry default when the upstream response itself carries per-response permission information that supersedes the source-level summary. iNaturalist is the canonical example: individual observations carry their own `license_code` field, so the route handler computes a per-response value rather than using the source-level registry default. The source-level registry value remains the most-restrictive summary across all endpoints; the per-call override does not update it.
 - Defaults by endpoint kind:
   - `url_lookup` → defaults to `true` (URLs into a public website are CC0-equivalent).
   - `metadata` → defaults to `true` (CC0; the registry describes FERNS's own metadata about a source).
