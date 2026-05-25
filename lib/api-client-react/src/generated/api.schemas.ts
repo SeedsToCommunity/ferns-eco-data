@@ -1627,22 +1627,6 @@ export interface S2CSpeciesData {
   species: S2CSpecies[];
 }
 
-export interface S2CSpeciesListData {
-  year: number;
-  species_count: number;
-  source_note: string;
-  species: S2CSpecies[];
-}
-
-export interface S2CSpeciesResponse {
-  found: boolean;
-  cache_status: string | null;
-  queried_at: string;
-  source_url: string;
-  provenance: FernsProvenance;
-  data?: S2CSpeciesListData | null;
-}
-
 export interface UniversalFqaSpeciesRecord {
   /** Scientific name of the species as listed in this database */
   scientific_name: string;

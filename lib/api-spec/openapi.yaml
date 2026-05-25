@@ -6856,52 +6856,6 @@ components:
           items:
             $ref: "#/components/schemas/S2CSpecies"
 
-    S2CSpeciesListData:
-      type: object
-      required:
-        - year
-        - species_count
-        - source_note
-        - species
-      properties:
-        year:
-          type: integer
-        species_count:
-          type: integer
-        source_note:
-          type: string
-        species:
-          type: array
-          items:
-            $ref: "#/components/schemas/S2CSpecies"
-
-    S2CSpeciesResponse:
-      type: object
-      required:
-        - found
-        - cache_status
-        - queried_at
-        - source_url
-        - provenance
-      properties:
-        found:
-          type: boolean
-        cache_status:
-          type: string
-          nullable: true
-        queried_at:
-          type: string
-          format: date-time
-        source_url:
-          type: string
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
-        data:
-          nullable: true
-          oneOf:
-            - $ref: "#/components/schemas/S2CSpeciesListData"
-            - type: "null"
-
     UniversalFqaDatabaseDetail:
       type: object
       required:

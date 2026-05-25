@@ -317,8 +317,6 @@ export * from "./provenance";
 export * from "./provenanceDerivedFromItem";
 export * from "./s2CSpecies";
 export * from "./s2CSpeciesData";
-export * from "./s2CSpeciesListData";
-export * from "./s2CSpeciesResponse";
 export * from "./s2CYearsData";
 export * from "./s2CYearsResponse";
 export * from "./s2CYearSummary";
