@@ -58,9 +58,28 @@ const tools: ToolDef[] = [
   // ── gbif ────────────────────────────────────────────────────────────────
   {
     tool: {
+      name: "gbif__species",
+      description:
+        "Returns the verbatim GBIF species record for a known usageKey. Use this to resolve an acceptedUsageKey from a SYNONYM match result — when gbif__match returns status=SYNONYM, call gbif__species with acceptedUsageKey to get the accepted canonical name and full classification. Cached 30 days per usageKey.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          usageKey: { type: "number", description: "GBIF backbone usage key (integer)" },
+          refresh:  { type: "boolean", description: "Bypass cache and re-fetch from GBIF" },
+        },
+        required: ["usageKey"],
+      },
+    },
+    handler: async (args) =>
+      apiGet(`/gbif/species/${Number(args["usageKey"])}`, {
+        refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+      }),
+  },
+  {
+    tool: {
       name: "gbif__species_synonyms",
       description:
-        "Returns all taxonomic synonyms for a GBIF taxon identified by its usage key. A synonym is a name that was once considered valid but is now superseded by the accepted name. Response mirrors the GBIF upstream envelope: offset, limit, endOfRecords, count, results. Use gbif__match first to resolve a scientific name to a usageKey.",
+        "Returns all taxonomic synonyms for a GBIF taxon identified by its usage key. Response is verbatim GBIF upstream: offset, limit, endOfRecords, count, results array. Use gbif__match first to resolve a scientific name to a usageKey. For SYNONYM matches, use the acceptedUsageKey (not the synonym usageKey) to get the correct synonym list.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -68,24 +87,22 @@ const tools: ToolDef[] = [
           limit:    { type: "number", description: "Number of results to return (1–1000, default 100)" },
           offset:   { type: "number", description: "Zero-based offset for pagination (default 0)" },
           refresh:  { type: "boolean", description: "Bypass cache and re-fetch from GBIF" },
-          ...PV_PROP,
         },
         required: ["usageKey"],
       },
     },
     handler: async (args) =>
       apiGet(`/gbif/species/${Number(args["usageKey"])}/synonyms`, {
-        limit:    args["limit"]   !== undefined ? String(args["limit"])   : undefined,
-        offset:   args["offset"]  !== undefined ? String(args["offset"])  : undefined,
-        refresh:  args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
-        provenance_verbosity: pv(args),
+        limit:   args["limit"]   !== undefined ? String(args["limit"])   : undefined,
+        offset:  args["offset"]  !== undefined ? String(args["offset"])  : undefined,
+        refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
       }),
   },
   {
     tool: {
       name: "gbif__species_vernacular_names",
       description:
-        "Returns all vernacular (common) names for a GBIF taxon identified by its usage key, across all languages and countries in the GBIF backbone. Response mirrors the GBIF upstream envelope: offset, limit, endOfRecords, count, results. vernacular_name_primary is a FERNS convenience field with the first English name. Use gbif__match first to resolve a scientific name to a usageKey.",
+        "Returns all vernacular (common) names for a GBIF taxon identified by its usage key, across all languages and countries in the GBIF backbone. Response is verbatim GBIF upstream: offset, limit, endOfRecords, count, results array. Use gbif__match first to resolve a scientific name to a usageKey.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -93,30 +110,29 @@ const tools: ToolDef[] = [
           limit:    { type: "number", description: "Number of results to return (1–1000, default 100)" },
           offset:   { type: "number", description: "Zero-based offset for pagination (default 0)" },
           refresh:  { type: "boolean", description: "Bypass cache and re-fetch from GBIF" },
-          ...PV_PROP,
         },
         required: ["usageKey"],
       },
     },
     handler: async (args) =>
       apiGet(`/gbif/species/${Number(args["usageKey"])}/vernacularNames`, {
-        limit:    args["limit"]   !== undefined ? String(args["limit"])   : undefined,
-        offset:   args["offset"]  !== undefined ? String(args["offset"])  : undefined,
-        refresh:  args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
-        provenance_verbosity: pv(args),
+        limit:   args["limit"]   !== undefined ? String(args["limit"])   : undefined,
+        offset:  args["offset"]  !== undefined ? String(args["offset"])  : undefined,
+        refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
       }),
   },
   {
     tool: {
       name: "gbif__match",
       description:
-        "Matches a scientific name string to the GBIF taxonomic backbone, returning the accepted usage key, rank, confidence score, and synonym chain. Use this first to resolve a name before calling occurrence or reconcile endpoints.",
+        "Matches a scientific name string to the GBIF taxonomic backbone, returning usageKey, rank, confidence, and taxonomic status. When status=SYNONYM, response includes acceptedUsageKey — use gbif__species with that key to resolve the accepted canonical name. Use this first to get a usageKey before calling gbif__occurrences or other taxon-keyed endpoints.",
       inputSchema: {
         type: "object" as const,
         properties: {
           name:    { type: "string", description: "Scientific name to match (e.g. Quercus alba)" },
+          rank:    { type: "string", description: "Restrict match to a specific rank (e.g. SPECIES, GENUS)" },
+          strict:  { type: "boolean", description: "Strict matching only — no fuzzy or higher rank matches" },
           refresh: { type: "boolean", description: "Bypass cache and re-fetch from GBIF" },
-          ...PV_PROP,
         },
         required: ["name"],
       },
@@ -124,56 +140,65 @@ const tools: ToolDef[] = [
     handler: async (args) =>
       apiGet("/gbif/species/match", {
         name:    String(args["name"]),
+        rank:    args["rank"]    !== undefined ? String(args["rank"])    : undefined,
+        strict:  args["strict"]  !== undefined ? String(args["strict"])  : undefined,
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
-        provenance_verbosity: pv(args),
       }),
   },
   {
     tool: {
       name: "gbif__occurrences",
       description:
-        "Returns aggregated occurrence counts for a GBIF taxon broken down by country, continent, or bounding box. Useful for understanding where a species has been documented globally.",
+        "Search GBIF occurrence records using GBIF native parameters (passthrough). Returns verbatim GBIF paginated response: count, offset, limit, endOfRecords, results array. Use taxonKey (the usageKey from gbif__match) to filter by taxon. Supports country (ISO 2-letter, single value), continent, hasCoordinate, basisOfRecord, year, and limit/offset pagination. Cached 7 days per parameter combination. NOTE: the old usageKey parameter is gone — use taxonKey instead.",
       inputSchema: {
         type: "object" as const,
         properties: {
-          usageKey:  { type: "number", description: "GBIF usage key (integer)" },
-          countries: { type: "string", description: "Comma-separated ISO 3166-1 alpha-2 country codes (e.g. US,CA)" },
-          continent: { type: "string", enum: ["AFRICA","ANTARCTICA","ASIA","EUROPE","NORTH_AMERICA","OCEANIA","SOUTH_AMERICA"], description: "Continent filter (mutually exclusive with countries and bbox)" },
-          bbox:      { type: "string", description: "Bounding box as minLat,minLon,maxLat,maxLon (mutually exclusive with countries and continent)" },
-          refresh:   { type: "boolean", description: "Bypass cache and re-fetch from GBIF" },
-          ...PV_PROP,
+          taxonKey:           { type: "number",  description: "GBIF backbone taxon key (from gbif__match usageKey). Required for taxon-specific queries." },
+          country:            { type: "string",  description: "ISO 3166-1 alpha-2 country code (e.g. US, CA, GB). Single value." },
+          continent:          { type: "string",  enum: ["AFRICA","ANTARCTICA","ASIA","EUROPE","NORTH_AMERICA","OCEANIA","SOUTH_AMERICA"], description: "Continent filter" },
+          hasCoordinate:      { type: "boolean", description: "Only return records with coordinates (recommended: true)" },
+          hasGeospatialIssue: { type: "boolean", description: "Exclude records with geospatial issues (recommended: false)" },
+          basisOfRecord:      { type: "string",  description: "Filter by basis of record (e.g. HUMAN_OBSERVATION, PRESERVED_SPECIMEN, MATERIAL_CITATION)" },
+          year:               { type: "string",  description: "Year or range (e.g. 2020 or 2010,2020)" },
+          limit:              { type: "number",  description: "Number of results to return (default 20, max 300)" },
+          offset:             { type: "number",  description: "Zero-based offset for pagination (default 0)" },
+          refresh:            { type: "boolean", description: "Bypass cache and re-fetch from GBIF" },
         },
-        required: ["usageKey"],
+        required: [],
       },
     },
     handler: async (args) =>
       apiGet("/gbif/occurrence/search", {
-        usageKey:  Number(args["usageKey"]),
-        countries: args["countries"] !== undefined ? String(args["countries"]) : undefined,
-        continent: args["continent"] !== undefined ? String(args["continent"]) : undefined,
-        bbox:      args["bbox"] !== undefined ? String(args["bbox"]) : undefined,
-        refresh:   args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
-        provenance_verbosity: pv(args),
+        taxonKey:           args["taxonKey"]           !== undefined ? Number(args["taxonKey"])           : undefined,
+        country:            args["country"]            !== undefined ? String(args["country"])            : undefined,
+        continent:          args["continent"]          !== undefined ? String(args["continent"])          : undefined,
+        hasCoordinate:      args["hasCoordinate"]      !== undefined ? String(args["hasCoordinate"])      : undefined,
+        hasGeospatialIssue: args["hasGeospatialIssue"] !== undefined ? String(args["hasGeospatialIssue"]) : undefined,
+        basisOfRecord:      args["basisOfRecord"]      !== undefined ? String(args["basisOfRecord"])      : undefined,
+        year:               args["year"]               !== undefined ? String(args["year"])               : undefined,
+        limit:              args["limit"]              !== undefined ? Number(args["limit"])              : undefined,
+        offset:             args["offset"]             !== undefined ? Number(args["offset"])             : undefined,
+        refresh:            args["refresh"]            !== undefined ? String(args["refresh"])            : undefined,
       }),
   },
   {
     tool: {
       name: "gbif__search",
       description:
-        "Full-text search across the GBIF species index. Returns matching taxa with usage keys that can be passed to gbif__occurrences or gbif__reconcile.",
+        "Searches GBIF species by vernacular (common) name. Returns verbatim GBIF paginated species/search response: count, offset, limit, endOfRecords, results array. Each result includes usageKey, canonicalName, scientificName, rank, status, family, and the matched vernacularName. Results are cached 7 days per query.",
       inputSchema: {
         type: "object" as const,
         properties: {
-          q: { type: "string", description: "Search query (scientific or common name)" },
-          ...PV_PROP,
+          q:       { type: "string",  description: "Common name search query (e.g. butterfly milkweed)" },
+          refresh: { type: "boolean", description: "Bypass cache and re-fetch from GBIF" },
         },
         required: ["q"],
       },
     },
     handler: async (args) =>
       apiGet("/gbif/species/search", {
-        q: String(args["q"]),
-        provenance_verbosity: pv(args),
+        q:       String(args["q"]),
+        refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
       }),
   },
 

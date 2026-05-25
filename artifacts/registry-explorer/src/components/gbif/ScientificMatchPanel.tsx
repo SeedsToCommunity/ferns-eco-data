@@ -2,6 +2,8 @@ import { useState, type ReactNode } from "react";
 import {
   useGetGbifMatch,
   getGetGbifMatchQueryKey,
+  useGetGbifSpecies,
+  getGetGbifSpeciesQueryKey,
   useGetGbifSpeciesSynonyms,
   getGetGbifSpeciesSynonymsQueryKey,
   useGetGbifSpeciesVernacularNames,
@@ -55,13 +57,54 @@ interface ScientificMatchPanelProps {
   scientificName: string;
 }
 
+interface MatchFields {
+  usageKey?: number;
+  acceptedUsageKey?: number;
+  canonicalName?: string;
+  scientificName?: string;
+  rank?: string;
+  status?: string;
+  matchType?: string;
+  confidence?: number;
+  [key: string]: unknown;
+}
+
+interface SynonymRecord {
+  canonicalName?: string;
+  scientificName?: string;
+  rank?: string;
+  taxonomicStatus?: string;
+  publishedIn?: string | null;
+  [key: string]: unknown;
+}
+
+interface VernacularRecord {
+  vernacularName?: string;
+  language?: string;
+  country?: string | null;
+  [key: string]: unknown;
+}
+
+interface AcceptedSpeciesFields {
+  canonicalName?: string;
+  scientificName?: string;
+  [key: string]: unknown;
+}
+
 export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelProps) {
   const matchQuery = useGetGbifMatch({ name: scientificName }, {
     query: { queryKey: getGetGbifMatchQueryKey({ name: scientificName }), enabled: !!scientificName }
   });
 
-  const matchData = matchQuery.data?.data;
-  const reconcileKey = matchData?.status === 'SYNONYM' ? matchData.accepted_usage_key : matchData?.usageKey;
+  const md = matchQuery.data?.data as MatchFields | undefined;
+  const reconcileKey = md?.status === 'SYNONYM' ? md?.acceptedUsageKey : md?.usageKey;
+
+  const acceptedSpeciesQuery = useGetGbifSpecies(
+    md?.acceptedUsageKey ?? 0,
+    undefined,
+    { query: { queryKey: getGetGbifSpeciesQueryKey(md?.acceptedUsageKey ?? 0), enabled: md?.status === 'SYNONYM' && !!md?.acceptedUsageKey } }
+  );
+  const acceptedSpecies = acceptedSpeciesQuery.data?.data as AcceptedSpeciesFields | undefined;
 
   const synonymsQuery = useGetGbifSpeciesSynonyms(
     reconcileKey ?? 0,
@@ -93,13 +136,17 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
 
   if (!matchQuery.data) return null;
 
-  const isNotFound = !matchQuery.data.found || !matchData || matchData.matchType === "NONE";
+  const isNotFound = !matchQuery.data.found || !md || md.matchType === "NONE";
 
-  const synonyms = synonymsQuery.data?.data?.results ?? [];
-  const synonymCount = synonymsQuery.data?.data?.count ?? 0;
-  const vernacularNames = vernacularQuery.data?.data?.results ?? [];
-  const vernacularCount = vernacularQuery.data?.data?.count ?? 0;
+  const cacheStatus = matchQuery.data?.provenance?.cache_status;
+
+  const synonyms = (synonymsQuery.data?.data?.results as SynonymRecord[] | undefined) ?? [];
+  const synonymCount = synonymsQuery.data?.data?.count as number ?? 0;
+  const vernacularNames = (vernacularQuery.data?.data?.results as VernacularRecord[] | undefined) ?? [];
+  const vernacularCount = vernacularQuery.data?.data?.count as number ?? 0;
   const enNames = vernacularNames.filter(v => v.language === "eng" || v.language === "en");
+
+  const gbifSpeciesUrl = md?.usageKey ? `https://www.gbif.org/species/${md.usageKey}` : null;
 
   return (
     <div className="space-y-6">
@@ -109,7 +156,7 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
             <Info className="w-8 h-8 text-warning" />
             <h3 className="text-lg font-bold text-foreground">No Match Found</h3>
             <p className="text-muted-foreground">GBIF backbone taxonomy returned no results for "{scientificName}".</p>
-            <Badge variant="outline" className="mt-2">Cache: {matchData?.cache_status || 'miss'}</Badge>
+            <Badge variant="outline" className="mt-2">Cache: {cacheStatus || 'miss'}</Badge>
           </CardContent>
         </Card>
       ) : (
@@ -119,26 +166,28 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <Badge variant={matchData.matchType === 'EXACT' ? 'success' : 'warning'}>
-                      {matchData.matchType} MATCH
+                    <Badge variant={md.matchType === 'EXACT' ? 'success' : 'warning'}>
+                      {md.matchType} MATCH
                     </Badge>
-                    {matchData.confidence && (
+                    {md.confidence !== undefined && (
                       <span className="text-xs font-medium text-muted-foreground">
-                        {matchData.confidence}% Confidence
+                        {md.confidence as number}% Confidence
                       </span>
                     )}
-                    <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
-                      {matchData.cache_status}
-                    </Badge>
+                    {cacheStatus && (
+                      <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
+                        {cacheStatus}
+                      </Badge>
+                    )}
                   </div>
                   <CardTitle className="text-3xl italic text-primary mt-2">
-                    {matchData.canonicalName || matchData.scientificName}
+                    {md.canonicalName || md.scientificName}
                   </CardTitle>
                 </div>
-                {matchData.source_url && (
-                  <a 
-                    href={matchData.source_url} 
-                    target="_blank" 
+                {gbifSpeciesUrl && (
+                  <a
+                    href={gbifSpeciesUrl}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="p-2 rounded-lg bg-background border border-border hover:bg-muted transition-colors text-muted-foreground"
                     title="View on GBIF"
@@ -149,21 +198,26 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
               </div>
             </CardHeader>
             <CardContent className="pt-6">
-              
-              {matchData.status === 'SYNONYM' && (
+
+              {md.status === 'SYNONYM' && (
                 <div className="mb-6 p-4 rounded-xl bg-secondary border border-secondary-foreground/10 flex items-start gap-3">
                   <Info className="w-5 h-5 text-secondary-foreground shrink-0 mt-0.5" />
                   <div>
                     <p className="font-semibold text-secondary-foreground">This is a synonym.</p>
                     <p className="text-sm text-secondary-foreground/80 mt-1">
-                      The currently accepted name is <span className="italic font-medium">{matchData.accepted_canonical_name}</span>. 
+                      The currently accepted name is{" "}
+                      <span className="italic font-medium">
+                        {acceptedSpecies?.canonicalName ||
+                          acceptedSpecies?.scientificName ||
+                          (md.acceptedUsageKey ? `taxon key ${md.acceptedUsageKey}` : "unknown")}
+                      </span>.
                       Subsequent data below is retrieved for the accepted taxon.
                     </p>
                   </div>
                 </div>
               )}
 
-              {matchData.status === 'DOUBTFUL' && (
+              {md.status === 'DOUBTFUL' && (
                 <div className="mb-6 p-4 rounded-xl bg-destructive/10 border border-destructive/20 flex items-start gap-3">
                   <AlertTriangle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
                   <div>
@@ -178,18 +232,18 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
               <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                 <div>
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Rank</p>
-                  <p className="font-medium text-foreground capitalize">{matchData.rank || '-'}</p>
+                  <p className="font-medium text-foreground capitalize">{md.rank as string || '-'}</p>
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Status</p>
                   <div className="flex items-center gap-1.5">
-                    {matchData.status === 'ACCEPTED' && <CheckCircle className="w-4 h-4 text-emerald-500" />}
-                    <span className="font-medium text-foreground capitalize">{matchData.status?.toLowerCase() || '-'}</span>
+                    {md.status === 'ACCEPTED' && <CheckCircle className="w-4 h-4 text-emerald-500" />}
+                    <span className="font-medium text-foreground capitalize">{(md.status as string)?.toLowerCase() || '-'}</span>
                   </div>
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Usage Key</p>
-                  <p className="font-mono text-sm text-foreground bg-muted px-2 py-1 rounded inline-block">{matchData.usageKey}</p>
+                  <p className="font-mono text-sm text-foreground bg-muted px-2 py-1 rounded inline-block">{md.usageKey as number}</p>
                 </div>
               </div>
 
@@ -197,7 +251,7 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Classification hierarchy</p>
                 <div className="flex flex-wrap gap-2 text-sm">
                   {['kingdom', 'phylum', 'class', 'order', 'family', 'genus'].map((rank, i) => {
-                    const val = matchData[rank as keyof typeof matchData];
+                    const val = md[rank];
                     if (!val) return null;
                     return (
                       <div key={rank} className="flex items-center gap-2">
@@ -256,8 +310,8 @@ export function ScientificMatchPanel({ scientificName }: ScientificMatchPanelPro
                         )}
                       </div>
                       <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-xs capitalize">{syn.rank?.toLowerCase()}</Badge>
-                        <Badge variant="secondary" className="text-xs">{syn.taxonomicStatus}</Badge>
+                        <Badge variant="outline" className="text-xs capitalize">{(syn.rank as string)?.toLowerCase()}</Badge>
+                        <Badge variant="secondary" className="text-xs">{syn.taxonomicStatus as string}</Badge>
                       </div>
                     </div>
                   ))}

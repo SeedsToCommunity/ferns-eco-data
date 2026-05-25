@@ -1,4 +1,4 @@
-import { useGetGbifSearch, getGetGbifSearchQueryKey, type GbifSearchCandidate } from "@workspace/api-client-react";
+import { useGetGbifSearch, getGetGbifSearchQueryKey } from "@workspace/api-client-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,18 @@ import { RawJsonPanel } from "@/components/RawJsonPanel";
 interface CommonSearchPanelProps {
   query: string;
   onSelectCanonical: (name: string) => void;
+}
+
+interface GbifSearchResult {
+  key?: number;
+  usageKey?: number;
+  canonicalName?: string;
+  scientificName?: string;
+  rank?: string;
+  status?: string;
+  family?: string;
+  vernacularName?: string;
+  [key: string]: unknown;
 }
 
 export function CommonSearchPanel({ query, onSelectCanonical }: CommonSearchPanelProps) {
@@ -33,64 +45,72 @@ export function CommonSearchPanel({ query, onSelectCanonical }: CommonSearchPane
 
   if (!searchQuery.data) return null;
 
-  const results = searchQuery.data.data?.candidates || [];
+  const results = (searchQuery.data.data?.results as GbifSearchResult[] | undefined) ?? [];
+  const totalCount = searchQuery.data.data?.count as number | undefined;
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between px-2">
         <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
           <Search className="w-5 h-5 text-primary" />
-          {results.length} results for "{query}"
+          {totalCount !== undefined ? totalCount : results.length} results for "{query}"
         </h3>
       </div>
 
       {results.length === 0 ? (
         <Card className="border-border/50 bg-muted/20">
           <CardContent className="p-8 text-center text-muted-foreground">
-            No matching common names found in the Plantae kingdom. Try a different variation.
+            No matching common names found. Try a different variation.
           </CardContent>
         </Card>
       ) : (
         <div className="grid gap-3">
-          {results.map((candidate: GbifSearchCandidate, i: number) => (
-            <Card key={`${candidate.usageKey}-${i}`} className="overflow-hidden hover:border-primary/40 transition-colors group">
-              <CardContent className="p-0 flex flex-col sm:flex-row">
-                <div className="flex-1 p-5 flex flex-col justify-center">
-                  <div className="flex items-start justify-between gap-4 mb-2">
-                    <h4 className="text-xl font-bold text-foreground">
-                      {candidate.vernacularName || "Unnamed"}
-                    </h4>
-                    <Badge variant={candidate.status === 'ACCEPTED' ? 'success' : 'secondary'} className="shrink-0 text-[10px]">
-                      {candidate.status}
-                    </Badge>
-                  </div>
-                  
-                  <div className="flex items-center gap-2 text-sm">
-                    <span className="text-muted-foreground font-medium uppercase tracking-wider text-[10px]">Canonical:</span>
-                    <span className="italic font-medium text-primary">{candidate.canonicalName}</span>
-                  </div>
-                  
-                  {candidate.family && (
-                    <div className="flex items-center gap-2 text-sm mt-1">
-                      <span className="text-muted-foreground font-medium uppercase tracking-wider text-[10px]">Family:</span>
-                      <span>{candidate.family}</span>
+          {results.map((result, i) => {
+            const resultKey = result.key ?? result.usageKey ?? i;
+            const canonicalName = result.canonicalName || result.scientificName || "";
+            return (
+              <Card key={`${resultKey}-${i}`} className="overflow-hidden hover:border-primary/40 transition-colors group">
+                <CardContent className="p-0 flex flex-col sm:flex-row">
+                  <div className="flex-1 p-5 flex flex-col justify-center">
+                    <div className="flex items-start justify-between gap-4 mb-2">
+                      <h4 className="text-xl font-bold text-foreground">
+                        {result.vernacularName || canonicalName || "Unnamed"}
+                      </h4>
+                      <Badge variant={result.status === 'ACCEPTED' ? 'success' : 'secondary'} className="shrink-0 text-[10px]">
+                        {result.status as string || 'UNKNOWN'}
+                      </Badge>
                     </div>
-                  )}
-                </div>
-                
-                <div className="bg-muted/30 border-t sm:border-t-0 sm:border-l border-border/50 p-5 flex items-center justify-end sm:w-48 shrink-0">
-                  <Button 
-                    className="w-full justify-between group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-md transition-all" 
-                    variant="outline"
-                    onClick={() => onSelectCanonical(candidate.canonicalName)}
-                  >
-                    Look Up
-                    <ChevronRight className="w-4 h-4 ml-2 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+
+                    {result.vernacularName && canonicalName && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-muted-foreground font-medium uppercase tracking-wider text-[10px]">Canonical:</span>
+                        <span className="italic font-medium text-primary">{canonicalName}</span>
+                      </div>
+                    )}
+
+                    {result.family && (
+                      <div className="flex items-center gap-2 text-sm mt-1">
+                        <span className="text-muted-foreground font-medium uppercase tracking-wider text-[10px]">Family:</span>
+                        <span>{result.family as string}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="bg-muted/30 border-t sm:border-t-0 sm:border-l border-border/50 p-5 flex items-center justify-end sm:w-48 shrink-0">
+                    <Button
+                      className="w-full justify-between group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-md transition-all"
+                      variant="outline"
+                      onClick={() => canonicalName && onSelectCanonical(canonicalName)}
+                      disabled={!canonicalName}
+                    >
+                      Look Up
+                      <ChevronRight className="w-4 h-4 ml-2 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
 
