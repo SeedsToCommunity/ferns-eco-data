@@ -22,7 +22,7 @@
 ### Codegen command
 
 ```
-pnpm --filter @workspace/api-spec run generate
+pnpm --filter @workspace/api-spec run codegen
 ```
 
 Run from the workspace root after any spec change. Commit the generated files alongside the spec change.

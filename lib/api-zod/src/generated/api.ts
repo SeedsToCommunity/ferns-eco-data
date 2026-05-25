@@ -4410,7 +4410,10 @@ export const GetS2CSpeciesByYearResponse = zod
             }),
           ),
         })
-        .optional(),
+        .optional()
+        .describe(
+          "Data payload for the \/s2c endpoint (FernsEnvelope data field).",
+        ),
     }),
   );
 

@@ -2454,7 +2454,7 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: "#/components/schemas/S2CSpeciesListData"
+                        $ref: "#/components/schemas/S2CSpeciesData"
         "400":
           description: Missing or invalid year parameter
           content:
@@ -6835,6 +6835,26 @@ components:
           $ref: "#/components/schemas/FernsProvenance"
         data:
           $ref: "#/components/schemas/S2CYearsData"
+
+    S2CSpeciesData:
+      type: object
+      description: Data payload for the /s2c endpoint (FernsEnvelope data field).
+      required:
+        - year
+        - species_count
+        - source_note
+        - species
+      properties:
+        year:
+          type: integer
+        species_count:
+          type: integer
+        source_note:
+          type: string
+        species:
+          type: array
+          items:
+            $ref: "#/components/schemas/S2CSpecies"
 
     S2CSpeciesListData:
       type: object

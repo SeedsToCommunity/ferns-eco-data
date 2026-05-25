@@ -1617,6 +1617,16 @@ export interface S2CYearsResponse {
   data: S2CYearsData;
 }
 
+/**
+ * Data payload for the /s2c endpoint (FernsEnvelope data field).
+ */
+export interface S2CSpeciesData {
+  year: number;
+  species_count: number;
+  source_note: string;
+  species: S2CSpecies[];
+}
+
 export interface S2CSpeciesListData {
   year: number;
   species_count: number;
@@ -4001,7 +4011,7 @@ export const GetS2CSpeciesByYearYear = {
 } as const;
 
 export type GetS2CSpeciesByYear200 = FernsEnvelope & {
-  data?: S2CSpeciesListData;
+  data?: S2CSpeciesData;
 };
 
 export type GetS2CYears200 = FernsEnvelope & {
