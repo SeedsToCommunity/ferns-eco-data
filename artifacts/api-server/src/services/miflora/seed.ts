@@ -28,6 +28,7 @@ export async function ensureMifloraRegistryEntry(): Promise<void> {
           general_summary: MIFLORA_REGISTRY_ENTRY.general_summary ?? null,
           technical_details: MIFLORA_REGISTRY_ENTRY.technical_details ?? null,
           permission_granted: MIFLORA_REGISTRY_ENTRY.permission_granted,
+          non_passthrough_endpoints: MIFLORA_REGISTRY_ENTRY.non_passthrough_endpoints ?? [],
           updated_at: new Date(),
         },
       });

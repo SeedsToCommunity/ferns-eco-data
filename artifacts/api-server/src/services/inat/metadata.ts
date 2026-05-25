@@ -82,5 +82,6 @@ export const INAT_REGISTRY_ENTRY = {
   license_notes: INAT_LICENSE_NOTES,
   general_summary: INAT_GENERAL_SUMMARY,
   technical_details: INAT_TECHNICAL_DETAILS,
+  non_passthrough_endpoints: [{ endpoint: "/api/inat/metadata", kind: "metadata" }],
   permission_granted: true,
 };

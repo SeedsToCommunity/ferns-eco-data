@@ -28,6 +28,7 @@ export async function ensureUsdaPlantsRegistryEntry(): Promise<void> {
           general_summary: USDA_PLANTS_REGISTRY_ENTRY.general_summary ?? null,
           technical_details: USDA_PLANTS_REGISTRY_ENTRY.technical_details ?? null,
           permission_granted: USDA_PLANTS_REGISTRY_ENTRY.permission_granted,
+          non_passthrough_endpoints: USDA_PLANTS_REGISTRY_ENTRY.non_passthrough_endpoints ?? [],
           updated_at: new Date(),
         },
       });

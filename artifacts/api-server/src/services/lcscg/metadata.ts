@@ -78,6 +78,7 @@ export const LCSCG_REGISTRY_ENTRY = {
   license_notes: LCSCG_LICENSE_NOTES,
   general_summary: LCSCG_GENERAL_SUMMARY,
   technical_details: LCSCG_TECHNICAL_DETAILS,
+  non_passthrough_endpoints: [{ endpoint: "/api/lcscg/metadata", kind: "metadata" }],
   permission_granted: true,
 };
 

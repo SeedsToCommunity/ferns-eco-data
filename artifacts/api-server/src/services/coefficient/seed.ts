@@ -28,6 +28,7 @@ export async function ensureCoefficientRegistryEntry(): Promise<void> {
           general_summary: COEFFICIENT_REGISTRY_ENTRY.general_summary ?? null,
           technical_details: COEFFICIENT_REGISTRY_ENTRY.technical_details ?? null,
           permission_granted: COEFFICIENT_REGISTRY_ENTRY.permission_granted,
+          non_passthrough_endpoints: COEFFICIENT_REGISTRY_ENTRY.non_passthrough_endpoints ?? [],
           updated_at: new Date(),
         },
       });

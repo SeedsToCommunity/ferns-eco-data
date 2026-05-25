@@ -210,5 +210,6 @@ export const BONAP_REGISTRY_ENTRY = {
   license_notes: BONAP_LICENSE_NOTES,
   general_summary: BONAP_GENERAL_SUMMARY,
   technical_details: BONAP_TECHNICAL_DETAILS,
+  non_passthrough_endpoints: [{ endpoint: "/api/bonap/metadata", kind: "metadata" }],
   permission_granted: false,
 };

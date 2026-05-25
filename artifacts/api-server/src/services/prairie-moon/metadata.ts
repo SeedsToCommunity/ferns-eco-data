@@ -72,5 +72,6 @@ export const PRAIRIE_MOON_REGISTRY_ENTRY = {
   license_notes: PRAIRIE_MOON_LICENSE_NOTES,
   general_summary: PRAIRIE_MOON_GENERAL_SUMMARY,
   technical_details: PRAIRIE_MOON_TECHNICAL_DETAILS,
+  non_passthrough_endpoints: [{ endpoint: "/api/prairie-moon/metadata", kind: "metadata" }],
   permission_granted: true,
 };

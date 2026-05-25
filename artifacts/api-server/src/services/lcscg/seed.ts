@@ -32,6 +32,7 @@ export async function ensureLcscgRegistryEntry(): Promise<void> {
           general_summary: LCSCG_REGISTRY_ENTRY.general_summary ?? null,
           technical_details: LCSCG_REGISTRY_ENTRY.technical_details ?? null,
           permission_granted: LCSCG_REGISTRY_ENTRY.permission_granted,
+          non_passthrough_endpoints: LCSCG_REGISTRY_ENTRY.non_passthrough_endpoints ?? [],
           updated_at: new Date(),
         },
       });

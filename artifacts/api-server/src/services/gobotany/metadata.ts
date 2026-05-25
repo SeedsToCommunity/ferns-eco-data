@@ -67,5 +67,6 @@ export const GOBOTANY_REGISTRY_ENTRY = {
   license_notes: GOBOTANY_LICENSE_NOTES,
   general_summary: GOBOTANY_GENERAL_SUMMARY,
   technical_details: GOBOTANY_TECHNICAL_DETAILS,
+  non_passthrough_endpoints: [{ endpoint: "/api/gobotany/metadata", kind: "metadata" }],
   permission_granted: true,
 };

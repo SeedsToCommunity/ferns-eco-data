@@ -28,6 +28,7 @@ export async function ensureInatRegistryEntry(): Promise<void> {
           general_summary: INAT_REGISTRY_ENTRY.general_summary ?? null,
           technical_details: INAT_REGISTRY_ENTRY.technical_details ?? null,
           permission_granted: INAT_REGISTRY_ENTRY.permission_granted,
+          non_passthrough_endpoints: INAT_REGISTRY_ENTRY.non_passthrough_endpoints ?? [],
           updated_at: new Date(),
         },
       });

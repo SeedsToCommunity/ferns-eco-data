@@ -69,5 +69,6 @@ export const NPN_REGISTRY_ENTRY = {
   license_notes: NPN_LICENSE_NOTES,
   general_summary: NPN_GENERAL_SUMMARY,
   technical_details: NPN_TECHNICAL_DETAILS,
+  non_passthrough_endpoints: [{ endpoint: "/api/ann-arbor-npn/metadata", kind: "metadata" }],
   permission_granted: false,
 };

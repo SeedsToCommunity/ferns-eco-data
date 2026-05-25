@@ -69,5 +69,6 @@ export const MINNESOTA_WILDFLOWERS_REGISTRY_ENTRY = {
   license_notes: MINNESOTA_WILDFLOWERS_LICENSE_NOTES,
   general_summary: MINNESOTA_WILDFLOWERS_GENERAL_SUMMARY,
   technical_details: MINNESOTA_WILDFLOWERS_TECHNICAL_DETAILS,
+  non_passthrough_endpoints: [{ endpoint: "/api/minnesota-wildflowers/metadata", kind: "metadata" }],
   permission_granted: true,
 };

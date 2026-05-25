@@ -122,5 +122,6 @@ export const UNIVERSAL_FQA_REGISTRY_ENTRY = {
   license_notes: UNIVERSAL_FQA_LICENSE_NOTES,
   general_summary: UNIVERSAL_FQA_GENERAL_SUMMARY,
   technical_details: UNIVERSAL_FQA_TECHNICAL_DETAILS,
+  non_passthrough_endpoints: [{ endpoint: "/api/universal-fqa/metadata", kind: "metadata" }],
   permission_granted: true,
 };

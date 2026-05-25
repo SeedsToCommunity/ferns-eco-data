@@ -192,5 +192,6 @@ export const GBIF_REGISTRY_ENTRY = {
   license_notes: GBIF_LICENSE_NOTES,
   general_summary: GBIF_GENERAL_SUMMARY,
   technical_details: GBIF_TECHNICAL_DETAILS,
+  non_passthrough_endpoints: [{ endpoint: "/api/gbif/metadata", kind: "metadata" }],
   permission_granted: true,
 };

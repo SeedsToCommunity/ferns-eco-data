@@ -27,6 +27,7 @@ export async function ensureIllinoisWildflowersRegistryEntry(): Promise<void> {
           general_summary: ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY.general_summary ?? null,
           technical_details: ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY.technical_details ?? null,
           permission_granted: ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY.permission_granted,
+          non_passthrough_endpoints: ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY.non_passthrough_endpoints ?? [],
           updated_at: new Date(),
         },
       });

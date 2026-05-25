@@ -27,6 +27,7 @@ export async function ensurePrairieMoonRegistryEntry(): Promise<void> {
           general_summary: PRAIRIE_MOON_REGISTRY_ENTRY.general_summary ?? null,
           technical_details: PRAIRIE_MOON_REGISTRY_ENTRY.technical_details ?? null,
           permission_granted: PRAIRIE_MOON_REGISTRY_ENTRY.permission_granted,
+          non_passthrough_endpoints: PRAIRIE_MOON_REGISTRY_ENTRY.non_passthrough_endpoints ?? [],
           updated_at: new Date(),
         },
       });

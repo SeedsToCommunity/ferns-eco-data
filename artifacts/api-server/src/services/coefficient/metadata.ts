@@ -57,5 +57,6 @@ export const COEFFICIENT_REGISTRY_ENTRY = {
   license_notes: COEFFICIENT_LICENSE_NOTES,
   general_summary: COEFFICIENT_GENERAL_SUMMARY,
   technical_details: COEFFICIENT_TECHNICAL_DETAILS,
+  non_passthrough_endpoints: [{ endpoint: "/api/coefficient-of-conservatism/metadata", kind: "metadata" }],
   permission_granted: true,
 };

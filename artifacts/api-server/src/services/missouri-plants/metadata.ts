@@ -68,5 +68,6 @@ export const MISSOURI_PLANTS_REGISTRY_ENTRY = {
   license_notes: MISSOURI_PLANTS_LICENSE_NOTES,
   general_summary: MISSOURI_PLANTS_GENERAL_SUMMARY,
   technical_details: MISSOURI_PLANTS_TECHNICAL_DETAILS,
+  non_passthrough_endpoints: [{ endpoint: "/api/missouri-plants/metadata", kind: "metadata" }],
   permission_granted: true,
 };

@@ -59,5 +59,6 @@ export const S2C_REGISTRY_ENTRY = {
   license_notes: S2C_LICENSE_NOTES,
   general_summary: S2C_GENERAL_SUMMARY,
   technical_details: S2C_TECHNICAL_DETAILS,
+  non_passthrough_endpoints: [{ endpoint: "/api/s2c/metadata", kind: "metadata" }],
   permission_granted: true,
 };

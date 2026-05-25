@@ -95,6 +95,7 @@ export async function ensureMnfiRegistryEntry(): Promise<void> {
           general_summary: MNFI_REGISTRY_ENTRY.general_summary ?? null,
           technical_details: MNFI_REGISTRY_ENTRY.technical_details ?? null,
           permission_granted: MNFI_REGISTRY_ENTRY.permission_granted,
+          non_passthrough_endpoints: MNFI_REGISTRY_ENTRY.non_passthrough_endpoints ?? [],
           updated_at: new Date(),
         },
       });

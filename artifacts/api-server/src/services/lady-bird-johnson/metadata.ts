@@ -72,5 +72,6 @@ export const LADY_BIRD_JOHNSON_REGISTRY_ENTRY = {
   license_notes: LADY_BIRD_JOHNSON_LICENSE_NOTES,
   general_summary: LADY_BIRD_JOHNSON_GENERAL_SUMMARY,
   technical_details: LADY_BIRD_JOHNSON_TECHNICAL_DETAILS,
+  non_passthrough_endpoints: [{ endpoint: "/api/lady-bird-johnson/metadata", kind: "metadata" }],
   permission_granted: true,
 };

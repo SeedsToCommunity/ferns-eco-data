@@ -86,5 +86,6 @@ export const NATURESERVE_REGISTRY_ENTRY = {
   license_notes: NATURESERVE_LICENSE_NOTES,
   general_summary: NATURESERVE_GENERAL_SUMMARY,
   technical_details: NATURESERVE_TECHNICAL_DETAILS,
+  non_passthrough_endpoints: [{ endpoint: "/api/natureserve/metadata", kind: "metadata" }],
   permission_granted: true,
 };
