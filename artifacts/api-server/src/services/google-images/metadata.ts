@@ -53,4 +53,5 @@ export const GOOGLE_IMAGES_REGISTRY_ENTRY = {
   license_notes: GOOGLE_IMAGES_LICENSE_NOTES,
   general_summary: GOOGLE_IMAGES_GENERAL_SUMMARY,
   technical_details: GOOGLE_IMAGES_TECHNICAL_DETAILS,
+  permission_granted: true,
 };

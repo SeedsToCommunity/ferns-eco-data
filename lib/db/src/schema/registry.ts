@@ -1,4 +1,4 @@
-import { jsonb, pgTable, serial, text, timestamp, unique } from "drizzle-orm/pg-core";
+import { boolean, jsonb, pgTable, serial, text, timestamp, unique } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -24,6 +24,9 @@ export const fernsSourcesTable = pgTable("ferns_sources", {
   license: text("license").notNull().default("unknown"),
   rights: text("rights").notNull().default(""),
   website_url_patterns: jsonb("website_url_patterns").notNull().default({}),
+  // Envelope Contract v1: source-level most-restrictive permission summary.
+  // No column default — every source must declare this explicitly in its seed.
+  permission_granted: boolean("permission_granted").notNull(),
   // PRIVATE — never exposed via /api/v1/sources. See replit.md "Endpoint Kinds".
   non_passthrough_endpoints: jsonb("non_passthrough_endpoints").notNull().default([]),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),

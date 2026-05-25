@@ -94,4 +94,5 @@ export const MNFI_REGISTRY_ENTRY = {
     "POST /api/mnfi/import-descriptions, POST /api/mnfi/import-plant-lists, POST /api/mnfi/import-county-elements. " +
     "Requires ADMIN_SECRET environment variable to be set. " +
     "Subsequent startups skip the import if data is already present (idempotent check on description_fetched_at).",
+  permission_granted: true,
 };

@@ -27,6 +27,7 @@ export async function ensureBonapRegistryEntry(): Promise<void> {
           license_notes: BONAP_REGISTRY_ENTRY.license_notes ?? "",
           general_summary: BONAP_REGISTRY_ENTRY.general_summary ?? null,
           technical_details: BONAP_REGISTRY_ENTRY.technical_details ?? null,
+          permission_granted: BONAP_REGISTRY_ENTRY.permission_granted,
           updated_at: new Date(),
         },
       });

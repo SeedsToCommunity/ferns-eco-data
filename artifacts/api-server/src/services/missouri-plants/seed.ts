@@ -26,6 +26,7 @@ export async function ensureMissouriPlantsRegistryEntry(): Promise<void> {
           license_notes: MISSOURI_PLANTS_REGISTRY_ENTRY.license_notes ?? "",
           general_summary: MISSOURI_PLANTS_REGISTRY_ENTRY.general_summary ?? null,
           technical_details: MISSOURI_PLANTS_REGISTRY_ENTRY.technical_details ?? null,
+          permission_granted: MISSOURI_PLANTS_REGISTRY_ENTRY.permission_granted,
           updated_at: new Date(),
         },
       });

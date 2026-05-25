@@ -82,4 +82,5 @@ export const INAT_REGISTRY_ENTRY = {
   license_notes: INAT_LICENSE_NOTES,
   general_summary: INAT_GENERAL_SUMMARY,
   technical_details: INAT_TECHNICAL_DETAILS,
+  permission_granted: true,
 };

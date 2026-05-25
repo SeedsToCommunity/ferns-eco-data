@@ -27,6 +27,7 @@ export async function ensureInatRegistryEntry(): Promise<void> {
           license_notes: INAT_REGISTRY_ENTRY.license_notes ?? "",
           general_summary: INAT_REGISTRY_ENTRY.general_summary ?? null,
           technical_details: INAT_REGISTRY_ENTRY.technical_details ?? null,
+          permission_granted: INAT_REGISTRY_ENTRY.permission_granted,
           updated_at: new Date(),
         },
       });

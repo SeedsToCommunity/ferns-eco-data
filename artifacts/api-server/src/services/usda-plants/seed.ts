@@ -27,6 +27,7 @@ export async function ensureUsdaPlantsRegistryEntry(): Promise<void> {
           license_notes: USDA_PLANTS_REGISTRY_ENTRY.license_notes ?? "",
           general_summary: USDA_PLANTS_REGISTRY_ENTRY.general_summary ?? null,
           technical_details: USDA_PLANTS_REGISTRY_ENTRY.technical_details ?? null,
+          permission_granted: USDA_PLANTS_REGISTRY_ENTRY.permission_granted,
           updated_at: new Date(),
         },
       });

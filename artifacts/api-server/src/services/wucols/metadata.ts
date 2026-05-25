@@ -61,4 +61,5 @@ export const WUCOLS_REGISTRY_ENTRY = {
   license_notes: WUCOLS_LICENSE_NOTES,
   general_summary: WUCOLS_GENERAL_SUMMARY,
   technical_details: WUCOLS_TECHNICAL_DETAILS,
+  permission_granted: true,
 };

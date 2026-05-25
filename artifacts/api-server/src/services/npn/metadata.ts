@@ -69,4 +69,5 @@ export const NPN_REGISTRY_ENTRY = {
   license_notes: NPN_LICENSE_NOTES,
   general_summary: NPN_GENERAL_SUMMARY,
   technical_details: NPN_TECHNICAL_DETAILS,
+  permission_granted: false,
 };

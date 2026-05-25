@@ -99,6 +99,13 @@
       "when": 1747526400000,
       "tag": "0013_envelope_v1_columns",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1748188800000,
+      "tag": "0014_permission_granted",
+      "breakpoints": true
     }
   ]
 }

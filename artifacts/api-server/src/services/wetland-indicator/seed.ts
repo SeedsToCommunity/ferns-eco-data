@@ -27,6 +27,7 @@ export async function ensureWetlandIndicatorRegistryEntry(): Promise<void> {
           license_notes: WETLAND_INDICATOR_REGISTRY_ENTRY.license_notes ?? "",
           general_summary: WETLAND_INDICATOR_REGISTRY_ENTRY.general_summary ?? null,
           technical_details: WETLAND_INDICATOR_REGISTRY_ENTRY.technical_details ?? null,
+          permission_granted: WETLAND_INDICATOR_REGISTRY_ENTRY.permission_granted,
           updated_at: new Date(),
         },
       });

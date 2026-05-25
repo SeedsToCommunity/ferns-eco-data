@@ -26,6 +26,7 @@ export async function ensureNpnRegistryEntry(): Promise<void> {
           license_notes: NPN_REGISTRY_ENTRY.license_notes ?? "",
           general_summary: NPN_REGISTRY_ENTRY.general_summary ?? null,
           technical_details: NPN_REGISTRY_ENTRY.technical_details ?? null,
+          permission_granted: NPN_REGISTRY_ENTRY.permission_granted,
           updated_at: new Date(),
         },
       });

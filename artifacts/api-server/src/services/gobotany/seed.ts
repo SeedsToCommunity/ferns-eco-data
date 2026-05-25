@@ -26,6 +26,7 @@ export async function ensureGobotanyRegistryEntry(): Promise<void> {
           license_notes: GOBOTANY_REGISTRY_ENTRY.license_notes ?? "",
           general_summary: GOBOTANY_REGISTRY_ENTRY.general_summary ?? null,
           technical_details: GOBOTANY_REGISTRY_ENTRY.technical_details ?? null,
+          permission_granted: GOBOTANY_REGISTRY_ENTRY.permission_granted,
           updated_at: new Date(),
         },
       });

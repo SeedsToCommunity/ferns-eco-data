@@ -27,6 +27,7 @@ export async function ensureUniversalFqaRegistryEntry(): Promise<void> {
           license_notes: UNIVERSAL_FQA_REGISTRY_ENTRY.license_notes ?? "",
           general_summary: UNIVERSAL_FQA_REGISTRY_ENTRY.general_summary ?? null,
           technical_details: UNIVERSAL_FQA_REGISTRY_ENTRY.technical_details ?? null,
+          permission_granted: UNIVERSAL_FQA_REGISTRY_ENTRY.permission_granted,
           updated_at: new Date(),
         },
       });

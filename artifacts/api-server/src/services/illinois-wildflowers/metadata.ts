@@ -71,4 +71,5 @@ export const ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY = {
   license_notes: ILLINOIS_WILDFLOWERS_LICENSE_NOTES,
   general_summary: ILLINOIS_WILDFLOWERS_GENERAL_SUMMARY,
   technical_details: ILLINOIS_WILDFLOWERS_TECHNICAL_DETAILS,
+  permission_granted: true,
 };

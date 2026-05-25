@@ -60,6 +60,7 @@ const REGISTRY_ENTRY = {
     "informational (no action required; noted for completeness). " +
     "Method: system (internal DB read, no upstream HTTP call). " +
     "Seeded at startup via ensureSourceRelationships(); records upserted on (source_id_a, source_id_b, scope).",
+  permission_granted: true,
 };
 
 export async function ensureSourceRelationshipsRegistryEntry(): Promise<void> {
@@ -84,6 +85,7 @@ export async function ensureSourceRelationshipsRegistryEntry(): Promise<void> {
         license_notes: REGISTRY_ENTRY.license_notes,
         general_summary: REGISTRY_ENTRY.general_summary,
         technical_details: REGISTRY_ENTRY.technical_details,
+        permission_granted: REGISTRY_ENTRY.permission_granted,
         updated_at: new Date(),
       },
     });

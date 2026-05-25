@@ -100,4 +100,5 @@ export const MIFLORA_REGISTRY_ENTRY = {
   license_notes: MIFLORA_LICENSE_NOTES,
   general_summary: MIFLORA_GENERAL_SUMMARY,
   technical_details: MIFLORA_TECHNICAL_DETAILS,
+  permission_granted: true,
 };

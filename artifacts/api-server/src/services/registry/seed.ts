@@ -45,6 +45,7 @@ const REGISTRY_ENTRY = {
     "those are application-layer concerns. " +
     "Overlap: not applicable — the registry is a system catalog for all FERNS sources, not a data source that overlaps with others. " +
     "Method: system (internal DB read, no upstream HTTP call).",
+  permission_granted: true,
 };
 
 export async function ensureRegistryEntry(): Promise<void> {
@@ -70,6 +71,7 @@ export async function ensureRegistryEntry(): Promise<void> {
           license_notes: REGISTRY_ENTRY.license_notes,
           general_summary: REGISTRY_ENTRY.general_summary,
           technical_details: REGISTRY_ENTRY.technical_details,
+          permission_granted: REGISTRY_ENTRY.permission_granted,
           updated_at: new Date(),
         },
       });

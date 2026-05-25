@@ -26,6 +26,7 @@ export async function ensureLadyBirdJohnsonRegistryEntry(): Promise<void> {
           license_notes: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.license_notes ?? "",
           general_summary: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.general_summary ?? null,
           technical_details: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.technical_details ?? null,
+          permission_granted: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.permission_granted,
           updated_at: new Date(),
         },
       });

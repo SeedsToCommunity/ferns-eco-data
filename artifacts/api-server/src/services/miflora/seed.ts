@@ -27,6 +27,7 @@ export async function ensureMifloraRegistryEntry(): Promise<void> {
           license_notes: MIFLORA_REGISTRY_ENTRY.license_notes ?? "",
           general_summary: MIFLORA_REGISTRY_ENTRY.general_summary ?? null,
           technical_details: MIFLORA_REGISTRY_ENTRY.technical_details ?? null,
+          permission_granted: MIFLORA_REGISTRY_ENTRY.permission_granted,
           updated_at: new Date(),
         },
       });

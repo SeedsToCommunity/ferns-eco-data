@@ -57,4 +57,5 @@ export const COEFFICIENT_REGISTRY_ENTRY = {
   license_notes: COEFFICIENT_LICENSE_NOTES,
   general_summary: COEFFICIENT_GENERAL_SUMMARY,
   technical_details: COEFFICIENT_TECHNICAL_DETAILS,
+  permission_granted: true,
 };

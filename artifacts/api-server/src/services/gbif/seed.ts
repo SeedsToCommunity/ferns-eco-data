@@ -27,6 +27,7 @@ export async function ensureGbifRegistryEntry(): Promise<void> {
           license_notes: GBIF_REGISTRY_ENTRY.license_notes ?? "",
           general_summary: GBIF_REGISTRY_ENTRY.general_summary ?? null,
           technical_details: GBIF_REGISTRY_ENTRY.technical_details ?? null,
+          permission_granted: GBIF_REGISTRY_ENTRY.permission_granted,
           updated_at: new Date(),
         },
       });

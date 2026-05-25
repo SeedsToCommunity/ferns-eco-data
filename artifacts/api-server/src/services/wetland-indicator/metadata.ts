@@ -61,4 +61,5 @@ export const WETLAND_INDICATOR_REGISTRY_ENTRY = {
   license_notes: WETLAND_INDICATOR_LICENSE_NOTES,
   general_summary: WETLAND_INDICATOR_GENERAL_SUMMARY,
   technical_details: WETLAND_INDICATOR_TECHNICAL_DETAILS,
+  permission_granted: true,
 };
