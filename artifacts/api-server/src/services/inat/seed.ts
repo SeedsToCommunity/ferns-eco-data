@@ -29,6 +29,9 @@ export async function ensureInatRegistryEntry(): Promise<void> {
           technical_details: INAT_REGISTRY_ENTRY.technical_details ?? null,
           permission_granted: INAT_REGISTRY_ENTRY.permission_granted,
           non_passthrough_endpoints: INAT_REGISTRY_ENTRY.non_passthrough_endpoints ?? [],
+          license: INAT_REGISTRY_ENTRY.license ?? null,
+          rights: INAT_REGISTRY_ENTRY.rights ?? null,
+          website_url_patterns: INAT_REGISTRY_ENTRY.website_url_patterns ?? null,
           updated_at: new Date(),
         },
       });

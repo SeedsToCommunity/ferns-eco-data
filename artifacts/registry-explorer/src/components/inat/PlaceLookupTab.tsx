@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useGetInatPlacesAutocomplete, getGetInatPlacesAutocompleteQueryKey } from "@workspace/api-client-react";
+import { useGetInatPlacesAutocomplete, getGetInatPlacesAutocompleteQueryKey, useGetInatMetadata } from "@workspace/api-client-react";
 import { MapPin, Search, Loader2, AlertCircle, ExternalLink, CheckCircle } from "lucide-react";
 import { RawJsonPanel } from "@/components/RawJsonPanel";
 
@@ -8,7 +8,6 @@ interface PlaceResult {
   display_name: string;
   place_type: number;
   place_type_name: string;
-  inat_url: string;
 }
 
 interface PlaceLookupTabProps {
@@ -19,6 +18,10 @@ export function PlaceLookupTab({ onPlaceSelected }: PlaceLookupTabProps) {
   const [searchInput, setSearchInput] = useState<string>("");
   const [query, setQuery] = useState<string>("");
   const [selectedId, setSelectedId] = useState<number | null>(null);
+
+  const { data: metaResponse } = useGetInatMetadata();
+  const urlPatterns = metaResponse?.data as { website_url_patterns?: { place?: string; taxon?: string; observation?: string } } | undefined;
+  const placeUrlPattern = urlPatterns?.website_url_patterns?.place ?? "https://www.inaturalist.org/places/{id}";
 
   const enabled = !!query;
   const placeParams = { q: query };
@@ -44,7 +47,7 @@ export function PlaceLookupTab({ onPlaceSelected }: PlaceLookupTabProps) {
     onPlaceSelected?.(place.id, place.display_name);
   }
 
-  const placeData = response?.data as { query: string; results: PlaceResult[] } | undefined;
+  const placeData = response?.data as { results: PlaceResult[] } | undefined;
   const results = placeData?.results ?? [];
 
   return (
@@ -100,8 +103,8 @@ export function PlaceLookupTab({ onPlaceSelected }: PlaceLookupTabProps) {
           <div className="px-6 py-4 border-b border-border bg-muted/30 flex items-center justify-between gap-4">
             <h3 className="font-semibold text-sm">
               {results.length > 0
-                ? `${results.length} result${results.length !== 1 ? "s" : ""} for "${placeData?.query}"`
-                : `No results for "${placeData?.query}"`}
+                ? `${results.length} result${results.length !== 1 ? "s" : ""} for "${query}"`
+                : `No results for "${query}"`}
             </h3>
             {onPlaceSelected && results.length > 0 && (
               <p className="text-xs text-muted-foreground">Select a place to use in Phenology</p>
@@ -152,7 +155,7 @@ export function PlaceLookupTab({ onPlaceSelected }: PlaceLookupTabProps) {
                         </button>
                       )}
                       <a
-                        href={place.inat_url}
+                        href={placeUrlPattern.replace("{id}", String(place.id))}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-primary"

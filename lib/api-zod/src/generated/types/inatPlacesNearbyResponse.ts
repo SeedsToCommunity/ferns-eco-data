@@ -5,14 +5,6 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { FernsProvenance } from "./fernsProvenance";
-import type { InatPlacesNearbyResponseData } from "./inatPlacesNearbyResponseData";
+import type { FernsEnvelope } from "./fernsEnvelope";
 
-export interface InatPlacesNearbyResponse {
-  source_url: string;
-  found: boolean;
-  /** Raw iNaturalist places/nearby response. Contains two result arrays: standard (admin places) and community (user-created places).
-   */
-  data: InatPlacesNearbyResponseData;
-  provenance: FernsProvenance;
-}
+export type InatPlacesNearbyResponse = FernsEnvelope;

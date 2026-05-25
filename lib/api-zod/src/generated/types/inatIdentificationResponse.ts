@@ -5,14 +5,6 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { FernsProvenance } from "./fernsProvenance";
-import type { InatIdentificationResponseData } from "./inatIdentificationResponseData";
+import type { FernsEnvelope } from "./fernsEnvelope";
 
-export interface InatIdentificationResponse {
-  source_url: string;
-  found: boolean;
-  /** Raw iNaturalist identification record response for a single identification ID. Contains the full identification record including taxon, observation, user, and created_at fields.
-   */
-  data: InatIdentificationResponseData;
-  provenance: FernsProvenance;
-}
+export type InatIdentificationResponse = FernsEnvelope;

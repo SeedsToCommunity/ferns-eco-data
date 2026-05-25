@@ -173,7 +173,7 @@ function TaxonByIdPanel({ preloadedTaxonId }: { preloadedTaxonId?: number | null
   const url = submittedId !== null ? apiUrl(`/api/inat/taxa/${submittedId}`, {}) : null;
   const { data, loading, error } = useApiGet<{
     found: boolean;
-    cache_status?: string;
+    provenance?: { cache_status?: string };
     data: {
       results?: Array<{
         id: number;
@@ -232,8 +232,8 @@ function TaxonByIdPanel({ preloadedTaxonId }: { preloadedTaxonId?: number | null
               <div className="flex items-center gap-2 mb-1">
                 <h3 className="text-sm font-semibold italic">{taxon.name}</h3>
                 <Badge variant="outline" className="text-xs">{taxon.rank}</Badge>
-                {data?.cache_status && (
-                  <Badge variant="secondary" className="text-xs">cache: {data.cache_status}</Badge>
+                {data?.provenance?.cache_status && (
+                  <Badge variant="secondary" className="text-xs">cache: {data.provenance.cache_status}</Badge>
                 )}
               </div>
               {taxon.preferred_common_name && <p className="text-xs text-muted-foreground mb-1">{taxon.preferred_common_name}</p>}
@@ -308,7 +308,7 @@ function PlaceByIdPanel() {
   const url = submittedId !== null ? apiUrl(`/api/inat/places/${submittedId}`, {}) : null;
   const { data, loading, error } = useApiGet<{
     found: boolean;
-    cache_status?: string;
+    provenance?: { cache_status?: string };
     data: {
       results?: Array<{
         id: number;
@@ -359,8 +359,8 @@ function PlaceByIdPanel() {
         <div className="p-3 rounded-lg border border-border bg-card space-y-2">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-semibold">{place.display_name ?? place.name ?? `Place ${place.id}`}</h3>
-            {data?.cache_status && (
-              <Badge variant="secondary" className="text-xs">cache: {data.cache_status}</Badge>
+            {data?.provenance?.cache_status && (
+              <Badge variant="secondary" className="text-xs">cache: {data.provenance.cache_status}</Badge>
             )}
           </div>
           <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
@@ -498,7 +498,7 @@ function ControlledTermsPanel() {
   const url = apiUrl("/api/inat/controlled_terms", {});
   const { data, loading, error } = useApiGet<{
     found: boolean;
-    cache_status?: string;
+    provenance?: { cache_status?: string };
     data: {
       results?: Array<{
         id: number;
@@ -515,7 +515,7 @@ function ControlledTermsPanel() {
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <p className="text-xs text-muted-foreground">Reference table of all iNaturalist controlled annotation term IDs and value IDs</p>
-        {data?.cache_status && <Badge variant="secondary" className="text-xs">cache: {data.cache_status}</Badge>}
+        {data?.provenance?.cache_status && <Badge variant="secondary" className="text-xs">cache: {data.provenance.cache_status}</Badge>}
       </div>
 
       {loading && (

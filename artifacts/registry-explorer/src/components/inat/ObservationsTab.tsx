@@ -105,7 +105,7 @@ export function ObservationsTab({
     commit(committedTaxonId, committedPlaceId, committedQuality ?? "", pg, committedD1, committedD2);
   }
 
-  const obsData  = data?.data;
+  const obsData  = data?.data as { results?: ObsRecord[]; total_results?: number; total_pages?: number } | undefined;
   const results  = obsData?.results ?? [];
   const total    = obsData?.total_results ?? 0;
   const totalPgs = obsData?.total_pages ?? 0;

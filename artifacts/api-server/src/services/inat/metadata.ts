@@ -84,4 +84,14 @@ export const INAT_REGISTRY_ENTRY = {
   technical_details: INAT_TECHNICAL_DETAILS,
   non_passthrough_endpoints: [{ endpoint: "/api/inat/metadata", kind: "metadata" }],
   permission_granted: true,
+  license: "https://creativecommons.org/licenses/by-nc/4.0/",
+  rights:
+    "iNaturalist observations are individually licensed by contributors (CC0, CC BY, or CC BY-NC). " +
+    "The license_code field on individual observation records is authoritative for each record. " +
+    "This source-level value is the most-restrictive summary across commonly used licenses for research-grade observations.",
+  website_url_patterns: {
+    taxon: "https://www.inaturalist.org/taxa/{id}",
+    place: "https://www.inaturalist.org/places/{id}",
+    observation: "https://www.inaturalist.org/observations/{id}",
+  },
 };

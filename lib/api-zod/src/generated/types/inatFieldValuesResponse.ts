@@ -5,19 +5,6 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { FernsProvenance } from "./fernsProvenance";
-import type { InatFieldValuesResponseCacheStatus } from "./inatFieldValuesResponseCacheStatus";
-import type { InatFieldValuesResponseData } from "./inatFieldValuesResponseData";
+import type { FernsEnvelope } from "./fernsEnvelope";
 
-export interface InatFieldValuesResponse {
-  /** https://www.inaturalist.org/observations?taxon_id={id}&place_id={ids} */
-  source_url: string;
-  found: boolean;
-  cache_status: InatFieldValuesResponseCacheStatus;
-  /** When this FERNS request was processed */
-  queried_at: Date;
-  /** Raw iNaturalist observations/popular_field_values response. The results array contains entries with controlled_attribute, controlled_value, and month_of_year fields. Stage labels include Flowers, Flower Buds, Fruits or Seeds, No Flowers or Fruits, Green Leaves, Colored Leaves, No Live Leaves, Breaking Leaf Buds.
-   */
-  data: InatFieldValuesResponseData;
-  provenance: FernsProvenance;
-}
+export type InatFieldValuesResponse = FernsEnvelope;

@@ -400,7 +400,6 @@ const tools: ToolDef[] = [
         properties: {
           taxon_id: { type: "number", description: "iNaturalist taxon ID (integer)" },
           refresh:  { type: "boolean", description: "Bypass cache" },
-          ...PV_PROP,
         },
         required: ["taxon_id"],
       },
@@ -409,7 +408,6 @@ const tools: ToolDef[] = [
       apiGet("/inat/controlled_terms/for_taxon", {
         taxon_id: Number(args["taxon_id"]),
         refresh:  args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
-        provenance_verbosity: pv(args),
       }),
   },
 
@@ -428,7 +426,6 @@ const tools: ToolDef[] = [
           locale:             { type: "string",  description: "Locale code for common names (e.g. en, es)" },
           all_names:          { type: "boolean", description: "Include all name variants in search" },
           preferred_place_id: { type: "number",  description: "Place ID to prioritize common names for that place" },
-          ...PV_PROP,
         },
         required: ["q"],
       },
@@ -442,7 +439,6 @@ const tools: ToolDef[] = [
         locale:             args["locale"]             !== undefined ? String(args["locale"])             : undefined,
         all_names:          args["all_names"]          !== undefined ? String(args["all_names"])          : undefined,
         preferred_place_id: args["preferred_place_id"] !== undefined ? Number(args["preferred_place_id"]) : undefined,
-        provenance_verbosity: pv(args),
       }),
   },
 
@@ -456,7 +452,6 @@ const tools: ToolDef[] = [
         properties: {
           id:      { type: "number",  description: "iNaturalist taxon ID (integer)" },
           refresh: { type: "boolean", description: "Bypass cache" },
-          ...PV_PROP,
         },
         required: ["id"],
       },
@@ -464,7 +459,6 @@ const tools: ToolDef[] = [
     handler: async (args) =>
       apiGet(`/inat/taxa/${Number(args["id"])}`, {
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
-        provenance_verbosity: pv(args),
       }),
   },
 
@@ -479,7 +473,6 @@ const tools: ToolDef[] = [
           id:          { type: "number",  description: "iNaturalist place ID (integer)" },
           admin_level: { type: "number",  description: "Admin level filter (0=country, 1=state, 2=county)" },
           refresh:     { type: "boolean", description: "Bypass cache" },
-          ...PV_PROP,
         },
         required: ["id"],
       },
@@ -488,7 +481,6 @@ const tools: ToolDef[] = [
       apiGet(`/inat/places/${Number(args["id"])}`, {
         admin_level: args["admin_level"] !== undefined ? Number(args["admin_level"]) : undefined,
         refresh:     args["refresh"]     !== undefined ? String(args["refresh"])     : undefined,
-        provenance_verbosity: pv(args),
       }),
   },
 
@@ -501,14 +493,12 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           observation_id: { type: "number", description: "iNaturalist observation ID (integer)" },
-          ...PV_PROP,
         },
         required: ["observation_id"],
       },
     },
     handler: async (args) =>
       apiGet(`/inat/observations/${Number(args["observation_id"])}/taxon_summary`, {
-        provenance_verbosity: pv(args),
       }),
   },
 
@@ -530,7 +520,6 @@ const tools: ToolDef[] = [
           nelng:         { type: "number",  description: "Bounding box NE longitude" },
           swlat:         { type: "number",  description: "Bounding box SW latitude" },
           swlng:         { type: "number",  description: "Bounding box SW longitude" },
-          ...PV_PROP,
         },
         required: ["taxon_id"],
       },
@@ -547,7 +536,6 @@ const tools: ToolDef[] = [
         nelng:         args["nelng"]         !== undefined ? Number(args["nelng"])         : undefined,
         swlat:         args["swlat"]         !== undefined ? Number(args["swlat"])         : undefined,
         swlng:         args["swlng"]         !== undefined ? Number(args["swlng"])         : undefined,
-        provenance_verbosity: pv(args),
       }),
   },
 
@@ -580,7 +568,6 @@ const tools: ToolDef[] = [
           order_by:      { type: "string",  description: "count or id" },
           taxon_of:      { type: "string",  description: "identification (default) or community" },
           iconic_taxa:   { type: "string",  description: "Comma-separated iconic taxon names (e.g. Plantae,Fungi)" },
-          ...PV_PROP,
         },
         required: [],
       },
@@ -608,7 +595,6 @@ const tools: ToolDef[] = [
         order_by:      args["order_by"]      !== undefined ? String(args["order_by"])      : undefined,
         taxon_of:      args["taxon_of"]      !== undefined ? String(args["taxon_of"])      : undefined,
         iconic_taxa:   args["iconic_taxa"]   !== undefined ? String(args["iconic_taxa"])   : undefined,
-        provenance_verbosity: pv(args),
       }),
   },
 
@@ -627,7 +613,6 @@ const tools: ToolDef[] = [
           page:          { type: "number", description: "Page number, 1-indexed" },
           d1:            { type: "string", description: "Start date filter (YYYY-MM-DD)" },
           d2:            { type: "string", description: "End date filter (YYYY-MM-DD)" },
-          ...PV_PROP,
         },
         required: [],
       },
@@ -641,7 +626,6 @@ const tools: ToolDef[] = [
         page:          args["page"]          !== undefined ? Number(args["page"])          : undefined,
         d1:            args["d1"]            !== undefined ? String(args["d1"])            : undefined,
         d2:            args["d2"]            !== undefined ? String(args["d2"])            : undefined,
-        provenance_verbosity: pv(args),
       }),
   },
 
@@ -679,7 +663,6 @@ const tools: ToolDef[] = [
           verifiable:    { type: "boolean", description: "Only verifiable observations" },
           order:         { type: "string",  description: "asc or desc" },
           order_by:      { type: "string",  description: "created_at or id" },
-          ...PV_PROP,
         },
         required: [],
       },
@@ -712,7 +695,6 @@ const tools: ToolDef[] = [
         verifiable:    args["verifiable"]    !== undefined ? String(args["verifiable"])    : undefined,
         order:         args["order"]         !== undefined ? String(args["order"])         : undefined,
         order_by:      args["order_by"]      !== undefined ? String(args["order_by"])      : undefined,
-        provenance_verbosity: pv(args),
       }),
   },
 
@@ -725,14 +707,12 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           id:  { type: "number", description: "iNaturalist identification ID (integer)" },
-          ...PV_PROP,
         },
         required: ["id"],
       },
     },
     handler: async (args) =>
       apiGet(`/inat/identifications/${Number(args["id"])}`, {
-        provenance_verbosity: pv(args),
       }),
   },
 
@@ -750,7 +730,6 @@ const tools: ToolDef[] = [
           swlng:    { type: "number", description: "Southwest corner longitude" },
           name:     { type: "string", description: "Optional name filter to narrow results" },
           per_page: { type: "number", description: "Results per page" },
-          ...PV_PROP,
         },
         required: ["nelat", "nelng", "swlat", "swlng"],
       },
@@ -763,7 +742,6 @@ const tools: ToolDef[] = [
         swlng:    Number(args["swlng"]),
         name:     args["name"]     !== undefined ? String(args["name"])     : undefined,
         per_page: args["per_page"] !== undefined ? Number(args["per_page"]) : undefined,
-        provenance_verbosity: pv(args),
       }),
   },
 

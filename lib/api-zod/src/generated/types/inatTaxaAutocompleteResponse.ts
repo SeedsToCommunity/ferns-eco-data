@@ -5,13 +5,6 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { FernsProvenance } from "./fernsProvenance";
-import type { InatTaxaAutocompleteResponseData } from "./inatTaxaAutocompleteResponseData";
+import type { FernsEnvelope } from "./fernsEnvelope";
 
-export interface InatTaxaAutocompleteResponse {
-  source_url: string;
-  found: boolean;
-  /** Raw iNaturalist taxa/autocomplete response with results array. */
-  data: InatTaxaAutocompleteResponseData;
-  provenance: FernsProvenance;
-}
+export type InatTaxaAutocompleteResponse = FernsEnvelope;

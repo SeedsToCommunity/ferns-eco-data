@@ -15,6 +15,4 @@ export interface InatPlaceResult {
   place_type: number;
   /** Human-readable place type (e.g. County, State, Nation) */
   place_type_name: string;
-  /** https://www.inaturalist.org/places/{id} */
-  inat_url: string;
 }

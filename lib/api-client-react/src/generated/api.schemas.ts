@@ -423,37 +423,16 @@ export interface InatPlaceResult {
   place_type: number;
   /** Human-readable place type (e.g. County, State, Nation) */
   place_type_name: string;
-  /** https://www.inaturalist.org/places/{id} */
-  inat_url: string;
 }
-
-export type InatPlaceDataCacheStatus =
-  (typeof InatPlaceDataCacheStatus)[keyof typeof InatPlaceDataCacheStatus];
-
-export const InatPlaceDataCacheStatus = {
-  hit: "hit",
-  miss: "miss",
-  bypassed: "bypassed",
-} as const;
 
 export interface InatPlaceData {
-  /** The place name that was searched */
-  query: string;
   /** Up to 5 matching places. Applications select the correct one. */
-  results: InatPlaceResult[];
-  /** When this lookup was cached */
-  resolved_at: string;
-  cache_status: InatPlaceDataCacheStatus;
+  results?: InatPlaceResult[];
 }
 
-export interface InatPlaceResponse {
-  /** The iNaturalist autocomplete API URL that was called to resolve this query. Null if unavailable. */
-  source_url: string | null;
-  /** false if no places matched the query */
-  found: boolean;
-  data: InatPlaceData | null;
-  provenance: FernsProvenance;
-}
+export type InatPlaceResponse = FernsEnvelope & {
+  data?: InatPlaceData;
+};
 
 export interface InatConservationStatus {
   /** Assessing authority (e.g. IUCN) */
@@ -478,89 +457,11 @@ export interface InatNativeStatusEntry {
   place_name: string;
 }
 
-export type InatSpeciesResponseCacheStatus =
-  (typeof InatSpeciesResponseCacheStatus)[keyof typeof InatSpeciesResponseCacheStatus];
+export type InatSpeciesResponse = FernsEnvelope;
 
-export const InatSpeciesResponseCacheStatus = {
-  hit: "hit",
-  miss: "miss",
-  bypassed: "bypassed",
-} as const;
+export type InatHistogramResponse = FernsEnvelope;
 
-/**
- * Complete iNaturalist taxon record from GET /taxa/{id}, passed through with all original field names intact. Key fields include: id (taxon ID), name (scientific name), preferred_common_name, observations_count, default_photo (object with medium_url), wikipedia_url, wikipedia_summary, conservation_status, and taxon_names.
-
- */
-export type InatSpeciesResponseData = { [key: string]: unknown } | null;
-
-export interface InatSpeciesResponse {
-  /** https://www.inaturalist.org/taxa/{id} */
-  source_url: string | null;
-  found: boolean;
-  cache_status: InatSpeciesResponseCacheStatus;
-  /** When this FERNS request was processed */
-  queried_at: string;
-  /** Complete iNaturalist taxon record from GET /taxa/{id}, passed through with all original field names intact. Key fields include: id (taxon ID), name (scientific name), preferred_common_name, observations_count, default_photo (object with medium_url), wikipedia_url, wikipedia_summary, conservation_status, and taxon_names.
-   */
-  data: InatSpeciesResponseData;
-  provenance: FernsProvenance;
-}
-
-export type InatHistogramResponseCacheStatus =
-  (typeof InatHistogramResponseCacheStatus)[keyof typeof InatHistogramResponseCacheStatus];
-
-export const InatHistogramResponseCacheStatus = {
-  hit: "hit",
-  miss: "miss",
-  bypassed: "bypassed",
-} as const;
-
-/**
- * Raw iNaturalist observations/histogram response. The month_of_year object inside results contains observation counts keyed by month number string ('1' through '12').
-
- */
-export type InatHistogramResponseData = { [key: string]: unknown };
-
-export interface InatHistogramResponse {
-  /** https://www.inaturalist.org/observations?taxon_id={id}&place_id={ids} */
-  source_url: string;
-  found: boolean;
-  cache_status: InatHistogramResponseCacheStatus;
-  /** When this FERNS request was processed */
-  queried_at: string;
-  /** Raw iNaturalist observations/histogram response. The month_of_year object inside results contains observation counts keyed by month number string ('1' through '12').
-   */
-  data: InatHistogramResponseData;
-  provenance: FernsProvenance;
-}
-
-export type InatFieldValuesResponseCacheStatus =
-  (typeof InatFieldValuesResponseCacheStatus)[keyof typeof InatFieldValuesResponseCacheStatus];
-
-export const InatFieldValuesResponseCacheStatus = {
-  hit: "hit",
-  miss: "miss",
-  bypassed: "bypassed",
-} as const;
-
-/**
- * Raw iNaturalist observations/popular_field_values response. The results array contains entries with controlled_attribute, controlled_value, and month_of_year fields. Stage labels include Flowers, Flower Buds, Fruits or Seeds, No Flowers or Fruits, Green Leaves, Colored Leaves, No Live Leaves, Breaking Leaf Buds.
-
- */
-export type InatFieldValuesResponseData = { [key: string]: unknown };
-
-export interface InatFieldValuesResponse {
-  /** https://www.inaturalist.org/observations?taxon_id={id}&place_id={ids} */
-  source_url: string;
-  found: boolean;
-  cache_status: InatFieldValuesResponseCacheStatus;
-  /** When this FERNS request was processed */
-  queried_at: string;
-  /** Raw iNaturalist observations/popular_field_values response. The results array contains entries with controlled_attribute, controlled_value, and month_of_year fields. Stage labels include Flowers, Flower Buds, Fruits or Seeds, No Flowers or Fruits, Green Leaves, Colored Leaves, No Live Leaves, Breaking Leaf Buds.
-   */
-  data: InatFieldValuesResponseData;
-  provenance: FernsProvenance;
-}
+export type InatFieldValuesResponse = FernsEnvelope;
 
 export type InatObservationSummaryRecordTaxonDefaultPhoto = {
   [key: string]: unknown;
@@ -652,208 +553,33 @@ export interface InatObservationSummaryData {
   results: InatObservationSummaryRecord[];
 }
 
-export interface InatObservationSummaryResponse {
-  source_url: string;
-  found: boolean;
-  data: InatObservationSummaryData;
-  provenance: FernsProvenance;
-}
+export type InatObservationSummaryResponse = FernsEnvelope;
 
-/**
- * Raw iNaturalist controlled_terms response.
- */
-export type InatControlledTermsResponseData = { [key: string]: unknown };
+export type InatControlledTermsResponse = FernsEnvelope;
 
-export interface InatControlledTermsResponse {
-  source_url: string;
-  found: boolean;
-  cache_status?: string;
-  /** Raw iNaturalist controlled_terms response. */
-  data: InatControlledTermsResponseData;
-  provenance: FernsProvenance;
-}
+export type InatControlledTermsForTaxonResponse = FernsEnvelope;
 
-/**
- * Raw iNaturalist controlled_terms/for_taxon response.
- */
-export type InatControlledTermsForTaxonResponseData = {
-  [key: string]: unknown;
-};
+export type InatTaxaAutocompleteResponse = FernsEnvelope;
 
-export interface InatControlledTermsForTaxonResponse {
-  source_url: string;
-  found: boolean;
-  cache_status?: string;
-  /** Raw iNaturalist controlled_terms/for_taxon response. */
-  data: InatControlledTermsForTaxonResponseData;
-  provenance: FernsProvenance;
-}
+export type InatTaxonByIdResponse = FernsEnvelope;
 
-/**
- * Raw iNaturalist taxa/autocomplete response with results array.
- */
-export type InatTaxaAutocompleteResponseData = { [key: string]: unknown };
+export type InatPlaceByIdResponse = FernsEnvelope;
 
-export interface InatTaxaAutocompleteResponse {
-  source_url: string;
-  found: boolean;
-  /** Raw iNaturalist taxa/autocomplete response with results array. */
-  data: InatTaxaAutocompleteResponseData;
-  provenance: FernsProvenance;
-}
+export type InatPlacesNearbyResponse = FernsEnvelope;
 
-/**
- * Raw iNaturalist taxa/{id} response. Includes wikipedia_summary, listed_taxa (nativity per place), children, conservation_status, and default_photo. The listed_taxa array is the canonical source of native/introduced/endemic status for this taxon.
+export type InatSpeciesCountsResponse = FernsEnvelope;
 
- */
-export type InatTaxonByIdResponseData = { [key: string]: unknown };
+export type InatTaxonSummaryResponse = FernsEnvelope;
 
-export interface InatTaxonByIdResponse {
-  source_url: string;
-  found: boolean;
-  cache_status?: string;
-  /** Raw iNaturalist taxa/{id} response. Includes wikipedia_summary, listed_taxa (nativity per place), children, conservation_status, and default_photo. The listed_taxa array is the canonical source of native/introduced/endemic status for this taxon.
-   */
-  data: InatTaxonByIdResponseData;
-  provenance: FernsProvenance;
-}
+export type InatSimilarSpeciesResponse = FernsEnvelope;
 
-/**
- * Raw iNaturalist places/{id} response. Includes display_name, place_type, centroid, bounding_box_geojson, and admin hierarchy (admin_level, parent_id).
+export type InatIdentSpeciesCountsResponse = FernsEnvelope;
 
- */
-export type InatPlaceByIdResponseData = { [key: string]: unknown };
+export type InatRecentTaxaResponse = FernsEnvelope;
 
-export interface InatPlaceByIdResponse {
-  source_url: string;
-  found: boolean;
-  cache_status?: string;
-  /** Raw iNaturalist places/{id} response. Includes display_name, place_type, centroid, bounding_box_geojson, and admin hierarchy (admin_level, parent_id).
-   */
-  data: InatPlaceByIdResponseData;
-  provenance: FernsProvenance;
-}
+export type InatIdentificationsResponse = FernsEnvelope;
 
-/**
- * Raw iNaturalist places/nearby response. Contains two result arrays: standard (admin places) and community (user-created places).
-
- */
-export type InatPlacesNearbyResponseData = { [key: string]: unknown };
-
-export interface InatPlacesNearbyResponse {
-  source_url: string;
-  found: boolean;
-  /** Raw iNaturalist places/nearby response. Contains two result arrays: standard (admin places) and community (user-created places).
-   */
-  data: InatPlacesNearbyResponseData;
-  provenance: FernsProvenance;
-}
-
-/**
- * Raw iNaturalist observations/species_counts response. The results array contains entries with count and taxon fields. Each taxon includes id, name, preferred_common_name, default_photo, and observations_count.
-
- */
-export type InatSpeciesCountsResponseData = { [key: string]: unknown };
-
-export interface InatSpeciesCountsResponse {
-  /** https://www.inaturalist.org/observations?taxon_id=... */
-  source_url: string;
-  found: boolean;
-  /** Raw iNaturalist observations/species_counts response. The results array contains entries with count and taxon fields. Each taxon includes id, name, preferred_common_name, default_photo, and observations_count.
-   */
-  data: InatSpeciesCountsResponseData;
-  provenance: FernsProvenance;
-}
-
-/**
- * Raw iNaturalist taxon_summary response for the given observation. Contains wikipedia_summary (string), listed_taxon (establishment_means for the observation's place), and conservation_status.
-
- */
-export type InatTaxonSummaryResponseData = { [key: string]: unknown };
-
-export interface InatTaxonSummaryResponse {
-  source_url: string;
-  found: boolean;
-  /** Raw iNaturalist taxon_summary response for the given observation. Contains wikipedia_summary (string), listed_taxon (establishment_means for the observation's place), and conservation_status.
-   */
-  data: InatTaxonSummaryResponseData;
-  provenance: FernsProvenance;
-}
-
-/**
- * Raw iNaturalist identifications/similar_species response. The results array contains taxa frequently confused with the queried taxon, each with a count field indicating co-confusion frequency.
-
- */
-export type InatSimilarSpeciesResponseData = { [key: string]: unknown };
-
-export interface InatSimilarSpeciesResponse {
-  source_url: string;
-  found: boolean;
-  /** Raw iNaturalist identifications/similar_species response. The results array contains taxa frequently confused with the queried taxon, each with a count field indicating co-confusion frequency.
-   */
-  data: InatSimilarSpeciesResponseData;
-  provenance: FernsProvenance;
-}
-
-/**
- * Raw iNaturalist identifications/species_counts response. Species ranked by identification activity — a community engagement signal distinct from raw observation count. Supports taxon_of=identification|community.
-
- */
-export type InatIdentSpeciesCountsResponseData = { [key: string]: unknown };
-
-export interface InatIdentSpeciesCountsResponse {
-  source_url: string;
-  found: boolean;
-  /** Raw iNaturalist identifications/species_counts response. Species ranked by identification activity — a community engagement signal distinct from raw observation count. Supports taxon_of=identification|community.
-   */
-  data: InatIdentSpeciesCountsResponseData;
-  provenance: FernsProvenance;
-}
-
-/**
- * Raw iNaturalist identifications/recent_taxa response. Taxa recently identified in a place — "what's being documented right now".
-
- */
-export type InatRecentTaxaResponseData = { [key: string]: unknown };
-
-export interface InatRecentTaxaResponse {
-  source_url: string;
-  found: boolean;
-  /** Raw iNaturalist identifications/recent_taxa response. Taxa recently identified in a place — "what's being documented right now".
-   */
-  data: InatRecentTaxaResponseData;
-  provenance: FernsProvenance;
-}
-
-/**
- * Raw iNaturalist identifications response. Contains total_results, page, per_page, and a results array of individual identification records. Each record includes id, created_at, taxon, observation, and user fields.
-
- */
-export type InatIdentificationsResponseData = { [key: string]: unknown };
-
-export interface InatIdentificationsResponse {
-  source_url: string;
-  found: boolean;
-  /** Raw iNaturalist identifications response. Contains total_results, page, per_page, and a results array of individual identification records. Each record includes id, created_at, taxon, observation, and user fields.
-   */
-  data: InatIdentificationsResponseData;
-  provenance: FernsProvenance;
-}
-
-/**
- * Raw iNaturalist identification record response for a single identification ID. Contains the full identification record including taxon, observation, user, and created_at fields.
-
- */
-export type InatIdentificationResponseData = { [key: string]: unknown };
-
-export interface InatIdentificationResponse {
-  source_url: string;
-  found: boolean;
-  /** Raw iNaturalist identification record response for a single identification ID. Contains the full identification record including taxon, observation, user, and created_at fields.
-   */
-  data: InatIdentificationResponseData;
-  provenance: FernsProvenance;
-}
+export type InatIdentificationResponse = FernsEnvelope;
 
 export interface InatAttribution {
   source_name: string;
@@ -863,36 +589,7 @@ export interface InatAttribution {
   api_base_url?: string;
 }
 
-/**
- * Full registry entry for this iNaturalist service source
- */
-export type InatMetadataResponseRegistryEntry = {
-  source_id?: string;
-  name?: string;
-  knowledge_type?: string;
-  status?: string;
-  description?: string;
-  input_summary?: string;
-  output_summary?: string;
-  dependencies?: string[];
-  update_frequency?: string;
-  known_limitations?: string;
-  metadata_url?: string;
-  explorer_url?: string;
-};
-
-export interface InatMetadataResponse {
-  service_id: string;
-  service_name: string;
-  /** True if FERNS has permission to use and expose this data. iNaturalist is open access — no permission request required. */
-  licenses: string[];
-  license_notes: string;
-  attribution: InatAttribution;
-  /** Full registry entry for this iNaturalist service source */
-  registry_entry?: InatMetadataResponseRegistryEntry;
-  queried_at: string;
-  provenance: FernsProvenance;
-}
+export type InatMetadataResponse = FernsEnvelope;
 
 export interface SourceSummary {
   /** Stable identifier for this service (e.g. bonap-napa, gbif) */

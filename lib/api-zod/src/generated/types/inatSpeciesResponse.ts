@@ -5,19 +5,6 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { FernsProvenance } from "./fernsProvenance";
-import type { InatSpeciesResponseCacheStatus } from "./inatSpeciesResponseCacheStatus";
-import type { InatSpeciesResponseData } from "./inatSpeciesResponseData";
+import type { FernsEnvelope } from "./fernsEnvelope";
 
-export interface InatSpeciesResponse {
-  /** https://www.inaturalist.org/taxa/{id} */
-  source_url: string | null;
-  found: boolean;
-  cache_status: InatSpeciesResponseCacheStatus;
-  /** When this FERNS request was processed */
-  queried_at: Date;
-  /** Complete iNaturalist taxon record from GET /taxa/{id}, passed through with all original field names intact. Key fields include: id (taxon ID), name (scientific name), preferred_common_name, observations_count, default_photo (object with medium_url), wikipedia_url, wikipedia_summary, conservation_status, and taxon_names.
-   */
-  data: InatSpeciesResponseData;
-  provenance: FernsProvenance;
-}
+export type InatSpeciesResponse = FernsEnvelope;

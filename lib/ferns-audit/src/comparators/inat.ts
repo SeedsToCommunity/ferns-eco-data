@@ -381,20 +381,18 @@ async function checkInatObservations(
 
     const findings: FieldFinding[] = [];
 
-    const requiredFields = ["taxon_id", "observations_by_species_url", "observations_by_place_url", "api_observations_endpoint", "queried_at"] as const;
+    const requiredFields = ["total_results", "page", "per_page", "results"] as const;
     for (const field of requiredFields) {
       if (fernsData[field] !== undefined && fernsData[field] !== null) {
         findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: fernsData[field], note: `${field} present` });
       } else {
-        findings.push({ type: "gap", sourceField: field, note: `${field} missing from response` });
+        findings.push({ type: "gap", sourceField: field, note: `${field} missing from data` });
       }
     }
 
-    const obsUrl = fernsData.observations_by_species_url as string | undefined;
-    if (obsUrl && typeof obsUrl === "string" && obsUrl.startsWith("https://")) {
-      findings.push({ type: "ok", sourceField: "observations_by_species_url", note: `URL is absolute HTTPS: ${obsUrl}` });
-    } else if (obsUrl) {
-      findings.push({ type: "mismatch", sourceField: "observations_by_species_url", fernsValue: obsUrl, note: "URL should be absolute HTTPS" });
+    const prov = fernsRaw["provenance"] as Record<string, unknown> | undefined;
+    if (prov?.["source_id"]) {
+      findings.push({ type: "ok", sourceField: "provenance.source_id", fernsField: "provenance.source_id", fernsValue: prov["source_id"], note: `source_id=${prov["source_id"]}` });
     }
 
     return {
@@ -435,11 +433,22 @@ async function checkInatObservationSummaryExpanded(
     const findings: FieldFinding[] = [];
     const urlsCollected = collectUrls(fernsRaw, "inat/observations");
 
-    for (const field of ["source_url", "found", "data"] as const) {
+    for (const field of ["found", "data", "provenance"] as const) {
       if (fernsRaw[field] !== undefined) {
         findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: fernsRaw[field], note: `${field} present` });
       } else {
         findings.push({ type: "gap", sourceField: field, note: `${field} missing from response` });
+      }
+    }
+    {
+      const prov = fernsRaw["provenance"] as Record<string, unknown> | undefined;
+      if (prov?.["source_url"] !== undefined) {
+        findings.push({ type: "ok", sourceField: "provenance.source_url", fernsField: "provenance.source_url", fernsValue: prov["source_url"], note: `source_url present` });
+      } else {
+        findings.push({ type: "gap", sourceField: "provenance.source_url", note: "provenance.source_url missing" });
+      }
+      if (prov?.["cache_status"]) {
+        findings.push({ type: "ok", sourceField: "provenance.cache_status", fernsField: "provenance.cache_status", fernsValue: prov["cache_status"], note: `cache_status=${prov["cache_status"]}` });
       }
     }
 
@@ -523,11 +532,22 @@ async function checkInatControlledTerms(fernsBase: string): Promise<EndpointComp
     const findings: FieldFinding[] = [];
     const urlsCollected = collectUrls(fernsRaw, "inat/controlled_terms");
 
-    for (const field of ["source_url", "found", "data"] as const) {
+    for (const field of ["found", "data", "provenance"] as const) {
       if (fernsRaw[field] !== undefined) {
         findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: fernsRaw[field], note: `${field} present` });
       } else {
         findings.push({ type: "gap", sourceField: field, note: `${field} missing from response` });
+      }
+    }
+    {
+      const prov = fernsRaw["provenance"] as Record<string, unknown> | undefined;
+      if (prov?.["source_url"] !== undefined) {
+        findings.push({ type: "ok", sourceField: "provenance.source_url", fernsField: "provenance.source_url", fernsValue: prov["source_url"], note: `source_url present` });
+      } else {
+        findings.push({ type: "gap", sourceField: "provenance.source_url", note: "provenance.source_url missing" });
+      }
+      if (prov?.["cache_status"]) {
+        findings.push({ type: "ok", sourceField: "provenance.cache_status", fernsField: "provenance.cache_status", fernsValue: prov["cache_status"], note: `cache_status=${prov["cache_status"]}` });
       }
     }
 
@@ -576,11 +596,22 @@ async function checkInatControlledTermsForTaxon(
     const findings: FieldFinding[] = [];
     const urlsCollected = collectUrls(fernsRaw, "inat/controlled_terms/for_taxon");
 
-    for (const field of ["source_url", "found", "data"] as const) {
+    for (const field of ["found", "data", "provenance"] as const) {
       if (fernsRaw[field] !== undefined) {
         findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: fernsRaw[field], note: `${field} present` });
       } else {
         findings.push({ type: "gap", sourceField: field, note: `${field} missing from response` });
+      }
+    }
+    {
+      const prov = fernsRaw["provenance"] as Record<string, unknown> | undefined;
+      if (prov?.["source_url"] !== undefined) {
+        findings.push({ type: "ok", sourceField: "provenance.source_url", fernsField: "provenance.source_url", fernsValue: prov["source_url"], note: `source_url present` });
+      } else {
+        findings.push({ type: "gap", sourceField: "provenance.source_url", note: "provenance.source_url missing" });
+      }
+      if (prov?.["cache_status"]) {
+        findings.push({ type: "ok", sourceField: "provenance.cache_status", fernsField: "provenance.cache_status", fernsValue: prov["cache_status"], note: `cache_status=${prov["cache_status"]}` });
       }
     }
 
@@ -619,11 +650,22 @@ async function checkInatTaxaAutocomplete(
     const findings: FieldFinding[] = [];
     const urlsCollected = collectUrls(fernsRaw, "inat/taxa/autocomplete");
 
-    for (const field of ["source_url", "found", "data"] as const) {
+    for (const field of ["found", "data", "provenance"] as const) {
       if (fernsRaw[field] !== undefined) {
         findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: fernsRaw[field], note: `${field} present` });
       } else {
         findings.push({ type: "gap", sourceField: field, note: `${field} missing` });
+      }
+    }
+    {
+      const prov = fernsRaw["provenance"] as Record<string, unknown> | undefined;
+      if (prov?.["source_url"] !== undefined) {
+        findings.push({ type: "ok", sourceField: "provenance.source_url", fernsField: "provenance.source_url", fernsValue: prov["source_url"], note: `source_url present` });
+      } else {
+        findings.push({ type: "gap", sourceField: "provenance.source_url", note: "provenance.source_url missing" });
+      }
+      if (prov?.["cache_status"]) {
+        findings.push({ type: "ok", sourceField: "provenance.cache_status", fernsField: "provenance.cache_status", fernsValue: prov["cache_status"], note: `cache_status=${prov["cache_status"]}` });
       }
     }
 
@@ -672,12 +714,22 @@ async function checkInatTaxonById(
     const findings: FieldFinding[] = [];
     const urlsCollected = collectUrls(fernsRaw, `inat/taxa/${taxonId}`);
 
-    for (const field of ["source_url", "found", "data", "cache_status"] as const) {
+    for (const field of ["found", "data", "provenance"] as const) {
       if (fernsRaw[field] !== undefined) {
         findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: fernsRaw[field], note: `${field} present` });
       } else {
         findings.push({ type: "gap", sourceField: field, note: `${field} missing` });
       }
+    }
+
+    const prov = fernsRaw["provenance"] as Record<string, unknown> | undefined;
+    if (prov?.["source_url"] !== undefined) {
+      findings.push({ type: "ok", sourceField: "provenance.source_url", fernsField: "provenance.source_url", fernsValue: prov["source_url"], note: `source_url present` });
+    } else {
+      findings.push({ type: "gap", sourceField: "provenance.source_url", note: "provenance.source_url missing" });
+    }
+    if (prov?.["cache_status"]) {
+      findings.push({ type: "ok", sourceField: "provenance.cache_status", fernsField: "provenance.cache_status", fernsValue: prov["cache_status"], note: `cache_status=${prov["cache_status"]}` });
     }
 
     const data = fernsRaw.data as Record<string, unknown> | undefined;
@@ -727,12 +779,22 @@ async function checkInatPlaceById(
     const findings: FieldFinding[] = [];
     const urlsCollected = collectUrls(fernsRaw, `inat/places/${placeId}`);
 
-    for (const field of ["source_url", "found", "data", "cache_status"] as const) {
+    for (const field of ["found", "data", "provenance"] as const) {
       if (fernsRaw[field] !== undefined) {
         findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: fernsRaw[field], note: `${field} present` });
       } else {
         findings.push({ type: "gap", sourceField: field, note: `${field} missing` });
       }
+    }
+
+    const placeProv = fernsRaw["provenance"] as Record<string, unknown> | undefined;
+    if (placeProv?.["source_url"] !== undefined) {
+      findings.push({ type: "ok", sourceField: "provenance.source_url", fernsField: "provenance.source_url", fernsValue: placeProv["source_url"], note: `source_url present` });
+    } else {
+      findings.push({ type: "gap", sourceField: "provenance.source_url", note: "provenance.source_url missing" });
+    }
+    if (placeProv?.["cache_status"]) {
+      findings.push({ type: "ok", sourceField: "provenance.cache_status", fernsField: "provenance.cache_status", fernsValue: placeProv["cache_status"], note: `cache_status=${placeProv["cache_status"]}` });
     }
 
     const data = fernsRaw.data as Record<string, unknown> | undefined;
@@ -778,11 +840,22 @@ async function checkInatPlacesNearby(fernsBase: string): Promise<EndpointCompari
     const findings: FieldFinding[] = [];
     const urlsCollected = collectUrls(fernsRaw, "inat/places/nearby");
 
-    for (const field of ["source_url", "found", "data"] as const) {
+    for (const field of ["found", "data", "provenance"] as const) {
       if (fernsRaw[field] !== undefined) {
         findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: fernsRaw[field], note: `${field} present` });
       } else {
         findings.push({ type: "gap", sourceField: field, note: `${field} missing` });
+      }
+    }
+    {
+      const prov = fernsRaw["provenance"] as Record<string, unknown> | undefined;
+      if (prov?.["source_url"] !== undefined) {
+        findings.push({ type: "ok", sourceField: "provenance.source_url", fernsField: "provenance.source_url", fernsValue: prov["source_url"], note: `source_url present` });
+      } else {
+        findings.push({ type: "gap", sourceField: "provenance.source_url", note: "provenance.source_url missing" });
+      }
+      if (prov?.["cache_status"]) {
+        findings.push({ type: "ok", sourceField: "provenance.cache_status", fernsField: "provenance.cache_status", fernsValue: prov["cache_status"], note: `cache_status=${prov["cache_status"]}` });
       }
     }
 
@@ -836,11 +909,22 @@ async function checkInatTaxonSummary(fernsBase: string): Promise<EndpointCompari
     const findings: FieldFinding[] = [];
     const urlsCollected = collectUrls(fernsRaw, `inat/observations/${observationId}/taxon_summary`);
 
-    for (const field of ["source_url", "found", "data"] as const) {
+    for (const field of ["found", "data", "provenance"] as const) {
       if (fernsRaw[field] !== undefined) {
         findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: fernsRaw[field], note: `${field} present` });
       } else {
         findings.push({ type: "gap", sourceField: field, note: `${field} missing` });
+      }
+    }
+    {
+      const prov = fernsRaw["provenance"] as Record<string, unknown> | undefined;
+      if (prov?.["source_url"] !== undefined) {
+        findings.push({ type: "ok", sourceField: "provenance.source_url", fernsField: "provenance.source_url", fernsValue: prov["source_url"], note: `source_url present` });
+      } else {
+        findings.push({ type: "gap", sourceField: "provenance.source_url", note: "provenance.source_url missing" });
+      }
+      if (prov?.["cache_status"]) {
+        findings.push({ type: "ok", sourceField: "provenance.cache_status", fernsField: "provenance.cache_status", fernsValue: prov["cache_status"], note: `cache_status=${prov["cache_status"]}` });
       }
     }
 
@@ -888,11 +972,22 @@ async function checkInatIdentificationById(fernsBase: string): Promise<EndpointC
     const findings: FieldFinding[] = [];
     const urlsCollected = collectUrls(fernsRaw, `inat/identifications/${identId}`);
 
-    for (const field of ["source_url", "found", "data"] as const) {
+    for (const field of ["found", "data", "provenance"] as const) {
       if (fernsRaw[field] !== undefined) {
         findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: fernsRaw[field], note: `${field} present` });
       } else {
         findings.push({ type: "gap", sourceField: field, note: `${field} missing` });
+      }
+    }
+    {
+      const prov = fernsRaw["provenance"] as Record<string, unknown> | undefined;
+      if (prov?.["source_url"] !== undefined) {
+        findings.push({ type: "ok", sourceField: "provenance.source_url", fernsField: "provenance.source_url", fernsValue: prov["source_url"], note: `source_url present` });
+      } else {
+        findings.push({ type: "gap", sourceField: "provenance.source_url", note: "provenance.source_url missing" });
+      }
+      if (prov?.["cache_status"]) {
+        findings.push({ type: "ok", sourceField: "provenance.cache_status", fernsField: "provenance.cache_status", fernsValue: prov["cache_status"], note: `cache_status=${prov["cache_status"]}` });
       }
     }
 
@@ -960,11 +1055,22 @@ async function checkInatSimilarSpecies(
     const findings: FieldFinding[] = [];
     const urlsCollected = collectUrls(fernsRaw, "inat/identifications/similar_species");
 
-    for (const field of ["source_url", "found", "data"] as const) {
+    for (const field of ["found", "data", "provenance"] as const) {
       if (fernsRaw[field] !== undefined) {
         findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: fernsRaw[field], note: `${field} present` });
       } else {
         findings.push({ type: "gap", sourceField: field, note: `${field} missing` });
+      }
+    }
+    {
+      const prov = fernsRaw["provenance"] as Record<string, unknown> | undefined;
+      if (prov?.["source_url"] !== undefined) {
+        findings.push({ type: "ok", sourceField: "provenance.source_url", fernsField: "provenance.source_url", fernsValue: prov["source_url"], note: `source_url present` });
+      } else {
+        findings.push({ type: "gap", sourceField: "provenance.source_url", note: "provenance.source_url missing" });
+      }
+      if (prov?.["cache_status"]) {
+        findings.push({ type: "ok", sourceField: "provenance.cache_status", fernsField: "provenance.cache_status", fernsValue: prov["cache_status"], note: `cache_status=${prov["cache_status"]}` });
       }
     }
 
@@ -1026,11 +1132,22 @@ async function checkInatIdentSpeciesCounts(fernsBase: string): Promise<EndpointC
     const findings: FieldFinding[] = [];
     const urlsCollected = collectUrls(fernsRaw, "inat/identifications/species_counts");
 
-    for (const field of ["source_url", "found", "data"] as const) {
+    for (const field of ["found", "data", "provenance"] as const) {
       if (fernsRaw[field] !== undefined) {
         findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: fernsRaw[field], note: `${field} present` });
       } else {
         findings.push({ type: "gap", sourceField: field, note: `${field} missing` });
+      }
+    }
+    {
+      const prov = fernsRaw["provenance"] as Record<string, unknown> | undefined;
+      if (prov?.["source_url"] !== undefined) {
+        findings.push({ type: "ok", sourceField: "provenance.source_url", fernsField: "provenance.source_url", fernsValue: prov["source_url"], note: `source_url present` });
+      } else {
+        findings.push({ type: "gap", sourceField: "provenance.source_url", note: "provenance.source_url missing" });
+      }
+      if (prov?.["cache_status"]) {
+        findings.push({ type: "ok", sourceField: "provenance.cache_status", fernsField: "provenance.cache_status", fernsValue: prov["cache_status"], note: `cache_status=${prov["cache_status"]}` });
       }
     }
 
@@ -1097,11 +1214,22 @@ async function checkInatRecentTaxa(fernsBase: string): Promise<EndpointCompariso
     const findings: FieldFinding[] = [];
     const urlsCollected = collectUrls(fernsRaw, "inat/identifications/recent_taxa");
 
-    for (const field of ["source_url", "found", "data"] as const) {
+    for (const field of ["found", "data", "provenance"] as const) {
       if (fernsRaw[field] !== undefined) {
         findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: fernsRaw[field], note: `${field} present` });
       } else {
         findings.push({ type: "gap", sourceField: field, note: `${field} missing` });
+      }
+    }
+    {
+      const prov = fernsRaw["provenance"] as Record<string, unknown> | undefined;
+      if (prov?.["source_url"] !== undefined) {
+        findings.push({ type: "ok", sourceField: "provenance.source_url", fernsField: "provenance.source_url", fernsValue: prov["source_url"], note: `source_url present` });
+      } else {
+        findings.push({ type: "gap", sourceField: "provenance.source_url", note: "provenance.source_url missing" });
+      }
+      if (prov?.["cache_status"]) {
+        findings.push({ type: "ok", sourceField: "provenance.cache_status", fernsField: "provenance.cache_status", fernsValue: prov["cache_status"], note: `cache_status=${prov["cache_status"]}` });
       }
     }
 
@@ -1161,11 +1289,22 @@ async function checkInatIdentifications(
     const findings: FieldFinding[] = [];
     const urlsCollected = collectUrls(fernsRaw, "inat/identifications");
 
-    for (const field of ["source_url", "found", "data"] as const) {
+    for (const field of ["found", "data", "provenance"] as const) {
       if (fernsRaw[field] !== undefined) {
         findings.push({ type: "ok", sourceField: field, fernsField: field, fernsValue: fernsRaw[field], note: `${field} present` });
       } else {
         findings.push({ type: "gap", sourceField: field, note: `${field} missing` });
+      }
+    }
+    {
+      const prov = fernsRaw["provenance"] as Record<string, unknown> | undefined;
+      if (prov?.["source_url"] !== undefined) {
+        findings.push({ type: "ok", sourceField: "provenance.source_url", fernsField: "provenance.source_url", fernsValue: prov["source_url"], note: `source_url present` });
+      } else {
+        findings.push({ type: "gap", sourceField: "provenance.source_url", note: "provenance.source_url missing" });
+      }
+      if (prov?.["cache_status"]) {
+        findings.push({ type: "ok", sourceField: "provenance.cache_status", fernsField: "provenance.cache_status", fernsValue: prov["cache_status"], note: `cache_status=${prov["cache_status"]}` });
       }
     }
 

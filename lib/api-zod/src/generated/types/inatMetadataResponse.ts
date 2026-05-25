@@ -5,19 +5,6 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { FernsProvenance } from "./fernsProvenance";
-import type { InatAttribution } from "./inatAttribution";
-import type { InatMetadataResponseRegistryEntry } from "./inatMetadataResponseRegistryEntry";
+import type { FernsEnvelope } from "./fernsEnvelope";
 
-export interface InatMetadataResponse {
-  service_id: string;
-  service_name: string;
-  /** True if FERNS has permission to use and expose this data. iNaturalist is open access — no permission request required. */
-  licenses: string[];
-  license_notes: string;
-  attribution: InatAttribution;
-  /** Full registry entry for this iNaturalist service source */
-  registry_entry?: InatMetadataResponseRegistryEntry;
-  queried_at: Date;
-  provenance: FernsProvenance;
-}
+export type InatMetadataResponse = FernsEnvelope;

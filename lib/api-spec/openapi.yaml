@@ -4947,7 +4947,6 @@ components:
         - display_name
         - place_type
         - place_type_name
-        - inat_url
       properties:
         id:
           type: integer
@@ -4961,55 +4960,24 @@ components:
         place_type_name:
           type: string
           description: Human-readable place type (e.g. County, State, Nation)
-        inat_url:
-          type: string
-          description: https://www.inaturalist.org/places/{id}
 
     InatPlaceData:
       type: object
-      required:
-        - query
-        - results
-        - resolved_at
-        - cache_status
       properties:
-        query:
-          type: string
-          description: The place name that was searched
         results:
           type: array
           description: Up to 5 matching places. Applications select the correct one.
           items:
             $ref: "#/components/schemas/InatPlaceResult"
-        resolved_at:
-          type: string
-          format: date-time
-          description: When this lookup was cached
-        cache_status:
-          type: string
-          enum: [hit, miss, bypassed]
+      additionalProperties: false
 
     InatPlaceResponse:
-      type: object
-      required:
-        - source_url
-        - found
-        - data
-        - provenance
-      properties:
-        source_url:
-          type: string
-          nullable: true
-          description: The iNaturalist autocomplete API URL that was called to resolve this query. Null if unavailable.
-        found:
-          type: boolean
-          description: false if no places matched the query
-        data:
-          nullable: true
-          allOf:
-            - $ref: "#/components/schemas/InatPlaceData"
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/InatPlaceData"
 
     InatConservationStatus:
       type: object
@@ -5056,106 +5024,16 @@ components:
           description: Name of the place where this status applies
 
     InatSpeciesResponse:
-      type: object
-      required:
-        - source_url
-        - found
-        - cache_status
-        - queried_at
-        - data
-        - provenance
-      properties:
-        source_url:
-          type: string
-          nullable: true
-          description: https://www.inaturalist.org/taxa/{id}
-        found:
-          type: boolean
-        cache_status:
-          type: string
-          enum: [hit, miss, bypassed]
-        queried_at:
-          type: string
-          format: date-time
-          description: When this FERNS request was processed
-        data:
-          type: object
-          nullable: true
-          additionalProperties: true
-          description: >
-            Complete iNaturalist taxon record from GET /taxa/{id}, passed through
-            with all original field names intact. Key fields include: id (taxon ID),
-            name (scientific name), preferred_common_name, observations_count,
-            default_photo (object with medium_url), wikipedia_url, wikipedia_summary,
-            conservation_status, and taxon_names.
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
 
     InatHistogramResponse:
-      type: object
-      required:
-        - source_url
-        - found
-        - cache_status
-        - queried_at
-        - data
-        - provenance
-      properties:
-        source_url:
-          type: string
-          description: https://www.inaturalist.org/observations?taxon_id={id}&place_id={ids}
-        found:
-          type: boolean
-        cache_status:
-          type: string
-          enum: [hit, miss, bypassed]
-        queried_at:
-          type: string
-          format: date-time
-          description: When this FERNS request was processed
-        data:
-          type: object
-          description: >
-            Raw iNaturalist observations/histogram response. The month_of_year object
-            inside results contains observation counts keyed by month number string
-            ('1' through '12').
-          additionalProperties: true
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
 
     InatFieldValuesResponse:
-      type: object
-      required:
-        - source_url
-        - found
-        - cache_status
-        - queried_at
-        - data
-        - provenance
-      properties:
-        source_url:
-          type: string
-          description: https://www.inaturalist.org/observations?taxon_id={id}&place_id={ids}
-        found:
-          type: boolean
-        cache_status:
-          type: string
-          enum: [hit, miss, bypassed]
-        queried_at:
-          type: string
-          format: date-time
-          description: When this FERNS request was processed
-        data:
-          type: object
-          description: >
-            Raw iNaturalist observations/popular_field_values response. The results array
-            contains entries with controlled_attribute, controlled_value, and month_of_year
-            fields. Stage labels include Flowers, Flower Buds, Fruits or Seeds,
-            No Flowers or Fruits, Green Leaves, Colored Leaves, No Live Leaves,
-            Breaking Leaf Buds.
-          additionalProperties: true
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
 
     InatObservationSummaryRecord:
       type: object
@@ -5309,305 +5187,60 @@ components:
             $ref: "#/components/schemas/InatObservationSummaryRecord"
 
     InatObservationSummaryResponse:
-      type: object
-      required:
-        - source_url
-        - found
-        - data
-        - provenance
-      properties:
-        source_url:
-          type: string
-        found:
-          type: boolean
-        data:
-          $ref: "#/components/schemas/InatObservationSummaryData"
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
 
     InatControlledTermsResponse:
-      type: object
-      required:
-        - source_url
-        - found
-        - data
-        - provenance
-      properties:
-        source_url:
-          type: string
-        found:
-          type: boolean
-        cache_status:
-          type: string
-        data:
-          type: object
-          description: Raw iNaturalist controlled_terms response.
-          additionalProperties: true
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
 
     InatControlledTermsForTaxonResponse:
-      type: object
-      required:
-        - source_url
-        - found
-        - data
-        - provenance
-      properties:
-        source_url:
-          type: string
-        found:
-          type: boolean
-        cache_status:
-          type: string
-        data:
-          type: object
-          description: Raw iNaturalist controlled_terms/for_taxon response.
-          additionalProperties: true
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
 
     InatTaxaAutocompleteResponse:
-      type: object
-      required:
-        - source_url
-        - found
-        - data
-        - provenance
-      properties:
-        source_url:
-          type: string
-        found:
-          type: boolean
-        data:
-          type: object
-          description: Raw iNaturalist taxa/autocomplete response with results array.
-          additionalProperties: true
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
 
     InatTaxonByIdResponse:
-      type: object
-      required:
-        - source_url
-        - found
-        - data
-        - provenance
-      properties:
-        source_url:
-          type: string
-        found:
-          type: boolean
-        cache_status:
-          type: string
-        data:
-          type: object
-          description: >
-            Raw iNaturalist taxa/{id} response. Includes wikipedia_summary,
-            listed_taxa (nativity per place), children, conservation_status,
-            and default_photo. The listed_taxa array is the canonical source
-            of native/introduced/endemic status for this taxon.
-          additionalProperties: true
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
 
     InatPlaceByIdResponse:
-      type: object
-      required:
-        - source_url
-        - found
-        - data
-        - provenance
-      properties:
-        source_url:
-          type: string
-        found:
-          type: boolean
-        cache_status:
-          type: string
-        data:
-          type: object
-          description: >
-            Raw iNaturalist places/{id} response. Includes display_name, place_type,
-            centroid, bounding_box_geojson, and admin hierarchy (admin_level, parent_id).
-          additionalProperties: true
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
 
     InatPlacesNearbyResponse:
-      type: object
-      required:
-        - source_url
-        - found
-        - data
-        - provenance
-      properties:
-        source_url:
-          type: string
-        found:
-          type: boolean
-        data:
-          type: object
-          description: >
-            Raw iNaturalist places/nearby response. Contains two result arrays:
-            standard (admin places) and community (user-created places).
-          additionalProperties: true
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
 
     InatSpeciesCountsResponse:
-      type: object
-      required:
-        - source_url
-        - found
-        - data
-        - provenance
-      properties:
-        source_url:
-          type: string
-          description: https://www.inaturalist.org/observations?taxon_id=...
-        found:
-          type: boolean
-        data:
-          type: object
-          description: >
-            Raw iNaturalist observations/species_counts response. The results array
-            contains entries with count and taxon fields. Each taxon includes id,
-            name, preferred_common_name, default_photo, and observations_count.
-          additionalProperties: true
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
 
     InatTaxonSummaryResponse:
-      type: object
-      required:
-        - source_url
-        - found
-        - data
-        - provenance
-      properties:
-        source_url:
-          type: string
-        found:
-          type: boolean
-        data:
-          type: object
-          description: >
-            Raw iNaturalist taxon_summary response for the given observation. Contains
-            wikipedia_summary (string), listed_taxon (establishment_means for the
-            observation's place), and conservation_status.
-          additionalProperties: true
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
 
     InatSimilarSpeciesResponse:
-      type: object
-      required:
-        - source_url
-        - found
-        - data
-        - provenance
-      properties:
-        source_url:
-          type: string
-        found:
-          type: boolean
-        data:
-          type: object
-          description: >
-            Raw iNaturalist identifications/similar_species response. The results
-            array contains taxa frequently confused with the queried taxon, each
-            with a count field indicating co-confusion frequency.
-          additionalProperties: true
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
 
     InatIdentSpeciesCountsResponse:
-      type: object
-      required:
-        - source_url
-        - found
-        - data
-        - provenance
-      properties:
-        source_url:
-          type: string
-        found:
-          type: boolean
-        data:
-          type: object
-          description: >
-            Raw iNaturalist identifications/species_counts response. Species ranked
-            by identification activity — a community engagement signal distinct from
-            raw observation count. Supports taxon_of=identification|community.
-          additionalProperties: true
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
 
     InatRecentTaxaResponse:
-      type: object
-      required:
-        - source_url
-        - found
-        - data
-        - provenance
-      properties:
-        source_url:
-          type: string
-        found:
-          type: boolean
-        data:
-          type: object
-          description: >
-            Raw iNaturalist identifications/recent_taxa response. Taxa recently
-            identified in a place — "what's being documented right now".
-          additionalProperties: true
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
 
     InatIdentificationsResponse:
-      type: object
-      required:
-        - source_url
-        - found
-        - data
-        - provenance
-      properties:
-        source_url:
-          type: string
-        found:
-          type: boolean
-        data:
-          type: object
-          description: >
-            Raw iNaturalist identifications response. Contains total_results, page,
-            per_page, and a results array of individual identification records. Each
-            record includes id, created_at, taxon, observation, and user fields.
-          additionalProperties: true
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
 
     InatIdentificationResponse:
-      type: object
-      required:
-        - source_url
-        - found
-        - data
-        - provenance
-      properties:
-        source_url:
-          type: string
-        found:
-          type: boolean
-        data:
-          type: object
-          description: >
-            Raw iNaturalist identification record response for a single identification
-            ID. Contains the full identification record including taxon, observation,
-            user, and created_at fields.
-          additionalProperties: true
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
 
     InatAttribution:
       type: object
@@ -5629,64 +5262,8 @@ components:
           type: string
 
     InatMetadataResponse:
-      type: object
-      required:
-        - service_id
-        - service_name
-        - licenses
-        - license_notes
-        - attribution
-        - queried_at
-        - provenance
-      properties:
-        service_id:
-          type: string
-        service_name:
-          type: string
-        licenses:
-          type: array
-          items:
-            type: string
-          description: True if FERNS has permission to use and expose this data. iNaturalist is open access — no permission request required.
-        license_notes:
-          type: string
-        attribution:
-          $ref: "#/components/schemas/InatAttribution"
-        registry_entry:
-          type: object
-          description: Full registry entry for this iNaturalist service source
-          properties:
-            source_id:
-              type: string
-            name:
-              type: string
-            knowledge_type:
-              type: string
-            status:
-              type: string
-            description:
-              type: string
-            input_summary:
-              type: string
-            output_summary:
-              type: string
-            dependencies:
-              type: array
-              items:
-                type: string
-            update_frequency:
-              type: string
-            known_limitations:
-              type: string
-            metadata_url:
-              type: string
-            explorer_url:
-              type: string
-        queried_at:
-          type: string
-          format: date-time
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
 
     SourceSummary:
       type: object

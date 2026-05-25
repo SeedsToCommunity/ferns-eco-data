@@ -5,14 +5,6 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { FernsProvenance } from "./fernsProvenance";
-import type { InatSimilarSpeciesResponseData } from "./inatSimilarSpeciesResponseData";
+import type { FernsEnvelope } from "./fernsEnvelope";
 
-export interface InatSimilarSpeciesResponse {
-  source_url: string;
-  found: boolean;
-  /** Raw iNaturalist identifications/similar_species response. The results array contains taxa frequently confused with the queried taxon, each with a count field indicating co-confusion frequency.
-   */
-  data: InatSimilarSpeciesResponseData;
-  provenance: FernsProvenance;
-}
+export type InatSimilarSpeciesResponse = FernsEnvelope;
