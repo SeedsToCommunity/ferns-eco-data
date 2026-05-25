@@ -1,6 +1,6 @@
 ## FERNS Response Envelope Contract v1
 
-This section is the authoritative definition of the response envelope every FERNS endpoint must produce. It is derived from `attached_assets/FERNS_Response_Envelope_Contract_v1_*.docx` and layered with seven planning refinements that were agreed during the envelope-rebuild planning round. If anything elsewhere in this document or in code contradicts this section, this section wins.
+This section is the authoritative definition of the response envelope that Ecological Commons Data Source endpoints must produce. If anything elsewhere in this document or in code contradicts this section, this section wins.
 
 ### The governing rule
 
@@ -63,7 +63,7 @@ They never appear inside `provenance` on a per-response envelope.
 
 ### Refinement #6 — Composite routes are forbidden
 
-A route that calls more than one upstream endpoint and merges the results into a single response is forbidden. Each FERNS route maps to exactly one upstream call (caching is the only permitted efficiency measure). The current USDA `/PlantSearch?species=` example — which internally fans out to multiple PLANTS endpoints — is to be split in a later task. If an experience requires data from multiple upstream calls, the application layer orchestrates them.
+A route that calls more than one upstream endpoint and merges the results into a single response is forbidden. Each FERNS route maps to exactly one upstream call (caching is the only permitted efficiency measure). If an experience requires data from multiple upstream calls, the application layer orchestrates them.
 
 ### Refinement #7 — `method` and `cache_status` are coupled
 
@@ -92,11 +92,9 @@ Only the following pairs are valid. Any other pair is a defective response.
 - `cache_status`: `hit` · `miss` · `stale` · `bypass`
 - `license`: a license URI, or the literal string `"unknown"` (open-ended with one defined escape value).
 
-
-
 ## Pass-Through Rules (non-negotiable)
 
-These rules formalize "Source Fidelity" for routes that call an upstream source. They are testable assertions; the audit (later task) enforces them.
+These rules formalize "Source Fidelity" for routes that call an upstream source. They are testable assertions.
 
 1. **Verbatim path after the source prefix.** Everything after `/api/{source-id}/` must match the upstream's own path character-for-character. No renaming, no camelCase↔snake_case conversion, no omitted path segments.
 2. **Single upstream endpoint per route.** Each FERNS route maps to exactly one upstream call. No fan-out, no merging of two upstream responses into one.
@@ -183,22 +181,22 @@ Every external data source integrated follows a consistent four-component patter
 -   **No Normalization**: FERNS preserves the distinctness of each source; it does not collapse sources into a common data model or imply equivalence.
 -   **Fat Registry Index**: The `/api/v1/sources` endpoint is the single source of truth for all source metadata. Each `SourceSummary` in the sources array includes the full set of identity, description, permission, and capability fields: `source_id`, `name`, `knowledge_type`, `status`, `description`, `input_summary`, `output_summary`, `dependencies`, `update_frequency`, `known_limitations`, `metadata_url`, `explorer_url`, `permission_granted`, `permission_status`, `general_summary`, and `technical_details`. These are persisted to the `ferns_sources` DB table via each source's `seed.ts` `onConflictDoUpdate` and read back on every registry request. An agent or application can make a single call to `/api/v1/sources` and have enough information to make a fully informed routing decision without calling any individual `/metadata` endpoint.
 -   **Self-Describing Registry**: All `metadata_url`, `explorer_url`, and `source_url` fields in registry and metadata responses must be absolute URLs.
--   **Metadata response structure**: Every source's `/metadata` endpoint returns the standard envelope (see "FERNS Response Envelope Contract v1" below). The `description`, `general_summary`, and `technical_details` text lives inside `data` — it is the source's own descriptive payload — and is NOT placed in `provenance`. `provenance` is reserved for FERNS-produced provenance fields (see the contract). Some existing metadata routes still nest `general_summary`/`technical_details` under `provenance`; those routes will be migrated in a later task (envelope route migration). New metadata routes must follow the contract.
+-   **Metadata response structure**: Every source's `/metadata` endpoint returns the standard envelope (see "FERNS Response Envelope Contract v1" below). The `description`, `general_summary`, and `technical_details` text lives inside `data` — it is the source's own descriptive payload — and is NOT placed in `provenance`. `provenance` is reserved for FERNS-produced provenance fields (see the contract). Some existing metadata routes still nest `general_summary`/`technical_details` under `provenance`. New metadata routes must follow the contract.
 -   **Description field completeness**: The `description`, `general_summary`, and `technical_details` fields in every source's registry metadata must be fully self-contained. Together they must give any reader — general user, developer, researcher — a complete understanding of the source without consulting any external documentation. For sources with encoded fields (e.g. coded values like `OBL`, `C5`, `FACW`), `technical_details` must enumerate every possible value and its meaning. If a consumer cannot interpret the data from these fields alone, the registry entry is incomplete.
 -   **Disambiguation requirement**: A source's `general_summary` and `technical_details` must fully describe the source's own data fields — including the name, scale, authority, and disambiguation of any vocabulary-defined datatype that the source actually returns. For example, a source that returns a C-value field must describe what a C-value is, its 0–10 scale, its authority (Swink & Wilhelm), and how it differs from superficially similar metrics (Coefficient of Wetness, WUCOLS ratings). This is field-level documentation of the source's own output and is always required. What does NOT belong in individual source metadata is cross-source routing guidance: naming other FERNS sources, recommending which source to use for a given need, or describing how two FERNS sources interact. That belongs exclusively in the `source_relationships` table.
 -   **Clarity for humans and agents**: All metadata, description text, and documentation must be written to be understood by both human readers and AI agents. Avoid unexplained abbreviations. Spell out acronyms on first use. Prefer complete sentences over terse field lists.
--   **Dedicated vocabulary sources**: If a data type (such as the Coefficient of Conservatism) is a standalone, well-defined standard with a published authority and a use across multiple FERNS sources, it may have its own registry entry, API, and explorer so that its definition is authoritative and centrally queryable. This is a design option to consider, not a mandatory pattern — the user decides whether a given metric warrants a standalone source. Cross-source relationship information — how two FERNS sources overlap, conflict, complement each other, or where one supersedes another — lives in the `source_relationships` table (added in Task #50) and is accessible via `GET /api/v1/source-relationships`. Individual source metadata does not duplicate this information.
+-   **Dedicated vocabulary sources**: If a data type (such as the Coefficient of Conservatism) is a standalone, well-defined standard with a published authority and a use across multiple FERNS sources, it may have its own registry entry, API, and explorer so that its definition is authoritative and centrally queryable. This is a design option to consider, not a mandatory pattern — the user decides whether a given metric warrants a standalone source. Cross-source relationship information — how two FERNS sources overlap, conflict, complement each other, or where one supersedes another — lives in the `source_relationships` table and is accessible via `GET /api/v1/source-relationships`. Individual source metadata does not duplicate this information.
 -   **Non-standard conventions**: When a data field uses a convention that is not backed by a published standard (e.g., a 1–10 numeric wetness scale used by some nursery databases), document it explicitly as a non-standard convention. State that different publishers may implement it differently, and that FERNS does not treat it as authoritative.
 
 ## Approved Exceptions
 
-This section records explicit user-approved exceptions to the rules above. Each entry must name the rule it relaxes, the endpoint or surface it applies to, and the date / context of the approval. The audit (later task) reads this section to know which findings have been pre-approved and should not be flagged.
+This section records explicit user-approved exceptions to the rules above. Each entry must name the rule it relaxes, the endpoint or surface it applies to, and the date / context of the approval. The audit reads this section to know which findings have been pre-approved and should not be flagged.
 
 - none yet
 
 ## Open Questions
 
-Recorded so they are not lost and so the omission is not mistaken for an oversight. Each will be answered in a later task; until then, this section is the authoritative parking lot.
+Recorded so they are not lost and so the omission is not mistaken for an oversight. This section is the authoritative parking lot.
 
 1. **HTTP status code for `found: false` responses.** Currently a 200 in most routes, but no rule says it must be. Candidates: 200 with `found: false` (honest absence is not an error), 404 (REST-traditional), or per-source policy.
 2. **Final per-endpoint response behavior when `permission_granted: false`** at launch. Prototype mode returns `data`; launch behavior is undecided (withhold `data` entirely / return a citation stub / return partial fields / return data with a stronger machine-checkable warning).
