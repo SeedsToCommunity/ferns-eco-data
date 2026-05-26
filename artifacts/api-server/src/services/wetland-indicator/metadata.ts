@@ -1,5 +1,10 @@
 export const WETLAND_INDICATOR_SOURCE_ID = "wetland-indicator-status";
 
+export const WETLAND_INDICATOR_LICENSE = "cc0";
+
+export const WETLAND_INDICATOR_RIGHTS =
+  "OPEN — Static reference data. Wetland indicator codes defined by USDA NRCS National Wetland Plant List and U.S. Army Corps of Engineers. No authentication required.";
+
 export const WETLAND_INDICATOR_LICENSES = ["cc0"];
 
 export const WETLAND_INDICATOR_LICENSE_NOTES =
@@ -61,6 +66,14 @@ export const WETLAND_INDICATOR_REGISTRY_ENTRY = {
   license_notes: WETLAND_INDICATOR_LICENSE_NOTES,
   general_summary: WETLAND_INDICATOR_GENERAL_SUMMARY,
   technical_details: WETLAND_INDICATOR_TECHNICAL_DETAILS,
-  non_passthrough_endpoints: [{ endpoint: "/api/wetland-indicator/metadata", kind: "metadata" }],
+  license: WETLAND_INDICATOR_LICENSE,
+  rights: WETLAND_INDICATOR_RIGHTS,
+  website_url_patterns: {},
+  non_passthrough_endpoints: [
+    { endpoint: "/api/wetland-indicator/metadata", kind: "metadata" },
+    { endpoint: "/api/wetland-indicator", kind: "in_memory" },
+    { endpoint: "/api/wetland-indicator/w", kind: "in_memory" },
+    { endpoint: "/api/wetland-indicator/all", kind: "in_memory" },
+  ],
   permission_granted: true,
 };

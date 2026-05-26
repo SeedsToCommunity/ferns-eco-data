@@ -85,7 +85,7 @@ export function ProvenancePanel({ response }: { response: BonapMapResponse }) {
           </div>
           <div className="flex flex-wrap gap-4 text-xs text-muted-foreground pt-2">
             <span className="flex items-center gap-1.5"><Database className="w-3.5 h-3.5"/> Source ID: {prov.source_id}</span>
-            <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5"/> Fetched: {new Date(prov.fetched_at).toLocaleDateString()}</span>
+            {prov.fetched_at && <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5"/> Fetched: {new Date(prov.fetched_at).toLocaleDateString()}</span>}
             <span className="flex items-center gap-1.5"><LinkIcon className="w-3.5 h-3.5"/> Method: {prov.method}</span>
           </div>
         </div>

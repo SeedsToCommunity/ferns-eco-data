@@ -15,10 +15,20 @@ function envelopeFindings(envelope: Record<string, unknown>, context: string): F
     });
   }
 
+  if (envelope.permission_granted !== undefined) {
+    findings.push({ type: "ok", sourceField: "permission_granted", note: `permission_granted: ${envelope.permission_granted}` });
+  } else {
+    findings.push({
+      type: "mismatch",
+      sourceField: "permission_granted",
+      note: `FERNS envelope missing "permission_granted" field [${context}]`,
+    });
+  }
+
   const prov = envelope.provenance as Record<string, unknown> | null | undefined;
   if (prov && typeof prov === "object") {
-    for (const key of ["source_id", "method", "general_summary", "technical_details"]) {
-      if (prov[key]) {
+    for (const key of ["source_id", "method", "cache_status", "license", "rights"]) {
+      if (prov[key] !== undefined && prov[key] !== null && prov[key] !== "") {
         findings.push({ type: "ok", sourceField: `provenance.${key}`, note: `present` });
       } else {
         findings.push({

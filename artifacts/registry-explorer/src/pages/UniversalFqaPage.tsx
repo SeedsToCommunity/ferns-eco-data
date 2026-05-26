@@ -504,9 +504,9 @@ export function UniversalFqaPage() {
 
                   <p className="text-[10px] text-muted-foreground">
                     Showing {filteredBrowseSpecies.length.toLocaleString()} of {browseDbDetail.species.length.toLocaleString()} species
-                    {browseDbRes?.cache_status && (
+                    {browseDbRes?.provenance?.cache_status && (
                       <span className="ml-2 px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
-                        cache: {browseDbRes.cache_status}
+                        cache: {browseDbRes.provenance.cache_status}
                       </span>
                     )}
                   </p>

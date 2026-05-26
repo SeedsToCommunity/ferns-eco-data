@@ -2,6 +2,16 @@ export const UNIVERSAL_FQA_SOURCE_ID = "universal-fqa";
 
 export const UNIVERSAL_FQA_API_BASE = "http://universalfqa.org/get";
 
+export const UNIVERSAL_FQA_LICENSE = "cc-by";
+
+export const UNIVERSAL_FQA_RIGHTS =
+  "OPEN — No authentication required. All endpoints are publicly accessible without registration. Attribution required.";
+
+export const UNIVERSAL_FQA_WEBSITE_URL_PATTERNS: Record<string, string> = {
+  database: "https://universalfqa.org/fqa/#/db/{id}",
+  assessment: "https://universalfqa.org/fqa/#/inventory/{id}",
+};
+
 export const UNIVERSAL_FQA_LICENSES = ["cc-by"];
 
 export const UNIVERSAL_FQA_LICENSE_NOTES =
@@ -122,6 +132,11 @@ export const UNIVERSAL_FQA_REGISTRY_ENTRY = {
   license_notes: UNIVERSAL_FQA_LICENSE_NOTES,
   general_summary: UNIVERSAL_FQA_GENERAL_SUMMARY,
   technical_details: UNIVERSAL_FQA_TECHNICAL_DETAILS,
-  non_passthrough_endpoints: [{ endpoint: "/api/universal-fqa/metadata", kind: "metadata" }],
+  license: UNIVERSAL_FQA_LICENSE,
+  rights: UNIVERSAL_FQA_RIGHTS,
+  website_url_patterns: UNIVERSAL_FQA_WEBSITE_URL_PATTERNS,
+  non_passthrough_endpoints: [
+    { endpoint: "/api/universal-fqa/metadata", kind: "metadata" },
+  ],
   permission_granted: true,
 };

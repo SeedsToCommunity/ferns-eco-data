@@ -1,4 +1,5 @@
 import { Router, type IRouter } from "express";
+import { buildEnvelope } from "@workspace/api-envelope";
 import {
   COEFFICIENT_SOURCE_ID,
   COEFFICIENT_GENERAL_SUMMARY,
@@ -10,78 +11,90 @@ import {
 import { COEFFICIENT_DATA, lookupByValue } from "../services/coefficient/data.js";
 import { ensureCoefficientRegistryEntry } from "../services/coefficient/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
-import { filterProvenance } from "../lib/provenance.js";
+import { dbRegistryAccessor } from "../lib/registry-accessor.js";
 
 const router: IRouter = Router();
 
-function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
-  return {
-    source_id: COEFFICIENT_SOURCE_ID,
-    fetched_at: new Date(),
-    method: "static_data",
-    upstream_url: resolveUrl(req, "/api/coefficient-of-conservatism/all"),
-    general_summary: COEFFICIENT_GENERAL_SUMMARY,
-    technical_details: COEFFICIENT_TECHNICAL_DETAILS,
-  };
-}
-
-router.get("/coefficient-of-conservatism", (req, res) => {
-  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+router.get("/coefficient-of-conservatism", async (req, res) => {
   const value = req.query["value"];
   if (typeof value !== "string" || value.trim() === "") {
     res.status(400).json({ error: "invalid_input", message: "value query parameter is required" });
     return;
   }
 
+  await ensureCoefficientRegistryEntry();
   const entry = lookupByValue(value.trim());
   const found = entry !== undefined;
 
-  res.json({
-    found,
-    cache_status: "miss",
-    queried_at: new Date(),
-    source_url: resolveUrl(req, "/api/coefficient-of-conservatism/all"),
-    provenance: filterProvenance({
-      ...buildProvenance(req),
-      matched_input: value.trim(),
-    }, verbosity),
-    data: found ? entry : null,
-  });
+  const envelope = await buildEnvelope(
+    {
+      sourceId: COEFFICIENT_SOURCE_ID,
+      sourceKind: "in-memory",
+      found,
+      data: found ? entry : null,
+      method: "cache_hit",
+      cacheStatus: "hit",
+      sourceUrl: null,
+      queriedAt: new Date().toISOString(),
+    },
+    { registry: dbRegistryAccessor },
+  );
+  res.json(envelope);
 });
 
-router.get("/coefficient-of-conservatism/all", (req, res) => {
-  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
-  res.json({
-    found: true,
-    cache_status: "miss",
-    queried_at: new Date(),
-    source_url: resolveUrl(req, "/api/coefficient-of-conservatism/all"),
-    provenance: filterProvenance(buildProvenance(req), verbosity),
-    data: COEFFICIENT_DATA,
-  });
+router.get("/coefficient-of-conservatism/all", async (req, res) => {
+  await ensureCoefficientRegistryEntry();
+
+  const envelope = await buildEnvelope(
+    {
+      sourceId: COEFFICIENT_SOURCE_ID,
+      sourceKind: "in-memory",
+      found: true,
+      data: COEFFICIENT_DATA,
+      method: "cache_hit",
+      cacheStatus: "hit",
+      sourceUrl: null,
+      queriedAt: new Date().toISOString(),
+    },
+    { registry: dbRegistryAccessor },
+  );
+  res.json(envelope);
 });
 
 router.get("/coefficient-of-conservatism/metadata", async (req, res) => {
   await ensureCoefficientRegistryEntry();
-  const queriedAt = new Date();
 
-  res.json({
-    service_id: COEFFICIENT_SOURCE_ID,
-    service_name: COEFFICIENT_REGISTRY_ENTRY.name,
-    licenses: COEFFICIENT_LICENSES,
-    license_notes: COEFFICIENT_LICENSE_NOTES,
-    registry_entry: {
-      ...COEFFICIENT_REGISTRY_ENTRY,
-      metadata_url: resolveUrl(req, COEFFICIENT_REGISTRY_ENTRY.metadata_url),
-      explorer_url: resolveUrl(req, COEFFICIENT_REGISTRY_ENTRY.explorer_url),
+  const envelope = await buildEnvelope(
+    {
+      sourceId: COEFFICIENT_SOURCE_ID,
+      sourceKind: "in-memory",
+      found: true,
+      data: {
+        source_id: COEFFICIENT_SOURCE_ID,
+        name: COEFFICIENT_REGISTRY_ENTRY.name,
+        knowledge_type: COEFFICIENT_REGISTRY_ENTRY.knowledge_type,
+        status: COEFFICIENT_REGISTRY_ENTRY.status,
+        description: COEFFICIENT_REGISTRY_ENTRY.description,
+        input_summary: COEFFICIENT_REGISTRY_ENTRY.input_summary,
+        output_summary: COEFFICIENT_REGISTRY_ENTRY.output_summary,
+        dependencies: COEFFICIENT_REGISTRY_ENTRY.dependencies,
+        update_frequency: COEFFICIENT_REGISTRY_ENTRY.update_frequency,
+        known_limitations: COEFFICIENT_REGISTRY_ENTRY.known_limitations,
+        metadata_url: resolveUrl(req, COEFFICIENT_REGISTRY_ENTRY.metadata_url),
+        explorer_url: resolveUrl(req, COEFFICIENT_REGISTRY_ENTRY.explorer_url),
+        licenses: COEFFICIENT_LICENSES,
+        license_notes: COEFFICIENT_LICENSE_NOTES,
+        general_summary: COEFFICIENT_GENERAL_SUMMARY,
+        technical_details: COEFFICIENT_TECHNICAL_DETAILS,
+      },
+      method: "cache_hit",
+      cacheStatus: "hit",
+      sourceUrl: null,
+      queriedAt: new Date().toISOString(),
     },
-    queried_at: queriedAt,
-    provenance: {
-      ...buildProvenance(req),
-      upstream_url: resolveUrl(req, "/api/coefficient-of-conservatism/metadata"),
-      method: "static_metadata",
-    },
-  });
+    { registry: dbRegistryAccessor },
+  );
+  res.json(envelope);
 });
 
 export default router;

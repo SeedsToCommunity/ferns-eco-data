@@ -1,7 +1,7 @@
 import React from "react";
 import { useParams, Link } from "wouter";
-import { Layout } from "@/components/Layout";
-import { Loader2, ServerCrash, ArrowLeft, AlertTriangle, Info } from "lucide-react";
+import { SourceExplorerLayout } from "@/components/SourceExplorerLayout";
+import { Loader2, ServerCrash, AlertTriangle, Info } from "lucide-react";
 import { motion } from "framer-motion";
 import {
   useGetAllCoefficientValues,
@@ -197,23 +197,26 @@ function ErrorState() {
   );
 }
 
-const VOCAB_CONFIG: Record<string, { title: string; subtitle: string; apiPath: string; component: React.FC }> = {
+const VOCAB_CONFIG: Record<string, { title: string; subtitle: string; apiPath: string; sourceId: string; component: React.FC }> = {
   coefficient: {
     title: "Coefficient of Conservatism",
     subtitle: "C-value reference — Floristic Quality Assessment (Swink & Wilhelm 1994)",
     apiPath: "/api/coefficient-of-conservatism/all",
+    sourceId: "coefficient-of-conservatism",
     component: CoefficientTable,
   },
   "wetland-indicator": {
     title: "Wetland Indicator Status",
     subtitle: "WIS codes and Coefficient of Wetness (W) — USDA NRCS National Wetland Plant List",
     apiPath: "/api/wetland-indicator/all",
+    sourceId: "wetland-indicator-status",
     component: WetlandIndicatorTable,
   },
   wucols: {
     title: "WUCOLS Water Use Classification",
     subtitle: "Landscape irrigation ratings — UC Cooperative Extension WUCOLS IV",
     apiPath: "/api/wucols/all",
+    sourceId: "wucols-water-use",
     component: WucolsTable,
   },
 };
@@ -225,25 +228,21 @@ export default function VocabularyPage() {
 
   if (!config) {
     return (
-      <Layout>
+      <SourceExplorerLayout sourceId="">
         <div className="text-center py-24">
           <h2 className="text-2xl font-bold text-foreground mb-2">Unknown vocabulary reference</h2>
           <p className="text-muted-foreground mb-6">The requested vocabulary "{vocabulary}" was not found.</p>
           <Link href="/" className="text-primary hover:underline">← Back to registry</Link>
         </div>
-      </Layout>
+      </SourceExplorerLayout>
     );
   }
 
   const TableComponent = config.component;
 
   return (
-    <Layout>
+    <SourceExplorerLayout sourceId={config.sourceId}>
       <div className="mb-8">
-        <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors mb-6">
-          <ArrowLeft className="w-4 h-4" />
-          Back to registry
-        </Link>
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -265,6 +264,6 @@ export default function VocabularyPage() {
       >
         <TableComponent />
       </motion.div>
-    </Layout>
+    </SourceExplorerLayout>
   );
 }

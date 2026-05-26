@@ -1,5 +1,10 @@
 export const COEFFICIENT_SOURCE_ID = "coefficient-of-conservatism";
 
+export const COEFFICIENT_LICENSE = "cc-by";
+
+export const COEFFICIENT_RIGHTS =
+  "OPEN — Static reference data. Methodology published by Swink & Wilhelm (1994). No authentication required.";
+
 export const COEFFICIENT_LICENSES = ["cc-by"];
 
 export const COEFFICIENT_LICENSE_NOTES =
@@ -57,6 +62,13 @@ export const COEFFICIENT_REGISTRY_ENTRY = {
   license_notes: COEFFICIENT_LICENSE_NOTES,
   general_summary: COEFFICIENT_GENERAL_SUMMARY,
   technical_details: COEFFICIENT_TECHNICAL_DETAILS,
-  non_passthrough_endpoints: [{ endpoint: "/api/coefficient-of-conservatism/metadata", kind: "metadata" }],
+  license: COEFFICIENT_LICENSE,
+  rights: COEFFICIENT_RIGHTS,
+  website_url_patterns: {},
+  non_passthrough_endpoints: [
+    { endpoint: "/api/coefficient-of-conservatism/metadata", kind: "metadata" },
+    { endpoint: "/api/coefficient-of-conservatism", kind: "in_memory" },
+    { endpoint: "/api/coefficient-of-conservatism/all", kind: "in_memory" },
+  ],
   permission_granted: true,
 };

@@ -1,4 +1,5 @@
 import { Router, type IRouter } from "express";
+import { buildEnvelope } from "@workspace/api-envelope";
 import {
   WETLAND_INDICATOR_SOURCE_ID,
   WETLAND_INDICATOR_GENERAL_SUMMARY,
@@ -14,47 +15,38 @@ import {
 } from "../services/wetland-indicator/data.js";
 import { ensureWetlandIndicatorRegistryEntry } from "../services/wetland-indicator/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
-import { filterProvenance } from "../lib/provenance.js";
+import { dbRegistryAccessor } from "../lib/registry-accessor.js";
 
 const router: IRouter = Router();
 
-function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
-  return {
-    source_id: WETLAND_INDICATOR_SOURCE_ID,
-    fetched_at: new Date(),
-    method: "static_data",
-    upstream_url: resolveUrl(req, "/api/wetland-indicator/all"),
-    general_summary: WETLAND_INDICATOR_GENERAL_SUMMARY,
-    technical_details: WETLAND_INDICATOR_TECHNICAL_DETAILS,
-  };
-}
-
-router.get("/wetland-indicator", (req, res) => {
-  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+router.get("/wetland-indicator", async (req, res) => {
   const code = req.query["code"];
   if (typeof code !== "string" || code.trim() === "") {
     res.status(400).json({ error: "invalid_input", message: "code query parameter is required (OBL, FACW, FAC, FACU, or UPL)" });
     return;
   }
 
+  await ensureWetlandIndicatorRegistryEntry();
   const entry = lookupByCode(code.trim());
   const found = entry !== undefined;
 
-  res.json({
-    found,
-    cache_status: "miss",
-    queried_at: new Date(),
-    source_url: resolveUrl(req, "/api/wetland-indicator/all"),
-    provenance: filterProvenance({
-      ...buildProvenance(req),
-      matched_input: code.trim().toUpperCase(),
-    }, verbosity),
-    data: found ? entry : null,
-  });
+  const envelope = await buildEnvelope(
+    {
+      sourceId: WETLAND_INDICATOR_SOURCE_ID,
+      sourceKind: "in-memory",
+      found,
+      data: found ? entry : null,
+      method: "cache_hit",
+      cacheStatus: "hit",
+      sourceUrl: null,
+      queriedAt: new Date().toISOString(),
+    },
+    { registry: dbRegistryAccessor },
+  );
+  res.json(envelope);
 });
 
-router.get("/wetland-indicator/w", (req, res) => {
-  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+router.get("/wetland-indicator/w", async (req, res) => {
   const rawValue = req.query["value"];
   if (typeof rawValue !== "string" || rawValue.trim() === "") {
     res.status(400).json({ error: "invalid_input", message: "value query parameter is required (-5, -3, 0, 3, or 5)" });
@@ -67,59 +59,79 @@ router.get("/wetland-indicator/w", (req, res) => {
     return;
   }
 
+  await ensureWetlandIndicatorRegistryEntry();
   const entry = lookupByW(w);
   const found = entry !== undefined;
 
-  res.json({
-    found,
-    cache_status: "miss",
-    queried_at: new Date(),
-    source_url: resolveUrl(req, "/api/wetland-indicator/all"),
-    provenance: filterProvenance({
-      ...buildProvenance(req),
-      upstream_url: resolveUrl(req, "/api/wetland-indicator/all"),
-      matched_input: String(w),
-    }, verbosity),
-    data: found ? entry : null,
-  });
+  const envelope = await buildEnvelope(
+    {
+      sourceId: WETLAND_INDICATOR_SOURCE_ID,
+      sourceKind: "in-memory",
+      found,
+      data: found ? entry : null,
+      method: "cache_hit",
+      cacheStatus: "hit",
+      sourceUrl: null,
+      queriedAt: new Date().toISOString(),
+    },
+    { registry: dbRegistryAccessor },
+  );
+  res.json(envelope);
 });
 
-router.get("/wetland-indicator/all", (req, res) => {
-  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
-  res.json({
-    found: true,
-    cache_status: "miss",
-    queried_at: new Date(),
-    source_url: resolveUrl(req, "/api/wetland-indicator/all"),
-    provenance: filterProvenance({
-      ...buildProvenance(req),
-      upstream_url: resolveUrl(req, "/api/wetland-indicator/all"),
-    }, verbosity),
-    data: WETLAND_INDICATOR_DATA,
-  });
+router.get("/wetland-indicator/all", async (req, res) => {
+  await ensureWetlandIndicatorRegistryEntry();
+
+  const envelope = await buildEnvelope(
+    {
+      sourceId: WETLAND_INDICATOR_SOURCE_ID,
+      sourceKind: "in-memory",
+      found: true,
+      data: WETLAND_INDICATOR_DATA,
+      method: "cache_hit",
+      cacheStatus: "hit",
+      sourceUrl: null,
+      queriedAt: new Date().toISOString(),
+    },
+    { registry: dbRegistryAccessor },
+  );
+  res.json(envelope);
 });
 
 router.get("/wetland-indicator/metadata", async (req, res) => {
   await ensureWetlandIndicatorRegistryEntry();
-  const queriedAt = new Date();
 
-  res.json({
-    service_id: WETLAND_INDICATOR_SOURCE_ID,
-    service_name: WETLAND_INDICATOR_REGISTRY_ENTRY.name,
-    licenses: WETLAND_INDICATOR_LICENSES,
-    license_notes: WETLAND_INDICATOR_LICENSE_NOTES,
-    registry_entry: {
-      ...WETLAND_INDICATOR_REGISTRY_ENTRY,
-      metadata_url: resolveUrl(req, WETLAND_INDICATOR_REGISTRY_ENTRY.metadata_url),
-      explorer_url: resolveUrl(req, WETLAND_INDICATOR_REGISTRY_ENTRY.explorer_url),
+  const envelope = await buildEnvelope(
+    {
+      sourceId: WETLAND_INDICATOR_SOURCE_ID,
+      sourceKind: "in-memory",
+      found: true,
+      data: {
+        source_id: WETLAND_INDICATOR_SOURCE_ID,
+        name: WETLAND_INDICATOR_REGISTRY_ENTRY.name,
+        knowledge_type: WETLAND_INDICATOR_REGISTRY_ENTRY.knowledge_type,
+        status: WETLAND_INDICATOR_REGISTRY_ENTRY.status,
+        description: WETLAND_INDICATOR_REGISTRY_ENTRY.description,
+        input_summary: WETLAND_INDICATOR_REGISTRY_ENTRY.input_summary,
+        output_summary: WETLAND_INDICATOR_REGISTRY_ENTRY.output_summary,
+        dependencies: WETLAND_INDICATOR_REGISTRY_ENTRY.dependencies,
+        update_frequency: WETLAND_INDICATOR_REGISTRY_ENTRY.update_frequency,
+        known_limitations: WETLAND_INDICATOR_REGISTRY_ENTRY.known_limitations,
+        metadata_url: resolveUrl(req, WETLAND_INDICATOR_REGISTRY_ENTRY.metadata_url),
+        explorer_url: resolveUrl(req, WETLAND_INDICATOR_REGISTRY_ENTRY.explorer_url),
+        licenses: WETLAND_INDICATOR_LICENSES,
+        license_notes: WETLAND_INDICATOR_LICENSE_NOTES,
+        general_summary: WETLAND_INDICATOR_GENERAL_SUMMARY,
+        technical_details: WETLAND_INDICATOR_TECHNICAL_DETAILS,
+      },
+      method: "cache_hit",
+      cacheStatus: "hit",
+      sourceUrl: null,
+      queriedAt: new Date().toISOString(),
     },
-    queried_at: queriedAt,
-    provenance: {
-      ...buildProvenance(req),
-      upstream_url: resolveUrl(req, "/api/wetland-indicator/metadata"),
-      method: "static_metadata",
-    },
-  });
+    { registry: dbRegistryAccessor },
+  );
+  res.json(envelope);
 });
 
 export default router;

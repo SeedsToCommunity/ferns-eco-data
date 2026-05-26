@@ -1,4 +1,5 @@
 import { Router, type IRouter } from "express";
+import { buildEnvelope } from "@workspace/api-envelope";
 import {
   UNIVERSAL_FQA_SOURCE_ID,
   UNIVERSAL_FQA_GENERAL_SUMMARY,
@@ -20,58 +21,69 @@ import {
 import { ensureUniversalFqaRegistryEntry } from "../services/universal-fqa/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
 import { logger } from "../lib/logger.js";
-import { filterProvenance } from "../lib/provenance.js";
+import { dbRegistryAccessor } from "../lib/registry-accessor.js";
 
 const router: IRouter = Router();
-
-function buildProvenance(req: Parameters<typeof resolveUrl>[0], upstreamUrl: string) {
-  return {
-    source_id: UNIVERSAL_FQA_SOURCE_ID,
-    fetched_at: new Date(),
-    method: "api_fetch",
-    upstream_url: upstreamUrl,
-    general_summary: UNIVERSAL_FQA_GENERAL_SUMMARY,
-    technical_details: UNIVERSAL_FQA_TECHNICAL_DETAILS,
-  };
-}
 
 router.get("/universal-fqa/metadata", async (req, res) => {
   await ensureUniversalFqaRegistryEntry();
 
-  res.json({
-    source_id: UNIVERSAL_FQA_SOURCE_ID,
-    name: UNIVERSAL_FQA_REGISTRY_ENTRY.name,
-    licenses: UNIVERSAL_FQA_LICENSES,
-    license_notes: UNIVERSAL_FQA_LICENSE_NOTES,
-    attribution: UNIVERSAL_FQA_ATTRIBUTION,
-    registry_entry: {
-      ...UNIVERSAL_FQA_REGISTRY_ENTRY,
-      metadata_url: resolveUrl(req, UNIVERSAL_FQA_REGISTRY_ENTRY.metadata_url),
-      explorer_url: resolveUrl(req, UNIVERSAL_FQA_REGISTRY_ENTRY.explorer_url),
+  const envelope = await buildEnvelope(
+    {
+      sourceId: UNIVERSAL_FQA_SOURCE_ID,
+      sourceKind: "in-memory",
+      found: true,
+      data: {
+        source_id: UNIVERSAL_FQA_SOURCE_ID,
+        name: UNIVERSAL_FQA_REGISTRY_ENTRY.name,
+        knowledge_type: UNIVERSAL_FQA_REGISTRY_ENTRY.knowledge_type,
+        status: UNIVERSAL_FQA_REGISTRY_ENTRY.status,
+        description: UNIVERSAL_FQA_REGISTRY_ENTRY.description,
+        input_summary: UNIVERSAL_FQA_REGISTRY_ENTRY.input_summary,
+        output_summary: UNIVERSAL_FQA_REGISTRY_ENTRY.output_summary,
+        dependencies: UNIVERSAL_FQA_REGISTRY_ENTRY.dependencies,
+        update_frequency: UNIVERSAL_FQA_REGISTRY_ENTRY.update_frequency,
+        known_limitations: UNIVERSAL_FQA_REGISTRY_ENTRY.known_limitations,
+        metadata_url: resolveUrl(req, UNIVERSAL_FQA_REGISTRY_ENTRY.metadata_url),
+        explorer_url: resolveUrl(req, UNIVERSAL_FQA_REGISTRY_ENTRY.explorer_url),
+        licenses: UNIVERSAL_FQA_LICENSES,
+        license_notes: UNIVERSAL_FQA_LICENSE_NOTES,
+        attribution: UNIVERSAL_FQA_ATTRIBUTION,
+        general_summary: UNIVERSAL_FQA_GENERAL_SUMMARY,
+        technical_details: UNIVERSAL_FQA_TECHNICAL_DETAILS,
+      },
+      method: "cache_hit",
+      cacheStatus: "hit",
+      sourceUrl: null,
+      queriedAt: new Date().toISOString(),
     },
-    queried_at: new Date(),
-    provenance: {
-      ...buildProvenance(req, resolveUrl(req, "/api/universal-fqa/metadata")),
-      method: "static_metadata",
-    },
-  });
+    { registry: dbRegistryAccessor },
+  );
+  res.json(envelope);
 });
 
 router.get("/universal-fqa/get/database", async (req, res) => {
   const upstreamUrl = `${UNIVERSAL_FQA_API_BASE}/database/`;
-  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+
+  await ensureUniversalFqaRegistryEntry();
 
   try {
     const databases = await fetchDatabaseList();
 
-    res.json({
-      found: true,
-      cache_status: "miss",
-      queried_at: new Date(),
-      source_url: upstreamUrl,
-      provenance: filterProvenance(buildProvenance(req, upstreamUrl), verbosity),
-      data: { databases },
-    });
+    const envelope = await buildEnvelope(
+      {
+        sourceId: UNIVERSAL_FQA_SOURCE_ID,
+        sourceKind: "single-source-proxy",
+        found: true,
+        data: { databases },
+        method: "api_fetch",
+        cacheStatus: "miss",
+        sourceUrl: upstreamUrl,
+        queriedAt: new Date().toISOString(),
+      },
+      { registry: dbRegistryAccessor },
+    );
+    res.json(envelope);
   } catch (err) {
     logger.error({ err }, "Universal FQA: failed to fetch database list");
     res.status(502).json({
@@ -95,22 +107,29 @@ router.get("/universal-fqa/get/database/:id/inventory", async (req, res) => {
   }
 
   const upstreamUrl = `${UNIVERSAL_FQA_API_BASE}/database/${databaseId}/inventory`;
-  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+
+  await ensureUniversalFqaRegistryEntry();
 
   try {
     const assessments = await fetchAssessmentList(databaseId);
 
-    res.json({
-      found: true,
-      cache_status: "miss",
-      queried_at: new Date(),
-      source_url: upstreamUrl,
-      provenance: filterProvenance(buildProvenance(req, upstreamUrl), verbosity),
-      data: {
-        database_id: databaseId,
-        assessments,
+    const envelope = await buildEnvelope(
+      {
+        sourceId: UNIVERSAL_FQA_SOURCE_ID,
+        sourceKind: "single-source-proxy",
+        found: true,
+        data: {
+          database_id: databaseId,
+          assessments,
+        },
+        method: "api_fetch",
+        cacheStatus: "miss",
+        sourceUrl: upstreamUrl,
+        queriedAt: new Date().toISOString(),
       },
-    });
+      { registry: dbRegistryAccessor },
+    );
+    res.json(envelope);
   } catch (err) {
     logger.error({ err, databaseId }, "Universal FQA: failed to fetch assessment list");
     res.status(502).json({
@@ -134,19 +153,26 @@ router.get("/universal-fqa/get/database/:id", async (req, res) => {
   }
 
   const upstreamUrl = `${UNIVERSAL_FQA_API_BASE}/database/${databaseId}`;
-  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+
+  await ensureUniversalFqaRegistryEntry();
 
   try {
     const { detail, cache_hit } = await getOrFetchDatabase(databaseId);
 
-    res.json({
-      found: true,
-      cache_status: cache_hit ? "hit" : "miss",
-      queried_at: new Date(),
-      source_url: upstreamUrl,
-      provenance: filterProvenance(buildProvenance(req, upstreamUrl), verbosity),
-      data: detail,
-    });
+    const envelope = await buildEnvelope(
+      {
+        sourceId: UNIVERSAL_FQA_SOURCE_ID,
+        sourceKind: "single-source-proxy",
+        found: true,
+        data: detail,
+        method: cache_hit ? "cache_hit" : "api_fetch",
+        cacheStatus: cache_hit ? "hit" : "miss",
+        sourceUrl: upstreamUrl,
+        queriedAt: new Date().toISOString(),
+      },
+      { registry: dbRegistryAccessor },
+    );
+    res.json(envelope);
   } catch (err) {
     logger.error({ err, databaseId }, "Universal FQA: failed to fetch database");
     res.status(502).json({
@@ -170,19 +196,26 @@ router.get("/universal-fqa/get/inventory/:id", async (req, res) => {
   }
 
   const upstreamUrl = `${UNIVERSAL_FQA_API_BASE}/inventory/${assessmentId}`;
-  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+
+  await ensureUniversalFqaRegistryEntry();
 
   try {
     const detail = await fetchAssessment(assessmentId);
 
-    res.json({
-      found: true,
-      cache_status: "miss",
-      queried_at: new Date(),
-      source_url: upstreamUrl,
-      provenance: filterProvenance(buildProvenance(req, upstreamUrl), verbosity),
-      data: detail,
-    });
+    const envelope = await buildEnvelope(
+      {
+        sourceId: UNIVERSAL_FQA_SOURCE_ID,
+        sourceKind: "single-source-proxy",
+        found: true,
+        data: detail,
+        method: "api_fetch",
+        cacheStatus: "miss",
+        sourceUrl: upstreamUrl,
+        queriedAt: new Date().toISOString(),
+      },
+      { registry: dbRegistryAccessor },
+    );
+    res.json(envelope);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
     if (message.includes("unavailable") || message.includes("not found")) {

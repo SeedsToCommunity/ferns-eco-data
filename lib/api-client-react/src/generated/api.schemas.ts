@@ -15,26 +15,36 @@ export interface ErrorResponse {
 }
 
 /**
- * Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).
-
+ * Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Matches the FERNS Response Envelope Contract v1.
+ * @deprecated Use Provenance (defined below) for the canonical v1 contract type. FernsProvenance is kept as an alias for backward compatibility with existing generated response types.
  */
 export interface FernsProvenance {
-  /** Stable identifier for this data source (e.g. bonap-napa) */
+  /** Stable identifier of the registered FERNS source (e.g. bonap-napa). */
   source_id: string;
-  /** When this record was obtained from the source */
-  fetched_at: string;
-  /** How the data was obtained: api_fetch | blob_import | llm_synthesis */
+  /** Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources. */
+  source_url: string | null;
+  /** How FERNS obtained the data. */
   method: string;
-  /** Where this data came from (API endpoint, file path, or registry entry) */
-  upstream_url: string;
-  /** Plain language description readable by a homeowner or community member */
-  general_summary?: string;
-  /** Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce
-   */
-  technical_details?: string;
-  /** The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.
-   */
+  /** Cache outcome for this response. */
+  cache_status: string;
+  /** When FERNS performed this lookup (UTC ISO-8601). */
+  queried_at: string;
+  /** List of contributing sources for multi-source-algorithm responses. Null for all other source kinds. */
+  derived_from: { source_id: string; queried_at: string }[] | null;
+  /** License URI for the source data. */
+  license: string;
+  /** Rights statement / attribution for the source. */
+  rights: string;
+  /** The normalized input that was actually used for this lookup. Present on name-parameter endpoints. */
   matched_input?: string;
+  /** @deprecated Legacy field — present on pre-v1-contract responses only. Use queried_at on new responses. */
+  fetched_at?: string;
+  /** @deprecated Legacy field — present on pre-v1-contract responses only. Use source_url on new responses. */
+  upstream_url?: string;
+  /** @deprecated Legacy field — conditionally present on pre-v1-contract responses only. */
+  general_summary?: string;
+  /** @deprecated Legacy field — conditionally present on pre-v1-contract responses only. */
+  technical_details?: string;
 }
 
 /**

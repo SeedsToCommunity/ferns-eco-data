@@ -40,6 +40,46 @@ The stack is unremarkable. The value of this approach is in the disciplined sepa
     5. **What was NOT done** — explicitly list anything that was in scope but skipped, deferred, or not updated (e.g. "audit tool not updated", "no database cache added", "OpenAPI schema not reviewed").
     6. **What the user should decide or review** — flag anything that requires a human judgment call, approval, or follow-up action.
 
+## Post-Task Summary — Envelope Contract v1: Coefficient Family Migration
+
+### 1. What was built
+
+Four API routes — Coefficient of Conservatism, WUCOLS, Wetland Indicator Status, and Universal FQA — were migrated to use the shared `buildEnvelope()` function from the `@workspace/api-envelope` package, bringing them into compliance with the FERNS Response Envelope Contract v1. Before this task, these routes assembled their own response envelopes by hand, each doing it slightly differently and missing fields the contract now requires. After this task, every response from these four routes carries a standardized `provenance` block containing `source_id`, `source_url`, `method`, `cache_status`, `queried_at`, `derived_from`, `license`, and `rights` — plus top-level `found`, `permission_granted`, and `pagination` fields. The three in-memory vocabulary sources (Coefficient, WUCOLS, Wetland Indicator) report `method: cache_hit` and `cache_status: hit` because their data never leaves the server process. Universal FQA reports `method: api_fetch` / `cache_status: miss` on live upstream calls and `method: cache_hit` / `cache_status: hit` on database-cached responses. Registry seed files were updated so the database rows for all four sources now store `license`, `rights`, and `website_url_patterns` columns. The audit comparator was updated to check for `permission_granted` and the new provenance fields instead of the old `general_summary`/`technical_details` fields it was incorrectly asserting. The three vocabulary explorer pages now use `SourceExplorerLayout` (the same framing all other source pages use) instead of the generic `Layout`. The Universal FQA explorer page was fixed to read `cache_status` from `provenance.cache_status` instead of a top-level field that no longer exists. The shared `FernsProvenance` TypeScript type across all generated client files was updated to reflect the v1 contract fields, which also fixed pre-existing type errors in the iNat Phenology tab as a side effect.
+
+### 2. Derivation summary
+
+Not applicable — no new data source was added in this task. This was a structural migration of existing sources.
+
+### 3. Scientific/technical description
+
+Not applicable — no new `technical_details` text was authored. The existing `general_summary` and `technical_details` fields for all four sources were preserved and continue to be served through the `/metadata` endpoint for each source.
+
+### 4. Architectural decisions made
+
+- **`sourceKind: "single-source-proxy"` for Universal FQA data endpoints** — The envelope builder requires the caller to declare how data was obtained. Universal FQA makes live HTTP calls to `universalfqa.org`, making it a single-source proxy. The metadata endpoint, which serves in-process data, uses `"in-memory"`. This means the `source_url` field in `provenance` is populated with the upstream URL for data calls and `null` for metadata calls, which is the correct v1 behavior.
+
+- **`license` and `rights` as scalar strings, distinct from the existing `licenses` array and `license_notes` string** — The DB schema and v1 contract define `license` (a single canonical license URI, e.g. `"cc-by"`) and `rights` (a human-readable permission statement) as separate scalar columns. The existing `licenses` (array) and `license_notes` fields remain on the registry row and the `/metadata` response for backward compatibility. Both sets of fields now live in the DB.
+
+- **`FernsProvenance` updated in-place rather than replaced** — The generated client type was updated to include the new v1 fields while keeping the old fields as optional with `@deprecated` markers. This avoids breaking the BONAP, iNat, and other routes that haven't yet been migrated and still return the old envelope shape. The trade-off: the type is now a broader union and older consumers won't get a compile error when they read a deprecated field — they just get `undefined` at runtime. A future codegen regeneration will need to align the OpenAPI spec and re-run orval to make this clean.
+
+- **Audit `envelopeFindings` updated for all static sources at once** — The shared `envelopeFindings()` function in `static-sources.ts` now checks `permission_granted` and `provenance.cache_status/license/rights` instead of the old `provenance.general_summary/technical_details`. This means ALL static-source audit checks (Coefficient, WUCOLS, Wetland Indicator, and any future static sources using that helper) now validate the v1 contract fields. BONAP, iNat, and other non-static-source comparators were not touched.
+
+### 5. What was NOT done
+
+- **MCP tool blocks for the four sources were not changed.** The MCP tools pass a `provenance_verbosity` parameter to the routes. Since `buildEnvelope()` does not filter on `provenance_verbosity`, the parameter is silently ignored on these four routes. The MCP tools still call the correct endpoints and return whatever the API returns — behavior is correct, the parameter just has no effect.
+- **Universal FQA audit comparator (`lib/ferns-audit/src/comparators/universal-fqa.ts`) was not updated.** The code reviewer flagged this. The comparator file currently has no envelope-shape assertions at all. Adding `permission_granted` and provenance v1 field checks to that file is follow-up work.
+- **OpenAPI spec was not regenerated.** The `FernsProvenance` type was updated manually in the generated source and dist files. The authoritative OpenAPI spec has not been changed, and the orval codegen has not been re-run. A future `pnpm run codegen` will overwrite the manual fix unless the spec is updated first.
+- **Generated endpoint-level response types** (e.g. `CoefficientResponse`, `WucolsResponse`) still model the old top-level `cache_status`/`queried_at` fields. These were not changed in this task.
+- **The pre-existing `PlaceLookupTab.tsx` type error** (`Property 'data' does not exist on type 'InatMetadataResponse'`) was not fixed — it predates this task and is tracked as follow-up task #191.
+
+### 6. What the user should decide or review
+
+- **Universal FQA comparator audit coverage** — The audit tool doesn't assert envelope-v1 structure on Universal FQA responses. This is the only one of the four migrated sources without that check. Decide whether to add it now or leave it for the broader comparator pass.
+- **OpenAPI spec update timing** — The generated types were patched manually. If `pnpm run codegen` is run before the spec is updated, the `FernsProvenance` fix will be overwritten and the PhenologyTab/UniversalFqaPage errors will return. The codegen needs a spec update to match the v1 contract before it can be run safely. See follow-up task #192.
+- **`provenance_verbosity` on the migrated routes** — These four routes now ignore `provenance_verbosity` because `buildEnvelope()` doesn't filter. If MCP consumers or other callers rely on verbosity filtering for these sources, that behavior is now gone. Confirm this is the intended direction.
+
+---
+
 ## System Guidance Documents
 Read these on demand — not every session. Each entry says when to open it.
 - **`docs/data-layer-contract.md`** — Authoritative spec for the FERNS response envelope, pass-through rules, endpoint kinds, permission rules, companion website URL patterns, and the per-source architectural pattern. **Read when**: designing or modifying any API route, judging whether a response is correctly shaped, deciding whether something belongs in `data` vs the envelope, classifying an endpoint kind, or evaluating an audit finding. This is the document that "wins" if anything else contradicts it.

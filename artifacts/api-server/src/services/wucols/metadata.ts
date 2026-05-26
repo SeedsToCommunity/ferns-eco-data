@@ -1,5 +1,10 @@
 export const WUCOLS_SOURCE_ID = "wucols-water-use";
 
+export const WUCOLS_LICENSE = "cc-by";
+
+export const WUCOLS_RIGHTS =
+  "OPEN — Static reference data. WUCOLS methodology published by the University of California Cooperative Extension. No authentication required.";
+
 export const WUCOLS_LICENSES = ["cc-by"];
 
 export const WUCOLS_LICENSE_NOTES =
@@ -61,6 +66,13 @@ export const WUCOLS_REGISTRY_ENTRY = {
   license_notes: WUCOLS_LICENSE_NOTES,
   general_summary: WUCOLS_GENERAL_SUMMARY,
   technical_details: WUCOLS_TECHNICAL_DETAILS,
-  non_passthrough_endpoints: [{ endpoint: "/api/wucols/metadata", kind: "metadata" }],
+  license: WUCOLS_LICENSE,
+  rights: WUCOLS_RIGHTS,
+  website_url_patterns: {},
+  non_passthrough_endpoints: [
+    { endpoint: "/api/wucols/metadata", kind: "metadata" },
+    { endpoint: "/api/wucols", kind: "in_memory" },
+    { endpoint: "/api/wucols/all", kind: "in_memory" },
+  ],
   permission_granted: true,
 };
