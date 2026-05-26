@@ -6,7 +6,6 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type NatureserveMetadataResponseCacheStats = {
-  species_cached?: number;
-  ttl_days?: number;
+export type NatureserveMetadataDataCacheStatsTtlDays = {
+  [key: string]: unknown;
 };

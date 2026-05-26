@@ -1,8 +1,12 @@
+// NatureServe routes — envelope-migrated (Task #178).
+// Envelope Contract v1: docs/data-layer-contract.md
+// All routes use buildEnvelope(). See VIOLATION comments for plan #148 regressions deferred to plans 16–18.
+
 import { Router, type IRouter } from "express";
+import { buildEnvelope } from "@workspace/api-envelope";
 import {
   searchSpecies,
   buildSpeciesCacheKey,
-  buildProvenance,
   searchByRecordType,
   buildSearchCacheKey,
   type NatureserveSearchItem,
@@ -15,9 +19,6 @@ import {
 } from "../services/natureserve/cache.js";
 import {
   NATURESERVE_SOURCE_ID,
-  NATURESERVE_ATTRIBUTION,
-  NATURESERVE_LICENSES,
-  NATURESERVE_LICENSE_NOTES,
   NATURESERVE_GENERAL_SUMMARY,
   NATURESERVE_TECHNICAL_DETAILS,
   NATURESERVE_REGISTRY_ENTRY,
@@ -26,10 +27,13 @@ import { ensureNatureserveRegistryEntry } from "../services/natureserve/seed.js"
 import { resolveUrl } from "../lib/resolve-url.js";
 import { db, natureserveSpeciesCacheTable, natureserveEcosystemsCacheTable } from "@workspace/db";
 import { count } from "drizzle-orm";
-import { filterProvenance } from "../lib/provenance.js";
+import { dbRegistryAccessor } from "../lib/registry-accessor.js";
 
 const router: IRouter = Router();
 
+// VIOLATION: plan #148 regression — state scoping not supported by upstream speciesSearch endpoint.
+// DEFAULT_STATE and the state query parameter add a FERNS-invented parameter with no upstream equivalent.
+// Deferred to plans 16–18.
 const DEFAULT_STATE = "MI";
 
 router.get("/natureserve/speciesSearch", async (req, res) => {
@@ -40,6 +44,8 @@ router.get("/natureserve/speciesSearch", async (req, res) => {
   }
 
   const name = rawName.trim();
+  // VIOLATION: plan #148 regression — state scoping not supported by upstream speciesSearch endpoint.
+  // Deferred to plans 16–18.
   const rawState = typeof req.query.state === "string" ? req.query.state.trim().toUpperCase() : DEFAULT_STATE;
   if (!/^[A-Z]{2}$/.test(rawState)) {
     res.status(400).json({ error: "invalid_input", message: "state must be a 2-letter US state code (e.g. MI, WI, OH)" });
@@ -47,13 +53,29 @@ router.get("/natureserve/speciesSearch", async (req, res) => {
   }
   const state = rawState;
   const refresh = req.query.refresh === "true" || req.query.refresh === "1";
-  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   const cacheKey = buildSpeciesCacheKey(name, state);
+
+  await ensureNatureserveRegistryEntry();
 
   if (!refresh) {
     const cached = await lookupSpeciesCache(cacheKey);
     if (cached) {
-      res.json(buildSpeciesResponse(cached, "hit", verbosity));
+      const envelope = await buildEnvelope(
+        {
+          sourceId: NATURESERVE_SOURCE_ID,
+          sourceKind: "single-source-proxy",
+          found: cached.scientific_name !== null,
+          // VIOLATION: plan #148 regression — flat struct rather than verbatim upstream JSON.
+          // Cache stores extracted fields, not raw upstream JSON. Deferred to plans 16–18.
+          data: buildSpeciesData(cached),
+          method: "cache_hit",
+          cacheStatus: "hit",
+          sourceUrl: cached.upstream_url,
+          queriedAt: cached.fetched_at.toISOString(),
+        },
+        { registry: dbRegistryAccessor },
+      );
+      res.json(envelope);
       return;
     }
   }
@@ -61,53 +83,52 @@ router.get("/natureserve/speciesSearch", async (req, res) => {
   try {
     const result = await searchSpecies(name, state);
     const stored = await storeSpeciesCache(cacheKey, result, result.search_upstream_url);
-    res.json(buildSpeciesResponse(stored, refresh ? "bypassed" : "miss", verbosity));
+    const envelope = await buildEnvelope(
+      {
+        sourceId: NATURESERVE_SOURCE_ID,
+        sourceKind: "single-source-proxy",
+        found: stored.scientific_name !== null,
+        // VIOLATION: plan #148 regression — flat struct rather than verbatim upstream JSON.
+        // Cache stores extracted fields, not raw upstream JSON. Deferred to plans 16–18.
+        data: buildSpeciesData(stored),
+        method: refresh ? "computed" : "api_fetch",
+        cacheStatus: refresh ? "bypass" : "miss",
+        sourceUrl: stored.upstream_url,
+        queriedAt: stored.fetched_at.toISOString(),
+      },
+      { registry: dbRegistryAccessor },
+    );
+    res.json(envelope);
   } catch (err) {
     req.log.error({ err }, "NatureServe species fetch failed");
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from NatureServe Explorer API" });
   }
 });
 
-function buildSpeciesResponse(
-  row: typeof natureserveSpeciesCacheTable.$inferSelect,
-  cache_status: "hit" | "miss" | "bypassed",
-  verbosity?: string,
-) {
+function buildSpeciesData(row: typeof natureserveSpeciesCacheTable.$inferSelect) {
+  // VIOLATION: plan #148 regression — flat struct rather than verbatim upstream JSON.
+  // state_status is derived by mapping S-rank values to labels inside the connector — not verbatim upstream data.
+  // Deferred to plans 16–18.
   return {
-    source_url: row.natureserve_url ?? null,
-    found: row.scientific_name !== null,
-    attribution: "NatureServe Explorer (https://explorer.natureserve.org). Attribution required per NatureServe Terms of Use.",
-    data: {
-      scientific_name: row.scientific_name ?? null,
-      common_name: row.common_name ?? null,
-      global_rank: row.global_rank ?? null,
-      rounded_global_rank: row.rounded_global_rank ?? null,
-      national_rank: row.national_rank ?? null,
-      rounded_national_rank: row.rounded_national_rank ?? null,
-      state_code: row.state_code,
-      state_rank: row.state_rank ?? null,
-      rounded_state_rank: row.rounded_state_rank ?? null,
-      iucn_category: row.iucn_category ?? null,
-      iucn_description: row.iucn_description ?? null,
-      federal_status: row.federal_status ?? null,
-      federal_status_description: row.federal_status_description ?? null,
-      state_status: row.state_status ?? null,
-      state_status_note: row.state_status ? "Derived from NatureServe S-rank; reflects rarity status, not a formal statutory state listing" : null,
-      cites_description: row.cites_description ?? null,
-      cosewic_code: row.cosewic_code ?? null,
-      cosewic_description: row.cosewic_description ?? null,
-      natureserve_url: row.natureserve_url ?? null,
-      element_global_id: row.element_global_id ?? null,
-      cache_status,
-    },
-    provenance: filterProvenance({
-      source_id: row.source_id,
-      fetched_at: row.fetched_at,
-      method: row.method,
-      upstream_url: row.upstream_url,
-      general_summary: row.general_summary,
-      technical_details: row.technical_details,
-    }, verbosity),
+    scientific_name: row.scientific_name ?? null,
+    common_name: row.common_name ?? null,
+    global_rank: row.global_rank ?? null,
+    rounded_global_rank: row.rounded_global_rank ?? null,
+    national_rank: row.national_rank ?? null,
+    rounded_national_rank: row.rounded_national_rank ?? null,
+    state_code: row.state_code,
+    state_rank: row.state_rank ?? null,
+    rounded_state_rank: row.rounded_state_rank ?? null,
+    iucn_category: row.iucn_category ?? null,
+    iucn_description: row.iucn_description ?? null,
+    federal_status: row.federal_status ?? null,
+    federal_status_description: row.federal_status_description ?? null,
+    state_status: row.state_status ?? null,
+    cites_description: row.cites_description ?? null,
+    cosewic_code: row.cosewic_code ?? null,
+    cosewic_description: row.cosewic_description ?? null,
+    natureserve_url: row.natureserve_url ?? null,
+    element_global_id: row.element_global_id ?? null,
   };
 }
 
@@ -132,14 +153,35 @@ router.get("/natureserve/search", async (req, res) => {
   const rawPage = req.query.page;
   const page = typeof rawPage === "string" ? Math.max(0, parseInt(rawPage, 10) || 0) : 0;
   const refresh = req.query.refresh === "true" || req.query.refresh === "1";
-  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
 
   const cacheKey = buildSearchCacheKey(q, rawRecordType, limit, page);
+
+  await ensureNatureserveRegistryEntry();
 
   if (!refresh) {
     const cached = await lookupEcosystemsCache(cacheKey);
     if (cached) {
-      res.json(buildSearchResponse(cached, "hit", verbosity));
+      const ecosystems = (cached.results as NatureserveSearchItem[]) ?? [];
+      const totalResults = parseInt(cached.result_count ?? "0", 10) || ecosystems.length;
+      const envelope = await buildEnvelope(
+        {
+          sourceId: NATURESERVE_SOURCE_ID,
+          sourceKind: "single-source-proxy",
+          found: ecosystems.length > 0,
+          data: { ecosystems, total_results: totalResults },
+          method: "cache_hit",
+          cacheStatus: "hit",
+          sourceUrl: cached.upstream_url,
+          queriedAt: cached.fetched_at.toISOString(),
+          pagination: {
+            has_more: ecosystems.length < totalResults,
+            next: null,
+            total: totalResults,
+          },
+        },
+        { registry: dbRegistryAccessor },
+      );
+      res.json(envelope);
       return;
     }
   }
@@ -147,74 +189,70 @@ router.get("/natureserve/search", async (req, res) => {
   try {
     const result = await searchByRecordType(q, rawRecordType, limit, page);
     const stored = await storeEcosystemsCache(cacheKey, result.items, result.total_results, result.search_upstream_url);
-    res.json(buildSearchResponse(stored, refresh ? "bypassed" : "miss", verbosity));
+    const ecosystems = (stored.results as NatureserveSearchItem[]) ?? [];
+    const totalResults = parseInt(stored.result_count ?? "0", 10) || result.total_results;
+    const envelope = await buildEnvelope(
+      {
+        sourceId: NATURESERVE_SOURCE_ID,
+        sourceKind: "single-source-proxy",
+        found: ecosystems.length > 0,
+        data: { ecosystems, total_results: totalResults },
+        method: refresh ? "computed" : "api_fetch",
+        cacheStatus: refresh ? "bypass" : "miss",
+        sourceUrl: stored.upstream_url,
+        queriedAt: stored.fetched_at.toISOString(),
+        pagination: {
+          has_more: ecosystems.length < totalResults,
+          next: null,
+          total: totalResults,
+        },
+      },
+      { registry: dbRegistryAccessor },
+    );
+    res.json(envelope);
   } catch (err) {
     req.log.error({ err }, "NatureServe search failed");
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from NatureServe Explorer API" });
   }
 });
 
-function buildSearchResponse(
-  row: typeof natureserveEcosystemsCacheTable.$inferSelect,
-  cache_status: "hit" | "miss" | "bypassed",
-  verbosity?: string,
-) {
-  const ecosystems = (row.results as NatureserveSearchItem[]) ?? [];
-  return {
-    source_url: null,
-    found: ecosystems.length > 0,
-    attribution: "NatureServe Explorer (https://explorer.natureserve.org). Attribution required per NatureServe Terms of Use.",
-    data: {
-      ecosystems,
-      result_count: ecosystems.length,
-      total_results: parseInt(row.result_count ?? "0", 10) || ecosystems.length,
-      cache_status,
-    },
-    provenance: filterProvenance({
-      source_id: row.source_id,
-      fetched_at: row.fetched_at,
-      method: row.method,
-      upstream_url: row.upstream_url,
-      general_summary: row.general_summary,
-      technical_details: row.technical_details,
-    }, verbosity),
-  };
-}
-
 router.get("/natureserve/metadata", async (req, res) => {
   await ensureNatureserveRegistryEntry();
-  const queriedAt = new Date();
 
   const speciesCountRow = await db.select({ count: count() }).from(natureserveSpeciesCacheTable);
   const speciesCacheCount = speciesCountRow[0]?.count ?? 0;
 
-  res.json({
-    found: true,
-    source_url: resolveUrl(req, "/api/natureserve/metadata"),
-    service_id: NATURESERVE_SOURCE_ID,
-    service_name: "NatureServe Explorer — Species Conservation Status and Ecological Systems",
-    licenses: NATURESERVE_LICENSES,
-    license_notes: NATURESERVE_LICENSE_NOTES,
-    attribution: NATURESERVE_ATTRIBUTION,
-    cache_stats: {
-      species_cached: speciesCacheCount,
-      ttl_days: 30,
+  const ecosystemsCountRow = await db.select({ count: count() }).from(natureserveEcosystemsCacheTable);
+  const ecosystemsCacheCount = ecosystemsCountRow[0]?.count ?? 0;
+
+  const envelope = await buildEnvelope(
+    {
+      sourceId: NATURESERVE_SOURCE_ID,
+      sourceKind: "in-memory",
+      found: true,
+      data: {
+        description: NATURESERVE_REGISTRY_ENTRY.description,
+        general_summary: NATURESERVE_GENERAL_SUMMARY,
+        technical_details: NATURESERVE_TECHNICAL_DETAILS,
+        licenses: NATURESERVE_REGISTRY_ENTRY.licenses,
+        license_notes: NATURESERVE_REGISTRY_ENTRY.license_notes,
+        cache_stats: {
+          species_cached: speciesCacheCount,
+          ecosystems_cached: ecosystemsCacheCount,
+          ttl_days: { species: 30, ecosystems: 7 },
+        },
+        metadata_url: resolveUrl(req, NATURESERVE_REGISTRY_ENTRY.metadata_url),
+        explorer_url: resolveUrl(req, NATURESERVE_REGISTRY_ENTRY.explorer_url),
+        website_url_patterns: NATURESERVE_REGISTRY_ENTRY.website_url_patterns,
+      },
+      method: "cache_hit",
+      cacheStatus: "hit",
+      sourceUrl: null,
+      queriedAt: new Date().toISOString(),
     },
-    registry_entry: {
-      ...NATURESERVE_REGISTRY_ENTRY,
-      metadata_url: resolveUrl(req, NATURESERVE_REGISTRY_ENTRY.metadata_url),
-      explorer_url: resolveUrl(req, NATURESERVE_REGISTRY_ENTRY.explorer_url),
-    },
-    queried_at: queriedAt,
-    provenance: {
-      source_id: NATURESERVE_SOURCE_ID,
-      fetched_at: queriedAt,
-      method: "static_metadata",
-      upstream_url: resolveUrl(req, "/api/natureserve/metadata"),
-      general_summary: NATURESERVE_GENERAL_SUMMARY,
-      technical_details: NATURESERVE_TECHNICAL_DETAILS,
-    },
-  });
+    { registry: dbRegistryAccessor },
+  );
+  res.json(envelope);
 });
 
 export default router;

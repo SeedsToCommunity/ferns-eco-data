@@ -5,20 +5,9 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { FernsProvenance } from "./fernsProvenance";
-import type { NatureserveMetadataResponseCacheStats } from "./natureserveMetadataResponseCacheStats";
-import type { NatureserveMetadataResponseRegistryEntry } from "./natureserveMetadataResponseRegistryEntry";
+import type { FernsEnvelope } from "./fernsEnvelope";
+import type { NatureserveMetadataData } from "./natureserveMetadataData";
 
-export interface NatureserveMetadataResponse {
-  found: boolean;
-  source_url?: string;
-  service_id: string;
-  service_name: string;
-  licenses?: string[];
-  license_notes?: string;
-  attribution?: string;
-  cache_stats?: NatureserveMetadataResponseCacheStats;
-  registry_entry?: NatureserveMetadataResponseRegistryEntry;
-  queried_at?: Date;
-  provenance?: FernsProvenance;
-}
+export type NatureserveMetadataResponse = FernsEnvelope & {
+  data?: NatureserveMetadataData;
+};

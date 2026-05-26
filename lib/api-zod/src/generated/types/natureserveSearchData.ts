@@ -5,15 +5,14 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { NatureserveSearchResponseDataCacheStatus } from "./natureserveSearchResponseDataCacheStatus";
 import type { NatureserveSearchResponseItem } from "./natureserveSearchResponseItem";
 
-export type NatureserveSearchResponseData = {
+/**
+ * NatureServe search results for ecological systems, species, or communities.
+ */
+export interface NatureserveSearchData {
   /** Array of matching records (ecosystems, species, communities, etc. depending on recordType) */
   ecosystems?: NatureserveSearchResponseItem[];
-  /** Number of records in this page */
-  result_count?: number;
-  /** Total matching records across all pages */
+  /** Total matching records across all pages (from upstream resultsSummary.totalResults) */
   total_results?: number;
-  cache_status?: NatureserveSearchResponseDataCacheStatus;
-};
+}

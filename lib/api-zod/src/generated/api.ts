@@ -7742,64 +7742,131 @@ export const GetMnfiCountyElementsResponse = zod.object({
 
  * @summary NatureServe service metadata
  */
-export const GetNatureserveMetadataResponse = zod.object({
-  found: zod.boolean(),
-  source_url: zod.string().optional(),
-  service_id: zod.string(),
-  service_name: zod.string(),
-  licenses: zod.array(zod.string()).optional(),
-  license_notes: zod.string().optional(),
-  attribution: zod.string().optional(),
-  cache_stats: zod
-    .object({
-      species_cached: zod.number().optional(),
-      ttl_days: zod.number().optional(),
-    })
-    .optional(),
-  registry_entry: zod.record(zod.string(), zod.unknown()).optional(),
-  queried_at: zod.date().optional(),
-  provenance: zod
-    .object({
-      source_id: zod
-        .string()
-        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod
-        .date()
-        .describe("When this record was obtained from the source"),
-      method: zod
-        .string()
-        .describe(
-          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-        ),
-      upstream_url: zod
-        .string()
-        .describe(
-          "Where this data came from (API endpoint, file path, or registry entry)",
-        ),
-      general_summary: zod
-        .string()
+export const GetNatureserveMetadataResponse = zod
+  .object({
+    found: zod
+      .boolean()
+      .describe(
+        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
+      ),
+    permission_granted: zod
+      .boolean()
+      .describe(
+        "Is the consumer cleared to use this data? Always present, per-endpoint.",
+      ),
+    pagination: zod
+      .union([
+        zod
+          .object({
+            has_more: zod
+              .boolean()
+              .describe("True if more pages exist beyond this one."),
+            next: zod
+              .string()
+              .nullable()
+              .describe(
+                "Opaque cursor or token for fetching the next page; null if no next page.",
+              ),
+            total: zod
+              .number()
+              .nullable()
+              .describe(
+                "Total record count across all pages, if known; null when not provided by the source.",
+              ),
+          })
+          .describe(
+            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
+          ),
+        zod.null(),
+      ])
+      .describe(
+        "Pagination metadata, or null when the response is inherently whole.",
+      ),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe(
+            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
+          ),
+        source_url: zod
+          .string()
+          .url()
+          .nullable()
+          .describe(
+            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
+          ),
+        method: zod
+          .enum(["api_fetch", "cache_hit", "computed"])
+          .describe(
+            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
+          ),
+        cache_status: zod
+          .enum(["hit", "miss", "stale", "bypass"])
+          .describe(
+            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
+          ),
+        queried_at: zod
+          .date()
+          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
+        derived_from: zod
+          .array(
+            zod.object({
+              source_id: zod.string(),
+              queried_at: zod.date(),
+            }),
+          )
+          .nullable()
+          .describe(
+            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
+          ),
+        license: zod
+          .string()
+          .describe(
+            'License URI for the source data, or the literal string \"unknown\".',
+          ),
+        rights: zod
+          .string()
+          .describe("Rights statement \/ attribution for the source."),
+      })
+      .describe(
+        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
+      ),
+    data: zod
+      .unknown()
+      .describe("Verbatim payload from the source. Shape varies per endpoint."),
+  })
+  .describe(
+    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
+  )
+  .and(
+    zod.object({
+      data: zod
+        .object({
+          description: zod.string().optional(),
+          general_summary: zod.string().optional(),
+          technical_details: zod.string().optional(),
+          licenses: zod.array(zod.string()).optional(),
+          license_notes: zod.string().optional(),
+          cache_stats: zod
+            .object({
+              species_cached: zod.number().optional(),
+              ecosystems_cached: zod.number().optional(),
+              ttl_days: zod.record(zod.string(), zod.unknown()).optional(),
+            })
+            .optional(),
+          metadata_url: zod.string().optional(),
+          explorer_url: zod.string().optional(),
+          website_url_patterns: zod
+            .record(zod.string(), zod.unknown())
+            .optional(),
+        })
         .optional()
         .describe(
-          "Plain language description readable by a homeowner or community member",
+          "Registry descriptive content for the NatureServe Explorer service.",
         ),
-      technical_details: zod
-        .string()
-        .optional()
-        .describe(
-          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-        ),
-      matched_input: zod
-        .string()
-        .optional()
-        .describe(
-          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-        ),
-    })
-    .optional()
-    .describe(
-      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-    ),
-});
+    }),
+  );
 
 /**
  * Queries NatureServe Explorer for conservation status data for a given scientific name, optionally scoped to a US state. Returns global rank (G-rank), national rank (N-rank), state rank (S-rank), IUCN category, federal status, state status, and a direct NatureServe Explorer URL for the species. Ranks follow NatureServe standard notation (e.g. G3, N2N3, S1). State rank is derived from NatureServe S-rank and reflects rarity status — it is not a formal statutory state listing. Results cached 30 days per name+state combination.
@@ -7829,94 +7896,150 @@ export const GetNatureserveSpeciesQueryParams = zod.object({
     ),
 });
 
-export const GetNatureserveSpeciesResponse = zod.object({
-  source_url: zod.string().optional(),
-  found: zod.boolean(),
-  attribution: zod.string().optional(),
-  data: zod
-    .object({
-      scientific_name: zod.string().nullish(),
-      common_name: zod.string().nullish(),
-      global_rank: zod
-        .string()
-        .nullish()
-        .describe("NatureServe G-rank (e.g. G4, G3G4)"),
-      rounded_global_rank: zod.string().nullish(),
-      national_rank: zod
-        .string()
-        .nullish()
-        .describe("NatureServe N-rank for the US (e.g. N3, N4)"),
-      rounded_national_rank: zod.string().nullish(),
-      state_code: zod
-        .string()
+export const GetNatureserveSpeciesResponse = zod
+  .object({
+    found: zod
+      .boolean()
+      .describe(
+        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
+      ),
+    permission_granted: zod
+      .boolean()
+      .describe(
+        "Is the consumer cleared to use this data? Always present, per-endpoint.",
+      ),
+    pagination: zod
+      .union([
+        zod
+          .object({
+            has_more: zod
+              .boolean()
+              .describe("True if more pages exist beyond this one."),
+            next: zod
+              .string()
+              .nullable()
+              .describe(
+                "Opaque cursor or token for fetching the next page; null if no next page.",
+              ),
+            total: zod
+              .number()
+              .nullable()
+              .describe(
+                "Total record count across all pages, if known; null when not provided by the source.",
+              ),
+          })
+          .describe(
+            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
+          ),
+        zod.null(),
+      ])
+      .describe(
+        "Pagination metadata, or null when the response is inherently whole.",
+      ),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe(
+            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
+          ),
+        source_url: zod
+          .string()
+          .url()
+          .nullable()
+          .describe(
+            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
+          ),
+        method: zod
+          .enum(["api_fetch", "cache_hit", "computed"])
+          .describe(
+            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
+          ),
+        cache_status: zod
+          .enum(["hit", "miss", "stale", "bypass"])
+          .describe(
+            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
+          ),
+        queried_at: zod
+          .date()
+          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
+        derived_from: zod
+          .array(
+            zod.object({
+              source_id: zod.string(),
+              queried_at: zod.date(),
+            }),
+          )
+          .nullable()
+          .describe(
+            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
+          ),
+        license: zod
+          .string()
+          .describe(
+            'License URI for the source data, or the literal string \"unknown\".',
+          ),
+        rights: zod
+          .string()
+          .describe("Rights statement \/ attribution for the source."),
+      })
+      .describe(
+        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
+      ),
+    data: zod
+      .unknown()
+      .describe("Verbatim payload from the source. Shape varies per endpoint."),
+  })
+  .describe(
+    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
+  )
+  .and(
+    zod.object({
+      data: zod
+        .object({
+          scientific_name: zod.string().nullish(),
+          common_name: zod.string().nullish(),
+          global_rank: zod
+            .string()
+            .nullish()
+            .describe("NatureServe G-rank (e.g. G4, G3G4)"),
+          rounded_global_rank: zod.string().nullish(),
+          national_rank: zod
+            .string()
+            .nullish()
+            .describe("NatureServe N-rank for the US (e.g. N3, N4)"),
+          rounded_national_rank: zod.string().nullish(),
+          state_code: zod
+            .string()
+            .optional()
+            .describe("Two-letter US state code this rank is scoped to"),
+          state_rank: zod
+            .string()
+            .nullish()
+            .describe("NatureServe S-rank for the queried state (e.g. S1, S2)"),
+          rounded_state_rank: zod.string().nullish(),
+          iucn_category: zod.string().nullish(),
+          iucn_description: zod.string().nullish(),
+          federal_status: zod.string().nullish(),
+          federal_status_description: zod.string().nullish(),
+          state_status: zod
+            .string()
+            .nullish()
+            .describe(
+              "Derived by mapping NatureServe S-rank values to labels — not verbatim upstream data. Plan #148 regression; deferred to plans 16–18.\n",
+            ),
+          cites_description: zod.string().nullish(),
+          cosewic_code: zod.string().nullish(),
+          cosewic_description: zod.string().nullish(),
+          natureserve_url: zod.string().nullish(),
+          element_global_id: zod.string().nullish(),
+        })
         .optional()
-        .describe("Two-letter US state code this rank is scoped to"),
-      state_rank: zod
-        .string()
-        .nullish()
-        .describe("NatureServe S-rank for the queried state (e.g. S1, S2)"),
-      rounded_state_rank: zod.string().nullish(),
-      iucn_category: zod.string().nullish(),
-      iucn_description: zod.string().nullish(),
-      federal_status: zod.string().nullish(),
-      federal_status_description: zod.string().nullish(),
-      state_status: zod.string().nullish(),
-      state_status_note: zod
-        .string()
-        .nullish()
         .describe(
-          "Clarifying note when state_status is present: the value is derived from the NatureServe S-rank and reflects rarity status, not a formal statutory state listing.\n",
+          "Extracted NatureServe species conservation status fields. NOTE: This is a flat struct rather than verbatim upstream JSON — a plan #148 regression deferred to plans 16–18.\n",
         ),
-      cites_description: zod.string().nullish(),
-      cosewic_code: zod.string().nullish(),
-      cosewic_description: zod.string().nullish(),
-      natureserve_url: zod.string().nullish(),
-      element_global_id: zod.string().nullish(),
-      cache_status: zod.enum(["hit", "miss", "bypassed"]).optional(),
-    })
-    .optional(),
-  provenance: zod
-    .object({
-      source_id: zod
-        .string()
-        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod
-        .date()
-        .describe("When this record was obtained from the source"),
-      method: zod
-        .string()
-        .describe(
-          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-        ),
-      upstream_url: zod
-        .string()
-        .describe(
-          "Where this data came from (API endpoint, file path, or registry entry)",
-        ),
-      general_summary: zod
-        .string()
-        .optional()
-        .describe(
-          "Plain language description readable by a homeowner or community member",
-        ),
-      technical_details: zod
-        .string()
-        .optional()
-        .describe(
-          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-        ),
-      matched_input: zod
-        .string()
-        .optional()
-        .describe(
-          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-        ),
-    })
-    .optional()
-    .describe(
-      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-    ),
-});
+    }),
+  );
 
 /**
  * FERNS GET wrapper over the upstream NatureServe Explorer POST /api/data/search endpoint. Accepts a free-text query and a recordType filter; translates them into a POST body (criteriaType: combined, recordTypeCriteria array, textCriteria quickSearch) and caches the result so repeated queries are served without hitting the upstream API. Valid recordType values and what they return: ECOSYSTEM — NatureServe Ecological Systems and community types (global rank, US national rank, concept description, NatureServe Explorer URL); SPECIES — animal and plant species (prefer /natureserve/speciesSearch for richer per-species conservation status detail including state rank and federal listing); COMMUNITY — plant communities; GROUP — element groups; ASSOCIATION — plant associations. Results are returned in data.ecosystems regardless of recordType (field name reflects the primary use case; records for other recordType values are shaped identically). Results are cached 7 days per query+recordType+limit+page combination.
@@ -7971,126 +8094,183 @@ export const GetNatureserveSearchQueryParams = zod.object({
     ),
 });
 
-export const GetNatureserveSearchResponse = zod.object({
-  source_url: zod.string().nullish(),
-  found: zod.boolean(),
-  attribution: zod.string().optional(),
-  data: zod
-    .object({
-      ecosystems: zod
-        .array(
-          zod.object({
-            system_name: zod
+export const GetNatureserveSearchResponse = zod
+  .object({
+    found: zod
+      .boolean()
+      .describe(
+        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
+      ),
+    permission_granted: zod
+      .boolean()
+      .describe(
+        "Is the consumer cleared to use this data? Always present, per-endpoint.",
+      ),
+    pagination: zod
+      .union([
+        zod
+          .object({
+            has_more: zod
+              .boolean()
+              .describe("True if more pages exist beyond this one."),
+            next: zod
               .string()
-              .optional()
+              .nullable()
               .describe(
-                "Scientific name of the ecological system, species, or community",
+                "Opaque cursor or token for fetching the next page; null if no next page.",
               ),
-            global_rank: zod
-              .string()
-              .nullish()
-              .describe("NatureServe G-rank (e.g. G3, G4G5)"),
-            rounded_global_rank: zod.string().nullish(),
-            us_national_rank: zod
-              .string()
-              .nullish()
-              .describe("NatureServe N-rank for the US (e.g. N3, N4)"),
-            rounded_us_national_rank: zod.string().nullish(),
-            description_excerpt: zod
-              .string()
-              .nullish()
+            total: zod
+              .number()
+              .nullable()
               .describe(
-                "Concept sentence from ecosystemGlobal.conceptSentence (ecosystem records only)",
+                "Total record count across all pages, if known; null when not provided by the source.",
               ),
-            national_distribution: zod.string().nullish(),
-            characteristic_species: zod
-              .array(
-                zod.object({
-                  scientific_name: zod.string().optional(),
-                  stratum: zod.string().nullish(),
-                  constancy_percent: zod.number().nullish(),
-                  cover_class_percent: zod.number().nullish(),
-                }),
-              )
-              .optional()
-              .describe(
-                "Characteristic plant species (not populated from search endpoint; empty array)",
-              ),
-            natureserve_url: zod
-              .string()
-              .nullish()
-              .describe("Direct link to this record on NatureServe Explorer"),
-            element_global_id: zod
-              .string()
-              .optional()
-              .describe(
-                "NatureServe element global identifier (e.g. ELEMENT_GLOBAL.2.12345)",
-              ),
-            record_type: zod
-              .string()
-              .optional()
-              .describe(
-                "Record type as returned by NatureServe (e.g. ECOSYSTEM, SPECIES)",
-              ),
-          }),
-        )
+          })
+          .describe(
+            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
+          ),
+        zod.null(),
+      ])
+      .describe(
+        "Pagination metadata, or null when the response is inherently whole.",
+      ),
+    provenance: zod
+      .object({
+        source_id: zod
+          .string()
+          .describe(
+            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
+          ),
+        source_url: zod
+          .string()
+          .url()
+          .nullable()
+          .describe(
+            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
+          ),
+        method: zod
+          .enum(["api_fetch", "cache_hit", "computed"])
+          .describe(
+            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
+          ),
+        cache_status: zod
+          .enum(["hit", "miss", "stale", "bypass"])
+          .describe(
+            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
+          ),
+        queried_at: zod
+          .date()
+          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
+        derived_from: zod
+          .array(
+            zod.object({
+              source_id: zod.string(),
+              queried_at: zod.date(),
+            }),
+          )
+          .nullable()
+          .describe(
+            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
+          ),
+        license: zod
+          .string()
+          .describe(
+            'License URI for the source data, or the literal string \"unknown\".',
+          ),
+        rights: zod
+          .string()
+          .describe("Rights statement \/ attribution for the source."),
+      })
+      .describe(
+        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
+      ),
+    data: zod
+      .unknown()
+      .describe("Verbatim payload from the source. Shape varies per endpoint."),
+  })
+  .describe(
+    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
+  )
+  .and(
+    zod.object({
+      data: zod
+        .object({
+          ecosystems: zod
+            .array(
+              zod.object({
+                system_name: zod
+                  .string()
+                  .optional()
+                  .describe(
+                    "Scientific name of the ecological system, species, or community",
+                  ),
+                global_rank: zod
+                  .string()
+                  .nullish()
+                  .describe("NatureServe G-rank (e.g. G3, G4G5)"),
+                rounded_global_rank: zod.string().nullish(),
+                us_national_rank: zod
+                  .string()
+                  .nullish()
+                  .describe("NatureServe N-rank for the US (e.g. N3, N4)"),
+                rounded_us_national_rank: zod.string().nullish(),
+                description_excerpt: zod
+                  .string()
+                  .nullish()
+                  .describe(
+                    "Concept sentence from ecosystemGlobal.conceptSentence (ecosystem records only)",
+                  ),
+                national_distribution: zod.string().nullish(),
+                characteristic_species: zod
+                  .array(
+                    zod.object({
+                      scientific_name: zod.string().optional(),
+                      stratum: zod.string().nullish(),
+                      constancy_percent: zod.number().nullish(),
+                      cover_class_percent: zod.number().nullish(),
+                    }),
+                  )
+                  .optional()
+                  .describe(
+                    "Characteristic plant species (not populated from search endpoint; empty array)",
+                  ),
+                natureserve_url: zod
+                  .string()
+                  .nullish()
+                  .describe(
+                    "Direct link to this record on NatureServe Explorer",
+                  ),
+                element_global_id: zod
+                  .string()
+                  .optional()
+                  .describe(
+                    "NatureServe element global identifier (e.g. ELEMENT_GLOBAL.2.12345)",
+                  ),
+                record_type: zod
+                  .string()
+                  .optional()
+                  .describe(
+                    "Record type as returned by NatureServe (e.g. ECOSYSTEM, SPECIES)",
+                  ),
+              }),
+            )
+            .optional()
+            .describe(
+              "Array of matching records (ecosystems, species, communities, etc. depending on recordType)",
+            ),
+          total_results: zod
+            .number()
+            .optional()
+            .describe(
+              "Total matching records across all pages (from upstream resultsSummary.totalResults)",
+            ),
+        })
         .optional()
         .describe(
-          "Array of matching records (ecosystems, species, communities, etc. depending on recordType)",
+          "NatureServe search results for ecological systems, species, or communities.",
         ),
-      result_count: zod
-        .number()
-        .optional()
-        .describe("Number of records in this page"),
-      total_results: zod
-        .number()
-        .optional()
-        .describe("Total matching records across all pages"),
-      cache_status: zod.enum(["hit", "miss", "bypassed"]).optional(),
-    })
-    .optional(),
-  provenance: zod
-    .object({
-      source_id: zod
-        .string()
-        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod
-        .date()
-        .describe("When this record was obtained from the source"),
-      method: zod
-        .string()
-        .describe(
-          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-        ),
-      upstream_url: zod
-        .string()
-        .describe(
-          "Where this data came from (API endpoint, file path, or registry entry)",
-        ),
-      general_summary: zod
-        .string()
-        .optional()
-        .describe(
-          "Plain language description readable by a homeowner or community member",
-        ),
-      technical_details: zod
-        .string()
-        .optional()
-        .describe(
-          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-        ),
-      matched_input: zod
-        .string()
-        .optional()
-        .describe(
-          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-        ),
-    })
-    .optional()
-    .describe(
-      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-    ),
-});
+    }),
+  );
 
 /**
  * Constructs and validates the Go Botany (Native Plant Trust) species page URL for a given scientific name. The URL is constructed from the genus and species epithet and validated with a live HTTP GET request (HTTP 200 = found). Results are cached 7 days. The species parameter must be a binomial name (genus + epithet); partial names return 400.

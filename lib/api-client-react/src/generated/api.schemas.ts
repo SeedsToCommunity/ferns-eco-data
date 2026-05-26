@@ -1750,39 +1750,44 @@ export interface MnfiCountyElementsResponse {
   data: MnfiCountyElementsResponseData;
 }
 
-export type NatureserveMetadataResponseCacheStats = {
-  species_cached?: number;
-  ttl_days?: number;
-};
-
-export type NatureserveMetadataResponseRegistryEntry = {
+export type NatureserveMetadataDataCacheStatsTtlDays = {
   [key: string]: unknown;
 };
 
-export interface NatureserveMetadataResponse {
-  found: boolean;
-  source_url?: string;
-  service_id: string;
-  service_name: string;
+export type NatureserveMetadataDataCacheStats = {
+  species_cached?: number;
+  ecosystems_cached?: number;
+  ttl_days?: NatureserveMetadataDataCacheStatsTtlDays;
+};
+
+export type NatureserveMetadataDataWebsiteUrlPatterns = {
+  [key: string]: unknown;
+};
+
+/**
+ * Registry descriptive content for the NatureServe Explorer service.
+ */
+export interface NatureserveMetadataData {
+  description?: string;
+  general_summary?: string;
+  technical_details?: string;
   licenses?: string[];
   license_notes?: string;
-  attribution?: string;
-  cache_stats?: NatureserveMetadataResponseCacheStats;
-  registry_entry?: NatureserveMetadataResponseRegistryEntry;
-  queried_at?: string;
-  provenance?: FernsProvenance;
+  cache_stats?: NatureserveMetadataDataCacheStats;
+  metadata_url?: string;
+  explorer_url?: string;
+  website_url_patterns?: NatureserveMetadataDataWebsiteUrlPatterns;
 }
 
-export type NatureserveSpeciesResponseDataCacheStatus =
-  (typeof NatureserveSpeciesResponseDataCacheStatus)[keyof typeof NatureserveSpeciesResponseDataCacheStatus];
+export type NatureserveMetadataResponse = FernsEnvelope & {
+  data?: NatureserveMetadataData;
+};
 
-export const NatureserveSpeciesResponseDataCacheStatus = {
-  hit: "hit",
-  miss: "miss",
-  bypassed: "bypassed",
-} as const;
+/**
+ * Extracted NatureServe species conservation status fields. NOTE: This is a flat struct rather than verbatim upstream JSON — a plan #148 regression deferred to plans 16–18.
 
-export type NatureserveSpeciesResponseData = {
+ */
+export interface NatureserveSpeciesData {
   scientific_name?: string | null;
   common_name?: string | null;
   /** NatureServe G-rank (e.g. G4, G3G4) */
@@ -1800,34 +1805,19 @@ export type NatureserveSpeciesResponseData = {
   iucn_description?: string | null;
   federal_status?: string | null;
   federal_status_description?: string | null;
-  state_status?: string | null;
-  /** Clarifying note when state_status is present: the value is derived from the NatureServe S-rank and reflects rarity status, not a formal statutory state listing.
+  /** Derived by mapping NatureServe S-rank values to labels — not verbatim upstream data. Plan #148 regression; deferred to plans 16–18.
    */
-  state_status_note?: string | null;
+  state_status?: string | null;
   cites_description?: string | null;
   cosewic_code?: string | null;
   cosewic_description?: string | null;
   natureserve_url?: string | null;
   element_global_id?: string | null;
-  cache_status?: NatureserveSpeciesResponseDataCacheStatus;
-};
-
-export interface NatureserveSpeciesResponse {
-  source_url?: string;
-  found: boolean;
-  attribution?: string;
-  data?: NatureserveSpeciesResponseData;
-  provenance?: FernsProvenance;
 }
 
-export type NatureserveSearchResponseDataCacheStatus =
-  (typeof NatureserveSearchResponseDataCacheStatus)[keyof typeof NatureserveSearchResponseDataCacheStatus];
-
-export const NatureserveSearchResponseDataCacheStatus = {
-  hit: "hit",
-  miss: "miss",
-  bypassed: "bypassed",
-} as const;
+export type NatureserveSpeciesResponse = FernsEnvelope & {
+  data?: NatureserveSpeciesData;
+};
 
 export type NatureserveSearchResponseItemCharacteristicSpeciesItem = {
   scientific_name?: string;
@@ -1858,23 +1848,19 @@ export interface NatureserveSearchResponseItem {
   record_type?: string;
 }
 
-export type NatureserveSearchResponseData = {
+/**
+ * NatureServe search results for ecological systems, species, or communities.
+ */
+export interface NatureserveSearchData {
   /** Array of matching records (ecosystems, species, communities, etc. depending on recordType) */
   ecosystems?: NatureserveSearchResponseItem[];
-  /** Number of records in this page */
-  result_count?: number;
-  /** Total matching records across all pages */
+  /** Total matching records across all pages (from upstream resultsSummary.totalResults) */
   total_results?: number;
-  cache_status?: NatureserveSearchResponseDataCacheStatus;
-};
-
-export interface NatureserveSearchResponse {
-  source_url?: string | null;
-  found: boolean;
-  attribution?: string;
-  data?: NatureserveSearchResponseData;
-  provenance?: FernsProvenance;
 }
+
+export type NatureserveSearchResponse = FernsEnvelope & {
+  data?: NatureserveSearchData;
+};
 
 /**
  * "hit" — returned from cache. "miss" — live scrape performed and cached. "not_in_species_list" — species URL not in the imported species list; scrape skipped.

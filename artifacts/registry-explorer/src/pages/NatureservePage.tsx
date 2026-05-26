@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { SourceExplorerLayout } from "@/components/SourceExplorerLayout";
 import {
   Shield,
@@ -19,6 +19,15 @@ const BASE_URL = import.meta.env.BASE_URL.replace(/\/$/, "");
 const API_BASE = `${BASE_URL}/api`;
 
 type Tab = "species" | "ecosystems";
+
+function buildCompanionUrl(
+  patterns: Record<string, string> | undefined,
+  kind: string,
+  elementGlobalId: string | null | undefined,
+): string | null {
+  if (!patterns || !elementGlobalId || !patterns[kind]) return null;
+  return patterns[kind].replace("{elementGlobalId}", elementGlobalId);
+}
 
 function RawPanel({ title, data }: { title: string; data: unknown }) {
   const [open, setOpen] = useState(false);
@@ -88,22 +97,30 @@ interface SpeciesData {
   cosewic_description: string | null;
   natureserve_url: string | null;
   element_global_id: string | null;
+}
+
+interface FernsProvenance {
+  source_id: string;
+  source_url: string | null;
+  method: string;
   cache_status: string;
+  queried_at: string;
+  license: string;
+  rights: string;
+}
+
+interface FernsPagination {
+  has_more: boolean;
+  next: string | null;
+  total: number | null;
 }
 
 interface SpeciesEnvelope {
-  source_url: string | null;
   found: boolean;
-  attribution: string;
+  permission_granted: boolean;
+  pagination: FernsPagination | null;
+  provenance: FernsProvenance;
   data: SpeciesData;
-  provenance: {
-    source_id: string;
-    fetched_at: string;
-    method: string;
-    upstream_url: string;
-    general_summary: string;
-    technical_details: string;
-  };
 }
 
 interface CharacteristicSpecies {
@@ -127,27 +144,26 @@ interface EcosystemItem {
   record_type: string;
 }
 
-interface EcosystemsEnvelope {
-  source_url: string | null;
-  found: boolean;
-  attribution: string;
-  data: {
-    ecosystems: EcosystemItem[];
-    result_count: number;
-    total_results: number;
-    cache_status: string;
-  };
-  provenance: {
-    source_id: string;
-    fetched_at: string;
-    method: string;
-    upstream_url: string;
-    general_summary: string;
-    technical_details: string;
-  };
+interface EcosystemsData {
+  ecosystems: EcosystemItem[];
+  total_results: number;
 }
 
-function SpeciesResultPanel({ result }: { result: SpeciesEnvelope }) {
+interface EcosystemsEnvelope {
+  found: boolean;
+  permission_granted: boolean;
+  pagination: FernsPagination | null;
+  provenance: FernsProvenance;
+  data: EcosystemsData;
+}
+
+function SpeciesResultPanel({
+  result,
+  websiteUrlPatterns,
+}: {
+  result: SpeciesEnvelope;
+  websiteUrlPatterns: Record<string, string> | undefined;
+}) {
   const d = result.data;
   if (!result.found || !d.scientific_name) {
     return (
@@ -158,6 +174,9 @@ function SpeciesResultPanel({ result }: { result: SpeciesEnvelope }) {
     );
   }
 
+  const companionUrl =
+    buildCompanionUrl(websiteUrlPatterns, "species", d.element_global_id) ?? d.natureserve_url;
+
   return (
     <div className="space-y-4">
       <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
@@ -166,9 +185,9 @@ function SpeciesResultPanel({ result }: { result: SpeciesEnvelope }) {
             <h2 className="text-xl font-bold text-foreground italic">{d.scientific_name}</h2>
             {d.common_name && <p className="text-muted-foreground mt-0.5">{d.common_name}</p>}
           </div>
-          {d.natureserve_url && (
+          {companionUrl && (
             <a
-              href={d.natureserve_url}
+              href={companionUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 text-sm text-primary hover:underline shrink-0"
@@ -222,9 +241,9 @@ function SpeciesResultPanel({ result }: { result: SpeciesEnvelope }) {
         </div>
 
         <div className="mt-4 pt-4 border-t border-border/50">
-          <p className="text-xs text-muted-foreground italic">{result.attribution}</p>
+          <p className="text-xs text-muted-foreground italic">{result.provenance.rights}</p>
           <p className="text-xs text-muted-foreground mt-1">
-            Cache: {d.cache_status} · Fetched: {new Date(result.provenance.fetched_at).toLocaleString()}
+            Cache: {result.provenance.cache_status} · Fetched: {new Date(result.provenance.queried_at).toLocaleString()}
           </p>
         </div>
       </div>
@@ -234,9 +253,18 @@ function SpeciesResultPanel({ result }: { result: SpeciesEnvelope }) {
   );
 }
 
-function EcosystemCard({ item }: { item: EcosystemItem }) {
+function EcosystemCard({
+  item,
+  websiteUrlPatterns,
+}: {
+  item: EcosystemItem;
+  websiteUrlPatterns: Record<string, string> | undefined;
+}) {
   const [expanded, setExpanded] = useState(false);
   const [showSpecies, setShowSpecies] = useState(false);
+  const companionUrl =
+    buildCompanionUrl(websiteUrlPatterns, "species", item.element_global_id) ??
+    item.natureserve_url;
   return (
     <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3 flex-wrap mb-2">
@@ -244,9 +272,9 @@ function EcosystemCard({ item }: { item: EcosystemItem }) {
           <h3 className="font-semibold text-foreground text-sm leading-snug italic">{item.system_name}</h3>
           <p className="text-xs text-muted-foreground mt-0.5">{item.element_global_id}</p>
         </div>
-        {item.natureserve_url && (
+        {companionUrl && (
           <a
-            href={item.natureserve_url}
+            href={companionUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1 text-xs text-primary hover:underline shrink-0"
@@ -310,7 +338,13 @@ function EcosystemCard({ item }: { item: EcosystemItem }) {
   );
 }
 
-function EcosystemsResultPanel({ result }: { result: EcosystemsEnvelope }) {
+function EcosystemsResultPanel({
+  result,
+  websiteUrlPatterns,
+}: {
+  result: EcosystemsEnvelope;
+  websiteUrlPatterns: Record<string, string> | undefined;
+}) {
   const d = result.data;
   if (!result.found || d.ecosystems.length === 0) {
     return (
@@ -324,14 +358,14 @@ function EcosystemsResultPanel({ result }: { result: EcosystemsEnvelope }) {
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Found {d.result_count} ecological system{d.result_count !== 1 ? "s" : ""} · Cache: {d.cache_status}
+        Found {d.ecosystems.length} ecological system{d.ecosystems.length !== 1 ? "s" : ""} · Cache: {result.provenance.cache_status}
       </p>
       <div className="grid gap-3">
         {d.ecosystems.map((item, i) => (
-          <EcosystemCard key={i} item={item} />
+          <EcosystemCard key={i} item={item} websiteUrlPatterns={websiteUrlPatterns} />
         ))}
       </div>
-      <p className="text-xs text-muted-foreground italic">{result.attribution}</p>
+      <p className="text-xs text-muted-foreground italic">{result.provenance.rights}</p>
       <RawPanel title="Raw API response" data={result} />
     </div>
   );
@@ -349,6 +383,18 @@ export function NatureservePage() {
   const [ecosystemsResult, setEcosystemsResult] = useState<EcosystemsEnvelope | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [websiteUrlPatterns, setWebsiteUrlPatterns] = useState<Record<string, string> | undefined>(undefined);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/natureserve/metadata`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((meta) => {
+        if (meta?.data?.website_url_patterns) {
+          setWebsiteUrlPatterns(meta.data.website_url_patterns as Record<string, string>);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -481,7 +527,7 @@ export function NatureservePage() {
                 Results for <strong className="italic">{speciesQuery.name}</strong> · State: {speciesQuery.state}
               </p>
             )}
-            <SpeciesResultPanel result={speciesResult} />
+            <SpeciesResultPanel result={speciesResult} websiteUrlPatterns={websiteUrlPatterns} />
           </div>
         )}
 
@@ -492,7 +538,7 @@ export function NatureservePage() {
                 Results for <strong>"{ecosystemsQuery.q}"</strong>
               </p>
             )}
-            <EcosystemsResultPanel result={ecosystemsResult} />
+            <EcosystemsResultPanel result={ecosystemsResult} websiteUrlPatterns={websiteUrlPatterns} />
           </div>
         )}
 

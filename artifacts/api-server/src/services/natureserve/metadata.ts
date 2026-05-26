@@ -84,6 +84,14 @@ export const NATURESERVE_REGISTRY_ENTRY = {
   explorer_url: "/source/natureserve",
   licenses: NATURESERVE_LICENSES,
   license_notes: NATURESERVE_LICENSE_NOTES,
+  license: "https://www.natureserve.org/terms-and-conditions",
+  rights:
+    "NatureServe data accessed via the NatureServe Explorer public API. Attribution required per NatureServe Terms of Use " +
+    "(https://www.natureserve.org/terms-and-conditions). Suggested citation: NatureServe. [Year]. NatureServe Explorer " +
+    "[web application]. NatureServe, Arlington, Virginia. Available: https://explorer.natureserve.org.",
+  website_url_patterns: {
+    species: "https://explorer.natureserve.org/Taxon/ELEMENT_GLOBAL.2.{elementGlobalId}",
+  },
   general_summary: NATURESERVE_GENERAL_SUMMARY,
   technical_details: NATURESERVE_TECHNICAL_DETAILS,
   non_passthrough_endpoints: [{ endpoint: "/api/natureserve/metadata", kind: "metadata" }],

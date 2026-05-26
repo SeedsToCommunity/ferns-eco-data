@@ -7366,20 +7366,15 @@ components:
                 type: object
                 additionalProperties: true
 
-    NatureserveMetadataResponse:
+    NatureserveMetadataData:
       type: object
-      required:
-        - found
-        - service_id
-        - service_name
+      description: Registry descriptive content for the NatureServe Explorer service.
       properties:
-        found:
-          type: boolean
-        source_url:
+        description:
           type: string
-        service_id:
+        general_summary:
           type: string
-        service_name:
+        technical_details:
           type: string
         licenses:
           type: array
@@ -7387,142 +7382,131 @@ components:
             type: string
         license_notes:
           type: string
-        attribution:
-          type: string
         cache_stats:
           type: object
           properties:
             species_cached:
               type: integer
-            ttl_days:
+            ecosystems_cached:
               type: integer
-        registry_entry:
+            ttl_days:
+              type: object
+              additionalProperties: true
+        metadata_url:
+          type: string
+        explorer_url:
+          type: string
+        website_url_patterns:
           type: object
           additionalProperties: true
-        queried_at:
-          type: string
-          format: date-time
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
 
-    NatureserveSpeciesResponse:
-      type: object
-      required:
-        - found
-      properties:
-        source_url:
-          type: string
-        found:
-          type: boolean
-        attribution:
-          type: string
-        data:
-          type: object
+    NatureserveMetadataResponse:
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
+        - type: object
           properties:
-            scientific_name:
-              type: string
-              nullable: true
-            common_name:
-              type: string
-              nullable: true
-            global_rank:
-              type: string
-              nullable: true
-              description: NatureServe G-rank (e.g. G4, G3G4)
-            rounded_global_rank:
-              type: string
-              nullable: true
-            national_rank:
-              type: string
-              nullable: true
-              description: NatureServe N-rank for the US (e.g. N3, N4)
-            rounded_national_rank:
-              type: string
-              nullable: true
-            state_code:
-              type: string
-              description: Two-letter US state code this rank is scoped to
-            state_rank:
-              type: string
-              nullable: true
-              description: NatureServe S-rank for the queried state (e.g. S1, S2)
-            rounded_state_rank:
-              type: string
-              nullable: true
-            iucn_category:
-              type: string
-              nullable: true
-            iucn_description:
-              type: string
-              nullable: true
-            federal_status:
-              type: string
-              nullable: true
-            federal_status_description:
-              type: string
-              nullable: true
-            state_status:
-              type: string
-              nullable: true
-            state_status_note:
-              type: string
-              nullable: true
-              description: >
-                Clarifying note when state_status is present: the value is
-                derived from the NatureServe S-rank and reflects rarity status,
-                not a formal statutory state listing.
-            cites_description:
-              type: string
-              nullable: true
-            cosewic_code:
-              type: string
-              nullable: true
-            cosewic_description:
-              type: string
-              nullable: true
-            natureserve_url:
-              type: string
-              nullable: true
-            element_global_id:
-              type: string
-              nullable: true
-            cache_status:
-              type: string
-              enum: [hit, miss, bypassed]
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
+            data:
+              $ref: "#/components/schemas/NatureserveMetadataData"
 
-    NatureserveSearchResponse:
+    NatureserveSpeciesData:
       type: object
-      required:
-        - found
+      description: >
+        Extracted NatureServe species conservation status fields.
+        NOTE: This is a flat struct rather than verbatim upstream JSON — a plan #148 regression
+        deferred to plans 16–18.
       properties:
-        source_url:
+        scientific_name:
           type: string
           nullable: true
-        found:
-          type: boolean
-        attribution:
+        common_name:
           type: string
-        data:
-          type: object
+          nullable: true
+        global_rank:
+          type: string
+          nullable: true
+          description: NatureServe G-rank (e.g. G4, G3G4)
+        rounded_global_rank:
+          type: string
+          nullable: true
+        national_rank:
+          type: string
+          nullable: true
+          description: NatureServe N-rank for the US (e.g. N3, N4)
+        rounded_national_rank:
+          type: string
+          nullable: true
+        state_code:
+          type: string
+          description: Two-letter US state code this rank is scoped to
+        state_rank:
+          type: string
+          nullable: true
+          description: NatureServe S-rank for the queried state (e.g. S1, S2)
+        rounded_state_rank:
+          type: string
+          nullable: true
+        iucn_category:
+          type: string
+          nullable: true
+        iucn_description:
+          type: string
+          nullable: true
+        federal_status:
+          type: string
+          nullable: true
+        federal_status_description:
+          type: string
+          nullable: true
+        state_status:
+          type: string
+          nullable: true
+          description: >
+            Derived by mapping NatureServe S-rank values to labels — not verbatim upstream data.
+            Plan #148 regression; deferred to plans 16–18.
+        cites_description:
+          type: string
+          nullable: true
+        cosewic_code:
+          type: string
+          nullable: true
+        cosewic_description:
+          type: string
+          nullable: true
+        natureserve_url:
+          type: string
+          nullable: true
+        element_global_id:
+          type: string
+          nullable: true
+
+    NatureserveSpeciesResponse:
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
+        - type: object
           properties:
-            ecosystems:
-              type: array
-              description: Array of matching records (ecosystems, species, communities, etc. depending on recordType)
-              items:
-                $ref: "#/components/schemas/NatureserveSearchResponseItem"
-            result_count:
-              type: integer
-              description: Number of records in this page
-            total_results:
-              type: integer
-              description: Total matching records across all pages
-            cache_status:
-              type: string
-              enum: [hit, miss, bypassed]
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
+            data:
+              $ref: "#/components/schemas/NatureserveSpeciesData"
+
+    NatureserveSearchData:
+      type: object
+      description: NatureServe search results for ecological systems, species, or communities.
+      properties:
+        ecosystems:
+          type: array
+          description: Array of matching records (ecosystems, species, communities, etc. depending on recordType)
+          items:
+            $ref: "#/components/schemas/NatureserveSearchResponseItem"
+        total_results:
+          type: integer
+          description: Total matching records across all pages (from upstream resultsSummary.totalResults)
+
+    NatureserveSearchResponse:
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/NatureserveSearchData"
 
     NatureserveSearchResponseItem:
       type: object

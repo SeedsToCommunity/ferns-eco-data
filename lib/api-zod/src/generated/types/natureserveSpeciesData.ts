@@ -5,9 +5,12 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { NatureserveSpeciesResponseDataCacheStatus } from "./natureserveSpeciesResponseDataCacheStatus";
 
-export type NatureserveSpeciesResponseData = {
+/**
+ * Extracted NatureServe species conservation status fields. NOTE: This is a flat struct rather than verbatim upstream JSON — a plan #148 regression deferred to plans 16–18.
+
+ */
+export interface NatureserveSpeciesData {
   scientific_name?: string | null;
   common_name?: string | null;
   /** NatureServe G-rank (e.g. G4, G3G4) */
@@ -25,14 +28,12 @@ export type NatureserveSpeciesResponseData = {
   iucn_description?: string | null;
   federal_status?: string | null;
   federal_status_description?: string | null;
-  state_status?: string | null;
-  /** Clarifying note when state_status is present: the value is derived from the NatureServe S-rank and reflects rarity status, not a formal statutory state listing.
+  /** Derived by mapping NatureServe S-rank values to labels — not verbatim upstream data. Plan #148 regression; deferred to plans 16–18.
    */
-  state_status_note?: string | null;
+  state_status?: string | null;
   cites_description?: string | null;
   cosewic_code?: string | null;
   cosewic_description?: string | null;
   natureserve_url?: string | null;
   element_global_id?: string | null;
-  cache_status?: NatureserveSpeciesResponseDataCacheStatus;
-};
+}

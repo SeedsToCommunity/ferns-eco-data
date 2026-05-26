@@ -6,6 +6,6 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type NatureserveMetadataResponseRegistryEntry = {
+export type NatureserveMetadataDataWebsiteUrlPatterns = {
   [key: string]: unknown;
 };

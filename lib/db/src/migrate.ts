@@ -242,6 +242,7 @@ export async function runMigrations(): Promise<void> {
   const entry9 = journal.entries[9];
   const entry10 = journal.entries[10];
   const entry13 = journal.entries[13];
+  const entry16 = journal.entries[16];
 
   await applyMigration0000(entry0.when);
   await applyMigration0001(entry1.when);
@@ -279,6 +280,14 @@ export async function runMigrations(): Promise<void> {
   // ADD COLUMN IF NOT EXISTS guards make it safe to re-run.
   if (entry13) {
     await runSqlMigration("0013_envelope_v1_columns", entry13.when, "0013 (envelope v1 columns)", false);
+  }
+
+  // Migration 0016: Add individual data columns to natureserve_species_cache.
+  // The table was originally created with raw_response (jsonb); this migration
+  // adds the individual extracted fields. ADD COLUMN IF NOT EXISTS guards make
+  // it safe to re-run.
+  if (entry16) {
+    await runSqlMigration("0016_natureserve_species_cache_columns", entry16.when, "0016 (natureserve species cache columns)", false);
   }
 
   console.info("[migrate] All migrations complete.");
