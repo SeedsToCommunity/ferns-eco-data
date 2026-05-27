@@ -97,7 +97,7 @@ async function compareBonapMap(fernsBase: string, sp: TestSpecies): Promise<Endp
       endpoint: `${fernsEndpoint}?genus=${encodeURIComponent(sp.genus)}&species=${encodeURIComponent(sp.species)}`,
       label,
       ok: true,
-      rawFerns: fernsData,
+      rawFerns: fernsRaw,
       findings,
       urlsCollected,
     };

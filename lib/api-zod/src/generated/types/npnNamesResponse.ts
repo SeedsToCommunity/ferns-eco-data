@@ -9,12 +9,10 @@ import type { FernsProvenance } from "./fernsProvenance";
 import type { NpnNamesResponseData } from "./npnNamesResponseData";
 
 /**
- * NPN name groups for cross-source reconciliation.
+ * FERNS envelope for NPN name groups (cross-source reconciliation).
  */
 export interface NpnNamesResponse {
   found: boolean;
-  queried_at: Date;
-  source_url: string;
   provenance: FernsProvenance;
   data: NpnNamesResponseData;
 }

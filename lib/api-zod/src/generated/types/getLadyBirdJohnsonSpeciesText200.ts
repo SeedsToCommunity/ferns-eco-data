@@ -8,10 +8,6 @@
 import type { FernsEnvelope } from "./fernsEnvelope";
 import type { LbjSpeciesTextData } from "./lbjSpeciesTextData";
 
-/**
- * Legacy envelope schema kept for backwards-compat reference. Route response now uses allOf:FernsEnvelope. cache_status ("hit"/"miss"), queried_at, and source_url are in provenance per FERNS envelope contract v1.
-
- */
-export type LbjSpeciesTextResponse = FernsEnvelope & {
+export type GetLadyBirdJohnsonSpeciesText200 = FernsEnvelope & {
   data?: LbjSpeciesTextData;
 };

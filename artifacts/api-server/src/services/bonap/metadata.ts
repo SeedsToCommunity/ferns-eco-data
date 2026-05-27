@@ -210,6 +210,16 @@ export const BONAP_REGISTRY_ENTRY = {
   license_notes: BONAP_LICENSE_NOTES,
   general_summary: BONAP_GENERAL_SUMMARY,
   technical_details: BONAP_TECHNICAL_DETAILS,
-  non_passthrough_endpoints: [{ endpoint: "/api/bonap/metadata", kind: "metadata" }],
+  non_passthrough_endpoints: [
+    { endpoint: "/api/bonap/metadata", kind: "metadata" },
+    { endpoint: "/api/bonap/map", kind: "url_lookup" },
+  ],
   permission_granted: false,
+  license: "All rights reserved — Biota of North America Program (BONAP), Dr. John T. Kartesz. Written permission required for any public deployment. See http://www.bonap.org",
+  rights:
+    "REQUIRED — NOT YET REQUESTED. Written permission required from BONAP before any public deployment. Partnership letter drafted. All materials copyrighted by the Biota of North America Program (BONAP).",
+  website_url_patterns: {
+    species_map:
+      "https://bonap.net/MapGallery/County/{genus}%20{species}.png",
+  },
 };

@@ -32,7 +32,8 @@ const tools: ToolDef[] = [
     tool: {
       name: "bonap_napa__map",
       description:
-        "Returns county-level distribution data for a vascular plant from the BONAP North American Plant Atlas, based on nearly four million verified herbarium specimens. Shows native, exotic, absent, and rare status for every county across North America.",
+        "Returns county-level distribution data for a vascular plant from the BONAP North American Plant Atlas, based on nearly four million verified herbarium specimens. Shows native, exotic, absent, and rare status for every county across North America. " +
+        "Response follows the FERNS Response Envelope Contract v1; provenance contains cache_status, queried_at, and source_url.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -1302,7 +1303,7 @@ const tools: ToolDef[] = [
         "The center maintains one of the most comprehensive databases of native plants of North America. " +
         "Input must be a USDA Plants symbol (e.g. TRGI for Trillium grandiflorum) — obtain the symbol via usda_plants__name_match first. " +
         "Verification uses HTTP GET with redirect:manual (200=found, 3xx=not_found). Results are cached for 90 days (found) or 30 days (not found). " +
-        "Response includes verified_at timestamp and cache_hit flag.",
+        "Response follows the FERNS Response Envelope Contract v1; provenance contains cache_status, queried_at, and source_url.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -1774,7 +1775,8 @@ const tools: ToolDef[] = [
         "operated by Greg Vaclavek. Accepts any name flavor — acronym (e.g. ANDCAN), Latin name, " +
         "Latin synonym, or any common name — and resolves via an internal alias index. " +
         "Returns ecological attributes (light, moisture, height, flowering time, habitat), " +
-        "Michigan range, nursery pricing/sizes, and Cloudinary image URLs with captions and kind (photograph/drawing).",
+        "Michigan range, nursery pricing/sizes, and Cloudinary image URLs with captions and kind (photograph/drawing). " +
+        "Response follows the FERNS Response Envelope Contract v1; provenance contains cache_status, queried_at, and source_url.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -1801,7 +1803,8 @@ const tools: ToolDef[] = [
         "Returns the complete list of all ~130 Michigan native plant species in the Ann Arbor Native Plant Nursery " +
         "(nativeplant.com) database. Each record includes acronym, Latin name, common name, ecological attributes, " +
         "Michigan range, nursery pricing, and Cloudinary image URLs. " +
-        "Use this for bulk queries, browsing, or cross-source reconciliation.",
+        "Use this for bulk queries, browsing, or cross-source reconciliation. " +
+        "Response follows the FERNS Response Envelope Contract v1; provenance contains cache_status, queried_at, and source_url.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -1820,7 +1823,8 @@ const tools: ToolDef[] = [
       description:
         "Returns all NPN species organized into name groups, each with an all_accepted_keys array listing " +
         "every name form that resolves to that species (acronym, Latin name, synonym, common names). " +
-        "Use for cross-source name reconciliation or to discover all aliases for a species.",
+        "Use for cross-source name reconciliation or to discover all aliases for a species. " +
+        "Response follows the FERNS Response Envelope Contract v1; provenance contains cache_status, queried_at, and source_url.",
       inputSchema: {
         type: "object" as const,
         properties: {

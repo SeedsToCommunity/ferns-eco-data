@@ -17,8 +17,6 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
-  BonapMapResponse,
-  BonapMetadataResponse,
   BotanicalWebRefMetadataResponse,
   BotanicalWebRefResponse,
   CoefficientAllResponse,
@@ -32,10 +30,16 @@ import type {
   GbifSpeciesResponse,
   GbifSynonymsResponse,
   GbifVernacularNamesResponse,
+  GetAnnArborNpnMetadata200,
+  GetAnnArborNpnNames200,
   GetAnnArborNpnNamesParams,
+  GetAnnArborNpnSpeciesBulk200,
   GetAnnArborNpnSpeciesBulkParams,
+  GetAnnArborNpnSpeciesByKey200,
   GetAnnArborNpnSpeciesByKeyParams,
+  GetBonapMap200,
   GetBonapMapParams,
+  GetBonapMetadata200,
   GetCoefficientByValueParams,
   GetGbifMatchParams,
   GetGbifOccurrencesParams,
@@ -67,7 +71,10 @@ import type {
   GetInatPlacesNearbyParams,
   GetInatTaxaAutocompleteParams,
   GetInatTaxaByIdParams,
+  GetLadyBirdJohnson200,
+  GetLadyBirdJohnsonMetadata200,
   GetLadyBirdJohnsonParams,
+  GetLadyBirdJohnsonSpeciesText200,
   GetLadyBirdJohnsonSpeciesTextParams,
   GetLcscgSpeciesParams,
   GetMifloraCountiesParams,
@@ -118,8 +125,6 @@ import type {
   InatTaxaAutocompleteResponse,
   InatTaxonByIdResponse,
   InatTaxonSummaryResponse,
-  LbjSpeciesTextResponse,
-  LbjUrlCheckResponse,
   MifloraCountiesResponse,
   MifloraFloraSearchResponse,
   MifloraImagesResponse,
@@ -130,11 +135,6 @@ import type {
   NatureserveMetadataResponse,
   NatureserveSearchResponse,
   NatureserveSpeciesResponse,
-  NpnMetadataResponse,
-  NpnNamesResponse,
-  NpnNotFoundResponse,
-  NpnSpeciesBulkResponse,
-  NpnSpeciesResponse,
   SourceRelationshipsResponse,
   SourcesIndexResponse,
   SourcesMetadataResponse,
@@ -268,8 +268,8 @@ export const getGetBonapMapUrl = (params: GetBonapMapParams) => {
 export const getBonapMap = async (
   params: GetBonapMapParams,
   options?: RequestInit,
-): Promise<BonapMapResponse> => {
-  return customFetch<BonapMapResponse>(getGetBonapMapUrl(params), {
+): Promise<GetBonapMap200> => {
+  return customFetch<GetBonapMap200>(getGetBonapMapUrl(params), {
     ...options,
     method: "GET",
   });
@@ -341,7 +341,7 @@ export function useGetBonapMap<
 }
 
 /**
- * Returns static service identity, data vintage, attribution, licenses and license notes, and the full color key array. Use this to populate 'About this data' panels in any application displaying BONAP maps.
+ * Returns static service identity, data vintage, attribution, licenses and license notes, and the full color key array. Use this to populate 'About this data' panels in any application displaying BONAP maps. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
  * @summary BONAP service metadata
  */
@@ -351,8 +351,8 @@ export const getGetBonapMetadataUrl = () => {
 
 export const getBonapMetadata = async (
   options?: RequestInit,
-): Promise<BonapMetadataResponse> => {
-  return customFetch<BonapMetadataResponse>(getGetBonapMetadataUrl(), {
+): Promise<GetBonapMetadata200> => {
+  return customFetch<GetBonapMetadata200>(getGetBonapMetadataUrl(), {
     ...options,
     method: "GET",
   });
@@ -9075,8 +9075,8 @@ export const getGetLadyBirdJohnsonUrl = (params: GetLadyBirdJohnsonParams) => {
 export const getLadyBirdJohnson = async (
   params: GetLadyBirdJohnsonParams,
   options?: RequestInit,
-): Promise<LbjUrlCheckResponse> => {
-  return customFetch<LbjUrlCheckResponse>(getGetLadyBirdJohnsonUrl(params), {
+): Promise<GetLadyBirdJohnson200> => {
+  return customFetch<GetLadyBirdJohnson200>(getGetLadyBirdJohnsonUrl(params), {
     ...options,
     method: "GET",
   });
@@ -9176,8 +9176,8 @@ export const getGetLadyBirdJohnsonSpeciesTextUrl = (
 export const getLadyBirdJohnsonSpeciesText = async (
   params: GetLadyBirdJohnsonSpeciesTextParams,
   options?: RequestInit,
-): Promise<LbjSpeciesTextResponse> => {
-  return customFetch<LbjSpeciesTextResponse>(
+): Promise<GetLadyBirdJohnsonSpeciesText200> => {
+  return customFetch<GetLadyBirdJohnsonSpeciesText200>(
     getGetLadyBirdJohnsonSpeciesTextUrl(params),
     {
       ...options,
@@ -9272,8 +9272,8 @@ export const getGetLadyBirdJohnsonMetadataUrl = () => {
 
 export const getLadyBirdJohnsonMetadata = async (
   options?: RequestInit,
-): Promise<BotanicalWebRefMetadataResponse> => {
-  return customFetch<BotanicalWebRefMetadataResponse>(
+): Promise<GetLadyBirdJohnsonMetadata200> => {
+  return customFetch<GetLadyBirdJohnsonMetadata200>(
     getGetLadyBirdJohnsonMetadataUrl(),
     {
       ...options,
@@ -9353,11 +9353,14 @@ export const getGetAnnArborNpnMetadataUrl = () => {
 
 export const getAnnArborNpnMetadata = async (
   options?: RequestInit,
-): Promise<NpnMetadataResponse> => {
-  return customFetch<NpnMetadataResponse>(getGetAnnArborNpnMetadataUrl(), {
-    ...options,
-    method: "GET",
-  });
+): Promise<GetAnnArborNpnMetadata200> => {
+  return customFetch<GetAnnArborNpnMetadata200>(
+    getGetAnnArborNpnMetadataUrl(),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
 };
 
 export const getGetAnnArborNpnMetadataQueryKey = () => {
@@ -9446,8 +9449,8 @@ export const getGetAnnArborNpnSpeciesBulkUrl = (
 export const getAnnArborNpnSpeciesBulk = async (
   params?: GetAnnArborNpnSpeciesBulkParams,
   options?: RequestInit,
-): Promise<NpnSpeciesBulkResponse> => {
-  return customFetch<NpnSpeciesBulkResponse>(
+): Promise<GetAnnArborNpnSpeciesBulk200> => {
+  return customFetch<GetAnnArborNpnSpeciesBulk200>(
     getGetAnnArborNpnSpeciesBulkUrl(params),
     {
       ...options,
@@ -9556,8 +9559,8 @@ export const getAnnArborNpnSpeciesByKey = async (
   key: string,
   params?: GetAnnArborNpnSpeciesByKeyParams,
   options?: RequestInit,
-): Promise<NpnSpeciesResponse> => {
-  return customFetch<NpnSpeciesResponse>(
+): Promise<GetAnnArborNpnSpeciesByKey200> => {
+  return customFetch<GetAnnArborNpnSpeciesByKey200>(
     getGetAnnArborNpnSpeciesByKeyUrl(key, params),
     {
       ...options,
@@ -9578,7 +9581,7 @@ export const getGetAnnArborNpnSpeciesByKeyQueryKey = (
 
 export const getGetAnnArborNpnSpeciesByKeyQueryOptions = <
   TData = Awaited<ReturnType<typeof getAnnArborNpnSpeciesByKey>>,
-  TError = ErrorType<ErrorResponse | NpnNotFoundResponse>,
+  TError = ErrorType<ErrorResponse | FernsEnvelope>,
 >(
   key: string,
   params?: GetAnnArborNpnSpeciesByKeyParams,
@@ -9618,7 +9621,7 @@ export type GetAnnArborNpnSpeciesByKeyQueryResult = NonNullable<
   Awaited<ReturnType<typeof getAnnArborNpnSpeciesByKey>>
 >;
 export type GetAnnArborNpnSpeciesByKeyQueryError = ErrorType<
-  ErrorResponse | NpnNotFoundResponse
+  ErrorResponse | FernsEnvelope
 >;
 
 /**
@@ -9627,7 +9630,7 @@ export type GetAnnArborNpnSpeciesByKeyQueryError = ErrorType<
 
 export function useGetAnnArborNpnSpeciesByKey<
   TData = Awaited<ReturnType<typeof getAnnArborNpnSpeciesByKey>>,
-  TError = ErrorType<ErrorResponse | NpnNotFoundResponse>,
+  TError = ErrorType<ErrorResponse | FernsEnvelope>,
 >(
   key: string,
   params?: GetAnnArborNpnSpeciesByKeyParams,
@@ -9679,11 +9682,14 @@ export const getGetAnnArborNpnNamesUrl = (
 export const getAnnArborNpnNames = async (
   params?: GetAnnArborNpnNamesParams,
   options?: RequestInit,
-): Promise<NpnNamesResponse> => {
-  return customFetch<NpnNamesResponse>(getGetAnnArborNpnNamesUrl(params), {
-    ...options,
-    method: "GET",
-  });
+): Promise<GetAnnArborNpnNames200> => {
+  return customFetch<GetAnnArborNpnNames200>(
+    getGetAnnArborNpnNamesUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
 };
 
 export const getGetAnnArborNpnNamesQueryKey = (

@@ -29,6 +29,9 @@ export async function ensureBonapRegistryEntry(): Promise<void> {
           technical_details: BONAP_REGISTRY_ENTRY.technical_details ?? null,
           permission_granted: BONAP_REGISTRY_ENTRY.permission_granted,
           non_passthrough_endpoints: BONAP_REGISTRY_ENTRY.non_passthrough_endpoints ?? [],
+          license: BONAP_REGISTRY_ENTRY.license,
+          rights: BONAP_REGISTRY_ENTRY.rights,
+          website_url_patterns: BONAP_REGISTRY_ENTRY.website_url_patterns ?? {},
           updated_at: new Date(),
         },
       });

@@ -5,19 +5,19 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { LbjSpeciesTextResponseDataSections } from "./lbjSpeciesTextResponseDataSections";
+import type { LbjSpeciesTextDataSections } from "./lbjSpeciesTextDataSections";
 
 /**
- * Present when found=true. Null when not found.
+ * Data payload for /lady-bird-johnson/species-text FernsEnvelope data field.
  */
-export type LbjSpeciesTextResponseData = {
+export interface LbjSpeciesTextData {
   /** USDA Plants symbol (uppercased). */
   usda_symbol?: string;
   /** The profile URL that was scraped. */
   url?: string;
   /** Labeled prose sections extracted from the page (h3-delimited). "Find Seeds or Plants" and "Mr. Smarty Plants says" sections are excluded.
    */
-  sections?: LbjSpeciesTextResponseDataSections;
+  sections?: LbjSpeciesTextDataSections;
   /** All sections concatenated as Label-colon-text blocks, separated by double newlines. */
   full_text?: string | null;
-} | null;
+}

@@ -77,8 +77,6 @@ interface NpnNameGroup {
 
 interface NamesEnvelope {
   found: boolean;
-  queried_at: string;
-  source_url: string;
   provenance?: Provenance;
   data: {
     species_count: number;
@@ -88,27 +86,23 @@ interface NamesEnvelope {
 
 interface Provenance {
   source_id?: string;
-  fetched_at?: string;
+  source_url?: string | null;
   method?: string;
-  upstream_url?: string;
-  general_summary?: string;
-  technical_details?: string;
-  matched_input?: string;
+  cache_status?: string;
+  queried_at?: string;
+  license?: string;
+  rights?: string;
   [key: string]: unknown;
 }
 
 interface SpeciesEnvelope {
   found: boolean;
-  queried_at: string;
-  source_url: string;
   provenance?: Provenance;
   data: NpnSpecies | null;
 }
 
 interface BulkEnvelope {
   found: boolean;
-  queried_at: string;
-  source_url: string;
   provenance?: Provenance;
   data: {
     species_count: number;
@@ -181,43 +175,35 @@ function ProvenancePanel({ provenance }: { provenance: Provenance | undefined })
           {provenance.method && (
             <div>
               <span className="font-semibold text-muted-foreground uppercase tracking-wider text-[9px]">
-                Import Method
+                Method
               </span>
               <p className="text-foreground mt-0.5">{provenance.method}</p>
             </div>
           )}
-          {provenance.upstream_url && (
+          {provenance.cache_status && (
             <div>
               <span className="font-semibold text-muted-foreground uppercase tracking-wider text-[9px]">
-                Upstream URL
+                Cache Status
               </span>
-              <p className="font-mono break-all text-foreground mt-0.5">{provenance.upstream_url}</p>
+              <p className="text-foreground mt-0.5">{provenance.cache_status}</p>
             </div>
           )}
-          {provenance.fetched_at && (
+          {provenance.source_url && (
             <div>
               <span className="font-semibold text-muted-foreground uppercase tracking-wider text-[9px]">
-                Fetched At
+                Source URL
+              </span>
+              <p className="font-mono break-all text-foreground mt-0.5">{provenance.source_url}</p>
+            </div>
+          )}
+          {provenance.queried_at && (
+            <div>
+              <span className="font-semibold text-muted-foreground uppercase tracking-wider text-[9px]">
+                Queried At
               </span>
               <p className="text-foreground mt-0.5">
-                {new Date(provenance.fetched_at).toLocaleString()}
+                {new Date(provenance.queried_at).toLocaleString()}
               </p>
-            </div>
-          )}
-          {provenance.matched_input && (
-            <div>
-              <span className="font-semibold text-muted-foreground uppercase tracking-wider text-[9px]">
-                Matched Input
-              </span>
-              <p className="font-mono text-foreground mt-0.5">{provenance.matched_input}</p>
-            </div>
-          )}
-          {provenance.general_summary && (
-            <div>
-              <span className="font-semibold text-muted-foreground uppercase tracking-wider text-[9px]">
-                About This Source
-              </span>
-              <p className="text-foreground/80 leading-relaxed mt-0.5">{provenance.general_summary}</p>
             </div>
           )}
           <p className="text-[10px] text-amber-700 dark:text-amber-400 italic border-t border-amber-200 dark:border-amber-800/50 pt-2">

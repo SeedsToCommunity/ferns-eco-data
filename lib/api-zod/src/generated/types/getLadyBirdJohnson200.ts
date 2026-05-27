@@ -8,10 +8,6 @@
 import type { FernsEnvelope } from "./fernsEnvelope";
 import type { LbjUrlCheckData } from "./lbjUrlCheckData";
 
-/**
- * Legacy envelope schema kept for backwards-compat reference. Route response now uses allOf:FernsEnvelope.
-
- */
-export type LbjUrlCheckResponse = FernsEnvelope & {
+export type GetLadyBirdJohnson200 = FernsEnvelope & {
   data?: LbjUrlCheckData;
 };

@@ -128,11 +128,16 @@ paths:
             default: false
       responses:
         "200":
-          description: Map lookup complete (found or not found — check the found field)
+          description: Map lookup complete (found or not found — check the found field). Wrapped in FernsEnvelope.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BonapMapResponse"
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/BonapMapData"
         "400":
           description: Invalid input (missing genus, missing species, invalid map_type)
           content:
@@ -149,13 +154,19 @@ paths:
         Returns static service identity, data vintage, attribution, licenses and license notes,
         and the full color key array. Use this to populate 'About this data' panels
         in any application displaying BONAP maps.
+        Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
       responses:
         "200":
-          description: Service metadata
+          description: Service metadata wrapped in FernsEnvelope
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BonapMetadataResponse"
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/BonapMetadataData"
 
   /gbif/species/match:
     get:
@@ -4041,11 +4052,16 @@ paths:
             minLength: 1
       responses:
         "200":
-          description: Lady Bird Johnson profile URL verification result
+          description: Lady Bird Johnson profile URL verification result wrapped in FernsEnvelope
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/LbjUrlCheckResponse"
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/LbjUrlCheckData"
         "400":
           description: Missing or invalid usda_symbol parameter
           content:
@@ -4085,11 +4101,16 @@ paths:
             enum: ["true", "false"]
       responses:
         "200":
-          description: Species page text result (found or not-found — check the found field)
+          description: Species page text result (found or not-found — check the found field). Wrapped in FernsEnvelope.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/LbjSpeciesTextResponse"
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/LbjSpeciesTextData"
         "400":
           description: Missing symbol parameter
           content:
@@ -4107,11 +4128,16 @@ paths:
         full registry entry for the Lady Bird Johnson Wildflower Center service.
       responses:
         "200":
-          description: Lady Bird Johnson service metadata
+          description: Lady Bird Johnson service metadata wrapped in FernsEnvelope
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BotanicalWebRefMetadataResponse"
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/BotanicalWebRefMetadataResponse"
 
   /ann-arbor-npn/metadata:
     get:
@@ -4124,11 +4150,16 @@ paths:
         Greg Vaclavek). Includes known limitations, update frequency, and technical details.
       responses:
         "200":
-          description: NPN service metadata
+          description: NPN service metadata wrapped in FernsEnvelope
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/NpnMetadataResponse"
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/NpnMetadataData"
 
   /ann-arbor-npn/species:
     get:
@@ -4151,11 +4182,24 @@ paths:
             enum: [full, summary, none]
       responses:
         "200":
-          description: NPN bulk species list (found=false with empty array before import)
+          description: NPN bulk species list wrapped in FernsEnvelope (found=false with empty array before import)
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/NpnSpeciesBulkResponse"
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        required: [species_count, species]
+                        properties:
+                          species_count:
+                            type: integer
+                          species:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/NpnSpeciesRecord"
 
   /ann-arbor-npn/species/{key}:
     get:
@@ -4185,11 +4229,16 @@ paths:
             enum: [full, summary, none]
       responses:
         "200":
-          description: NPN species record (found=true)
+          description: NPN species record wrapped in FernsEnvelope (found=true)
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/NpnSpeciesResponse"
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/NpnSpeciesRecord"
         "400":
           description: Empty key parameter
           content:
@@ -4197,11 +4246,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         "404":
-          description: Name not found in alias index (found=false)
+          description: Name not found in alias index wrapped in FernsEnvelope (found=false)
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/NpnNotFoundResponse"
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
 
   /ann-arbor-npn/names:
     get:
@@ -4223,11 +4273,24 @@ paths:
             enum: [full, summary, none]
       responses:
         "200":
-          description: NPN name groups (found=false with empty array before import)
+          description: NPN name groups wrapped in FernsEnvelope (found=false with empty array before import)
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/NpnNamesResponse"
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        required: [species_count, name_groups]
+                        properties:
+                          species_count:
+                            type: integer
+                          name_groups:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/NpnNameGroup"
 
   /ann-arbor-npn/import:
     post:
@@ -4563,15 +4626,6 @@ components:
         - genus
         - species_stripped
         - status
-        - color_key_url
-        - color_key_image_url
-        - color_key
-        - data_vintage
-        - licenses
-        - license_notes
-        - attribution
-        - cache_status
-        - queried_at
       properties:
         map_url:
           type: string
@@ -4599,65 +4653,14 @@ components:
             found — URL returned a valid image during cache population.
             not_found — BONAP returned a non-image response for this binomial.
             unverified — URL was returned from cache without re-verification.
-        color_key_url:
-          type: string
-          description: URL of the BONAP map key reference page
-        color_key_image_url:
-          type: string
-          description: >
-            Direct URL to BONAP's authoritative composite color key GIF image.
-            Display this image to show users the complete, pixel-perfect color key.
-        color_key:
-          type: array
-          items:
-            $ref: "#/components/schemas/ColorKeyEntry"
-          description: Complete color key for interpreting BONAP maps
-        data_vintage:
-          type: string
-          description: "NAPA maps: December 15, 2014. Color key documentation: February 8, 2024."
-        licenses:
-          type: array
-          items:
-            type: string
-          description: >
-            Whether FERNS has received written permission from BONAP to reproduce
-            and display map materials. Currently false. Applications should display this when restricted licenses apply.
-        license_notes:
-          type: string
-          description: >
-            Human-readable permission status string. Matches the value from the metadata endpoint.
-            Applications should display license_notes when restricted licenses apply.
-        attribution:
-          $ref: "#/components/schemas/BonapAttribution"
-        cache_status:
-          type: string
-          enum: [hit, miss, bypassed]
-        queried_at:
-          type: string
-          format: date-time
-        note:
-          type: string
-          nullable: true
-          description: >
-            Human-readable diagnostic note. Non-null only when status is unverified — explains
-            that BONAP's server did not return a definitive response during cache population and
-            instructs the caller to retry with ?refresh=true. Null when status is found or not_found.
 
     BonapMapResponse:
       type: object
       description: Standard FERNS response envelope for BONAP map lookups
       required:
-        - source_url
         - found
         - provenance
       properties:
-        source_url:
-          type: string
-          nullable: true
-          description: >
-            Canonical BONAP page URL for this species or genus.
-            Always constructed when possible and returned regardless of whether
-            a map was found. Enables 'View on BONAP' links in applications.
         found:
           type: boolean
           description: Whether a BONAP map was found for this query
@@ -4668,19 +4671,9 @@ components:
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
 
-    BonapMetadataResponse:
+    BonapMetadataData:
       type: object
-      required:
-        - service_id
-        - service_name
-        - data_vintage
-        - licenses
-        - license_notes
-        - attribution
-        - color_key
-        - color_key_url
-        - color_key_image_url
-        - queried_at
+      description: Data payload returned in the /bonap/metadata FernsEnvelope data field.
       properties:
         service_id:
           type: string
@@ -4705,12 +4698,20 @@ components:
           description: URL of the BONAP map key reference page
         color_key_image_url:
           type: string
-          description: >
-            Direct URL to BONAP's authoritative composite color key GIF image.
-            Display this image to show users the complete, pixel-perfect color key.
-        queried_at:
-          type: string
-          format: date-time
+          description: Direct URL to BONAP's authoritative composite color key GIF image.
+        registry_entry:
+          type: object
+          additionalProperties: true
+
+    BonapMetadataResponse:
+      description: >
+        Legacy envelope schema kept for backwards-compat reference. Route response now uses allOf:FernsEnvelope.
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/BonapMetadataData"
 
     GbifOccurrenceRecord:
       type: object
@@ -7297,116 +7298,81 @@ components:
               description: >
                 All sections concatenated as Label-colon-text blocks, separated by double newlines.
 
-    LbjUrlCheckResponse:
+    LbjUrlCheckData:
       type: object
-      description: >
-        Response from /lady-bird-johnson — profile URL verification result keyed by USDA Plants symbol.
-      required:
-        - found
-        - queried_at
+      description: Data payload for /lady-bird-johnson FernsEnvelope data field.
       properties:
-        found:
-          type: boolean
-          description: True when HTTP 200 returned for the profile URL (status="found").
-        queried_at:
+        usda_symbol:
+          type: string
+          description: USDA Plants symbol (uppercased).
+        profile_url:
+          type: string
+          nullable: true
+          description: Direct profile URL when found; null when not_found or unverified.
+        status:
+          type: string
+          enum: [found, not_found, unverified]
+          description: >
+            "found" — HTTP 200 returned. "not_found" — 3xx redirect or 4xx returned.
+            "unverified" — 5xx or network error; result not cached.
+        http_status:
+          type: integer
+          nullable: true
+          description: HTTP status code returned by the verification request.
+        validation_method:
+          type: string
+          description: Always "http_get_manual_redirect" for this endpoint.
+        verified_at:
           type: string
           format: date-time
-        source_url:
-          type: string
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
-        data:
-          type: object
+          nullable: true
+          description: >
+            Timestamp when the verification HTTP request was made.
+            Null when status is "unverified" (network/5xx error prevented caching).
+
+    LbjUrlCheckResponse:
+      description: >
+        Legacy envelope schema kept for backwards-compat reference. Route response now uses allOf:FernsEnvelope.
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
+        - type: object
           properties:
-            usda_symbol:
-              type: string
-              description: USDA Plants symbol (uppercased).
-            profile_url:
-              type: string
-              nullable: true
-              description: Direct profile URL when found; null when not_found or unverified.
-            status:
-              type: string
-              enum: [found, not_found, unverified]
-              description: >
-                "found" — HTTP 200 returned. "not_found" — 3xx redirect or 4xx returned.
-                "unverified" — 5xx or network error; result not cached.
-            found:
-              type: boolean
-              description: True when status is "found".
-            http_status:
-              type: integer
-              nullable: true
-              description: HTTP status code returned by the verification request.
-            validation_method:
-              type: string
-              description: Always "http_get_manual_redirect" for this endpoint.
-            verified_at:
-              type: string
-              format: date-time
-              nullable: true
-              description: >
-                Timestamp when the verification HTTP request was made.
-                Null when status is "unverified" (network/5xx error prevented caching).
-            cache_hit:
-              type: boolean
-              description: True if the result was served from lbj_url_cache.
+            data:
+              $ref: "#/components/schemas/LbjUrlCheckData"
+
+    LbjSpeciesTextData:
+      type: object
+      description: Data payload for /lady-bird-johnson/species-text FernsEnvelope data field.
+      properties:
+        usda_symbol:
+          type: string
+          description: USDA Plants symbol (uppercased).
+        url:
+          type: string
+          description: The profile URL that was scraped.
+        sections:
+          type: object
+          nullable: true
+          additionalProperties:
+            type: string
+          description: >
+            Labeled prose sections extracted from the page (h3-delimited).
+            "Find Seeds or Plants" and "Mr. Smarty Plants says" sections are excluded.
+        full_text:
+          type: string
+          nullable: true
+          description: All sections concatenated as Label-colon-text blocks, separated by double newlines.
 
     LbjSpeciesTextResponse:
-      type: object
       description: >
-        Response from /lady-bird-johnson/species-text — scraped species page text keyed by USDA Plants symbol.
-      required:
-        - found
-        - queried_at
-        - cache_status
-      properties:
-        found:
-          type: boolean
-          description: True if the species page was found and text was extracted.
-        queried_at:
-          type: string
-          format: date-time
-        source_url:
-          type: string
-        cache_status:
-          type: string
-          enum: [hit, miss]
-          description: >
-            "hit" — returned from species_page_text_cache. "miss" — live fetch performed.
-        fetch_error:
-          type: string
-          description: >
-            Present only when a transient upstream error prevented the scrape. Not cached.
-        scraped_at:
-          type: string
-          format: date-time
-          description: Timestamp of when the text was originally scraped.
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
-        data:
-          nullable: true
-          type: object
-          description: Present when found=true. Null when not found.
+        Legacy envelope schema kept for backwards-compat reference. Route response now uses allOf:FernsEnvelope.
+        cache_status ("hit"/"miss"), queried_at, and source_url are in provenance per FERNS envelope contract v1.
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
+        - type: object
           properties:
-            usda_symbol:
-              type: string
-              description: USDA Plants symbol (uppercased).
-            url:
-              type: string
-              description: The profile URL that was scraped.
-            sections:
-              type: object
-              nullable: true
-              additionalProperties:
-                type: string
-              description: >
-                Labeled prose sections extracted from the page (h3-delimited).
-                "Find Seeds or Plants" and "Mr. Smarty Plants says" sections are excluded.
-            full_text:
-              type: string
-              nullable: true
-              description: All sections concatenated as Label-colon-text blocks, separated by double newlines.
+            data:
+              $ref: "#/components/schemas/LbjSpeciesTextData"
 
     BotanicalWebRefResponse:
       type: object
@@ -7942,16 +7908,11 @@ components:
 
     NpnSpeciesResponse:
       type: object
-      description: Single NPN species lookup response (found=true, HTTP 200).
-      required: [found, queried_at, source_url, provenance]
+      description: FERNS envelope for single NPN species lookup (found=true, HTTP 200).
+      required: [found, provenance]
       properties:
         found:
           type: boolean
-        queried_at:
-          type: string
-          format: date-time
-        source_url:
-          type: string
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
         data:
@@ -7961,17 +7922,12 @@ components:
     NpnNotFoundResponse:
       type: object
       description: >
-        Response when a name key is not in the alias index (HTTP 404). found=false.
-      required: [found, queried_at, source_url, provenance]
+        FERNS envelope when a name key is not in the alias index (HTTP 404). found=false.
+      required: [found, provenance]
       properties:
         found:
           type: boolean
           example: false
-        queried_at:
-          type: string
-          format: date-time
-        source_url:
-          type: string
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
         data:
@@ -7979,17 +7935,12 @@ components:
 
     NpnSpeciesBulkResponse:
       type: object
-      description: Bulk NPN species list response.
-      required: [found, queried_at, source_url, provenance, data]
+      description: FERNS envelope for bulk NPN species list.
+      required: [found, provenance, data]
       properties:
         found:
           type: boolean
           description: false when the table is empty (import not yet run)
-        queried_at:
-          type: string
-          format: date-time
-        source_url:
-          type: string
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
         data:
@@ -8028,16 +7979,11 @@ components:
 
     NpnNamesResponse:
       type: object
-      description: NPN name groups for cross-source reconciliation.
-      required: [found, queried_at, source_url, provenance, data]
+      description: FERNS envelope for NPN name groups (cross-source reconciliation).
+      required: [found, provenance, data]
       properties:
         found:
           type: boolean
-        queried_at:
-          type: string
-          format: date-time
-        source_url:
-          type: string
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
         data:
@@ -8107,10 +8053,9 @@ components:
         technical_details:
           type: string
 
-    NpnMetadataResponse:
+    NpnMetadataData:
       type: object
-      description: Metadata response for the Ann Arbor Native Plant Nursery source.
-      required: [service_id, service_name, licenses, license_notes, species_count, registry_entry, queried_at, provenance]
+      description: Data payload for /ann-arbor-npn/metadata FernsEnvelope data field.
       properties:
         service_id:
           type: string
@@ -8128,8 +8073,13 @@ components:
         registry_entry:
           type: object
           additionalProperties: true
-        queried_at:
-          type: string
-          format: date-time
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
+
+    NpnMetadataResponse:
+      description: >
+        Legacy envelope schema kept for backwards-compat reference. Route response now uses allOf:FernsEnvelope.
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/NpnMetadataData"

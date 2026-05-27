@@ -10,10 +10,10 @@
  * "found" — HTTP 200 returned. "not_found" — 3xx redirect or 4xx returned. "unverified" — 5xx or network error; result not cached.
 
  */
-export type LbjUrlCheckResponseDataStatus =
-  (typeof LbjUrlCheckResponseDataStatus)[keyof typeof LbjUrlCheckResponseDataStatus];
+export type LbjUrlCheckDataStatus =
+  (typeof LbjUrlCheckDataStatus)[keyof typeof LbjUrlCheckDataStatus];
 
-export const LbjUrlCheckResponseDataStatus = {
+export const LbjUrlCheckDataStatus = {
   found: "found",
   not_found: "not_found",
   unverified: "unverified",

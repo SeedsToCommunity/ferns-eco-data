@@ -194,15 +194,6 @@ export const BonapMapDataStatus = {
   unverified: "unverified",
 } as const;
 
-export type BonapMapDataCacheStatus =
-  (typeof BonapMapDataCacheStatus)[keyof typeof BonapMapDataCacheStatus];
-
-export const BonapMapDataCacheStatus = {
-  hit: "hit",
-  miss: "miss",
-  bypassed: "bypassed",
-} as const;
-
 export interface BonapMapData {
   /** Direct URL to the PNG image on BONAP's server. Present when status is found. Null when not found. Applications display this via an img tag — do not proxy.
    */
@@ -217,57 +208,45 @@ export interface BonapMapData {
   /** found — URL returned a valid image during cache population. not_found — BONAP returned a non-image response for this binomial. unverified — URL was returned from cache without re-verification.
    */
   status: BonapMapDataStatus;
-  /** URL of the BONAP map key reference page */
-  color_key_url: string;
-  /** Direct URL to BONAP's authoritative composite color key GIF image. Display this image to show users the complete, pixel-perfect color key.
-   */
-  color_key_image_url: string;
-  /** Complete color key for interpreting BONAP maps */
-  color_key: ColorKeyEntry[];
-  /** NAPA maps: December 15, 2014. Color key documentation: February 8, 2024. */
-  data_vintage: string;
-  /** Whether FERNS has received written permission from BONAP to reproduce and display map materials. Currently false. Applications should display this when restricted licenses apply.
-   */
-  licenses: string[];
-  /** Human-readable permission status string. Matches the value from the metadata endpoint. Applications should display license_notes when restricted licenses apply.
-   */
-  license_notes: string;
-  attribution: BonapAttribution;
-  cache_status: BonapMapDataCacheStatus;
-  queried_at: string;
-  /** Human-readable diagnostic note. Non-null only when status is unverified — explains that BONAP's server did not return a definitive response during cache population and instructs the caller to retry with ?refresh=true. Null when status is found or not_found.
-   */
-  note?: string | null;
 }
 
 /**
  * Standard FERNS response envelope for BONAP map lookups
  */
 export interface BonapMapResponse {
-  /** Canonical BONAP page URL for this species or genus. Always constructed when possible and returned regardless of whether a map was found. Enables 'View on BONAP' links in applications.
-   */
-  source_url: string | null;
   /** Whether a BONAP map was found for this query */
   found: boolean;
   data?: BonapMapData | null;
   provenance: FernsProvenance;
 }
 
-export interface BonapMetadataResponse {
-  service_id: string;
-  service_name: string;
-  data_vintage: string;
-  licenses: string[];
-  license_notes: string;
-  attribution: BonapAttribution;
-  color_key: ColorKeyEntry[];
+export type BonapMetadataDataRegistryEntry = { [key: string]: unknown };
+
+/**
+ * Data payload returned in the /bonap/metadata FernsEnvelope data field.
+ */
+export interface BonapMetadataData {
+  service_id?: string;
+  service_name?: string;
+  data_vintage?: string;
+  licenses?: string[];
+  license_notes?: string;
+  attribution?: BonapAttribution;
+  color_key?: ColorKeyEntry[];
   /** URL of the BONAP map key reference page */
-  color_key_url: string;
-  /** Direct URL to BONAP's authoritative composite color key GIF image. Display this image to show users the complete, pixel-perfect color key.
-   */
-  color_key_image_url: string;
-  queried_at: string;
+  color_key_url?: string;
+  /** Direct URL to BONAP's authoritative composite color key GIF image. */
+  color_key_image_url?: string;
+  registry_entry?: BonapMetadataDataRegistryEntry;
 }
+
+/**
+ * Legacy envelope schema kept for backwards-compat reference. Route response now uses allOf:FernsEnvelope.
+
+ */
+export type BonapMetadataResponse = FernsEnvelope & {
+  data?: BonapMetadataData;
+};
 
 export interface GbifOccurrenceRecord {
   gbifID: string;
@@ -1726,25 +1705,26 @@ export interface SpeciesTextResponse {
  * "found" — HTTP 200 returned. "not_found" — 3xx redirect or 4xx returned. "unverified" — 5xx or network error; result not cached.
 
  */
-export type LbjUrlCheckResponseDataStatus =
-  (typeof LbjUrlCheckResponseDataStatus)[keyof typeof LbjUrlCheckResponseDataStatus];
+export type LbjUrlCheckDataStatus =
+  (typeof LbjUrlCheckDataStatus)[keyof typeof LbjUrlCheckDataStatus];
 
-export const LbjUrlCheckResponseDataStatus = {
+export const LbjUrlCheckDataStatus = {
   found: "found",
   not_found: "not_found",
   unverified: "unverified",
 } as const;
 
-export type LbjUrlCheckResponseData = {
+/**
+ * Data payload for /lady-bird-johnson FernsEnvelope data field.
+ */
+export interface LbjUrlCheckData {
   /** USDA Plants symbol (uppercased). */
   usda_symbol?: string;
   /** Direct profile URL when found; null when not_found or unverified. */
   profile_url?: string | null;
   /** "found" — HTTP 200 returned. "not_found" — 3xx redirect or 4xx returned. "unverified" — 5xx or network error; result not cached.
    */
-  status?: LbjUrlCheckResponseDataStatus;
-  /** True when status is "found". */
-  found?: boolean;
+  status?: LbjUrlCheckDataStatus;
   /** HTTP status code returned by the verification request. */
   http_status?: number | null;
   /** Always "http_get_manual_redirect" for this endpoint. */
@@ -1752,79 +1732,44 @@ export type LbjUrlCheckResponseData = {
   /** Timestamp when the verification HTTP request was made. Null when status is "unverified" (network/5xx error prevented caching).
    */
   verified_at?: string | null;
-  /** True if the result was served from lbj_url_cache. */
-  cache_hit?: boolean;
-};
-
-/**
- * Response from /lady-bird-johnson — profile URL verification result keyed by USDA Plants symbol.
-
- */
-export interface LbjUrlCheckResponse {
-  /** True when HTTP 200 returned for the profile URL (status="found"). */
-  found: boolean;
-  queried_at: string;
-  source_url?: string;
-  provenance?: FernsProvenance;
-  data?: LbjUrlCheckResponseData;
 }
 
 /**
- * "hit" — returned from species_page_text_cache. "miss" — live fetch performed.
+ * Legacy envelope schema kept for backwards-compat reference. Route response now uses allOf:FernsEnvelope.
 
  */
-export type LbjSpeciesTextResponseCacheStatus =
-  (typeof LbjSpeciesTextResponseCacheStatus)[keyof typeof LbjSpeciesTextResponseCacheStatus];
-
-export const LbjSpeciesTextResponseCacheStatus = {
-  hit: "hit",
-  miss: "miss",
-} as const;
+export type LbjUrlCheckResponse = FernsEnvelope & {
+  data?: LbjUrlCheckData;
+};
 
 /**
  * Labeled prose sections extracted from the page (h3-delimited). "Find Seeds or Plants" and "Mr. Smarty Plants says" sections are excluded.
 
  */
-export type LbjSpeciesTextResponseDataSections = {
-  [key: string]: string;
-} | null;
+export type LbjSpeciesTextDataSections = { [key: string]: string } | null;
 
 /**
- * Present when found=true. Null when not found.
+ * Data payload for /lady-bird-johnson/species-text FernsEnvelope data field.
  */
-export type LbjSpeciesTextResponseData = {
+export interface LbjSpeciesTextData {
   /** USDA Plants symbol (uppercased). */
   usda_symbol?: string;
   /** The profile URL that was scraped. */
   url?: string;
   /** Labeled prose sections extracted from the page (h3-delimited). "Find Seeds or Plants" and "Mr. Smarty Plants says" sections are excluded.
    */
-  sections?: LbjSpeciesTextResponseDataSections;
+  sections?: LbjSpeciesTextDataSections;
   /** All sections concatenated as Label-colon-text blocks, separated by double newlines. */
   full_text?: string | null;
-} | null;
+}
 
 /**
- * Response from /lady-bird-johnson/species-text — scraped species page text keyed by USDA Plants symbol.
+ * Legacy envelope schema kept for backwards-compat reference. Route response now uses allOf:FernsEnvelope. cache_status ("hit"/"miss"), queried_at, and source_url are in provenance per FERNS envelope contract v1.
 
  */
-export interface LbjSpeciesTextResponse {
-  /** True if the species page was found and text was extracted. */
-  found: boolean;
-  queried_at: string;
-  source_url?: string;
-  /** "hit" — returned from species_page_text_cache. "miss" — live fetch performed.
-   */
-  cache_status: LbjSpeciesTextResponseCacheStatus;
-  /** Present only when a transient upstream error prevented the scrape. Not cached.
-   */
-  fetch_error?: string;
-  /** Timestamp of when the text was originally scraped. */
-  scraped_at?: string;
-  provenance?: FernsProvenance;
-  /** Present when found=true. Null when not found. */
-  data?: LbjSpeciesTextResponseData;
-}
+export type LbjSpeciesTextResponse = FernsEnvelope & {
+  data?: LbjSpeciesTextData;
+};
 
 /**
  * Present when found=true (or when a search_url is returned). Null when not found.
@@ -2121,24 +2066,20 @@ export interface NpnSpeciesRecord {
 }
 
 /**
- * Single NPN species lookup response (found=true, HTTP 200).
+ * FERNS envelope for single NPN species lookup (found=true, HTTP 200).
  */
 export interface NpnSpeciesResponse {
   found: boolean;
-  queried_at: string;
-  source_url: string;
   provenance: FernsProvenance;
   data?: NpnSpeciesRecord | null;
 }
 
 /**
- * Response when a name key is not in the alias index (HTTP 404). found=false.
+ * FERNS envelope when a name key is not in the alias index (HTTP 404). found=false.
 
  */
 export interface NpnNotFoundResponse {
   found: boolean;
-  queried_at: string;
-  source_url: string;
   provenance: FernsProvenance;
   data?: unknown | null;
 }
@@ -2149,13 +2090,11 @@ export type NpnSpeciesBulkResponseData = {
 };
 
 /**
- * Bulk NPN species list response.
+ * FERNS envelope for bulk NPN species list.
  */
 export interface NpnSpeciesBulkResponse {
   /** false when the table is empty (import not yet run) */
   found: boolean;
-  queried_at: string;
-  source_url: string;
   provenance: FernsProvenance;
   data: NpnSpeciesBulkResponseData;
 }
@@ -2179,12 +2118,10 @@ export type NpnNamesResponseData = {
 };
 
 /**
- * NPN name groups for cross-source reconciliation.
+ * FERNS envelope for NPN name groups (cross-source reconciliation).
  */
 export interface NpnNamesResponse {
   found: boolean;
-  queried_at: string;
-  source_url: string;
   provenance: FernsProvenance;
   data: NpnNamesResponseData;
 }
@@ -2222,21 +2159,27 @@ export interface SourceMetadataData {
   technical_details?: string;
 }
 
-export type NpnMetadataResponseRegistryEntry = { [key: string]: unknown };
+export type NpnMetadataDataRegistryEntry = { [key: string]: unknown };
 
 /**
- * Metadata response for the Ann Arbor Native Plant Nursery source.
+ * Data payload for /ann-arbor-npn/metadata FernsEnvelope data field.
  */
-export interface NpnMetadataResponse {
-  service_id: string;
-  service_name: string;
-  licenses: string[];
-  license_notes: string;
-  species_count: number;
-  registry_entry: NpnMetadataResponseRegistryEntry;
-  queried_at: string;
-  provenance: FernsProvenance;
+export interface NpnMetadataData {
+  service_id?: string;
+  service_name?: string;
+  licenses?: string[];
+  license_notes?: string;
+  species_count?: number;
+  registry_entry?: NpnMetadataDataRegistryEntry;
 }
+
+/**
+ * Legacy envelope schema kept for backwards-compat reference. Route response now uses allOf:FernsEnvelope.
+
+ */
+export type NpnMetadataResponse = FernsEnvelope & {
+  data?: NpnMetadataData;
+};
 
 export type HealthCheck200 = FernsEnvelope & {
   data?: HealthStatus;
@@ -2272,6 +2215,14 @@ export const GetBonapMapMapType = {
   county_species: "county_species",
   state_species: "state_species",
 } as const;
+
+export type GetBonapMap200 = FernsEnvelope & {
+  data?: BonapMapData;
+};
+
+export type GetBonapMetadata200 = FernsEnvelope & {
+  data?: BonapMetadataData;
+};
 
 export type GetGbifMatchParams = {
   /**
@@ -3675,6 +3626,10 @@ export type GetLadyBirdJohnsonParams = {
   usda_symbol: string;
 };
 
+export type GetLadyBirdJohnson200 = FernsEnvelope & {
+  data?: LbjUrlCheckData;
+};
+
 export type GetLadyBirdJohnsonSpeciesTextParams = {
   /**
    * USDA Plants symbol (e.g. TRGI for Trillium grandiflorum). Obtain via /usda-plants.
@@ -3695,6 +3650,18 @@ export const GetLadyBirdJohnsonSpeciesTextRefresh = {
   false: "false",
 } as const;
 
+export type GetLadyBirdJohnsonSpeciesText200 = FernsEnvelope & {
+  data?: LbjSpeciesTextData;
+};
+
+export type GetLadyBirdJohnsonMetadata200 = FernsEnvelope & {
+  data?: BotanicalWebRefMetadataResponse;
+};
+
+export type GetAnnArborNpnMetadata200 = FernsEnvelope & {
+  data?: NpnMetadataData;
+};
+
 export type GetAnnArborNpnSpeciesBulkParams = {
   /**
    * Controls provenance verbosity in the response ("full", "summary", or "none")
@@ -3711,6 +3678,15 @@ export const GetAnnArborNpnSpeciesBulkProvenanceVerbosity = {
   none: "none",
 } as const;
 
+export type GetAnnArborNpnSpeciesBulk200Data = {
+  species_count: number;
+  species: NpnSpeciesRecord[];
+};
+
+export type GetAnnArborNpnSpeciesBulk200 = FernsEnvelope & {
+  data?: GetAnnArborNpnSpeciesBulk200Data;
+};
+
 export type GetAnnArborNpnSpeciesByKeyParams = {
   provenance_verbosity?: GetAnnArborNpnSpeciesByKeyProvenanceVerbosity;
 };
@@ -3724,6 +3700,10 @@ export const GetAnnArborNpnSpeciesByKeyProvenanceVerbosity = {
   none: "none",
 } as const;
 
+export type GetAnnArborNpnSpeciesByKey200 = FernsEnvelope & {
+  data?: NpnSpeciesRecord;
+};
+
 export type GetAnnArborNpnNamesParams = {
   provenance_verbosity?: GetAnnArborNpnNamesProvenanceVerbosity;
 };
@@ -3736,6 +3716,15 @@ export const GetAnnArborNpnNamesProvenanceVerbosity = {
   summary: "summary",
   none: "none",
 } as const;
+
+export type GetAnnArborNpnNames200Data = {
+  species_count: number;
+  name_groups: NpnNameGroup[];
+};
+
+export type GetAnnArborNpnNames200 = FernsEnvelope & {
+  data?: GetAnnArborNpnNames200Data;
+};
 
 export type ImportAnnArborNpnBody = {
   /** Optional subset of acronyms to import; omit to import all */

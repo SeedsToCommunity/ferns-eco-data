@@ -69,6 +69,19 @@ export const NPN_REGISTRY_ENTRY = {
   license_notes: NPN_LICENSE_NOTES,
   general_summary: NPN_GENERAL_SUMMARY,
   technical_details: NPN_TECHNICAL_DETAILS,
-  non_passthrough_endpoints: [{ endpoint: "/api/ann-arbor-npn/metadata", kind: "metadata" }],
+  non_passthrough_endpoints: [
+    { endpoint: "/api/ann-arbor-npn/metadata", kind: "metadata" },
+    { endpoint: "/api/ann-arbor-npn/species", kind: "cached_proxy" },
+    { endpoint: "/api/ann-arbor-npn/species/{key}", kind: "cached_proxy" },
+    { endpoint: "/api/ann-arbor-npn/names", kind: "cached_proxy" },
+    { endpoint: "/api/ann-arbor-npn/import", kind: "admin" },
+  ],
   permission_granted: false,
+  license: "All rights reserved — The Native Plant Nursery (nativeplant.com), Greg Vaclavek. No formal data-sharing agreement established. See https://www.nativeplant.com/",
+  rights:
+    "NOT REQUESTED — The Native Plant Nursery (nativeplant.com) is a small Ann Arbor nursery operated by Greg Vaclavek. " +
+    "No formal data-sharing agreement has been established. Cite Greg Vaclavek / The Native Plant Nursery (nativeplant.com) when using this data.",
+  website_url_patterns: {
+    species: "https://www.nativeplant.com/plant-profile/{acronym}",
+  },
 };

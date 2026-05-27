@@ -28,6 +28,9 @@ export async function ensureLadyBirdJohnsonRegistryEntry(): Promise<void> {
           technical_details: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.technical_details ?? null,
           permission_granted: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.permission_granted,
           non_passthrough_endpoints: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.non_passthrough_endpoints ?? [],
+          license: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.license,
+          rights: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.rights,
+          website_url_patterns: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.website_url_patterns ?? {},
           updated_at: new Date(),
         },
       });

@@ -3,8 +3,6 @@ import { db, npnSpeciesTable, npnNameAliasesTable } from "@workspace/db";
 import { eq, sql } from "drizzle-orm";
 import {
   NPN_SOURCE_ID,
-  NPN_GENERAL_SUMMARY,
-  NPN_TECHNICAL_DETAILS,
   NPN_REGISTRY_ENTRY,
   NPN_LICENSES,
   NPN_LICENSE_NOTES,
@@ -13,20 +11,10 @@ import { ensureNpnRegistryEntry } from "../services/npn/seed.js";
 import { importNpn } from "../services/npn/import.js";
 import { requireAdmin } from "../lib/admin-guard.js";
 import { resolveUrl } from "../lib/resolve-url.js";
-import { filterProvenance } from "../lib/provenance.js";
+import { buildEnvelope } from "@workspace/api-envelope";
+import { dbRegistryAccessor } from "../lib/registry-accessor.js";
 
 const router: IRouter = Router();
-
-function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
-  return {
-    source_id: NPN_SOURCE_ID,
-    fetched_at: new Date(),
-    method: "static_data",
-    upstream_url: resolveUrl(req, "/api/ann-arbor-npn/metadata"),
-    general_summary: NPN_GENERAL_SUMMARY,
-    technical_details: NPN_TECHNICAL_DETAILS,
-  };
-}
 
 // ── GET /api/ann-arbor-npn/metadata ──────────────────────────────────────────
 
@@ -37,23 +25,31 @@ router.get("/ann-arbor-npn/metadata", async (req, res) => {
     .from(npnSpeciesTable);
   const speciesCount = Number(row?.count ?? 0);
 
-  res.json({
-    service_id: NPN_SOURCE_ID,
-    service_name: NPN_REGISTRY_ENTRY.name,
-    licenses: NPN_LICENSES,
-    license_notes: NPN_LICENSE_NOTES,
-    species_count: speciesCount,
-    registry_entry: {
-      ...NPN_REGISTRY_ENTRY,
-      metadata_url: resolveUrl(req, NPN_REGISTRY_ENTRY.metadata_url),
-      explorer_url: resolveUrl(req, NPN_REGISTRY_ENTRY.explorer_url),
+  const envelope = await buildEnvelope(
+    {
+      sourceId: NPN_SOURCE_ID,
+      sourceKind: "single-source-proxy",
+      sourceUrl: "https://www.nativeplant.com/",
+      method: "computed",
+      cacheStatus: "bypass",
+      queriedAt: new Date().toISOString(),
+      found: true,
+      data: {
+        service_id: NPN_SOURCE_ID,
+        service_name: NPN_REGISTRY_ENTRY.name,
+        licenses: NPN_LICENSES,
+        license_notes: NPN_LICENSE_NOTES,
+        species_count: speciesCount,
+        registry_entry: {
+          ...NPN_REGISTRY_ENTRY,
+          metadata_url: resolveUrl(req, NPN_REGISTRY_ENTRY.metadata_url),
+          explorer_url: resolveUrl(req, NPN_REGISTRY_ENTRY.explorer_url),
+        },
+      },
     },
-    queried_at: new Date(),
-    provenance: {
-      ...buildProvenance(req),
-      method: "static_metadata",
-    },
-  });
+    { registry: dbRegistryAccessor },
+  );
+  res.json(envelope);
 });
 
 // ── GET /api/ann-arbor-npn/species ────────────────────────────────────────────
@@ -61,26 +57,29 @@ router.get("/ann-arbor-npn/metadata", async (req, res) => {
 
 router.get("/ann-arbor-npn/species", async (req, res) => {
   await ensureNpnRegistryEntry();
-  const verbosity =
-    typeof req.query["provenance_verbosity"] === "string"
-      ? req.query["provenance_verbosity"]
-      : undefined;
 
   const rows = await db
     .select()
     .from(npnSpeciesTable)
     .orderBy(npnSpeciesTable.latin_name);
 
-  res.json({
-    found: rows.length > 0,
-    queried_at: new Date(),
-    source_url: resolveUrl(req, "/api/ann-arbor-npn/species"),
-    provenance: filterProvenance(buildProvenance(req), verbosity),
-    data: {
-      species_count: rows.length,
-      species: rows,
+  const envelope = await buildEnvelope(
+    {
+      sourceId: NPN_SOURCE_ID,
+      sourceKind: "single-source-proxy",
+      sourceUrl: "https://www.nativeplant.com/",
+      method: "cache_hit",
+      cacheStatus: "hit",
+      queriedAt: new Date().toISOString(),
+      found: rows.length > 0,
+      data: {
+        species_count: rows.length,
+        species: rows,
+      },
     },
-  });
+    { registry: dbRegistryAccessor },
+  );
+  res.json(envelope);
 });
 
 // ── GET /api/ann-arbor-npn/species/:key ───────────────────────────────────────
@@ -90,10 +89,6 @@ router.get("/ann-arbor-npn/species", async (req, res) => {
 
 router.get("/ann-arbor-npn/species/:key", async (req, res) => {
   await ensureNpnRegistryEntry();
-  const verbosity =
-    typeof req.query["provenance_verbosity"] === "string"
-      ? req.query["provenance_verbosity"]
-      : undefined;
 
   const rawKey = req.params["key"] ?? "";
   const normalizedKey = rawKey.trim().toLowerCase();
@@ -114,16 +109,20 @@ router.get("/ann-arbor-npn/species/:key", async (req, res) => {
     .limit(1);
 
   if (!aliasRow) {
-    res.status(404).json({
-      found: false,
-      queried_at: new Date(),
-      source_url: resolveUrl(req, `/api/ann-arbor-npn/species/${encodeURIComponent(rawKey)}`),
-      provenance: filterProvenance(
-        { ...buildProvenance(req), matched_input: rawKey },
-        verbosity,
-      ),
-      data: null,
-    });
+    const envelope = await buildEnvelope(
+      {
+        sourceId: NPN_SOURCE_ID,
+        sourceKind: "single-source-proxy",
+        sourceUrl: "https://www.nativeplant.com/",
+        method: "cache_hit",
+        cacheStatus: "hit",
+        queriedAt: new Date().toISOString(),
+        found: false,
+        data: null,
+      },
+      { registry: dbRegistryAccessor },
+    );
+    res.status(404).json(envelope);
     return;
   }
 
@@ -134,29 +133,37 @@ router.get("/ann-arbor-npn/species/:key", async (req, res) => {
     .limit(1);
 
   if (!species) {
-    res.status(404).json({
-      found: false,
-      queried_at: new Date(),
-      source_url: resolveUrl(req, `/api/ann-arbor-npn/species/${encodeURIComponent(rawKey)}`),
-      provenance: filterProvenance(
-        { ...buildProvenance(req), matched_input: rawKey },
-        verbosity,
-      ),
-      data: null,
-    });
+    const envelope = await buildEnvelope(
+      {
+        sourceId: NPN_SOURCE_ID,
+        sourceKind: "single-source-proxy",
+        sourceUrl: "https://www.nativeplant.com/",
+        method: "cache_hit",
+        cacheStatus: "hit",
+        queriedAt: new Date().toISOString(),
+        found: false,
+        data: null,
+      },
+      { registry: dbRegistryAccessor },
+    );
+    res.status(404).json(envelope);
     return;
   }
 
-  res.json({
-    found: true,
-    queried_at: new Date(),
-    source_url: resolveUrl(req, `/api/ann-arbor-npn/species/${encodeURIComponent(rawKey)}`),
-    provenance: filterProvenance(
-      { ...buildProvenance(req), matched_input: rawKey },
-      verbosity,
-    ),
-    data: species,
-  });
+  const envelope = await buildEnvelope(
+    {
+      sourceId: NPN_SOURCE_ID,
+      sourceKind: "single-source-proxy",
+      sourceUrl: species.source_url,
+      method: "cache_hit",
+      cacheStatus: "hit",
+      queriedAt: species.scraped_at.toISOString(),
+      found: true,
+      data: species,
+    },
+    { registry: dbRegistryAccessor },
+  );
+  res.json(envelope);
 });
 
 // ── GET /api/ann-arbor-npn/names ──────────────────────────────────────────────
@@ -166,10 +173,6 @@ router.get("/ann-arbor-npn/species/:key", async (req, res) => {
 
 router.get("/ann-arbor-npn/names", async (req, res) => {
   await ensureNpnRegistryEntry();
-  const verbosity =
-    typeof req.query["provenance_verbosity"] === "string"
-      ? req.query["provenance_verbosity"]
-      : undefined;
 
   const species = await db
     .select({
@@ -201,7 +204,6 @@ router.get("/ann-arbor-npn/names", async (req, res) => {
     acronym: sp.acronym,
     latin_name: sp.latin_name,
     latin_synonym_greg: sp.latin_synonym_greg ?? null,
-    // Parse common_name string into an array (split on ; and ,)
     common_names: sp.common_name
       .split(/[;,]/)
       .map((s) => s.trim())
@@ -209,16 +211,23 @@ router.get("/ann-arbor-npn/names", async (req, res) => {
     all_accepted_keys: aliasMap.get(sp.acronym) ?? [],
   }));
 
-  res.json({
-    found: nameGroups.length > 0,
-    queried_at: new Date(),
-    source_url: resolveUrl(req, "/api/ann-arbor-npn/names"),
-    provenance: filterProvenance(buildProvenance(req), verbosity),
-    data: {
-      species_count: nameGroups.length,
-      name_groups: nameGroups,
+  const envelope = await buildEnvelope(
+    {
+      sourceId: NPN_SOURCE_ID,
+      sourceKind: "single-source-proxy",
+      sourceUrl: "https://www.nativeplant.com/",
+      method: "cache_hit",
+      cacheStatus: "hit",
+      queriedAt: new Date().toISOString(),
+      found: nameGroups.length > 0,
+      data: {
+        species_count: nameGroups.length,
+        name_groups: nameGroups,
+      },
     },
-  });
+    { registry: dbRegistryAccessor },
+  );
+  res.json(envelope);
 });
 
 // ── POST /api/ann-arbor-npn/import ────────────────────────────────────────────

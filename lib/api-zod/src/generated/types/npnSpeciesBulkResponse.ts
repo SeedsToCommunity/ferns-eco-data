@@ -9,13 +9,11 @@ import type { FernsProvenance } from "./fernsProvenance";
 import type { NpnSpeciesBulkResponseData } from "./npnSpeciesBulkResponseData";
 
 /**
- * Bulk NPN species list response.
+ * FERNS envelope for bulk NPN species list.
  */
 export interface NpnSpeciesBulkResponse {
   /** false when the table is empty (import not yet run) */
   found: boolean;
-  queried_at: Date;
-  source_url: string;
   provenance: FernsProvenance;
   data: NpnSpeciesBulkResponseData;
 }

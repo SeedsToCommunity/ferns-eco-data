@@ -5,18 +5,19 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { LbjUrlCheckResponseDataStatus } from "./lbjUrlCheckResponseDataStatus";
+import type { LbjUrlCheckDataStatus } from "./lbjUrlCheckDataStatus";
 
-export type LbjUrlCheckResponseData = {
+/**
+ * Data payload for /lady-bird-johnson FernsEnvelope data field.
+ */
+export interface LbjUrlCheckData {
   /** USDA Plants symbol (uppercased). */
   usda_symbol?: string;
   /** Direct profile URL when found; null when not_found or unverified. */
   profile_url?: string | null;
   /** "found" — HTTP 200 returned. "not_found" — 3xx redirect or 4xx returned. "unverified" — 5xx or network error; result not cached.
    */
-  status?: LbjUrlCheckResponseDataStatus;
-  /** True when status is "found". */
-  found?: boolean;
+  status?: LbjUrlCheckDataStatus;
   /** HTTP status code returned by the verification request. */
   http_status?: number | null;
   /** Always "http_get_manual_redirect" for this endpoint. */
@@ -24,6 +25,4 @@ export type LbjUrlCheckResponseData = {
   /** Timestamp when the verification HTTP request was made. Null when status is "unverified" (network/5xx error prevented caching).
    */
   verified_at?: Date | null;
-  /** True if the result was served from lbj_url_cache. */
-  cache_hit?: boolean;
-};
+}

@@ -12,9 +12,6 @@ import type { FernsProvenance } from "./fernsProvenance";
  * Standard FERNS response envelope for BONAP map lookups
  */
 export interface BonapMapResponse {
-  /** Canonical BONAP page URL for this species or genus. Always constructed when possible and returned regardless of whether a map was found. Enables 'View on BONAP' links in applications.
-   */
-  source_url: string | null;
   /** Whether a BONAP map was found for this query */
   found: boolean;
   data?: BonapMapData | null;

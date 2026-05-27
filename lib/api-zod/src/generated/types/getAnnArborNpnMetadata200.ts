@@ -8,10 +8,6 @@
 import type { FernsEnvelope } from "./fernsEnvelope";
 import type { NpnMetadataData } from "./npnMetadataData";
 
-/**
- * Legacy envelope schema kept for backwards-compat reference. Route response now uses allOf:FernsEnvelope.
-
- */
-export type NpnMetadataResponse = FernsEnvelope & {
+export type GetAnnArborNpnMetadata200 = FernsEnvelope & {
   data?: NpnMetadataData;
 };

@@ -1,14 +1,38 @@
 import { motion } from "framer-motion";
 import { AlertCircle, ExternalLink, Leaf, Map as MapIcon } from "lucide-react";
-import type { BonapMapResponse, GetBonapMapQueryError } from "@workspace/api-client-react";
+import type { GetBonapMapQueryError } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
-import { ColorKey } from "./ColorKey";
 import { ProvenancePanel } from "./ProvenancePanel";
+
+interface BonapData {
+  map_url?: string | null;
+  map_type_served: string;
+  genus: string;
+  species?: string | null;
+  species_stripped: boolean;
+  status: "found" | "not_found" | "unverified";
+}
+
+interface BonapProvenance {
+  source_id?: string;
+  source_url?: string | null;
+  method?: string;
+  cache_status?: string;
+  queried_at?: string;
+  license?: string;
+  rights?: string;
+}
+
+interface BonapMapEnvelope {
+  found: boolean;
+  provenance?: BonapProvenance;
+  data?: BonapData | null;
+}
 
 interface ResultDisplayProps {
   isLoading: boolean;
   error: GetBonapMapQueryError | null;
-  response?: BonapMapResponse;
+  response?: BonapMapEnvelope;
 }
 
 export function ResultDisplay({ isLoading, error, response }: ResultDisplayProps) {
@@ -42,7 +66,8 @@ export function ResultDisplay({ isLoading, error, response }: ResultDisplayProps
 
   if (!response) return null;
 
-  const { found, data, source_url } = response;
+  const { found, data } = response;
+  const sourceUrl = response.provenance?.source_url;
 
   return (
     <motion.div
@@ -55,40 +80,14 @@ export function ResultDisplay({ isLoading, error, response }: ResultDisplayProps
         <h2 className="text-2xl font-serif font-bold text-foreground">
           Result for <span className="italic text-primary">{data?.genus} {data?.species}</span>
         </h2>
-        {source_url && (
+        {sourceUrl && (
           <Button variant="outline" asChild>
-            <a href={source_url} target="_blank" rel="noreferrer" className="flex items-center gap-2">
+            <a href={sourceUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2">
               View on BONAP <ExternalLink className="w-4 h-4" />
             </a>
           </Button>
         )}
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {data?.attribution?.website && (
-          <div className="bg-card border rounded-xl p-4 space-y-1">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Source Website</p>
-            <a href={data.attribution.website} target="_blank" rel="noreferrer" className="text-primary font-medium hover:underline break-all">
-              {data.attribution.website}
-            </a>
-          </div>
-        )}
-        {response?.provenance?.general_summary && (
-          <div className="bg-card border rounded-xl p-4 space-y-1">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Derivation Summary</p>
-            <p className="text-sm text-foreground leading-relaxed">{response.provenance.general_summary}</p>
-          </div>
-        )}
-      </div>
-
-      {data?.data_vintage && (
-        <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-xl p-4 flex gap-3 text-amber-900 dark:text-amber-200">
-          <AlertCircle className="w-5 h-5 shrink-0" />
-          <p className="text-sm font-medium leading-relaxed">
-            BONAP distribution data was last updated December 15, 2014. Distribution records reflect knowledge as of that date.
-          </p>
-        </div>
-      )}
 
       <div className="bg-card border rounded-2xl shadow-sm overflow-hidden">
         {found && data?.map_url ? (
@@ -112,12 +111,6 @@ export function ResultDisplay({ isLoading, error, response }: ResultDisplayProps
               No map was found for <span className="italic">{data?.genus} {data?.species}</span>.
               This species may not be in the North American Plant Atlas, or may be listed under a different name.
             </p>
-          </div>
-        )}
-
-        {data?.color_key_url && (
-          <div className="p-6 md:p-8 border-t bg-background">
-            <ColorKey pageUrl={data.color_key_url} />
           </div>
         )}
       </div>

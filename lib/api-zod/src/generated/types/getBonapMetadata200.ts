@@ -8,10 +8,6 @@
 import type { BonapMetadataData } from "./bonapMetadataData";
 import type { FernsEnvelope } from "./fernsEnvelope";
 
-/**
- * Legacy envelope schema kept for backwards-compat reference. Route response now uses allOf:FernsEnvelope.
-
- */
-export type BonapMetadataResponse = FernsEnvelope & {
+export type GetBonapMetadata200 = FernsEnvelope & {
   data?: BonapMetadataData;
 };

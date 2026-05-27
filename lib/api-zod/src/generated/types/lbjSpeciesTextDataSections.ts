@@ -10,6 +10,4 @@
  * Labeled prose sections extracted from the page (h3-delimited). "Find Seeds or Plants" and "Mr. Smarty Plants says" sections are excluded.
 
  */
-export type LbjSpeciesTextResponseDataSections = {
-  [key: string]: string;
-} | null;
+export type LbjSpeciesTextDataSections = { [key: string]: string } | null;

@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { GetBonapMapQueryParams, GetBonapMapResponse, GetBonapMetadataResponse } from "@workspace/api-zod";
+import { GetBonapMapQueryParams } from "@workspace/api-zod";
 import { normalizeInput, verifyMapExists, buildCacheKey, buildProvenance } from "../services/bonap/connector.js";
 import { lookupCache, storeCache } from "../services/bonap/cache.js";
 import {
@@ -10,10 +10,13 @@ import {
   BONAP_DATA_VINTAGE,
   BONAP_LICENSES,
   BONAP_LICENSE_NOTES,
+  BONAP_REGISTRY_ENTRY,
   BONAP_SOURCE_ID,
 } from "../services/bonap/metadata.js";
 import { ensureBonapRegistryEntry } from "../services/bonap/seed.js";
-import { filterProvenance } from "../lib/provenance.js";
+import { buildEnvelope } from "@workspace/api-envelope";
+import { dbRegistryAccessor } from "../lib/registry-accessor.js";
+import { resolveUrl } from "../lib/resolve-url.js";
 
 const router: IRouter = Router();
 
@@ -44,12 +47,13 @@ router.get("/bonap/map", async (req, res) => {
   }
 
   const { genus, species, map_type, refresh } = parsed.data;
-  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
 
   if (!species || species.trim() === "") {
     res.status(400).json({ error: "invalid_input", message: "species is required for all map types" });
     return;
   }
+
+  await ensureBonapRegistryEntry();
 
   const normalized = normalizeInput(genus, species, map_type);
   const cacheKey = buildCacheKey(normalized);
@@ -57,8 +61,27 @@ router.get("/bonap/map", async (req, res) => {
   if (!refresh) {
     const cached = await lookupCache(cacheKey);
     if (cached) {
-      const response = GetBonapMapResponse.parse(buildMapResponse(cached, "hit", verbosity));
-      res.json(response);
+      const envelope = await buildEnvelope(
+        {
+          sourceId: BONAP_SOURCE_ID,
+          sourceKind: "single-source-proxy",
+          sourceUrl: cached.upstream_url,
+          method: "cache_hit",
+          cacheStatus: "hit",
+          queriedAt: cached.fetched_at.toISOString(),
+          found: cached.status === "found",
+          data: {
+            map_url: cached.map_url ?? null,
+            map_type_served: cached.map_type as "county_species" | "state_species",
+            genus: cached.genus,
+            species: cached.species ?? null,
+            species_stripped: cached.species_stripped,
+            status: cached.status as "found" | "not_found" | "unverified",
+          },
+        },
+        { registry: dbRegistryAccessor },
+      );
+      res.json(envelope);
       return;
     }
   }
@@ -66,79 +89,62 @@ router.get("/bonap/map", async (req, res) => {
   const result = await verifyMapExists(normalized);
   const provenance = buildProvenance(result);
   const stored = await storeCache(cacheKey, result, provenance);
-  const response = GetBonapMapResponse.parse(buildMapResponse(stored, refresh ? "bypassed" : "miss", verbosity));
-  res.json(response);
+
+  const envelope = await buildEnvelope(
+    {
+      sourceId: BONAP_SOURCE_ID,
+      sourceKind: "single-source-proxy",
+      sourceUrl: stored.upstream_url,
+      method: "api_fetch",
+      cacheStatus: "miss",
+      queriedAt: stored.fetched_at.toISOString(),
+      found: stored.status === "found",
+      data: {
+        map_url: stored.map_url ?? null,
+        map_type_served: stored.map_type as "county_species" | "state_species",
+        genus: stored.genus,
+        species: stored.species ?? null,
+        species_stripped: stored.species_stripped,
+        status: stored.status as "found" | "not_found" | "unverified",
+      },
+    },
+    { registry: dbRegistryAccessor },
+  );
+  res.json(envelope);
 });
 
-function buildMapResponse(
-  row: {
-    map_url: string | null;
-    source_url: string | null;
-    map_type: string;
-    genus: string;
-    species: string | null;
-    species_stripped: boolean;
-    status: string;
-    source_id: string;
-    fetched_at: Date;
-    method: string;
-    upstream_url: string;
-    general_summary: string;
-    technical_details: string;
-  },
-  cache_status: "hit" | "miss" | "bypassed",
-  verbosity?: string,
-) {
-  return {
-    source_url: row.source_url,
-    found: row.status === "found",
-    data: {
-      map_url: row.map_url ?? null,
-      map_type_served: row.map_type as "county_species" | "state_species",
-      genus: row.genus,
-      species: row.species ?? null,
-      species_stripped: row.species_stripped,
-      status: row.status as "found" | "not_found" | "unverified",
-      color_key_url: BONAP_COLOR_KEY_URL,
-      color_key_image_url: BONAP_COLOR_KEY_IMAGE_URL,
-      color_key: BONAP_COLOR_KEY,
-      data_vintage: BONAP_DATA_VINTAGE,
-      licenses: BONAP_LICENSES,
-      license_notes: BONAP_LICENSE_NOTES,
-      attribution: BONAP_ATTRIBUTION,
-      cache_status,
-      queried_at: new Date(),
-      note: row.status === "unverified"
-        ? "Map URL could not be verified during cache population — BONAP's server did not return a definitive response. The map may or may not exist. Retry with ?refresh=true to attempt re-verification."
-        : null,
-    },
-    provenance: filterProvenance({
-      source_id: row.source_id,
-      fetched_at: row.fetched_at,
-      method: row.method,
-      upstream_url: row.upstream_url,
-      general_summary: row.general_summary,
-      technical_details: row.technical_details,
-    }, verbosity),
-  };
-}
-
-router.get("/bonap/metadata", async (_req, res) => {
+router.get("/bonap/metadata", async (req, res) => {
   await ensureBonapRegistryEntry();
 
-  const payload = GetBonapMetadataResponse.parse({
-    service_id: BONAP_SOURCE_ID,
-    service_name: "BONAP North American Plant Atlas — Distribution Maps",
-    data_vintage: BONAP_DATA_VINTAGE,
-    licenses: BONAP_LICENSES,
-    license_notes: BONAP_LICENSE_NOTES,
-    attribution: BONAP_ATTRIBUTION,
-    color_key: BONAP_COLOR_KEY,
-    color_key_url: BONAP_COLOR_KEY_URL,
-    color_key_image_url: BONAP_COLOR_KEY_IMAGE_URL,
-    queried_at: new Date(),
-  });
-  res.json(payload);
+  const envelope = await buildEnvelope(
+    {
+      sourceId: BONAP_SOURCE_ID,
+      sourceKind: "single-source-proxy",
+      sourceUrl: "https://bonap.net/",
+      method: "computed",
+      cacheStatus: "bypass",
+      queriedAt: new Date().toISOString(),
+      found: true,
+      data: {
+        service_id: BONAP_SOURCE_ID,
+        service_name: BONAP_REGISTRY_ENTRY.name,
+        data_vintage: BONAP_DATA_VINTAGE,
+        licenses: BONAP_LICENSES,
+        license_notes: BONAP_LICENSE_NOTES,
+        attribution: BONAP_ATTRIBUTION,
+        color_key: BONAP_COLOR_KEY,
+        color_key_url: BONAP_COLOR_KEY_URL,
+        color_key_image_url: BONAP_COLOR_KEY_IMAGE_URL,
+        registry_entry: {
+          ...BONAP_REGISTRY_ENTRY,
+          metadata_url: resolveUrl(req, BONAP_REGISTRY_ENTRY.metadata_url),
+          explorer_url: resolveUrl(req, BONAP_REGISTRY_ENTRY.explorer_url),
+        },
+      },
+    },
+    { registry: dbRegistryAccessor },
+  );
+  res.json(envelope);
 });
 
 export default router;

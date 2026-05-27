@@ -72,6 +72,17 @@ export const LADY_BIRD_JOHNSON_REGISTRY_ENTRY = {
   license_notes: LADY_BIRD_JOHNSON_LICENSE_NOTES,
   general_summary: LADY_BIRD_JOHNSON_GENERAL_SUMMARY,
   technical_details: LADY_BIRD_JOHNSON_TECHNICAL_DETAILS,
-  non_passthrough_endpoints: [{ endpoint: "/api/lady-bird-johnson/metadata", kind: "metadata" }],
+  non_passthrough_endpoints: [
+    { endpoint: "/api/lady-bird-johnson/metadata", kind: "metadata" },
+    { endpoint: "/api/lady-bird-johnson", kind: "url_lookup" },
+    { endpoint: "/api/lady-bird-johnson/species-text", kind: "scraped_text" },
+  ],
   permission_granted: true,
+  license: "Copyright © Lady Bird Johnson Wildflower Center, The University of Texas at Austin. Publicly accessible for research use. See https://www.wildflower.org/terms",
+  rights:
+    "OPEN — Public reference maintained by the Lady Bird Johnson Wildflower Center, The University of Texas at Austin. " +
+    "No authentication or API key required. FERNS accesses publicly available species pages.",
+  website_url_patterns: {
+    species: "https://www.wildflower.org/plants/result.php?id_plant={usda_symbol}",
+  },
 };

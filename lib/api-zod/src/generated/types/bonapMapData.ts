@@ -5,11 +5,8 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { BonapAttribution } from "./bonapAttribution";
-import type { BonapMapDataCacheStatus } from "./bonapMapDataCacheStatus";
 import type { BonapMapDataMapTypeServed } from "./bonapMapDataMapTypeServed";
 import type { BonapMapDataStatus } from "./bonapMapDataStatus";
-import type { ColorKeyEntry } from "./colorKeyEntry";
 
 export interface BonapMapData {
   /** Direct URL to the PNG image on BONAP's server. Present when status is found. Null when not found. Applications display this via an img tag — do not proxy.
@@ -25,25 +22,4 @@ export interface BonapMapData {
   /** found — URL returned a valid image during cache population. not_found — BONAP returned a non-image response for this binomial. unverified — URL was returned from cache without re-verification.
    */
   status: BonapMapDataStatus;
-  /** URL of the BONAP map key reference page */
-  color_key_url: string;
-  /** Direct URL to BONAP's authoritative composite color key GIF image. Display this image to show users the complete, pixel-perfect color key.
-   */
-  color_key_image_url: string;
-  /** Complete color key for interpreting BONAP maps */
-  color_key: ColorKeyEntry[];
-  /** NAPA maps: December 15, 2014. Color key documentation: February 8, 2024. */
-  data_vintage: string;
-  /** Whether FERNS has received written permission from BONAP to reproduce and display map materials. Currently false. Applications should display this when restricted licenses apply.
-   */
-  licenses: string[];
-  /** Human-readable permission status string. Matches the value from the metadata endpoint. Applications should display license_notes when restricted licenses apply.
-   */
-  license_notes: string;
-  attribution: BonapAttribution;
-  cache_status: BonapMapDataCacheStatus;
-  queried_at: Date;
-  /** Human-readable diagnostic note. Non-null only when status is unverified — explains that BONAP's server did not return a definitive response during cache population and instructs the caller to retry with ?refresh=true. Null when status is found or not_found.
-   */
-  note?: string | null;
 }

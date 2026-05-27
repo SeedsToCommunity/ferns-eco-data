@@ -3,8 +3,6 @@ import { db, lbjUrlCacheTable, speciesPageTextCacheTable } from "@workspace/db";
 import { and, eq } from "drizzle-orm";
 import {
   LADY_BIRD_JOHNSON_SOURCE_ID,
-  LADY_BIRD_JOHNSON_GENERAL_SUMMARY,
-  LADY_BIRD_JOHNSON_TECHNICAL_DETAILS,
   LADY_BIRD_JOHNSON_REGISTRY_ENTRY,
   LADY_BIRD_JOHNSON_LICENSES,
   LADY_BIRD_JOHNSON_LICENSE_NOTES,
@@ -12,7 +10,8 @@ import {
 import { ensureLadyBirdJohnsonRegistryEntry } from "../services/lady-bird-johnson/seed.js";
 import { extractLadyBirdJohnson, removeNoiseBlocks } from "../services/botanical-refs/scraper.js";
 import { resolveUrl } from "../lib/resolve-url.js";
-import { filterProvenance } from "../lib/provenance.js";
+import { buildEnvelope } from "@workspace/api-envelope";
+import { dbRegistryAccessor } from "../lib/registry-accessor.js";
 
 const router: IRouter = Router();
 
@@ -25,17 +24,6 @@ const LBJ_VERIFICATION_METHOD = "http_get_manual_redirect";
 
 function buildProfileUrl(usdaSymbol: string): string {
   return `${LBJ_PROFILE_BASE}?id_plant=${encodeURIComponent(usdaSymbol)}`;
-}
-
-function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
-  return {
-    source_id: LADY_BIRD_JOHNSON_SOURCE_ID,
-    fetched_at: new Date(),
-    method: LBJ_VERIFICATION_METHOD,
-    upstream_url: resolveUrl(req, "/api/lady-bird-johnson/metadata"),
-    general_summary: LADY_BIRD_JOHNSON_GENERAL_SUMMARY,
-    technical_details: LADY_BIRD_JOHNSON_TECHNICAL_DETAILS,
-  };
 }
 
 function missingSymbolError() {
@@ -168,35 +156,45 @@ async function verifySymbol(usdaSymbolUpper: string, fernsSourceUrl: string): Pr
 
 router.get("/lady-bird-johnson/metadata", async (req, res) => {
   await ensureLadyBirdJohnsonRegistryEntry();
-  res.json({
-    service_id: LADY_BIRD_JOHNSON_SOURCE_ID,
-    service_name: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.name,
-    licenses: LADY_BIRD_JOHNSON_LICENSES,
-    license_notes: LADY_BIRD_JOHNSON_LICENSE_NOTES,
-    url_strategy: LBJ_VERIFICATION_METHOD,
-    url_pattern: `${LBJ_PROFILE_BASE}?id_plant={USDA_SYMBOL}`,
-    validation: "http_get with redirect:manual (200=found, 3xx=not_found)",
-    input_note:
-      "Accepts USDA Plants symbols (e.g. TRGI for Trillium grandiflorum). " +
-      "Obtain symbols from /api/usda-plants.",
-    cache_table: "lbj_url_cache",
-    cache_ttl_found_days: 90,
-    cache_ttl_not_found_days: 30,
-    species_text_cache: "species_page_text_cache (site_id=lady-bird-johnson, permanent)",
-    registry_entry: {
-      ...LADY_BIRD_JOHNSON_REGISTRY_ENTRY,
-      metadata_url: resolveUrl(req, LADY_BIRD_JOHNSON_REGISTRY_ENTRY.metadata_url),
-      explorer_url: resolveUrl(req, LADY_BIRD_JOHNSON_REGISTRY_ENTRY.explorer_url),
+
+  const envelope = await buildEnvelope(
+    {
+      sourceId: LADY_BIRD_JOHNSON_SOURCE_ID,
+      sourceKind: "single-source-proxy",
+      sourceUrl: "https://www.wildflower.org/",
+      method: "computed",
+      cacheStatus: "bypass",
+      queriedAt: new Date().toISOString(),
+      found: true,
+      data: {
+        service_id: LADY_BIRD_JOHNSON_SOURCE_ID,
+        service_name: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.name,
+        licenses: LADY_BIRD_JOHNSON_LICENSES,
+        license_notes: LADY_BIRD_JOHNSON_LICENSE_NOTES,
+        url_strategy: LBJ_VERIFICATION_METHOD,
+        url_pattern: `${LBJ_PROFILE_BASE}?id_plant={USDA_SYMBOL}`,
+        validation: "http_get with redirect:manual (200=found, 3xx=not_found)",
+        input_note:
+          "Accepts USDA Plants symbols (e.g. TRGI for Trillium grandiflorum). " +
+          "Obtain symbols from /api/usda-plants.",
+        cache_table: "lbj_url_cache",
+        cache_ttl_found_days: 90,
+        cache_ttl_not_found_days: 30,
+        species_text_cache: "species_page_text_cache (site_id=lady-bird-johnson, permanent)",
+        registry_entry: {
+          ...LADY_BIRD_JOHNSON_REGISTRY_ENTRY,
+          metadata_url: resolveUrl(req, LADY_BIRD_JOHNSON_REGISTRY_ENTRY.metadata_url),
+          explorer_url: resolveUrl(req, LADY_BIRD_JOHNSON_REGISTRY_ENTRY.explorer_url),
+        },
+      },
     },
-    queried_at: new Date(),
-    provenance: buildProvenance(req),
-  });
+    { registry: dbRegistryAccessor },
+  );
+  res.json(envelope);
 });
 
 router.get("/lady-bird-johnson", async (req, res) => {
   await ensureLadyBirdJohnsonRegistryEntry();
-
-  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
 
   const symbolParam =
     typeof req.query["usda_symbol"] === "string" ? req.query["usda_symbol"].trim() : null;
@@ -209,28 +207,33 @@ router.get("/lady-bird-johnson", async (req, res) => {
   const fernsSourceUrl = resolveUrl(req, "/api/lady-bird-johnson");
   const verify = await verifySymbol(usdaSymbolUpper, fernsSourceUrl);
 
-  res.json({
-    found: verify.found,
-    queried_at: new Date(),
-    source_url: fernsSourceUrl,
-    provenance: filterProvenance({ ...buildProvenance(req), matched_input: usdaSymbolUpper }, verbosity),
-    data: {
-      usda_symbol: usdaSymbolUpper,
-      profile_url: verify.profileUrl,
-      status: verify.status,
+  const profileUrl = buildProfileUrl(usdaSymbolUpper);
+
+  const envelope = await buildEnvelope(
+    {
+      sourceId: LADY_BIRD_JOHNSON_SOURCE_ID,
+      sourceKind: "single-source-proxy",
+      sourceUrl: profileUrl,
+      method: verify.cacheHit ? "cache_hit" : "api_fetch",
+      cacheStatus: verify.cacheHit ? "hit" : "miss",
+      queriedAt: (verify.verifiedAt ?? new Date()).toISOString(),
       found: verify.found,
-      http_status: verify.httpStatus,
-      validation_method: LBJ_VERIFICATION_METHOD,
-      verified_at: verify.verifiedAt,
-      cache_hit: verify.cacheHit,
+      data: {
+        usda_symbol: usdaSymbolUpper,
+        profile_url: verify.profileUrl,
+        status: verify.status,
+        http_status: verify.httpStatus,
+        validation_method: LBJ_VERIFICATION_METHOD,
+        verified_at: verify.verifiedAt,
+      },
     },
-  });
+    { registry: dbRegistryAccessor },
+  );
+  res.json(envelope);
 });
 
 router.get("/lady-bird-johnson/species-text", async (req, res) => {
   await ensureLadyBirdJohnsonRegistryEntry();
-
-  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
 
   const symbolParam =
     typeof req.query["usda_symbol"] === "string" ? req.query["usda_symbol"].trim() : null;
@@ -257,29 +260,33 @@ router.get("/lady-bird-johnson/species-text", async (req, res) => {
 
     if (cached.length > 0) {
       const hit = cached[0];
-      return res.json({
-        found: hit.found,
-        cache_status: "hit",
-        scraped_at: hit.scraped_at,
-        queried_at: new Date(),
-        source_url: resolveUrl(req, "/api/lady-bird-johnson/species-text"),
-        provenance: filterProvenance({ ...buildProvenance(req), matched_input: usdaSymbolUpper }, verbosity),
-        data: hit.found
-          ? {
-              usda_symbol: usdaSymbolUpper,
-              url: hit.url,
-              sections: hit.sections as Record<string, string> | null,
-              full_text: hit.full_text,
-            }
-          : null,
-      });
+      const envelope = await buildEnvelope(
+        {
+          sourceId: LADY_BIRD_JOHNSON_SOURCE_ID,
+          sourceKind: "single-source-proxy",
+          sourceUrl: profileUrl,
+          method: "cache_hit",
+          cacheStatus: "hit",
+          queriedAt: hit.scraped_at.toISOString(),
+          found: hit.found,
+          data: hit.found
+            ? {
+                usda_symbol: usdaSymbolUpper,
+                url: hit.url,
+                sections: hit.sections as Record<string, string> | null,
+                full_text: hit.full_text,
+              }
+            : null,
+        },
+        { registry: dbRegistryAccessor },
+      );
+      return res.json(envelope);
     }
   }
 
   let found = false;
   let sections: Record<string, string> | null = null;
   let fullText: string | null = null;
-  let fetchError: string | undefined;
   let definitiveOutcome = false;
   const scrapedAt = new Date();
 
@@ -361,11 +368,9 @@ router.get("/lady-bird-johnson/species-text", async (req, res) => {
             fetched_at: scrapedAt,
           },
         });
-    } else {
-      fetchError = `HTTP ${resp.status}`;
     }
-  } catch (err) {
-    fetchError = String(err);
+  } catch {
+    // network/5xx error — not cached; found remains false
   }
 
   if (definitiveOutcome) {
@@ -391,23 +396,27 @@ router.get("/lady-bird-johnson/species-text", async (req, res) => {
       });
   }
 
-  return res.json({
-    found,
-    cache_status: "miss",
-    scraped_at: scrapedAt,
-    queried_at: new Date(),
-    source_url: resolveUrl(req, "/api/lady-bird-johnson/species-text"),
-    provenance: filterProvenance({ ...buildProvenance(req), matched_input: usdaSymbolUpper }, verbosity),
-    ...(fetchError ? { fetch_error: fetchError } : {}),
-    data: found
-      ? {
-          usda_symbol: usdaSymbolUpper,
-          url: profileUrl,
-          sections,
-          full_text: fullText,
-        }
-      : null,
-  });
+  const envelope = await buildEnvelope(
+    {
+      sourceId: LADY_BIRD_JOHNSON_SOURCE_ID,
+      sourceKind: "single-source-proxy",
+      sourceUrl: profileUrl,
+      method: "api_fetch",
+      cacheStatus: "miss",
+      queriedAt: scrapedAt.toISOString(),
+      found,
+      data: found
+        ? {
+            usda_symbol: usdaSymbolUpper,
+            url: profileUrl,
+            sections,
+            full_text: fullText,
+          }
+        : null,
+    },
+    { registry: dbRegistryAccessor },
+  );
+  return res.json(envelope);
 });
 
 export default router;

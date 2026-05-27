@@ -8,13 +8,11 @@
 import type { FernsProvenance } from "./fernsProvenance";
 
 /**
- * Response when a name key is not in the alias index (HTTP 404). found=false.
+ * FERNS envelope when a name key is not in the alias index (HTTP 404). found=false.
 
  */
 export interface NpnNotFoundResponse {
   found: boolean;
-  queried_at: Date;
-  source_url: string;
   provenance: FernsProvenance;
   data?: unknown | null;
 }

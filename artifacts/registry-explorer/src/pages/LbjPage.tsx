@@ -22,22 +22,30 @@ const API_BASE = `${BASE_URL}/api`;
 
 // ── Response type interfaces ──────────────────────────────────────────────────
 
+interface FernsProvenance {
+  source_id?: string;
+  source_url?: string | null;
+  method?: string;
+  cache_status?: string;
+  queried_at?: string;
+  license?: string;
+  rights?: string;
+  [key: string]: unknown;
+}
+
 interface LbjUrlCheckData {
   usda_symbol: string;
   profile_url: string | null;
   status: "found" | "not_found" | "unverified";
-  found: boolean;
   http_status: number | null;
   validation_method: string;
   verified_at: string | null;
-  cache_hit: boolean;
 }
 
 interface LbjUrlCheckResponse {
   found: boolean;
-  queried_at?: string;
+  provenance?: FernsProvenance;
   data?: LbjUrlCheckData;
-  provenance?: Record<string, unknown>;
 }
 
 interface LbjSpeciesTextData {
@@ -49,12 +57,8 @@ interface LbjSpeciesTextData {
 
 interface LbjSpeciesTextResponse {
   found: boolean;
-  cache_status: "hit" | "miss";
-  scraped_at?: string;
-  fetch_error?: string;
-  queried_at?: string;
+  provenance?: FernsProvenance;
   data?: LbjSpeciesTextData | null;
-  provenance?: Record<string, unknown>;
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -113,8 +117,8 @@ function StatusBadge({ status }: { status: LbjUrlCheckData["status"] }) {
   );
 }
 
-function CacheHitBadge({ hit }: { hit: boolean }) {
-  if (hit) {
+function CacheStatusBadge({ cacheStatus }: { cacheStatus: string | undefined }) {
+  if (cacheStatus === "hit") {
     return (
       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-500/10 text-blue-600 border border-blue-500/20">
         <Database className="w-2.5 h-2.5" />
@@ -145,7 +149,7 @@ function UrlCheckResult({ result }: { result: LbjUrlCheckResponse }) {
     <div className={`rounded-xl border p-4 space-y-3 ${resultBg}`}>
       <div className="flex flex-wrap items-center gap-2">
         <StatusBadge status={data.status} />
-        <CacheHitBadge hit={data.cache_hit} />
+        <CacheStatusBadge cacheStatus={result.provenance?.cache_status} />
         {data.http_status !== null && (
           <span className="text-[10px] text-muted-foreground font-mono">
             HTTP {data.http_status}
@@ -182,23 +186,6 @@ function UrlCheckResult({ result }: { result: LbjUrlCheckResponse }) {
   );
 }
 
-function TextCacheStatusBadge({ status }: { status: LbjSpeciesTextResponse["cache_status"] }) {
-  if (status === "hit") {
-    return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-500/10 text-blue-600 border border-blue-500/20">
-        <Database className="w-2.5 h-2.5" />
-        cached
-      </span>
-    );
-  }
-  return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-500/10 text-amber-600 border border-amber-500/20">
-      <RefreshCw className="w-2.5 h-2.5" />
-      live scrape
-    </span>
-  );
-}
-
 function SpeciesTextResult({ result }: { result: LbjSpeciesTextResponse }) {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
 
@@ -209,21 +196,6 @@ function SpeciesTextResult({ result }: { result: LbjSpeciesTextResponse }) {
       else next.add(key);
       return next;
     });
-  }
-
-  if (result.fetch_error) {
-    return (
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <XCircle className="w-4 h-4 text-destructive shrink-0" />
-          <span className="text-sm font-medium text-destructive">Upstream fetch failed</span>
-        </div>
-        <p className="text-xs text-muted-foreground">{result.fetch_error}</p>
-        <p className="text-xs text-muted-foreground">
-          This result was not cached — retrying will attempt a fresh scrape.
-        </p>
-      </div>
-    );
   }
 
   if (!result.found) {
@@ -241,8 +213,9 @@ function SpeciesTextResult({ result }: { result: LbjSpeciesTextResponse }) {
   if (!data) return null;
 
   const sections = data.sections ? Object.entries(data.sections) : [];
-  const scrapedAt = result.scraped_at
-    ? new Date(result.scraped_at).toLocaleString()
+  const cacheStatus = result.provenance?.cache_status;
+  const scrapedAt = result.provenance?.queried_at
+    ? new Date(result.provenance.queried_at).toLocaleString()
     : null;
 
   return (
@@ -255,7 +228,7 @@ function SpeciesTextResult({ result }: { result: LbjSpeciesTextResponse }) {
           </span>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <TextCacheStatusBadge status={result.cache_status} />
+          <CacheStatusBadge cacheStatus={cacheStatus} />
           {scrapedAt && (
             <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
               <Clock className="w-2.5 h-2.5" />

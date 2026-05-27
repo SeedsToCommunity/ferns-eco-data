@@ -9,12 +9,10 @@ import type { FernsProvenance } from "./fernsProvenance";
 import type { NpnSpeciesRecord } from "./npnSpeciesRecord";
 
 /**
- * Single NPN species lookup response (found=true, HTTP 200).
+ * FERNS envelope for single NPN species lookup (found=true, HTTP 200).
  */
 export interface NpnSpeciesResponse {
   found: boolean;
-  queried_at: Date;
-  source_url: string;
   provenance: FernsProvenance;
   data?: NpnSpeciesRecord | null;
 }
