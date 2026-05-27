@@ -2594,13 +2594,15 @@ paths:
       description: >
         Returns service identity, licenses and license notes, guide count, species count, and the full registry
         entry for the Lake County Seed Collection Guides source. Also seeds the registry entry on first call.
+        Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
       responses:
         "200":
-          description: Service metadata
+          description: Service metadata wrapped in FernsEnvelope
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/LcscgMetadataResponse"
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
 
   /lcscg/guides:
     get:
@@ -2610,13 +2612,15 @@ paths:
       description: >
         Returns all 12 guide records (Field Museum Guide IDs 1271–1282), including title, season,
         habitat type, license, Cloudinary folder name, and harvest notes.
+        Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
       responses:
         "200":
-          description: All available guides
+          description: All available guides wrapped in FernsEnvelope
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/LcscgGuidesResponse"
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
 
   /lcscg/guide/{guideId}:
     get:
@@ -2627,6 +2631,7 @@ paths:
         Returns all species records for the specified guide (Field Museum Guide ID 1271–1282).
         Each species record includes harvest notes, seed dispersal categories, photo date,
         plant family, and Cloudinary image URLs.
+        Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
       parameters:
         - name: guideId
           in: path
@@ -2638,11 +2643,12 @@ paths:
             maximum: 1282
       responses:
         "200":
-          description: Guide detail with species list, or not-found response
+          description: Guide detail with species list wrapped in FernsEnvelope (found=false when no matching guide)
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/LcscgGuideResponse"
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
         "400":
           description: Invalid guideId
           content:
@@ -2660,6 +2666,7 @@ paths:
         and common_name, case-insensitive) across all 12 guides.
         Results include harvest notes, seed dispersal categories, photo date, plant family,
         guide context, and Cloudinary image URLs.
+        Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
       parameters:
         - name: name
           in: query
@@ -2671,11 +2678,12 @@ paths:
             minLength: 1
       responses:
         "200":
-          description: Matching species records
+          description: Matching species records wrapped in FernsEnvelope
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/LcscgSpeciesResponse"
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
         "400":
           description: Missing name parameter
           content:
@@ -2996,13 +3004,15 @@ paths:
         Features Inventory (MNFI) service. Also seeds the MNFI entry in the FERNS
         source registry. Use this to populate 'About this data' panels in any
         application displaying MNFI community or county element data.
+        Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
       responses:
         "200":
-          description: MNFI service metadata
+          description: MNFI service metadata wrapped in FernsEnvelope
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MnfiMetadataResponse"
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
 
   /mnfi/communities:
     get:
@@ -3015,6 +3025,7 @@ paths:
         (case-insensitive ILIKE match). All data is served from FERNS's local
         database seeded from the MNFI website — no upstream API call is made at
         query time. Returns community records sorted by class and name.
+        Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
       parameters:
         - name: class
           in: query
@@ -3036,11 +3047,12 @@ paths:
             type: string
       responses:
         "200":
-          description: List of MNFI natural community types (found or empty)
+          description: List of MNFI natural community types wrapped in FernsEnvelope (found=false when no matches)
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MnfiCommunitiesResponse"
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
 
   /mnfi/communities/{id}:
     get:
@@ -3054,6 +3066,7 @@ paths:
         community_id (e.g. 1234) or the URL slug (e.g. southern-dry-chestnut-oak-forest).
         Plant lists are included inline — characteristic_plants.by_life_form groups
         species by life form (tree, shrub, herb, etc.).
+        Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
       parameters:
         - name: id
           in: path
@@ -3064,11 +3077,12 @@ paths:
             minLength: 1
       responses:
         "200":
-          description: Community profile (found or not-found — check the found field)
+          description: Community profile wrapped in FernsEnvelope (found=false when no community matches the id or slug)
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MnfiCommunityResponse"
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
         "404":
           description: No community found with the given id or slug
           content:
@@ -3087,6 +3101,7 @@ paths:
         {id} path parameter accepts either the numeric community_id or the URL slug.
         This is the same plant data included inline in the community detail endpoint,
         exposed as a dedicated endpoint for applications that only need plant lists.
+        Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
       parameters:
         - name: id
           in: path
@@ -3097,11 +3112,12 @@ paths:
             minLength: 1
       responses:
         "200":
-          description: Plant list for this community grouped by life form (found or not-found — check found field)
+          description: Plant list grouped by life form wrapped in FernsEnvelope (found=false when no community matches)
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MnfiCommunityPlantsResponse"
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
         "404":
           description: No community found with the given id or slug
           content:
@@ -3122,6 +3138,7 @@ paths:
         filter to only species or community element types with the type parameter.
         Data is served from FERNS's local database seeded from the MNFI county
         element download — no upstream API call at query time.
+        Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
       parameters:
         - name: county
           in: query
@@ -3143,11 +3160,12 @@ paths:
             enum: [species, community]
       responses:
         "200":
-          description: County element occurrences (found or empty — check the found field)
+          description: County element occurrences wrapped in FernsEnvelope (found=false when county has no element data)
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MnfiCountyElementsResponse"
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
         "400":
           description: Missing county parameter
           content:
@@ -6934,133 +6952,6 @@ components:
           description: Present in /lcscg/species search results
           nullable: true
 
-    LcscgGuidesResponse:
-      type: object
-      required:
-        - found
-        - queried_at
-        - source_url
-        - provenance
-        - data
-      properties:
-        found:
-          type: boolean
-        queried_at:
-          type: string
-          format: date-time
-        source_url:
-          type: string
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
-        data:
-          type: object
-          nullable: true
-          properties:
-            guide_count:
-              type: integer
-            guides:
-              type: array
-              items:
-                $ref: "#/components/schemas/LcscgGuide"
-
-    LcscgGuideResponse:
-      type: object
-      required:
-        - found
-        - queried_at
-        - source_url
-        - provenance
-      properties:
-        found:
-          type: boolean
-        queried_at:
-          type: string
-          format: date-time
-        source_url:
-          type: string
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
-        data:
-          nullable: true
-          oneOf:
-            - type: object
-              properties:
-                guide:
-                  $ref: "#/components/schemas/LcscgGuide"
-                species_count:
-                  type: integer
-                species:
-                  type: array
-                  items:
-                    $ref: "#/components/schemas/LcscgSpeciesRecord"
-            - type: "null"
-
-    LcscgSpeciesResponse:
-      type: object
-      required:
-        - found
-        - queried_at
-        - source_url
-        - provenance
-        - data
-      properties:
-        found:
-          type: boolean
-        queried_at:
-          type: string
-          format: date-time
-        source_url:
-          type: string
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
-        data:
-          type: object
-          nullable: true
-          properties:
-            queried_name:
-              type: string
-            result_count:
-              type: integer
-            records:
-              type: array
-              items:
-                $ref: "#/components/schemas/LcscgSpeciesRecord"
-
-    LcscgMetadataResponse:
-      type: object
-      required:
-        - service_id
-        - service_name
-        - licenses
-        - license_notes
-        - guide_count
-        - species_count
-        - registry_entry
-        - provenance
-      properties:
-        service_id:
-          type: string
-        service_name:
-          type: string
-        licenses:
-          type: array
-          items:
-            type: string
-        license_notes:
-          type: string
-        guide_count:
-          type: integer
-        species_count:
-          type: integer
-        registry_entry:
-          type: object
-          additionalProperties: true
-        queried_at:
-          type: string
-          format: date-time
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
-
     SourceRelationship:
       type: object
       required:
@@ -7142,229 +7033,6 @@ components:
               nullable: true
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
-
-    MnfiMetadataResponse:
-      type: object
-      required:
-        - service_id
-        - service_name
-        - found
-      properties:
-        service_id:
-          type: string
-          description: Stable identifier for the MNFI service
-        service_name:
-          type: string
-        found:
-          type: boolean
-        community_count:
-          type: integer
-          description: Total number of natural community types loaded into FERNS
-        county_element_count:
-          type: integer
-          description: Total number of county element occurrence records loaded
-        plant_count:
-          type: integer
-          description: Total number of characteristic plant records loaded
-        class_summary:
-          type: array
-          description: Community counts grouped by community class
-          items:
-            type: object
-            properties:
-              community_class:
-                type: string
-              count:
-                type: integer
-        counties_with_data:
-          type: array
-          description: List of Michigan counties with at least one element occurrence
-          items:
-            type: string
-        licenses:
-          type: array
-          items:
-            type: string
-        license_notes:
-          type: string
-        attribution:
-          type: string
-        registry_entry:
-          type: object
-          additionalProperties: true
-
-    MnfiCommunitiesResponse:
-      type: object
-      required:
-        - found
-        - queried_at
-        - data
-      properties:
-        found:
-          type: boolean
-        queried_at:
-          type: string
-          format: date-time
-        source_url:
-          type: string
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
-        data:
-          type: object
-          properties:
-            community_count:
-              type: integer
-            filters:
-              type: object
-              properties:
-                class:
-                  type: string
-                  nullable: true
-                group:
-                  type: string
-                  nullable: true
-                name:
-                  type: string
-                  nullable: true
-            communities:
-              type: array
-              items:
-                type: object
-                additionalProperties: true
-
-    MnfiCommunityResponse:
-      type: object
-      required:
-        - found
-        - queried_at
-      properties:
-        found:
-          type: boolean
-        queried_at:
-          type: string
-          format: date-time
-        source_url:
-          type: string
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
-        data:
-          description: Community record with characteristic plants, or null if not found
-          nullable: true
-          type: object
-          properties:
-            community_id:
-              type: integer
-            name:
-              type: string
-            slug:
-              type: string
-            community_class:
-              type: string
-            community_group:
-              type: string
-            description:
-              type: string
-              nullable: true
-            characteristic_plants:
-              type: object
-              properties:
-                total_entries:
-                  type: integer
-                plant_list_url:
-                  type: string
-                by_life_form:
-                  type: object
-                  additionalProperties:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        common_name:
-                          type: string
-                        scientific_names:
-                          type: array
-                          items:
-                            type: string
-
-    MnfiCommunityPlantsResponse:
-      type: object
-      required:
-        - found
-        - queried_at
-      properties:
-        found:
-          type: boolean
-        queried_at:
-          type: string
-          format: date-time
-        source_url:
-          type: string
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
-        data:
-          type: object
-          properties:
-            community_id:
-              type: integer
-            community_name:
-              type: string
-            slug:
-              type: string
-            plant_list_url:
-              type: string
-            total_entries:
-              type: integer
-            plants_imported:
-              type: boolean
-            by_life_form:
-              type: object
-              description: Plants grouped by life form (tree, shrub, herb, graminoid, vine, etc.)
-              additionalProperties:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    common_name:
-                      type: string
-                    scientific_names:
-                      type: array
-                      items:
-                        type: string
-
-    MnfiCountyElementsResponse:
-      type: object
-      required:
-        - found
-        - queried_at
-        - data
-      properties:
-        found:
-          type: boolean
-        queried_at:
-          type: string
-          format: date-time
-        source_url:
-          type: string
-        provenance:
-          $ref: "#/components/schemas/FernsProvenance"
-        data:
-          type: object
-          properties:
-            county:
-              type: string
-            element_count:
-              type: integer
-            filters:
-              type: object
-              properties:
-                type:
-                  type: string
-                  nullable: true
-            elements:
-              type: array
-              items:
-                type: object
-                additionalProperties: true
 
     NatureserveMetadataData:
       type: object

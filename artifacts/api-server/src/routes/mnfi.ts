@@ -6,41 +6,51 @@ import {
   MNFI_GENERAL_SUMMARY,
   MNFI_TECHNICAL_DETAILS,
   MNFI_REGISTRY_ENTRY,
+  MNFI_LICENSES,
+  MNFI_LICENSE_NOTES,
 } from "../services/mnfi/metadata.js";
 import { ensureMnfiRegistryEntry, ensureMnfiCommunities } from "../services/mnfi/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
 import { importAllDescriptions, importAllPlantLists } from "../services/mnfi/scraper.js";
 import { importAllCountyElements } from "../services/mnfi/county-import.js";
 import { mnfiCommunityPlantsTable } from "@workspace/db";
-import { filterProvenance } from "../lib/provenance.js";
+import { buildEnvelope } from "@workspace/api-envelope";
+import { dbRegistryAccessor } from "../lib/registry-accessor.js";
 
 const router: IRouter = Router();
 
-function requireAdmin(req: Request, res: Response): boolean {
+async function checkAdmin(req: Request, res: Response): Promise<boolean> {
   const secret = process.env["ADMIN_SECRET"];
   const isProd = process.env["NODE_ENV"] === "production";
   if (!secret) {
     if (isProd) {
-      res.status(503).json({ error: "misconfigured", message: "ADMIN_SECRET must be set in production to use import endpoints." });
+      res.status(503).json(await buildEnvelope({
+        sourceId: MNFI_SOURCE_ID,
+        sourceKind: "in-memory",
+        found: false,
+        data: { error: "misconfigured", message: "ADMIN_SECRET must be set in production to use import endpoints." },
+        method: "computed",
+        cacheStatus: "bypass",
+        sourceUrl: null,
+        queriedAt: new Date().toISOString(),
+      }, { registry: dbRegistryAccessor }));
       return false;
     }
     return true;
   }
   const auth = req.headers["authorization"] ?? "";
   if (auth === `Bearer ${secret}`) return true;
-  res.status(401).json({ error: "unauthorized", message: "Valid Authorization: Bearer <ADMIN_SECRET> header required." });
+  res.status(401).json(await buildEnvelope({
+    sourceId: MNFI_SOURCE_ID,
+    sourceKind: "in-memory",
+    found: false,
+    data: { error: "unauthorized", message: "Valid Authorization: Bearer <ADMIN_SECRET> header required." },
+    method: "computed",
+    cacheStatus: "bypass",
+    sourceUrl: null,
+    queriedAt: new Date().toISOString(),
+  }, { registry: dbRegistryAccessor }));
   return false;
-}
-
-function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
-  return {
-    source_id: MNFI_SOURCE_ID,
-    fetched_at: new Date(),
-    method: "static_data",
-    upstream_url: resolveUrl(req, "/api/mnfi/communities"),
-    general_summary: MNFI_GENERAL_SUMMARY,
-    technical_details: MNFI_TECHNICAL_DETAILS,
-  };
 }
 
 async function ensureAll() {
@@ -58,6 +68,8 @@ function groupPlantsByLifeForm(plants: Array<{ life_form: string; common_name: s
 
 router.get("/mnfi/metadata", async (req, res) => {
   await ensureAll();
+
+  const queriedAt = new Date().toISOString();
 
   const [communityCount, countyElementCount, plantCount] = await Promise.all([
     db.$count(mnfiCommunitiesTable),
@@ -85,33 +97,39 @@ router.get("/mnfi/metadata", async (req, res) => {
     .from(mnfiCommunitiesTable)
     .where(sql`description_fetched_at is not null`);
 
-  res.json({
-    service_id: MNFI_SOURCE_ID,
-    service_name: MNFI_REGISTRY_ENTRY.name,
-    community_count: Number(communityCount),
-    descriptions_fetched: Number(descriptionsFetched[0]?.count ?? 0),
-    plant_record_count: Number(plantCount),
-    county_element_count: Number(countyElementCount),
-    counties_with_data: countyRows.map((r) => r.county),
-    community_classes: classRows,
-    registry_entry: {
-      ...MNFI_REGISTRY_ENTRY,
-      metadata_url: resolveUrl(req, MNFI_REGISTRY_ENTRY.metadata_url),
-      explorer_url: resolveUrl(req, MNFI_REGISTRY_ENTRY.explorer_url),
+  res.json(await buildEnvelope({
+    sourceId: MNFI_SOURCE_ID,
+    sourceKind: "single-source-proxy",
+    found: true,
+    data: {
+      service_id: MNFI_SOURCE_ID,
+      service_name: MNFI_REGISTRY_ENTRY.name,
+      licenses: MNFI_LICENSES,
+      license_notes: MNFI_LICENSE_NOTES,
+      community_count: Number(communityCount),
+      descriptions_fetched: Number(descriptionsFetched[0]?.count ?? 0),
+      plant_record_count: Number(plantCount),
+      county_element_count: Number(countyElementCount),
+      counties_with_data: countyRows.map((r) => r.county),
+      community_classes: classRows,
+      registry_entry: {
+        ...MNFI_REGISTRY_ENTRY,
+        metadata_url: resolveUrl(req, MNFI_REGISTRY_ENTRY.metadata_url),
+        explorer_url: resolveUrl(req, MNFI_REGISTRY_ENTRY.explorer_url),
+      },
+      general_summary: MNFI_GENERAL_SUMMARY,
+      technical_details: MNFI_TECHNICAL_DETAILS,
     },
-    queried_at: new Date(),
-    provenance: {
-      ...buildProvenance(req),
-      upstream_url: resolveUrl(req, "/api/mnfi/metadata"),
-      method: "static_metadata",
-    },
-  });
+    method: "cache_hit",
+    cacheStatus: "hit",
+    sourceUrl: "https://mnfi.anr.msu.edu/communities/classification",
+    queriedAt,
+  }, { registry: dbRegistryAccessor }));
 });
 
 router.get("/mnfi/communities", async (req, res) => {
   await ensureAll();
 
-  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   const classFilter = typeof req.query["class"] === "string" ? req.query["class"] : null;
   const groupFilter = typeof req.query["group"] === "string" ? req.query["group"] : null;
   const nameFilter = typeof req.query["name"] === "string" ? req.query["name"] : null;
@@ -129,23 +147,25 @@ router.get("/mnfi/communities", async (req, res) => {
     .where(where)
     .orderBy(mnfiCommunitiesTable.community_class, mnfiCommunitiesTable.name);
 
-  res.json({
+  res.json(await buildEnvelope({
+    sourceId: MNFI_SOURCE_ID,
+    sourceKind: "single-source-proxy",
     found: communities.length > 0,
-    queried_at: new Date(),
-    source_url: resolveUrl(req, "/api/mnfi/communities"),
-    provenance: filterProvenance(buildProvenance(req), verbosity),
     data: {
       community_count: communities.length,
       filters: { class: classFilter, group: groupFilter, name: nameFilter },
       communities,
     },
-  });
+    method: "cache_hit",
+    cacheStatus: "hit",
+    sourceUrl: "https://mnfi.anr.msu.edu/communities/list",
+    queriedAt: new Date().toISOString(),
+  }, { registry: dbRegistryAccessor }));
 });
 
 router.get("/mnfi/communities/:id", async (req, res) => {
   await ensureAll();
 
-  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   const param = req.params["id"] ?? "";
   const numericId = parseInt(param, 10);
   const isNumeric = !isNaN(numericId) && String(numericId) === param;
@@ -163,14 +183,16 @@ router.get("/mnfi/communities/:id", async (req, res) => {
         .limit(1);
 
   if (!community) {
-    res.status(404).json({
+    res.status(404).json(await buildEnvelope({
+      sourceId: MNFI_SOURCE_ID,
+      sourceKind: "single-source-proxy",
       found: false,
-      queried_at: new Date(),
-      source_url: resolveUrl(req, `/api/mnfi/communities/${param}`),
-      provenance: filterProvenance(buildProvenance(req), verbosity),
       data: null,
-      error: `No community found with id/slug '${param}'`,
-    });
+      method: "cache_hit",
+      cacheStatus: "hit",
+      sourceUrl: "https://mnfi.anr.msu.edu/communities/list",
+      queriedAt: new Date().toISOString(),
+    }, { registry: dbRegistryAccessor }));
     return;
   }
 
@@ -180,11 +202,10 @@ router.get("/mnfi/communities/:id", async (req, res) => {
     .where(eq(mnfiCommunityPlantsTable.community_id, community.community_id))
     .orderBy(mnfiCommunityPlantsTable.sort_order);
 
-  res.json({
+  res.json(await buildEnvelope({
+    sourceId: MNFI_SOURCE_ID,
+    sourceKind: "single-source-proxy",
     found: true,
-    queried_at: new Date(),
-    source_url: resolveUrl(req, `/api/mnfi/communities/${param}`),
-    provenance: filterProvenance(buildProvenance(req), verbosity),
     data: {
       ...community,
       characteristic_plants: {
@@ -193,13 +214,16 @@ router.get("/mnfi/communities/:id", async (req, res) => {
         by_life_form: groupPlantsByLifeForm(plants),
       },
     },
-  });
+    method: "cache_hit",
+    cacheStatus: "hit",
+    sourceUrl: `https://mnfi.anr.msu.edu/communities/${community.community_id}/${community.slug}`,
+    queriedAt: new Date().toISOString(),
+  }, { registry: dbRegistryAccessor }));
 });
 
 router.get("/mnfi/communities/:id/plants", async (req, res) => {
   await ensureAll();
 
-  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   const param = req.params["id"] ?? "";
   const numericId = parseInt(param, 10);
   const isNumeric = !isNaN(numericId) && String(numericId) === param;
@@ -209,7 +233,16 @@ router.get("/mnfi/communities/:id/plants", async (req, res) => {
     : await db.select().from(mnfiCommunitiesTable).where(eq(mnfiCommunitiesTable.slug, param)).limit(1);
 
   if (!community) {
-    res.status(404).json({ found: false, error: `No community found with id/slug '${param}'`, data: null });
+    res.status(404).json(await buildEnvelope({
+      sourceId: MNFI_SOURCE_ID,
+      sourceKind: "single-source-proxy",
+      found: false,
+      data: null,
+      method: "cache_hit",
+      cacheStatus: "hit",
+      sourceUrl: "https://mnfi.anr.msu.edu/communities/list",
+      queriedAt: new Date().toISOString(),
+    }, { registry: dbRegistryAccessor }));
     return;
   }
 
@@ -219,14 +252,10 @@ router.get("/mnfi/communities/:id/plants", async (req, res) => {
     .where(eq(mnfiCommunityPlantsTable.community_id, community.community_id))
     .orderBy(mnfiCommunityPlantsTable.sort_order);
 
-  res.json({
+  res.json(await buildEnvelope({
+    sourceId: MNFI_SOURCE_ID,
+    sourceKind: "single-source-proxy",
     found: plants.length > 0,
-    queried_at: new Date(),
-    source_url: resolveUrl(req, `/api/mnfi/communities/${param}/plants`),
-    provenance: filterProvenance({
-      ...buildProvenance(req),
-      upstream_url: `https://mnfi.anr.msu.edu/communities/plant-list/${community.community_id}/${community.slug}`,
-    }, verbosity),
     data: {
       community_id: community.community_id,
       community_name: community.name,
@@ -236,22 +265,30 @@ router.get("/mnfi/communities/:id/plants", async (req, res) => {
       plants_imported: plants.length > 0,
       by_life_form: groupPlantsByLifeForm(plants),
     },
-  });
+    method: "cache_hit",
+    cacheStatus: "hit",
+    sourceUrl: `https://mnfi.anr.msu.edu/communities/plant-list/${community.community_id}/${community.slug}`,
+    queriedAt: new Date().toISOString(),
+  }, { registry: dbRegistryAccessor }));
 });
 
 router.get("/mnfi/county-elements", async (req, res) => {
   await ensureAll();
 
-  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
   const county = typeof req.query["county"] === "string" ? req.query["county"].trim() : null;
   const elementType = typeof req.query["type"] === "string" ? req.query["type"].trim() : null;
 
   if (!county) {
-    res.status(400).json({
-      error: "invalid_input",
-      message:
-        "county query parameter is required (e.g. ?county=Washtenaw). All 83 Michigan county names accepted.",
-    });
+    res.status(400).json(await buildEnvelope({
+      sourceId: MNFI_SOURCE_ID,
+      sourceKind: "single-source-proxy",
+      found: false,
+      data: { error: "invalid_input", message: "county query parameter is required (e.g. ?county=Washtenaw). All 83 Michigan county names accepted." },
+      method: "computed",
+      cacheStatus: "bypass",
+      sourceUrl: null,
+      queriedAt: new Date().toISOString(),
+    }, { registry: dbRegistryAccessor }));
     return;
   }
 
@@ -268,14 +305,10 @@ router.get("/mnfi/county-elements", async (req, res) => {
 
   const totalImported = await db.$count(mnfiCountyElementsTable);
 
-  res.json({
+  res.json(await buildEnvelope({
+    sourceId: MNFI_SOURCE_ID,
+    sourceKind: "single-source-proxy",
     found: elements.length > 0,
-    queried_at: new Date(),
-    source_url: resolveUrl(req, "/api/mnfi/county-elements"),
-    provenance: filterProvenance({
-      ...buildProvenance(req),
-      upstream_url: "https://mnfi.anr.msu.edu/resources/county-element-data",
-    }, verbosity),
     data: {
       county,
       element_type_filter: elementType,
@@ -283,26 +316,44 @@ router.get("/mnfi/county-elements", async (req, res) => {
       total_imported_across_all_counties: totalImported,
       elements,
     },
-  });
+    method: "cache_hit",
+    cacheStatus: "hit",
+    sourceUrl: "https://mnfi.anr.msu.edu/resources/county-element-data",
+    queriedAt: new Date().toISOString(),
+  }, { registry: dbRegistryAccessor }));
 });
 
 router.post("/mnfi/import-communities", async (req, res) => {
-  if (!requireAdmin(req, res)) return;
+  if (!await checkAdmin(req, res)) return;
   try {
     await ensureMnfiRegistryEntry();
     const result = await ensureMnfiCommunities();
-    res.json({
-      success: true,
-      queried_at: new Date(),
+    res.json(await buildEnvelope({
+      sourceId: MNFI_SOURCE_ID,
+      sourceKind: "in-memory",
+      found: true,
       data: { message: "MNFI community classification imported successfully", ...result },
-    });
+      method: "computed",
+      cacheStatus: "bypass",
+      sourceUrl: null,
+      queriedAt: new Date().toISOString(),
+    }, { registry: dbRegistryAccessor }));
   } catch (err) {
-    res.status(500).json({ success: false, error: "import_failed", message: String(err) });
+    res.status(500).json(await buildEnvelope({
+      sourceId: MNFI_SOURCE_ID,
+      sourceKind: "in-memory",
+      found: false,
+      data: { error: "import_failed", message: String(err) },
+      method: "computed",
+      cacheStatus: "bypass",
+      sourceUrl: null,
+      queriedAt: new Date().toISOString(),
+    }, { registry: dbRegistryAccessor }));
   }
 });
 
 router.post("/mnfi/import-descriptions", async (req, res) => {
-  if (!requireAdmin(req, res)) return;
+  if (!await checkAdmin(req, res)) return;
   try {
     await ensureAll();
     const { descriptions, result } = await importAllDescriptions((done, total, name) => {
@@ -325,21 +376,35 @@ router.post("/mnfi/import-descriptions", async (req, res) => {
         .where(eq(mnfiCommunitiesTable.community_id, d.community_id));
     }
 
-    res.json({
-      success: result.failed.length === 0,
-      queried_at: new Date(),
+    res.json(await buildEnvelope({
+      sourceId: MNFI_SOURCE_ID,
+      sourceKind: "in-memory",
+      found: true,
       data: {
         message: `Scraped and imported ${result.succeeded}/${result.total} community descriptions`,
         ...result,
       },
-    });
+      method: "computed",
+      cacheStatus: "bypass",
+      sourceUrl: null,
+      queriedAt: new Date().toISOString(),
+    }, { registry: dbRegistryAccessor }));
   } catch (err) {
-    res.status(500).json({ success: false, error: "import_failed", message: String(err) });
+    res.status(500).json(await buildEnvelope({
+      sourceId: MNFI_SOURCE_ID,
+      sourceKind: "in-memory",
+      found: false,
+      data: { error: "import_failed", message: String(err) },
+      method: "computed",
+      cacheStatus: "bypass",
+      sourceUrl: null,
+      queriedAt: new Date().toISOString(),
+    }, { registry: dbRegistryAccessor }));
   }
 });
 
 router.post("/mnfi/import-plant-lists", async (req, res) => {
-  if (!requireAdmin(req, res)) return;
+  if (!await checkAdmin(req, res)) return;
   try {
     await ensureAll();
     const { allPlants, result } = await importAllPlantLists((done, total, name) => {
@@ -354,21 +419,35 @@ router.post("/mnfi/import-plant-lists", async (req, res) => {
       }
     }
 
-    res.json({
-      success: result.failed.length === 0,
-      queried_at: new Date(),
+    res.json(await buildEnvelope({
+      sourceId: MNFI_SOURCE_ID,
+      sourceKind: "in-memory",
+      found: true,
       data: {
         message: `Scraped ${result.communities_succeeded}/${result.total} communities; imported ${result.plants_inserted} plant entries`,
         ...result,
       },
-    });
+      method: "computed",
+      cacheStatus: "bypass",
+      sourceUrl: null,
+      queriedAt: new Date().toISOString(),
+    }, { registry: dbRegistryAccessor }));
   } catch (err) {
-    res.status(500).json({ success: false, error: "import_failed", message: String(err) });
+    res.status(500).json(await buildEnvelope({
+      sourceId: MNFI_SOURCE_ID,
+      sourceKind: "in-memory",
+      found: false,
+      data: { error: "import_failed", message: String(err) },
+      method: "computed",
+      cacheStatus: "bypass",
+      sourceUrl: null,
+      queriedAt: new Date().toISOString(),
+    }, { registry: dbRegistryAccessor }));
   }
 });
 
 router.post("/mnfi/import-county-elements", async (req, res) => {
-  if (!requireAdmin(req, res)) return;
+  if (!await checkAdmin(req, res)) return;
   try {
     await ensureAll();
 
@@ -379,7 +458,16 @@ router.post("/mnfi/import-county-elements", async (req, res) => {
     });
 
     if (records.length === 0) {
-      res.json({ success: true, queried_at: new Date(), data: { ...result, message: "No records to import." } });
+      res.json(await buildEnvelope({
+        sourceId: MNFI_SOURCE_ID,
+        sourceKind: "in-memory",
+        found: false,
+        data: { ...result, message: "No records to import." },
+        method: "computed",
+        cacheStatus: "bypass",
+        sourceUrl: null,
+        queriedAt: new Date().toISOString(),
+      }, { registry: dbRegistryAccessor }));
       return;
     }
 
@@ -407,17 +495,31 @@ router.post("/mnfi/import-county-elements", async (req, res) => {
       await db.insert(mnfiCountyElementsTable).values(batch);
     }
 
-    res.json({
-      success: result.failed.length === 0,
-      queried_at: new Date(),
+    res.json(await buildEnvelope({
+      sourceId: MNFI_SOURCE_ID,
+      sourceKind: "in-memory",
+      found: true,
       data: {
         message: `Imported county element data for ${result.succeeded_counties}/${result.total_counties} counties`,
         total_records_imported: records.length,
         ...result,
       },
-    });
+      method: "computed",
+      cacheStatus: "bypass",
+      sourceUrl: null,
+      queriedAt: new Date().toISOString(),
+    }, { registry: dbRegistryAccessor }));
   } catch (err) {
-    res.status(500).json({ success: false, error: "import_failed", message: String(err) });
+    res.status(500).json(await buildEnvelope({
+      sourceId: MNFI_SOURCE_ID,
+      sourceKind: "in-memory",
+      found: false,
+      data: { error: "import_failed", message: String(err) },
+      method: "computed",
+      cacheStatus: "bypass",
+      sourceUrl: null,
+      queriedAt: new Date().toISOString(),
+    }, { registry: dbRegistryAccessor }));
   }
 });
 

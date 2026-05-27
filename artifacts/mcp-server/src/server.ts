@@ -1463,7 +1463,7 @@ const tools: ToolDef[] = [
     tool: {
       name: "mnfi__community",
       description:
-        "Returns the full MNFI natural community profile for a specific community by ID, including description, associated species, and disturbance regime.",
+        "Returns the full MNFI natural community profile for a specific community by ID or slug, including ecological description, characteristic plants grouped by life form, conservation ranks, and a link to the county distribution map.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -1506,7 +1506,7 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           county: { type: "string", description: "Michigan county name (e.g. Washtenaw)" },
-          type:   { type: "string", description: "Element type filter (e.g. plant, community)" },
+          type:   { type: "string", description: "Element type filter: 'species' or 'community'. When omitted, both types are returned." },
           ...PV_PROP,
         },
         required: [],

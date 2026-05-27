@@ -15,36 +15,26 @@ export interface ErrorResponse {
 }
 
 /**
- * Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Matches the FERNS Response Envelope Contract v1.
- * @deprecated Use Provenance (defined below) for the canonical v1 contract type. FernsProvenance is kept as an alias for backward compatibility with existing generated response types.
+ * Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).
+
  */
 export interface FernsProvenance {
-  /** Stable identifier of the registered FERNS source (e.g. bonap-napa). */
+  /** Stable identifier for this data source (e.g. bonap-napa) */
   source_id: string;
-  /** Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources. */
-  source_url: string | null;
-  /** How FERNS obtained the data. */
+  /** When this record was obtained from the source */
+  fetched_at: string;
+  /** How the data was obtained: api_fetch | blob_import | llm_synthesis */
   method: string;
-  /** Cache outcome for this response. */
-  cache_status: string;
-  /** When FERNS performed this lookup (UTC ISO-8601). */
-  queried_at: string;
-  /** List of contributing sources for multi-source-algorithm responses. Null for all other source kinds. */
-  derived_from: { source_id: string; queried_at: string }[] | null;
-  /** License URI for the source data. */
-  license: string;
-  /** Rights statement / attribution for the source. */
-  rights: string;
-  /** The normalized input that was actually used for this lookup. Present on name-parameter endpoints. */
-  matched_input?: string;
-  /** @deprecated Legacy field — present on pre-v1-contract responses only. Use queried_at on new responses. */
-  fetched_at?: string;
-  /** @deprecated Legacy field — present on pre-v1-contract responses only. Use source_url on new responses. */
-  upstream_url?: string;
-  /** @deprecated Legacy field — conditionally present on pre-v1-contract responses only. */
+  /** Where this data came from (API endpoint, file path, or registry entry) */
+  upstream_url: string;
+  /** Plain language description readable by a homeowner or community member */
   general_summary?: string;
-  /** @deprecated Legacy field — conditionally present on pre-v1-contract responses only. */
+  /** Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce
+   */
   technical_details?: string;
+  /** The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.
+   */
+  matched_input?: string;
 }
 
 /**
@@ -1501,61 +1491,6 @@ export interface LcscgSpeciesRecord {
   guide_cloudinary_folder?: string | null;
 }
 
-export type LcscgGuidesResponseData = {
-  guide_count?: number;
-  guides?: LcscgGuide[];
-} | null;
-
-export interface LcscgGuidesResponse {
-  found: boolean;
-  queried_at: string;
-  source_url: string;
-  provenance: FernsProvenance;
-  data: LcscgGuidesResponseData;
-}
-
-export type LcscgGuideResponseData = {
-  guide?: LcscgGuide;
-  species_count?: number;
-  species?: LcscgSpeciesRecord[];
-} | null;
-
-export interface LcscgGuideResponse {
-  found: boolean;
-  queried_at: string;
-  source_url: string;
-  provenance: FernsProvenance;
-  data?: LcscgGuideResponseData;
-}
-
-export type LcscgSpeciesResponseData = {
-  queried_name?: string;
-  result_count?: number;
-  records?: LcscgSpeciesRecord[];
-} | null;
-
-export interface LcscgSpeciesResponse {
-  found: boolean;
-  queried_at: string;
-  source_url: string;
-  provenance: FernsProvenance;
-  data: LcscgSpeciesResponseData;
-}
-
-export type LcscgMetadataResponseRegistryEntry = { [key: string]: unknown };
-
-export interface LcscgMetadataResponse {
-  service_id: string;
-  service_name: string;
-  licenses: string[];
-  license_notes: string;
-  guide_count: number;
-  species_count: number;
-  registry_entry: LcscgMetadataResponseRegistryEntry;
-  queried_at?: string;
-  provenance: FernsProvenance;
-}
-
 /**
  * Nature of the relationship between the two sources
  */
@@ -1615,149 +1550,6 @@ export interface SourceRelationshipsResponse {
   found: boolean;
   data: SourceRelationshipsResponseData;
   provenance: FernsProvenance;
-}
-
-export type MnfiMetadataResponseClassSummaryItem = {
-  community_class?: string;
-  count?: number;
-};
-
-export type MnfiMetadataResponseRegistryEntry = { [key: string]: unknown };
-
-export interface MnfiMetadataResponse {
-  /** Stable identifier for the MNFI service */
-  service_id: string;
-  service_name: string;
-  found: boolean;
-  /** Total number of natural community types loaded into FERNS */
-  community_count?: number;
-  /** Total number of county element occurrence records loaded */
-  county_element_count?: number;
-  /** Total number of characteristic plant records loaded */
-  plant_count?: number;
-  /** Community counts grouped by community class */
-  class_summary?: MnfiMetadataResponseClassSummaryItem[];
-  /** List of Michigan counties with at least one element occurrence */
-  counties_with_data?: string[];
-  licenses?: string[];
-  license_notes?: string;
-  attribution?: string;
-  registry_entry?: MnfiMetadataResponseRegistryEntry;
-}
-
-export type MnfiCommunitiesResponseDataFilters = {
-  class?: string | null;
-  group?: string | null;
-  name?: string | null;
-};
-
-export type MnfiCommunitiesResponseDataCommunitiesItem = {
-  [key: string]: unknown;
-};
-
-export type MnfiCommunitiesResponseData = {
-  community_count?: number;
-  filters?: MnfiCommunitiesResponseDataFilters;
-  communities?: MnfiCommunitiesResponseDataCommunitiesItem[];
-};
-
-export interface MnfiCommunitiesResponse {
-  found: boolean;
-  queried_at: string;
-  source_url?: string;
-  provenance?: FernsProvenance;
-  data: MnfiCommunitiesResponseData;
-}
-
-export type MnfiCommunityResponseDataCharacteristicPlantsByLifeFormItem = {
-  common_name?: string;
-  scientific_names?: string[];
-};
-
-export type MnfiCommunityResponseDataCharacteristicPlantsByLifeForm = {
-  [key: string]: MnfiCommunityResponseDataCharacteristicPlantsByLifeFormItem[];
-};
-
-export type MnfiCommunityResponseDataCharacteristicPlants = {
-  total_entries?: number;
-  plant_list_url?: string;
-  by_life_form?: MnfiCommunityResponseDataCharacteristicPlantsByLifeForm;
-};
-
-/**
- * Community record with characteristic plants, or null if not found
- */
-export type MnfiCommunityResponseData = {
-  community_id?: number;
-  name?: string;
-  slug?: string;
-  community_class?: string;
-  community_group?: string;
-  description?: string | null;
-  characteristic_plants?: MnfiCommunityResponseDataCharacteristicPlants;
-} | null;
-
-export interface MnfiCommunityResponse {
-  found: boolean;
-  queried_at: string;
-  source_url?: string;
-  provenance?: FernsProvenance;
-  /** Community record with characteristic plants, or null if not found */
-  data?: MnfiCommunityResponseData;
-}
-
-export type MnfiCommunityPlantsResponseDataByLifeFormItem = {
-  common_name?: string;
-  scientific_names?: string[];
-};
-
-/**
- * Plants grouped by life form (tree, shrub, herb, graminoid, vine, etc.)
- */
-export type MnfiCommunityPlantsResponseDataByLifeForm = {
-  [key: string]: MnfiCommunityPlantsResponseDataByLifeFormItem[];
-};
-
-export type MnfiCommunityPlantsResponseData = {
-  community_id?: number;
-  community_name?: string;
-  slug?: string;
-  plant_list_url?: string;
-  total_entries?: number;
-  plants_imported?: boolean;
-  /** Plants grouped by life form (tree, shrub, herb, graminoid, vine, etc.) */
-  by_life_form?: MnfiCommunityPlantsResponseDataByLifeForm;
-};
-
-export interface MnfiCommunityPlantsResponse {
-  found: boolean;
-  queried_at: string;
-  source_url?: string;
-  provenance?: FernsProvenance;
-  data?: MnfiCommunityPlantsResponseData;
-}
-
-export type MnfiCountyElementsResponseDataFilters = {
-  type?: string | null;
-};
-
-export type MnfiCountyElementsResponseDataElementsItem = {
-  [key: string]: unknown;
-};
-
-export type MnfiCountyElementsResponseData = {
-  county?: string;
-  element_count?: number;
-  filters?: MnfiCountyElementsResponseDataFilters;
-  elements?: MnfiCountyElementsResponseDataElementsItem[];
-};
-
-export interface MnfiCountyElementsResponse {
-  found: boolean;
-  queried_at: string;
-  source_url?: string;
-  provenance?: FernsProvenance;
-  data: MnfiCountyElementsResponseData;
 }
 
 export type NatureserveMetadataDataCacheStatsTtlDays = {

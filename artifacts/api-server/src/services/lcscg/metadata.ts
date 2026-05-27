@@ -76,9 +76,22 @@ export const LCSCG_REGISTRY_ENTRY = {
   explorer_url: "/source/lcscg",
   licenses: LCSCG_LICENSES,
   license_notes: LCSCG_LICENSE_NOTES,
+  license: "cc-by-nc",
+  rights:
+    "CC BY-NC 4.0 — non-commercial use only, attribution required. " +
+    "Published by the Lake County Forest Preserve District Volunteer Stewardship Network. " +
+    "Authors: Kelly Schultz and Dale Shields. Published by Field Museum Field Guides.",
+  website_url_patterns: {
+    guide: "https://fieldguides.fieldmuseum.org/guides/{guide_id}",
+  },
   general_summary: LCSCG_GENERAL_SUMMARY,
   technical_details: LCSCG_TECHNICAL_DETAILS,
-  non_passthrough_endpoints: [{ endpoint: "/api/lcscg/metadata", kind: "metadata" }],
+  non_passthrough_endpoints: [
+    { endpoint: "/api/lcscg/metadata", kind: "metadata" },
+    { endpoint: "/api/lcscg/guides", kind: "in_memory" },
+    { endpoint: "/api/lcscg/guide/:guideId", kind: "in_memory" },
+    { endpoint: "/api/lcscg/species", kind: "in_memory" },
+  ],
   permission_granted: true,
 };
 

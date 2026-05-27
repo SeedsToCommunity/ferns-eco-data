@@ -24,6 +24,7 @@ import type {
   CoefficientAllResponse,
   CoefficientResponse,
   ErrorResponse,
+  FernsEnvelope,
   GbifMatchResponse,
   GbifMetadataResponse,
   GbifOccurrencesResponse,
@@ -119,10 +120,6 @@ import type {
   InatTaxonSummaryResponse,
   LbjSpeciesTextResponse,
   LbjUrlCheckResponse,
-  LcscgGuideResponse,
-  LcscgGuidesResponse,
-  LcscgMetadataResponse,
-  LcscgSpeciesResponse,
   MifloraCountiesResponse,
   MifloraFloraSearchResponse,
   MifloraImagesResponse,
@@ -130,11 +127,6 @@ import type {
   MifloraPImageInfoResponse,
   MifloraSpecTextResponse,
   MifloraSynonymsResponse,
-  MnfiCommunitiesResponse,
-  MnfiCommunityPlantsResponse,
-  MnfiCommunityResponse,
-  MnfiCountyElementsResponse,
-  MnfiMetadataResponse,
   NatureserveMetadataResponse,
   NatureserveSearchResponse,
   NatureserveSpeciesResponse,
@@ -4979,7 +4971,7 @@ export function useGetS2CMetadata<
 }
 
 /**
- * Returns service identity, licenses and license notes, guide count, species count, and the full registry entry for the Lake County Seed Collection Guides source. Also seeds the registry entry on first call.
+ * Returns service identity, licenses and license notes, guide count, species count, and the full registry entry for the Lake County Seed Collection Guides source. Also seeds the registry entry on first call. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
  * @summary Lake County Seed Collection Guides service metadata
  */
@@ -4989,8 +4981,8 @@ export const getGetLcscgMetadataUrl = () => {
 
 export const getLcscgMetadata = async (
   options?: RequestInit,
-): Promise<LcscgMetadataResponse> => {
-  return customFetch<LcscgMetadataResponse>(getGetLcscgMetadataUrl(), {
+): Promise<FernsEnvelope> => {
+  return customFetch<FernsEnvelope>(getGetLcscgMetadataUrl(), {
     ...options,
     method: "GET",
   });
@@ -5056,7 +5048,7 @@ export function useGetLcscgMetadata<
 }
 
 /**
- * Returns all 12 guide records (Field Museum Guide IDs 1271–1282), including title, season, habitat type, license, Cloudinary folder name, and harvest notes.
+ * Returns all 12 guide records (Field Museum Guide IDs 1271–1282), including title, season, habitat type, license, Cloudinary folder name, and harvest notes. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
  * @summary List all Lake County Seed Collection Guides
  */
@@ -5066,8 +5058,8 @@ export const getGetLcscgGuidesUrl = () => {
 
 export const getLcscgGuides = async (
   options?: RequestInit,
-): Promise<LcscgGuidesResponse> => {
-  return customFetch<LcscgGuidesResponse>(getGetLcscgGuidesUrl(), {
+): Promise<FernsEnvelope> => {
+  return customFetch<FernsEnvelope>(getGetLcscgGuidesUrl(), {
     ...options,
     method: "GET",
   });
@@ -5133,7 +5125,7 @@ export function useGetLcscgGuides<
 }
 
 /**
- * Returns all species records for the specified guide (Field Museum Guide ID 1271–1282). Each species record includes harvest notes, seed dispersal categories, photo date, plant family, and Cloudinary image URLs.
+ * Returns all species records for the specified guide (Field Museum Guide ID 1271–1282). Each species record includes harvest notes, seed dispersal categories, photo date, plant family, and Cloudinary image URLs. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
  * @summary Get species list for a single Lake County Seed Collection Guide
  */
@@ -5144,8 +5136,8 @@ export const getGetLcscgGuideUrl = (guideId: number) => {
 export const getLcscgGuide = async (
   guideId: number,
   options?: RequestInit,
-): Promise<LcscgGuideResponse> => {
-  return customFetch<LcscgGuideResponse>(getGetLcscgGuideUrl(guideId), {
+): Promise<FernsEnvelope> => {
+  return customFetch<FernsEnvelope>(getGetLcscgGuideUrl(guideId), {
     ...options,
     method: "GET",
   });
@@ -5222,7 +5214,7 @@ export function useGetLcscgGuide<
 }
 
 /**
- * Returns species records matching the given name (partial match against scientific_name and common_name, case-insensitive) across all 12 guides. Results include harvest notes, seed dispersal categories, photo date, plant family, guide context, and Cloudinary image URLs.
+ * Returns species records matching the given name (partial match against scientific_name and common_name, case-insensitive) across all 12 guides. Results include harvest notes, seed dispersal categories, photo date, plant family, guide context, and Cloudinary image URLs. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
  * @summary Search Lake County Seed Collection Guides species by name
  */
@@ -5245,8 +5237,8 @@ export const getGetLcscgSpeciesUrl = (params: GetLcscgSpeciesParams) => {
 export const getLcscgSpecies = async (
   params: GetLcscgSpeciesParams,
   options?: RequestInit,
-): Promise<LcscgSpeciesResponse> => {
-  return customFetch<LcscgSpeciesResponse>(getGetLcscgSpeciesUrl(params), {
+): Promise<FernsEnvelope> => {
+  return customFetch<FernsEnvelope>(getGetLcscgSpeciesUrl(params), {
     ...options,
     method: "GET",
   });
@@ -6280,7 +6272,7 @@ export function useGetSourceRelationships<
 }
 
 /**
- * Returns service identity, attribution, licenses and license notes, community class counts, county coverage, and cache statistics for the Michigan Natural Features Inventory (MNFI) service. Also seeds the MNFI entry in the FERNS source registry. Use this to populate 'About this data' panels in any application displaying MNFI community or county element data.
+ * Returns service identity, attribution, licenses and license notes, community class counts, county coverage, and cache statistics for the Michigan Natural Features Inventory (MNFI) service. Also seeds the MNFI entry in the FERNS source registry. Use this to populate 'About this data' panels in any application displaying MNFI community or county element data. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
  * @summary MNFI service metadata
  */
@@ -6290,8 +6282,8 @@ export const getGetMnfiMetadataUrl = () => {
 
 export const getMnfiMetadata = async (
   options?: RequestInit,
-): Promise<MnfiMetadataResponse> => {
-  return customFetch<MnfiMetadataResponse>(getGetMnfiMetadataUrl(), {
+): Promise<FernsEnvelope> => {
+  return customFetch<FernsEnvelope>(getGetMnfiMetadataUrl(), {
     ...options,
     method: "GET",
   });
@@ -6357,7 +6349,7 @@ export function useGetMnfiMetadata<
 }
 
 /**
- * Returns all Michigan Natural Features Inventory (MNFI) natural community types. Optionally filter by community class, group, or name substring (case-insensitive ILIKE match). All data is served from FERNS's local database seeded from the MNFI website — no upstream API call is made at query time. Returns community records sorted by class and name.
+ * Returns all Michigan Natural Features Inventory (MNFI) natural community types. Optionally filter by community class, group, or name substring (case-insensitive ILIKE match). All data is served from FERNS's local database seeded from the MNFI website — no upstream API call is made at query time. Returns community records sorted by class and name. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
  * @summary List MNFI natural community types
  */
@@ -6380,14 +6372,11 @@ export const getGetMnfiCommunitiesUrl = (params?: GetMnfiCommunitiesParams) => {
 export const getMnfiCommunities = async (
   params?: GetMnfiCommunitiesParams,
   options?: RequestInit,
-): Promise<MnfiCommunitiesResponse> => {
-  return customFetch<MnfiCommunitiesResponse>(
-    getGetMnfiCommunitiesUrl(params),
-    {
-      ...options,
-      method: "GET",
-    },
-  );
+): Promise<FernsEnvelope> => {
+  return customFetch<FernsEnvelope>(getGetMnfiCommunitiesUrl(params), {
+    ...options,
+    method: "GET",
+  });
 };
 
 export const getGetMnfiCommunitiesQueryKey = (
@@ -6459,7 +6448,7 @@ export function useGetMnfiCommunities<
 }
 
 /**
- * Returns the full profile for a single MNFI natural community type, including description, acreage estimates, and all characteristic plants grouped by life form. The {id} path parameter accepts either the numeric community_id (e.g. 1234) or the URL slug (e.g. southern-dry-chestnut-oak-forest). Plant lists are included inline — characteristic_plants.by_life_form groups species by life form (tree, shrub, herb, etc.).
+ * Returns the full profile for a single MNFI natural community type, including description, acreage estimates, and all characteristic plants grouped by life form. The {id} path parameter accepts either the numeric community_id (e.g. 1234) or the URL slug (e.g. southern-dry-chestnut-oak-forest). Plant lists are included inline — characteristic_plants.by_life_form groups species by life form (tree, shrub, herb, etc.). Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
  * @summary Get a single MNFI community by ID or slug
  */
@@ -6470,8 +6459,8 @@ export const getGetMnfiCommunityUrl = (id: string) => {
 export const getMnfiCommunity = async (
   id: string,
   options?: RequestInit,
-): Promise<MnfiCommunityResponse> => {
-  return customFetch<MnfiCommunityResponse>(getGetMnfiCommunityUrl(id), {
+): Promise<FernsEnvelope> => {
+  return customFetch<FernsEnvelope>(getGetMnfiCommunityUrl(id), {
     ...options,
     method: "GET",
   });
@@ -6548,7 +6537,7 @@ export function useGetMnfiCommunity<
 }
 
 /**
- * Returns the characteristic plant list for an MNFI natural community, grouped by life form (tree, shrub, herb, graminoid, vine, etc.). The {id} path parameter accepts either the numeric community_id or the URL slug. This is the same plant data included inline in the community detail endpoint, exposed as a dedicated endpoint for applications that only need plant lists.
+ * Returns the characteristic plant list for an MNFI natural community, grouped by life form (tree, shrub, herb, graminoid, vine, etc.). The {id} path parameter accepts either the numeric community_id or the URL slug. This is the same plant data included inline in the community detail endpoint, exposed as a dedicated endpoint for applications that only need plant lists. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
  * @summary Get characteristic plants for an MNFI community
  */
@@ -6559,14 +6548,11 @@ export const getGetMnfiCommunityPlantsUrl = (id: string) => {
 export const getMnfiCommunityPlants = async (
   id: string,
   options?: RequestInit,
-): Promise<MnfiCommunityPlantsResponse> => {
-  return customFetch<MnfiCommunityPlantsResponse>(
-    getGetMnfiCommunityPlantsUrl(id),
-    {
-      ...options,
-      method: "GET",
-    },
-  );
+): Promise<FernsEnvelope> => {
+  return customFetch<FernsEnvelope>(getGetMnfiCommunityPlantsUrl(id), {
+    ...options,
+    method: "GET",
+  });
 };
 
 export const getGetMnfiCommunityPlantsQueryKey = (id: string) => {
@@ -6641,7 +6627,7 @@ export function useGetMnfiCommunityPlants<
 }
 
 /**
- * Returns MNFI Element Occurrence records for a given Michigan county. These records document where significant natural features (rare species, natural communities) have been observed. The county parameter is required; all 83 Michigan county names are accepted (case-insensitive). Optionally filter to only species or community element types with the type parameter. Data is served from FERNS's local database seeded from the MNFI county element download — no upstream API call at query time.
+ * Returns MNFI Element Occurrence records for a given Michigan county. These records document where significant natural features (rare species, natural communities) have been observed. The county parameter is required; all 83 Michigan county names are accepted (case-insensitive). Optionally filter to only species or community element types with the type parameter. Data is served from FERNS's local database seeded from the MNFI county element download — no upstream API call at query time. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
  * @summary Get MNFI significant natural features for a Michigan county
  */
@@ -6666,14 +6652,11 @@ export const getGetMnfiCountyElementsUrl = (
 export const getMnfiCountyElements = async (
   params: GetMnfiCountyElementsParams,
   options?: RequestInit,
-): Promise<MnfiCountyElementsResponse> => {
-  return customFetch<MnfiCountyElementsResponse>(
-    getGetMnfiCountyElementsUrl(params),
-    {
-      ...options,
-      method: "GET",
-    },
-  );
+): Promise<FernsEnvelope> => {
+  return customFetch<FernsEnvelope>(getGetMnfiCountyElementsUrl(params), {
+    ...options,
+    method: "GET",
+  });
 };
 
 export const getGetMnfiCountyElementsQueryKey = (

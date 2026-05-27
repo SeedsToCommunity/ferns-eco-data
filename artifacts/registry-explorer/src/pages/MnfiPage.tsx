@@ -157,7 +157,8 @@ function PlantListPanel({ communityId, communitySlug }: { communityId: number; c
     setLoading(true);
     setError(null);
     setOpen(false);
-    fetch(`../api/mnfi/communities/${communityId}/plants`)
+    const apiBase = import.meta.env.BASE_URL.replace(/\/$/, "");
+    fetch(`${apiBase}/api/mnfi/communities/${communityId}/plants`)
       .then((r) => r.json())
       .then((d) => {
         setPlantData(d.data ?? null);
@@ -245,6 +246,7 @@ function PlantListPanel({ communityId, communitySlug }: { communityId: number; c
 }
 
 export default function MnfiPage() {
+  const apiBase = import.meta.env.BASE_URL.replace(/\/$/, "");
   const [communities, setCommunities] = useState<MnfiCommunity[] | null>(null);
   const [commLoading, setCommLoading] = useState(false);
   const [commError, setCommError] = useState<string | null>(null);
@@ -266,7 +268,7 @@ export default function MnfiPage() {
     setCommLoading(true);
     setCommError(null);
     try {
-      const res = await fetch("../api/mnfi/communities");
+      const res = await fetch(`${apiBase}/api/mnfi/communities`);
       const data = await res.json();
       setCommRaw(data);
       setCommunities(data.data?.communities ?? []);
@@ -284,7 +286,7 @@ export default function MnfiPage() {
     setCountyElements(null);
     setCountyData(null);
     try {
-      const res = await fetch(`../api/mnfi/county-elements?county=${encodeURIComponent(countyInput.trim())}`);
+      const res = await fetch(`${apiBase}/api/mnfi/county-elements?county=${encodeURIComponent(countyInput.trim())}`);
       const data = await res.json();
       setCountyData(data);
       setCountyElements(data.data?.elements ?? []);

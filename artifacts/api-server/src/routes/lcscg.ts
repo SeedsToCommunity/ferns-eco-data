@@ -11,52 +11,50 @@ import {
 } from "../services/lcscg/metadata.js";
 import { ensureLcscgRegistryEntry } from "../services/lcscg/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
-import { filterProvenance } from "../lib/provenance.js";
+import { buildEnvelope } from "@workspace/api-envelope";
+import { dbRegistryAccessor } from "../lib/registry-accessor.js";
 
 const router: IRouter = Router();
 
-function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
-  return {
-    source_id: LCSCG_SOURCE_ID,
-    fetched_at: new Date(),
-    method: "static_data",
-    upstream_url: resolveUrl(req, "/api/lcscg/guides"),
-    general_summary: LCSCG_GENERAL_SUMMARY,
-    technical_details: LCSCG_TECHNICAL_DETAILS,
-  };
-}
-
 router.get("/lcscg/metadata", async (req, res) => {
   await ensureLcscgRegistryEntry();
+
+  const queriedAt = new Date().toISOString();
 
   const [guideCount, speciesCount] = await Promise.all([
     db.$count(lcscgGuidesTable),
     db.$count(lcscgSpeciesTable),
   ]);
 
-  res.json({
-    service_id: LCSCG_SOURCE_ID,
-    service_name: LCSCG_REGISTRY_ENTRY.name,
-    licenses: LCSCG_LICENSES,
-    license_notes: LCSCG_LICENSE_NOTES,
-    guide_count: Number(guideCount),
-    species_count: Number(speciesCount),
-    registry_entry: {
-      ...LCSCG_REGISTRY_ENTRY,
-      metadata_url: resolveUrl(req, LCSCG_REGISTRY_ENTRY.metadata_url),
-      explorer_url: resolveUrl(req, LCSCG_REGISTRY_ENTRY.explorer_url),
+  res.json(await buildEnvelope({
+    sourceId: LCSCG_SOURCE_ID,
+    sourceKind: "in-memory",
+    found: true,
+    data: {
+      service_id: LCSCG_SOURCE_ID,
+      service_name: LCSCG_REGISTRY_ENTRY.name,
+      licenses: LCSCG_LICENSES,
+      license_notes: LCSCG_LICENSE_NOTES,
+      guide_count: Number(guideCount),
+      species_count: Number(speciesCount),
+      registry_entry: {
+        ...LCSCG_REGISTRY_ENTRY,
+        metadata_url: resolveUrl(req, LCSCG_REGISTRY_ENTRY.metadata_url),
+        explorer_url: resolveUrl(req, LCSCG_REGISTRY_ENTRY.explorer_url),
+      },
+      general_summary: LCSCG_GENERAL_SUMMARY,
+      technical_details: LCSCG_TECHNICAL_DETAILS,
     },
-    queried_at: new Date(),
-    provenance: {
-      ...buildProvenance(req),
-      upstream_url: resolveUrl(req, "/api/lcscg/metadata"),
-      method: "static_metadata",
-    },
-  });
+    method: "cache_hit",
+    cacheStatus: "hit",
+    sourceUrl: null,
+    queriedAt,
+  }, { registry: dbRegistryAccessor }));
 });
 
 router.get("/lcscg/guides", async (req, res) => {
-  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+  await ensureLcscgRegistryEntry();
+
   const guides = await db.select().from(lcscgGuidesTable).orderBy(lcscgGuidesTable.guide_id);
 
   const countRows = await db
@@ -70,27 +68,37 @@ router.get("/lcscg/guides", async (req, res) => {
     species_count: countMap.get(g.guide_id) ?? 0,
   }));
 
-  res.json({
+  res.json(await buildEnvelope({
+    sourceId: LCSCG_SOURCE_ID,
+    sourceKind: "in-memory",
     found: true,
-    queried_at: new Date(),
-    source_url: resolveUrl(req, "/api/lcscg/guides"),
-    provenance: filterProvenance(buildProvenance(req), verbosity),
     data: {
       guide_count: guides.length,
       guides: guidesWithCounts,
     },
-  });
+    method: "cache_hit",
+    cacheStatus: "hit",
+    sourceUrl: null,
+    queriedAt: new Date().toISOString(),
+  }, { registry: dbRegistryAccessor }));
 });
 
 router.get("/lcscg/guide/:guideId", async (req, res) => {
-  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+  await ensureLcscgRegistryEntry();
+
   const rawId = parseInt(req.params["guideId"] ?? "", 10);
 
   if (isNaN(rawId)) {
-    res.status(400).json({
-      error: "invalid_input",
-      message: "guideId must be an integer between 1271 and 1282",
-    });
+    res.status(400).json(await buildEnvelope({
+      sourceId: LCSCG_SOURCE_ID,
+      sourceKind: "in-memory",
+      found: false,
+      data: { error: "invalid_input", message: "guideId must be an integer between 1271 and 1282" },
+      method: "computed",
+      cacheStatus: "bypass",
+      sourceUrl: null,
+      queriedAt: new Date().toISOString(),
+    }, { registry: dbRegistryAccessor }));
     return;
   }
 
@@ -101,13 +109,16 @@ router.get("/lcscg/guide/:guideId", async (req, res) => {
     .limit(1);
 
   if (!guide) {
-    res.json({
+    res.json(await buildEnvelope({
+      sourceId: LCSCG_SOURCE_ID,
+      sourceKind: "in-memory",
       found: false,
-      queried_at: new Date(),
-      source_url: resolveUrl(req, `/api/lcscg/guide/${rawId}`),
-      provenance: filterProvenance({ ...buildProvenance(req), matched_input: rawId }, verbosity),
       data: null,
-    });
+      method: "cache_hit",
+      cacheStatus: "hit",
+      sourceUrl: null,
+      queriedAt: new Date().toISOString(),
+    }, { registry: dbRegistryAccessor }));
     return;
   }
 
@@ -117,28 +128,38 @@ router.get("/lcscg/guide/:guideId", async (req, res) => {
     .where(eq(lcscgSpeciesTable.guide_id, rawId))
     .orderBy(lcscgSpeciesTable.page_number, lcscgSpeciesTable.species_id);
 
-  res.json({
+  res.json(await buildEnvelope({
+    sourceId: LCSCG_SOURCE_ID,
+    sourceKind: "in-memory",
     found: true,
-    queried_at: new Date(),
-    source_url: resolveUrl(req, `/api/lcscg/guide/${rawId}`),
-    provenance: filterProvenance({ ...buildProvenance(req), matched_input: rawId }, verbosity),
     data: {
       guide,
       species_count: species.length,
       species,
     },
-  });
+    method: "cache_hit",
+    cacheStatus: "hit",
+    sourceUrl: null,
+    queriedAt: new Date().toISOString(),
+  }, { registry: dbRegistryAccessor }));
 });
 
 router.get("/lcscg/species", async (req, res) => {
-  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
+  await ensureLcscgRegistryEntry();
+
   const nameParam = req.query["name"];
 
   if (!nameParam || typeof nameParam !== "string" || nameParam.trim() === "") {
-    res.status(400).json({
-      error: "invalid_input",
-      message: "name query parameter is required (scientific name, partial match supported)",
-    });
+    res.status(400).json(await buildEnvelope({
+      sourceId: LCSCG_SOURCE_ID,
+      sourceKind: "in-memory",
+      found: false,
+      data: { error: "invalid_input", message: "name query parameter is required (scientific name, partial match supported)" },
+      method: "computed",
+      cacheStatus: "bypass",
+      sourceUrl: null,
+      queriedAt: new Date().toISOString(),
+    }, { registry: dbRegistryAccessor }));
     return;
   }
 
@@ -175,17 +196,20 @@ router.get("/lcscg/species", async (req, res) => {
     )
     .orderBy(lcscgSpeciesTable.scientific_name);
 
-  res.json({
+  res.json(await buildEnvelope({
+    sourceId: LCSCG_SOURCE_ID,
+    sourceKind: "in-memory",
     found: records.length > 0,
-    queried_at: new Date(),
-    source_url: resolveUrl(req, `/api/lcscg/species`),
-    provenance: filterProvenance({ ...buildProvenance(req), matched_input: name }, verbosity),
     data: {
       queried_name: name,
       result_count: records.length,
       records,
     },
-  });
+    method: "cache_hit",
+    cacheStatus: "hit",
+    sourceUrl: null,
+    queriedAt: new Date().toISOString(),
+  }, { registry: dbRegistryAccessor }));
 });
 
 export default router;

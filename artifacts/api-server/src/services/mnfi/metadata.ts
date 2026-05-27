@@ -86,6 +86,15 @@ export const MNFI_REGISTRY_ENTRY = {
   explorer_url: "/source/mnfi",
   licenses: MNFI_LICENSES,
   license_notes: MNFI_LICENSE_NOTES,
+  license: "cc-by",
+  rights:
+    "CC BY — attribution required. Data published by Michigan Natural Features Inventory (MNFI), " +
+    "a research program of Michigan State University Extension, at mnfi.anr.msu.edu. " +
+    "Cite: Cohen et al. (2025), MNFI Natural Community Classification.",
+  website_url_patterns: {
+    community: "https://mnfi.anr.msu.edu/communities/{community_id}/{slug}",
+    plant_list: "https://mnfi.anr.msu.edu/communities/plant-list/{community_id}/{slug}",
+  },
   general_summary: MNFI_GENERAL_SUMMARY,
   technical_details:
     MNFI_TECHNICAL_DETAILS +
@@ -94,6 +103,12 @@ export const MNFI_REGISTRY_ENTRY = {
     "POST /api/mnfi/import-descriptions, POST /api/mnfi/import-plant-lists, POST /api/mnfi/import-county-elements. " +
     "Requires ADMIN_SECRET environment variable to be set. " +
     "Subsequent startups skip the import if data is already present (idempotent check on description_fetched_at).",
-  non_passthrough_endpoints: [{ endpoint: "/api/mnfi/metadata", kind: "metadata" }],
+  non_passthrough_endpoints: [
+    { endpoint: "/api/mnfi/metadata", kind: "metadata" },
+    { endpoint: "/api/mnfi/import-communities", kind: "admin" },
+    { endpoint: "/api/mnfi/import-descriptions", kind: "admin" },
+    { endpoint: "/api/mnfi/import-plant-lists", kind: "admin" },
+    { endpoint: "/api/mnfi/import-county-elements", kind: "admin" },
+  ],
   permission_granted: true,
 };
