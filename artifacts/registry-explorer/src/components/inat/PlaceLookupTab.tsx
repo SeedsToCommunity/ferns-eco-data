@@ -20,7 +20,7 @@ export function PlaceLookupTab({ onPlaceSelected }: PlaceLookupTabProps) {
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
   const { data: metaResponse } = useGetInatMetadata();
-  const urlPatterns = metaResponse?.data as { website_url_patterns?: { place?: string; taxon?: string; observation?: string } } | undefined;
+  const urlPatterns = (metaResponse as Record<string, unknown> | undefined)?.["data"] as { website_url_patterns?: { place?: string; taxon?: string; observation?: string } } | undefined;
   const placeUrlPattern = urlPatterns?.website_url_patterns?.place ?? "https://www.inaturalist.org/places/{id}";
 
   const enabled = !!query;

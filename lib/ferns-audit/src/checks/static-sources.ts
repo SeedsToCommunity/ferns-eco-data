@@ -1047,55 +1047,48 @@ export async function runSpeciesTextChecks(fernsBase: string): Promise<EndpointC
   function speciesTextChecks(source: string) {
     return (envelope: Record<string, unknown>): FieldFinding[] => {
       const findings: FieldFinding[] = [];
-      // found field
-      if (typeof envelope.found === "boolean") {
-        findings.push({ type: "ok", sourceField: "found", note: `found=${envelope.found}` });
-      } else {
-        findings.push({ type: "mismatch", sourceField: "found", note: "found field missing or not boolean" });
-      }
-      // cache_status
-      const validStatuses = ["hit", "fresh", "miss", "error"];
-      if (typeof envelope.cache_status === "string" && validStatuses.includes(envelope.cache_status)) {
-        findings.push({ type: "ok", sourceField: "cache_status", note: `cache_status=${envelope.cache_status}` });
-      } else {
-        findings.push({ type: "mismatch", sourceField: "cache_status", note: `cache_status missing or invalid: ${envelope.cache_status}` });
-      }
-      // scraped_at and expires_at only required when found=true
-      if (envelope.found === true) {
-        if (envelope.scraped_at) {
-          findings.push({ type: "ok", sourceField: "scraped_at", note: `scraped_at=${envelope.scraped_at}` });
-        } else {
-          findings.push({ type: "mismatch", sourceField: "scraped_at", note: "scraped_at missing when found=true" });
-        }
-        if (envelope.expires_at) {
-          findings.push({ type: "ok", sourceField: "expires_at", note: `expires_at=${envelope.expires_at}` });
-        } else {
-          findings.push({ type: "mismatch", sourceField: "expires_at", note: "expires_at missing when found=true" });
-        }
-        // sections array
-        const sections = envelope.sections;
-        if (Array.isArray(sections) && sections.length > 0) {
-          findings.push({ type: "ok", sourceField: "sections", note: `${sections.length} section(s) returned` });
-          const firstSection = sections[0] as Record<string, unknown> | undefined;
-          if (firstSection && typeof firstSection.heading === "string" && typeof firstSection.text === "string") {
-            findings.push({ type: "ok", sourceField: "sections[0]", note: `heading="${firstSection.heading}" present` });
-          } else {
-            findings.push({ type: "mismatch", sourceField: "sections[0]", note: "first section missing heading or text fields" });
-          }
-        } else if (Array.isArray(sections) && sections.length === 0) {
-          findings.push({ type: "gap", sourceField: "sections", note: `found=true but sections is empty — scraper may not have extracted any content` });
-        } else {
-          findings.push({ type: "mismatch", sourceField: "sections", note: "sections field missing or not an array" });
-        }
-      } else {
-        findings.push({ type: "ok", sourceField: "sections", note: `species not found on ${source} — sections check skipped` });
-      }
-      // provenance
+      // found field — checked by envelopeFindings; add source-specific note
+      findings.push({
+        type: "ok",
+        sourceField: "found",
+        note: `found=${envelope.found} (${source} species-text)`,
+      });
+      // cache_status is now in provenance (checked by envelopeFindings for presence).
+      // Verify the value is a valid scraped-text cache status.
       const prov = envelope.provenance as Record<string, unknown> | null | undefined;
-      if (prov && prov.source_id) {
-        findings.push({ type: "ok", sourceField: "provenance.source_id", note: `${prov.source_id}` });
+      const cacheStatus = prov?.cache_status as string | undefined;
+      const validStatuses = ["hit", "miss", "bypass"];
+      if (typeof cacheStatus === "string" && validStatuses.includes(cacheStatus)) {
+        findings.push({ type: "ok", sourceField: "provenance.cache_status", note: `cache_status=${cacheStatus}` });
       } else {
-        findings.push({ type: "mismatch", sourceField: "provenance", note: "provenance.source_id missing" });
+        findings.push({ type: "mismatch", sourceField: "provenance.cache_status", note: `invalid scraped-text cache_status: ${cacheStatus}` });
+      }
+      // data.scraped_at and data.sections only required when found=true
+      if (envelope.found === true) {
+        const data = envelope.data as Record<string, unknown> | null | undefined;
+        if (!data) {
+          findings.push({ type: "mismatch", sourceField: "data", note: "data missing when found=true" });
+          return findings;
+        }
+        if (data.scraped_at) {
+          findings.push({ type: "ok", sourceField: "data.scraped_at", note: `scraped_at=${data.scraped_at}` });
+        } else {
+          findings.push({ type: "mismatch", sourceField: "data.scraped_at", note: "data.scraped_at missing when found=true" });
+        }
+        // sections is Record<string, string> in envelope data (not an array)
+        const sections = data.sections;
+        if (sections && typeof sections === "object" && !Array.isArray(sections)) {
+          const keys = Object.keys(sections as object);
+          if (keys.length > 0) {
+            findings.push({ type: "ok", sourceField: "data.sections", note: `${keys.length} section(s) returned` });
+          } else {
+            findings.push({ type: "gap", sourceField: "data.sections", note: `found=true but data.sections is empty — scraper may not have extracted any content` });
+          }
+        } else {
+          findings.push({ type: "mismatch", sourceField: "data.sections", note: "data.sections missing or not an object" });
+        }
+      } else {
+        findings.push({ type: "ok", sourceField: "data.sections", note: `species not found on ${source} — sections check skipped` });
       }
       return findings;
     };

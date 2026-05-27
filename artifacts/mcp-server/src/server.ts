@@ -1208,7 +1208,7 @@ const tools: ToolDef[] = [
     tool: {
       name: "gobotany__species_text",
       description:
-        "Fetches and returns the full scraped text from the Go Botany species page for a plant, organized into named sections (Facts, Habitat, Characteristics). Results are cached after the first fetch; use refresh=true to force a live re-scrape. Returns cache_status (hit/miss/not_in_species_list) and scraped_at timestamp alongside the text content.",
+        "Fetches and returns the full scraped text from the Go Botany species page for a plant, organized into named sections (Facts, Habitat, Characteristics). Results are cached after the first fetch; use refresh=true to force a live re-scrape. Scrape status is reported in provenance.cache_status (hit=cached, miss=live scrape). The scraped_at timestamp is in data.scraped_at.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -1274,7 +1274,7 @@ const tools: ToolDef[] = [
     tool: {
       name: "illinois_wildflowers__species_text",
       description:
-        "Fetches and returns the full scraped text from the Illinois Wildflowers species page for a plant, organized into named sections (Description, Faunal Associations, Photographic Location, etc.). Results are cached after the first fetch; use refresh=true to force a live re-scrape. Returns cache_status (hit/miss/not_in_species_list) and scraped_at timestamp alongside the text content.",
+        "Fetches and returns the full scraped text from the Illinois Wildflowers species page for a plant, organized into named sections (Description, Faunal Associations, Photographic Location, etc.). Results are cached after the first fetch; use refresh=true to force a live re-scrape. Scrape status is reported in provenance.cache_status (hit=cached, miss=live scrape, bypass=species not in imported list). The scraped_at timestamp is in data.scraped_at.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -1371,7 +1371,7 @@ const tools: ToolDef[] = [
     tool: {
       name: "minnesota_wildflowers__species_text",
       description:
-        "Fetches and returns the full scraped text from the Minnesota Wildflowers species page for a plant, including quick-facts table entries and prose sections. Results are cached after the first fetch; use refresh=true to force a live re-scrape. Returns cache_status (hit/miss/not_in_species_list) and scraped_at timestamp alongside the text content.",
+        "Fetches and returns the full scraped text from the Minnesota Wildflowers species page for a plant, including quick-facts table entries and prose sections. Results are cached after the first fetch; use refresh=true to force a live re-scrape. Scrape status is reported in provenance.cache_status (hit=cached, miss=live scrape, bypass=species not in imported list). The scraped_at timestamp is in data.scraped_at.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -1415,7 +1415,7 @@ const tools: ToolDef[] = [
     tool: {
       name: "missouri_plants__species_text",
       description:
-        "Fetches and returns the full scraped text from the Missouri Plants species page for a plant, including description paragraphs and the stats block (Coefficient of Conservatism, Wetland Indicator, Missouri county occurrence count). Results are cached after the first fetch; use refresh=true to force a live re-scrape. Returns cache_status (hit/miss/not_in_species_list) and scraped_at timestamp alongside the text content.",
+        "Fetches and returns the full scraped text from the Missouri Plants species page for a plant, including description paragraphs and the stats block (Coefficient of Conservatism, Wetland Indicator, Missouri county occurrence count). Results are cached after the first fetch; use refresh=true to force a live re-scrape. Scrape status is reported in provenance.cache_status (hit=cached, miss=live scrape, bypass=species not in imported list). The scraped_at timestamp is in data.scraped_at.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -1607,7 +1607,7 @@ const tools: ToolDef[] = [
     tool: {
       name: "prairie_moon__species_text",
       description:
-        "Fetches and returns the full scraped ecological text from the Prairie Moon Nursery species page for a plant, including the product description and growing attributes (Sun, Soil, Moisture, Bloom Color, Bloom Time, Height, Plant Spacing, etc.). Commerce fields (price, SKU, availability) are filtered out. Results are cached after the first fetch; use refresh=true to force a live re-scrape. Returns cache_status (hit/miss/not_in_species_list) and scraped_at timestamp alongside the text content.",
+        "Fetches and returns the full scraped ecological text from the Prairie Moon Nursery species page for a plant, including the product description and growing attributes (Sun, Soil, Moisture, Bloom Color, Bloom Time, Height, Plant Spacing, etc.). Commerce fields (price, SKU, availability) are filtered out. Results are cached after the first fetch; use refresh=true to force a live re-scrape. Scrape status is reported in provenance.cache_status (hit=cached, miss=live scrape, bypass=species not in imported list). The scraped_at timestamp is in data.scraped_at.",
       inputSchema: {
         type: "object" as const,
         properties: {

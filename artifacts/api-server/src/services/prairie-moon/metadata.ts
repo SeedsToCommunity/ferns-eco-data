@@ -1,5 +1,14 @@
 export const PRAIRIE_MOON_SOURCE_ID = "prairie-moon";
 
+export const PRAIRIE_MOON_LICENSE = "proprietary";
+
+export const PRAIRIE_MOON_RIGHTS =
+  "Content from prairiemoon.com is © Prairie Moon Nursery. All rights reserved. FERNS access is read-only for informational purposes. No reproduction or redistribution is permitted without authorization from Prairie Moon Nursery.";
+
+export const PRAIRIE_MOON_WEBSITE_URL_PATTERNS = {
+  species_page: "https://www.prairiemoon.com/{genus}-{species}-{common-name-slug}/",
+};
+
 export const PRAIRIE_MOON_LICENSES = ["proprietary"];
 
 export const PRAIRIE_MOON_LICENSE_NOTES =
@@ -20,7 +29,7 @@ export const PRAIRIE_MOON_GENERAL_SUMMARY =
   "and does not include distribution data, nativity status, or conservation rankings. " +
   "FERNS also provides a species-text endpoint that fetches and parses the full Prairie Moon plant page HTML, " +
   "extracting named prose sections (Description, Culture, Wildlife Value, Comments, and more) " +
-  "and caching the result for 7 days in the local database; the cache can be bypassed with refresh=true.";
+  "and caching the result permanently in the local database; the cache can be bypassed with refresh=true.";
 
 export const PRAIRIE_MOON_TECHNICAL_DETAILS =
   "Primary source: https://www.prairiemoon.com/sitemap.xml. Operator: Prairie Moon Nursery, Winona, MN (prairiemoon.com). " +
@@ -32,20 +41,11 @@ export const PRAIRIE_MOON_TECHNICAL_DETAILS =
   "unique on (site_id, scientific_name, section)). " +
   "Caching: full import on demand via POST /api/prairie-moon/import (admin-protected); no TTL; data is permanent until re-imported. " +
   "Auto-import on startup when the botanical_species_lists table has no Prairie Moon rows. " +
-  "FERNS returns: found (bool), species (inferred scientific name string), url (direct plant page URL string), " +
-  "validation_method = 'species_list_lookup', imported_at (timestamp). " +
   "Lookup method: ILIKE match on scientific_name column — case-insensitive, no fuzzy matching, exact binomial required. " +
-  "Coverage: ~970 plant URLs across vascular plants (wildflowers, grasses, sedges, ferns, and woody plants) commercially " +
-  "available from Prairie Moon Nursery at time of last import. Geographic focus: Upper Midwest and Great Plains. " +
-  "Known limitation: URL slug spelling may not match current accepted taxonomy — synonyms and older names not yet updated " +
-  "on the Prairie Moon site will not match. " +
-  "Prairie Moon is a nursery catalog, not a scientific taxonomic authority. It does not provide distribution data, " +
-  "nativity status, conservation status, or C-values. " +
+  "Coverage: ~970 plant URLs across vascular plants commercially available from Prairie Moon Nursery at time of last import. " +
   "Species-text endpoint: GET /api/prairie-moon/species-text?species={binomial}&refresh={bool}. " +
-  "Uses the stored Prairie Moon plant page URL to fetch HTML; extracts prose sections from the Prairie Moon product page layout. " +
-  "Cache: DB table species_page_text_cache (site_id, species_name, sections JSONB, full_text text, scraped_at, expires_at); " +
-  "TTL 7 days; refresh=true bypasses cache and re-scrapes. " +
-  "Returns: found, cache_status (hit|fresh|miss|error), scraped_at, expires_at, sections (array of {heading, text}).";
+  "Cache: permanent (no TTL); refresh=true bypasses cache and re-scrapes. " +
+  "Envelope: FERNS Envelope Contract v1; permission_granted=false for species-text (scraped_text endpoint).";
 
 export const PRAIRIE_MOON_REGISTRY_ENTRY = {
   source_id: PRAIRIE_MOON_SOURCE_ID,
@@ -58,7 +58,7 @@ export const PRAIRIE_MOON_REGISTRY_ENTRY = {
   input_summary: "Scientific name (binomial or trinomial with subsp./var.)",
   output_summary:
     "Direct URL to the Prairie Moon Nursery plant page, or found: false if not in the catalog (base endpoint); " +
-    "or parsed prose sections from the plant page (species-text endpoint: found, cache_status, scraped_at, expires_at, sections[])",
+    "or parsed prose sections from the plant page via provenance envelope (species-text endpoint)",
   dependencies: [] as string[],
   update_frequency:
     "Manual re-import via admin endpoint. Sitemap re-parsed and database updated when triggered.",
@@ -70,8 +70,14 @@ export const PRAIRIE_MOON_REGISTRY_ENTRY = {
   explorer_url: "/source/prairie-moon",
   licenses: PRAIRIE_MOON_LICENSES,
   license_notes: PRAIRIE_MOON_LICENSE_NOTES,
+  license: PRAIRIE_MOON_LICENSE,
+  rights: PRAIRIE_MOON_RIGHTS,
+  website_url_patterns: PRAIRIE_MOON_WEBSITE_URL_PATTERNS,
   general_summary: PRAIRIE_MOON_GENERAL_SUMMARY,
   technical_details: PRAIRIE_MOON_TECHNICAL_DETAILS,
-  non_passthrough_endpoints: [{ endpoint: "/api/prairie-moon/metadata", kind: "metadata" }],
+  non_passthrough_endpoints: [
+    { endpoint: "/api/prairie-moon/metadata", kind: "metadata" },
+    { endpoint: "/api/prairie-moon/species-text", kind: "scraped_text" },
+  ],
   permission_granted: true,
 };

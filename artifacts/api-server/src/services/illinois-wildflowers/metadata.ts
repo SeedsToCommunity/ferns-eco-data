@@ -1,5 +1,14 @@
 export const ILLINOIS_WILDFLOWERS_SOURCE_ID = "illinois-wildflowers";
 
+export const ILLINOIS_WILDFLOWERS_LICENSE = "all-rights-reserved";
+
+export const ILLINOIS_WILDFLOWERS_RIGHTS =
+  "Content from illinoiswildflowers.info is © John Hilty. All rights reserved. No explicit license is published; FERNS access is read-only for non-commercial research purposes. Reproduction or redistribution requires permission from the author.";
+
+export const ILLINOIS_WILDFLOWERS_WEBSITE_URL_PATTERNS = {
+  species_page: "https://www.illinoiswildflowers.info/{section}/plants/{common-name-slug}.htm",
+};
+
 export const ILLINOIS_WILDFLOWERS_LICENSES: string[] = [];
 
 export const ILLINOIS_WILDFLOWERS_LICENSE_NOTES =
@@ -21,8 +30,8 @@ export const ILLINOIS_WILDFLOWERS_GENERAL_SUMMARY =
   "The index reflects the site at the time of the last admin-triggered import. " +
   "Nomenclature follows the site's own taxonomy, which may differ from current accepted names. " +
   "FERNS also provides a species-text endpoint that fetches and parses the full Illinois Wildflowers species page HTML, " +
-  "extracting named prose sections (Description, Habitat & Light, Origin, Faunal Associations, Photographic Location, and more) " +
-  "and caching the result for 7 days in the local database; the cache can be bypassed with refresh=true.";
+  "extracting named prose sections (Description, Habitat & Light, Origin, Faunal Associations, and more) " +
+  "and caching the result permanently in the local database; the cache can be bypassed with refresh=true.";
 
 export const ILLINOIS_WILDFLOWERS_TECHNICAL_DETAILS =
   "Primary sources: eight habitat section indexes at https://www.illinoiswildflowers.info/{section}/{index}: " +
@@ -36,14 +45,10 @@ export const ILLINOIS_WILDFLOWERS_TECHNICAL_DETAILS =
   "Lookup method: ILIKE match on scientific_name; may return multiple rows for different habitat sections. " +
   "Method: species_list_scrape (multi-section) with DB lookup. " +
   "DB table: botanical_species_lists (columns: id serial PK, site_id text, scientific_name text, url text, section text, imported_at; " +
-  "unique on (site_id, scientific_name, section)). Coverage: ~1,459 entries across 8 habitat sections; " +
-  "many species appear in multiple sections, yielding more DB rows than unique species. " +
-  "Illinois Wildflowers does not provide distribution data, conservation ranks, C-values, or nursery availability. " +
+  "unique on (site_id, scientific_name, section)). Coverage: ~1,459 entries across 8 habitat sections. " +
   "Species-text endpoint: GET /api/illinois-wildflowers/species-text?species={binomial}&refresh={bool}. " +
-  "Uses the first stored URL for the species to fetch the page HTML; extracts prose sections from the Illinois Wildflowers page layout. " +
-  "Cache: DB table species_page_text_cache (site_id, species_name, sections JSONB, full_text text, scraped_at, expires_at); " +
-  "TTL 7 days; refresh=true bypasses cache and re-scrapes. " +
-  "Returns: found, cache_status (hit|fresh|miss|error), scraped_at, expires_at, sections (array of {heading, text}).";
+  "Cache: permanent (no TTL); refresh=true bypasses cache and re-scrapes. " +
+  "Envelope: FERNS Envelope Contract v1; permission_granted=false for species-text (scraped_text endpoint).";
 
 export const ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY = {
   source_id: ILLINOIS_WILDFLOWERS_SOURCE_ID,
@@ -56,7 +61,7 @@ export const ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY = {
   input_summary: "Scientific name (binomial: genus + species epithet)",
   output_summary:
     "Direct URL(s) to Illinois Wildflowers species page(s), one per habitat section in which the species appears (base endpoint); " +
-    "or parsed prose sections from the species page (species-text endpoint: found, cache_status, scraped_at, expires_at, sections[])",
+    "or parsed prose sections from the species page via provenance envelope (species-text endpoint)",
   dependencies: [] as string[],
   update_frequency:
     "Manual re-import via admin endpoint. All eight section indexes are re-scraped when triggered.",
@@ -69,8 +74,14 @@ export const ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY = {
   explorer_url: "/source/illinois-wildflowers",
   licenses: ILLINOIS_WILDFLOWERS_LICENSES,
   license_notes: ILLINOIS_WILDFLOWERS_LICENSE_NOTES,
+  license: ILLINOIS_WILDFLOWERS_LICENSE,
+  rights: ILLINOIS_WILDFLOWERS_RIGHTS,
+  website_url_patterns: ILLINOIS_WILDFLOWERS_WEBSITE_URL_PATTERNS,
   general_summary: ILLINOIS_WILDFLOWERS_GENERAL_SUMMARY,
   technical_details: ILLINOIS_WILDFLOWERS_TECHNICAL_DETAILS,
-  non_passthrough_endpoints: [{ endpoint: "/api/illinois-wildflowers/metadata", kind: "metadata" }],
+  non_passthrough_endpoints: [
+    { endpoint: "/api/illinois-wildflowers/metadata", kind: "metadata" },
+    { endpoint: "/api/illinois-wildflowers/species-text", kind: "scraped_text" },
+  ],
   permission_granted: true,
 };

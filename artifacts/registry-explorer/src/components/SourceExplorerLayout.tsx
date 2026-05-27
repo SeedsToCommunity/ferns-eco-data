@@ -192,6 +192,22 @@ export function SourceExplorerLayout({ sourceId, children }: SourceExplorerLayou
               {source.license_notes && (
                 <MetaRow label="License Notes" value={source.license_notes} />
               )}
+              {(() => {
+                const patterns = (source as unknown as { website_url_patterns?: Record<string, string> }).website_url_patterns;
+                return patterns && Object.keys(patterns).length > 0 ? (
+                  <div className="flex gap-4 py-2.5 border-b border-border/40 last:border-0">
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider w-44 shrink-0 pt-0.5">URL Patterns</span>
+                    <div className="flex flex-col gap-1 flex-1">
+                      {Object.entries(patterns).map(([key, pattern]) => (
+                        <div key={key} className="flex items-start gap-2">
+                          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border/50 shrink-0 mt-0.5">{key}</span>
+                          <span className="text-xs font-mono text-foreground/70 break-all">{pattern}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null;
+              })()}
               {source.dependencies && source.dependencies.length > 0 && (
                 <MetaRow label="Dependencies" value={source.dependencies.join(", ")} />
               )}

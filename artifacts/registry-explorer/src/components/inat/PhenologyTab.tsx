@@ -178,7 +178,13 @@ export function PhenologyTab({
 
   const annotationsAvailable = stagesSet.size > 0;
   const hasResponse = !!(histResponse && fvResponse);
-  const sourceUrl = histResponse?.provenance?.source_url ?? fvResponse?.provenance?.source_url;
+  const histProv = histResponse?.provenance as unknown as Record<string, unknown> | undefined;
+  const fvProv = fvResponse?.provenance as unknown as Record<string, unknown> | undefined;
+  const sourceUrl =
+    (histProv?.["source_url"] as string | undefined) ??
+    (fvProv?.["source_url"] as string | undefined);
+  const histCacheStatus = histProv?.["cache_status"] as string | undefined;
+  const fvCacheStatus = fvProv?.["cache_status"] as string | undefined;
 
   return (
     <div className="space-y-6">
@@ -372,19 +378,19 @@ export function PhenologyTab({
           )}
 
           <div className="flex gap-4 text-xs text-muted-foreground px-1">
-            {histResponse?.provenance?.cache_status && (
+            {histCacheStatus && (
               <span>
                 Histogram:{" "}
                 <span className="capitalize px-1.5 py-0.5 rounded bg-muted border border-border">
-                  {histResponse.provenance.cache_status}
+                  {histCacheStatus}
                 </span>
               </span>
             )}
-            {fvResponse?.provenance?.cache_status && (
+            {fvCacheStatus && (
               <span>
                 Field values:{" "}
                 <span className="capitalize px-1.5 py-0.5 rounded bg-muted border border-border">
-                  {fvResponse.provenance.cache_status}
+                  {fvCacheStatus}
                 </span>
               </span>
             )}

@@ -38,7 +38,6 @@ interface StandardResult {
   url: string;
   validation_method: string;
   http_status?: number;
-  cache_hit?: boolean;
 }
 
 interface SearchOnlyResult {
@@ -64,26 +63,30 @@ interface MultiSectionResult {
 
 interface SpeciesTextData {
   species: string;
-  url: string;
+  url: string | null;
   sections: Record<string, string> | null;
   full_text: string | null;
-}
-
-interface FernsResponse {
-  found: boolean;
-  queried_at?: string;
-  data?: StandardResult | SearchOnlyResult | MultiSectionResult | null;
-  provenance?: Record<string, unknown>;
-}
-
-interface SpeciesTextResponse {
-  found: boolean;
-  cache_status: "hit" | "miss" | "not_in_species_list";
   scraped_at?: string;
   fetch_error?: string;
+}
+
+interface Provenance {
+  source_id?: string;
+  source_url?: string | null;
+  method?: string;
+  cache_status?: string;
   queried_at?: string;
-  data?: SpeciesTextData | null;
-  provenance?: Record<string, unknown>;
+  license?: string;
+  rights?: string;
+  [key: string]: unknown;
+}
+
+interface FernsEnvelope {
+  found: boolean;
+  permission_granted?: boolean;
+  pagination?: null;
+  provenance?: Provenance;
+  data?: StandardResult | SearchOnlyResult | MultiSectionResult | SpeciesTextData | null;
 }
 
 // ── Shared sub-components ─────────────────────────────────────────────────────
@@ -126,12 +129,12 @@ function ResultDisplay({
 }: {
   sourceId: string;
   sourceName: string;
-  result: FernsResponse;
+  result: FernsEnvelope;
 }) {
   const data = result.data;
 
   // Multi-section result (Illinois Wildflowers base endpoint)
-  if (data && "results" in data && Array.isArray(data.results)) {
+  if (data && "results" in data && Array.isArray((data as MultiSectionResult).results)) {
     const multiData = data as MultiSectionResult;
     return (
       <div className="space-y-3">
@@ -162,7 +165,7 @@ function ResultDisplay({
   }
 
   // Search-only result (USDA Plants, Lady Bird Johnson)
-  if (data && "search_url" in data && data.search_url) {
+  if (data && "search_url" in data && (data as SearchOnlyResult).search_url) {
     const searchData = data as SearchOnlyResult;
     return (
       <div className="space-y-3">
@@ -189,7 +192,7 @@ function ResultDisplay({
   }
 
   // Standard found result
-  if (result.found && data && "url" in data && data.url) {
+  if (result.found && data && "url" in data && (data as StandardResult).url) {
     const stdData = data as StandardResult;
     return (
       <div className="space-y-3">
@@ -208,7 +211,7 @@ function ResultDisplay({
           <ExternalLink className="w-3.5 h-3.5 shrink-0" />
           {stdData.url}
         </a>
-        {result.provenance && "cache_hit" in result.provenance && result.provenance.cache_hit === true && (
+        {result.provenance?.cache_status === "hit" && (
           <p className="text-xs text-muted-foreground">Result served from cache.</p>
         )}
       </div>
@@ -229,7 +232,7 @@ function ResultDisplay({
 
 // ── Result display for species-text sources ───────────────────────────────────
 
-function CacheStatusBadge({ status }: { status: SpeciesTextResponse["cache_status"] }) {
+function CacheStatusBadge({ status }: { status: string | undefined }) {
   if (status === "hit") {
     return (
       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-500/10 text-blue-600 border border-blue-500/20">
@@ -254,7 +257,7 @@ function SpeciesTextDisplay({
   result,
 }: {
   sourceName: string;
-  result: SpeciesTextResponse;
+  result: FernsEnvelope;
 }) {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
 
@@ -267,8 +270,11 @@ function SpeciesTextDisplay({
     });
   }
 
-  // Not in species list
-  if (result.cache_status === "not_in_species_list") {
+  const cacheStatus = result.provenance?.cache_status;
+  const textData = result.data as SpeciesTextData | null | undefined;
+
+  // Not in species list — species not in our imported index (method=computed)
+  if (!result.found && result.provenance?.method === "computed") {
     return (
       <div className="flex items-center gap-2">
         <XCircle className="w-4 h-4 text-muted-foreground shrink-0" />
@@ -280,14 +286,14 @@ function SpeciesTextDisplay({
   }
 
   // Fetch error (transient — not cached)
-  if (result.fetch_error) {
+  if (textData?.fetch_error) {
     return (
       <div className="space-y-2">
         <div className="flex items-center gap-2">
           <XCircle className="w-4 h-4 text-destructive shrink-0" />
           <span className="text-sm font-medium text-destructive">Upstream fetch failed</span>
         </div>
-        <p className="text-xs text-muted-foreground">{result.fetch_error}</p>
+        <p className="text-xs text-muted-foreground">{textData.fetch_error}</p>
         <p className="text-xs text-muted-foreground">This result was not cached — retrying will attempt a fresh scrape.</p>
       </div>
     );
@@ -305,12 +311,11 @@ function SpeciesTextDisplay({
     );
   }
 
-  const data = result.data;
-  if (!data) return null;
+  if (!textData) return null;
 
-  const sections = data.sections ? Object.entries(data.sections) : [];
-  const scrapedAt = result.scraped_at
-    ? new Date(result.scraped_at).toLocaleString()
+  const sections = textData.sections ? Object.entries(textData.sections) : [];
+  const scrapedAt = textData.scraped_at
+    ? new Date(textData.scraped_at).toLocaleString()
     : null;
 
   return (
@@ -320,11 +325,11 @@ function SpeciesTextDisplay({
         <div className="flex items-center gap-2 min-w-0">
           <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />
           <span className="text-sm font-medium">
-            Found <span className="italic">{data.species}</span> on {sourceName}
+            Found <span className="italic">{textData.species}</span> on {sourceName}
           </span>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <CacheStatusBadge status={result.cache_status} />
+          <CacheStatusBadge status={cacheStatus} />
           {scrapedAt && (
             <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
               <Clock className="w-2.5 h-2.5" />
@@ -335,15 +340,17 @@ function SpeciesTextDisplay({
       </div>
 
       {/* Link to source page */}
-      <a
-        href={data.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex items-center gap-2 text-sm text-primary hover:underline break-all"
-      >
-        <ExternalLink className="w-3.5 h-3.5 shrink-0" />
-        {data.url}
-      </a>
+      {textData.url && (
+        <a
+          href={textData.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 text-sm text-primary hover:underline break-all"
+        >
+          <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+          {textData.url}
+        </a>
+      )}
 
       {/* Named sections */}
       {sections.length > 0 && (
@@ -378,13 +385,13 @@ function SpeciesTextDisplay({
       )}
 
       {/* Fallback: no sections, show full_text */}
-      {sections.length === 0 && data.full_text && (
+      {sections.length === 0 && textData.full_text && (
         <div className="space-y-2">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
             Extracted text
           </p>
           <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
-            {data.full_text}
+            {textData.full_text}
           </p>
         </div>
       )}
@@ -407,7 +414,7 @@ export default function BotanicalRefSourcePage() {
 
   const [species, setSpecies] = useState("");
   const [refresh, setRefresh] = useState(false);
-  const [result, setResult] = useState<FernsResponse | SpeciesTextResponse | null>(null);
+  const [result, setResult] = useState<FernsEnvelope | null>(null);
   const [rawResult, setRawResult] = useState<unknown>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -428,7 +435,7 @@ export default function BotanicalRefSourcePage() {
       const json = await res.json();
       setRawResult(json);
       if (res.ok) {
-        setResult(json as FernsResponse | SpeciesTextResponse);
+        setResult(json as FernsEnvelope);
       } else {
         setError((json as { message?: string }).message ?? `HTTP ${res.status}`);
       }
@@ -439,18 +446,15 @@ export default function BotanicalRefSourcePage() {
     }
   }
 
-  const isSpeciesTextResult = (r: FernsResponse | SpeciesTextResponse): r is SpeciesTextResponse =>
-    "cache_status" in r;
-
   const resultBg =
     result === null
       ? ""
       : result.found
       ? "bg-green-500/5 border-green-500/20"
+      : hasSpeciesText && result.provenance?.method === "computed"
+      ? "bg-muted/30 border-border/40"
       : !hasSpeciesText && result.data && "search_url" in (result.data as object)
       ? "bg-amber-500/5 border-amber-500/20"
-      : hasSpeciesText && isSpeciesTextResult(result) && result.cache_status === "not_in_species_list"
-      ? "bg-muted/30 border-border/40"
       : "bg-muted/30 border-border/40";
 
   return (
@@ -512,13 +516,13 @@ export default function BotanicalRefSourcePage() {
 
           {result && !loading && (
             <div className={`rounded-xl border p-4 ${resultBg}`}>
-              {hasSpeciesText && isSpeciesTextResult(result) ? (
+              {hasSpeciesText ? (
                 <SpeciesTextDisplay sourceName={sourceName} result={result} />
               ) : (
                 <ResultDisplay
                   sourceId={sourceId}
                   sourceName={sourceName}
-                  result={result as FernsResponse}
+                  result={result}
                 />
               )}
             </div>

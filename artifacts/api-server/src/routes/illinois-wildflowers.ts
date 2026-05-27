@@ -1,33 +1,27 @@
 import { Router, type IRouter } from "express";
 import { db, botanicalSpeciesListsTable } from "@workspace/db";
 import { eq, ilike, and, sql } from "drizzle-orm";
+import { buildEnvelope, type Method, type CacheStatus } from "@workspace/api-envelope";
 import { fetchAndCacheSpeciesText } from "../services/botanical-refs/scraper.js";
 import {
   ILLINOIS_WILDFLOWERS_SOURCE_ID,
-  ILLINOIS_WILDFLOWERS_GENERAL_SUMMARY,
-  ILLINOIS_WILDFLOWERS_TECHNICAL_DETAILS,
-  ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY,
   ILLINOIS_WILDFLOWERS_LICENSES,
   ILLINOIS_WILDFLOWERS_LICENSE_NOTES,
+  ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY,
 } from "../services/illinois-wildflowers/metadata.js";
 import { ensureIllinoisWildflowersRegistryEntry } from "../services/illinois-wildflowers/seed.js";
 import { importIllinoisWildflowers } from "../services/botanical-refs/importers/illinois-wildflowers.js";
 import { requireAdmin } from "../lib/admin-guard.js";
 import { resolveUrl } from "../lib/resolve-url.js";
-import { filterProvenance } from "../lib/provenance.js";
+import { dbRegistryAccessor } from "../lib/registry-accessor.js";
 
 const router: IRouter = Router();
 const SITE_ID = ILLINOIS_WILDFLOWERS_SOURCE_ID;
 
-function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
-  return {
-    source_id: SITE_ID,
-    fetched_at: new Date(),
-    method: "species_list_lookup",
-    upstream_url: resolveUrl(req, "/api/illinois-wildflowers/metadata"),
-    general_summary: ILLINOIS_WILDFLOWERS_GENERAL_SUMMARY,
-    technical_details: ILLINOIS_WILDFLOWERS_TECHNICAL_DETAILS,
-  };
+function mapScrapeStatus(cs: "hit" | "miss" | "not_in_species_list"): [Method, CacheStatus] {
+  if (cs === "hit") return ["cache_hit", "hit"];
+  if (cs === "miss") return ["api_fetch", "miss"];
+  return ["computed", "bypass"];
 }
 
 router.get("/illinois-wildflowers/metadata", async (req, res) => {
@@ -43,38 +37,47 @@ router.get("/illinois-wildflowers/metadata", async (req, res) => {
     .groupBy(botanicalSpeciesListsTable.section)
     .orderBy(botanicalSpeciesListsTable.section);
 
-  res.json({
-    service_id: SITE_ID,
-    service_name: ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY.name,
-    licenses: ILLINOIS_WILDFLOWERS_LICENSES,
-    license_notes: ILLINOIS_WILDFLOWERS_LICENSE_NOTES,
-    url_strategy: "species_list_scrape",
-    indexed_entries_count: Number(totalCount),
-    sections: sectionCounts,
-    list_sources: [
-      "https://www.illinoiswildflowers.info/prairie/plant_index.htm",
-      "https://www.illinoiswildflowers.info/savanna/savanna_index.htm",
-      "https://www.illinoiswildflowers.info/woodland/woodland_index.htm",
-      "https://www.illinoiswildflowers.info/wetland/wetland_index.htm",
-      "https://www.illinoiswildflowers.info/weeds/weed_index.htm",
-      "https://www.illinoiswildflowers.info/grasses/grass_index.htm",
-      "https://www.illinoiswildflowers.info/trees/tree_index.htm",
-      "https://www.illinoiswildflowers.info/mosses/moss_index.html",
-    ],
-    registry_entry: {
-      ...ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY,
-      metadata_url: resolveUrl(req, ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY.metadata_url),
-      explorer_url: resolveUrl(req, ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY.explorer_url),
+  const envelope = await buildEnvelope(
+    {
+      sourceId: SITE_ID,
+      sourceKind: "in-memory",
+      found: true,
+      data: {
+        service_id: SITE_ID,
+        service_name: ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY.name,
+        licenses: ILLINOIS_WILDFLOWERS_LICENSES,
+        license_notes: ILLINOIS_WILDFLOWERS_LICENSE_NOTES,
+        url_strategy: "species_list_scrape",
+        indexed_entries_count: Number(totalCount),
+        sections: sectionCounts,
+        list_sources: [
+          "https://www.illinoiswildflowers.info/prairie/plant_index.htm",
+          "https://www.illinoiswildflowers.info/savanna/savanna_index.htm",
+          "https://www.illinoiswildflowers.info/woodland/woodland_index.htm",
+          "https://www.illinoiswildflowers.info/wetland/wetland_index.htm",
+          "https://www.illinoiswildflowers.info/weeds/weed_index.htm",
+          "https://www.illinoiswildflowers.info/grasses/grass_index.htm",
+          "https://www.illinoiswildflowers.info/trees/tree_index.htm",
+          "https://www.illinoiswildflowers.info/mosses/moss_index.html",
+        ],
+        registry_entry: {
+          ...ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY,
+          metadata_url: resolveUrl(req, ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY.metadata_url),
+          explorer_url: resolveUrl(req, ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY.explorer_url),
+        },
+      },
+      method: "cache_hit",
+      cacheStatus: "hit",
+      sourceUrl: null,
+      queriedAt: new Date().toISOString(),
     },
-    queried_at: new Date(),
-    provenance: buildProvenance(req),
-  });
+    { registry: dbRegistryAccessor },
+  );
+  res.json(envelope);
 });
 
 router.get("/illinois-wildflowers", async (req, res) => {
   await ensureIllinoisWildflowersRegistryEntry();
-
-  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
 
   const speciesParam = typeof req.query["species"] === "string" ? req.query["species"].trim() : null;
   if (!speciesParam) {
@@ -97,30 +100,35 @@ router.get("/illinois-wildflowers", async (req, res) => {
     .orderBy(botanicalSpeciesListsTable.section);
 
   const found = rows.length > 0;
-  res.json({
-    found,
-    queried_at: new Date(),
-    source_url: resolveUrl(req, "/api/illinois-wildflowers"),
-    provenance: filterProvenance({ ...buildProvenance(req), matched_input: speciesParam }, verbosity),
-    data: found
-      ? {
-          species: rows[0].scientific_name,
-          result_count: rows.length,
-          results: rows.map((r) => ({
-            url: r.url,
-            section: r.section,
-            imported_at: r.imported_at,
-          })),
-          validation_method: "species_list_lookup",
-        }
-      : null,
-  });
+  const envelope = await buildEnvelope(
+    {
+      sourceId: SITE_ID,
+      sourceKind: "single-source-proxy",
+      found,
+      data: found
+        ? {
+            species: rows[0].scientific_name,
+            result_count: rows.length,
+            results: rows.map((r) => ({
+              url: r.url,
+              section: r.section,
+              imported_at: r.imported_at,
+            })),
+            validation_method: "species_list_lookup",
+          }
+        : null,
+      method: "cache_hit",
+      cacheStatus: "hit",
+      sourceUrl: found ? rows[0].url : null,
+      queriedAt: new Date().toISOString(),
+    },
+    { registry: dbRegistryAccessor },
+  );
+  res.json(envelope);
 });
 
 router.get("/illinois-wildflowers/species-text", async (req, res) => {
   await ensureIllinoisWildflowersRegistryEntry();
-
-  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
 
   const speciesParam = typeof req.query["species"] === "string" ? req.query["species"].trim() : null;
   const refresh = req.query["refresh"] === "true";
@@ -148,23 +156,36 @@ router.get("/illinois-wildflowers/species-text", async (req, res) => {
   const cacheKey = speciesParam.toLowerCase();
   const result = await fetchAndCacheSpeciesText(SITE_ID, cacheKey, speciesUrl, refresh);
 
-  res.json({
-    found: result.found,
-    queried_at: new Date(),
-    source_url: resolveUrl(req, "/api/illinois-wildflowers/species-text"),
-    cache_status: result.cache_status,
-    scraped_at: result.scraped_at,
-    ...(result.fetch_error ? { fetch_error: result.fetch_error } : {}),
-    provenance: filterProvenance({ ...buildProvenance(req), matched_input: speciesParam }, verbosity),
-    data: result.found
-      ? {
-          species: speciesParam,
-          url: result.url,
-          sections: result.sections,
-          full_text: result.full_text,
-        }
-      : null,
-  });
+  const [method, cacheStatus] = mapScrapeStatus(result.cache_status);
+
+  const envelope = await buildEnvelope(
+    {
+      sourceId: SITE_ID,
+      sourceKind: "single-source-proxy",
+      found: result.found,
+      data: result.found
+        ? {
+            species: speciesParam,
+            url: result.url,
+            sections: result.sections,
+            full_text: result.full_text,
+            scraped_at: result.scraped_at instanceof Date
+              ? result.scraped_at.toISOString()
+              : String(result.scraped_at),
+            ...(result.fetch_error ? { fetch_error: result.fetch_error } : {}),
+          }
+        : result.fetch_error
+          ? { species: speciesParam, url: result.url, fetch_error: result.fetch_error }
+          : null,
+      method,
+      cacheStatus,
+      sourceUrl: result.url,
+      queriedAt: new Date().toISOString(),
+      permissionGranted: false,
+    },
+    { registry: dbRegistryAccessor },
+  );
+  res.json(envelope);
 });
 
 router.post("/illinois-wildflowers/import", async (req, res) => {

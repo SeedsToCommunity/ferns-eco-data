@@ -1,35 +1,23 @@
 import { Router, type IRouter } from "express";
 import { db, botanicalWebRefsCacheTable } from "@workspace/db";
 import { and, eq, gt } from "drizzle-orm";
+import { buildEnvelope, type Method, type CacheStatus } from "@workspace/api-envelope";
 import { fetchAndCacheSpeciesText } from "../services/botanical-refs/scraper.js";
 import {
   GOBOTANY_SOURCE_ID,
-  GOBOTANY_GENERAL_SUMMARY,
-  GOBOTANY_TECHNICAL_DETAILS,
-  GOBOTANY_REGISTRY_ENTRY,
   GOBOTANY_LICENSES,
   GOBOTANY_LICENSE_NOTES,
+  GOBOTANY_REGISTRY_ENTRY,
 } from "../services/gobotany/metadata.js";
 import { ensureGobotanyRegistryEntry } from "../services/gobotany/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
-import { filterProvenance } from "../lib/provenance.js";
+import { dbRegistryAccessor } from "../lib/registry-accessor.js";
 
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 const router: IRouter = Router();
 
 const GOBOTANY_BASE = "https://gobotany.nativeplanttrust.org";
-
-function buildProvenance(req: Parameters<typeof resolveUrl>[0]) {
-  return {
-    source_id: GOBOTANY_SOURCE_ID,
-    fetched_at: new Date(),
-    method: "direct_construction",
-    upstream_url: resolveUrl(req, "/api/gobotany/metadata"),
-    general_summary: GOBOTANY_GENERAL_SUMMARY,
-    technical_details: GOBOTANY_TECHNICAL_DETAILS,
-  };
-}
 
 function parseSpecies(input: string): { genus: string; species: string } | null {
   const parts = input.trim().split(/\s+/);
@@ -40,30 +28,46 @@ function parseSpecies(input: string): { genus: string; species: string } | null 
   return { genus, species };
 }
 
+function mapScrapeStatus(cs: "hit" | "miss" | "not_in_species_list"): [Method, CacheStatus] {
+  if (cs === "hit") return ["cache_hit", "hit"];
+  if (cs === "miss") return ["api_fetch", "miss"];
+  return ["computed", "bypass"];
+}
+
 router.get("/gobotany/metadata", async (req, res) => {
   await ensureGobotanyRegistryEntry();
-  res.json({
-    service_id: GOBOTANY_SOURCE_ID,
-    service_name: GOBOTANY_REGISTRY_ENTRY.name,
-    licenses: GOBOTANY_LICENSES,
-    license_notes: GOBOTANY_LICENSE_NOTES,
-    url_strategy: "direct_construction",
-    url_pattern: `${GOBOTANY_BASE}/species/{genus}/{species}/`,
-    validation: "http_get",
-    registry_entry: {
-      ...GOBOTANY_REGISTRY_ENTRY,
-      metadata_url: resolveUrl(req, GOBOTANY_REGISTRY_ENTRY.metadata_url),
-      explorer_url: resolveUrl(req, GOBOTANY_REGISTRY_ENTRY.explorer_url),
+
+  const envelope = await buildEnvelope(
+    {
+      sourceId: GOBOTANY_SOURCE_ID,
+      sourceKind: "in-memory",
+      found: true,
+      data: {
+        service_id: GOBOTANY_SOURCE_ID,
+        service_name: GOBOTANY_REGISTRY_ENTRY.name,
+        licenses: GOBOTANY_LICENSES,
+        license_notes: GOBOTANY_LICENSE_NOTES,
+        url_strategy: "direct_construction",
+        url_pattern: `${GOBOTANY_BASE}/species/{genus}/{species}/`,
+        validation: "http_get",
+        registry_entry: {
+          ...GOBOTANY_REGISTRY_ENTRY,
+          metadata_url: resolveUrl(req, GOBOTANY_REGISTRY_ENTRY.metadata_url),
+          explorer_url: resolveUrl(req, GOBOTANY_REGISTRY_ENTRY.explorer_url),
+        },
+      },
+      method: "cache_hit",
+      cacheStatus: "hit",
+      sourceUrl: null,
+      queriedAt: new Date().toISOString(),
     },
-    queried_at: new Date(),
-    provenance: buildProvenance(req),
-  });
+    { registry: dbRegistryAccessor },
+  );
+  res.json(envelope);
 });
 
 router.get("/gobotany", async (req, res) => {
   await ensureGobotanyRegistryEntry();
-
-  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
 
   const speciesParam = typeof req.query["species"] === "string" ? req.query["species"].trim() : null;
   if (!speciesParam) {
@@ -102,15 +106,22 @@ router.get("/gobotany", async (req, res) => {
 
   if (cached.length > 0) {
     const hit = cached[0];
-    res.json({
-      found: hit.found,
-      queried_at: new Date(),
-      source_url: resolveUrl(req, "/api/gobotany"),
-      provenance: filterProvenance({ ...buildProvenance(req), matched_input: speciesParam, cache_hit: true, cached_at: hit.cached_at }, verbosity),
-      data: hit.found
-        ? { species: speciesParam, url: hit.url, validation_method: hit.validation_method, cache_hit: true }
-        : null,
-    });
+    const envelope = await buildEnvelope(
+      {
+        sourceId: GOBOTANY_SOURCE_ID,
+        sourceKind: "single-source-proxy",
+        found: hit.found,
+        data: hit.found
+          ? { species: speciesParam, url: hit.url, validation_method: hit.validation_method }
+          : null,
+        method: "cache_hit",
+        cacheStatus: "hit",
+        sourceUrl: hit.url ?? null,
+        queriedAt: new Date().toISOString(),
+      },
+      { registry: dbRegistryAccessor },
+    );
+    res.json(envelope);
     return;
   }
 
@@ -147,26 +158,26 @@ router.get("/gobotany", async (req, res) => {
       set: { url: found ? url : null, found, validation_method: validationMethod, cached_at: new Date() },
     });
 
-  res.json({
-    found,
-    queried_at: new Date(),
-    source_url: resolveUrl(req, "/api/gobotany"),
-    provenance: filterProvenance({ ...buildProvenance(req), matched_input: speciesParam, cache_hit: false }, verbosity),
-    data: found
-      ? {
-          species: speciesParam,
-          url,
-          validation_method: validationMethod,
-          http_status: httpStatus,
-        }
-      : null,
-  });
+  const envelope = await buildEnvelope(
+    {
+      sourceId: GOBOTANY_SOURCE_ID,
+      sourceKind: "single-source-proxy",
+      found,
+      data: found
+        ? { species: speciesParam, url, validation_method: validationMethod, http_status: httpStatus }
+        : null,
+      method: "api_fetch",
+      cacheStatus: "miss",
+      sourceUrl: url,
+      queriedAt: new Date().toISOString(),
+    },
+    { registry: dbRegistryAccessor },
+  );
+  res.json(envelope);
 });
 
 router.get("/gobotany/species-text", async (req, res) => {
   await ensureGobotanyRegistryEntry();
-
-  const verbosity = typeof req.query["provenance_verbosity"] === "string" ? req.query["provenance_verbosity"] : undefined;
 
   const speciesParam = typeof req.query["species"] === "string" ? req.query["species"].trim() : null;
   const refresh = req.query["refresh"] === "true";
@@ -193,23 +204,36 @@ router.get("/gobotany/species-text", async (req, res) => {
   const cacheKey = speciesParam.trim().toLowerCase();
   const result = await fetchAndCacheSpeciesText(GOBOTANY_SOURCE_ID, cacheKey, url, refresh);
 
-  res.json({
-    found: result.found,
-    queried_at: new Date(),
-    source_url: resolveUrl(req, "/api/gobotany/species-text"),
-    cache_status: result.cache_status,
-    scraped_at: result.scraped_at,
-    ...(result.fetch_error ? { fetch_error: result.fetch_error } : {}),
-    provenance: filterProvenance({ ...buildProvenance(req), matched_input: speciesParam }, verbosity),
-    data: result.found
-      ? {
-          species: speciesParam,
-          url: result.url,
-          sections: result.sections,
-          full_text: result.full_text,
-        }
-      : null,
-  });
+  const [method, cacheStatus] = mapScrapeStatus(result.cache_status);
+
+  const envelope = await buildEnvelope(
+    {
+      sourceId: GOBOTANY_SOURCE_ID,
+      sourceKind: "single-source-proxy",
+      found: result.found,
+      data: result.found
+        ? {
+            species: speciesParam,
+            url: result.url,
+            sections: result.sections,
+            full_text: result.full_text,
+            scraped_at: result.scraped_at instanceof Date
+              ? result.scraped_at.toISOString()
+              : String(result.scraped_at),
+            ...(result.fetch_error ? { fetch_error: result.fetch_error } : {}),
+          }
+        : result.fetch_error
+          ? { species: speciesParam, url: result.url, fetch_error: result.fetch_error }
+          : null,
+      method,
+      cacheStatus,
+      sourceUrl: result.url,
+      queriedAt: new Date().toISOString(),
+      permissionGranted: false,
+    },
+    { registry: dbRegistryAccessor },
+  );
+  res.json(envelope);
 });
 
 export default router;

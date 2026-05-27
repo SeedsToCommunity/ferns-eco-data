@@ -1,5 +1,14 @@
 export const MISSOURI_PLANTS_SOURCE_ID = "missouri-plants";
 
+export const MISSOURI_PLANTS_LICENSE = "all-rights-reserved";
+
+export const MISSOURI_PLANTS_RIGHTS =
+  "Content from missouriplants.com is © Paul Wycoff. All rights reserved. No explicit license is published; FERNS access is read-only for non-commercial research purposes.";
+
+export const MISSOURI_PLANTS_WEBSITE_URL_PATTERNS = {
+  species_page: "https://missouriplants.com/{filename}.html",
+};
+
 export const MISSOURI_PLANTS_LICENSES: string[] = [];
 
 export const MISSOURI_PLANTS_LICENSE_NOTES =
@@ -22,7 +31,7 @@ export const MISSOURI_PLANTS_GENERAL_SUMMARY =
   "Exact genus + species match required (case-insensitive); subspecies and varieties not individually listed. " +
   "FERNS also provides a species-text endpoint that fetches and parses the full Missouri Plants species page HTML, " +
   "extracting named prose sections (Description, Similar Species, Habitat, Origin, Uses, and more) " +
-  "and caching the result for 7 days in the local database; the cache can be bypassed with refresh=true.";
+  "and caching the result permanently in the local database; the cache can be bypassed with refresh=true.";
 
 export const MISSOURI_PLANTS_TECHNICAL_DETAILS =
   "Primary source: missouriplants.com/All_Species_list.html. Maintained by Paul Wycoff. " +
@@ -37,10 +46,8 @@ export const MISSOURI_PLANTS_TECHNICAL_DETAILS =
   "DB table: botanical_species_lists (columns: id serial PK, site_id text, scientific_name text, url text, section text, imported_at; " +
   "unique on (site_id, scientific_name, section)). Coverage: ~1,464 species at last import. " +
   "Species-text endpoint: GET /api/missouri-plants/species-text?species={binomial}&refresh={bool}. " +
-  "Uses the stored URL for the species to fetch the page HTML; extracts prose sections from the Missouri Plants page layout. " +
-  "Cache: DB table species_page_text_cache (site_id, species_name, sections JSONB, full_text text, scraped_at, expires_at); " +
-  "TTL 7 days; refresh=true bypasses cache and re-scrapes. " +
-  "Returns: found, cache_status (hit|fresh|miss|error), scraped_at, expires_at, sections (array of {heading, text}).";
+  "Cache: permanent (no TTL); refresh=true bypasses cache and re-scrapes. " +
+  "Envelope: FERNS Envelope Contract v1; permission_granted=false for species-text (scraped_text endpoint).";
 
 export const MISSOURI_PLANTS_REGISTRY_ENTRY = {
   source_id: MISSOURI_PLANTS_SOURCE_ID,
@@ -53,7 +60,7 @@ export const MISSOURI_PLANTS_REGISTRY_ENTRY = {
   input_summary: "Scientific name (binomial: genus + species epithet)",
   output_summary:
     "Direct URL to the Missouri Plants species page, or found: false if not in the database (base endpoint); " +
-    "or parsed prose sections from the species page (species-text endpoint: found, cache_status, scraped_at, expires_at, sections[])",
+    "or parsed prose sections from the species page via provenance envelope (species-text endpoint)",
   dependencies: [] as string[],
   update_frequency:
     "Manual re-import via admin endpoint. The species list is re-scraped and the database updated when triggered.",
@@ -66,8 +73,14 @@ export const MISSOURI_PLANTS_REGISTRY_ENTRY = {
   explorer_url: "/source/missouri-plants",
   licenses: MISSOURI_PLANTS_LICENSES,
   license_notes: MISSOURI_PLANTS_LICENSE_NOTES,
+  license: MISSOURI_PLANTS_LICENSE,
+  rights: MISSOURI_PLANTS_RIGHTS,
+  website_url_patterns: MISSOURI_PLANTS_WEBSITE_URL_PATTERNS,
   general_summary: MISSOURI_PLANTS_GENERAL_SUMMARY,
   technical_details: MISSOURI_PLANTS_TECHNICAL_DETAILS,
-  non_passthrough_endpoints: [{ endpoint: "/api/missouri-plants/metadata", kind: "metadata" }],
+  non_passthrough_endpoints: [
+    { endpoint: "/api/missouri-plants/metadata", kind: "metadata" },
+    { endpoint: "/api/missouri-plants/species-text", kind: "scraped_text" },
+  ],
   permission_granted: true,
 };
