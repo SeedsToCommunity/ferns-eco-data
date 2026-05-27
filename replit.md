@@ -80,6 +80,78 @@ Not applicable — no new `technical_details` text was authored. The existing `g
 
 ---
 
+## Post-Task Summary — Envelope Migration: Michigan Flora
+
+### 1. What was built
+
+All seven Michigan Flora API routes were migrated from manually assembled response objects to the shared `buildEnvelope()` function, bringing them into full compliance with the FERNS Response Envelope Contract v1. Before this task, the routes returned flat JSON with ad-hoc provenance fields. After this task, every Michigan Flora response carries a standardized envelope with `found`, `permission_granted`, `pagination`, and a `provenance` block containing `source_id`, `source_url`, `method`, `cache_status`, `queried_at`, `derived_from`, `license`, and `rights`. Four new columns were added to the Michigan Flora registry entry — `license`, `rights`, `website_url_patterns`, and `non_passthrough_endpoints` — and the seed upsert was updated to write them. The `spec_text` route correctly declares `permission_granted: false` (it is classified as `scraped_text` in `non_passthrough_endpoints`). The `metadata` route uses `sourceKind: "in-memory"`. All five data routes use `sourceKind: "single-source-proxy"` with `provenance.source_url` set to the upstream API endpoint URL and `provenance.queried_at` set to the original fetch time from `fetched_at` — not the serve time. The Explorer page was updated to read `provenance.source_url` rather than a top-level field. Two MCP tool descriptions were updated to reflect the most significant behavioral changes (`spec_text` permission, `pimage_info` data nesting). The audit comparator was updated with an `assertEnvelopeShape()` helper applied to all six comparator functions.
+
+### 2. Derivation summary
+
+Not applicable — no new data source was added. This was a structural migration of an existing source.
+
+### 3. Scientific/technical description
+
+Not applicable — no new `general_summary` or `technical_details` text was authored. The existing descriptions were preserved.
+
+### 4. Architectural decisions made
+
+- **`provenance.source_url` = upstream API URL, not the species page URL.** Each cache row stores two URL columns: `upstream_url` (the actual API call, e.g. `https://michiganflora.net/api/v1.0/locs_sp?id=1383`) and `source_url` (the human-readable species page, e.g. `https://michiganflora.net/species/1383`). The envelope's `provenance.source_url` is mapped from `upstream_url` — the literal URL FERNS contacted — per the contract's definition. The species page URL is accessible via the `website_url_patterns` registry entry (`species_page: "https://michiganflora.net/species/{plant_id}"`).
+
+- **`provenance.queried_at` on cache hits = original fetch time, not serve time.** The contract requires "the moment the cached copy was originally fetched (not served), so the consumer can judge data age." This is read from the `fetched_at` column on each cache row. For fresh fetches it is read from the stored row's `fetched_at` (set at insert time). The `metadata` route uses `new Date()` because it is `in-memory` / computed.
+
+- **`image_url` and `thumbnail_url` remain in `data` — pending user decision.** These fields are FERNS-constructed (built from a formula reverse-engineered from the Michigan Flora frontend, not returned verbatim by the upstream API). The contract's governing rule states "FERNS adds nothing to `data`." Keeping them in `data` is a contract violation. The task instruction said to keep them there because the Explorer gallery depends on them. This conflict was not resolved — it requires a user decision (see section 6).
+
+- **`non_passthrough_endpoints` includes both `/metadata` (kind: `metadata`) and `/spec_text` (kind: `scraped_text`).** All other Michigan Flora routes are `passthrough` by default — they mirror exact upstream paths verbatim.
+
+### 5. What was NOT done
+
+- **`image_url` / `thumbnail_url` not moved out of `data`.** These FERNS-constructed fields remain inside `data.image`, which violates the contract. The correct location would be derivable from `website_url_patterns` at the application layer. Not changed pending user decision.
+- **Generated API types (`lib/api-zod`, `lib/api-client-react`) not regenerated.** The Explorer page uses `as unknown as` type casts to work around the mismatch. Tracked as follow-up task #195.
+- **OpenAPI spec not updated** for the new envelope response shape on Michigan Flora routes. Tracked as part of follow-up task #195.
+- **Audit run configuration not added.** The comparator has envelope assertions but no automated end-to-end audit run exercises them. Tracked as follow-up task #196.
+
+### 6. What the user should decide or review
+
+- **`image_url` / `thumbnail_url` placement.** The contract says FERNS must not inject generated fields into `data`. These two fields are FERNS-constructed (the upstream returns only raw `image_id` and `plant_id`; FERNS builds the full URL). The options are: (a) remove them from `data`, update the Explorer to construct the URL from `website_url_patterns` templates and the raw IDs — contract-compliant; or (b) record the current behavior as an explicit approved exception in `docs/data-layer-contract.md` under "Approved Exceptions" with a stated rationale. Either is fine, but a decision is needed so the audit tool and future work can be consistent.
+
+---
+
+## Post-Task Summary — Michigan Flora: Move Image URL Construction to Client
+
+### 1. What was built
+
+The Michigan Flora API routes no longer construct image URLs. Previously, the server was building two fields — `image_url` and `thumbnail_url` — for every image record before storing and returning it. Those URLs were invented by FERNS using a formula reverse-engineered from the Michigan Flora website frontend, not returned by the upstream API itself. The contract governing FERNS says the `data` field in any response must contain only what the upstream source actually returned — FERNS is not allowed to add generated fields. So those two constructed fields were removed from the server entirely. Instead, the Michigan Flora registry entry already contains `website_url_patterns` with the two URL templates (`image_full` and `image_thumbnail`), and the Explorer page now constructs image URLs on the client side from the raw `image_id` and `plant_id` values that the upstream does return. The photo gallery and the primary species image both render correctly using this approach. The audit comparator was updated to check that `image_id` is present in image records (which it now verifies is the raw upstream value) rather than checking for the former constructed URLs.
+
+### 2. Derivation summary
+
+Not applicable — no new data source was added.
+
+### 3. Scientific/technical description
+
+Not applicable — no new `general_summary` or `technical_details` text was authored. The `technical_details` text for Michigan Flora was updated to replace the sentence that said "records are enriched at serve time with constructed image_url and thumbnail_url fields" with a corrected sentence documenting that image URLs are constructed client-side from the `website_url_patterns` templates.
+
+### 4. Architectural decisions made
+
+- **URL construction belongs at the consumer layer, not the data layer.** The Michigan Flora upstream API returns `image_id` and the query uses a known `plant_id`. The formula to produce a full image URL is `https://michiganflora.net/static/species_images/_pid_{plant_id}/{image_id}.jpg`. That formula lives in the `website_url_patterns` registry entry (`image_full` and `image_thumbnail`). Any consumer — the Explorer, an MCP client, an application layer — can apply it. FERNS's job is to faithfully pass through what upstream returned; URL construction is interpretation, which belongs above the data layer.
+
+- **`plantId` for gallery images comes from `floraRes.data.plant_id`, not from the images endpoint.** The `allimage_info` response contains an array of image records, each with an `image_id` but no `plant_id` per-record. The `plant_id` is species-level and already available in the `flora_search_sp` response. The `ImageGallery` component now accepts a `plantId` prop. For the primary image (`pimage_info`), the `plant_id` is the query parameter and is also stored in `data.plant_id` in the response.
+
+- **Stale cache entries with the old shape are harmless.** Old cached rows in the database still have `image_url` and `thumbnail_url` inside their `raw_response` JSON. The API server now returns those stale rows as-is on cache hits (since `raw_response` is passed through verbatim). A forced `?refresh=true` produces the new clean shape. This is acceptable because the extra fields are ignored by the updated Explorer and comparator, and they will naturally age out as cache entries are refreshed.
+
+### 5. What was NOT done
+
+- **Stale cache entries not migrated.** A one-time SQL update to remove `image_url`/`thumbnail_url` from existing `raw_response` JSON in the database was not run. Old cache hits will still include those fields in `data` until the cache entry is refreshed. This is benign but creates inconsistency between cache-hit and cache-miss response shapes temporarily.
+- **`website_url_patterns` not exposed via a dedicated API endpoint.** Consumers must currently fetch the registry entry to get the URL templates. A convenience endpoint like `/api/miflora/url_patterns` was not added.
+- **MCP tool descriptions not updated** for the image URL change. The MCP tool descriptions for `miflora__allimage_info` and `miflora__pimage_info` were not re-worded to note that `image_url`/`thumbnail_url` are no longer in data. Tracked as part of follow-up task #195.
+
+### 6. What the user should decide or review
+
+- **Stale cache migration.** If clean, consistent response shapes are important right now (e.g. for a downstream consumer that would break on unexpected extra fields), run a one-time SQL update to strip `image_url` and `thumbnail_url` from the `raw_response` JSONB columns in `miflora_images_cache` and `miflora_species_cache`. Otherwise the inconsistency resolves itself over time as entries are refreshed.
+- **MCP descriptions.** The two MCP image tool descriptions still describe the old shape. This is low-priority but should be updated as part of #195 when generated types are regenerated.
+
+---
+
 ## System Guidance Documents
 Read these on demand — not every session. Each entry says when to open it.
 - **`docs/data-layer-contract.md`** — Authoritative spec for the FERNS response envelope, pass-through rules, endpoint kinds, permission rules, companion website URL patterns, and the per-source architectural pattern. **Read when**: designing or modifying any API route, judging whether a response is correctly shaped, deciding whether something belongs in `data` vs the envelope, classifying an endpoint kind, or evaluating an audit finding. This is the document that "wins" if anything else contradicts it.

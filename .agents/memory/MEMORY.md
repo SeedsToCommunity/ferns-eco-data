@@ -1,0 +1,2 @@
+- [Read replit.md first](read-replit-md.md) — must read at session start; contains required workflow, guidance doc triggers, and post-task summary obligation.
+- [Envelope contract must-reads](envelope-contract-mustreads.md) — queried_at, source_url, and data purity rules that are easy to get wrong.

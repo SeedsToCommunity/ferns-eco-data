@@ -40,6 +40,50 @@ async function getUpstreamPlantId(name: string): Promise<number | string | null>
   }
 }
 
+function assertEnvelopeShape(fernsRaw: Record<string, unknown>, endpointLabel: string): FieldFinding[] {
+  const findings: FieldFinding[] = [];
+
+  if (typeof fernsRaw.found !== "boolean") {
+    findings.push({ type: "gap", sourceField: "found", note: `${endpointLabel}: envelope missing found (boolean)` });
+  } else {
+    findings.push({ type: "ok", sourceField: "found", note: `${endpointLabel}: envelope found=${fernsRaw.found}` });
+  }
+
+  if (typeof fernsRaw.permission_granted !== "boolean") {
+    findings.push({ type: "gap", sourceField: "permission_granted", note: `${endpointLabel}: envelope missing permission_granted` });
+  } else {
+    findings.push({ type: "ok", sourceField: "permission_granted", note: `${endpointLabel}: permission_granted=${fernsRaw.permission_granted}` });
+  }
+
+  const provenance = fernsRaw.provenance as Record<string, unknown> | undefined;
+  if (!provenance || typeof provenance !== "object") {
+    findings.push({ type: "gap", sourceField: "provenance", note: `${endpointLabel}: envelope missing provenance block` });
+    return findings;
+  }
+
+  if (provenance.source_id !== "michigan-flora") {
+    findings.push({ type: "mismatch", sourceField: "provenance.source_id", sourceValue: "michigan-flora", fernsValue: String(provenance.source_id ?? ""), note: `${endpointLabel}: unexpected source_id` });
+  } else {
+    findings.push({ type: "ok", sourceField: "provenance.source_id", note: `${endpointLabel}: provenance.source_id=michigan-flora` });
+  }
+
+  const validMethods = ["api_fetch", "cache_hit", "computed"];
+  if (!validMethods.includes(String(provenance.method ?? ""))) {
+    findings.push({ type: "gap", sourceField: "provenance.method", note: `${endpointLabel}: unexpected method=${provenance.method}` });
+  } else {
+    findings.push({ type: "ok", sourceField: "provenance.method", note: `${endpointLabel}: provenance.method=${provenance.method}` });
+  }
+
+  const validStatuses = ["hit", "miss", "stale", "bypass"];
+  if (!validStatuses.includes(String(provenance.cache_status ?? ""))) {
+    findings.push({ type: "gap", sourceField: "provenance.cache_status", note: `${endpointLabel}: unexpected cache_status=${provenance.cache_status}` });
+  } else {
+    findings.push({ type: "ok", sourceField: "provenance.cache_status", note: `${endpointLabel}: provenance.cache_status=${provenance.cache_status}` });
+  }
+
+  return findings;
+}
+
 async function compareMifloraCounties(
   fernsBase: string,
   sp: TestSpecies,
@@ -51,12 +95,11 @@ async function compareMifloraCounties(
 
   try {
     const fernsRaw = await fetchJson(fernsUrl) as Record<string, unknown>;
-    const fernsEnvelope = fernsRaw as Record<string, unknown>;
-    const fernsData = (fernsEnvelope.data ?? {}) as Record<string, unknown>;
+    const fernsData = (fernsRaw.data ?? {}) as Record<string, unknown>;
     const fernsLocations = (fernsData.locations ?? []) as string[];
-    const urlsCollected = collectUrls(fernsEnvelope, `miflora/locs_sp:${sp.name}`);
+    const urlsCollected = collectUrls(fernsRaw, `miflora/locs_sp:${sp.name}`);
 
-    const findings: FieldFinding[] = [];
+    const findings: FieldFinding[] = assertEnvelopeShape(fernsRaw, "locs_sp");
 
     if (plantId === null) {
       findings.push({
@@ -164,11 +207,10 @@ async function compareMifloraImages(
 
   try {
     const fernsRaw = await fetchJson(fernsUrl) as Record<string, unknown>;
-    const fernsEnvelope = fernsRaw as Record<string, unknown>;
-    const fernsImages = (fernsEnvelope.data ?? []) as unknown[];
-    const urlsCollected = collectUrls(fernsEnvelope, `miflora/allimage_info:${sp.name}`);
+    const fernsImages = Array.isArray(fernsRaw.data) ? (fernsRaw.data as unknown[]) : [];
+    const urlsCollected = collectUrls(fernsRaw, `miflora/allimage_info:${sp.name}`);
 
-    const findings: FieldFinding[] = [];
+    const findings: FieldFinding[] = assertEnvelopeShape(fernsRaw, "allimage_info");
 
     if (plantId === null) {
       findings.push({
@@ -211,30 +253,20 @@ async function compareMifloraImages(
 
     if (fernsImages.length > 0) {
       const firstFerns = fernsImages[0] as Record<string, unknown>;
-      const hasImageUrl = typeof firstFerns["image_url"] === "string" && firstFerns["image_url"].startsWith("https://");
-      const hasThumbnailUrl = typeof firstFerns["thumbnail_url"] === "string" && firstFerns["thumbnail_url"].startsWith("https://");
+      const hasImageId = firstFerns["image_id"] != null;
 
-      if (hasImageUrl && hasThumbnailUrl) {
+      if (hasImageId) {
         findings.push({
           type: "ok",
-          sourceField: "image_url",
-          note: `First image has valid image_url and thumbnail_url (constructed absolute URLs present)`,
+          sourceField: "image_id",
+          note: `First image has image_id=${firstFerns["image_id"]} (consumers construct URLs via website_url_patterns)`,
         });
       } else {
-        if (!hasImageUrl) {
-          findings.push({
-            type: "gap",
-            sourceField: "image_url",
-            note: `First image is missing a valid image_url`,
-          });
-        }
-        if (!hasThumbnailUrl) {
-          findings.push({
-            type: "gap",
-            sourceField: "thumbnail_url",
-            note: `First image is missing a valid thumbnail_url`,
-          });
-        }
+        findings.push({
+          type: "gap",
+          sourceField: "image_id",
+          note: `First image record is missing image_id`,
+        });
       }
     }
 
@@ -273,7 +305,7 @@ async function compareMifloraFloraSearch(
     const fernsRaw = await fetchJson(fernsUrl) as Record<string, unknown>;
     const fernsData = (fernsRaw.data ?? {}) as Record<string, unknown>;
     const urlsCollected = collectUrls(fernsRaw, `miflora/flora_search_sp:${sp.name}`);
-    const findings: FieldFinding[] = [];
+    const findings: FieldFinding[] = assertEnvelopeShape(fernsRaw, "flora_search_sp");
 
     const upstreamRaw = await fetchJson(`${MIFLORA_API}/flora_search_sp?scientific_name=${encodeURIComponent(sp.name)}`);
     const upstreamRecords: Array<Record<string, unknown>> = Array.isArray(upstreamRaw)
@@ -342,7 +374,7 @@ async function compareMifloraSpecText(
     const fernsRaw = await fetchJson(fernsUrl) as Record<string, unknown>;
     const fernsData = (fernsRaw.data ?? {}) as Record<string, unknown>;
     const urlsCollected = collectUrls(fernsRaw, `miflora/spec_text:${plantId}`);
-    const findings: FieldFinding[] = [];
+    const findings: FieldFinding[] = assertEnvelopeShape(fernsRaw, "spec_text");
 
     const upstreamRaw = await fetchJson(`${MIFLORA_API}/spec_text?id=${plantId}`) as Record<string, unknown>;
     const upstreamText = typeof upstreamRaw.text === "string" ? upstreamRaw.text : null;
@@ -401,7 +433,7 @@ async function compareMifloraSynonyms(
     const fernsData = (fernsRaw.data ?? {}) as Record<string, unknown>;
     const ferns = (fernsData.synonyms ?? []) as unknown[];
     const urlsCollected = collectUrls(fernsRaw, `miflora/synonyms:${plantId}`);
-    const findings: FieldFinding[] = [];
+    const findings: FieldFinding[] = assertEnvelopeShape(fernsRaw, "synonyms");
 
     const upstreamRaw = await fetchJson(`${MIFLORA_API}/synonyms?id=${plantId}`);
     const upstream = Array.isArray(upstreamRaw) ? upstreamRaw : [];
@@ -449,7 +481,7 @@ async function compareMifloraPImage(
     const fernsData = (fernsRaw.data ?? {}) as Record<string, unknown>;
     const fernsImage = fernsData.image as Record<string, unknown> | null;
     const urlsCollected = collectUrls(fernsRaw, `miflora/pimage_info:${plantId}`);
-    const findings: FieldFinding[] = [];
+    const findings: FieldFinding[] = assertEnvelopeShape(fernsRaw, "pimage_info");
 
     const upstreamRaw = await fetchJson(`${MIFLORA_API}/pimage_info?id=${plantId}`) as Record<string, unknown>;
     const upstreamImageId = upstreamRaw.image_id as number | string | undefined;
@@ -463,12 +495,11 @@ async function compareMifloraPImage(
       } else {
         findings.push({ type: "mismatch", sourceField: "image_id", sourceValue: upstreamId, fernsValue: fernsId, note: "image_id mismatch" });
       }
-      const hasImageUrl = typeof fernsImage.image_url === "string" && (fernsImage.image_url as string).startsWith("https://");
-      const hasThumbnailUrl = typeof fernsImage.thumbnail_url === "string" && (fernsImage.thumbnail_url as string).startsWith("https://");
-      if (hasImageUrl && hasThumbnailUrl) {
-        findings.push({ type: "ok", sourceField: "image_url", note: "image_url and thumbnail_url are valid absolute HTTPS URLs" });
+      const hasImageId = fernsImage.image_id != null;
+      if (hasImageId) {
+        findings.push({ type: "ok", sourceField: "image_id", note: `image_id present in data.image (consumers construct URLs via website_url_patterns): image_id=${fernsImage.image_id}` });
       } else {
-        findings.push({ type: "gap", sourceField: "image_url", note: "Missing or invalid image_url/thumbnail_url" });
+        findings.push({ type: "gap", sourceField: "image_id", note: "Missing image_id in data.image" });
       }
     } else if (!hasUpstream && !fernsImage) {
       findings.push({ type: "ok", sourceField: "image", note: "Both FERNS and upstream: no primary image" });

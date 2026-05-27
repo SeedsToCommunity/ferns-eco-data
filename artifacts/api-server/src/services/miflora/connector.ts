@@ -19,8 +19,6 @@ export interface MifloraImageRecord {
   image_name: string | null;
   caption: string | null;
   photographer: string | null;
-  image_url: string;
-  thumbnail_url: string;
 }
 
 export interface MifloraImagesResult {
@@ -29,15 +27,6 @@ export interface MifloraImagesResult {
   source_url: string | null;
   upstream_url: string;
   images: MifloraImageRecord[];
-}
-
-export function buildMifloraImageUrls(
-  plantId: number,
-  imageId: number | string,
-): { image_url: string; thumbnail_url: string } {
-  const base = `https://michiganflora.net/static/species_images/_pid_${plantId}/${imageId}.jpg`;
-  const thumb = `https://michiganflora.net/static/species_images/_pid_${plantId}/thumb_${imageId}.jpg`;
-  return { image_url: base, thumbnail_url: thumb };
 }
 
 export function buildSpeciesCacheKey(name: string): string {
@@ -127,15 +116,11 @@ export async function fetchImages(name: string): Promise<MifloraImagesResult> {
   const rawArr: unknown[] = Array.isArray(raw) ? raw : [];
   const images: MifloraImageRecord[] = rawArr.map((item) => {
     const rec = item as Record<string, unknown>;
-    const imageId = rec["image_id"] as number | string;
-    const urls = buildMifloraImageUrls(plantId, imageId);
     return {
-      image_id: imageId,
+      image_id: rec["image_id"] as number | string,
       image_name: (rec["image_name"] as string | null) ?? null,
       caption: (rec["caption"] as string | null) ?? null,
       photographer: (rec["photographer"] as string | null) ?? null,
-      image_url: urls.image_url,
-      thumbnail_url: urls.thumbnail_url,
     };
   });
 
@@ -297,7 +282,6 @@ export async function fetchPImageInfo(plantId: number): Promise<MifloraPImageRes
       image: null,
     };
   }
-  const urls = buildMifloraImageUrls(plantId, imageId);
   return {
     found: true,
     plant_id: plantId,
@@ -308,8 +292,6 @@ export async function fetchPImageInfo(plantId: number): Promise<MifloraPImageRes
       image_name: raw.image_name != null ? String(raw.image_name) : null,
       caption: raw.caption != null ? String(raw.caption) : null,
       photographer: raw.photographer != null ? String(raw.photographer) : null,
-      image_url: urls.image_url,
-      thumbnail_url: urls.thumbnail_url,
     },
   };
 }

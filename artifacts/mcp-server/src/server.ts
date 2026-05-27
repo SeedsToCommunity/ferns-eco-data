@@ -816,7 +816,7 @@ const tools: ToolDef[] = [
     tool: {
       name: "michigan_flora__spec_text",
       description:
-        "Returns the botanical description HTML text for a Michigan Flora species by plant_id. Use michigan_flora__species_lookup first to resolve a scientific name to a plant_id.",
+        "Returns the botanical description HTML text for a Michigan Flora species by plant_id. Note: permission_granted is always false for this endpoint — the text is fetched for reference but is not licensed for reproduction. Use michigan_flora__species_lookup first to resolve a scientific name to a plant_id.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -860,7 +860,7 @@ const tools: ToolDef[] = [
     tool: {
       name: "michigan_flora__pimage_info",
       description:
-        "Returns the primary (featured) image for a Michigan Flora species by plant_id, with constructed absolute image_url and thumbnail_url. Use michigan_flora__species_lookup first to resolve a scientific name to a plant_id.",
+        "Returns the primary (featured) image for a Michigan Flora species by plant_id. Image data (including constructed absolute image_url and thumbnail_url) is in data.image. Use michigan_flora__species_lookup first to resolve a scientific name to a plant_id.",
       inputSchema: {
         type: "object" as const,
         properties: {

@@ -19,7 +19,29 @@ import {
   Search, Loader2, MapPin, ExternalLink, Code, ChevronDown, ChevronUp,
   Camera, ImageOff, BookOpen, GitMerge, Leaf
 } from "lucide-react";
-import type { MifloraImageRecord } from "@workspace/api-client-react";
+interface MifloraRawImage {
+  image_id: number | string;
+  image_name: string | null;
+  caption: string | null;
+  photographer: string | null;
+}
+
+function buildMifloraImageUrls(plantId: number, imageId: number | string) {
+  const base = `https://michiganflora.net/static/species_images/_pid_${plantId}/${imageId}.jpg`;
+  const thumb = `https://michiganflora.net/static/species_images/_pid_${plantId}/thumb_${imageId}.jpg`;
+  return { image_url: base, thumbnail_url: thumb };
+}
+
+function getProvenance(res: unknown): Record<string, unknown> | null {
+  if (!res || typeof res !== "object") return null;
+  return (res as Record<string, unknown>).provenance as Record<string, unknown> | null ?? null;
+}
+
+function getSourceUrl(res: unknown): string | null {
+  const prov = getProvenance(res);
+  if (!prov) return null;
+  return typeof prov.source_url === "string" ? prov.source_url : null;
+}
 
 function RawPanel({ title, data }: { title: string; data: unknown }) {
   const [open, setOpen] = useState(false);
@@ -44,7 +66,7 @@ function RawPanel({ title, data }: { title: string; data: unknown }) {
   );
 }
 
-function ImageGallery({ images, speciesName }: { images: MifloraImageRecord[]; speciesName: string }) {
+function ImageGallery({ images, plantId, speciesName }: { images: MifloraRawImage[]; plantId: number; speciesName: string }) {
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [errored, setErrored] = useState<Set<string>>(new Set());
 
@@ -58,28 +80,29 @@ function ImageGallery({ images, speciesName }: { images: MifloraImageRecord[]; s
   }
 
   const selected = selectedIdx !== null ? images[selectedIdx] : null;
+  const selectedUrls = selected ? buildMifloraImageUrls(plantId, selected.image_id) : null;
 
   return (
     <div className="space-y-3">
-      {selected && (
+      {selected && selectedUrls && (
         <div className="space-y-2">
           <div className="relative rounded-lg overflow-hidden bg-muted/30 border border-border">
-            {errored.has(selected.image_url) ? (
+            {errored.has(selectedUrls.image_url) ? (
               <div className="flex items-center justify-center h-48 text-muted-foreground text-xs gap-2">
                 <ImageOff className="w-5 h-5" />
                 Image unavailable
               </div>
             ) : (
               <img
-                src={selected.image_url}
+                src={selectedUrls.image_url}
                 alt={selected.image_name ?? speciesName}
                 className="w-full max-h-72 object-contain"
                 loading="lazy"
-                onError={() => setErrored((prev) => new Set([...prev, selected.image_url]))}
+                onError={() => setErrored((prev) => new Set([...prev, selectedUrls.image_url]))}
               />
             )}
             <a
-              href={selected.image_url}
+              href={selectedUrls.image_url}
               target="_blank"
               rel="noopener noreferrer"
               className="absolute top-2 right-2 p-1.5 rounded-md bg-background/80 backdrop-blur-sm text-muted-foreground hover:text-foreground transition-colors border border-border/50"
@@ -108,7 +131,8 @@ function ImageGallery({ images, speciesName }: { images: MifloraImageRecord[]; s
       <div className="grid grid-cols-4 gap-1.5">
         {images.map((img, idx) => {
           const isSelected = selectedIdx === idx;
-          const hasError = errored.has(img.thumbnail_url);
+          const { thumbnail_url } = buildMifloraImageUrls(plantId, img.image_id);
+          const hasError = errored.has(thumbnail_url);
           return (
             <button
               key={String(img.image_id)}
@@ -124,11 +148,11 @@ function ImageGallery({ images, speciesName }: { images: MifloraImageRecord[]; s
                 </div>
               ) : (
                 <img
-                  src={img.thumbnail_url}
+                  src={thumbnail_url}
                   alt={img.image_name ?? `Photo ${idx + 1}`}
                   className="w-full h-full object-cover"
                   loading="lazy"
-                  onError={() => setErrored((prev) => new Set([...prev, img.thumbnail_url]))}
+                  onError={() => setErrored((prev) => new Set([...prev, thumbnail_url]))}
                 />
               )}
             </button>
@@ -166,7 +190,7 @@ export default function MifloraPage() {
     { query: { queryKey: getGetMifloraFloraSearchQueryKey(nameParams), enabled } }
   );
 
-  const plantId = floraRes?.data?.plant_id ?? null;
+  const plantId = (floraRes as unknown as { data?: { plant_id?: number | null } } | undefined)?.data?.plant_id ?? null;
   const plantIdEnabled = enabled && plantId != null;
   const idParams = { id: plantId ?? 0 };
 
@@ -201,22 +225,36 @@ export default function MifloraPage() {
     setQuery(name);
   }
 
-  const speciesData = floraRes?.data;
-  const countyData = countiesRes?.data as Record<string, unknown> | null | undefined;
+  const floraResAny = floraRes as unknown as Record<string, unknown> | undefined;
+  const speciesData = floraResAny?.data as Record<string, unknown> | null | undefined;
+  const countyResAny = countiesRes as unknown as Record<string, unknown> | undefined;
+  const countyData = countyResAny?.data as Record<string, unknown> | null | undefined;
   const locations = Array.isArray(countyData?.locations) ? (countyData!.locations as string[]) : [];
-  const images = (imagesRes?.data ?? []) as MifloraImageRecord[];
-  const synonyms = synonymsRes?.data?.synonyms ?? [];
-  const specText = specTextRes?.data?.text ?? null;
+  const imagesResAny = imagesRes as unknown as { found?: boolean; data?: unknown } | undefined;
+  const images = (Array.isArray(imagesResAny?.data) ? imagesResAny!.data : []) as MifloraRawImage[];
+  const synonymsResAny = synonymsRes as unknown as { data?: { synonyms?: unknown[] }; found?: boolean } | undefined;
+  const synonyms = (synonymsResAny?.data?.synonyms ?? []) as Array<{ synonym: string; author?: string | null }>;
+  const specTextResAny = specTextRes as unknown as { data?: { text?: string | null }; found?: boolean } | undefined;
+  const specText = specTextResAny?.data?.text ?? null;
   const sanitizedSpecText = useMemo(
     () => specText ? DOMPurify.sanitize(specText, { ALLOWED_TAGS: ["b", "i", "em", "strong", "p", "br", "span", "ul", "ol", "li"], ALLOWED_ATTR: [] }) : null,
     [specText]
   );
-  const primaryImage = pimageRes?.data?.image ?? null;
+  const pimageResAny = pimageRes as unknown as { data?: { image?: unknown; plant_id?: number | null }; found?: boolean } | undefined;
+  const primaryImage = pimageResAny?.data?.image as MifloraRawImage | null ?? null;
+  const primaryImagePlantId = pimageResAny?.data?.plant_id ?? plantId;
+
+  const floraFound = (floraResAny?.found as boolean | undefined) ?? false;
+  const countiesFound = (countyResAny?.found as boolean | undefined) ?? false;
+  const synonymsFound = (synonymsResAny?.found as boolean | undefined) ?? false;
+  const specTextFound = (specTextResAny?.found as boolean | undefined) ?? false;
 
   const isLoading = floraLoading || countiesLoading || imagesLoading || specTextLoading || synonymsLoading || pimageLoading;
   const hasResult = !!floraRes || !!countiesRes || !!imagesRes;
 
-  const naLabel = speciesData?.na === "N" ? "Native" : speciesData?.na === "A" ? "Adventive (non-native)" : speciesData?.na ?? null;
+  const naLabel = speciesData?.na === "N" ? "Native" : speciesData?.na === "A" ? "Adventive (non-native)" : (speciesData?.na as string | null | undefined) ?? null;
+
+  const floraSourceUrl = getSourceUrl(floraRes);
 
   return (
     <SourceExplorerLayout sourceId="michigan-flora">
@@ -263,9 +301,9 @@ export default function MifloraPage() {
                     <Leaf className="w-4 h-4 text-primary" />
                     Species Overview
                     {floraLoading && <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground ml-auto" />}
-                    {speciesData?.plant_id && (
+                    {!!speciesData?.plant_id && (
                       <span className="ml-auto text-xs font-normal text-muted-foreground">
-                        plant_id: {speciesData.plant_id}
+                        plant_id: {String(speciesData.plant_id)}
                       </span>
                     )}
                   </h3>
@@ -279,15 +317,20 @@ export default function MifloraPage() {
                           <div className="w-28 h-28 rounded-lg bg-muted/40 flex items-center justify-center flex-shrink-0">
                             <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
                           </div>
-                        ) : primaryImage ? (
+                        ) : primaryImage && primaryImagePlantId != null ? (
                           <div className="flex-shrink-0">
-                            <a href={primaryImage.image_url} target="_blank" rel="noopener noreferrer" title="Open full size">
-                              <img
-                                src={primaryImage.thumbnail_url}
-                                alt={primaryImage.image_name ?? query}
-                                className="w-28 h-28 object-cover rounded-lg border border-border shadow-sm hover:opacity-90 transition-opacity"
-                              />
-                            </a>
+                            {(() => {
+                              const { image_url, thumbnail_url } = buildMifloraImageUrls(primaryImagePlantId, primaryImage.image_id);
+                              return (
+                                <a href={image_url} target="_blank" rel="noopener noreferrer" title="Open full size">
+                                  <img
+                                    src={thumbnail_url}
+                                    alt={primaryImage.image_name ?? query}
+                                    className="w-28 h-28 object-cover rounded-lg border border-border shadow-sm hover:opacity-90 transition-opacity"
+                                  />
+                                </a>
+                              );
+                            })()}
                             {primaryImage.photographer && (
                               <p className="text-[10px] text-muted-foreground mt-1 text-center truncate w-28">
                                 © {primaryImage.photographer}
@@ -296,33 +339,33 @@ export default function MifloraPage() {
                           </div>
                         ) : null}
                         <div className="grid grid-cols-2 gap-x-6 gap-y-3 flex-1">
-                          <MetaBadge label="Family" value={speciesData.family_name} />
+                          <MetaBadge label="Family" value={speciesData.family_name as string | null} />
                           <MetaBadge label="Native Status" value={naLabel} />
-                          <MetaBadge label="C-value" value={speciesData.c} />
-                          <MetaBadge label="Wetland Indicator" value={speciesData.wet} />
-                          <MetaBadge label="Physiognomy" value={speciesData.phys} />
-                          <MetaBadge label="Acronym" value={(floraRes?.data?.records?.[0] as { acronym?: string | null } | undefined)?.acronym} />
+                          <MetaBadge label="C-value" value={speciesData.c as string | null} />
+                          <MetaBadge label="Wetland Indicator" value={speciesData.wet as string | null} />
+                          <MetaBadge label="Physiognomy" value={speciesData.phys as string | null} />
+                          <MetaBadge label="Acronym" value={(((speciesData.records as unknown[])?.[0]) as { acronym?: string | null } | undefined)?.acronym} />
                         </div>
                       </div>
                     )}
                     {(!primaryImage && !pimageLoading) && (
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3">
-                        <MetaBadge label="Family" value={speciesData.family_name} />
+                        <MetaBadge label="Family" value={speciesData.family_name as string | null} />
                         <MetaBadge label="Native Status" value={naLabel} />
-                        <MetaBadge label="C-value" value={speciesData.c} />
-                        <MetaBadge label="Wetland Indicator" value={speciesData.wet} />
-                        <MetaBadge label="Physiognomy" value={speciesData.phys} />
+                        <MetaBadge label="C-value" value={speciesData.c as string | null} />
+                        <MetaBadge label="Wetland Indicator" value={speciesData.wet as string | null} />
+                        <MetaBadge label="Physiognomy" value={speciesData.phys as string | null} />
                       </div>
                     )}
-                    {speciesData.common_name && speciesData.common_name.length > 0 && (
+                    {Array.isArray(speciesData.common_name) && (speciesData.common_name as string[]).length > 0 && (
                       <div>
                         <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">Common Names</p>
-                        <p className="text-sm text-foreground">{speciesData.common_name.join(", ")}</p>
+                        <p className="text-sm text-foreground">{(speciesData.common_name as string[]).join(", ")}</p>
                       </div>
                     )}
-                    {floraRes?.source_url && (
+                    {floraSourceUrl && (
                       <a
-                        href={floraRes.source_url}
+                        href={floraSourceUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
@@ -332,7 +375,7 @@ export default function MifloraPage() {
                       </a>
                     )}
                   </div>
-                ) : floraRes && !floraRes.found ? (
+                ) : floraRes && !floraFound ? (
                   <div className="p-5 text-sm text-muted-foreground">Species not found in Michigan Flora.</div>
                 ) : null}
               </div>
@@ -353,7 +396,7 @@ export default function MifloraPage() {
                     className="p-5 prose prose-sm max-w-none text-sm text-foreground/90 [&_p]:mb-2 [&_b]:font-semibold [&_i]:italic"
                     dangerouslySetInnerHTML={{ __html: sanitizedSpecText! }}
                   />
-                ) : specTextRes && !specTextRes.found ? (
+                ) : specTextRes && !specTextFound ? (
                   <div className="p-5 text-sm text-muted-foreground">No description available.</div>
                 ) : null}
               </div>
@@ -385,7 +428,7 @@ export default function MifloraPage() {
                       ))}
                     </ul>
                   </div>
-                ) : synonymsRes && !synonymsRes.found ? (
+                ) : synonymsRes && !synonymsFound ? (
                   <div className="p-5 text-sm text-muted-foreground">No synonyms on record.</div>
                 ) : null}
               </div>
@@ -407,7 +450,7 @@ export default function MifloraPage() {
               </div>
               <div className="p-4">
                 {imagesRes ? (
-                  <ImageGallery images={images} speciesName={query} />
+                  <ImageGallery images={images} plantId={plantId ?? 0} speciesName={query} />
                 ) : imagesLoading ? null : (
                   <p className="text-sm text-muted-foreground">No photo data loaded.</p>
                 )}
@@ -424,7 +467,7 @@ export default function MifloraPage() {
                 </h3>
               </div>
 
-              {countiesRes?.found && locations.length > 0 ? (
+              {countiesFound && locations.length > 0 ? (
                 <div className="p-5">
                   <div className="flex flex-wrap gap-1.5 mb-3">
                     {locations.sort().map((county) => (
@@ -438,7 +481,7 @@ export default function MifloraPage() {
                     {Math.round((locations.length / 83) * 100)}% of Michigan counties have confirmed presence.
                   </p>
                 </div>
-              ) : countiesRes && !countiesRes.found ? (
+              ) : countiesRes && !countiesFound ? (
                 <div className="p-5 text-sm text-muted-foreground">No county records found.</div>
               ) : null}
             </div>

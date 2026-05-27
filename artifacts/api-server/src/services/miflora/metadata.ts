@@ -6,6 +6,19 @@ export const MIFLORA_USER_AGENT = "FERNS/1.0";
 
 export const MIFLORA_REQUEST_TIMEOUT_MS = 30000;
 
+export const MIFLORA_LICENSE = "cc-by";
+
+export const MIFLORA_RIGHTS =
+  "Data and images © University of Michigan Herbarium. Non-commercial educational and research use with attribution. " +
+  "Cite as: Reznicek, A.A., E.G. Voss, & B.S. Walters. February 2011. Michigan Flora Online. University of Michigan. " +
+  "Web. https://michiganflora.net. Attribution required for any use.";
+
+export const MIFLORA_WEBSITE_URL_PATTERNS = {
+  species_page: "https://michiganflora.net/species/{plant_id}",
+  image_full: "https://michiganflora.net/static/species_images/_pid_{plant_id}/{image_id}.jpg",
+  image_thumbnail: "https://michiganflora.net/static/species_images/_pid_{plant_id}/thumb_{image_id}.jpg",
+};
+
 export const MIFLORA_LICENSES = ["cc-by"];
 
 export const MIFLORA_LICENSE_NOTES =
@@ -42,8 +55,11 @@ export const MIFLORA_TECHNICAL_DETAILS =
   "DB tables: miflora_species_cache, miflora_counties_cache, miflora_images_cache (all share the same structure: serial PK, cache_key unique text, source_id, fetched_at, method, upstream_url, expires_at, plus response data columns). " +
   "expires_at = null for all records (permanent cache — Michigan Flora data does not change). " +
   "?refresh=true on any endpoint forces a re-fetch of the cached record for that species. " +
-  "Response normalization: pimage_info records are enriched at serve time with constructed image_url and thumbnail_url fields. " +
-  "Formula (reverse-engineered from Michigan Flora frontend): full image = https://michiganflora.net/static/species_images/_pid_{plant_id}/{image_id}.jpg; thumbnail = ..._pid_{plant_id}/thumb_{image_id}.jpg. " +
+  "Image URL construction: FERNS does NOT inject constructed URLs into data. " +
+  "Consumers build image URLs from the website_url_patterns registry entry templates: " +
+  "image_full = https://michiganflora.net/static/species_images/_pid_{plant_id}/{image_id}.jpg; " +
+  "image_thumbnail = ..._pid_{plant_id}/thumb_{image_id}.jpg. " +
+  "Formula reverse-engineered from the Michigan Flora frontend. " +
   "FIELD DEFINITIONS — " +
   "c: Coefficient of Conservatism (C-value, Swink & Wilhelm 1994 methodology). Always a string. " +
   "Per-species Michigan C-values sourced from: Reznicek, A.A., M.R. Penskar, B.S. Walters, and B.S. Slaughter. 2014. " +
@@ -91,15 +107,21 @@ export const MIFLORA_REGISTRY_ENTRY = {
   known_limitations:
     "Coverage limited to Michigan only. Scientific name casing is inconsistent in the source API " +
     "(adventive species names are ALL-CAPS). The st field uses the literal string 'NULL' for unknown " +
-    "or absent status — this is a source API quirk, not a JSON null. County occurrence codes require " +
+    "or absent status — this is a source API quirk, not a JSON null value. County occurrence codes require " +
     "interpretation (see county endpoint). flora_search_sp may return multiple records (subspecies/varieties) " +
     "for one query. Two API calls minimum for any species query; four for full species data.",
   metadata_url: "/api/miflora/metadata",
   explorer_url: "/source/michigan-flora",
   licenses: MIFLORA_LICENSES,
   license_notes: MIFLORA_LICENSE_NOTES,
+  license: MIFLORA_LICENSE,
+  rights: MIFLORA_RIGHTS,
+  website_url_patterns: MIFLORA_WEBSITE_URL_PATTERNS,
   general_summary: MIFLORA_GENERAL_SUMMARY,
   technical_details: MIFLORA_TECHNICAL_DETAILS,
-  non_passthrough_endpoints: [{ endpoint: "/api/miflora/metadata", kind: "metadata" }],
+  non_passthrough_endpoints: [
+    { endpoint: "/api/miflora/metadata", kind: "metadata" },
+    { endpoint: "/api/miflora/spec_text", kind: "scraped_text" },
+  ],
   permission_granted: true,
 };
