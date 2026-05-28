@@ -1,5 +1,11 @@
 ## Source Onboarding Playbook
 
+### Architectural Orientation
+
+Adding a Source means building its **Data Adapter** — the code that calls the Source over its Source Interface, wraps each response in the EC envelope, and exposes the Source's dedicated routes on the EC Data Interface. There is exactly one Data Adapter per Source. An Adapter never combines data across Sources. For the full architecture, see "Source / Adapter / Source Interface" in `docs/data-layer-contract.md` (the contract is the authority on what an Adapter must produce; this playbook is the authority on the steps to build one).
+
+A new Source may be an **External Data Provider** (reached over the network — iNat, GBIF) or an **Internal Data Provider** (held in-process inside EC FERNS — S2C, Coefficients of Conservatism, the name graph). The checklist below applies to both; differences specific to the kind of Provider are noted at the relevant steps.
+
 ### Onboarding Checklist (Mandatory — do not skip steps)
 
 Every step must be completed before a source is considered done. If a step is genuinely not applicable, state that explicitly with a reason. Do not silently omit steps.
@@ -191,7 +197,7 @@ After the user approves the Source Research Proposal, execute all remaining chec
 **BROKEN PRECONDITIONS are a hard stop — before any code is written, surfaced to the user, never resolved silently and never demoted to a post-task-summary footnote:**
 - **The source cannot be made to behave as expected** — the upstream response cannot be cleanly mapped to the FERNS envelope without a structural design decision; permission status is unclear or requires contacting the institution; a genuinely novel schema or caching approach with no precedent is required.
 - **Two guidance documents contradict each other** — when the contract, this playbook, and replit.md cannot all be satisfied at once.
-- **The task contradicts the contract** — when a task instruction asks for something the data-layer contract forbids (for example, asking to keep a FERNS-constructed field inside `data`). This is the case that must never become a footnote: it is a stop, raised before proceeding, with the highest-level explanation possible.
+- **The task contradicts the contract** — when a task instruction asks for something the EC Data Interface Contract forbids (for example, asking to keep a FERNS-constructed field inside `data`). This is the case that must never become a footnote: it is a stop, raised before proceeding, with the highest-level explanation possible.
 
 The reason for a stop is always a broken precondition, never the mere size or importance of a decision. As the guidance documents become coherent, the broken-precondition category shrinks — fewer stops are needed because fewer contradictions exist, not because vigilance is relaxed.
 

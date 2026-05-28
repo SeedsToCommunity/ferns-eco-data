@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 720" font-family="Georgia, 'Times New Roman', serif">
+  <defs>
+    <marker id="arrowdown" viewBox="0 0 10 10" refX="5" refY="9" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 0 L 5 9 z" fill="#3d5a4a"/>
+    </marker>
+    <marker id="arrowup" viewBox="0 0 10 10" refX="5" refY="1" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 10 L 10 10 L 5 1 z" fill="#3d5a4a"/>
+    </marker>
+    <style>
+      .label-major { font-size: 18px; fill: #2a2520; font-weight: 600; }
+      .label-mid { font-size: 14px; fill: #2a2520; }
+      .label-small { font-size: 12px; fill: #4a453e; }
+      .label-tiny { font-size: 11px; fill: #6b6356; font-style: italic; }
+      .label-channel { font-size: 11px; fill: #3d5a4a; }
+      .label-boundary { font-size: 13px; fill: #7a3a2a; letter-spacing: 0.06em; font-weight: 600; }
+      .box-fill { fill: #fbf9f4; stroke: #2a2520; stroke-width: 1.5; }
+      .source-box { fill: #fbf9f4; stroke: #3a3530; stroke-width: 1.2; }
+      .group-label { font-size: 12px; fill: #4a453e; font-style: italic; }
+      .channel { stroke: #3d5a4a; stroke-width: 1.4; fill: none; }
+      .boundary { stroke: #7a3a2a; stroke-width: 2; fill: none; stroke-dasharray: 8 6; }
+    </style>
+  </defs>
+
+  <!-- Title -->
+  <text x="500" y="36" text-anchor="middle" class="label-major">EC FERNS — Source / Adapter / Interface Architecture</text>
+  <text x="500" y="56" text-anchor="middle" class="label-tiny">One Source ↔ one Source Interface ↔ one Data Adapter ↔ its dedicated routes on the EC Data Interface</text>
+
+  <!-- Consumer tier -->
+  <text x="320" y="110" text-anchor="middle" class="label-major">Applications</text>
+  <text x="680" y="110" text-anchor="middle" class="label-major">Users</text>
+  <line x1="370" y1="103" x2="630" y2="103" stroke="#2a2520" stroke-width="1" />
+
+  <!-- Channels into EC FERNS -->
+  <!-- Apps -> Registry -->
+  <line x1="240" y1="120" x2="195" y2="250" class="channel" marker-end="url(#arrowdown)"/>
+  <text x="195" y="180" text-anchor="end" class="label-channel">http</text>
+  <text x="195" y="194" text-anchor="end" class="label-channel">REST</text>
+  <text x="195" y="208" text-anchor="end" class="label-channel">MCP</text>
+
+  <!-- Apps -> Adapters -->
+  <line x1="380" y1="120" x2="430" y2="250" class="channel" marker-end="url(#arrowdown)"/>
+  <text x="420" y="172" class="label-channel">EC Data Interface</text>
+  <text x="420" y="186" class="label-channel">REST</text>
+  <text x="420" y="200" class="label-channel">MCP</text>
+
+  <!-- Users -> Web pages -->
+  <line x1="680" y1="120" x2="780" y2="250" class="channel" marker-end="url(#arrowdown)"/>
+  <text x="745" y="195" class="label-channel">http</text>
+
+  <!-- EC FERNS boundary (dashed, encloses Registry, Adapters region, Web pages, AND Internal Data Providers) -->
+  <path d="M 90 230
+           L 90 290
+           C 90 380, 90 530, 270 600
+           L 730 600
+           C 920 530, 920 380, 920 290
+           L 920 230
+           Z"
+        class="boundary"/>
+  <text x="888" y="252" class="label-boundary">EC FERNS</text>
+
+  <!-- Registry box -->
+  <rect x="140" y="250" width="120" height="60" rx="3" class="box-fill"/>
+  <text x="200" y="285" text-anchor="middle" class="label-mid">Registry</text>
+
+  <!-- Data Adapters container -->
+  <rect x="330" y="240" width="320" height="100" rx="3" class="box-fill"/>
+  <text x="490" y="268" text-anchor="middle" class="label-mid" font-weight="600">Data Adapters</text>
+  <text x="490" y="286" text-anchor="middle" class="label-small">one per Source · envelope · metadata · routes</text>
+
+  <!-- per-adapter small boxes within the container -->
+  <rect x="350" y="304" width="42" height="22" rx="2" class="source-box"/>
+  <text x="371" y="320" text-anchor="middle" class="label-small">iNat</text>
+
+  <rect x="400" y="304" width="42" height="22" rx="2" class="source-box"/>
+  <text x="421" y="320" text-anchor="middle" class="label-small">GBIF</text>
+
+  <text x="452" y="320" class="label-small">…</text>
+
+  <rect x="480" y="304" width="42" height="22" rx="2" class="source-box"/>
+  <text x="501" y="320" text-anchor="middle" class="label-small">S2C</text>
+
+  <rect x="530" y="304" width="48" height="22" rx="2" class="source-box"/>
+  <text x="554" y="320" text-anchor="middle" class="label-small">wildtype</text>
+
+  <rect x="586" y="304" width="42" height="22" rx="2" class="source-box"/>
+  <text x="607" y="320" text-anchor="middle" class="label-small">Coef</text>
+
+  <!-- Web pages box -->
+  <rect x="720" y="250" width="130" height="60" rx="3" class="box-fill"/>
+  <text x="785" y="285" text-anchor="middle" class="label-mid">Web pages</text>
+
+  <!-- Source Interfaces label across middle band -->
+  <text x="490" y="395" text-anchor="middle" class="label-small" font-style="italic">Source Interfaces — one per Source, vary by Source</text>
+
+  <!-- Lines from adapter sub-boxes down to providers -->
+  <!-- External providers: iNat, GBIF -->
+  <line x1="371" y1="328" x2="290" y2="480" class="channel" marker-end="url(#arrowdown)"/>
+  <line x1="421" y1="328" x2="370" y2="480" class="channel" marker-end="url(#arrowdown)"/>
+
+  <!-- Internal providers: S2C, wildtype, Coef -->
+  <line x1="501" y1="328" x2="540" y2="480" class="channel" marker-end="url(#arrowdown)"/>
+  <line x1="554" y1="328" x2="630" y2="480" class="channel" marker-end="url(#arrowdown)"/>
+  <line x1="607" y1="328" x2="720" y2="480" class="channel" marker-end="url(#arrowdown)"/>
+
+  <!-- External Data Provider boxes (OUTSIDE the EC FERNS boundary) -->
+  <rect x="252" y="485" width="76" height="34" rx="3" class="source-box"/>
+  <text x="290" y="507" text-anchor="middle" class="label-small">iNat</text>
+
+  <rect x="332" y="485" width="76" height="34" rx="3" class="source-box"/>
+  <text x="370" y="507" text-anchor="middle" class="label-small">GBIF</text>
+
+  <text x="424" y="507" class="label-small">…</text>
+
+  <text x="330" y="548" text-anchor="middle" class="label-small">External Data Providers</text>
+  <text x="330" y="564" text-anchor="middle" class="label-tiny">live outside EC FERNS · reached over the network</text>
+
+  <!-- Internal Data Provider boxes (INSIDE the EC FERNS boundary) -->
+  <rect x="500" y="485" width="76" height="34" rx="3" class="source-box"/>
+  <text x="538" y="507" text-anchor="middle" class="label-small">S2C</text>
+
+  <rect x="590" y="485" width="80" height="34" rx="3" class="source-box"/>
+  <text x="630" y="507" text-anchor="middle" class="label-small">wildtype</text>
+
+  <rect x="684" y="485" width="76" height="34" rx="3" class="source-box"/>
+  <text x="722" y="507" text-anchor="middle" class="label-small">Coef</text>
+
+  <text x="630" y="548" text-anchor="middle" class="label-small">Internal Data Providers</text>
+  <text x="630" y="564" text-anchor="middle" class="label-tiny">live inside EC FERNS · in-process · segregated behind their Source Interface</text>
+
+  <!-- Sources category label -->
+  <text x="60" y="500" class="label-boundary">Sources →</text>
+  <text x="60" y="518" class="label-tiny">(category;</text>
+  <text x="60" y="532" class="label-tiny">External or Internal)</text>
+
+  <!-- Footer principles -->
+  <line x1="80" y1="630" x2="920" y2="630" stroke="#c4bba9" stroke-width="1"/>
+  <text x="80" y="654" class="label-small" font-weight="600">Structural rules</text>
+  <text x="80" y="675" class="label-small">· One-to-one mapping: each Source has its own Source Interface, its own Data Adapter, and its own dedicated routes on the EC Data Interface.</text>
+  <text x="80" y="691" class="label-small">· Adapters never combine across Sources. A response on the EC Data Interface comes from exactly one Source (a Source may compute internally).</text>
+  <text x="80" y="707" class="label-small">· A Source is opaque behind its Source Interface. Its storage strategy and internal implementation may change without affecting its Adapter.</text>
+</svg>
