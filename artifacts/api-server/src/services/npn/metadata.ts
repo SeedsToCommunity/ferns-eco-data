@@ -64,7 +64,6 @@ export const NPN_REGISTRY_ENTRY = {
     "No formal data-sharing agreement — cite Greg Vaclavek / nativeplant.com when using this data. " +
     "Carex species use CX prefix (not CAR) in acronyms.",
   metadata_url: "/api/ann-arbor-npn/metadata",
-  explorer_url: "/source/ann-arbor-npn",
   licenses: NPN_LICENSES,
   license_notes: NPN_LICENSE_NOTES,
   general_summary: NPN_GENERAL_SUMMARY,

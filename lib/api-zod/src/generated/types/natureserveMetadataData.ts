@@ -19,6 +19,5 @@ export interface NatureserveMetadataData {
   license_notes?: string;
   cache_stats?: NatureserveMetadataDataCacheStats;
   metadata_url?: string;
-  explorer_url?: string;
   website_url_patterns?: NatureserveMetadataDataWebsiteUrlPatterns;
 }

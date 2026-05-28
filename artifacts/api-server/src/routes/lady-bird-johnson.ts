@@ -184,7 +184,6 @@ router.get("/lady-bird-johnson/metadata", async (req, res) => {
         registry_entry: {
           ...LADY_BIRD_JOHNSON_REGISTRY_ENTRY,
           metadata_url: resolveUrl(req, LADY_BIRD_JOHNSON_REGISTRY_ENTRY.metadata_url),
-          explorer_url: resolveUrl(req, LADY_BIRD_JOHNSON_REGISTRY_ENTRY.explorer_url),
         },
       },
     },

@@ -208,12 +208,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "explorer_url": {
-          "name": "explorer_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
         "permission_granted": {
           "name": "permission_granted",
           "type": "boolean",

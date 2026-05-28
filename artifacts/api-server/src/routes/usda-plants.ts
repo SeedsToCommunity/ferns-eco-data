@@ -30,7 +30,6 @@ router.get("/usda-plants/metadata", async (req, res) => {
         data: {
           ...USDA_PLANTS_REGISTRY_ENTRY,
           metadata_url: resolveUrl(req, USDA_PLANTS_REGISTRY_ENTRY.metadata_url),
-          explorer_url: resolveUrl(req, USDA_PLANTS_REGISTRY_ENTRY.explorer_url),
         },
         method: "cache_hit",
         cacheStatus: "hit",

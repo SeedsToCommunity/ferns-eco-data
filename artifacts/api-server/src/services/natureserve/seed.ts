@@ -22,7 +22,6 @@ export async function ensureNatureserveRegistryEntry(): Promise<void> {
           update_frequency: NATURESERVE_REGISTRY_ENTRY.update_frequency,
           known_limitations: NATURESERVE_REGISTRY_ENTRY.known_limitations,
           metadata_url: NATURESERVE_REGISTRY_ENTRY.metadata_url,
-          explorer_url: NATURESERVE_REGISTRY_ENTRY.explorer_url,
           licenses: NATURESERVE_REGISTRY_ENTRY.licenses ?? [],
           license_notes: NATURESERVE_REGISTRY_ENTRY.license_notes ?? "",
           license: NATURESERVE_REGISTRY_ENTRY.license,

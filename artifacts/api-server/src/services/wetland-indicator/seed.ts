@@ -22,7 +22,6 @@ export async function ensureWetlandIndicatorRegistryEntry(): Promise<void> {
           update_frequency: WETLAND_INDICATOR_REGISTRY_ENTRY.update_frequency,
           known_limitations: WETLAND_INDICATOR_REGISTRY_ENTRY.known_limitations,
           metadata_url: WETLAND_INDICATOR_REGISTRY_ENTRY.metadata_url,
-          explorer_url: WETLAND_INDICATOR_REGISTRY_ENTRY.explorer_url,
           licenses: WETLAND_INDICATOR_REGISTRY_ENTRY.licenses ?? [],
           license_notes: WETLAND_INDICATOR_REGISTRY_ENTRY.license_notes ?? "",
           general_summary: WETLAND_INDICATOR_REGISTRY_ENTRY.general_summary ?? null,

@@ -15,7 +15,6 @@ export const fernsSourcesTable = pgTable("ferns_sources", {
   update_frequency: text("update_frequency"),
   known_limitations: text("known_limitations"),
   metadata_url: text("metadata_url"),
-  explorer_url: text("explorer_url"),
   licenses: text("licenses").array().notNull().default([]),
   license_notes: text("license_notes").notNull().default(""),
   general_summary: text("general_summary"),

@@ -1467,7 +1467,6 @@ export const GetGbifMetadataResponse = zod
             })
             .optional(),
           metadata_url: zod.string().optional(),
-          explorer_url: zod.string().optional(),
         })
         .optional(),
     }),
@@ -4592,7 +4591,6 @@ export const GetMifloraMetadataResponse = zod.object({
       update_frequency: zod.string().optional(),
       known_limitations: zod.string().optional(),
       metadata_url: zod.string().optional(),
-      explorer_url: zod.string().optional(),
     })
     .optional()
     .describe("Full registry entry for the Michigan Flora service"),
@@ -4818,7 +4816,6 @@ export const GetCoefficientMetadataResponse = zod.object({
       update_frequency: zod.string().optional(),
       known_limitations: zod.string().optional(),
       metadata_url: zod.string().optional(),
-      explorer_url: zod.string().optional(),
     })
     .optional()
     .describe("Full registry entry for this vocabulary source"),
@@ -5130,7 +5127,6 @@ export const GetWetlandIndicatorMetadataResponse = zod.object({
       update_frequency: zod.string().optional(),
       known_limitations: zod.string().optional(),
       metadata_url: zod.string().optional(),
-      explorer_url: zod.string().optional(),
     })
     .optional()
     .describe("Full registry entry for this vocabulary source"),
@@ -5364,7 +5360,6 @@ export const GetWucolsMetadataResponse = zod.object({
       update_frequency: zod.string().optional(),
       known_limitations: zod.string().optional(),
       metadata_url: zod.string().optional(),
-      explorer_url: zod.string().optional(),
     })
     .optional()
     .describe("Full registry entry for this vocabulary source"),
@@ -5806,7 +5801,6 @@ export const GetS2CMetadataResponse = zod
           update_frequency: zod.string().optional(),
           known_limitations: zod.string().optional(),
           metadata_url: zod.string().optional(),
-          explorer_url: zod.string().optional(),
           licenses: zod.array(zod.string()).optional(),
           license_notes: zod.string().optional(),
           general_summary: zod.string().optional(),
@@ -6298,9 +6292,6 @@ export const GetSourcesIndexResponse = zod.object({
         metadata_url: zod
           .string()
           .describe("Link to this service's full \/metadata endpoint"),
-        explorer_url: zod
-          .string()
-          .describe("Link to this service's Source Explorer UI"),
         licenses: zod
           .array(zod.string())
           .optional()
@@ -6623,9 +6614,6 @@ export const GetTrustGroupSourcesResponse = zod.object({
               metadata_url: zod
                 .string()
                 .describe("Link to this service's full \/metadata endpoint"),
-              explorer_url: zod
-                .string()
-                .describe("Link to this service's Source Explorer UI"),
               licenses: zod
                 .array(zod.string())
                 .optional()
@@ -7274,9 +7262,6 @@ export const GetSourcesMetadataResponse = zod.object({
     metadata_url: zod
       .string()
       .describe("Link to this service's full \/metadata endpoint"),
-    explorer_url: zod
-      .string()
-      .describe("Link to this service's Source Explorer UI"),
     licenses: zod
       .array(zod.string())
       .optional()
@@ -8126,7 +8111,6 @@ export const GetNatureserveMetadataResponse = zod
             })
             .optional(),
           metadata_url: zod.string().optional(),
-          explorer_url: zod.string().optional(),
           website_url_patterns: zod
             .record(zod.string(), zod.unknown())
             .optional(),
@@ -9081,7 +9065,6 @@ export const GetGoogleImagesMetadataResponse = zod
           update_frequency: zod.string().optional(),
           known_limitations: zod.string().optional(),
           metadata_url: zod.string().optional(),
-          explorer_url: zod.string().optional(),
           licenses: zod.array(zod.string()).optional(),
           license_notes: zod.string().optional(),
           general_summary: zod.string().optional(),

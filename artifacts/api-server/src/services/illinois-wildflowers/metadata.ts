@@ -71,7 +71,6 @@ export const ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY = {
     "Species may appear in multiple sections (multiple URLs returned). " +
     "Nomenclature follows the site's taxonomy, which may differ from current accepted names.",
   metadata_url: "/api/illinois-wildflowers/metadata",
-  explorer_url: "/source/illinois-wildflowers",
   licenses: ILLINOIS_WILDFLOWERS_LICENSES,
   license_notes: ILLINOIS_WILDFLOWERS_LICENSE_NOTES,
   license: ILLINOIS_WILDFLOWERS_LICENSE,

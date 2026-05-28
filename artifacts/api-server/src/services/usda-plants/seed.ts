@@ -22,7 +22,6 @@ export async function ensureUsdaPlantsRegistryEntry(): Promise<void> {
           update_frequency: USDA_PLANTS_REGISTRY_ENTRY.update_frequency,
           known_limitations: USDA_PLANTS_REGISTRY_ENTRY.known_limitations,
           metadata_url: USDA_PLANTS_REGISTRY_ENTRY.metadata_url,
-          explorer_url: USDA_PLANTS_REGISTRY_ENTRY.explorer_url,
           licenses: USDA_PLANTS_REGISTRY_ENTRY.licenses ?? [],
           license_notes: USDA_PLANTS_REGISTRY_ENTRY.license_notes ?? "",
           general_summary: USDA_PLANTS_REGISTRY_ENTRY.general_summary ?? null,

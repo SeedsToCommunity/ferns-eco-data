@@ -4948,8 +4948,6 @@ components:
                 $ref: "#/components/schemas/GbifVocabularyEntry"
         metadata_url:
           type: string
-        explorer_url:
-          type: string
 
     GbifMetadataResponse:
       allOf:
@@ -5298,7 +5296,6 @@ components:
         - update_frequency
         - known_limitations
         - metadata_url
-        - explorer_url
       properties:
         source_id:
           type: string
@@ -5335,9 +5332,6 @@ components:
         metadata_url:
           type: string
           description: Link to this service's full /metadata endpoint
-        explorer_url:
-          type: string
-          description: Link to this service's Source Explorer UI
         licenses:
           type: array
           items:
@@ -5835,8 +5829,6 @@ components:
               type: string
             metadata_url:
               type: string
-            explorer_url:
-              type: string
         queried_at:
           type: string
           format: date-time
@@ -6138,8 +6130,6 @@ components:
             known_limitations:
               type: string
             metadata_url:
-              type: string
-            explorer_url:
               type: string
         queried_at:
           type: string
@@ -7062,8 +7052,6 @@ components:
               type: object
               additionalProperties: true
         metadata_url:
-          type: string
-        explorer_url:
           type: string
         website_url_patterns:
           type: object
@@ -8039,8 +8027,6 @@ components:
         known_limitations:
           type: string
         metadata_url:
-          type: string
-        explorer_url:
           type: string
         licenses:
           type: array

@@ -17,5 +17,4 @@ export interface GbifMetadataData {
   attribution?: GbifMetadataDataAttribution;
   vocabularies?: GbifMetadataDataVocabularies;
   metadata_url?: string;
-  explorer_url?: string;
 }

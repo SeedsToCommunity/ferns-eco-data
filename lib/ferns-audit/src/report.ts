@@ -88,16 +88,11 @@ export function printReport(report: AuditReport): void {
   } else {
     for (const src of report.registryCheck.sources) {
       const mCheck = src.metadata_url_check;
-      const eCheck = src.explorer_url_check;
       const mStr = mCheck
         ? `metadata_url: ${ok(mCheck.isAbsolute)} abs  ${ok(mCheck.ok)} ${mCheck.status ?? (mCheck.error ? "err" : "?")}`
         : "metadata_url: n/a";
-      const eStr = eCheck
-        ? `explorer_url: ${ok(eCheck.isAbsolute)} abs  ${ok(eCheck.ok)} ${eCheck.status ?? (eCheck.error ? "err" : "?")}`
-        : "explorer_url: n/a";
-      lines.push(`  ${pad(src.source_id, 18)}  ${mStr}    ${eStr}`);
+      lines.push(`  ${pad(src.source_id, 18)}  ${mStr}`);
       if (mCheck?.error) lines.push(`                      metadata error: ${mCheck.error}`);
-      if (eCheck?.error) lines.push(`                      explorer error: ${eCheck.error}`);
     }
   }
   lines.push("");

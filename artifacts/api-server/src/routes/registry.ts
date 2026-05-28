@@ -83,7 +83,6 @@ router.get("/v1/sources", async (req, res) => {
       update_frequency: r.update_frequency ?? "",
       known_limitations: r.known_limitations ?? "",
       metadata_url: resolveUrl(req, r.metadata_url ?? ""),
-      explorer_url: resolveUrl(req, r.explorer_url ?? ""),
       licenses: r.licenses ?? [],
       license_notes: r.license_notes ?? "",
       general_summary: r.general_summary ?? "",
@@ -132,7 +131,6 @@ router.get("/v1/sources/metadata", async (req, res) => {
       known_limitations:
         "Reports what is registered; does not evaluate data quality, trust tier, or methodological soundness of registered services.",
       metadata_url: resolveUrl(req, "/api/v1/sources/metadata"),
-      explorer_url: resolveUrl(req, "/"),
       licenses: REGISTRY_LICENSES,
       license_notes: REGISTRY_LICENSE_NOTES,
     },

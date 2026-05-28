@@ -21,7 +21,6 @@ export async function ensureNpnRegistryEntry(): Promise<void> {
           update_frequency: NPN_REGISTRY_ENTRY.update_frequency,
           known_limitations: NPN_REGISTRY_ENTRY.known_limitations,
           metadata_url: NPN_REGISTRY_ENTRY.metadata_url,
-          explorer_url: NPN_REGISTRY_ENTRY.explorer_url,
           licenses: NPN_REGISTRY_ENTRY.licenses ?? [],
           license_notes: NPN_REGISTRY_ENTRY.license_notes ?? "",
           general_summary: NPN_REGISTRY_ENTRY.general_summary ?? null,

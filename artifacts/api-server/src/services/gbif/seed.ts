@@ -22,7 +22,6 @@ export async function ensureGbifRegistryEntry(): Promise<void> {
           update_frequency: GBIF_REGISTRY_ENTRY.update_frequency,
           known_limitations: GBIF_REGISTRY_ENTRY.known_limitations,
           metadata_url: GBIF_REGISTRY_ENTRY.metadata_url,
-          explorer_url: GBIF_REGISTRY_ENTRY.explorer_url,
           licenses: GBIF_REGISTRY_ENTRY.licenses ?? [],
           license_notes: GBIF_REGISTRY_ENTRY.license_notes ?? "",
           license: GBIF_REGISTRY_ENTRY.license,

@@ -45,7 +45,6 @@ router.get("/universal-fqa/metadata", async (req, res) => {
         update_frequency: UNIVERSAL_FQA_REGISTRY_ENTRY.update_frequency,
         known_limitations: UNIVERSAL_FQA_REGISTRY_ENTRY.known_limitations,
         metadata_url: resolveUrl(req, UNIVERSAL_FQA_REGISTRY_ENTRY.metadata_url),
-        explorer_url: resolveUrl(req, UNIVERSAL_FQA_REGISTRY_ENTRY.explorer_url),
         licenses: UNIVERSAL_FQA_LICENSES,
         license_notes: UNIVERSAL_FQA_LICENSE_NOTES,
         attribution: UNIVERSAL_FQA_ATTRIBUTION,

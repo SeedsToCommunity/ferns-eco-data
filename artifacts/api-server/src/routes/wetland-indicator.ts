@@ -118,7 +118,6 @@ router.get("/wetland-indicator/metadata", async (req, res) => {
         update_frequency: WETLAND_INDICATOR_REGISTRY_ENTRY.update_frequency,
         known_limitations: WETLAND_INDICATOR_REGISTRY_ENTRY.known_limitations,
         metadata_url: resolveUrl(req, WETLAND_INDICATOR_REGISTRY_ENTRY.metadata_url),
-        explorer_url: resolveUrl(req, WETLAND_INDICATOR_REGISTRY_ENTRY.explorer_url),
         licenses: WETLAND_INDICATOR_LICENSES,
         license_notes: WETLAND_INDICATOR_LICENSE_NOTES,
         general_summary: WETLAND_INDICATOR_GENERAL_SUMMARY,

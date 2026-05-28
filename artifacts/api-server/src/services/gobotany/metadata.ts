@@ -69,7 +69,6 @@ export const GOBOTANY_REGISTRY_ENTRY = {
     "Taxa present in southern or midwestern US but not New England return found: false. " +
     "Taxonomic synonyms not recognized by Go Botany will return 404 even if the species occurs in New England.",
   metadata_url: "/api/gobotany/metadata",
-  explorer_url: "/source/gobotany",
   licenses: GOBOTANY_LICENSES,
   license_notes: GOBOTANY_LICENSE_NOTES,
   license: GOBOTANY_LICENSE,

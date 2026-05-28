@@ -22,7 +22,6 @@ export async function ensureBonapRegistryEntry(): Promise<void> {
           update_frequency: BONAP_REGISTRY_ENTRY.update_frequency,
           known_limitations: BONAP_REGISTRY_ENTRY.known_limitations,
           metadata_url: BONAP_REGISTRY_ENTRY.metadata_url,
-          explorer_url: BONAP_REGISTRY_ENTRY.explorer_url,
           licenses: BONAP_REGISTRY_ENTRY.licenses ?? [],
           license_notes: BONAP_REGISTRY_ENTRY.license_notes ?? "",
           general_summary: BONAP_REGISTRY_ENTRY.general_summary ?? null,

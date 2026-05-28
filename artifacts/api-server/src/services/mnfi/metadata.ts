@@ -83,7 +83,6 @@ export const MNFI_REGISTRY_ENTRY = {
     "Characteristic plant lists require POST /api/mnfi/import-plant-lists. " +
     "Geographic scope: Michigan only. No national or multi-state coverage.",
   metadata_url: "/api/mnfi/metadata",
-  explorer_url: "/source/mnfi",
   licenses: MNFI_LICENSES,
   license_notes: MNFI_LICENSE_NOTES,
   license: "cc-by",

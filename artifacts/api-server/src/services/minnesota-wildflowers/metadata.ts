@@ -70,7 +70,6 @@ export const MINNESOTA_WILDFLOWERS_REGISTRY_ENTRY = {
     "URLs use common-name slugs not derivable from scientific names — the species list index is authoritative. " +
     "Exact binomial match required (case-insensitive); subspecies and varieties follow site taxonomy.",
   metadata_url: "/api/minnesota-wildflowers/metadata",
-  explorer_url: "/source/minnesota-wildflowers",
   licenses: MINNESOTA_WILDFLOWERS_LICENSES,
   license_notes: MINNESOTA_WILDFLOWERS_LICENSE_NOTES,
   license: MINNESOTA_WILDFLOWERS_LICENSE,

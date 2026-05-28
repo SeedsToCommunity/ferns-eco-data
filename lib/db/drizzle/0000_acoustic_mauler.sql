@@ -32,7 +32,6 @@ CREATE TABLE "ferns_sources" (
 	"update_frequency" text,
 	"known_limitations" text,
 	"metadata_url" text,
-	"explorer_url" text,
 	"permission_granted" boolean,
 	"permission_status" text,
 	"general_summary" text,

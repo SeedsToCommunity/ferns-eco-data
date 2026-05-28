@@ -26,7 +26,6 @@ export async function ensureLcscgRegistryEntry(): Promise<void> {
           update_frequency: LCSCG_REGISTRY_ENTRY.update_frequency,
           known_limitations: LCSCG_REGISTRY_ENTRY.known_limitations,
           metadata_url: LCSCG_REGISTRY_ENTRY.metadata_url,
-          explorer_url: LCSCG_REGISTRY_ENTRY.explorer_url,
           licenses: LCSCG_REGISTRY_ENTRY.licenses ?? [],
           license_notes: LCSCG_REGISTRY_ENTRY.license_notes ?? "",
           license: LCSCG_REGISTRY_ENTRY.license,

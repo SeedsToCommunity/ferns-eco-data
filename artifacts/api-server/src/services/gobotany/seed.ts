@@ -21,7 +21,6 @@ export async function ensureGobotanyRegistryEntry(): Promise<void> {
           update_frequency: GOBOTANY_REGISTRY_ENTRY.update_frequency,
           known_limitations: GOBOTANY_REGISTRY_ENTRY.known_limitations,
           metadata_url: GOBOTANY_REGISTRY_ENTRY.metadata_url,
-          explorer_url: GOBOTANY_REGISTRY_ENTRY.explorer_url,
           licenses: GOBOTANY_REGISTRY_ENTRY.licenses ?? [],
           license_notes: GOBOTANY_REGISTRY_ENTRY.license_notes ?? "",
           license: GOBOTANY_REGISTRY_ENTRY.license,

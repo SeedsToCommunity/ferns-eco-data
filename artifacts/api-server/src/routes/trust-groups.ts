@@ -43,7 +43,7 @@ const GENERAL_SUMMARY_SOURCES =
 const TECHNICAL_DETAILS_SOURCES =
   "FERNS Trust Layer. Source: trust_groups → trust_tiers → trust_tier_members → ferns_sources (four-table join). " +
   "Sources are grouped by tier position (ascending). Within each tier, sources appear in registration order. " +
-  "Source objects carry the same field set as GET /api/v1/sources, with metadata_url and explorer_url resolved to absolute URLs. " +
+  "Source objects carry the same field set as GET /api/v1/sources, with metadata_url resolved to an absolute URL. " +
   "Method: system (internal DB read, no upstream HTTP call).";
 
 function mapSourceRow(
@@ -62,7 +62,6 @@ function mapSourceRow(
     update_frequency: r.update_frequency ?? "",
     known_limitations: r.known_limitations ?? "",
     metadata_url: resolveUrl(req, r.metadata_url ?? ""),
-    explorer_url: resolveUrl(req, r.explorer_url ?? ""),
     licenses: r.licenses ?? [],
     license_notes: r.license_notes ?? "",
     general_summary: r.general_summary ?? "",

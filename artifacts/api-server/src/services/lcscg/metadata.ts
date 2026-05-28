@@ -73,7 +73,6 @@ export const LCSCG_REGISTRY_ENTRY = {
     "actual timing varies by microclimate, proximity to Lake Michigan, slope, and sun/shade. " +
     "Geographic scope is Lake County, Illinois only.",
   metadata_url: "/api/lcscg/metadata",
-  explorer_url: "/source/lcscg",
   licenses: LCSCG_LICENSES,
   license_notes: LCSCG_LICENSE_NOTES,
   license: "cc-by-nc",

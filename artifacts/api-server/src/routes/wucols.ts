@@ -81,7 +81,6 @@ router.get("/wucols/metadata", async (req, res) => {
         update_frequency: WUCOLS_REGISTRY_ENTRY.update_frequency,
         known_limitations: WUCOLS_REGISTRY_ENTRY.known_limitations,
         metadata_url: resolveUrl(req, WUCOLS_REGISTRY_ENTRY.metadata_url),
-        explorer_url: resolveUrl(req, WUCOLS_REGISTRY_ENTRY.explorer_url),
         licenses: WUCOLS_LICENSES,
         license_notes: WUCOLS_LICENSE_NOTES,
         general_summary: WUCOLS_GENERAL_SUMMARY,

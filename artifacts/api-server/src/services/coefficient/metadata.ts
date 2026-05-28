@@ -57,7 +57,6 @@ export const COEFFICIENT_REGISTRY_ENTRY = {
     "Some states assign different C-values to the same species. Per-species C-value lookup is outside scope — " +
     "species-level values are provided by individual flora sources (e.g., Michigan Flora).",
   metadata_url: "/api/coefficient-of-conservatism/metadata",
-  explorer_url: "/vocabulary/coefficient",
   licenses: COEFFICIENT_LICENSES,
   license_notes: COEFFICIENT_LICENSE_NOTES,
   general_summary: COEFFICIENT_GENERAL_SUMMARY,

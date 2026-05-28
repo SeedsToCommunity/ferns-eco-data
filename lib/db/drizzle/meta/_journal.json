@@ -120,6 +120,13 @@
       "when": 1748448000000,
       "tag": "0016_natureserve_species_cache_columns",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1748534400000,
+      "tag": "0017_remove_deprecated_registry_column",
+      "breakpoints": true
     }
   ]
 }

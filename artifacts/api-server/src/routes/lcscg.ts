@@ -40,7 +40,6 @@ router.get("/lcscg/metadata", async (req, res) => {
       registry_entry: {
         ...LCSCG_REGISTRY_ENTRY,
         metadata_url: resolveUrl(req, LCSCG_REGISTRY_ENTRY.metadata_url),
-        explorer_url: resolveUrl(req, LCSCG_REGISTRY_ENTRY.explorer_url),
       },
       general_summary: LCSCG_GENERAL_SUMMARY,
       technical_details: LCSCG_TECHNICAL_DETAILS,

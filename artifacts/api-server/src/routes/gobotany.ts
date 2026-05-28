@@ -53,7 +53,6 @@ router.get("/gobotany/metadata", async (req, res) => {
         registry_entry: {
           ...GOBOTANY_REGISTRY_ENTRY,
           metadata_url: resolveUrl(req, GOBOTANY_REGISTRY_ENTRY.metadata_url),
-          explorer_url: resolveUrl(req, GOBOTANY_REGISTRY_ENTRY.explorer_url),
         },
       },
       method: "cache_hit",

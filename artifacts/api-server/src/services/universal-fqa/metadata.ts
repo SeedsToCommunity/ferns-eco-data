@@ -127,7 +127,6 @@ export const UNIVERSAL_FQA_REGISTRY_ENTRY = {
     "The API uses HTTP base URL with redirect to HTTPS. " +
     "C-values are calibrated per database — the same species may have different C-values in different regional databases.",
   metadata_url: "/api/universal-fqa/metadata",
-  explorer_url: "/source/universal-fqa",
   licenses: UNIVERSAL_FQA_LICENSES,
   license_notes: UNIVERSAL_FQA_LICENSE_NOTES,
   general_summary: UNIVERSAL_FQA_GENERAL_SUMMARY,

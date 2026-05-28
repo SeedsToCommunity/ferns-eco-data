@@ -18,7 +18,6 @@ const REGISTRY_ENTRY = {
   known_limitations:
     "Reports what is registered; does not evaluate data quality, trust tier, or methodological soundness of registered services. Those are application-layer concerns.",
   metadata_url: "/api/v1/sources/metadata",
-  explorer_url: "/",
   licenses: ["cc0"],
   license_notes:
     "OPEN — FERNS is a self-hosted internal system. " +
@@ -36,7 +35,7 @@ const REGISTRY_ENTRY = {
     "FERNS Knowledge Registry. Source: internal ferns_sources table (PostgreSQL). " +
     "DB table: ferns_sources (key columns: source_id text PK, name text, knowledge_type text, status text, description text, " +
     "general_summary text, technical_details text, input_summary text, output_summary text, dependencies text[], " +
-    "update_frequency text, known_limitations text, metadata_url text, explorer_url text, licenses text[], " +
+    "update_frequency text, known_limitations text, metadata_url text, licenses text[], " +
     "license_notes text, created_at timestamptz, updated_at timestamptz). " +
     "Entries are written at service startup by each source's seed.ts via onConflictDoUpdate (upsert on source_id). " +
     "The registry reads from this table without caching — every /api/v1/sources request queries the DB. " +
@@ -66,7 +65,6 @@ export async function ensureRegistryEntry(): Promise<void> {
           update_frequency: REGISTRY_ENTRY.update_frequency,
           known_limitations: REGISTRY_ENTRY.known_limitations,
           metadata_url: REGISTRY_ENTRY.metadata_url,
-          explorer_url: REGISTRY_ENTRY.explorer_url,
           licenses: REGISTRY_ENTRY.licenses,
           license_notes: REGISTRY_ENTRY.license_notes,
           general_summary: REGISTRY_ENTRY.general_summary,

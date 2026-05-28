@@ -29,8 +29,6 @@ export interface SourceSummary {
   known_limitations: string;
   /** Link to this service's full /metadata endpoint */
   metadata_url: string;
-  /** Link to this service's Source Explorer UI */
-  explorer_url: string;
   /** Whether FERNS has verified that use of this source is explicitly permitted. true = permission confirmed; null = not yet evaluated.
    */
   licenses?: string[];

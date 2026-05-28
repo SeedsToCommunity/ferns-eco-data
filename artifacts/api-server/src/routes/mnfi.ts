@@ -115,7 +115,6 @@ router.get("/mnfi/metadata", async (req, res) => {
       registry_entry: {
         ...MNFI_REGISTRY_ENTRY,
         metadata_url: resolveUrl(req, MNFI_REGISTRY_ENTRY.metadata_url),
-        explorer_url: resolveUrl(req, MNFI_REGISTRY_ENTRY.explorer_url),
       },
       general_summary: MNFI_GENERAL_SUMMARY,
       technical_details: MNFI_TECHNICAL_DETAILS,

@@ -115,7 +115,6 @@ router.get("/s2c/metadata", async (req, res) => {
         update_frequency: S2C_REGISTRY_ENTRY.update_frequency,
         known_limitations: S2C_REGISTRY_ENTRY.known_limitations,
         metadata_url: resolveUrl(req, S2C_REGISTRY_ENTRY.metadata_url),
-        explorer_url: resolveUrl(req, S2C_REGISTRY_ENTRY.explorer_url),
         licenses: S2C_LICENSES,
         license_notes: S2C_LICENSE_NOTES,
         general_summary: S2C_GENERAL_SUMMARY,

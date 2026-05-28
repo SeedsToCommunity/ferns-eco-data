@@ -22,7 +22,6 @@ export interface SourceMetadataData {
   update_frequency?: string;
   known_limitations?: string;
   metadata_url?: string;
-  explorer_url?: string;
   licenses?: string[];
   license_notes?: string;
   general_summary?: string;

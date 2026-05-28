@@ -59,7 +59,6 @@ export interface AuditReport {
     sources: Array<{
       source_id: string;
       metadata_url_check?: UrlCheckResult;
-      explorer_url_check?: UrlCheckResult;
     }>;
   };
   comparisons: EndpointComparison[];

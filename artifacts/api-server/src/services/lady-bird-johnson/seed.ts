@@ -21,7 +21,6 @@ export async function ensureLadyBirdJohnsonRegistryEntry(): Promise<void> {
           update_frequency: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.update_frequency,
           known_limitations: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.known_limitations,
           metadata_url: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.metadata_url,
-          explorer_url: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.explorer_url,
           licenses: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.licenses ?? [],
           license_notes: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.license_notes ?? "",
           general_summary: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.general_summary ?? null,

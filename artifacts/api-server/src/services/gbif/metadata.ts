@@ -193,7 +193,6 @@ export const GBIF_REGISTRY_ENTRY = {
   known_limitations:
     "found: true means the name resolved to something in the GBIF backbone, but applications must check match_type to determine whether that match is at the species level or fell back to a higher rank (HIGHERRANK). A HIGHERRANK result should not be treated as a confirmed species identification. Vernacular names are uncontrolled and of variable quality. iNaturalist records are included in GBIF occurrence counts. usageKeys may change across annual backbone rebuilds.",
   metadata_url: "/api/gbif/metadata",
-  explorer_url: "/source/gbif",
   licenses: GBIF_LICENSES,
   license_notes: GBIF_LICENSE_NOTES,
   general_summary: GBIF_GENERAL_SUMMARY,

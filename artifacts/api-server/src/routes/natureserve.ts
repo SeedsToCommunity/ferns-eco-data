@@ -242,7 +242,6 @@ router.get("/natureserve/metadata", async (req, res) => {
           ttl_days: { species: 30, ecosystems: 7 },
         },
         metadata_url: resolveUrl(req, NATURESERVE_REGISTRY_ENTRY.metadata_url),
-        explorer_url: resolveUrl(req, NATURESERVE_REGISTRY_ENTRY.explorer_url),
         website_url_patterns: NATURESERVE_REGISTRY_ENTRY.website_url_patterns,
       },
       method: "cache_hit",

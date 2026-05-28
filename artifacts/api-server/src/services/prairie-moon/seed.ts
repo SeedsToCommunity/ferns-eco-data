@@ -21,7 +21,6 @@ export async function ensurePrairieMoonRegistryEntry(): Promise<void> {
           update_frequency: PRAIRIE_MOON_REGISTRY_ENTRY.update_frequency,
           known_limitations: PRAIRIE_MOON_REGISTRY_ENTRY.known_limitations,
           metadata_url: PRAIRIE_MOON_REGISTRY_ENTRY.metadata_url,
-          explorer_url: PRAIRIE_MOON_REGISTRY_ENTRY.explorer_url,
           licenses: PRAIRIE_MOON_REGISTRY_ENTRY.licenses ?? [],
           license_notes: PRAIRIE_MOON_REGISTRY_ENTRY.license_notes ?? "",
           license: PRAIRIE_MOON_REGISTRY_ENTRY.license,

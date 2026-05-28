@@ -81,7 +81,6 @@ export const NATURESERVE_REGISTRY_ENTRY = {
     "GNR (Not Ranked) and SNR (State Not Ranked) are common for ecosystem associations where status assessment is pending. " +
     "NatureServe's Element Occurrence spatial data (precise localities) is restricted to member programs and is not available through this integration.",
   metadata_url: "/api/natureserve/metadata",
-  explorer_url: "/source/natureserve",
   licenses: NATURESERVE_LICENSES,
   license_notes: NATURESERVE_LICENSE_NOTES,
   license: "https://www.natureserve.org/terms-and-conditions",

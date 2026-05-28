@@ -67,7 +67,6 @@ export const LADY_BIRD_JOHNSON_REGISTRY_ENTRY = {
     "Emphasis on North American natives; non-native species may not be indexed. " +
     "Site blocks non-browser User-Agents (403); FERNS uses a browser-like UA.",
   metadata_url: "/api/lady-bird-johnson/metadata",
-  explorer_url: "/source/lady-bird-johnson",
   licenses: LADY_BIRD_JOHNSON_LICENSES,
   license_notes: LADY_BIRD_JOHNSON_LICENSE_NOTES,
   general_summary: LADY_BIRD_JOHNSON_GENERAL_SUMMARY,

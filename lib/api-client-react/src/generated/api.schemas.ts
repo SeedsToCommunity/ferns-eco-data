@@ -386,7 +386,6 @@ export interface GbifMetadataData {
   attribution?: GbifMetadataDataAttribution;
   vocabularies?: GbifMetadataDataVocabularies;
   metadata_url?: string;
-  explorer_url?: string;
 }
 
 export type GbifMetadataResponse = FernsEnvelope & {
@@ -593,8 +592,6 @@ export interface SourceSummary {
   known_limitations: string;
   /** Link to this service's full /metadata endpoint */
   metadata_url: string;
-  /** Link to this service's Source Explorer UI */
-  explorer_url: string;
   /** Whether FERNS has verified that use of this source is explicitly permitted. true = permission confirmed; null = not yet evaluated.
    */
   licenses?: string[];
@@ -895,7 +892,6 @@ export type MifloraMetadataResponseRegistryEntry = {
   update_frequency?: string;
   known_limitations?: string;
   metadata_url?: string;
-  explorer_url?: string;
 };
 
 export interface MifloraMetadataResponse {
@@ -1105,7 +1101,6 @@ export type VocabularyMetadataResponseRegistryEntry = {
   update_frequency?: string;
   known_limitations?: string;
   metadata_url?: string;
-  explorer_url?: string;
 };
 
 export interface VocabularyMetadataResponse {
@@ -1556,7 +1551,6 @@ export interface NatureserveMetadataData {
   license_notes?: string;
   cache_stats?: NatureserveMetadataDataCacheStats;
   metadata_url?: string;
-  explorer_url?: string;
   website_url_patterns?: NatureserveMetadataDataWebsiteUrlPatterns;
 }
 
@@ -2152,7 +2146,6 @@ export interface SourceMetadataData {
   update_frequency?: string;
   known_limitations?: string;
   metadata_url?: string;
-  explorer_url?: string;
   licenses?: string[];
   license_notes?: string;
   general_summary?: string;

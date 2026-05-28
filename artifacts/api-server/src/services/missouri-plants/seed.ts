@@ -21,7 +21,6 @@ export async function ensureMissouriPlantsRegistryEntry(): Promise<void> {
           update_frequency: MISSOURI_PLANTS_REGISTRY_ENTRY.update_frequency,
           known_limitations: MISSOURI_PLANTS_REGISTRY_ENTRY.known_limitations,
           metadata_url: MISSOURI_PLANTS_REGISTRY_ENTRY.metadata_url,
-          explorer_url: MISSOURI_PLANTS_REGISTRY_ENTRY.explorer_url,
           licenses: MISSOURI_PLANTS_REGISTRY_ENTRY.licenses ?? [],
           license_notes: MISSOURI_PLANTS_REGISTRY_ENTRY.license_notes ?? "",
           license: MISSOURI_PLANTS_REGISTRY_ENTRY.license,

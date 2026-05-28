@@ -67,7 +67,6 @@ export const PRAIRIE_MOON_REGISTRY_ENTRY = {
     "Scientific names are inferred from URL slugs, which may reflect site-specific spelling or older taxonomy. " +
     "Species not in the nursery catalog return found: false.",
   metadata_url: "/api/prairie-moon/metadata",
-  explorer_url: "/source/prairie-moon",
   licenses: PRAIRIE_MOON_LICENSES,
   license_notes: PRAIRIE_MOON_LICENSE_NOTES,
   license: PRAIRIE_MOON_LICENSE,

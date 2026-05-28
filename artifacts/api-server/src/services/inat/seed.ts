@@ -22,7 +22,6 @@ export async function ensureInatRegistryEntry(): Promise<void> {
           update_frequency: INAT_REGISTRY_ENTRY.update_frequency,
           known_limitations: INAT_REGISTRY_ENTRY.known_limitations,
           metadata_url: INAT_REGISTRY_ENTRY.metadata_url,
-          explorer_url: INAT_REGISTRY_ENTRY.explorer_url,
           licenses: INAT_REGISTRY_ENTRY.licenses ?? [],
           license_notes: INAT_REGISTRY_ENTRY.license_notes ?? "",
           general_summary: INAT_REGISTRY_ENTRY.general_summary ?? null,

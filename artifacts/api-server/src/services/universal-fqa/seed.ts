@@ -22,7 +22,6 @@ export async function ensureUniversalFqaRegistryEntry(): Promise<void> {
           update_frequency: UNIVERSAL_FQA_REGISTRY_ENTRY.update_frequency,
           known_limitations: UNIVERSAL_FQA_REGISTRY_ENTRY.known_limitations,
           metadata_url: UNIVERSAL_FQA_REGISTRY_ENTRY.metadata_url,
-          explorer_url: UNIVERSAL_FQA_REGISTRY_ENTRY.explorer_url,
           licenses: UNIVERSAL_FQA_REGISTRY_ENTRY.licenses ?? [],
           license_notes: UNIVERSAL_FQA_REGISTRY_ENTRY.license_notes ?? "",
           general_summary: UNIVERSAL_FQA_REGISTRY_ENTRY.general_summary ?? null,

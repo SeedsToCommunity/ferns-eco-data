@@ -44,7 +44,6 @@ router.get("/missouri-plants/metadata", async (req, res) => {
         registry_entry: {
           ...MISSOURI_PLANTS_REGISTRY_ENTRY,
           metadata_url: resolveUrl(req, MISSOURI_PLANTS_REGISTRY_ENTRY.metadata_url),
-          explorer_url: resolveUrl(req, MISSOURI_PLANTS_REGISTRY_ENTRY.explorer_url),
         },
       },
       method: "cache_hit",

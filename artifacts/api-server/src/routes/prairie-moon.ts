@@ -44,7 +44,6 @@ router.get("/prairie-moon/metadata", async (req, res) => {
         registry_entry: {
           ...PRAIRIE_MOON_REGISTRY_ENTRY,
           metadata_url: resolveUrl(req, PRAIRIE_MOON_REGISTRY_ENTRY.metadata_url),
-          explorer_url: resolveUrl(req, PRAIRIE_MOON_REGISTRY_ENTRY.explorer_url),
         },
       },
       method: "cache_hit",

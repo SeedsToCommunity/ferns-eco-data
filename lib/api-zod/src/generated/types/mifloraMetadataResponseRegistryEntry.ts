@@ -21,5 +21,4 @@ export type MifloraMetadataResponseRegistryEntry = {
   update_frequency?: string;
   known_limitations?: string;
   metadata_url?: string;
-  explorer_url?: string;
 };

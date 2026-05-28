@@ -22,7 +22,6 @@ export async function ensureWucolsRegistryEntry(): Promise<void> {
           update_frequency: WUCOLS_REGISTRY_ENTRY.update_frequency,
           known_limitations: WUCOLS_REGISTRY_ENTRY.known_limitations,
           metadata_url: WUCOLS_REGISTRY_ENTRY.metadata_url,
-          explorer_url: WUCOLS_REGISTRY_ENTRY.explorer_url,
           licenses: WUCOLS_REGISTRY_ENTRY.licenses ?? [],
           license_notes: WUCOLS_REGISTRY_ENTRY.license_notes ?? "",
           general_summary: WUCOLS_REGISTRY_ENTRY.general_summary ?? null,

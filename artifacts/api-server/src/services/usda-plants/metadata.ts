@@ -86,7 +86,6 @@ export const USDA_PLANTS_REGISTRY_ENTRY = {
     "Not all synonym names will match via the autocomplete lookup — accepted names yield the most reliable results. " +
     "ScientificName fields returned by the API contain HTML italic tags.",
   metadata_url: "/api/usda-plants/metadata",
-  explorer_url: "/source/usda-plants",
   licenses: USDA_PLANTS_LICENSES,
   license_notes: USDA_PLANTS_LICENSE_NOTES,
   general_summary: USDA_PLANTS_GENERAL_SUMMARY,

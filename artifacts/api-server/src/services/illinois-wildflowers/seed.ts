@@ -21,7 +21,6 @@ export async function ensureIllinoisWildflowersRegistryEntry(): Promise<void> {
           update_frequency: ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY.update_frequency,
           known_limitations: ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY.known_limitations,
           metadata_url: ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY.metadata_url,
-          explorer_url: ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY.explorer_url,
           licenses: ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY.licenses ?? [],
           license_notes: ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY.license_notes ?? "",
           license: ILLINOIS_WILDFLOWERS_REGISTRY_ENTRY.license,

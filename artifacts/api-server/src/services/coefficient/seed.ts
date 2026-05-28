@@ -22,7 +22,6 @@ export async function ensureCoefficientRegistryEntry(): Promise<void> {
           update_frequency: COEFFICIENT_REGISTRY_ENTRY.update_frequency,
           known_limitations: COEFFICIENT_REGISTRY_ENTRY.known_limitations,
           metadata_url: COEFFICIENT_REGISTRY_ENTRY.metadata_url,
-          explorer_url: COEFFICIENT_REGISTRY_ENTRY.explorer_url,
           licenses: COEFFICIENT_REGISTRY_ENTRY.licenses ?? [],
           license_notes: COEFFICIENT_REGISTRY_ENTRY.license_notes ?? "",
           general_summary: COEFFICIENT_REGISTRY_ENTRY.general_summary ?? null,

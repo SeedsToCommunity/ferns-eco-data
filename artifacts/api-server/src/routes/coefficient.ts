@@ -81,7 +81,6 @@ router.get("/coefficient-of-conservatism/metadata", async (req, res) => {
         update_frequency: COEFFICIENT_REGISTRY_ENTRY.update_frequency,
         known_limitations: COEFFICIENT_REGISTRY_ENTRY.known_limitations,
         metadata_url: resolveUrl(req, COEFFICIENT_REGISTRY_ENTRY.metadata_url),
-        explorer_url: resolveUrl(req, COEFFICIENT_REGISTRY_ENTRY.explorer_url),
         licenses: COEFFICIENT_LICENSES,
         license_notes: COEFFICIENT_LICENSE_NOTES,
         general_summary: COEFFICIENT_GENERAL_SUMMARY,

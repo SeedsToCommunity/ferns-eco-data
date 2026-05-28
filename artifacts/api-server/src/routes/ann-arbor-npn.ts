@@ -43,7 +43,6 @@ router.get("/ann-arbor-npn/metadata", async (req, res) => {
         registry_entry: {
           ...NPN_REGISTRY_ENTRY,
           metadata_url: resolveUrl(req, NPN_REGISTRY_ENTRY.metadata_url),
-          explorer_url: resolveUrl(req, NPN_REGISTRY_ENTRY.explorer_url),
         },
       },
     },

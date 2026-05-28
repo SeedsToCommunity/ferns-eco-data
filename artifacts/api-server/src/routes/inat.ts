@@ -988,7 +988,6 @@ router.get("/inat/metadata", async (req, res) => {
         update_frequency: INAT_REGISTRY_ENTRY.update_frequency,
         known_limitations: INAT_REGISTRY_ENTRY.known_limitations,
         metadata_url: resolveUrl(req, INAT_REGISTRY_ENTRY.metadata_url),
-        explorer_url: resolveUrl(req, INAT_REGISTRY_ENTRY.explorer_url),
         licenses: INAT_LICENSES,
         license_notes: INAT_LICENSE_NOTES,
         general_summary: INAT_GENERAL_SUMMARY,

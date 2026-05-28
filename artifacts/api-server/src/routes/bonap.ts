@@ -138,7 +138,6 @@ router.get("/bonap/metadata", async (req, res) => {
         registry_entry: {
           ...BONAP_REGISTRY_ENTRY,
           metadata_url: resolveUrl(req, BONAP_REGISTRY_ENTRY.metadata_url),
-          explorer_url: resolveUrl(req, BONAP_REGISTRY_ENTRY.explorer_url),
         },
       },
     },

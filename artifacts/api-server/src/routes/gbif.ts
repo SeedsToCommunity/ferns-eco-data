@@ -443,7 +443,6 @@ router.get("/gbif/metadata", async (req, res) => {
         attribution: GBIF_ATTRIBUTION,
         vocabularies: GBIF_VOCABULARIES,
         metadata_url: resolveUrl(req, GBIF_REGISTRY_ENTRY.metadata_url),
-        explorer_url: resolveUrl(req, GBIF_REGISTRY_ENTRY.explorer_url),
       },
       method: "cache_hit",
       cacheStatus: "hit",

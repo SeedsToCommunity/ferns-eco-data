@@ -54,7 +54,6 @@ export const S2C_REGISTRY_ENTRY = {
     "Botanical names reflect S2C program usage and are not formally reconciled to BONAP, GBIF, or Michigan Flora taxonomies. " +
     "Neat & Tidy flag not tracked for 2023. Sweet & Simple flag only available from 2026 onward.",
   metadata_url: "/api/s2c/metadata",
-  explorer_url: "/source/seeds-to-community-washtenaw",
   licenses: S2C_LICENSES,
   license_notes: S2C_LICENSE_NOTES,
   general_summary: S2C_GENERAL_SUMMARY,

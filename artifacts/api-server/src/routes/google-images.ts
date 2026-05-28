@@ -71,7 +71,6 @@ router.get("/google-images/metadata", async (req, res) => {
         update_frequency: GOOGLE_IMAGES_REGISTRY_ENTRY.update_frequency,
         known_limitations: GOOGLE_IMAGES_REGISTRY_ENTRY.known_limitations,
         metadata_url: resolveUrl(req, GOOGLE_IMAGES_REGISTRY_ENTRY.metadata_url),
-        explorer_url: resolveUrl(req, GOOGLE_IMAGES_REGISTRY_ENTRY.explorer_url),
         licenses: GOOGLE_IMAGES_LICENSES,
         license_notes: GOOGLE_IMAGES_LICENSE_NOTES,
         general_summary: GOOGLE_IMAGES_GENERAL_SUMMARY,

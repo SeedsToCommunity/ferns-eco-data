@@ -44,7 +44,6 @@ router.get("/minnesota-wildflowers/metadata", async (req, res) => {
         registry_entry: {
           ...MINNESOTA_WILDFLOWERS_REGISTRY_ENTRY,
           metadata_url: resolveUrl(req, MINNESOTA_WILDFLOWERS_REGISTRY_ENTRY.metadata_url),
-          explorer_url: resolveUrl(req, MINNESOTA_WILDFLOWERS_REGISTRY_ENTRY.explorer_url),
         },
       },
       method: "cache_hit",

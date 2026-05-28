@@ -89,7 +89,6 @@ export async function ensureMnfiRegistryEntry(): Promise<void> {
           update_frequency: MNFI_REGISTRY_ENTRY.update_frequency,
           known_limitations: MNFI_REGISTRY_ENTRY.known_limitations,
           metadata_url: MNFI_REGISTRY_ENTRY.metadata_url,
-          explorer_url: MNFI_REGISTRY_ENTRY.explorer_url,
           licenses: MNFI_REGISTRY_ENTRY.licenses ?? [],
           license_notes: MNFI_REGISTRY_ENTRY.license_notes ?? "",
           license: MNFI_REGISTRY_ENTRY.license,

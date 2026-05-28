@@ -21,7 +21,6 @@ export async function ensureGoogleImagesRegistryEntry(): Promise<void> {
           update_frequency: GOOGLE_IMAGES_REGISTRY_ENTRY.update_frequency,
           known_limitations: GOOGLE_IMAGES_REGISTRY_ENTRY.known_limitations,
           metadata_url: GOOGLE_IMAGES_REGISTRY_ENTRY.metadata_url,
-          explorer_url: GOOGLE_IMAGES_REGISTRY_ENTRY.explorer_url,
           licenses: GOOGLE_IMAGES_REGISTRY_ENTRY.licenses ?? [],
           license_notes: GOOGLE_IMAGES_REGISTRY_ENTRY.license_notes ?? "",
           general_summary: GOOGLE_IMAGES_REGISTRY_ENTRY.general_summary ?? null,

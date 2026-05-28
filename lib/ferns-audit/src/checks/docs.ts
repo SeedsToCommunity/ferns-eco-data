@@ -40,7 +40,6 @@ export interface RegistryCheckResult {
   sources: Array<{
     source_id: string;
     metadata_url_check?: UrlCheckResult;
-    explorer_url_check?: UrlCheckResult;
   }>;
 }
 
@@ -57,22 +56,15 @@ export async function checkRegistry(fernsBase: string): Promise<RegistryCheckRes
     for (const source of sources) {
       const sourceId = source.source_id as string;
       const metadataUrl = source.metadata_url as string | undefined;
-      const explorerUrl = source.explorer_url as string | undefined;
 
       let metadataCheck: UrlCheckResult | undefined;
       if (metadataUrl) {
         metadataCheck = await checkUrl(metadataUrl, "metadata_url", sourceId);
       }
 
-      let explorerCheck: UrlCheckResult | undefined;
-      if (explorerUrl) {
-        explorerCheck = await checkUrl(explorerUrl, "explorer_url", sourceId);
-      }
-
       sourceResults.push({
         source_id: sourceId,
         metadata_url_check: metadataCheck,
-        explorer_url_check: explorerCheck,
       });
     }
 

@@ -22,7 +22,6 @@ export async function ensureMifloraRegistryEntry(): Promise<void> {
           update_frequency: MIFLORA_REGISTRY_ENTRY.update_frequency,
           known_limitations: MIFLORA_REGISTRY_ENTRY.known_limitations,
           metadata_url: MIFLORA_REGISTRY_ENTRY.metadata_url,
-          explorer_url: MIFLORA_REGISTRY_ENTRY.explorer_url,
           licenses: MIFLORA_REGISTRY_ENTRY.licenses ?? [],
           license_notes: MIFLORA_REGISTRY_ENTRY.license_notes ?? "",
           license: MIFLORA_REGISTRY_ENTRY.license,

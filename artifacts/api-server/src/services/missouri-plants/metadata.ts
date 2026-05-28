@@ -70,7 +70,6 @@ export const MISSOURI_PLANTS_REGISTRY_ENTRY = {
     "which may differ from current accepted taxonomy. " +
     "Exact name match required (genus + species, case-insensitive); subspecies and varieties not individually listed.",
   metadata_url: "/api/missouri-plants/metadata",
-  explorer_url: "/source/missouri-plants",
   licenses: MISSOURI_PLANTS_LICENSES,
   license_notes: MISSOURI_PLANTS_LICENSE_NOTES,
   license: MISSOURI_PLANTS_LICENSE,

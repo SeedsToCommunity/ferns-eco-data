@@ -21,7 +21,6 @@ export async function ensureMinnesotaWildflowersRegistryEntry(): Promise<void> {
           update_frequency: MINNESOTA_WILDFLOWERS_REGISTRY_ENTRY.update_frequency,
           known_limitations: MINNESOTA_WILDFLOWERS_REGISTRY_ENTRY.known_limitations,
           metadata_url: MINNESOTA_WILDFLOWERS_REGISTRY_ENTRY.metadata_url,
-          explorer_url: MINNESOTA_WILDFLOWERS_REGISTRY_ENTRY.explorer_url,
           licenses: MINNESOTA_WILDFLOWERS_REGISTRY_ENTRY.licenses ?? [],
           license_notes: MINNESOTA_WILDFLOWERS_REGISTRY_ENTRY.license_notes ?? "",
           license: MINNESOTA_WILDFLOWERS_REGISTRY_ENTRY.license,
