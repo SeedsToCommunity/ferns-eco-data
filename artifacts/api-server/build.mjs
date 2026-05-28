@@ -14,11 +14,9 @@ const artifactDir = path.dirname(fileURLToPath(import.meta.url));
 async function buildAll() {
   const distDir = path.resolve(artifactDir, "dist");
 
-  // Build both static sites before bundling the server.
-  // Express serves them in production using Host-header routing:
-  //   data.*                → artifacts/registry-explorer/dist/public
-  //   ecologicalcommons.org → artifacts/ecological-commons-site/dist/public
-  // Both are built with BASE_PATH=/ so all asset references are root-relative.
+  // Build the public website before bundling the server.
+  // Express serves it in production for all non-/api requests.
+  // Built with BASE_PATH=/ so all asset references are root-relative.
   const workspaceRoot = path.resolve(artifactDir, "../..");
 
   console.log("Building ecological-commons-site...");
@@ -26,15 +24,6 @@ async function buildAll() {
     stdio: "inherit",
     cwd: workspaceRoot,
     env: { ...process.env, BASE_PATH: "/" },
-  });
-
-  console.log("Building registry-explorer...");
-  execSync("pnpm --filter @workspace/registry-explorer run build", {
-    stdio: "inherit",
-    cwd: workspaceRoot,
-    // PORT is required by vite.config.ts validation; any valid value works for
-    // a build (no server binds to it — Vite only reads it for dev server mode).
-    env: { ...process.env, BASE_PATH: "/", PORT: "23478" },
   });
 
   await rm(distDir, { recursive: true, force: true });

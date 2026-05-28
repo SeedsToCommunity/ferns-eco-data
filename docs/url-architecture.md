@@ -6,8 +6,8 @@ This section records the decisions made about URL structure, domain routing, and
 
 ```
 ecologicalcommons.org/              public website (ecological-commons-site)
-data.ecologicalcommons.org/         FERNS data explorer (registry-explorer)
-data.ecologicalcommons.org/api/v1/  unified REST API (all data + trust subsets)
+ecologicalcommons.org/api/v1/       unified REST API (all data + trust subsets)
+data.ecologicalcommons.org/         data explorer (external application)
 ```
 
 Future additions follow the same pattern:
@@ -19,13 +19,13 @@ Apps are independent products. They live at their own domains or subdomains (e.g
 
 ### Why this structure
 
-**Single-deployment subdomain routing, not per-product subdomains.** The api-server (Express) handles all production traffic. It detects the `Host` header and serves:
-- `data.*` → `artifacts/registry-explorer/dist/public` (FERNS explorer)
-- all other hosts → `artifacts/ecological-commons-site/dist/public` (public site)
+**Single Express process serves both website and API.** The api-server handles all production traffic for `ecologicalcommons.org` — public website for non-/api paths, REST API for /api/* paths. There is no Host-header branching; the same static files and API handlers are served regardless of which hostname the request arrives on.
 
-This is identical to how GBIF organizes itself: `www.gbif.org` is the portal, `api.gbif.org` is a single unified API namespace, and all features (taxonomy, occurrences, registry, maps) are paths under that one API domain — not separate subdomains.
+**Data explorer is an external application.** The data explorer at `data.ecologicalcommons.org` is an external application. DNS for that subdomain should point directly to the external app — the api-server has no knowledge of it and does not redirect or proxy to it.
 
-**Trust subsets are parameters, not separate APIs.** When trust layers are added, they will be query parameters or versioned path segments under `data.ecologicalcommons.org/api/v1/`. A trust-scoped query looks like:
+This mirrors how GBIF organizes itself: `www.gbif.org` is the portal, `api.gbif.org` is a single unified API namespace, and all features (taxonomy, occurrences, registry, maps) are paths under that one API domain — not separate subdomains.
+
+**Trust subsets are parameters, not separate APIs.** When trust layers are added, they will be query parameters or versioned path segments under `/api/v1/`. A trust-scoped query looks like:
 ```
 GET /api/v1/sources/gbif/occurrences?subset=se-michigan
 ```
@@ -50,18 +50,15 @@ The lesson: do not split into per-product subdomains. Add capabilities as versio
 ### How production routing works (implementation)
 
 In production the api-server `artifact.toml` registers `paths = ["/"]`, so ALL requests are routed to the Express process. Express serves:
-1. `/api/*` → API route handlers (no change)
-2. All other paths, `Host: data.*` → `artifacts/registry-explorer/dist/public` with SPA fallback
-3. All other paths, any other host → `artifacts/ecological-commons-site/dist/public` with SPA fallback
+1. `/api/*` → API route handlers
+2. All other paths → `artifacts/ecological-commons-site/dist/public` with SPA fallback
 
-The api-server's production build (`build.mjs`) builds both web apps first (with `BASE_PATH=/`) before bundling Express, so their `dist/public` directories are present when Express starts.
+The api-server's production build (`build.mjs`) builds the public website first (with `BASE_PATH=/`) before bundling Express, so its `dist/public` directory is present when Express starts.
 
-In development, each site has its own Vite dev server at its own port. The static serving block in `app.ts` is gated on `NODE_ENV === "production"` and is skipped entirely during development.
+In development, the ecological-commons-site has its own Vite dev server at its own port. The static serving block in `app.ts` is gated on `NODE_ENV === "production"` and is skipped entirely during development.
 
 ### DNS setup (user action required, not automated)
 
 Once the Replit deployment is live, the user needs to:
-1. Point `ecologicalcommons.org` → Replit deployment domain (already correct — public site served at root for non-`data.` hosts)
-2. Point `data.ecologicalcommons.org` → same Replit deployment domain (CNAME)
-
-No Cloudflare rules or separate deployments are needed. The single Express process handles both domains.
+1. Point `ecologicalcommons.org` → Replit deployment domain (public site + API)
+2. Point `data.ecologicalcommons.org` → the external data explorer application (separate DNS record — does NOT point to this deployment)

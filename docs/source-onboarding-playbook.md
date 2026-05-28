@@ -31,19 +31,13 @@ Run: `pnpm --filter @workspace/api-server run spec:check`. This script cross-che
 **Step 9: Codegen**
 Run: `pnpm --filter @workspace/api-spec run codegen`. Done when generated types are updated and there are no TypeScript errors in consumer packages.
 
-**Step 10: Explorer Page (NON-NEGOTIABLE — never skip, never defer)**
-Create `artifacts/registry-explorer/src/pages/{SourceId}Page.tsx`. The page must include a working search form, result display, and provenance panel. Follow `NatureservePage.tsx` for layout and data-fetch patterns. Use `const BASE_URL = import.meta.env.BASE_URL.replace(/\/$/, ""); const API_BASE = \`${BASE_URL}/api\`` for all fetch calls. If this source shares a query interface with existing sources, use or extend the appropriate shared page component. Done when the explorer page renders real search results for at least one species name.
-
-**Step 11: App.tsx Route Registration**
-Add an explicit `<Route path="/source/{source-id}">` in `artifacts/registry-explorer/src/App.tsx` BEFORE the generic catch-all route. Done when navigating to `/source/{source-id}` renders the explorer page — not the generic fallback page.
-
-**Step 12: Audit Tool Coverage (DO NOT SKIP — skipping requires explicit written justification)**
+**Step 10: Audit Tool Coverage (DO NOT SKIP — skipping requires explicit written justification)**
 Add a comparator or health check in `lib/ferns-audit/src/`. For API/scrape sources: add a comparator that queries both the upstream source and the FERNS endpoint and diffs the result. For static sources: add a health check with known-value assertions. Done when the audit tool has coverage for the new source. If this step is skipped for any reason, write an explicit paragraph in the post-task summary stating exactly what coverage was omitted and why — a silent omission is a task failure.
 
-**Step 13: Post-Task Summary**
+**Step 11: Post-Task Summary**
 Write all mandatory post-task summaries as expected by replit.md. Include the verbatim text of `description`, `general_summary`, and `technical_details` so the user can verify them. Done when the summary is complete and presented.
 
-**Step 14: MCP Tool Wiring**
+**Step 12: MCP Tool Wiring**
 Add a new tool (or tools) to `artifacts/mcp-server/src/index.ts` for each new source endpoint. Follow the `{source_id}__{action}` naming convention (hyphens → underscores, double-underscore separator). One REST endpoint = one MCP tool; no aggregation. Define `inputSchema` covering all required and optional query parameters, matching the route handler in `artifacts/api-server/src/routes/{source-id}.ts`. For path-parameter endpoints, build the URL in the handler directly (e.g., `` fernsGet(`/lcscg/guide/${Number(args["guideId"])}`) ``). Update the tool table in `artifacts/mcp-server/README.md`. Done when `tools/list` on the MCP server includes the new tool(s) and the README table is up to date.
 
 ---
@@ -185,12 +179,11 @@ The precise TTL for each cache entry lives in the source's `cache.ts` file and i
 
 ### Autonomy Guidance
 
-After the user approves the Source Research Proposal, execute all remaining checklist steps (Steps 3–14) autonomously. No interim check-ins are required or expected.
+After the user approves the Source Research Proposal, execute all remaining checklist steps (Steps 3–12) autonomously. No interim check-ins are required or expected.
 
 **Do NOT pause for**:
 - Implementation choices already covered by this playbook or elsewhere in replit.md
 - Caching strategy that follows an existing pattern
-- Explorer page layout, component structure, or form design
 - Route registration and OpenAPI spec additions
 - Audit health check implementation for a source that follows existing patterns
 
@@ -235,14 +228,6 @@ Every time a query parameter is added, removed, or has its type changed in `lib/
 - [ ] `inputSchema.properties.<param>.description` matches the spec description
 - [ ] Handler call uses `String(args["<param>"])` for string params, `Number(...)` for number params
 - [ ] Both the `inputSchema` block AND the `handler` call are updated — they are separate and both must change
-
-### 5. Registry-Explorer UI (`artifacts/registry-explorer/src/components/`)
-
-- [ ] Any `<input type="number">` for the param is changed to `<input type="text">` if the type is now `string` (to allow comma-separated values)
-- [ ] Placeholder text updated to show comma-separated example (e.g. `"e.g. 2649 or 2649,986"`)
-- [ ] Any `Number(inputValue.trim())` coercion before passing to the API is removed (pass the string directly)
-- [ ] Hardcoded example values in "Try:" buttons are strings, not numeric literals (e.g. `placeId: "2649"` not `placeId: 2649`)
-- [ ] State variable types match the new param type (e.g. `useState<string | undefined>` not `useState<number | undefined>`)
 
 ## Summary
 

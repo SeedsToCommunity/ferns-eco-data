@@ -6,7 +6,7 @@ An ecological commons begins with the infrastructure that makes knowledge findab
 
 The data layer holds descriptions of registered ecological data sources, provides a few ways to find them through a consistent set of software interfaces and offers a basic explorer into what they offer. New sources are revealed as they are described and integrated.
 
-The data layer browser lives at: **[data.ecologicalcommons.org](https://data.ecologicalcommons.org/)**.
+The data layer is also browsable through an external data explorer application: **[data.ecologicalcommons.org](https://data.ecologicalcommons.org/)**.
 
 Above the data layer, a trust layer exists, with named and author linked domains capture human or expert judgement about which data sources are applicable for different objectives (regions, knowledge areas, or activity).
 

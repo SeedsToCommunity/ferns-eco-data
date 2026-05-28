@@ -49,12 +49,6 @@ app.use("/api", (_req, res) => {
   res.status(404).json({ error: "Not found" });
 });
 
-// Production-only: serve the appropriate static site based on the Host header.
-// Requests reach here only if no /api route matched (non-API paths).
-//
-// data.ecologicalcommons.org  →  Ecological Commons data layer explorer
-// ecologicalcommons.org (or any other host)  →  public website
-//
 // Development-only: proxy non-API requests to the Astro dev server so the
 // Replit preview (which routes all traffic through this server) can serve
 // the public site. In production the block below handles static files.
@@ -79,52 +73,18 @@ if (process.env.NODE_ENV !== "production") {
   });
 }
 
-// Production-only: serve the appropriate static site based on the Host header.
-// Requests reach here only if no /api route matched (non-API paths).
-//
-// data.ecologicalcommons.org  →  Ecological Commons data layer explorer
-// ecologicalcommons.org (or any other host)  →  public website
-//
-// In development each site runs its own Vite dev server; this block is skipped.
+// Production-only: serve the public website static files for all non-/api requests.
+// The data explorer is an external application and is not served by this process.
 if (process.env.NODE_ENV === "production") {
-  const dataExplorerDir = path.resolve(
-    "artifacts/registry-explorer/dist/public",
-  );
   const publicSiteDir = path.resolve(
     "artifacts/ecological-commons-site/dist/public",
   );
 
-  // DATA_EXPLORER_HOSTS is a comma-separated list of hostnames that should
-  // serve the data explorer (registry-explorer). Falls back to a `data.`
-  // prefix check for the custom domain (data.ecologicalcommons.org).
-  const dataExplorerHosts = (process.env.DATA_EXPLORER_HOSTS ?? "")
-    .split(",")
-    .map((h) => h.trim().toLowerCase())
-    .filter(Boolean);
-
-  function isDataExplorerHost(host: string): boolean {
-    if (dataExplorerHosts.includes(host)) return true;
-    // Fallback: custom domain convention (data.ecologicalcommons.org, etc.)
-    return host.startsWith("data.");
-  }
-
-  app.use((req, res, next) => {
-    const rawHost =
-      (req.headers["x-forwarded-host"] as string | undefined) ??
-      req.headers.host ??
-      "";
-    // Lowercase and take only the first value — X-Forwarded-Host can be
-    // comma-separated when passing through multiple proxies.
-    // Strip any port suffix (e.g. "example.com:3000" → "example.com") so
-    // hostname-only matching in DATA_EXPLORER_HOSTS works correctly.
-    const rawFirstHost = rawHost.split(",")[0].trim().toLowerCase();
-    const host = rawFirstHost.replace(/:\d+$/, "");
-    const dir = isDataExplorerHost(host) ? dataExplorerDir : publicSiteDir;
-
-    express.static(dir, { index: "index.html" })(req, res, () => {
+  app.use((req, res) => {
+    express.static(publicSiteDir, { index: "index.html" })(req, res, () => {
       // SPA fallback: any unmatched path serves index.html so client-side
       // routing handles it rather than returning a 404.
-      res.sendFile(path.join(dir, "index.html"));
+      res.sendFile(path.join(publicSiteDir, "index.html"));
     });
   });
 }
