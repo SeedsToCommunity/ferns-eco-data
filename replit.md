@@ -14,7 +14,7 @@ The **Ecological Commons** is federated knowledge infrastructure for ecological 
 
 **EC FERNS** is the software construct. For each Source there is exactly one **Data Adapter**: it calls the Source over the Source's own **Source Interface**, wraps the response in the EC envelope, and exposes the Source's dedicated routes on the **EC Data Interface** (REST and MCP). The Source Registry sits alongside the Adapters and lets consumers discover what Sources exist. Web pages are served from within EC FERNS to human readers. EC FERNS itself never combines data across Sources; one response on the EC Data Interface comes from exactly one Source. Sources may freely agree or disagree; EC FERNS does not pick winners.
 
-A **Trust Layer** sits above EC FERNS and filters which Sources an application considers. Users define trust groups so certain Sources can be identified for specific jobs.
+A **Trust Layer** sits just above the Data Adapters and filters which Sources an application considers. Users define trust groups so certain Sources can be identified for specific jobs.
 
 **Applications** sit above EC FERNS and the Trust Layer. They interpret, synthesize, and present. They are where opinions live. They are what people use.
 
