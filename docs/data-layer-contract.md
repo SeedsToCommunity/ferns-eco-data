@@ -73,6 +73,10 @@ A Source is **opaque** to the rest of the system behind its Source Interface. Wh
 
 **What EC FERNS itself never does is combine data across Sources.** A response on the EC Data Interface comes from exactly one Source. Cross-source orchestration — merging, joining, synthesizing across multiple registered Sources — is the application layer's job, never EC FERNS's. Caching remains the only permitted efficiency measure an Adapter applies on top of its Source.
 
+> **Internal Data Provider location.** Internal Data Providers live in the `lib/internal-data-providers/` workspace package, with one subdirectory per Provider. Each subdirectory's `index.ts` defines that Source's Source Interface in code — the query functions an Adapter calls. Data files inside the subdirectory are package-internal and not exported. An Adapter imports its Provider via `@workspace/internal-data-providers/{source-id}` (or via the package barrel), never by reaching into a data file directly. This boundary is enforced by what the package exports.
+>
+> **Source identifier consistency.** Every Source has one identifier — the `source_id` value used in its registry entry — and that identifier is used verbatim wherever the Source appears in the codebase: as the Internal Data Provider subdirectory name (when applicable), as the Adapter route file name, as the Adapter services subdirectory name, and as the route prefix on the EC Data Interface. No abbreviations, no aliases, no short forms. One name per Source, used everywhere.
+>
 > Note: External Data Providers are physically separated from their Adapters by the network. Internal Data Providers are separated from their Adapters by the Source Interface as a code boundary — they live in their own part of the code, distinct from the Adapter that wraps them. The physical segregation of Internal Data Providers in the codebase is the target architecture; not every existing internal source meets it today. Bringing the existing internal sources into alignment is tracked as separate implementation work, sequenced behind pristine examples of the pattern.
 
 ### `method` and `cache_status` are coupled
