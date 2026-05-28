@@ -61,9 +61,19 @@ A simple test for any field: did the upstream source produce it, or did FERNS pr
 
 They never appear inside `provenance` on a per-response envelope.
 
-### Composite routes are forbidden
+### Sources are opaque behind a data-only interface; the layer adds the envelope
 
-A route that calls more than one upstream endpoint and merges the results into a single response is forbidden. Each FERNS route maps to exactly one upstream call (caching is the only permitted efficiency measure). If an experience requires data from multiple upstream calls, the application layer orchestrates them.
+A source presents to the data layer through a single internal interface: a query goes in, **data** comes out. That is all the layer sees. A source never constructs an envelope, never sees provenance fields, and never knows the envelope exists. Its only obligation is to return its payload.
+
+The **data layer** wraps that payload in the envelope. Provenance is a fact about the layer's act of obtaining the data — `source_id`, `source_url`, `method`, `cache_status`, `queried_at`, `license`, `rights` are all produced on the layer side, uniformly, for every source. This is why every source's envelope has the same shape regardless of what the source did to produce its data.
+
+Because the source is opaque behind this interface, the layer neither knows nor constrains what a source does internally. A source may make one upstream call, many upstream calls, run an algorithm over its own internally-held graph or dataset, or even consult other sources — all of that is inside the source's boundary and invisible to the layer. The source still presents as one source with one query interface.
+
+**What the layer itself must never do is aggregate across sources.** Cross-source orchestration, merging, and synthesis are the application layer's job. The data layer composes only against the single-source interface: one route resolves to exactly one registered source. The prohibition is on the *layer* combining sources — never on a *source* doing work within its own boundary.
+
+A source whose result is computed (rather than fetched from a single external endpoint) reports `method: computed` and records its contributing inputs in `derived_from`. Caching remains the only permitted efficiency measure the layer applies on top of a source.
+
+> Note: the physical segregation of internal-source implementations behind this interface — where that code lives and how the interface is enforced in the codebase — is tracked as separate implementation work. This section states the contract; the code boundary is built to match it.
 
 ### `method` and `cache_status` are coupled
 
@@ -94,7 +104,7 @@ Only the following pairs are valid. Any other pair is a defective response.
 
 ## Pass-Through Rules (non-negotiable)
 
-These rules formalize "Source Fidelity" for routes that call an upstream source. They are testable assertions.
+These rules formalize "Source Fidelity" for **`passthrough`-kind routes** — routes that mirror a single upstream API endpoint. They are testable assertions. They do not govern a source's internal implementation (see "Sources are opaque behind a data-only interface" above); a `computed` or `in_memory` source is not bound by verbatim-path or single-upstream-call rules because it is not mirroring an upstream endpoint. These rules apply wherever a route's kind is `passthrough`.
 
 1. **Verbatim path after the source prefix.** Everything after `/api/{source-id}/` must match the upstream's own path character-for-character. No renaming, no camelCase↔snake_case conversion, no omitted path segments.
 2. **Single upstream endpoint per route.** Each FERNS route maps to exactly one upstream call. No fan-out, no merging of two upstream responses into one.
@@ -140,11 +150,17 @@ The field is a JSON array. Each element is an object with exactly two keys:
 
 Every source's `/metadata` endpoint must appear in this field with kind `metadata`.
 
-## Admin / Infrastructure Route Exemption
+## What Carries the Envelope
 
-Some routes are FERNS internals — they describe, manage, or connect FERNS itself rather than serving data from a registered external source. These routes are **not registered as sources** and **do not carry the response envelope**. `permission_granted` does not apply to them in the public-license sense; they are auth-gated at the transport layer where applicable.
+The response envelope is a provenance carrier. It exists to record what is true of FERNS's act of obtaining ecological data from a registered source. The test for any route is therefore a single question:
 
-Exempt routes (current surface):
+> **Does this response return data derived from a registered source?**
+
+If yes, the route carries the full envelope. If no, it does not — because there is no provenance to carry. This is a rule about the *purpose* of the route, not about which list it appears on. An agent decides envelope-or-not by answering the question above, never by consulting an enumeration.
+
+Routes that do **not** return source-derived data — administrative, infrastructure, health/status, trust-layer, and FERNS self-description routes — do not carry the envelope. `permission_granted` does not apply to them in the public-license sense; they are auth-gated at the transport layer where applicable.
+
+The table below illustrates the current internal surface. It is an aid, not the rule — the rule is the question above. New routes are classified by answering the question, not by being added to this table.
 
 | Route file | Paths | Reason |
 |---|---|---|
@@ -203,7 +219,7 @@ Every external data source integrated follows a consistent four-component patter
 
 1.  **Connector**: Ingests data from the source. This data could be remote or could be held within this application.
 2.  **Database**: Stores source data in dedicated tables, each record including provenance fields.
-3.  **Knowledge API**: Provides programmatic access to the data. Every EC route path after the source identifier prefix MUST use the upstream source's own path verbatim — this is a non-negotiable prohibition. Each route maps to exactly one upstream endpoint; caching is the only permitted efficiency measure. Composite or aggregated routes that have no upstream equivalent are forbidden. If an experience requires data from multiple upstream calls, the application layer orchestrates those calls — the Knowledge API does not. Any deviation from upstream path structure requires explicit user approval and must be documented; it is not permitted for cosmetic or convenience reasons.
+3.  **Knowledge API**: Provides programmatic access to the data. For `passthrough`-kind routes, every EC route path after the source identifier prefix MUST use the upstream source's own path verbatim — this is a non-negotiable prohibition — and each such route maps to exactly one upstream endpoint, with caching the only permitted efficiency measure. The data layer itself never aggregates across sources; cross-source orchestration is the application layer's job. A source's internal implementation is opaque to the layer (see "Sources are opaque behind a data-only interface"): a `computed` or `in_memory` source may do whatever it needs within its own boundary and is not bound by verbatim-path or single-upstream rules. Any deviation from upstream path structure for a `passthrough` route requires explicit user approval and must be documented; it is not permitted for cosmetic or convenience reasons.
 4.  **Registry Entry**: Declares the service's exposed data and dependencies within the FERNS Registry.
 
 **Key Design Principles and Features:**
@@ -211,7 +227,7 @@ Every external data source integrated follows a consistent four-component patter
 -   **Provenance Tracking**: Every API response carries a `provenance` object as defined by FERNS Response Envelope Contract v1 (see the dedicated section below): `source_id`, `source_url`, `method`, `cache_status`, `queried_at`, `derived_from`, `license`, `rights`. Per-response provenance does NOT include `general_summary` or `technical_details` — those live in the registry only. Database cache tables record their own ingestion-time provenance fields (e.g. `fetched_at`, `upstream_url`); those are storage-level columns, not envelope fields, and are mapped into the envelope at response time.
 -   **API Response Envelope**: All API responses are wrapped in the FERNS Response Envelope Contract v1.
 -   **Permission Enforcement**: Source metadata includes a `permission_granted` flag, and Explorer UIs display blocking modals when permission is not granted.
--   **Source Fidelity**: FERNS API route paths after the source identifier prefix MUST be verbatim copies of the upstream source's own paths — no renaming, no compositing, no omission. Each route maps to exactly one upstream endpoint; caching is the only permitted efficiency measure. If an experience requires data from multiple upstream calls, the application layer orchestrates those calls — the Knowledge API does not. Any deviation requires explicit user approval and must be documented. Field values and response structure are preserved unchanged.
+-   **Source Fidelity**: For `passthrough`-kind routes, FERNS API route paths after the source identifier prefix MUST be verbatim copies of the upstream source's own paths — no renaming, no omission — and each route maps to exactly one upstream endpoint, with caching the only permitted efficiency measure. The data layer never aggregates across sources; cross-source orchestration is the application layer's job. A source's own internals are opaque to the layer and unconstrained (see "Sources are opaque behind a data-only interface"). Any deviation for a passthrough route requires explicit user approval and must be documented. Field values and response structure from the source are preserved unchanged.
 -   **Source Descriptions**: Every source has three structured description fields — `description`, `general_summary`, and `technical_details` — that together serve as a complete self-contained reference for any reader. Standards and examples are defined in the Source Onboarding Playbook below.
 -   **No Normalization**: FERNS preserves the distinctness of each source; it does not collapse sources into a common data model or imply equivalence.
 -   **Fat Registry Index**: The `/api/v1/sources` endpoint is the single source of truth for all source metadata. Each `SourceSummary` in the sources array includes the full set of identity, description, permission, and capability fields: `source_id`, `name`, `knowledge_type`, `status`, `description`, `input_summary`, `output_summary`, `dependencies`, `update_frequency`, `known_limitations`, `metadata_url`, `permission_granted`, `permission_status`, `general_summary`, and `technical_details`. These are persisted to the `ferns_sources` DB table via each source's `seed.ts` `onConflictDoUpdate` and read back on every registry request. An agent or application can make a single call to `/api/v1/sources` and have enough information to make a fully informed routing decision without calling any individual `/metadata` endpoint.

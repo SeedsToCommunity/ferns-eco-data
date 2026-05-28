@@ -145,6 +145,7 @@ These three fields are required on every FERNS source. They are structured deliv
 5. Database schema: table name(s), key columns, primary key, unique constraints, index strategy
 6. Caching policy: what is cached, refresh strategy, cache invalidation behavior, what `?refresh=true` does if implemented — do not include specific TTL day values (see rule below)
 7. Response normalization: what FERNS adds, changes, or omits relative to the upstream data; any field transformations
+7a. Deliberate scope exclusions: if any part of the upstream source is intentionally not wrapped by FERNS, state what is excluded and why. Excluded scope may be named as a category rather than an exhaustive list (e.g. "all user, contributor, and social/account endpoints are out of scope — FERNS covers ecological data only"). The included routes are self-evident from the code and need not be enumerated here; only the deliberate exclusions are recorded, so that the absence of a route is a documented decision rather than an apparent oversight.
 8. All coded or enumerated field values with their complete meaning (e.g. OBL = Obligate Wetland; C=10 = highest ecological fidelity to undisturbed habitat; W=−5 = most strongly wetland-affiliated)
 9. Coverage: record count, geographic region, taxonomic scope, date range if relevant — always use specific numbers
 10. Known limitations, edge cases, and accuracy concerns: taxonomy mismatches, missing coverage, encoding issues, unstable upstream identifiers
@@ -179,20 +180,20 @@ The precise TTL for each cache entry lives in the source's `cache.ts` file and i
 
 ### Autonomy Guidance
 
-After the user approves the Source Research Proposal, execute all remaining checklist steps (Steps 3–12) autonomously. No interim check-ins are required or expected.
+After the user approves the Source Research Proposal, execute all remaining checklist steps (Steps 3–12) autonomously. The governing distinction is **decision vs. broken precondition.**
 
-**Do NOT pause for**:
+**Low-level DECISIONS are made autonomously.** Field names, response structure, type coercions, where a constant lives, mapping choices — anything covered by this playbook, the contract, or the example implementations. Use the guidance and the pristine example sources, make the best call you can, and keep moving. Record any non-obvious decision in the post-task summary. Do **not** pause for these. This explicitly includes:
 - Implementation choices already covered by this playbook or elsewhere in replit.md
 - Caching strategy that follows an existing pattern
 - Route registration and OpenAPI spec additions
 - Audit health check implementation for a source that follows existing patterns
 
-**DO pause and present to the user before proceeding when**:
-- A genuinely novel DB schema pattern is needed that has no precedent in existing sources
-- A new caching approach is required that differs fundamentally from all existing sources (e.g. streaming, event-sourcing, Redis)
-- The upstream API response cannot be cleanly mapped to the FERNS envelope without a structural design decision
-- Permission status is unclear or requires contacting the source institution
-- The source reveals a data overlap or disambiguation issue not yet addressed in replit.md
+**BROKEN PRECONDITIONS are a hard stop — before any code is written, surfaced to the user, never resolved silently and never demoted to a post-task-summary footnote:**
+- **The source cannot be made to behave as expected** — the upstream response cannot be cleanly mapped to the FERNS envelope without a structural design decision; permission status is unclear or requires contacting the institution; a genuinely novel schema or caching approach with no precedent is required.
+- **Two guidance documents contradict each other** — when the contract, this playbook, and replit.md cannot all be satisfied at once.
+- **The task contradicts the contract** — when a task instruction asks for something the data-layer contract forbids (for example, asking to keep a FERNS-constructed field inside `data`). This is the case that must never become a footnote: it is a stop, raised before proceeding, with the highest-level explanation possible.
+
+The reason for a stop is always a broken precondition, never the mere size or importance of a decision. As the guidance documents become coherent, the broken-precondition category shrinks — fewer stops are needed because fewer contradictions exist, not because vigilance is relaxed.
 
 ---
 
@@ -231,4 +232,4 @@ Every time a query parameter is added, removed, or has its type changed in `lib/
 
 ## Summary
 
-Complete every step on the mandatory checklist. Research the source independently from primary sources. Produce a Source Research Proposal and present it to the user for review before writing any code. Do not begin implementation until the proposal is explicitly approved. After approval, execute all remaining steps autonomously — no interim check-ins unless a genuinely novel architectural decision arises that is not covered by this document.
+Complete every step on the mandatory checklist. Research the source independently from primary sources. Produce a Source Research Proposal and present it to the user for review before writing any code. Do not begin implementation until the proposal is explicitly approved. After approval, execute the remaining steps autonomously, making low-level decisions from this document and the example sources and recording them in the post-task summary. Stop only on a broken precondition — the source cannot be made to behave as expected, two guidance documents contradict each other, or the task contradicts the contract — and surface it before proceeding rather than resolving it silently.
