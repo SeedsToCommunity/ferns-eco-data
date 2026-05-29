@@ -1,0 +1,41 @@
+Task: Build Coefficients of Conservatism as the first pristine exemplar of the Source / Adapter pattern for an Internal Data Provider
+Before you start — mandatory reading
+Read each in full before writing any code:
+
+replit.md
+docs/data-layer-contract.md — particularly the "Source / Adapter / Source Interface" section, including the new Internal Data Provider location and Source identifier consistency clauses.
+docs/source-onboarding-playbook.md — Architectural Orientation and Description Field Standards.
+docs/operational-notes.md — for the composite: true TypeScript declarations rule.
+
+If anything in this task description conflicts with those documents, the documents win. Flag any conflict rather than resolving it silently.
+Scope
+The Coefficients of Conservatism source exists today as three files in artifacts/api-server/src/services/coefficient/: data.ts (a static array of eleven C-value entries), metadata.ts (source constants and registry entry), and seed.ts (registry insert). Restructure it to the new pattern.
+Target structure
+The Source identifier is coefficient-of-conservatism. That identifier is used verbatim wherever the Source has a name in the code.
+
+Create the Internal Data Providers workspace package at lib/internal-data-providers/ if it doesn't exist. Follow the pattern of lib/db/ and lib/api-envelope/ for package.json, tsconfig.json (composite: true), and the workspace registration. The package name is @workspace/internal-data-providers.
+Move the data into the package at lib/internal-data-providers/src/coefficient-of-conservatism/. Inside:
+
+data.ts — the COEFFICIENT_DATA array and the CoefficientEntry type. Not exported from the package.
+index.ts — the Source Interface in code: query functions an Adapter calls. At minimum: getCoefficient(value: string): CoefficientEntry | undefined and listCoefficients(): CoefficientEntry[]. Only these query functions (and the CoefficientEntry type if needed for typing the Adapter) are exported.
+
+
+Restructure the Adapter in artifacts/api-server/. The Adapter is whatever code calls the Provider and wraps its results in the EC envelope:
+
+Route file at artifacts/api-server/src/routes/coefficient-of-conservatism.ts (rename from coefficient.ts if a route file exists; create if not).
+Adapter services at artifacts/api-server/src/services/coefficient-of-conservatism/ (rename the existing coefficient/ directory). metadata.ts and seed.ts stay here. They are Adapter-side concerns (registry registration, metadata) and import the Source Interface from @workspace/internal-data-providers/coefficient-of-conservatism. They do not import data.ts from the Provider package; that file is not exported.
+The route prefix on the EC Data Interface is /api/coefficient-of-conservatism/*. Rename from any previous prefix if it differs.
+
+
+The Adapter imports the Provider only through its public Source Interface. No imports of the raw data array. If the package's exports are configured correctly, this is structurally enforced.
+Update any callers elsewhere in the codebase that reference the old paths or names. The registry seed call in src/index.ts and any other wiring point need to match the new module locations and names.
+Description fields stay as they are unless the existing text fails the playbook's Description Field Standards. If it does, fix it. technical_details should also include the deliberate scope exclusions clause (point 7a) — for Coefficients of Conservatism, the relevant scope statement is roughly "this Source defines the C-value methodology and scale only; per-species C-values are not included here." If the existing technical_details already says this, leave it.
+
+This is an exemplar build, not an alignment task. Do not touch any other Source's code. Do not "fix issues" in S2C, Wetland Indicator, WUCOLS, AA NPN, or anything else, even if you notice them. Record any observations about other sources in the post-task summary. They are slated for alignment against this exemplar in later tasks.
+Stop before writing code and surface to me if:
+
+The workspace package setup runs into a tooling decision not covered by the existing lib/* packages' patterns.
+Two guidance documents contradict each other for the case in front of you.
+This task description contradicts the contract.
+
+When done: append a post-task summary to task_summary.md and post it in chat: what was built, the general_summary and technical_details text verbatim, architectural decisions, what wasn't done, what I should review. Include in the summary any observations about other Sources you noticed but did not touch.
