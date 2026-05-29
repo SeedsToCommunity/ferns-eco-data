@@ -1,16 +1,16 @@
-export const WUCOLS_SOURCE_ID = "wucols-water-use";
+export const WUCOLS_WATER_USE_SOURCE_ID = "wucols-water-use";
 
-export const WUCOLS_LICENSE = "cc-by";
+export const WUCOLS_WATER_USE_LICENSE = "cc-by";
 
-export const WUCOLS_RIGHTS =
+export const WUCOLS_WATER_USE_RIGHTS =
   "OPEN — Static reference data. WUCOLS methodology published by the University of California Cooperative Extension. No authentication required.";
 
-export const WUCOLS_LICENSES = ["cc-by"];
+export const WUCOLS_WATER_USE_LICENSES = ["cc-by"];
 
-export const WUCOLS_LICENSE_NOTES =
+export const WUCOLS_WATER_USE_LICENSE_NOTES =
   "OPEN — Static reference data. WUCOLS methodology published by the University of California Cooperative Extension. No authentication required.";
 
-export const WUCOLS_GENERAL_SUMMARY =
+export const WUCOLS_WATER_USE_GENERAL_SUMMARY =
   "Vocabulary reference for WUCOLS (Water Use Classifications of Landscape Species), a supplemental " +
   "irrigation classification developed by the University of California Cooperative Extension (UC CES) " +
   "and widely used by nursery professionals, landscape architects, and water agencies. " +
@@ -23,7 +23,7 @@ export const WUCOLS_GENERAL_SUMMARY =
   "Definitions do not change; this source is perpetually current. " +
   "Per-species WUCOLS ratings are not stored here — this source defines only the four-level classification system (VL/L/M/H).";
 
-export const WUCOLS_TECHNICAL_DETAILS =
+export const WUCOLS_WATER_USE_TECHNICAL_DETAILS =
   "Source: Static reference data. " +
   "Authority: University of California Cooperative Extension (UC CES). " +
   "Reference: Costello, L.R. et al. WUCOLS IV: Water Use Classification of Landscape Species. " +
@@ -40,8 +40,8 @@ export const WUCOLS_TECHNICAL_DETAILS =
   "This source defines the classification system; species-level ratings are outside scope. " +
   "Method: static_data. No upstream API. No cache TTL — data is in-memory reference.";
 
-export const WUCOLS_REGISTRY_ENTRY = {
-  source_id: WUCOLS_SOURCE_ID,
+export const WUCOLS_WATER_USE_REGISTRY_ENTRY = {
+  source_id: WUCOLS_WATER_USE_SOURCE_ID,
   name: "WUCOLS — Water Use Classifications of Landscape Species (UC Cooperative Extension)",
   knowledge_type: "vocabulary_reference",
   status: "live",
@@ -61,12 +61,12 @@ export const WUCOLS_REGISTRY_ENTRY = {
     "WUCOLS is calibrated for California climate zones; applicability varies in other regions. " +
     "The UC WUCOLS database contains species-level ratings but is not integrated into this source.",
   metadata_url: "/api/wucols/metadata",
-  licenses: WUCOLS_LICENSES,
-  license_notes: WUCOLS_LICENSE_NOTES,
-  general_summary: WUCOLS_GENERAL_SUMMARY,
-  technical_details: WUCOLS_TECHNICAL_DETAILS,
-  license: WUCOLS_LICENSE,
-  rights: WUCOLS_RIGHTS,
+  licenses: WUCOLS_WATER_USE_LICENSES,
+  license_notes: WUCOLS_WATER_USE_LICENSE_NOTES,
+  general_summary: WUCOLS_WATER_USE_GENERAL_SUMMARY,
+  technical_details: WUCOLS_WATER_USE_TECHNICAL_DETAILS,
+  license: WUCOLS_WATER_USE_LICENSE,
+  rights: WUCOLS_WATER_USE_RIGHTS,
   website_url_patterns: {},
   non_passthrough_endpoints: [
     { endpoint: "/api/wucols/metadata", kind: "metadata" },

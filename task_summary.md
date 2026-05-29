@@ -137,3 +137,39 @@ No new source was added. Not applicable.
 ### What the user should decide or review
 
 - Nothing requires immediate user judgment. The rename is mechanical and complete across all four packages. The two follow-up tasks (#216, #217) are improvements, not blockers.
+
+---
+
+## Task: WUCOLS Water Use — IDP extraction and identifier renames
+
+**Date**: 2026-05-29
+
+### What was built
+
+The WUCOLS Water Use source was brought into the same Internal Data Provider pattern already established for Coefficient of Conservatism and Wetland Indicator Status. Previously, the WUCOLS data array and lookup function lived directly inside the API server's services directory (`artifacts/api-server/src/services/wucols/data.ts`), meaning the Data Adapter was reaching into its own services folder for data that belongs behind a Source Interface. Now the data and its Source Interface live in the dedicated workspace package `lib/internal-data-providers/src/wucols-water-use/`, with clean exports: `getWucolsWaterUse(code)` and `listWucolsWaterUse()`. The API server's route file imports exclusively through that interface. All identifier constants and the seed function were renamed to use the full `WUCOLS_WATER_USE_` prefix (previously abbreviated to `WUCOLS_`), enforcing the source identifier consistency rule (`source_id = wucols-water-use` → `SCREAMING_SNAKE_CASE = WUCOLS_WATER_USE_`). All three existing routes (`/api/wucols`, `/api/wucols/all`, `/api/wucols/metadata`) remain untouched in path — HTTP route path changes are deferred to the downstream task. Zero TypeScript errors.
+
+### Derivation summary (general_summary verbatim)
+
+No new source was added; this task reorganized existing code only. The `general_summary` text was not changed. See the existing WUCOLS registry entry for the `general_summary`.
+
+### Scientific/technical description (technical_details verbatim)
+
+No new source was added; `technical_details` was not changed. See the existing WUCOLS registry entry for the `technical_details`.
+
+### Architectural decisions made
+
+- **IDP package structure mirrors Coefficient of Conservatism exactly**: `data.ts` holds the data array, type, and private `lookupByCode`; `index.ts` exports the Source Interface functions and re-exports the entry type. `lookupByCode` is private to the package and is not source-prefixed (it is an internal utility, not a public identifier).
+- **All eleven identifier renames applied**: `WucolsEntry` → `WucolsWaterUseEntry`, `WUCOLS_DATA` → `WUCOLS_WATER_USE_DATA`, `WUCOLS_SOURCE_ID` → `WUCOLS_WATER_USE_SOURCE_ID`, and eight more. The rename map from the task spec was followed exactly with no omissions.
+- **Route path strings in `metadata_url` and `non_passthrough_endpoints` deliberately not changed**: These contain `/api/wucols/...` paths that will be updated in the downstream route path conformance task. Changing them here would create a half-migrated state.
+- **Old `services/wucols/data.ts` deleted**: Content fully migrated to the IDP package. No duplication retained.
+
+### What was NOT done
+
+- HTTP route path changes (`/wucols/` → `/wucols-water-use/`) — deferred to downstream task.
+- Route file rename, services directory rename — deferred to downstream task.
+- OpenAPI spec, MCP server, ferns-audit path updates — deferred to downstream task.
+- No smoke test run (server not started); compilation verified via `tsc --noEmit` with zero errors.
+
+### What the user should decide or review
+
+- Nothing requires immediate human judgment. The downstream route path conformance task will complete the migration.

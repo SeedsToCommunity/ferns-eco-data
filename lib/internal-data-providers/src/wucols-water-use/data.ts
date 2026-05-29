@@ -1,4 +1,4 @@
-export interface WucolsEntry {
+export interface WucolsWaterUseEntry {
   code: string;
   full_name: string;
   eto_range: string;
@@ -8,7 +8,7 @@ export interface WucolsEntry {
   scientific_description: string;
 }
 
-export const WUCOLS_DATA: WucolsEntry[] = [
+export const WUCOLS_WATER_USE_DATA: WucolsWaterUseEntry[] = [
   {
     code: "VL",
     full_name: "Very Low Water Use",
@@ -64,6 +64,6 @@ export const WUCOLS_DATA: WucolsEntry[] = [
   },
 ];
 
-export function lookupByCode(code: string): WucolsEntry | undefined {
-  return WUCOLS_DATA.find((e) => e.code === code.toUpperCase());
+export function lookupByCode(code: string): WucolsWaterUseEntry | undefined {
+  return WUCOLS_WATER_USE_DATA.find((e) => e.code === code.toUpperCase());
 }
