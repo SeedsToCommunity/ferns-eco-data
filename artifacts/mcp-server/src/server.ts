@@ -992,7 +992,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/wucols", {
+      apiGet("/wucols-water-use", {
         code: String(args["code"]),
         provenance_verbosity: pv(args),
       }),
@@ -1009,7 +1009,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/wucols/all", {
+      apiGet("/wucols-water-use/all", {
         provenance_verbosity: pv(args),
       }),
   },

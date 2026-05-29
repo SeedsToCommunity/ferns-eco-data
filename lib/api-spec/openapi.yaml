@@ -22,7 +22,7 @@ tags:
     description: Coefficient of Conservatism — Floristic Quality Assessment C-Value Reference
   - name: wetland-indicator-status
     description: Wetland Indicator Status & Coefficient of Wetness — USDA NRCS NWPL Reference
-  - name: wucols
+  - name: wucols-water-use
     description: WUCOLS — Water Use Classifications of Landscape Species
   - name: s2c
     description: Seeds to Community Washtenaw — Annual Native Plant Species Availability
@@ -2448,10 +2448,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/VocabularyMetadataResponse"
 
-  /wucols:
+  /wucols-water-use:
     get:
-      operationId: getWucolsByCode
-      tags: [wucols]
+      operationId: getWucolsWaterUseByCode
+      tags: [wucols-water-use]
       summary: Look up a WUCOLS water use classification code
       description: >
         Returns the full definition for a given WUCOLS code (VL, L, M, or H)
@@ -2481,10 +2481,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /wucols/all:
+  /wucols-water-use/all:
     get:
-      operationId: getAllWucols
-      tags: [wucols]
+      operationId: getAllWucolsWaterUse
+      tags: [wucols-water-use]
       summary: Get all WUCOLS water use classification definitions
       description: >
         Returns all four WUCOLS classification levels (VL, L, M, H) with their
@@ -2497,10 +2497,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/WucolsAllResponse"
 
-  /wucols/metadata:
+  /wucols-water-use/metadata:
     get:
-      operationId: getWucolsMetadata
-      tags: [wucols]
+      operationId: getWucolsWaterUseMetadata
+      tags: [wucols-water-use]
       summary: WUCOLS service metadata
       description: >
         Returns service identity, licenses and license notes, and the full registry entry for the

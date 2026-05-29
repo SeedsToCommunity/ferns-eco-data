@@ -279,8 +279,8 @@ export async function runWucolsChecks(
   corpusEntries: TestVocabularyEntry[] = [],
 ): Promise<EndpointComparison[]> {
   const allCheck = await checkEndpoint(
-    "wucols",
-    "/api/wucols/all",
+    "wucols-water-use",
+    "/api/wucols-water-use/all",
     "WUCOLS — full water use classification table",
     fernsBase,
     (envelope) => {
@@ -307,8 +307,8 @@ export async function runWucolsChecks(
   const perCodeChecks = await Promise.all(
     corpusEntries.map((entry) =>
       checkEndpoint(
-        "wucols",
-        `/api/wucols?code=${encodeURIComponent(entry.key)}`,
+        "wucols-water-use",
+        `/api/wucols-water-use?code=${encodeURIComponent(entry.key)}`,
         `WUCOLS — water use classification lookup (${entry.key})`,
         fernsBase,
         (envelope) => {

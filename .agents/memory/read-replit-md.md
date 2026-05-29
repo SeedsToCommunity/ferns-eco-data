@@ -8,7 +8,8 @@ description: replit.md contains required workflow obligations, guidance doc trig
 **Rule:** Read `replit.md` before starting any implementation work on this project.
 
 **Why:** It contains:
-- Required post-task summary format (6 mandatory sections — omitting this is a task failure)
+- Required post-task summary format (6 mandatory sections — omitting ANY section is a task failure)
+- **Post-task summary must appear in THREE places: (1) posted in the chat reply, (2) appended to task_summary.md, (3) included in the commit message. Missing the chat post is the most common failure.**
 - Which guidance docs to open and *when* (data-layer-contract.md, source-onboarding-playbook.md, etc.)
 - Discrepancy ownership policy: if task instruction conflicts with a guidance doc, surface it to the user — do not silently resolve it
 - Automated reviewer behavior: fix reviewer issues autonomously unless they conflict with core project architecture

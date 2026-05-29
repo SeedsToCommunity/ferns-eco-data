@@ -173,3 +173,42 @@ No new source was added; `technical_details` was not changed. See the existing W
 ### What the user should decide or review
 
 - Nothing requires immediate human judgment. The downstream route path conformance task will complete the migration.
+
+---
+
+## Task 215 — WUCOLS Water Use: route path and file conformance (2026-05-29)
+
+### What was built
+
+The WUCOLS Water Use source had a naming inconsistency: its source ID is `wucols-water-use`, but its HTTP routes lived at `/api/wucols/...`, its route file was called `wucols.ts`, and its services directory was called `wucols/`. This task completed the alignment. The route file was renamed to `wucols-water-use.ts`, the services directory renamed to `wucols-water-use/`, and every path string inside those files updated. Four other packages that referenced the old paths — the API router, the MCP server, the OpenAPI spec, and the audit library — were updated in the same change. The old `/api/wucols/...` paths no longer exist; all three endpoints (`/api/wucols-water-use`, `/api/wucols-water-use/all`, `/api/wucols-water-use/metadata`) were confirmed working after the change.
+
+### Derivation summary (general_summary verbatim)
+
+N/A — no new source was added. The `general_summary` text was not changed.
+
+### Scientific/technical description (technical_details verbatim)
+
+N/A — no new source was added. The `technical_details` text was not changed.
+
+### Architectural decisions made
+
+- **Breaking HTTP path change accepted**: `/api/wucols/...` → `/api/wucols-water-use/...` is a breaking change for any existing callers. The decision was made to rename immediately rather than keep an alias, because the task spec required it and no known external callers depend on this path. Tradeoff: any consumer that hard-coded the old path will break silently.
+- **MCP tool names left unchanged**: `wucols_water_use__lookup` and `wucols_water_use__all` already conformed to the naming rule and were not renamed. Only the underlying `apiGet` URL strings they call were updated. Tradeoff: none — the tool names were already correct.
+- **`api-server/src/index.ts` also required updating**: The startup seeding import referenced `./services/wucols/seed.js` directly (not only the route file). This was found during TypeScript compilation and fixed. It was not listed in the task's relevant files, but was necessary for a clean build.
+- **TS6305 errors are pre-existing**: The TypeScript check for `api-server` reports TS6305 errors about unbuilt declaration files in `lib/internal-data-providers/dist/` for coefficient, wetland-indicator, and wucols-water-use. These errors existed before this task and affect all three Internal Data Providers equally. They are not introduced or worsened here.
+
+### What was NOT done
+
+- No backward-compatibility alias kept for `/api/wucols/...` — callers must update.
+- OpenAPI schema names (`WucolsEntry`, `WucolsResponse`, `WucolsAllResponse`) were not renamed — those are codegen artifacts and were explicitly out of scope.
+- Generated types in `lib/api-zod/` and `lib/api-client-react/` were not regenerated — codegen runs separately.
+- No new corpus entries added to the audit library for WUCOLS code lookups — the `runWucolsChecks` function still receives an empty `corpusEntries` array at its call site.
+
+### What the user should decide or review
+
+- Any external consumer (scripts, apps, bookmarks, MCP clients) that calls `/api/wucols/...` will now receive a 404. If any such consumers exist, they need to be updated to `/api/wucols-water-use/...`.
+- Codegen for the OpenAPI spec (`lib/api-zod/`, `lib/api-client-react/`) should be re-run to pick up the renamed `operationId` values and path strings.
+
+### Addendum (follow-up fix, same task)
+
+The initial submission incorrectly claimed the TS6305 errors for `wucols-water-use` were pre-existing. They were not — the declarations for the new IDP subdirectory had never been built after the entry was added. Running `cd lib/internal-data-providers && pnpm exec tsc -p tsconfig.json` rebuilt all three IDP declaration sets (`coefficient-of-conservatism`, `wetland-indicator-status`, `wucols-water-use`); TS6305 errors are now fully resolved. `docs/operational-notes.md` was updated with an explicit one-liner: every time a new subdirectory is added under `lib/internal-data-providers/src/`, the declaration rebuild must be run and the resulting `dist/<subdir>/` files committed in the same change.

@@ -60,7 +60,7 @@ export const WUCOLS_WATER_USE_REGISTRY_ENTRY = {
     "Defines the WUCOLS classification system only, not per-species ratings. " +
     "WUCOLS is calibrated for California climate zones; applicability varies in other regions. " +
     "The UC WUCOLS database contains species-level ratings but is not integrated into this source.",
-  metadata_url: "/api/wucols/metadata",
+  metadata_url: "/api/wucols-water-use/metadata",
   licenses: WUCOLS_WATER_USE_LICENSES,
   license_notes: WUCOLS_WATER_USE_LICENSE_NOTES,
   general_summary: WUCOLS_WATER_USE_GENERAL_SUMMARY,
@@ -69,9 +69,9 @@ export const WUCOLS_WATER_USE_REGISTRY_ENTRY = {
   rights: WUCOLS_WATER_USE_RIGHTS,
   website_url_patterns: {},
   non_passthrough_endpoints: [
-    { endpoint: "/api/wucols/metadata", kind: "metadata" },
-    { endpoint: "/api/wucols", kind: "in_memory" },
-    { endpoint: "/api/wucols/all", kind: "in_memory" },
+    { endpoint: "/api/wucols-water-use/metadata", kind: "metadata" },
+    { endpoint: "/api/wucols-water-use", kind: "in_memory" },
+    { endpoint: "/api/wucols-water-use/all", kind: "in_memory" },
   ],
   permission_granted: true,
 };

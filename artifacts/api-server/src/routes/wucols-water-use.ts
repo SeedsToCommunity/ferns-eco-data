@@ -7,15 +7,15 @@ import {
   WUCOLS_WATER_USE_REGISTRY_ENTRY,
   WUCOLS_WATER_USE_LICENSES,
   WUCOLS_WATER_USE_LICENSE_NOTES,
-} from "../services/wucols/metadata.js";
+} from "../services/wucols-water-use/metadata.js";
 import { getWucolsWaterUse, listWucolsWaterUse } from "@workspace/internal-data-providers/wucols-water-use";
-import { ensureWucolsWaterUseRegistryEntry } from "../services/wucols/seed.js";
+import { ensureWucolsWaterUseRegistryEntry } from "../services/wucols-water-use/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
 import { dbRegistryAccessor } from "../lib/registry-accessor.js";
 
 const router: IRouter = Router();
 
-router.get("/wucols", async (req, res) => {
+router.get("/wucols-water-use", async (req, res) => {
   const code = req.query["code"];
   if (typeof code !== "string" || code.trim() === "") {
     res.status(400).json({ error: "invalid_input", message: "code query parameter is required (VL, L, M, or H)" });
@@ -42,7 +42,7 @@ router.get("/wucols", async (req, res) => {
   res.json(envelope);
 });
 
-router.get("/wucols/all", async (req, res) => {
+router.get("/wucols-water-use/all", async (req, res) => {
   await ensureWucolsWaterUseRegistryEntry();
 
   const envelope = await buildEnvelope(
@@ -61,7 +61,7 @@ router.get("/wucols/all", async (req, res) => {
   res.json(envelope);
 });
 
-router.get("/wucols/metadata", async (req, res) => {
+router.get("/wucols-water-use/metadata", async (req, res) => {
   await ensureWucolsWaterUseRegistryEntry();
 
   const envelope = await buildEnvelope(

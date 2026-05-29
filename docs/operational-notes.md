@@ -12,6 +12,8 @@
 
 -   **TypeScript declarations**: When adding or changing a file in a package that uses `composite: true` (e.g., `lib/db`, `lib/api-client-react`, `lib/internal-data-providers`), rebuild its declarations before type-checking consumers: `cd lib/<package> && pnpm exec tsc -p tsconfig.json` (emitDeclarationOnly). Commit the generated `dist/` files alongside the source change — they are tracked in git, not gitignored. Stale or missing dist/.d.ts files in those packages will cause TS6305 "output file has not been built" errors in packages that reference them. This applies every time a new source is added to `lib/internal-data-providers`.
 
+-   **New IDP subdirectory rebuild rule**: Every time a new subdirectory is added under `lib/internal-data-providers/src/`, run `cd lib/internal-data-providers && pnpm exec tsc -p tsconfig.json` and commit the new `dist/<subdir>/` declaration files in the same change. Skipping this step leaves the new IDP's `.d.ts` files unbuilt and causes TS6305 errors in every package that imports from it.
+
 ## Infrastructure
 
 -   **Database**: PostgreSQL
