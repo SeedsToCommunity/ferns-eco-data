@@ -1,16 +1,16 @@
-export const COEFFICIENT_SOURCE_ID = "coefficient-of-conservatism";
+export const COEFFICIENT_OF_CONSERVATISM_SOURCE_ID = "coefficient-of-conservatism";
 
-export const COEFFICIENT_LICENSE = "cc-by";
+export const COEFFICIENT_OF_CONSERVATISM_LICENSE = "cc-by";
 
-export const COEFFICIENT_RIGHTS =
+export const COEFFICIENT_OF_CONSERVATISM_RIGHTS =
   "OPEN — Static reference data. Methodology published by Swink & Wilhelm (1994). No authentication required.";
 
-export const COEFFICIENT_LICENSES = ["cc-by"];
+export const COEFFICIENT_OF_CONSERVATISM_LICENSES = ["cc-by"];
 
-export const COEFFICIENT_LICENSE_NOTES =
+export const COEFFICIENT_OF_CONSERVATISM_LICENSE_NOTES =
   "OPEN — Static reference data. Methodology published by Swink & Wilhelm (1994). No authentication required.";
 
-export const COEFFICIENT_GENERAL_SUMMARY =
+export const COEFFICIENT_OF_CONSERVATISM_GENERAL_SUMMARY =
   "Vocabulary reference for the Coefficient of Conservatism (C-value), an ecological fidelity score " +
   "developed by Floyd Swink and Gerould Wilhelm in 'Plants of the Chicago Region' (1994) and used " +
   "in Floristic Quality Assessment (FQA) to evaluate habitat quality. " +
@@ -25,7 +25,7 @@ export const COEFFICIENT_GENERAL_SUMMARY =
   "Definitions do not change; this source is perpetually current. " +
   "Per-species C-values are not stored here — this source defines the methodology and scale only.";
 
-export const COEFFICIENT_TECHNICAL_DETAILS =
+export const COEFFICIENT_OF_CONSERVATISM_TECHNICAL_DETAILS =
   "Source: Static reference data. Methodology: Swink, F. and G. Wilhelm. 1994. " +
   "Plants of the Chicago Region, 4th ed. Indiana Academy of Science. " +
   "C-value assignment: integer 0–10, assigned by regional botanical authorities to native species based on ecological fidelity. " +
@@ -37,8 +37,8 @@ export const COEFFICIENT_TECHNICAL_DETAILS =
   "Method: static_data. No upstream API. No cache TTL — data is in-memory reference. " +
   "Deliberate scope exclusion (7a): this Source defines the C-value methodology and scale only; per-species C-values are not included here.";
 
-export const COEFFICIENT_REGISTRY_ENTRY = {
-  source_id: COEFFICIENT_SOURCE_ID,
+export const COEFFICIENT_OF_CONSERVATISM_REGISTRY_ENTRY = {
+  source_id: COEFFICIENT_OF_CONSERVATISM_SOURCE_ID,
   name: "Coefficient of Conservatism — Floristic Quality Assessment C-Value Reference",
   knowledge_type: "vocabulary_reference",
   status: "live",
@@ -58,12 +58,12 @@ export const COEFFICIENT_REGISTRY_ENTRY = {
     "Some states assign different C-values to the same species. Per-species C-value lookup is outside scope — " +
     "species-level values are provided by individual flora sources (e.g., Michigan Flora).",
   metadata_url: "/api/coefficient-of-conservatism/metadata",
-  licenses: COEFFICIENT_LICENSES,
-  license_notes: COEFFICIENT_LICENSE_NOTES,
-  general_summary: COEFFICIENT_GENERAL_SUMMARY,
-  technical_details: COEFFICIENT_TECHNICAL_DETAILS,
-  license: COEFFICIENT_LICENSE,
-  rights: COEFFICIENT_RIGHTS,
+  licenses: COEFFICIENT_OF_CONSERVATISM_LICENSES,
+  license_notes: COEFFICIENT_OF_CONSERVATISM_LICENSE_NOTES,
+  general_summary: COEFFICIENT_OF_CONSERVATISM_GENERAL_SUMMARY,
+  technical_details: COEFFICIENT_OF_CONSERVATISM_TECHNICAL_DETAILS,
+  license: COEFFICIENT_OF_CONSERVATISM_LICENSE,
+  rights: COEFFICIENT_OF_CONSERVATISM_RIGHTS,
   website_url_patterns: {},
   non_passthrough_endpoints: [
     { endpoint: "/api/coefficient-of-conservatism/metadata", kind: "metadata" },

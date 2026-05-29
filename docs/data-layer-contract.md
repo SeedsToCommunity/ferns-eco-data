@@ -77,6 +77,12 @@ A Source is **opaque** to the rest of the system behind its Source Interface. Wh
 >
 > **Source identifier consistency.** Every Source has one identifier — the `source_id` value used in its registry entry — and that identifier is used verbatim wherever the Source appears in the codebase: as the Internal Data Provider subdirectory name (when applicable), as the Adapter route file name, as the Adapter services subdirectory name, and as the route prefix on the EC Data Interface. No abbreviations, no aliases, no short forms. One name per Source, used everywhere.
 >
+> This rule also applies to module-level identifiers inside a Source's own code:
+> - **SCREAMING_SNAKE_CASE constants** (module-level `const` exports) must use the full `source_id` as their prefix, with kebab-case segments joined by underscores. For example, the source `coefficient-of-conservatism` must use `COEFFICIENT_OF_CONSERVATISM_` as its constant prefix. The abbreviated form `COEFFICIENT_` is prohibited.
+> - **camelCase identifiers** (functions, types, interfaces) must use the full source_id segments with each segment capitalized. For example, `coefficient-of-conservatism` → `CoefficientOfConservatism` as the identifier prefix/namespace. The abbreviated form `Coefficient` is prohibited when the source has a longer compound identifier.
+>
+> These rules apply within a Source's own code — its Internal Data Provider module and its Adapter services directory. They do not apply to OpenAPI schema names or generated types, which are codegen artifacts driven by the spec.
+>
 > Note: External Data Providers are physically separated from their Adapters by the network. Internal Data Providers are separated from their Adapters by the Source Interface as a code boundary — they live in their own part of the code, distinct from the Adapter that wraps them. The physical segregation of Internal Data Providers in the codebase is the target architecture; not every existing internal source meets it today. Bringing the existing internal sources into alignment is tracked as separate implementation work, sequenced behind pristine examples of the pattern.
 
 ### `method` and `cache_status` are coupled

@@ -1,10 +1,10 @@
-export type { CoefficientEntry } from "./data.js";
-import { type CoefficientEntry, COEFFICIENT_DATA, lookupByValue } from "./data.js";
+export type { CoefficientOfConservatismEntry } from "./data.js";
+import { type CoefficientOfConservatismEntry, COEFFICIENT_OF_CONSERVATISM_DATA, lookupByValue } from "./data.js";
 
-export function getCoefficient(value: string): CoefficientEntry | undefined {
+export function getCoefficientOfConservatism(value: string): CoefficientOfConservatismEntry | undefined {
   return lookupByValue(value);
 }
 
-export function listCoefficients(): CoefficientEntry[] {
-  return COEFFICIENT_DATA;
+export function listCoefficientsOfConservatism(): CoefficientOfConservatismEntry[] {
+  return COEFFICIENT_OF_CONSERVATISM_DATA;
 }

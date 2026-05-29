@@ -1,4 +1,4 @@
-export interface CoefficientEntry {
+export interface CoefficientOfConservatismEntry {
   value: string;
   short_label: string;
   ecological_meaning: string;
@@ -6,7 +6,7 @@ export interface CoefficientEntry {
   is_native: boolean;
 }
 
-export const COEFFICIENT_DATA: CoefficientEntry[] = [
+export const COEFFICIENT_OF_CONSERVATISM_DATA: CoefficientOfConservatismEntry[] = [
   {
     value: "*",
     short_label: "Non-native / Adventive",
@@ -117,6 +117,6 @@ export const COEFFICIENT_DATA: CoefficientEntry[] = [
   },
 ];
 
-export function lookupByValue(value: string): CoefficientEntry | undefined {
-  return COEFFICIENT_DATA.find((e) => e.value === value);
+export function lookupByValue(value: string): CoefficientOfConservatismEntry | undefined {
+  return COEFFICIENT_OF_CONSERVATISM_DATA.find((e) => e.value === value);
 }

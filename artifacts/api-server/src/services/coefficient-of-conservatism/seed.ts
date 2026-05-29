@@ -1,36 +1,36 @@
 import { db, fernsSourcesTable } from "@workspace/db";
-import { COEFFICIENT_REGISTRY_ENTRY } from "./metadata.js";
+import { COEFFICIENT_OF_CONSERVATISM_REGISTRY_ENTRY } from "./metadata.js";
 import { logger } from "../../lib/logger.js";
 
 let seeded = false;
 
-export async function ensureCoefficientRegistryEntry(): Promise<void> {
+export async function ensureCoefficientOfConservatismRegistryEntry(): Promise<void> {
   if (seeded) return;
 
   try {
     await db
       .insert(fernsSourcesTable)
-      .values(COEFFICIENT_REGISTRY_ENTRY)
+      .values(COEFFICIENT_OF_CONSERVATISM_REGISTRY_ENTRY)
       .onConflictDoUpdate({
         target: fernsSourcesTable.source_id,
         set: {
-          name: COEFFICIENT_REGISTRY_ENTRY.name,
-          status: COEFFICIENT_REGISTRY_ENTRY.status,
-          description: COEFFICIENT_REGISTRY_ENTRY.description,
-          input_summary: COEFFICIENT_REGISTRY_ENTRY.input_summary,
-          output_summary: COEFFICIENT_REGISTRY_ENTRY.output_summary,
-          update_frequency: COEFFICIENT_REGISTRY_ENTRY.update_frequency,
-          known_limitations: COEFFICIENT_REGISTRY_ENTRY.known_limitations,
-          metadata_url: COEFFICIENT_REGISTRY_ENTRY.metadata_url,
-          licenses: COEFFICIENT_REGISTRY_ENTRY.licenses ?? [],
-          license_notes: COEFFICIENT_REGISTRY_ENTRY.license_notes ?? "",
-          general_summary: COEFFICIENT_REGISTRY_ENTRY.general_summary ?? null,
-          technical_details: COEFFICIENT_REGISTRY_ENTRY.technical_details ?? null,
-          permission_granted: COEFFICIENT_REGISTRY_ENTRY.permission_granted,
-          license: COEFFICIENT_REGISTRY_ENTRY.license,
-          rights: COEFFICIENT_REGISTRY_ENTRY.rights,
-          website_url_patterns: COEFFICIENT_REGISTRY_ENTRY.website_url_patterns ?? {},
-          non_passthrough_endpoints: COEFFICIENT_REGISTRY_ENTRY.non_passthrough_endpoints ?? [],
+          name: COEFFICIENT_OF_CONSERVATISM_REGISTRY_ENTRY.name,
+          status: COEFFICIENT_OF_CONSERVATISM_REGISTRY_ENTRY.status,
+          description: COEFFICIENT_OF_CONSERVATISM_REGISTRY_ENTRY.description,
+          input_summary: COEFFICIENT_OF_CONSERVATISM_REGISTRY_ENTRY.input_summary,
+          output_summary: COEFFICIENT_OF_CONSERVATISM_REGISTRY_ENTRY.output_summary,
+          update_frequency: COEFFICIENT_OF_CONSERVATISM_REGISTRY_ENTRY.update_frequency,
+          known_limitations: COEFFICIENT_OF_CONSERVATISM_REGISTRY_ENTRY.known_limitations,
+          metadata_url: COEFFICIENT_OF_CONSERVATISM_REGISTRY_ENTRY.metadata_url,
+          licenses: COEFFICIENT_OF_CONSERVATISM_REGISTRY_ENTRY.licenses ?? [],
+          license_notes: COEFFICIENT_OF_CONSERVATISM_REGISTRY_ENTRY.license_notes ?? "",
+          general_summary: COEFFICIENT_OF_CONSERVATISM_REGISTRY_ENTRY.general_summary ?? null,
+          technical_details: COEFFICIENT_OF_CONSERVATISM_REGISTRY_ENTRY.technical_details ?? null,
+          permission_granted: COEFFICIENT_OF_CONSERVATISM_REGISTRY_ENTRY.permission_granted,
+          license: COEFFICIENT_OF_CONSERVATISM_REGISTRY_ENTRY.license,
+          rights: COEFFICIENT_OF_CONSERVATISM_REGISTRY_ENTRY.rights,
+          website_url_patterns: COEFFICIENT_OF_CONSERVATISM_REGISTRY_ENTRY.website_url_patterns ?? {},
+          non_passthrough_endpoints: COEFFICIENT_OF_CONSERVATISM_REGISTRY_ENTRY.non_passthrough_endpoints ?? [],
           updated_at: new Date(),
         },
       });

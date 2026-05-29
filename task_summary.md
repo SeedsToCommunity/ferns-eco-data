@@ -43,3 +43,37 @@ The Coefficient of Conservatism source was refactored to establish the first cle
 
 - The `technical_details` 7a clause uses the label "Deliberate scope exclusion (7a):" as a prefix to make it findable by automated tools. If the user prefers a different phrasing or no label prefix, that can be adjusted.
 - There is no barrel `index.ts` at the package root. Each provider is accessed only via its subpath (`@workspace/internal-data-providers/coefficient-of-conservatism`). This keeps the package boundary clean as more providers are added.
+
+---
+
+## Task: Coefficient of Conservatism — identifier consistency (2026-05-29)
+
+### What was built
+
+Two things were done in this task. First, the "Source identifier consistency" rule in the main data contract document was extended to explicitly cover how constants and function/type names inside a Source's own code must be written — they must spell out the full source identifier with no abbreviations. Second, every abbreviated identifier in the Coefficient of Conservatism source was renamed to its full form: eight constants in `metadata.ts`, the seed function in `seed.ts`, the internal data constant and interface in `data.ts`, and the two public query functions and exported type in `index.ts`. All import sites in the route file and the api-server startup file were updated to match. Additionally, `replit.md` was updated to add the git commit message as a third required destination for post-task summaries. Zero TypeScript errors after the rename.
+
+### Derivation summary
+
+N/A — no new source was added.
+
+### Scientific/technical description
+
+N/A — no new source was added.
+
+### Architectural decisions made
+
+- **Rename only, no logic changes**: Every renamed identifier has an identical body to its predecessor. No logic, no behavior, no data values were altered. This keeps the diff purely mechanical and makes it easy to audit.
+- **`lookupByValue` left as-is**: This is a package-internal helper function in `data.ts` (not exported from `index.ts`). The naming rule applies to the public Source Interface; internal helpers are not required to carry the full source prefix. The public functions `getCoefficientOfConservatism` and `listCoefficientsOfConservatism` are what the rule governs.
+- **Declaration rebuild required**: `lib/internal-data-providers` uses `composite: true` / declaration output. After renaming exports, `tsc --build` on that package was required before the api-server type check could pass. This is the standard pattern noted in `docs/operational-notes.md`.
+
+### What was NOT done
+
+- No other sources were touched. The new contract clause applies prospectively; bringing other sources (S2C, Wetland Indicator, WUCOLS, etc.) into alignment is separate work.
+- OpenAPI spec schema names (`CoefficientEntry` in `openapi.yaml`) and generated types in `lib/api-zod/` and `lib/api-client-react/` were explicitly excluded per scope — they are codegen artifacts.
+- `runCoefficientChecks` in `lib/ferns-audit/` was not renamed — explicitly out of scope.
+
+### What the user should decide or review
+
+- The new contract clause uses the word "prohibited" for abbreviated forms. If you prefer softer language ("discouraged" or "not permitted"), that can be adjusted.
+- The clause currently does not enumerate which existing sources are already compliant vs. non-compliant. A follow-on task could audit all sources against the new rule.
+
