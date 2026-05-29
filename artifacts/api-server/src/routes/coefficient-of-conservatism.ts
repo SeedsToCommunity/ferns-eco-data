@@ -7,9 +7,9 @@ import {
   COEFFICIENT_REGISTRY_ENTRY,
   COEFFICIENT_LICENSES,
   COEFFICIENT_LICENSE_NOTES,
-} from "../services/coefficient/metadata.js";
-import { COEFFICIENT_DATA, lookupByValue } from "../services/coefficient/data.js";
-import { ensureCoefficientRegistryEntry } from "../services/coefficient/seed.js";
+} from "../services/coefficient-of-conservatism/metadata.js";
+import { getCoefficient, listCoefficients } from "@workspace/internal-data-providers/coefficient-of-conservatism";
+import { ensureCoefficientRegistryEntry } from "../services/coefficient-of-conservatism/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
 import { dbRegistryAccessor } from "../lib/registry-accessor.js";
 
@@ -23,7 +23,7 @@ router.get("/coefficient-of-conservatism", async (req, res) => {
   }
 
   await ensureCoefficientRegistryEntry();
-  const entry = lookupByValue(value.trim());
+  const entry = getCoefficient(value.trim());
   const found = entry !== undefined;
 
   const envelope = await buildEnvelope(
@@ -50,7 +50,7 @@ router.get("/coefficient-of-conservatism/all", async (req, res) => {
       sourceId: COEFFICIENT_SOURCE_ID,
       sourceKind: "in-memory",
       found: true,
-      data: COEFFICIENT_DATA,
+      data: listCoefficients(),
       method: "cache_hit",
       cacheStatus: "hit",
       sourceUrl: null,

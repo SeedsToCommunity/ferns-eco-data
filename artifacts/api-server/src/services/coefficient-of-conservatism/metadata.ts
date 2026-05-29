@@ -34,7 +34,8 @@ export const COEFFICIENT_TECHNICAL_DETAILS =
   "Values defined here reflect the general Swink & Wilhelm scale. " +
   "Regional calibration: C-values are assigned independently by regional authorities; " +
   "the same species may have different C-values in different state or regional FQA databases. " +
-  "Method: static_data. No upstream API. No cache TTL — data is in-memory reference.";
+  "Method: static_data. No upstream API. No cache TTL — data is in-memory reference. " +
+  "Deliberate scope exclusion (7a): this Source defines the C-value methodology and scale only; per-species C-values are not included here.";
 
 export const COEFFICIENT_REGISTRY_ENTRY = {
   source_id: COEFFICIENT_SOURCE_ID,

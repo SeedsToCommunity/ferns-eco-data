@@ -1,0 +1,9 @@
+{
+  "name": "@workspace/internal-data-providers",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./coefficient-of-conservatism": "./src/coefficient-of-conservatism/index.ts"
+  }
+}

@@ -6,7 +6,7 @@ import { autoImportMnfiIfEmpty } from "./services/mnfi/seed.js";
 import { ensureGbifRegistryEntry } from "./services/gbif/seed.js";
 import { ensureInatRegistryEntry } from "./services/inat/seed.js";
 import { ensureMifloraRegistryEntry } from "./services/miflora/seed.js";
-import { ensureCoefficientRegistryEntry } from "./services/coefficient/seed.js";
+import { ensureCoefficientRegistryEntry } from "./services/coefficient-of-conservatism/seed.js";
 import { ensureWetlandIndicatorRegistryEntry } from "./services/wetland-indicator/seed.js";
 import { ensureWucolsRegistryEntry } from "./services/wucols/seed.js";
 import { ensureS2CRegistryEntry } from "./services/s2c/seed.js";

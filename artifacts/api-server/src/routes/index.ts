@@ -4,7 +4,7 @@ import bonapRouter from "./bonap.js";
 import gbifRouter from "./gbif.js";
 import inatRouter from "./inat.js";
 import mifloraRouter from "./miflora.js";
-import coefficientRouter from "./coefficient.js";
+import coefficientRouter from "./coefficient-of-conservatism.js";
 import wetlandIndicatorRouter from "./wetland-indicator.js";
 import wucolsRouter from "./wucols.js";
 import s2cRouter from "./s2c.js";

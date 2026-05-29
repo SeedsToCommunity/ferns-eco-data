@@ -188,6 +188,9 @@ importers:
       '@workspace/db':
         specifier: workspace:*
         version: link:../../lib/db
+      '@workspace/internal-data-providers':
+        specifier: workspace:*
+        version: link:../../lib/internal-data-providers
       '@workspace/mcp-server':
         specifier: workspace:*
         version: link:../mcp-server
@@ -558,6 +561,8 @@ importers:
       tsx:
         specifier: 'catalog:'
         version: 4.21.0
+
+  lib/internal-data-providers: {}
 
   scripts:
     devDependencies:
