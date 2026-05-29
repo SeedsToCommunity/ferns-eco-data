@@ -77,3 +77,29 @@ N/A — no new source was added.
 - The new contract clause uses the word "prohibited" for abbreviated forms. If you prefer softer language ("discouraged" or "not permitted"), that can be adjusted.
 - The clause currently does not enumerate which existing sources are already compliant vs. non-compliant. A follow-on task could audit all sources against the new rule.
 
+---
+
+## Task: Wetland Indicator Status — IDP extraction and identifier renames
+
+**Date**: 2026-05-29
+
+### What was built
+
+- Created `lib/internal-data-providers/src/wetland-indicator-status/data.ts` with `WetlandIndicatorStatusEntry` (renamed from `WetlandIndicatorEntry`), `WETLAND_INDICATOR_STATUS_DATA` (renamed from `WETLAND_INDICATOR_DATA`), private `W_TO_CODE`, `lookupByCode`, `lookupByW`.
+- Created `lib/internal-data-providers/src/wetland-indicator-status/index.ts` with Source Interface: `getWetlandIndicatorStatusByCode`, `getWetlandIndicatorStatusByW`, `listWetlandIndicatorStatuses`, and re-exported `WetlandIndicatorStatusEntry`.
+- Added `"./wetland-indicator-status": "./src/wetland-indicator-status/index.ts"` export to `lib/internal-data-providers/package.json`.
+- Renamed all 8 `WETLAND_INDICATOR_` exports in `metadata.ts` to `WETLAND_INDICATOR_STATUS_` equivalents (route path strings inside `metadata_url` and `non_passthrough_endpoints` left unchanged for Task 2).
+- Renamed `ensureWetlandIndicatorRegistryEntry` → `ensureWetlandIndicatorStatusRegistryEntry` in `seed.ts`; updated internal reference to `WETLAND_INDICATOR_STATUS_REGISTRY_ENTRY`.
+- Updated `routes/wetland-indicator.ts` to import from `@workspace/internal-data-providers/wetland-indicator-status` (Source Interface) instead of the deleted `data.ts`; updated all renamed metadata constants and seed function; replaced direct data/lookup calls with Source Interface calls. HTTP route path strings unchanged.
+- Updated `artifacts/api-server/src/index.ts` import and call site to `ensureWetlandIndicatorStatusRegistryEntry`.
+- Deleted `artifacts/api-server/src/services/wetland-indicator/data.ts`.
+
+### Verification
+
+- `pnpm tsc --build` on `lib/internal-data-providers`: zero errors.
+- `npx tsc --noEmit` on `artifacts/api-server`: zero errors.
+
+### What the user should decide or review
+
+- Nothing — this is a pure refactor with no behavior change. HTTP route paths remain at `/wetland-indicator/*`; those are changed in the follow-on task (Wetland Indicator Status — route path and file conformance).
+

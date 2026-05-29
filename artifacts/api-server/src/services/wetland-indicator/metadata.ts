@@ -1,16 +1,16 @@
-export const WETLAND_INDICATOR_SOURCE_ID = "wetland-indicator-status";
+export const WETLAND_INDICATOR_STATUS_SOURCE_ID = "wetland-indicator-status";
 
-export const WETLAND_INDICATOR_LICENSE = "cc0";
+export const WETLAND_INDICATOR_STATUS_LICENSE = "cc0";
 
-export const WETLAND_INDICATOR_RIGHTS =
+export const WETLAND_INDICATOR_STATUS_RIGHTS =
   "OPEN — Static reference data. Wetland indicator codes defined by USDA NRCS National Wetland Plant List and U.S. Army Corps of Engineers. No authentication required.";
 
-export const WETLAND_INDICATOR_LICENSES = ["cc0"];
+export const WETLAND_INDICATOR_STATUS_LICENSES = ["cc0"];
 
-export const WETLAND_INDICATOR_LICENSE_NOTES =
+export const WETLAND_INDICATOR_STATUS_LICENSE_NOTES =
   "OPEN — Static reference data. Wetland indicator codes defined by USDA NRCS National Wetland Plant List and U.S. Army Corps of Engineers. No authentication required.";
 
-export const WETLAND_INDICATOR_GENERAL_SUMMARY =
+export const WETLAND_INDICATOR_STATUS_GENERAL_SUMMARY =
   "Vocabulary reference for the Wetland Indicator Status (WIS) classification system, defined by the " +
   "USDA NRCS National Wetland Plant List (NWPL) under U.S. Army Corps of Engineers authority. " +
   "This source is maintained as static reference data by FERNS — no upstream API call is made at query time. " +
@@ -22,7 +22,7 @@ export const WETLAND_INDICATOR_GENERAL_SUMMARY =
   "meaning, W-value companion, authority, and disambiguation from other metrics. " +
   "Definitions do not change; this source is perpetually current.";
 
-export const WETLAND_INDICATOR_TECHNICAL_DETAILS =
+export const WETLAND_INDICATOR_STATUS_TECHNICAL_DETAILS =
   "Source: Static reference data. " +
   "Authority: USDA NRCS National Wetland Plant List (NWPL), maintained under U.S. Army Corps of Engineers (USACE) regulatory authority. " +
   "See: https://wetland-plants.usace.army.mil/ " +
@@ -39,8 +39,8 @@ export const WETLAND_INDICATOR_TECHNICAL_DETAILS =
   "compound codes such as 'FACU/UPL' reflect regional disagreement and are valid WIS values. " +
   "Method: static_data. No upstream API. No cache TTL — data is in-memory reference.";
 
-export const WETLAND_INDICATOR_REGISTRY_ENTRY = {
-  source_id: WETLAND_INDICATOR_SOURCE_ID,
+export const WETLAND_INDICATOR_STATUS_REGISTRY_ENTRY = {
+  source_id: WETLAND_INDICATOR_STATUS_SOURCE_ID,
   name: "Wetland Indicator Status & Coefficient of Wetness — USDA NRCS NWPL Reference",
   knowledge_type: "vocabulary_reference",
   status: "live",
@@ -61,12 +61,12 @@ export const WETLAND_INDICATOR_REGISTRY_ENTRY = {
     "Regional wetland indicator variations exist — some species have different ratings by region (e.g., 'FACU/UPL'); " +
     "this source defines the national standard only.",
   metadata_url: "/api/wetland-indicator/metadata",
-  licenses: WETLAND_INDICATOR_LICENSES,
-  license_notes: WETLAND_INDICATOR_LICENSE_NOTES,
-  general_summary: WETLAND_INDICATOR_GENERAL_SUMMARY,
-  technical_details: WETLAND_INDICATOR_TECHNICAL_DETAILS,
-  license: WETLAND_INDICATOR_LICENSE,
-  rights: WETLAND_INDICATOR_RIGHTS,
+  licenses: WETLAND_INDICATOR_STATUS_LICENSES,
+  license_notes: WETLAND_INDICATOR_STATUS_LICENSE_NOTES,
+  general_summary: WETLAND_INDICATOR_STATUS_GENERAL_SUMMARY,
+  technical_details: WETLAND_INDICATOR_STATUS_TECHNICAL_DETAILS,
+  license: WETLAND_INDICATOR_STATUS_LICENSE,
+  rights: WETLAND_INDICATOR_STATUS_RIGHTS,
   website_url_patterns: {},
   non_passthrough_endpoints: [
     { endpoint: "/api/wetland-indicator/metadata", kind: "metadata" },

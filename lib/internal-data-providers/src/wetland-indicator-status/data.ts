@@ -1,4 +1,4 @@
-export interface WetlandIndicatorEntry {
+export interface WetlandIndicatorStatusEntry {
   code: string;
   w_value: number;
   full_name: string;
@@ -7,7 +7,7 @@ export interface WetlandIndicatorEntry {
   scientific_description: string;
 }
 
-export const WETLAND_INDICATOR_DATA: WetlandIndicatorEntry[] = [
+export const WETLAND_INDICATOR_STATUS_DATA: WetlandIndicatorStatusEntry[] = [
   {
     code: "OBL",
     w_value: -5,
@@ -83,13 +83,13 @@ const W_TO_CODE: Record<number, string> = {
   [5]: "UPL",
 };
 
-export function lookupByCode(code: string): WetlandIndicatorEntry | undefined {
-  return WETLAND_INDICATOR_DATA.find(
+export function lookupByCode(code: string): WetlandIndicatorStatusEntry | undefined {
+  return WETLAND_INDICATOR_STATUS_DATA.find(
     (e) => e.code === code.toUpperCase(),
   );
 }
 
-export function lookupByW(w: number): WetlandIndicatorEntry | undefined {
+export function lookupByW(w: number): WetlandIndicatorStatusEntry | undefined {
   const code = W_TO_CODE[w];
   if (!code) return undefined;
   return lookupByCode(code);
