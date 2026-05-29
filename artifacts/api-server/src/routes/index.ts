@@ -5,7 +5,7 @@ import gbifRouter from "./gbif.js";
 import inatRouter from "./inat.js";
 import mifloraRouter from "./miflora.js";
 import coefficientRouter from "./coefficient-of-conservatism.js";
-import wetlandIndicatorRouter from "./wetland-indicator.js";
+import wetlandIndicatorRouter from "./wetland-indicator-status.js";
 import wucolsRouter from "./wucols.js";
 import s2cRouter from "./s2c.js";
 import universalFqaRouter from "./universal-fqa.js";

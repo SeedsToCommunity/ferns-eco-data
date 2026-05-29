@@ -103,3 +103,37 @@ N/A — no new source was added.
 
 - Nothing — this is a pure refactor with no behavior change. HTTP route paths remain at `/wetland-indicator/*`; those are changed in the follow-on task (Wetland Indicator Status — route path and file conformance).
 
+
+---
+
+## Task 213 — Wetland Indicator Status: Route Path and File Conformance
+
+### What was built
+
+The HTTP route paths, route file, services directory, and all downstream consumers for the Wetland Indicator Status source were renamed from `wetland-indicator` to `wetland-indicator-status` to match the source_id verbatim everywhere. Before this task the four routes lived at `/api/wetland-indicator`, `/api/wetland-indicator/w`, `/api/wetland-indicator/all`, and `/api/wetland-indicator/metadata`; they now live at the corresponding `/api/wetland-indicator-status/...` paths. The MCP tool names (`wetland_indicator_status__by_code`, etc.) were already conformant and did not change — only the underlying HTTP URLs they call.
+
+### Derivation summary
+
+No new source was added. Not applicable.
+
+### Scientific/technical description
+
+No new source was added. Not applicable.
+
+### Architectural decisions made
+
+- **Route file and service directory renamed rather than deleted and recreated** — The old `routes/wetland-indicator.ts` and `services/wetland-indicator/` directory were replaced with new identically-structured files at the new paths. No behavior changed; this is a pure rename to enforce the source_id-verbatim naming contract.
+- **Generated API client updated manually** — `lib/api-client-react/src/generated/api.ts` has no codegen script. The eight URL strings inside it were updated by hand. This creates ongoing drift risk every time routes change; a follow-up task (#217) was proposed to add codegen automation.
+- **ferns-audit `checkEndpoint` source labels left as `"wetland-indicator"`** — The first argument to `checkEndpoint` in `static-sources.ts` is a display label used in audit reports, not a route path. It was not changed because the task scope covered URL paths only. The code reviewer flagged this as a minor inconsistency; a cosmetic fix can be done independently.
+- **Pre-existing TS6305 errors not addressed** — Two `TS6305` errors from `@workspace/internal-data-providers` dist artifacts not being built were present before this task (same error exists for `coefficient-of-conservatism`, which was not touched). These are build-order issues unrelated to this rename.
+
+### What was NOT done
+
+- ferns-audit `checkEndpoint` source labels (`"wetland-indicator"`) were not updated — they are display labels, not URLs, and are cosmetic only.
+- `docs/audit-tool.md` still describes the old `/wetland-indicator/w?value=` path in its coverage paragraph — a follow-up task (#216) was proposed.
+- No codegen script was added for `lib/api-client-react` — follow-up task #217.
+- The pre-existing `TS6305` build-order errors in `internal-data-providers` were not fixed — out of scope.
+
+### What the user should decide or review
+
+- Nothing requires immediate user judgment. The rename is mechanical and complete across all four packages. The two follow-up tasks (#216, #217) are improvements, not blockers.

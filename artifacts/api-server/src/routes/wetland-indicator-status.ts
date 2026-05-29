@@ -7,19 +7,19 @@ import {
   WETLAND_INDICATOR_STATUS_REGISTRY_ENTRY,
   WETLAND_INDICATOR_STATUS_LICENSES,
   WETLAND_INDICATOR_STATUS_LICENSE_NOTES,
-} from "../services/wetland-indicator/metadata.js";
+} from "../services/wetland-indicator-status/metadata.js";
 import {
   getWetlandIndicatorStatusByCode,
   getWetlandIndicatorStatusByW,
   listWetlandIndicatorStatuses,
 } from "@workspace/internal-data-providers/wetland-indicator-status";
-import { ensureWetlandIndicatorStatusRegistryEntry } from "../services/wetland-indicator/seed.js";
+import { ensureWetlandIndicatorStatusRegistryEntry } from "../services/wetland-indicator-status/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
 import { dbRegistryAccessor } from "../lib/registry-accessor.js";
 
 const router: IRouter = Router();
 
-router.get("/wetland-indicator", async (req, res) => {
+router.get("/wetland-indicator-status", async (req, res) => {
   const code = req.query["code"];
   if (typeof code !== "string" || code.trim() === "") {
     res.status(400).json({ error: "invalid_input", message: "code query parameter is required (OBL, FACW, FAC, FACU, or UPL)" });
@@ -46,7 +46,7 @@ router.get("/wetland-indicator", async (req, res) => {
   res.json(envelope);
 });
 
-router.get("/wetland-indicator/w", async (req, res) => {
+router.get("/wetland-indicator-status/w", async (req, res) => {
   const rawValue = req.query["value"];
   if (typeof rawValue !== "string" || rawValue.trim() === "") {
     res.status(400).json({ error: "invalid_input", message: "value query parameter is required (-5, -3, 0, 3, or 5)" });
@@ -79,7 +79,7 @@ router.get("/wetland-indicator/w", async (req, res) => {
   res.json(envelope);
 });
 
-router.get("/wetland-indicator/all", async (req, res) => {
+router.get("/wetland-indicator-status/all", async (req, res) => {
   await ensureWetlandIndicatorStatusRegistryEntry();
 
   const envelope = await buildEnvelope(
@@ -98,7 +98,7 @@ router.get("/wetland-indicator/all", async (req, res) => {
   res.json(envelope);
 });
 
-router.get("/wetland-indicator/metadata", async (req, res) => {
+router.get("/wetland-indicator-status/metadata", async (req, res) => {
   await ensureWetlandIndicatorStatusRegistryEntry();
 
   const envelope = await buildEnvelope(

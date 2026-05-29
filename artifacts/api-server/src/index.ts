@@ -7,7 +7,7 @@ import { ensureGbifRegistryEntry } from "./services/gbif/seed.js";
 import { ensureInatRegistryEntry } from "./services/inat/seed.js";
 import { ensureMifloraRegistryEntry } from "./services/miflora/seed.js";
 import { ensureCoefficientOfConservatismRegistryEntry } from "./services/coefficient-of-conservatism/seed.js";
-import { ensureWetlandIndicatorStatusRegistryEntry } from "./services/wetland-indicator/seed.js";
+import { ensureWetlandIndicatorStatusRegistryEntry } from "./services/wetland-indicator-status/seed.js";
 import { ensureWucolsRegistryEntry } from "./services/wucols/seed.js";
 import { ensureS2CRegistryEntry } from "./services/s2c/seed.js";
 import { ensureUniversalFqaRegistryEntry } from "./services/universal-fqa/seed.js";

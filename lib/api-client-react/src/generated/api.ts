@@ -4104,8 +4104,8 @@ export const getGetWetlandIndicatorByCodeUrl = (
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/wetland-indicator?${stringifiedParams}`
-    : `/api/wetland-indicator`;
+    ? `/api/wetland-indicator-status?${stringifiedParams}`
+    : `/api/wetland-indicator-status`;
 };
 
 export const getWetlandIndicatorByCode = async (
@@ -4124,7 +4124,7 @@ export const getWetlandIndicatorByCode = async (
 export const getGetWetlandIndicatorByCodeQueryKey = (
   params?: GetWetlandIndicatorByCodeParams,
 ) => {
-  return [`/api/wetland-indicator`, ...(params ? [params] : [])] as const;
+  return [`/api/wetland-indicator-status`, ...(params ? [params] : [])] as const;
 };
 
 export const getGetWetlandIndicatorByCodeQueryOptions = <
@@ -4212,8 +4212,8 @@ export const getGetWetlandIndicatorByWUrl = (
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/wetland-indicator/w?${stringifiedParams}`
-    : `/api/wetland-indicator/w`;
+    ? `/api/wetland-indicator-status/w?${stringifiedParams}`
+    : `/api/wetland-indicator-status/w`;
 };
 
 export const getWetlandIndicatorByW = async (
@@ -4232,7 +4232,7 @@ export const getWetlandIndicatorByW = async (
 export const getGetWetlandIndicatorByWQueryKey = (
   params?: GetWetlandIndicatorByWParams,
 ) => {
-  return [`/api/wetland-indicator/w`, ...(params ? [params] : [])] as const;
+  return [`/api/wetland-indicator-status/w`, ...(params ? [params] : [])] as const;
 };
 
 export const getGetWetlandIndicatorByWQueryOptions = <
@@ -4304,7 +4304,7 @@ export function useGetWetlandIndicatorByW<
  * @summary Get all Wetland Indicator Status definitions
  */
 export const getGetAllWetlandIndicatorsUrl = () => {
-  return `/api/wetland-indicator/all`;
+  return `/api/wetland-indicator-status/all`;
 };
 
 export const getAllWetlandIndicators = async (
@@ -4320,7 +4320,7 @@ export const getAllWetlandIndicators = async (
 };
 
 export const getGetAllWetlandIndicatorsQueryKey = () => {
-  return [`/api/wetland-indicator/all`] as const;
+  return [`/api/wetland-indicator-status/all`] as const;
 };
 
 export const getGetAllWetlandIndicatorsQueryOptions = <
@@ -4385,7 +4385,7 @@ export function useGetAllWetlandIndicators<
  * @summary Wetland Indicator Status service metadata
  */
 export const getGetWetlandIndicatorMetadataUrl = () => {
-  return `/api/wetland-indicator/metadata`;
+  return `/api/wetland-indicator-status/metadata`;
 };
 
 export const getWetlandIndicatorMetadata = async (
@@ -4401,7 +4401,7 @@ export const getWetlandIndicatorMetadata = async (
 };
 
 export const getGetWetlandIndicatorMetadataQueryKey = () => {
-  return [`/api/wetland-indicator/metadata`] as const;
+  return [`/api/wetland-indicator-status/metadata`] as const;
 };
 
 export const getGetWetlandIndicatorMetadataQueryOptions = <

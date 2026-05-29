@@ -60,7 +60,7 @@ export const WETLAND_INDICATOR_STATUS_REGISTRY_ENTRY = {
     "Defines the national WIS classification system only. Per-species ratings are provided by individual flora sources (e.g., Michigan Flora). " +
     "Regional wetland indicator variations exist — some species have different ratings by region (e.g., 'FACU/UPL'); " +
     "this source defines the national standard only.",
-  metadata_url: "/api/wetland-indicator/metadata",
+  metadata_url: "/api/wetland-indicator-status/metadata",
   licenses: WETLAND_INDICATOR_STATUS_LICENSES,
   license_notes: WETLAND_INDICATOR_STATUS_LICENSE_NOTES,
   general_summary: WETLAND_INDICATOR_STATUS_GENERAL_SUMMARY,
@@ -69,10 +69,10 @@ export const WETLAND_INDICATOR_STATUS_REGISTRY_ENTRY = {
   rights: WETLAND_INDICATOR_STATUS_RIGHTS,
   website_url_patterns: {},
   non_passthrough_endpoints: [
-    { endpoint: "/api/wetland-indicator/metadata", kind: "metadata" },
-    { endpoint: "/api/wetland-indicator", kind: "in_memory" },
-    { endpoint: "/api/wetland-indicator/w", kind: "in_memory" },
-    { endpoint: "/api/wetland-indicator/all", kind: "in_memory" },
+    { endpoint: "/api/wetland-indicator-status/metadata", kind: "metadata" },
+    { endpoint: "/api/wetland-indicator-status", kind: "in_memory" },
+    { endpoint: "/api/wetland-indicator-status/w", kind: "in_memory" },
+    { endpoint: "/api/wetland-indicator-status/all", kind: "in_memory" },
   ],
   permission_granted: true,
 };

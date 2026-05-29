@@ -180,7 +180,7 @@ export async function runWetlandIndicatorChecks(
 ): Promise<EndpointComparison[]> {
   const allCheck = await checkEndpoint(
     "wetland-indicator",
-    "/api/wetland-indicator/all",
+    "/api/wetland-indicator-status/all",
     "Wetland Indicator Status — full code table",
     fernsBase,
     (envelope) => {
@@ -208,7 +208,7 @@ export async function runWetlandIndicatorChecks(
     corpusEntries.map((entry) =>
       checkEndpoint(
         "wetland-indicator",
-        `/api/wetland-indicator?code=${encodeURIComponent(entry.key)}`,
+        `/api/wetland-indicator-status?code=${encodeURIComponent(entry.key)}`,
         `Wetland Indicator Status — code lookup (${entry.key})`,
         fernsBase,
         (envelope) => {
@@ -228,7 +228,7 @@ export async function runWetlandIndicatorChecks(
     wValues.map((wv) =>
       checkEndpoint(
         "wetland-indicator",
-        `/api/wetland-indicator/w?value=${wv.value}`,
+        `/api/wetland-indicator-status/w?value=${wv.value}`,
         `Wetland Indicator Status — W-value lookup (${wv.label})`,
         fernsBase,
         (envelope) => {

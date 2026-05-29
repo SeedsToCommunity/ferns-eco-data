@@ -20,7 +20,7 @@ tags:
     description: Michigan Flora — Vascular Plants of Michigan
   - name: coefficient
     description: Coefficient of Conservatism — Floristic Quality Assessment C-Value Reference
-  - name: wetland-indicator
+  - name: wetland-indicator-status
     description: Wetland Indicator Status & Coefficient of Wetness — USDA NRCS NWPL Reference
   - name: wucols
     description: WUCOLS — Water Use Classifications of Landscape Species
@@ -2354,10 +2354,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/VocabularyMetadataResponse"
 
-  /wetland-indicator:
+  /wetland-indicator-status:
     get:
       operationId: getWetlandIndicatorByCode
-      tags: [wetland-indicator]
+      tags: [wetland-indicator-status]
       summary: Look up a Wetland Indicator Status code
       description: >
         Returns the full definition for a given WIS code (OBL, FACW, FAC, FACU, or UPL)
@@ -2386,10 +2386,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /wetland-indicator/w:
+  /wetland-indicator-status/w:
     get:
       operationId: getWetlandIndicatorByW
-      tags: [wetland-indicator]
+      tags: [wetland-indicator-status]
       summary: Look up a Wetland Indicator Status by Coefficient of Wetness (W-value)
       description: >
         Returns the WIS code and full definition for a given numeric W-value (-5, -3, 0, 3, or 5).
@@ -2416,10 +2416,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /wetland-indicator/all:
+  /wetland-indicator-status/all:
     get:
       operationId: getAllWetlandIndicators
-      tags: [wetland-indicator]
+      tags: [wetland-indicator-status]
       summary: Get all Wetland Indicator Status definitions
       description: >
         Returns all five WIS code definitions (OBL, FACW, FAC, FACU, UPL) with their
@@ -2432,10 +2432,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/WetlandIndicatorAllResponse"
 
-  /wetland-indicator/metadata:
+  /wetland-indicator-status/metadata:
     get:
       operationId: getWetlandIndicatorMetadata
-      tags: [wetland-indicator]
+      tags: [wetland-indicator-status]
       summary: Wetland Indicator Status service metadata
       description: >
         Returns service identity, licenses and license notes, and the full registry entry for the

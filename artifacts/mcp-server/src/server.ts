@@ -934,7 +934,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/wetland-indicator", {
+      apiGet("/wetland-indicator-status", {
         code: String(args["code"]),
         provenance_verbosity: pv(args),
       }),
@@ -954,7 +954,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/wetland-indicator/w", {
+      apiGet("/wetland-indicator-status/w", {
         value: String(args["value"]),
         provenance_verbosity: pv(args),
       }),
@@ -971,7 +971,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/wetland-indicator/all", {
+      apiGet("/wetland-indicator-status/all", {
         provenance_verbosity: pv(args),
       }),
   },

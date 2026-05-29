@@ -168,9 +168,9 @@ Tool names follow `{source_id}__{action}` (hyphens → underscores, double-under
 
 | Tool | Path | Required | Optional | Description |
 |---|---|---|---|---|
-| `wetland_indicator_status__by_code` | GET /wetland-indicator | code | — | Wetland Indicator Status record for a USDA NRCS code (OBL, FACW, FAC, FACU, UPL): name, description, W-value |
-| `wetland_indicator_status__by_w_value` | GET /wetland-indicator/w | value | — | Wetland Indicator Status record for a numeric W-value (−5, −3, 0, 3, or 5) |
-| `wetland_indicator_status__all` | GET /wetland-indicator/all | — | — | All five wetland indicator codes with descriptions and W numeric values — the complete reference table |
+| `wetland_indicator_status__by_code` | GET /wetland-indicator-status | code | — | Wetland Indicator Status record for a USDA NRCS code (OBL, FACW, FAC, FACU, UPL): name, description, W-value |
+| `wetland_indicator_status__by_w_value` | GET /wetland-indicator-status/w | value | — | Wetland Indicator Status record for a numeric W-value (−5, −3, 0, 3, or 5) |
+| `wetland_indicator_status__all` | GET /wetland-indicator-status/all | — | — | All five wetland indicator codes with descriptions and W numeric values — the complete reference table |
 
 ### wucols-water-use — WUCOLS Water Use Classifications
 
