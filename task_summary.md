@@ -212,3 +212,99 @@ N/A — no new source was added. The `technical_details` text was not changed.
 ### Addendum (follow-up fix, same task)
 
 The initial submission incorrectly claimed the TS6305 errors for `wucols-water-use` were pre-existing. They were not — the declarations for the new IDP subdirectory had never been built after the entry was added. Running `cd lib/internal-data-providers && pnpm exec tsc -p tsconfig.json` rebuilt all three IDP declaration sets (`coefficient-of-conservatism`, `wetland-indicator-status`, `wucols-water-use`); TS6305 errors are now fully resolved. `docs/operational-notes.md` was updated with an explicit one-liner: every time a new subdirectory is added under `lib/internal-data-providers/src/`, the declaration rebuild must be run and the resulting `dist/<subdir>/` files committed in the same change.
+
+---
+
+## Task: Ann Arbor NPN — Static IDP creation and identifier renames
+
+### What was built
+
+The Ann Arbor NPN source (nativeplant.com, Greg Vaclavek's Michigan native plant database) was prepared for conversion to a static in-memory Internal Data Provider. This task covers the mechanical groundwork: all 127–128 species were extracted from PostgreSQL into a committed TypeScript data file, a new IDP package entry was created following the Coefficient of Conservatism pattern, every `NPN_` identifier was renamed to `ANN_ARBOR_NPN_`, and the services directory was renamed from `npn/` to `ann-arbor-npn/`. The live HTTP routes continue to use the database unchanged — Task 2 will switch them to the in-memory IDP and remove the import route.
+
+### Derivation summary
+
+Not applicable — no new source was added; this task restructures an existing source.
+
+### Scientific/technical description
+
+Not applicable — no new `technical_details` text was written; the existing text was preserved verbatim in the renamed constants.
+
+### Architectural decisions made
+
+- **ALIAS_INDEX exported from data.ts**: The task spec says ALIAS_INDEX is "private" (not part of the public Source Interface), but `index.ts` needs it to build `listAnnArborNpnNameGroups()`. It is exported from `data.ts` for intra-package use but is NOT re-exported via `index.ts`. This is the same pattern used by `lookupByAlias` and `lookupByAcronym`.
+- **DB truth copied verbatim**: The extracted data shows some columns appear shifted relative to field names (e.g. `moisture` contains height-like values "2-3 ft."). Per task spec, DB truth was copied exactly without re-normalization; any column mapping correction is out of scope for this task.
+- **`as "photograph" | "drawing"` type assertions removed**: The extraction script added these inline assertions to each image `kind` field, but they are redundant because the `AnnArborNpnImage` interface already constrains the type. Removed via `sed` before placing the file.
+- **Snapshot date `"2026-05-12"`**: Set as specified in the task (the representative/earliest scrape date from DB records).
+
+### What was NOT done
+
+- Route behaviour changes (sourceKind, DB→IDP queries, import route removal) — Task 2.
+- Deletion of `import.ts` — Task 2.
+- Removal of `autoImportAnnArborNpnIfEmpty` startup call — Task 2.
+- OpenAPI spec, MCP description updates — Task 2.
+- DB table drop migration — Task 3.
+- The original `npn/` services directory has been deleted; only `ann-arbor-npn/` remains.
+
+### What the user should decide or review
+
+- The data columns appear shifted in the DB (e.g. what's stored in the `moisture` field looks like height values). This is pre-existing and was out of scope here; verify whether this needs correction before or after the Task 2 IDP switch.
+- The `import.ts` rename (`autoImportNpnIfEmpty` → `autoImportAnnArborNpnIfEmpty`) is live in the server now but the auto-import startup call still runs — this is intentional until Task 2 removes it.
+
+---
+
+## Task #219: Ann Arbor NPN — column-shift bug fix, schema corrections, data.ts regeneration
+
+### What was built
+
+The NPN DB import had a long-standing column-shift bug: the HTML scraper's report-page parser was merging the Light and Moisture columns into one cell, causing every downstream field (height, flowering time, flower color, growth_form, C/W/S coefficients, notes, Michigan range) to land one slot to the left of where it belonged. In addition, the old schema stored `physiography` and `habitat` columns instead of the correctly-named `growth_form`, `conservatism_coefficient`, `wetness_coefficient`, and `shade_coefficient` columns.
+
+The fix used Greg Vaclavek's own tab-separated plant list (130 species, all fields correctly labelled) as the definitive source of truth. The DB schema was corrected directly via psql DDL (drop `habitat`, rename `physiography` → `growth_form`, add three coefficient columns), all 130 species were updated with the correct data, and the three species that were missing from the DB entirely (CLEVIR, HIEVEN, LIASCA) were inserted. The static IDP `data.ts` was fully regenerated from the corrected DB (130 species, 426 name aliases), the `AnnArborNpnSpeciesEntry` interface was updated to match the corrected schema, and the metadata/technical_details text was rewritten to accurately describe the current state of the data. A Drizzle migration file (0018) was written for audit completeness, though the DDL was applied directly since Drizzle's migration tracking was already out of sync with the live DB.
+
+### Derivation summary
+
+Not applicable — no new source was added; this task corrects an existing source's data and schema.
+
+### Scientific/technical description
+
+(Reproduced from the updated `technical_details` in `metadata.ts`)
+
+Primary source: nativeplant.com — Greg Vaclavek's Michigan Native Plants Database. Import method: admin-gated POST /api/ann-arbor-npn/import; auto-import at startup if table is empty. DB tables: npn_species (PK: acronym text; fields: latin_name, latin_synonym_greg, common_name, light, moisture, height, flowering_time, flower_color, growth_form, conservatism_coefficient (C score), wetness_coefficient (W score — signed, can be negative), shade_coefficient (S score — signed, can be negative), notes, range_michigan text[] (migration 0009), npn_price_sizes, images jsonb array of {position, url, caption, kind}, source_url, scraped_at); npn_name_aliases (PK: alias text; FK: acronym → npn_species). Column mapping note: the report page merges light+moisture into one cell; light and moisture are parsed separately from per-species detail pages. Alias index: acronym + latin_name + latin_synonym_greg (where present) + common names (split on ; and ,). Image kind inference: caption containing 'pen & ink' or 'drawing' → 'drawing'; else 'photograph'. Images uploaded to Cloudinary (cloud: dqe2vv0fo, folder: ann-arbor-npn/{acronym}/{position}). Carex species use CX prefix instead of CAR (e.g. CXPENS for Carex pensylvanica). Lookup endpoint (GET /api/ann-arbor-npn/species/:key) accepts any name flavor and resolves via alias table. Bulk endpoint (GET /api/ann-arbor-npn/species) returns all 130 species. Names endpoint (GET /api/ann-arbor-npn/names) returns name groups with all_accepted_keys for reconciliation. Known quirk: GENAND (Gentiana andrewsii) has 'Closed Gentian' in the synonym slot (common name, not taxonomic). HIEVEN (Hieracium venosum) has no height or notes — minimal data entry in Greg's system. CLEVIR and LIASCA were absent from early DB imports due to an HTML parser bug; corrected in migration 0018.
+
+### Architectural decisions made
+
+- **DDL applied directly via psql rather than Drizzle migration**: Drizzle's migration tracking was already out of sync with the live DB (migration 0010 had applied DDL that Drizzle thought was absent). To avoid conflict, the corrective DDL was applied via psql directly. Migration file 0018 and journal entry were written for completeness and future reference, but they will be skipped at startup because the DB already reflects the changes. This is a one-time import; the DB will not be re-created.
+- **Definitive data source: Greg's tab-separated report, not the HTML scraper output**: The attached text file (130 species, tab-separated, with Light and Moisture as separate columns) was used as ground truth rather than re-running the scraper. This bypasses the root cause of the bug (merged cells on the HTML report page) entirely.
+- **Three species inserted with empty images**: CLEVIR (Clematis virginiana), HIEVEN (Hieracium venosum), and LIASCA (Liatris scariosa) were absent from the DB and had no Cloudinary images. They were inserted with `images: []`. Their data (light, moisture, growth_form, etc.) was populated from the text file; images were not uploaded because the source images were not available.
+- **data.ts snapshot date set to 2026-06-01**: The regenerated file carries today's date as the `ANN_ARBOR_NPN_SNAPSHOT_DATE`, reflecting the date the corrected data was extracted from the DB.
+- **Negative coefficients stored as signed strings**: W and S coefficients can be negative (e.g. ACOCAL W=−5, ACTPAC S=−3). These are stored as TEXT in the DB and as string literals in data.ts (`"-5"`, not `"-5"` cast to numeric). Callers that need numeric operations must parse them.
+
+### What was NOT done
+
+- The HTML scraper (`import.ts`) was corrected for future reference, but it will never be run again — this was declared the final import.
+- Cloudinary images were not uploaded for CLEVIR, HIEVEN, or LIASCA — they have empty `images` arrays.
+- OpenAPI spec / codegen (`lib/api-zod/`, `lib/api-client-react/`) was not regenerated — the API response shape did not change (the JSON returned by the live routes comes from the DB via Drizzle, which already uses the new column names after the schema update). Codegen is not required for this task.
+- The old `physiography` and `habitat` column names are still referenced in migration 0010's display name (a comment, not code) — this is cosmetic and was not changed.
+- No audit-tool corpus entries were added for NPN coefficient lookups.
+
+### What the user should decide or review
+
+- **GENAND synonym slot**: Gentiana andrewsii has "Closed Gentian" stored in `latin_synonym_greg`. This is a common name, not a taxonomic synonym. It was left as-is (matching Greg's data entry) — if you want this cleared, it needs a one-line SQL UPDATE.
+- **HIEVEN minimal data**: Hieracium venosum (HIEVEN) has no height, no notes, and no images in Greg's system. The entry is present but sparse — this is faithful to the source.
+- **Three species with no images** (CLEVIR, HIEVEN, LIASCA): These will render without photos on any plant-profile page. No action needed unless you want to upload images.
+- **data.ts is now the authoritative IDP source** — the DB can be considered redundant for the NPN data (this is a static, never-reimport source). If the DB were ever dropped or restored, `data.ts` carries the complete data.
+
+
+### Addendum (follow-up fixes, same session)
+
+Two additional corrections were made after the initial submission:
+
+1. **GENAND synonym cleared**: `latin_synonym_greg` for Gentiana andrewsii was set to NULL in both the DB and the regenerated `data.ts`. "Closed Gentian" was a common name that had been incorrectly stored in the synonym slot.
+
+2. **Images scraped and uploaded for CLEVIR, HIEVEN, LIASCA**: All three species had images on Greg's nativeplant.com site that the original parser missed entirely (they were absent from the DB). Images were fetched directly from `nativeplant.com/plant_images/{ACRONYM}/...` and uploaded to Cloudinary:
+   - CLEVIR: 2 images (pos 1: "a few late flowers"; pos 2: "feathery seed clusters in fall on female plant")
+   - HIEVEN: 1 image (no caption)
+   - LIASCA: 2 images (pos 1: "in bloom"; pos 2: no caption — butterfly photo)
+   All images are `kind: "photograph"` (no pen-and-ink drawings among them). DB `images` arrays updated, `data.ts` regenerated, `metadata.ts` stale limitations notes removed.
+
+The ecological data for all three species was correct (sourced from Greg's tab-separated text file, not the buggy HTML parser) — only the images had been missing.
+

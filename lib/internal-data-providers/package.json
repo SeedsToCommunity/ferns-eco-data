@@ -6,6 +6,7 @@
   "exports": {
     "./coefficient-of-conservatism": "./src/coefficient-of-conservatism/index.ts",
     "./wetland-indicator-status": "./src/wetland-indicator-status/index.ts",
-    "./wucols-water-use": "./src/wucols-water-use/index.ts"
+    "./wucols-water-use": "./src/wucols-water-use/index.ts",
+    "./ann-arbor-npn": "./src/ann-arbor-npn/index.ts"
   }
 }

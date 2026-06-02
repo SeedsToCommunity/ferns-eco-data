@@ -2,13 +2,13 @@ import { Router, type IRouter } from "express";
 import { db, npnSpeciesTable, npnNameAliasesTable } from "@workspace/db";
 import { eq, sql } from "drizzle-orm";
 import {
-  NPN_SOURCE_ID,
-  NPN_REGISTRY_ENTRY,
-  NPN_LICENSES,
-  NPN_LICENSE_NOTES,
-} from "../services/npn/metadata.js";
-import { ensureNpnRegistryEntry } from "../services/npn/seed.js";
-import { importNpn } from "../services/npn/import.js";
+  ANN_ARBOR_NPN_SOURCE_ID,
+  ANN_ARBOR_NPN_REGISTRY_ENTRY,
+  ANN_ARBOR_NPN_LICENSES,
+  ANN_ARBOR_NPN_LICENSE_NOTES,
+} from "../services/ann-arbor-npn/metadata.js";
+import { ensureAnnArborNpnRegistryEntry } from "../services/ann-arbor-npn/seed.js";
+import { importNpn } from "../services/ann-arbor-npn/import.js";
 import { requireAdmin } from "../lib/admin-guard.js";
 import { resolveUrl } from "../lib/resolve-url.js";
 import { buildEnvelope } from "@workspace/api-envelope";
@@ -19,7 +19,7 @@ const router: IRouter = Router();
 // ── GET /api/ann-arbor-npn/metadata ──────────────────────────────────────────
 
 router.get("/ann-arbor-npn/metadata", async (req, res) => {
-  await ensureNpnRegistryEntry();
+  await ensureAnnArborNpnRegistryEntry();
   const [row] = await db
     .select({ count: sql<number>`count(*)::int` })
     .from(npnSpeciesTable);
@@ -27,7 +27,7 @@ router.get("/ann-arbor-npn/metadata", async (req, res) => {
 
   const envelope = await buildEnvelope(
     {
-      sourceId: NPN_SOURCE_ID,
+      sourceId: ANN_ARBOR_NPN_SOURCE_ID,
       sourceKind: "single-source-proxy",
       sourceUrl: "https://www.nativeplant.com/",
       method: "computed",
@@ -35,14 +35,14 @@ router.get("/ann-arbor-npn/metadata", async (req, res) => {
       queriedAt: new Date().toISOString(),
       found: true,
       data: {
-        service_id: NPN_SOURCE_ID,
-        service_name: NPN_REGISTRY_ENTRY.name,
-        licenses: NPN_LICENSES,
-        license_notes: NPN_LICENSE_NOTES,
+        service_id: ANN_ARBOR_NPN_SOURCE_ID,
+        service_name: ANN_ARBOR_NPN_REGISTRY_ENTRY.name,
+        licenses: ANN_ARBOR_NPN_LICENSES,
+        license_notes: ANN_ARBOR_NPN_LICENSE_NOTES,
         species_count: speciesCount,
         registry_entry: {
-          ...NPN_REGISTRY_ENTRY,
-          metadata_url: resolveUrl(req, NPN_REGISTRY_ENTRY.metadata_url),
+          ...ANN_ARBOR_NPN_REGISTRY_ENTRY,
+          metadata_url: resolveUrl(req, ANN_ARBOR_NPN_REGISTRY_ENTRY.metadata_url),
         },
       },
     },
@@ -55,7 +55,7 @@ router.get("/ann-arbor-npn/metadata", async (req, res) => {
 // Returns the full list of all NPN species (bulk).
 
 router.get("/ann-arbor-npn/species", async (req, res) => {
-  await ensureNpnRegistryEntry();
+  await ensureAnnArborNpnRegistryEntry();
 
   const rows = await db
     .select()
@@ -64,7 +64,7 @@ router.get("/ann-arbor-npn/species", async (req, res) => {
 
   const envelope = await buildEnvelope(
     {
-      sourceId: NPN_SOURCE_ID,
+      sourceId: ANN_ARBOR_NPN_SOURCE_ID,
       sourceKind: "single-source-proxy",
       sourceUrl: "https://www.nativeplant.com/",
       method: "cache_hit",
@@ -87,7 +87,7 @@ router.get("/ann-arbor-npn/species", async (req, res) => {
 // Returns 404 with found=false when the key is not found in the alias index.
 
 router.get("/ann-arbor-npn/species/:key", async (req, res) => {
-  await ensureNpnRegistryEntry();
+  await ensureAnnArborNpnRegistryEntry();
 
   const rawKey = req.params["key"] ?? "";
   const normalizedKey = rawKey.trim().toLowerCase();
@@ -110,7 +110,7 @@ router.get("/ann-arbor-npn/species/:key", async (req, res) => {
   if (!aliasRow) {
     const envelope = await buildEnvelope(
       {
-        sourceId: NPN_SOURCE_ID,
+        sourceId: ANN_ARBOR_NPN_SOURCE_ID,
         sourceKind: "single-source-proxy",
         sourceUrl: "https://www.nativeplant.com/",
         method: "cache_hit",
@@ -134,7 +134,7 @@ router.get("/ann-arbor-npn/species/:key", async (req, res) => {
   if (!species) {
     const envelope = await buildEnvelope(
       {
-        sourceId: NPN_SOURCE_ID,
+        sourceId: ANN_ARBOR_NPN_SOURCE_ID,
         sourceKind: "single-source-proxy",
         sourceUrl: "https://www.nativeplant.com/",
         method: "cache_hit",
@@ -151,7 +151,7 @@ router.get("/ann-arbor-npn/species/:key", async (req, res) => {
 
   const envelope = await buildEnvelope(
     {
-      sourceId: NPN_SOURCE_ID,
+      sourceId: ANN_ARBOR_NPN_SOURCE_ID,
       sourceKind: "single-source-proxy",
       sourceUrl: species.source_url,
       method: "cache_hit",
@@ -171,7 +171,7 @@ router.get("/ann-arbor-npn/species/:key", async (req, res) => {
 // Useful for cross-source name reconciliation.
 
 router.get("/ann-arbor-npn/names", async (req, res) => {
-  await ensureNpnRegistryEntry();
+  await ensureAnnArborNpnRegistryEntry();
 
   const species = await db
     .select({
@@ -212,7 +212,7 @@ router.get("/ann-arbor-npn/names", async (req, res) => {
 
   const envelope = await buildEnvelope(
     {
-      sourceId: NPN_SOURCE_ID,
+      sourceId: ANN_ARBOR_NPN_SOURCE_ID,
       sourceKind: "single-source-proxy",
       sourceUrl: "https://www.nativeplant.com/",
       method: "cache_hit",
@@ -239,7 +239,7 @@ router.post("/ann-arbor-npn/import", async (req, res) => {
   const filterAcronyms = Array.isArray(body?.acronyms) ? body.acronyms : undefined;
 
   try {
-    await ensureNpnRegistryEntry();
+    await ensureAnnArborNpnRegistryEntry();
     const result = await importNpn(filterAcronyms);
     res.json({
       success: result.errors.length === 0,

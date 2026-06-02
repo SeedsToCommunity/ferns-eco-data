@@ -1,0 +1,60 @@
+NPN Import — Bug Report & Data Integrity Findings
+Root cause
+The parseReportHtml function in artifacts/api-server/src/services/npn/import.ts assumed the Zope/MySQL report endpoint served moisture as a dedicated column at tds[6], separate from light. The live site did not — it combined light and moisture descriptors into a single tds[5] column. This caused a one-position left shift for every field from moisture onward, and a separate misalignment for notes vs range_michigan.
+
+Actual vs. assumed column order
+The comment in parseReportHtml (lines 196–213) documents what the code assumed. The table below shows what was actually served:
+
+Index	Code assumed	Actual site column	Effect
+tds[5]	light	light (includes moisture descriptors)	✓ correct, but moisture is absorbed here
+tds[6]	moisture	height	moisture stored as height
+tds[7]	height	bloom time	height stored as flowering_time
+tds[8]	bloom time	flower color	flowering_time stored as flower_color
+tds[9]	flower color	physiography	flower_color stored as physiography
+tds[10]	physiography	S score (numeric)	physiography stores Greg's S score (e.g. "1")
+tds[11]	S score	W score	skipped — not stored
+tds[12]	W score	C score	skipped — not stored
+tds[13]	C score	notes (Greg's free text)	skipped — notes never captured
+tds[14]	notes	region (SE/SW/NL/UP)	region stored in notes column
+tds[15]	region	price	range_michigan always empty; price ignored
+DB state (verified by query against live npn_species table — 127 rows)
+Column	What it actually contains	What it should contain
+light	Light + moisture combined descriptor	Light descriptor only (acceptable as-is)
+moisture	Height values (e.g. "2 -3 ft.")	Moisture descriptor
+height	Bloom time (e.g. "early summer")	Height range
+flowering_time	Flower color (e.g. "white")	Bloom time
+flower_color	Physiography (e.g. "Forb")	Flower color
+physiography	S numeric score (e.g. "1")	Plant type (Forb/Grass/Sedge/etc.)
+notes	Range michigan (e.g. "SE", "SE,SW,NL,UP")	Greg's free-text notes
+range_michigan	Always empty array []	Region codes (SE/SW/NL/UP)
+Data never captured at all
+Greg's notes — at tds[13], jumped over entirely
+S, W, C numeric scores — documented in the column comment but no DB fields exist for them; S ends up in physiography, W and C are discarded
+Moisture as a standalone field — absorbed into light on the site; no dedicated column was served
+Fix required
+Correct the column mapping in parseReportHtml. The corrected indices are:
+
+tds[5]  → light (combined light+moisture descriptor — keep as light)
+tds[6]  → height
+tds[7]  → flowering_time (bloom time)
+tds[8]  → flower_color
+tds[9]  → physiography
+tds[10] → (S score — discard or store in a new field)
+tds[11] → (W score — discard or store)
+tds[12] → (C score — discard or store)
+tds[13] → notes
+tds[14] → range_michigan
+tds[15] → npn_price_sizes
+
+moisture has no dedicated column on the site. The field should either be dropped from the schema or left as null for all records.
+
+Re-run the import against nativeplant.com while it may still respond. The site is described as defunct but may still serve data. This is a narrow window. Run importNpn() via the POST /api/ann-arbor-npn/import admin endpoint after the fix is applied.
+
+Verify the corrected data before proceeding. Spot-check 3–5 species against the capture history document and the live site. Confirm physiography now contains Forb/Grass/etc., range_michigan contains region codes, and notes contains actual free-text notes (many may be empty — that is legitimate).
+
+Re-export to the IDP data file (lib/internal-data-providers/src/ann-arbor-npn/data.ts). Task #219 exported from the buggy DB — that file must be regenerated from the corrected data.
+
+Schema question for the dev agent: decide whether to keep the moisture column (always null after the fix) or drop it. Recommend keeping it as null for schema consistency — it was a documented field in the original capture intent, and removing it from the IDP types would require downstream changes.
+
+Task #219 status implication
+Task #219 is IMPLEMENTED but not yet merged. Its exported data.ts was generated from the buggy DB. Do not approve the merge of Task #219 until the import is re-run with corrected mappings and the data file is regenerated. The task agent should be instructed to re-run the import as part of completing that task.

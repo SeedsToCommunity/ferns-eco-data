@@ -25,8 +25,8 @@ import { autoImportMinnesotaWildflowersIfEmpty } from "./services/botanical-refs
 import { autoImportIllinoisWildflowersIfEmpty } from "./services/botanical-refs/importers/illinois-wildflowers.js";
 import { autoImportPrairieMoonIfEmpty } from "./services/botanical-refs/importers/prairie-moon.js";
 import { ensureSourceRelationships, ensureSourceRelationshipsRegistryEntry } from "./services/source-relationships/seed.js";
-import { ensureNpnRegistryEntry } from "./services/npn/seed.js";
-import { autoImportNpnIfEmpty } from "./services/npn/import.js";
+import { ensureAnnArborNpnRegistryEntry } from "./services/ann-arbor-npn/seed.js";
+import { autoImportAnnArborNpnIfEmpty } from "./services/ann-arbor-npn/import.js";
 
 const rawPort = process.env["PORT"];
 
@@ -79,7 +79,7 @@ async function main() {
       logger.error({ err }, "Prairie Moon auto-import check failed at startup");
     });
 
-    autoImportNpnIfEmpty().catch((err) => {
+    autoImportAnnArborNpnIfEmpty().catch((err) => {
       logger.error({ err }, "NPN auto-import check failed at startup");
     });
 
@@ -102,7 +102,7 @@ async function main() {
       ["Prairie Moon", ensurePrairieMoonRegistryEntry()],
       ["USDA PLANTS", ensureUsdaPlantsRegistryEntry()],
       ["Lady Bird Johnson", ensureLadyBirdJohnsonRegistryEntry()],
-      ["Ann Arbor NPN", ensureNpnRegistryEntry()],
+      ["Ann Arbor NPN", ensureAnnArborNpnRegistryEntry()],
       ["Source Relationships", ensureSourceRelationshipsRegistryEntry()],
     ] as const;
 

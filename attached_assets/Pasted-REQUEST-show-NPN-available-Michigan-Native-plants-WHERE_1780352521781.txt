@@ -1,0 +1,157 @@
+REQUEST:  show NPN available   Michigan Native plants   WHERE:   ORDERED BY: Scientific_Name
+Returned 130 Results
+*	Link	6-letter code	Latin Name	Common Name	Light	Moisture	Height	Blooms	Color	Physiography	C	W
+wetness	S
+shade	Notes	Range
+*		ACHMIL	Achillea millefolium	Yarrow	sun -light shade	dry mesic	2 -3 ft.	early summer	white	Forb	1	3	4	upright perennial with finely divided leaves	SE
+*		ACOCAL	Acorus calamus	Sweet-flag; calamus	full sun -part shade	wet -wet mesic	5 -5 ft.	summer	green	Forb	6	-5	4	narrow, sword-shaped leaves; leaves fragrant.	SE,SW,NL,UP
+*		ACTPAC	Actaea pachypoda	White Baneberry; Doll's-eyes	shade	mesic	2 -3 ft.	spring	white	Forb	7	5	-3	A long-lived perennial; a bushy plant with compound leaves produces flower clusters in spring; attractive white berries in fall that look like eye balls.	SE,SW,NL,UP
+*		AGANEP	Agastache nepetoides	Yellow Giant Hyssop	sun -light shade	mesic	4 -6 ft.	summer	pale yellow -pink	Forb	5	3	3	a large upright plant with broad leaves produces spikes of white-pink flowers in late summer.	SE,SW
+*		AGRGRY	Agrimonia gryposepala	Tall Agrimony	pt. shade -shade	mesic	2 -4 ft.	summer	yellow	Forb	2	2	-2	perennial roots produce a few upright stems with nice foliage; spikes of small yellow flowers in summer.	SE,SW,NL,UP
+*		AGRPAR	Agrimonia parviflora	Swamp Agrimony	sun -light shade	mesic -wet mesic	3 -4 ft.	summer	yellow	Forb	4	-1	3	an upright perennial with finely divided leaves; slender spikes of yellow flowers in summer.	SE,SW
+*		ALLCER	Allium cernuum	Nodding Wild Onion	sun -light shade	dry mesic -mesic	1 -1.5 ft.	summer	white -pink	Forb	5	5	-2	graceful nodding pink flower clusters emerge from a clump of narrow leaves	SE,SW
+*		ANDGER	Andropogon gerardii	Big bluestem grass	full sun	mesic -dry mesic	4 -6 ft.	summer		Grass	5	1	4	A clumping perennial warm-season grass; attractive color in summer through fall.	SE,SW,NL,UP
+*		ANECAN	Anemone canadensis	Canada anemone	sun -light shade	mesic -wet mesic	1 -2 ft.	spring	white	Forb	4	-3	1		SE,SW,NL,UP
+*		ANEVIR	Anemone virginiana	Thimbleweed	sun -shade	mesic	2 -4 ft.	summer	white -pale yellow	Forb	3	5	0	lower leaves in spring send up numerous flower stalks in summer; fruit in fall turns to cottony fluff.	SE,SW,NL,UP
+*		ANTPAL	Antennaria parlinii	Smooth pussytoes	full sun -light shade	dry mesic	.5 -1 ft.	spring	white	Forb	2	5	3	compact perennial; oval leaves, silvery white beneath; flower buds look like a feline's paws.	SE,SW,NL,UP
+*		APOCAN	Apocynum cannabinum	Indian Hemp; Hemp Dogbane	sun -pt.shade	mesic	3 -4 ft.	summer	white	Forb	3	0	2	an upright perennial with reddish stems; spreads by underground runners.	SE,SW,NL,UP
+*		AQUCAN	Aquilegia canadensis	Wild Columbine	pt. shade -sun	mesic - dry mesic	2 -3 ft.	spring	red / yellow	Forb	5	1	-1	reddish flowers in spring provide food for hummingbirds; tolerant of a variety of habitats from full sun to light shade; a somewhat short-lived perennial, spreads well by seed.	SE,SW,NL,UP
+*		ARARAC	Aralia racemosa	Spikenard	shade -pt. sun	mesic -wet mesic	2 -5 ft.	summer	greenish white	Forb	8	-2	-4	a wide, bushy plant; small white flowers produce clusters of red berries in fall.	SE,SW,NL,UP
+*		ASACAN	Asarum canadense	Wild-ginger	shade	mesic	.5 ft.	spring	maroon	Forb	5	-2	-5	perennial spreading by roots to form a low groundcover of heart-shaped leaves. Flowers inconspicuous, hidden under the leaves.	SE,SW,NL,UP
+*		ASCEXA	Asclepias exaltata	Poke milkweed	shade -part sun	dry mesic	3 -5 ft.	summer	white	Forb	6	5	-4		SE,SW,NL,UP
+*		ASCINC	Asclepias incarnata	Swamp Milkweed	sun	wet -mesic	3 -4 ft.	summer	pink	Forb	6	-5	4	Colorful pink flower clusters in summer; attracts butterflies and other pollinators.	SE,SW,NL,UP
+*		ASCSYR	Asclepias syriaca	Common Milkweed	full sun -light shade	dry mesic -mesic	3 -5 ft.	summer	pink	Forb	1	5	3	Upright stems with large oval leaves; spreads by roots to form a patch; large round clusters of pink flowers in summer; fragrant flowers a nectar source for butterflies; host plant for the Monarch caterpillar; clusters of warty pods release silky seeds.	SE,SW,NL,UP
+*		ASCTUB	Asclepias tuberosa	Butterfly-weed	full sun	dry -dry mesic	2 -3 ft.	summer	orange	Forb	5	5	4	brilliant orange flowers; grows best in well-drained, hot, dry sites. An excellent source of nectar for butterflies.	SE,SW,NL
+*		ASTCOR	Aster cordifolius
+(Symphyotrichum cordifolium)	Heart-leaved Aster	light shade	mesic -dry mesic	2 -3 ft.	late fall	light violet purple	Forb	4	5	-2	attractive heart-shaped leaves on upright stems branch into numerous flowers in fall; reddish stems.	SE,SW
+*		ASTFIR	Aster firmus
+(Symphyotrichum firmum)	Smooth Swamp Aster	sun -light shade	wet - mesic	4 -5 ft.	fall	white -pinkish	Forb	4	-5	4	smooth leaves on upright stems bear light purplish flowers in fall; spreads by underground runners; can naturalize well in damp ground.	SE,SW,NL,UP
+*		ASTLAE	Aster laevis
+(Symphyotrichum laeve)	Smooth Aster	sun	mesic -dry mesic	3 -5 ft.	fall	light violet	Forb	5	5	5	smooth, bluish-green stem and leaves; branched clusters of soft purple flowers in fall; spreads to form small patches; naturalizes well from seed.	SE,SW,NL,UP
+*		ASTLAT	Aster lateriflorus
+(Symphyotrichum lateriflorum)	Calico Aster	shade -pt.sun	mesic (medium)	2 -3 ft.	fall	white	Forb	2	-2	0	spreads by underground runners to form a patch.	SE,SW,NL,UP
+*		ASTNOV	Aster novae-angliae
+(Symphyotrichum novae-angliae)	New-England Aster	full sun	mesic -wet mesic	4 -5 ft.	fall	purple	Forb	3	-1	5	dense upright branching form; numerous blooms of deep purple in fall; spreads well from wind-blown seeds.	SE,SW,NL,UP
+*		ASTOOL	Aster oolentangiensis
+(Symphyotrichum oolentangiense)	Sky Blue Aster	sun -light shade	dry mesic	2 -3 ft.	fall	light violet blue	Forb	4	5	1	an upright, lightly branching perennial; blooms in fall.	SE,SW
+*		ASTSAG	Aster sagittifolius
+(Symphyotrichum urophyllum)	Arrow-leaved Aster	sun -light shade	mesic -dry mesic	3 -5 ft.	fall	white	Forb	2	5	2	upright form with arrow-shaped leaves; can naturalize well from seed.	SE,SW,NL,UP
+*		ASTSHO	Aster shortii
+(Symphyotrichum shortii)	Short's aster	shade -part sun	mesic	2 -3 ft.	fall	light purple	Forb	5	5	-3	an upright branching perennial with heart-shaped leaves; purple flowers in fall	SE,SW
+*		ASTUMB	Aster umbellatus
+(Doellingeria umbellata)	Tall Flat-top White Aster	sun	mesic -wet mesic	3 -4 ft.	early fall	yellowish white	Forb	5	-3	4	upright perennial.	SE,SW,NL,UP
+*		BOECYL	Boehmeria cylindrica	False Nettle	pt. shade -shade	wet -wet mesic	2 -3 ft.	summer	greenish	Forb	5	-5	-1	upright perennial with spikes of inconspicuous, green flowers amidst the upper leaves; does not sting; butterfly host-plant for the question mark, comma and red admiral butterflies.	SE,SW,NL
+*		BRAERE	Brachyelytrum erectum	Long-awned Wood Grass	shade	mesic	1 -2 ft.			Grass	7	5	-5	A compact, clump-forming grass with short, broad leaves; slender spikes of long-awned seeds; can work well as an ornamental.	SE,SW,NL,UP
+*		CAMAME	Campanula americana
+(Campanulastrum americanum)	Tall Bellflower	light shade -pt. sun	wet mesic -mesic	3 -5 ft.	late summer	blue -violet	Forb	8	0	1	spikes of blue flowers 3/4 -1" wide on upright, branching stems.	SE,SW
+*		CXBICK	Carex bicknellii	Prairie sedge	sun -light shade	mesic -dry mesic	2 -2.5 ft.	spring		Sedge	10	1	5	clumped perennial grass; fine blades.	SE,SW
+*		CXGRAY	Carex grayi	Gray's sedge	part sun -shade	mesic -wet mesic	1 -2.5 ft.	late spring		Sedge	6	-4	-3	grass-like perennial; spreads to form patch; spiky sheres form on upright stems in spring, persistant through fall.	SE,SW
+*		CXMUSK	Carex muskingumensis	Muskingum sedge	shade -part sun	mesic -wet mesic	1 -2 ft.	summer		Sedge	6	-5	-5	fine, deep-green blades on upright stems line up in 3 rows; spreads to form a patch.	SE,SW
+*		CXPENS	Carex pensylvanica	Pennsylvania sedge	sun -light shade	dry mesic -mesic	.5 -1 ft.	spring		Sedge	4	5	-4	fine-leaved clumping perennial; spreads by under ground roots to form new clumps; greens up early in spring.	SE,SW,NL,UP
+*		CXROSE	Carex rosea
+(Carex radiata)	Wood sedge, Rosy sedge	shade -light shade	mesic (medium)	.5 -1 ft.	spring		Sedge	2	5	-5	fine-leaved perennial sedge; forms a clump; can spread well from seed in appropriate habitats.	SE,SW,NL,UP
+*		CXTENE	Carex tenera	Quill sedge	part sun -light shade	wet mesic	2 ft.	summer		Sedge	4	-1	2	A clumping sedge with thin, dark green leaves; several upright stems topped with alternating oval seed-heads.	SE,SW,NL,UP
+*		CXVULP	Carex vulpinoidea	Fox sedge	sun -part shade	mesic -wet mesic	1 -2 ft.	spring		Sedge	1	-5	3	A clumping perennial; tolerates fluctuating moisture levels.	SE,SW,NL,UP
+*		CASHEB	Cassia hebecarpa
+(Senna hebecarpa)	Wild Senna	sun -pt. shade	wet mesic	4 -6 ft.	late summer	yellow	Forb	5	-3	3	An upright perennial; clusters of yellow flowers in summer develop clusters of black bean pods; orange fall leaf color.	SE,SW
+*		CEPOCC	Cephalanthus occidentalis	Buttonbush	sun -part shade	wet mesic -wet	5 -8 ft.	summer	white	Shrub	7	-5	2	rounded shrub, with white flower spheres in mid-summer; tolerates medium soils when planted.	SE,SW,NL
+*		CHEGLB	Chelone glabra	Turtlehead	sun -part shade	mesic -wet mesic	4 -5 ft.	late summer	white	Forb	7	-5	3	an upright perennial with interesting flowers.	SE,SW,NL,UP
+*		CLEVIR	Clematis virginiana	Virgin's bower	sun -light shade	medium -wet mesic	vine	summer	white	Vine	4	0	-1	perennial vine with white flowers; plants are either male or female; female plants produce tufts of silky seeds in fall.	SE,SW,NL,UP
+*		COLCAN	Collinsonia canadensis	Stoneroot, Richweed	shade -pt. sun	mesic	3 -4	late summer	pale yellow	Forb	8	0	-4	A long-lived perennial with large, cleanly cut, oval, fragrant leaves; flowers in late summer.	SE,SW
+*		CORLAN	Coreopsis lanceolata	Sand coreopsis	sun -light shade	mesic -dry mesic	2 -3 ft.	late spring	yellow	Forb	8	3	4	compact perennial with narrow, lance-shaped leaves; long-stemmed flowers with fringed petals; seed in fall a food source for birds.	SE,SW,NL,UP
+*		CORTRP	Coreopsis tripteris	Tall coreopsis	sun -pt. sun	mesic -wet mesic	4 -8 ft.	late summer	yellow	Forb	7	0	2	several upright stems with branched clusters of yellow flowers in late summer; spreads by underground runners to form a patch; seeds provide food for birds.	SE,SW
+*		CORSTO	Cornus stolonifera
+(Cornus sericea)	Red-osier dogwood	sun -part shade	mesic -wet mesic	6 -10 ft.	spring	white	Shrub	2	-3	3	a rounded shrub with red stems, oval leaves; small clusters of white blooms in spring form white -blue berries in late summer.	SE,SW,NL,UP
+*		ERASPE	Eragrostis spectabilis	Tumble grass; purple love grass	sun	dry mesic -dry	.5 -1 ft.	late summer		Grass	3	5	5	A compact, clumping grass; airy seed heads create purple haze in fall.	SE,SW,NL
+*		ERIPUL	Erigeron pulchellus	Robin's plantain	sun -light shade	mesic -dry mesic	1 -2 ft.	spring	white -pinkish	Forb	5	3	2	Spreads to form a small patch; soft, fuzzy leaves.	SE,SW,NL
+*		EUOOBO	Euonymus obovata	Creeping Strawberry-bush	shade -light shade	mesic (medium)	.5 -1.5 ft.	spring	dull yellow -brownish	Shrub	5	5	-5	A trailing woody plant forming a groundcover or low shrub; small, waxy brownish flowers form reddish-orange fruits in fall.	SE,SW
+*		EUPMAM	Eupatorium maculatum
+(Eutrochium maculatum)	Joe-pye weed	sun	wet mesic -wet	4 -6 ft.	late summer	pink	Forb	4	-5	5	an upright perennial; An excellent nectar source for butterflies; naturalizes well in wet soil; tolerates typical garden conditions as an ornamental.	SE,SW,NL,UP
+*		EUPPER	Eupatorium perfoliatum	Boneset	sun -part sun	mesic -wet mesic	3 -5 ft.	late summer	white	Forb	4	-4	4	an upright perennial with textured, pointy leaves joined around the stem; naturalizes well in wet soil; tolerates typical garden conditions as an ornamental; An excellent nectar source for butterflies.	SE,SW,NL,UP
+*		FRAVIR	Fragaria virginiana	Wild strawberry	sun -part sun	mesic -dry mesic	.5 ft.	spring	white	Forb	2	1	4	forms a groundcover; tasty fruit in early summer.	SE,SW,NL,UP
+*		GENAND	Gentiana andrewsii
+(Closed Gentian )	Bottle gentian	part sun -light shade	wet mesic	1 -2 ft.	fall	blue	Forb	5	-3	2	perennial roots send up several upright stems with oval, shining leaves;	SE,SW,NL,UP
+*		GERMAC	Geranium maculatum	Wild geranium	shade - pt. sun	mesic - dry mesic	1 -2 ft.	spring	light purple	Forb	4	3	-4	compact bushy form; attractive leaves; blooms in spring; a long-lived perennial, spreads well from seed, given time.	SE,SW,NL,UP
+*		HELAUT	Helenium autumnale	Sneezeweed	sun -part shade	mesic -wet mesic	3 -6 ft.	late Summer- fall	yellow	Forb	5	-4	4	NOTICE: does not induce sneezing!; perennial roots send up several upright stems; flower petals fringed at the edges; dried flower parts were used to make a popular sneezing powder.	SE,SW,NL,UP
+*		HELDIV	Helianthus divaricatus	Woodland sunflower	pt. shade - sun	mesic -dry mesic	3 -4 ft.	late summer	yellow	Forb	5	5	-2	Spreads by runners to form a patch; blooms in summer; opposite, sharp-pointed leaves create interesting texture; seed in fall is an excellent food source for song birds.	SE,SW,NL,UP
+*		HELPAU	Helianthus pauciflorus	Prairie sunflower	full sun	dry mesic	3 -4 ft.	summer	yellow	Forb	5	5	5	upright perennial; drought tolerant	SE,SW,NL,UP
+*		HELSTR	Helianthus strumosus	Pale-leaved sunflower	pt. sun	mesic	4 -6 ft.	late summer	yellow	Forb	4	5	-3	A tall upright plant; can spread by runners to form large stands topped with yellow flowers in late summer; seed an excellent food source for birds.	SE,SW,NL,UP
+*		HELHEL	Heliopsis helianthoides	False sunflower	sun -light shade	mesic	4 -6 ft.	late summer	yellow	Forb	5	5	0	An upright plant; can spread by runners to form stands topped with yellow flowers in late summer; seed an excellent food source for birds; a good butterfly plant.	SE,SW,NL,UP
+*		HEPAME	Hepatica americana	Round-lobed hepatica	shade	mesic- dry mesic	3- 6 in.	early spring	white- pink	Forb	6	5	-5		SE,SW,NL,UP
+*		HEUAME	Heuchera americana	Alum root, Wild Coral bells	shade -part sun	mesic -dry mesic	1 -3 ft.	late spring- early summer	greenish -pale yellow	Forb	8	4	-4	perennial roots form a compact clump of clean-cut, roundish leaves; leafless flower stem produces tiny, greenish flowers with coral-colored stamens.	SE,SW
+*		HIEVEN	Hieracium venosum	Rattlesnake weed	sun part shade	dry		late spring- summer	yellow	Forb	6	5	3		SE,SW,NL
+*		HYPPRO	Hypericum prolificum	Shrubby st.john's-wort	sun -part shade	medium -dry	5 -10 ft.	summer	yellow	Shrub	5	3	4	upright clonal shrub	SE,SW
+*		HYPPUN	Hypericum punctatum	Spotted st. john's-wort	sun -part sun	mesic	1.5 -2.5 ft.	summer	yellow	Forb	4	-1	3	perennial roots produces a compact clump of a few upright stems; small oval leaves often with a reddish tinge in spring and fall; cheery blooms in summer lessen depression.	SE,SW,NL,UP
+*		HYSPAT	Hystrix patula
+(Elymus hystrix)	Bottlebrush grass	sun -shade	mesic -dry mesic	2 -5 ft.	summer		Grass	5	3	-2	a short-lived perennial grass; interesting seed heads in late summer resemble a sparsely-toothed bottle brush; naturalizes well from seed.	SE,SW,NL,UP
+*		ILEVER	Ilex verticillata	Winterberry; michigan holly	sun -part shade	wet -wet mesic	6 -10 ft.	spring	white	Shrub	5	-4	4	rounded shrub with oval leaves; white flowers bear bright red berries in fall.	SE,SW,NL,UP
+*		IRIVIR	Iris virginica	Southern blue flag	sun -part sun	mesic -wet	2 -3 ft.	late spring	blue -purple	Forb	5	-5	2	perennial roots spread to form a dense clump of sword-shaped leaves.	SE,SW,NL
+*		JEFDIP	Jeffersonia diphylla	Twinleaf	shade	mesic -wet mesic	1 -1.5 ft.	early spring	white	Forb	9	5	-5		SE,SW
+*		JUNEFF	Juncus effusus	Soft-stemmed rush	sun -light shade	wet mesic -wet	2 -3 ft.	late spring		Forb	3	-5	4	clump-forming, grass-like perennial; straight, upright narrow blades a deep-green color.	SE,SW,NL,UP
+*		JUNTEN	Juncus tenuis	Roadside rush; path rush	sun -light shade	dry mesic -wet mesic	1 -2 ft.	summer		Forb	1	0	2	a grass-like perennial with fine-blades; spreads to form a patch of small clumps; thrives in compacted soil.	SE,SW,NL,UP
+*		LIAASP	Liatris aspera	Rough blazing star	sun	mesic -dry	3 -4 ft.	late summer	pink	Forb	4	5	5	long-lived perennial root forms a bulb; several upright stems with narrow leaves.	SE,SW,NL,UP
+*		LIASCA	Liatris scariosa	Northern blazing star	full sun	medium to dry	2-3 ft.	summer	pink	Forb	5	5	5	an upright perennial; several upright stems with narrow leaves; flowers provide nectar for butterflies.	SE,SW,NL
+*		LIASPI	Liatris spicata	Marsh blazing star	sun	mesic -wet mesic	3 -4 ft.	late summer	pink	Forb	8	0	5	long-lived perennial root forms a bulb; several upright stems with narrow leaves; dense, pink flower spikes.	SE,SW,NL
+*		LINBEN	Lindera benzoin	Spicebush	shade- part sun	wet mesic- wet	6- 12 ft.	spring	yellow	Shrub	7	-2	-2	a rounded shrub	SE,SW,NL
+*		LOBCAR	Lobelia cardinalis	Cardinal flower	light shade -part sun	wet mesic	2 -4 ft.	late summer	red	Forb	7	-5	-3	compact form; several upright stems form spikes of red flowers in fall; a somewhat short-lived perennial.	SE,SW,NL,UP
+*		LOBSIP	Lobelia siphilitica	Great Blue Lobelia	sun - shade	mesic -wet mesic	2 -4 ft.	late summer - fall	blue	Forb	4	-4	-1	compact form; several upright stems form spikes of blue flowers in fall; can spread well from seed.	SE,SW,NL,UP
+*		LUPPER	Lupinus perennis	Wild lupine	sun -part sun	dry mesic -dry	1 -2 ft.	spring	blue -violet	Forb	7	5	4	perennial roots produce a compact cluster of radially arranged, leaflets on compound leaves; spikes of blue flowers; a somewhat finicky garden plant; naturalizes best in sandy, well-drained soils.	SE,SW,NL
+*		LYCUNI	Lycopus uniflorus	Northern bugle weed	sun -part sun	wet mesic -wet	2 -3 ft.	late summer	white	Forb	2	-5	3	a spreading perennial root produces upright stems; mint family.	SE,SW,NL,UP
+*		LYSCIL	Lysimachia ciliata	Fringed loosestrife	sun -light shade	mesic -wet mesic	2 -3 ft.	summer	yellow	Forb	4	-3	-1	perennial root spreads to form a small patch; upright stems with oval leaves, tinged with maroon in spring; upside-down flowers throughout upper stem; stems of leaves fringed with bristly white hairs.	SE,SW,NL,UP
+*		MENARV	Mentha arvensis
+(Mentha canadensis)	Wild mint	pt.sun -sun	wet -mesic	2 -3 ft.	summer	pink	Forb	3	-3	3	Aromatic leaves with mint taste; spreads by underground runners to form a patch.	SE,SW,NL,UP
+*		MIMRIN	Mimulus ringens	Monkey-flower	sun -part sun	mesic -wet mesic	2 -4 ft.	summer	purple	Forb	5	-5	3	a weak-stemmed perennial; purple flowers in late summer.	SE,SW,NL,UP
+*		MONFIS	Monarda fistulosa	Wild bergamot, Beebalm	pt. sun -sun	mesic	3 -5 ft.	summer	light purple	Forb	2	3	4	An upright, lightly branched perennial; light purple flowers in summer; fragrant leaves.	SE,SW,NL,UP
+*		MONPUN	Monarda punctata	Horsemint	sun	dry mesic -dry	1 -2 ft.	summer	pale yellow with purple spots, pink bracts	Forb	4	5	5	A low-growing perennial spreading to form a small patch; somewhat narrow leaves fragrant when crushed.	SE,SW,NL,UP
+*		OENBIE	Oenothera biennis	Common evening-primrose	sun -part sun	mesic -dry mesic	3 -6 ft.	summer	yellow	Forb	2	3	4	A short-lived perennial or biennial; reseeds itself well on open ground; fragrant blooms open in evening for night pollination from butterflies and moths.	SE,SW,NL,UP
+*		OENFRU	Oenothera fruticosa	Sundrops	sun -part sun	mesic -dry mesic	1.5 -2.5 ft.	early summer	yellow	Forb	7	2	2	perennial roots form a dense cluster of upright stems; flowers open in the sun.	SE,SW,NL,UP
+*		PANVIR	Panicum virgatum	Switch grass	sun	dry mesic -dry	3 -5 ft.	summer		Grass	4	-1	5	a warm-season grass; grows a clump of arching leaves that produce airy, seed heads in late summer; plant turns yellow in fall.	SE,SW,NL,UP
+*		PENDIG	Penstemon digitalis	Foxglove beard-tongue	pt. shade - sun	mesic	3 -4 ft.	spring	white, tinged with purple	Forb	2	1	-1	perennial roots grow several upright stems topped with white, tubular flowers; can work well as an ornamental.	SE,SW,NL,UP
+*		PENHIR	Penstemon hirsutus	Hairy beard-tongue	sun -light shade	dry mesic	2 -3 ft.	spring	purple with white	Forb	5	5	2	perennial roots pruduce a compact cluster of upright stems; can work well as an ornamental specimen.	SE,SW,NL,UP
+*		PHRLEP	Phryma leptostachya	Lopseed	shade -light shade	mesic -dry mesic	2 -3 ft.	summer	white with areas of violet	Forb	4	5	-3	perennial roots send up a few upright stems; leaves, flowers and seeds arranged oppositely in pairs.	SE,SW,NL,UP
+*		PHYOPU	Physocarpus opulifolius	Ninebark	sun -part shade	mesic -wet mesic	5 -8 ft.	late spring	white	Shrub	4	-2	3	rounded shrub, with white flower clusters; leaves palmate; older bark peeling off to reveal 9 layers; clusters of papery fruits turn pink to brown in fall.	SE,SW,NL,UP
+*		POLBIB	Polygonatum biflorum	Solomon-seal	shade -part sun	mesic	1 -2 ft.	spring	greenish	Forb	4	3	-4	a long-lived, tuberous perennial; spreads to form a small patch of arching stems; flowers hang beneath the leaves in spring produce blue berries in fall.	SE,SW
+*		POTFRU	Potentilla fruticosa
+(Dasiphora fruticosa)	Shrubby cinquefoil	sun -light shade	dry mesic -wet mesic	3 -5 ft.	summer	yellow	Shrub	10	-3	5		SE,SW,NL,UP
+*		POTSIM	Potentilla simplex	Old-field or common cinquefoil	light shade -sun	mesic -dry mesic	.5 -1 ft.	spring	yellow	Forb	2	4	-1	a perennial that spreads to form a ground cover of 5-parted leaves; stems reddish.	SE,SW,NL,UP
+*		PRUVIR	Prunus virginiana	Choke cherry	shade -part sun	mesic -dry	6 -20 ft.	spring	white	Shrub	2	1	-3	a clonal shrub with upright stems and oval leaves; fragrant blooms form hanging clusters of dark red berries.	SE,SW,NL,UP
+*		PYCVIR	Pycnanthemum virginianum	Mountain mint	sun	mesic -wet mesic	2 -4 ft.	summer	white	Forb	5	-4	4	perennial roots form a small patch of several upright stems; leaves small and narrow with minty fragrance.	SE,SW,NL
+*		RANHIS	Ranunculus hispidus	Swamp buttercup	part sun -light shade	mesic -wet	1 -1.5 ft.	spring	yellow	Forb	5	0	-2	spreading perennial, forms a ground cover of 3-parted leaves; shiny yellow flowers in spring.	SE,SW,NL,UP
+*		RATPIN	Ratibida pinnata	Yellow coneflower	sun	mesic -dry mesic	4 -6 ft.	late summer	yellow	Forb	4	5	5	perennial roots produce several upright stems topped with relatively large blooms; can naturalize well from seed; leaves divided into narrow segments.	SE
+*		RIBAME	Ribes americanum	Wild black currant	shade	mesic -dry mesic	4 -8 ft.	spring	pale yellow	Shrub	6	-3	-4	upright shrub with palm-shaped leaves; spring flowers form dark blue berries in fall.	SE,SW,NL,UP
+*		ROSPAL	Rosa palustris	Swamp rose	full sun -pt. shade	wet -mesic	5 -7 ft.	late summer	pink	Shrub	5	-5	4	grows well in typical garden conditions.	SE,SW,NL,UP
+*		ROSSET	Rosa setigera	Prairie rose	full sun- part sun	mesic- dry mesic	2- 5 ft.	summer	pink	Shrub	5	2	2	a sprawling thorny shrub.	SE,SW
+*		RUDHIR	Rudbeckia hirta	Black-eyed susan	pt. sun -sun	wet mesic -dry mesic	2 -4 ft.	summer	yellow	Forb	1	3	4	A short-lived perennial. Blooms throughout the summer and into the fall. Reseeds itself readily on open ground.	SE,SW,NL,UP
+*		RUDLAC	Rudbeckia laciniata	Cut-leaved coneflower	shade -part sun	mesic -wet mesic	3 -8 ft.	late summer	yellow	Forb	6	-4	-2	perennial roots spread to form a patch; divided leaves on upright stems produce large flowers; seeds a good food source for birds.	SE,SW,NL,UP
+*		RUDTRI	Rudbeckia triloba	Three-lobed coneflower, Brown-eyed Susan	shade -part sun	mesic	1 -3 ft.	late summer - fall	yellow	Forb	5	1	-4	a short-lived perennial; spreads well from seed; numerous blooms atop several upright, branching stems.	SE,SW,NL
+*		SAMCAN	Sambucus canadensis	Elderberry	sun -part shade	mesic -wet mesic	5 -8 ft.	summer	white	Shrub	3	-2	3	rounded shrub; large round flower clusters in mid-summer; deep red berries in fall.	SE,SW,NL,UP
+*		SCHSCO	Schizachyrium scoparius	Little bluestem grass	sun	dry mesic -dry	2 -4 ft.	summer		Grass	5	3	5	a warm-season perennial grass; grows a compact clump of bluish-green leaves turning orange to red in fall; silky seeds throughout upper stems; works well as an ornamental.	SE,SW,NL,UP
+*		SCULAT	Scutellaria lateriflora	Mad-dog skullcap	pt. sun -sun	wet mesic -mesic	2 -3 ft.	summer	blue	Forb	5	-5	-1	small blue flowers in pairs along the stems; spreads by runners to form a small patch of upright stems.	SE,SW,NL,UP
+*		SENAUR	Senecio aureus
+(Packera aurea)	Golden ragwort	shade -part sun	mesic -wet	2-3 ft.	spring	yellow	Forb	5	-3	-2	perennial roots spread to form a groundcover of rounded leaves in early spring; later, sends up several upright flower stems, which go to seed and die-back in summer.	SE,SW,NL,UP
+*		SENPAU	Senecio pauperculus
+(Packera paupercula)	Balsam ragwort	light shade -part sun	dry mesic	2 ft.	spring	yellow	Forb	3	-1	1	perennial spreading by roots to form a patch; lower, rounded leaves form a ground-cover; sends up several upright flower stems in spring	SE,SW,NL,UP
+*		SILTER	Silphium terebinthinaceum	Prairie dock	full sun -light shade	dry mesic -mesic	4 -8 ft.	late summer	yellow	Forb	6	3	4	a clusters of large, upright lower leaves sends up a leafless stalk in late summer that branches into numerous yellow flowers; a long-lived perennial; deep tap root.	SE,SW
+*		SISANG	Sisyrinchium angustifolium	Stout blue-eyed-grass	sun -part sun	mesic	1 ft.	spring	blue	Forb	4	-2	3	grass-like perennial, forms a compact clump.	SE,SW,NL,UP
+*		SMIRAC	Smilacina racemosa
+(Maianthemum racemosum)	False Solomon's Seal; Solomon's Plume	shade -part sun	mesic -dry mesic	2 -3 ft.	spring	white	Forb	5	3	-3	a long-lived, tuberous perennial; spreads to form a small patch; arching stems bear red berries in fall.	SE,SW,NL,UP
+*		SMISTE	Smilacina stellata
+(Maianthemum stellatum)	Starry false solomon-seal	shade -part sun	mesic -wet mesic	.5 -1.5 ft.	spring	white	Forb	5	1	-2	a long-lived, tuberous perennial; spreads to form a small patch; arching stems bear red berries in fall.	SE,SW,NL,UP
+*		SOLCAE	Solidago caesia	Blue-stemmed goldenrod	shade -light shade	mesic -dry mesic	2 -3 ft.	fall	yellow	Forb	7	3	-4	a clump-forming perennial; several, slender, upright stems; small flower clusters line upper stems in fall; spreads well from seed.	SE,SW,NL
+*		SOLFLE	Solidago flexicaulis	Zig-zag goldenrod	shade	mesic	1 -3 ft.	fall	yellow	Forb	6	3	-5	spreading perennial roots produce upright stems with broadly oval, sharply-toothed leaves; grows more like a ground-cover in deep shade.	SE,SW,NL,UP
+*		SOLPAT	Solidago patula	Swamp goldenrod	sun -part sun	wet mesic -wet	3 -6 ft.	fall	yellow	Forb	6	-5	2	perennial roots send up several upright reddish stems with shiny, oval leaves.	SE,SW,NL
+*		SOLRID	Solidago riddellii	Riddell's goldenrod	sun	wet mesic -mesic	2 -4 ft.	fall	yellow	Forb	6	-5	4	perennial roots send up several upright stem with narrow, arching leaves.	SE,SW
+*		SOLRIG	Solidago rigida	Stiff goldenrod	sun	mesic -dry mesic	3 -5 ft.	fall	yellow	Forb	5	4	5	perennial roots send up several upright stem with soft, velvety leaves; clusters of relatively large, yellow blooms in early fall.	SE,SW
+*		SOLRUG	Solidago rugosa	Rough goldenrod	sun -light shade	wet mesic	3 -5 ft.	fall	yellow	Forb	3	-1	-1	perennial roots send up several upright stem with rough-textured leaves; leaves with bronze tinge of color in early spring and fall.	SE,SW,NL,UP
+*		SOLSPE	Solidago speciosa	Showy goldenrod	sun	mesic -dry mesic	3 -5 ft.	fall	yellow	Forb	5	5	5	perennial roots send up several upright reddish stems with shiny, cleanly-cut leaves	SE,SW,NL,UP
+*		SORNUT	Sorghastrum nutans	Indian grass	sun	mesic -dry mesic	4 -6 ft.	summer		Grass	6	2	5	clumping, warm-season perennial grass; leaves turn shades of yellow and orange in fall.	SE,SW,NL
+*		SPOHET	Sporobolus heterolepis	Prairie dropseed	full sun	dry -dry mesic	1 -2 ft.	summer		Grass	10	4	5	clump-forming perennial grass with fine leaf blades.	SE,SW
+*		STATRI	Staphylea trifolia	Bladdernut	shade -part sun	mesic -wet mesic	8 -20 ft.	early spring	dull yellow	Shrub	9	0	-4	a clonal upright shrub or small tree with cleanly-cut, 3-parted leaves; fruits in fall are clusters of bronze papery bladders that rattle in the wind; branches with striped bark.	SE,SW
+*		THADAS	Thalictrum dasycarpum	Tall meadow-rue	shade -part sun	mesic -wet mesic	3 -6 ft.	late spring- early summer	white	Forb	3	-2	-1	perennial with upright stems and delicate, divided leaves; airy plume of white flowers.	SE,SW,NL,UP
+*		THADIO	Thalictrum dioicum	Early meadow-rue	shade - part sun	mesic	2 -3 ft.	spring	green	Forb	6	2	-4	A compact branching perennial with delicate compound leaves; reseeds itself well in appropriate habitats; separate male and female plants.	SE,SW,NL,UP
+*		THUOCC	Thuja occidentalis	White Cedar, Arbor vitae	shade- part sun	medium to wet	30- 50 ft.			Tree	4	-3	0	an upright, columnar evergreen; slow-growing, long-lived; a favorite Winter food of deer.	SE,SW,NL,UP
+*		TRAOHI	Tradescantia ohiensis	Common spiderwort	sun -light shade	wet mesic -dry mesic	1.5 -2.5 ft.	late spring through summer	purple to blue	Forb	5	2	2	perennial roots spread to form a compact patch of greyish-green sword-shaped leaves; short-lived blooms in morning fade by afternoon; flowers repeatedly summer through fall; flower color varies from pinkish-purple - blue.	SE,SW,NL
+*		VERMIS	Vernonia missurica	Missouri ironweed	sun	mesic -wet mesic	4 -6 ft.	late summer	purple	Forb	4	-1	4	an upright perennial; purple blooms later produce bronze fluffy seed.	SE,SW
+*		VERVIR	Veronicastrum virginicum	Culver's root	sun -light shade	wet mesic -dry mesic	3 -5 ft.	early summer	white	Forb	8	0	1	several upright stems with narrow, sharply pointed leaves, arranged in whorls (or tiers) to create interesting texture; spires of white flowers form at the top.	SE,SW,NL,UP
+*		VIBLEN	Viburnum lentago	Nannyberry; sheepberry	part sun	wet -wet mesic	8 -18 ft.	spring	white	Shrub	4	-1	-1	a clonal shrub with upright stems; oval leaves; rounded clusters of white blooms form dark blue berries.	SE,SW,NL,UP
+*		ZIZAUR	Zizia aurea	Golden alexanders	sun -light shade	mesic -wet mesic	2 -4 ft.	spring	golden yellow	Forb	6	-1	1	upright loosely branched perennial with divided leaves; topped with golden blooms in spring; naturalizes well from seed.	SE,SW,NL,UP

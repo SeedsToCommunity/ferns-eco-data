@@ -3,15 +3,32 @@
 // Data strategy (discovered from live-site exploration):
 //   PRIMARY:  GET /plants/search/report  — Zope/MySQL report endpoint returns all
 //             130 species in ONE request with: latin name, common name, light,
-//             moisture, height, bloom time, flower color, physiography (plant type),
-//             numeric scores, notes, Michigan range, and price.
+//             moisture, height, bloom time, flower color, growth_form (physiography),
+//             C/W/S ecological scores, notes, Michigan range, and price.
 //   SECONDARY: GET /plants/plant_page_template?Acronym=XXX (one per species) —
 //             used ONLY for images (full-size URLs) and Greg's latin synonyms
 //             (a.k.a. entries). All other fields come from the report.
 //
-// This means ~131 total HTTP requests (1 + 130) vs ~260 before (130 list + 130 detail).
-// Images are JPEG-validated and uploaded to Cloudinary; non-JPEG or failed uploads
-// are omitted entirely (no source-URL fallback).
+// Column mapping confirmed from live site (report has 17 th headers but 15 td per row
+// because Light and Moisture are merged into one cell in tds[5]):
+//   tds[0]:  availability (*)
+//   tds[1]:  thumbnail link  → contains Acronym=XXX
+//   tds[2]:  acronym text
+//   tds[3]:  latin name
+//   tds[4]:  common name
+//   tds[5]:  light + moisture combined (header says "Light" but cell merges both)
+//   tds[6]:  height
+//   tds[7]:  flowering time
+//   tds[8]:  flower color
+//   tds[9]:  growth_form (Forb / Grass / Sedge / Shrub / Tree / Vine)
+//   tds[10]: conservatism_coefficient (C)
+//   tds[11]: wetness_coefficient (W) — can be negative
+//   tds[12]: shade_coefficient (S) — can be negative
+//   tds[13]: notes
+//   tds[14]: range_michigan (SE,SW,NL,UP)
+//   tds[15]: price (always empty for all 130 species)
+//
+// light and moisture are parsed separately from the detail page since the report merges them.
 //
 // Triggered via POST /api/ann-arbor-npn/import (admin) or auto-runs at startup.
 
@@ -164,12 +181,16 @@ interface ReportSpeciesRow {
   acronym: string;
   latin_name: string;
   common_name: string;
-  light: string | null;
-  moisture: string | null;
+  // light and moisture are merged in the report (tds[5]); they are parsed
+  // separately from the detail page in fetchDetailData().
+  light_moisture_combined: string | null;
   height: string | null;
   flowering_time: string | null;
   flower_color: string | null;
-  physiography: string | null;
+  growth_form: string | null;
+  conservatism_coefficient: string | null;
+  wetness_coefficient: string | null;
+  shade_coefficient: string | null;
   notes: string | null;
   range_michigan: string[];
   npn_price_sizes: string | null;
@@ -193,41 +214,33 @@ function nullIfEmpty(s: string): string | null {
 }
 
 // Parse the Zope/MySQL report HTML table into structured species rows.
-// Column order (confirmed from live site with all show_* flags on):
-//   0: availability (*)
-//   1: thumbnail link  → contains Acronym=XXX
-//   2: acronym text
-//   3: latin name link
-//   4: common name
-//   5: light
-//   6: moisture
-//   7: height
-//   8: bloom time
-//   9: flower color
-//  10: physiography (Forb / Grass / Sedge / Shrub / Tree / Vine / Fern)
-//  11: S  (numeric light score)
-//  12: W  (numeric moisture score)
-//  13: C  (numeric color/companion score)
-//  14: notes
-//  15: region (SE,SW,NL,UP…)
-//  16: price (usually empty)
+// The report has 17 <th> header columns but only 15 <td> per data row because
+// the site renders Light and Moisture into a single merged cell (tds[5]).
+// Correct td-to-field mapping (confirmed from live site):
+//   tds[5]  → light+moisture combined (split via detail page)
+//   tds[6]  → height
+//   tds[7]  → flowering_time
+//   tds[8]  → flower_color
+//   tds[9]  → growth_form
+//   tds[10] → conservatism_coefficient (C)
+//   tds[11] → wetness_coefficient (W) — signed integer, can be negative
+//   tds[12] → shade_coefficient (S) — signed integer, can be negative
+//   tds[13] → notes
+//   tds[14] → range_michigan
+//   tds[15] → price (always empty)
 function parseReportHtml(html: string): ReportSpeciesRow[] {
   const rows: ReportSpeciesRow[] = [];
 
-  // Each data row contains a plant_page_template link in column 1.
-  // We split on <tr> and process rows that have an Acronym link.
   const rowPattern = /<tr[\s\S]*?<\/tr>/gi;
   let rowMatch: RegExpExecArray | null;
 
   while ((rowMatch = rowPattern.exec(html)) !== null) {
     const row = rowMatch[0]!;
 
-    // Skip rows without a species link
     const acronymInLink = /Acronym=([A-Z0-9]+)/.exec(row);
     if (!acronymInLink) continue;
     const acronym = acronymInLink[1]!;
 
-    // Extract all <td>…</td> contents in order
     const tds: string[] = [];
     const tdPattern = /<td[^>]*>([\s\S]*?)<\/td>/gi;
     let tdMatch: RegExpExecArray | null;
@@ -235,18 +248,19 @@ function parseReportHtml(html: string): ReportSpeciesRow[] {
       tds.push(tdText(tdMatch[1]!));
     }
 
-    // Require at least 16 columns (the price column may be absent in some rows)
     if (tds.length < 15) continue;
 
-    const light     = nullIfEmpty(tds[5]  ?? "");
-    const moisture  = nullIfEmpty(tds[6]  ?? "");
-    const height    = nullIfEmpty(tds[7]  ?? "");
-    const bloomTime = nullIfEmpty(tds[8]  ?? "");
-    const flowerColor = nullIfEmpty(tds[9]  ?? "");
-    const physiography = nullIfEmpty(tds[10] ?? "");
-    const notes     = nullIfEmpty(tds[14] ?? "");
-    const regionRaw = tds[15] ?? "";
-    const priceRaw  = tds[16] ?? "";
+    const lightMoistureCombined = nullIfEmpty(tds[5]  ?? "");
+    const height                = nullIfEmpty(tds[6]  ?? "");
+    const bloomTime             = nullIfEmpty(tds[7]  ?? "");
+    const flowerColor           = nullIfEmpty(tds[8]  ?? "");
+    const growthForm            = nullIfEmpty(tds[9]  ?? "");
+    const conservatism          = nullIfEmpty(tds[10] ?? "");
+    const wetness               = nullIfEmpty(tds[11] ?? "");
+    const shade                 = nullIfEmpty(tds[12] ?? "");
+    const notes                 = nullIfEmpty(tds[13] ?? "");
+    const regionRaw             = tds[14] ?? "";
+    const priceRaw              = tds[15] ?? "";
 
     const rangeMichigan = regionRaw
       .split(/[,;]/)
@@ -257,12 +271,14 @@ function parseReportHtml(html: string): ReportSpeciesRow[] {
       acronym,
       latin_name: nullIfEmpty(tds[3] ?? "") ?? acronym,
       common_name: nullIfEmpty(tds[4] ?? "") ?? acronym,
-      light,
-      moisture,
+      light_moisture_combined: lightMoistureCombined,
       height,
       flowering_time: bloomTime,
       flower_color: flowerColor,
-      physiography,
+      growth_form: growthForm,
+      conservatism_coefficient: conservatism,
+      wetness_coefficient: wetness,
+      shade_coefficient: shade,
       notes,
       range_michigan: rangeMichigan,
       npn_price_sizes: nullIfEmpty(priceRaw),
@@ -288,18 +304,16 @@ async function fetchAllSpeciesFromReport(): Promise<ReportSpeciesRow[]> {
   return rows;
 }
 
-// ─── Individual page parser (images + synonym only) ───────────────────────────
+// ─── Individual page parser (images + synonym + light/moisture) ───────────────
 
-interface ImageAndSynonymResult {
+interface DetailData {
   latin_synonym_greg: string | null;
+  light: string | null;
+  moisture: string | null;
   raw_images: Array<{ position: number; src: string; caption: string }>;
 }
 
 // Extracts full-size plant images from nativeplant.com detail pages.
-// Structure per image block:
-//   <a href="/plant_images/ACRONYM/1.jpg" alt="image"><img src="...thumb.jpg" .../></a><br>
-//   <small>caption text</small>   ← optional
-// Full-size URL comes from the <a href>; caption from the <small> tag.
 function extractImages(
   html: string,
 ): Array<{ position: number; src: string; caption: string }> {
@@ -323,12 +337,25 @@ function extractImages(
   return results;
 }
 
-// Fetches an individual species page to extract images and Greg's latin synonym.
-// All other text data comes from the report endpoint.
-async function fetchImagesAndSynonym(
+// Parse a labeled field like "<b>Light:</b> sun -light shade" from detail page HTML.
+function parseDetailField(html: string, label: string): string | null {
+  const pattern = new RegExp(`<b>${label}:</b>\\s*([^<]+)`, "i");
+  const m = pattern.exec(html);
+  if (!m) return null;
+  const val = m[1]!
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/\s+/g, " ")
+    .trim();
+  return val || null;
+}
+
+// Fetches an individual species page to extract images, Greg's latin synonym,
+// and separate light + moisture values (which the report merges into one cell).
+async function fetchDetailData(
   acronym: string,
   detailUrl: string,
-): Promise<ImageAndSynonymResult | null> {
+): Promise<DetailData | null> {
   const res = await fetch(detailUrl, {
     headers: { "User-Agent": "FERNS-Botanical-Data-Aggregator/1.0 (ecologicalcommons.org)" },
     signal: AbortSignal.timeout(20000),
@@ -339,19 +366,23 @@ async function fetchImagesAndSynonym(
   }
   const html = await res.text();
 
-  // Latin synonym (Greg's nomenclature) from <h3>(a.k.a. Symphyotrichum cordifolium)</h3>
-  // Note: GENAND has "Closed Gentian" here (common name, not taxonomic) — indexed anyway.
+  // Latin synonym from <h3>(a.k.a. Symphyotrichum cordifolium)</h3>
+  // GENAND has "Closed Gentian" here (common name, not taxonomic) — indexed anyway.
   const h3Match = /<h3>\s*\(a\.k\.a\.\s*([^)<]+)\)/i.exec(html);
-  const latinSynonymGreg = h3Match ? h3Match[1]!.trim() : null;
+  const latin_synonym_greg = h3Match ? h3Match[1]!.trim() : null;
+
+  // Light and moisture are separate labeled fields on the detail page.
+  const light = parseDetailField(html, "Light");
+  const moisture = parseDetailField(html, "Moisture");
 
   const raw_images = extractImages(html);
 
-  return { latin_synonym_greg: latinSynonymGreg, raw_images };
+  return { latin_synonym_greg, light, moisture, raw_images };
 }
 
 // ─── Main import ──────────────────────────────────────────────────────────────
 
-export interface NpnImportResult {
+export interface AnnArborNpnImportResult {
   speciesUpserted: number;
   aliasesUpserted: number;
   imagesUploaded: number;
@@ -361,8 +392,8 @@ export interface NpnImportResult {
 
 export async function importNpn(
   filterAcronyms?: string[],
-): Promise<NpnImportResult> {
-  const result: NpnImportResult = {
+): Promise<AnnArborNpnImportResult> {
+  const result: AnnArborNpnImportResult = {
     speciesUpserted: 0,
     aliasesUpserted: 0,
     imagesUploaded: 0,
@@ -377,11 +408,10 @@ export async function importNpn(
     rows = rows.filter((r) => filterSet.has(r.acronym));
   }
 
-  // Step 2: for each species, fetch individual page for images + synonym only
+  // Step 2: for each species, fetch individual page for images + synonym + light/moisture
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i]!;
 
-    // Polite inter-request delay (skip before first request)
     if (i > 0) {
       await sleep(DELAY_MIN_MS + Math.floor(Math.random() * DELAY_RANGE_MS));
     }
@@ -392,11 +422,8 @@ export async function importNpn(
         "NPN import: processing species",
       );
 
-      const detail = await fetchImagesAndSynonym(row.acronym, row.detail_url);
+      const detail = await fetchDetailData(row.acronym, row.detail_url);
 
-      // Upload images to Cloudinary. Only images that pass JPEG validation AND upload
-      // successfully are included in the record. Non-JPEG responses and failed uploads
-      // are skipped entirely to avoid storing ephemeral source URLs.
       const images: NpnImage[] = [];
       const rawImages = detail?.raw_images ?? [];
       for (const raw of rawImages) {
@@ -422,8 +449,9 @@ export async function importNpn(
       }
 
       const latinSynonymGreg = detail?.latin_synonym_greg ?? null;
+      const light = detail?.light ?? null;
+      const moisture = detail?.moisture ?? null;
 
-      // Upsert species record
       await db
         .insert(npnSpeciesTable)
         .values({
@@ -431,12 +459,15 @@ export async function importNpn(
           latin_name: row.latin_name,
           latin_synonym_greg: latinSynonymGreg ?? undefined,
           common_name: row.common_name,
-          light: row.light ?? undefined,
-          moisture: row.moisture ?? undefined,
+          light: light ?? undefined,
+          moisture: moisture ?? undefined,
           height: row.height ?? undefined,
           flowering_time: row.flowering_time ?? undefined,
           flower_color: row.flower_color ?? undefined,
-          physiography: row.physiography ?? undefined,
+          growth_form: row.growth_form ?? undefined,
+          conservatism_coefficient: row.conservatism_coefficient ?? undefined,
+          wetness_coefficient: row.wetness_coefficient ?? undefined,
+          shade_coefficient: row.shade_coefficient ?? undefined,
           notes: row.notes ?? undefined,
           range_michigan: row.range_michigan.length > 0 ? row.range_michigan : undefined,
           npn_price_sizes: row.npn_price_sizes ?? undefined,
@@ -449,12 +480,15 @@ export async function importNpn(
             latin_name: row.latin_name,
             latin_synonym_greg: latinSynonymGreg,
             common_name: row.common_name,
-            light: row.light ?? null,
-            moisture: row.moisture ?? null,
+            light: light,
+            moisture: moisture,
             height: row.height ?? null,
             flowering_time: row.flowering_time ?? null,
             flower_color: row.flower_color ?? null,
-            physiography: row.physiography ?? null,
+            growth_form: row.growth_form ?? null,
+            conservatism_coefficient: row.conservatism_coefficient ?? null,
+            wetness_coefficient: row.wetness_coefficient ?? null,
+            shade_coefficient: row.shade_coefficient ?? null,
             notes: row.notes ?? null,
             range_michigan: row.range_michigan.length > 0 ? row.range_michigan : null,
             npn_price_sizes: row.npn_price_sizes ?? null,
@@ -466,7 +500,6 @@ export async function importNpn(
 
       result.speciesUpserted++;
 
-      // Build and upsert aliases
       const aliases = buildAliases(
         row.acronym,
         row.latin_name,
@@ -500,7 +533,7 @@ export async function importNpn(
   return result;
 }
 
-export async function autoImportNpnIfEmpty(): Promise<void> {
+export async function autoImportAnnArborNpnIfEmpty(): Promise<void> {
   try {
     const [row] = await db
       .select({ count: sql<number>`count(*)::int` })
