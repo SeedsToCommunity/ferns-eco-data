@@ -344,3 +344,37 @@ All Ann Arbor NPN API routes were rewritten to serve data from the in-memory Int
 
 - The `non_passthrough_endpoints` kinds use `"in_memory"` — confirm this is the correct kind string for the ferns_sources schema (or adjust to match whatever the DB column accepts).
 - The documentation Markdown file content should be reviewed for accuracy against Greg's actual site and the capture history.
+
+---
+
+## Task: Ann Arbor NPN — Drop npn_species and npn_name_aliases DB tables
+
+### What was built
+
+The two PostgreSQL tables that previously stored Ann Arbor Native Plant Nursery (NPN) data — `npn_species` and `npn_name_aliases` — have been permanently removed from the database and the codebase. This follows an earlier task that converted all NPN routes to serve data from an in-memory TypeScript file (`lib/internal-data-providers/src/ann-arbor-npn/data.ts`) instead of the database. The tables were no longer read or written by any live code path, so this task destroys the now-redundant data store. The only remaining copy of the NPN data is the committed TypeScript file.
+
+### Derivation summary
+
+N/A — no new source was added.
+
+### Scientific/technical description
+
+N/A — no new source was added.
+
+### Architectural decisions made
+
+- **Manual migration instead of `drizzle-kit generate`**: `drizzle-kit generate` has a pre-existing module resolution issue (it resolves TypeScript `.ts` imports as `.js` in CommonJS mode, failing on `import { fernsSourcesTable } from "./registry.js"` in `trust.ts`). The migration SQL is trivial (two DROP TABLE statements), so it was written manually and the `_journal.json` was updated by hand. The journal entry timestamp matches the current date (June 17, 2026). This unblocks the task without touching the unrelated `trust.ts` or `registry.ts` files.
+- **Stale dist file cleanup**: `tsc` does not delete old output files when source files are removed. After deleting `lib/db/src/schema/npn.ts` and rebuilding, the stale `lib/db/dist/schema/npn.d.ts` and `.d.ts.map` were deleted manually to ensure consuming packages no longer see those exports.
+- **NpnImage in api-zod / api-client-react preserved**: The `NpnImage` type in `lib/api-zod` and `lib/api-client-react` is an API response type generated from the OpenAPI spec (not a DB type). It describes the shape of the `images` array returned by the NPN routes, which still exists in the IDP data. These files were left untouched.
+- **lib/internal-data-providers declarations rebuilt**: The three TS6305 errors in the api-server (coefficient-of-conservatism, wetland-indicator-status, wucols-water-use) were pre-existing stale declaration issues. Rebuilding `lib/internal-data-providers` cleared them, leaving zero TypeScript errors.
+
+### What was NOT done
+
+- No NPN route or metadata changes (those were completed in earlier tasks).
+- No changes to `lib/api-zod` or `lib/api-client-react` — the `NpnImage` type there is an API-level type, not a DB type, and the routes still return `images` arrays.
+- The `drizzle-kit generate` module resolution issue was not fixed — it is a pre-existing problem unrelated to this task.
+
+### What the user should decide or review
+
+- **This change is irreversible** once merged. The `npn_species` and `npn_name_aliases` tables are gone from the dev database. The NPN data now lives only in `lib/internal-data-providers/src/ann-arbor-npn/data.ts`.
+- If a production database exists with these tables, the migration `0019_drop-npn-tables.sql` will drop them on next startup. Confirm this is intended before deploying.
