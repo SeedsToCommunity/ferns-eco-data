@@ -4253,17 +4253,18 @@ paths:
                 allOf:
                   - $ref: "#/components/schemas/FernsEnvelope"
 
-  /ann-arbor-npn/names:
+  /ann-arbor-npn/alias-index:
     get:
-      operationId: getAnnArborNpnNames
+      operationId: getAnnArborNpnAliasIndex
       tags: [ann-arbor-npn]
-      summary: NPN name groups with common_names array and all_accepted_keys for reconciliation
+      summary: NPN alias index — all species with every accepted lookup key
       description: >
-        Returns all species as name groups, each containing acronym, latin_name,
-        latin_synonym_greg (nullable), common_names (string array, parsed from the
-        semicolon/comma-delimited common_name field), and all_accepted_keys (full list
-        of lowercase aliases indexed for this species). Designed for cross-source name
-        reconciliation against GBIF, USDA PLANTS, or iNaturalist.
+        Returns all 130 NPN species as name groups served from the in-memory IDP.
+        Each entry contains acronym, latin_name, latin_synonym_greg (nullable),
+        common_names (string array parsed from the semicolon/comma-delimited common_name field),
+        and all_accepted_keys (flat array of every lowercase alias that resolves to this species).
+        Designed for cross-source name reconciliation against GBIF, USDA PLANTS, or iNaturalist.
+        Replaces the former /ann-arbor-npn/names endpoint.
       parameters:
         - name: provenance_verbosity
           in: query
@@ -4273,7 +4274,7 @@ paths:
             enum: [full, summary, none]
       responses:
         "200":
-          description: NPN name groups wrapped in FernsEnvelope (found=false with empty array before import)
+          description: NPN alias index wrapped in FernsEnvelope
           content:
             application/json:
               schema:
@@ -4292,68 +4293,96 @@ paths:
                             items:
                               $ref: "#/components/schemas/NpnNameGroup"
 
-  /ann-arbor-npn/import:
-    post:
-      operationId: importAnnArborNpn
+  /ann-arbor-npn/species/{key}/source-url:
+    get:
+      operationId: getAnnArborNpnSpeciesSourceUrl
       tags: [ann-arbor-npn]
-      summary: Trigger NPN import from nativeplant.com (admin-only)
+      summary: Per-species nativeplant.com URL for a given key
       description: >
-        Scrapes nativeplant.com, uploads images to Cloudinary, and populates
-        npn_species and npn_name_aliases. Requires Authorization: Bearer <ADMIN_SECRET>.
-        Optionally accepts an array of acronyms to re-import a subset of species.
-      security:
-        - adminSecret: []
-      requestBody:
-        required: false
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                acronyms:
-                  type: array
-                  items:
-                    type: string
-                  description: Optional subset of acronyms to import; omit to import all
+        Returns the nativeplant.com source URL for the species identified by the given key.
+        Accepts the same name flavors as /ann-arbor-npn/species/{key}: acronym, Latin name,
+        Latin synonym, or any common name. Returns 404 with found=false when not found.
+        Data is served from the in-memory IDP snapshot.
+      parameters:
+        - name: key
+          in: path
+          required: true
+          description: Acronym, Latin name, synonym, or common name (any capitalisation)
+          schema:
+            type: string
+            minLength: 1
+        - name: provenance_verbosity
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [full, summary, none]
       responses:
         "200":
-          description: Import result
+          description: Source URL wrapped in FernsEnvelope (found=true)
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  queried_at:
-                    type: string
-                    format: date-time
-                  data:
-                    type: object
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
+                  - type: object
                     properties:
-                      speciesUpserted:
-                        type: integer
-                      aliasesUpserted:
-                        type: integer
-                      imagesUploaded:
-                        type: integer
-                      imagesSkipped:
-                        type: integer
-                      errors:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            acronym:
-                              type: string
-                            error:
-                              type: string
-        "401":
-          description: Missing or invalid admin secret
+                      data:
+                        type: object
+                        required: [acronym, source_url]
+                        properties:
+                          acronym:
+                            type: string
+                          source_url:
+                            type: string
+        "400":
+          description: Empty key parameter
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Name not found in alias index wrapped in FernsEnvelope (found=false)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
+
+  /ann-arbor-npn/documentation:
+    get:
+      operationId: getAnnArborNpnDocumentation
+      tags: [ann-arbor-npn]
+      summary: Source documentation for the Ann Arbor Native Plant Nursery dataset
+      description: >
+        Returns the full source documentation for the Ann Arbor NPN dataset as Markdown in
+        data.markdown. Covers: Greg Vaclavek's background, dataset contents, field descriptions,
+        Michigan range vocabulary (SE/SW/NL/UP), alias index construction, Cloudinary image storage,
+        and the migration from DB-backed scrape to static in-memory snapshot.
+        Always returns 200 with found=true — the documentation file is static and always present.
+      parameters:
+        - name: provenance_verbosity
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [full, summary, none]
+      responses:
+        "200":
+          description: Documentation markdown wrapped in FernsEnvelope
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        required: [markdown]
+                        properties:
+                          markdown:
+                            type: string
 
 components:
   schemas:

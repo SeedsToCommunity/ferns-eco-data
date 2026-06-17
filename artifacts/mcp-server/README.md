@@ -280,9 +280,11 @@ Tool names follow `{source_id}__{action}` (hyphens → underscores, double-under
 
 | Tool | Path | Required | Optional | Description |
 |---|---|---|---|---|
-| `ann_arbor_npn__species` | GET /ann-arbor-npn/species/{key} | key | provenance_verbosity | Single NPN species record resolved by acronym (e.g. LOBSIP), Latin name, Greg's Latin synonym, or any common name — via the alias index. Returns 404 when not found. |
-| `ann_arbor_npn__species_list` | GET /ann-arbor-npn/species | — | provenance_verbosity | All ~130 NPN species with ecological attributes, nursery pricing, and Cloudinary image URLs (photograph / drawing). Empty before import runs. |
-| `ann_arbor_npn__names` | GET /ann-arbor-npn/names | — | provenance_verbosity | All NPN species as name groups with common_names[] and all_accepted_keys — designed for cross-source reconciliation against GBIF, USDA PLANTS, or iNaturalist. |
+| `ann_arbor_npn__species` | GET /ann-arbor-npn/species/{key} | key | provenance_verbosity | Single NPN species record resolved by acronym (e.g. LOBSIP), Latin name, Greg's Latin synonym, or any common name — via in-memory alias index. Returns 404 when not found. |
+| `ann_arbor_npn__species_list` | GET /ann-arbor-npn/species | — | provenance_verbosity | All 130 NPN species with ecological attributes, nursery pricing, and Cloudinary image URLs (photograph / drawing). Static in-memory snapshot from 2026-06-01. |
+| `ann_arbor_npn__species_source_url` | GET /ann-arbor-npn/species/{key}/source-url | key | provenance_verbosity | Per-species nativeplant.com URL for a given key (any name flavor). Returns 404 when not found. |
+| `ann_arbor_npn__alias_index` | GET /ann-arbor-npn/alias-index | — | provenance_verbosity | All 130 NPN species as name groups with common_names[] and all_accepted_keys — designed for cross-source reconciliation against GBIF, USDA PLANTS, or iNaturalist. |
+| `ann_arbor_npn__documentation` | GET /ann-arbor-npn/documentation | — | provenance_verbosity | Full source documentation as Markdown: Greg Vaclavek's background, field descriptions, Michigan range vocabulary, alias index construction, Cloudinary storage, and migration history. |
 
 ### registry — Ecological Commons Registry (meta)
 

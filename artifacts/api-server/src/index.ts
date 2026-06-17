@@ -26,7 +26,6 @@ import { autoImportIllinoisWildflowersIfEmpty } from "./services/botanical-refs/
 import { autoImportPrairieMoonIfEmpty } from "./services/botanical-refs/importers/prairie-moon.js";
 import { ensureSourceRelationships, ensureSourceRelationshipsRegistryEntry } from "./services/source-relationships/seed.js";
 import { ensureAnnArborNpnRegistryEntry } from "./services/ann-arbor-npn/seed.js";
-import { autoImportAnnArborNpnIfEmpty } from "./services/ann-arbor-npn/import.js";
 
 const rawPort = process.env["PORT"];
 
@@ -77,10 +76,6 @@ async function main() {
 
     autoImportPrairieMoonIfEmpty().catch((err) => {
       logger.error({ err }, "Prairie Moon auto-import check failed at startup");
-    });
-
-    autoImportAnnArborNpnIfEmpty().catch((err) => {
-      logger.error({ err }, "NPN auto-import check failed at startup");
     });
 
     const registrySeedLabels = [

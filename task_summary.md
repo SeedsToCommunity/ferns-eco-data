@@ -308,3 +308,39 @@ Two additional corrections were made after the initial submission:
 
 The ecological data for all three species was correct (sourced from Greg's tab-separated text file, not the buggy HTML parser) — only the images had been missing.
 
+
+---
+
+## Task: Ann Arbor NPN — Route rewrite to in-memory + cleanup (2026-06-04)
+
+### What was built
+
+All Ann Arbor NPN API routes were rewritten to serve data from the in-memory Internal Data Provider (IDP) instead of PostgreSQL. The admin import endpoint and its supporting service file were removed. Two new routes were added (`species/:key/source-url` and `documentation`), and the old `names` route was replaced by `alias-index`. The MCP server was updated from 3 old tools to 5 current tools. The OpenAPI spec was updated to match. A source documentation Markdown file was created and is served live via the `documentation` route.
+
+### Derivation summary
+
+> The Native Plant Nursery (NPN), Ann Arbor, Michigan — operated by Greg Vaclavek — maintains a curated database of Michigan native plants available at nativeplant.com. The dataset covers 130 species with ecological attributes (light, moisture, height, flowering time, flower color, growth form, conservatism/wetness/shade coefficients, notes, range within Michigan) and nursery availability. Each species record is identified by a short acronym (e.g. ANDGER for Andropogon gerardii) and includes common and Latin names, an optional Latin synonym, and a series of images with captions — photographs and pen-and-ink drawings. FERNS holds a static in-memory snapshot of the full inventory captured on 2026-06-01, enabling lookup by acronym, Latin name, Latin synonym, or any common name. An alias-index endpoint returns all species organized by accepted key for cross-source reconciliation. Images are hosted on Cloudinary CDN (folder: ann-arbor-npn/{acronym}/{position}). Greg's nativeplant.com site is no longer actively updated; this snapshot is the definitive FERNS record.
+
+### Scientific/technical description
+
+> Primary source: nativeplant.com — Greg Vaclavek's Michigan Native Plants Database. Source status: defunct upstream — Greg's nativeplant.com site is no longer updated. No further scrapes or re-imports will be performed; this is a permanent static snapshot. Snapshot date: 2026-06-01. Data is held in-process as an Internal Data Provider (IDP) within EC FERNS — no DB table, no TTL, no cache layer. 130 species, each identified by a short acronym (e.g. ANDGER for Andropogon gerardii). Carex species use CX prefix instead of CAR (e.g. CXPENS for Carex pensylvanica). Fields per species: acronym (PK), latin_name, latin_synonym_greg (Greg's own taxonomy — may differ from GBIF or USDA PLANTS), common_name (semicolon/comma-delimited), light, moisture, height, flowering_time, flower_color, growth_form (Forb/Grass/Sedge/Shrub/Tree/Vine), conservatism_coefficient (C score), wetness_coefficient (W score — signed, can be negative), shade_coefficient (S score — signed, can be negative), notes, range_michigan text[] (SE/SW/NL/UP vocabulary), npn_price_sizes, images (array of {position, url, caption, kind}), source_url. Alias index: every species is indexed by acronym + latin_name + latin_synonym_greg (where present) + common names (split on ; and ,). Lookup endpoint resolves any alias case-insensitively. Image kind inference: caption containing 'pen & ink' or 'drawing' → 'drawing'; else 'photograph'. Images uploaded to Cloudinary (cloud: dqe2vv0fo, folder: ann-arbor-npn/{acronym}/{position}). HIEVEN (Hieracium venosum) has no height or notes — minimal data entry in Greg's system. CLEVIR, HIEVEN, and LIASCA were absent from early imports due to an HTML parser bug; corrected before snapshot was taken. Column mapping note: nativeplant.com report merges light+moisture into one cell; light and moisture were parsed separately from per-species detail pages during capture.
+
+### Architectural decisions made
+
+- **sourceKind: "in-memory" on all routes** — since data comes from the IDP at process startup, not from a DB or network call. This is the correct contract value for IDPs.
+- **queriedAt: new Date().toISOString() on all routes** — for in-memory sources there is no "fetched_at" timestamp to reference. The envelope contract explicitly allows current time for in-memory/computed data.
+- **sourceUrl: null on most routes; species.source_url on species/:key and species/:key/source-url** — the per-species nativeplant.com URL is the upstream URL for individual species pages and belongs in the envelope's source_url.
+- **Documentation served from static file read at startup** — the Markdown file is read once via readFileSync at module load time, held in memory, and returned on every request. No runtime file I/O per request.
+- **knowledge_type changed from "source_wrapper" to "dataset"** — this source is a static dataset captured once, not a live wrapper around an external API.
+- **Removed `names` path; replaced with `alias-index`** — same data shape (from listAnnArborNpnNameGroups()), cleaner name that accurately describes the endpoint's purpose.
+
+### What was NOT done
+
+- The PostgreSQL tables `npn_species` and `npn_name_aliases` were NOT dropped — that is downstream task "Ann Arbor NPN — Drop npn_species and npn_name_aliases DB tables".
+- The `ensureAnnArborNpnRegistryEntry` startup call was retained (seeds the ferns_sources registry row from metadata.ts).
+- No codegen was run on lib/api-client-react — OpenAPI spec was updated but generated client types were not regenerated.
+
+### What the user should decide or review
+
+- The `non_passthrough_endpoints` kinds use `"in_memory"` — confirm this is the correct kind string for the ferns_sources schema (or adjust to match whatever the DB column accepts).
+- The documentation Markdown file content should be reviewed for accuracy against Greg's actual site and the capture history.
