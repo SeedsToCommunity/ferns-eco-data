@@ -1,0 +1,47 @@
+I don't want you to just verbatum list the notes, I honestly wanted you to consolidate the notes and use the current code base as truth. Some things might have been changed or fixed separate from the task_summary.md file.
+
+2 minutes ago
+
+Planning data provider integration (4 seconds)
+Let me read the current code directly rather than relying on the notes.
+
+
+4 actions
+Here's the consolidated picture based on what the code actually shows today, with the history compressed into what changed and why.
+
+Ann Arbor NPN — Consolidated state, last 10 days
+What this source is
+Greg Vaclavek's Michigan native plant database (nativeplant.com), a curated list of 130 Michigan native species with full ecological attributes — light, moisture, height, flowering time, growth form, conservatism/wetness/shade coefficients, notes, Michigan range, Cloudinary images (photographs and pen-and-ink drawings), and a per-species link back to Greg's original plant page. Greg's site is dormant; this is a static, never-reimport dataset.
+
+The journey over the last 10 days
+The source started life as a live PostgreSQL-backed scrape. The API server hit two DB tables (npn_species, npn_name_aliases) on every request. A scraper had imported Greg's data from nativeplant.com.
+
+A column-shift bug corrupted the scraped data. The HTML report-page parser was merging the Light and Moisture table cells into one, which shifted every downstream field one slot left — height ended up in moisture, flowering time in height, and so on, for all species. The schema also used wrong column names (physiography, habitat) instead of the correct ecological field names.
+
+The fix used Greg's own tab-separated text file as ground truth, bypassing the scraper entirely. All 130 species were corrected in the DB, the schema was fixed via direct DDL, and three species that the parser had missed entirely — CLEVIR (Clematis virginiana), HIEVEN (Hieracium venosum), and LIASCA (Liatris scariosa) — were inserted. Images for those three were also scraped directly from nativeplant.com and uploaded to Cloudinary. The corrected data was then committed as a static TypeScript file in lib/internal-data-providers/.
+
+The routes were then fully converted to in-memory. The DB is no longer touched at all. All routes use sourceKind: "in-memory", sourceUrl: null, cacheStatus: "hit". The import endpoint (POST /api/ann-arbor-npn/import) was removed. The two DB tables were dropped. The knowledge_type was changed from "source_wrapper" to "dataset".
+
+The source spec document was converted from a .docx file to a committed Markdown file (ANN_ARBOR_NPN_SOURCE_DOCUMENTATION.md), with Section 10 rewritten to describe the actual implemented system. The docx was deleted. That Markdown is served via the GET /api/ann-arbor-npn/documentation endpoint, wrapped in a standard FERNS JSON envelope (data.markdown).
+
+Current endpoint surface (6 routes, all in-memory)
+Route	What it returns
+GET /api/ann-arbor-npn/metadata	Source metadata envelope with species count and registry entry
+GET /api/ann-arbor-npn/species	All 130 species records
+GET /api/ann-arbor-npn/species/:key	Single species — accepts acronym, Latin name, Latin synonym, or any common name
+GET /api/ann-arbor-npn/species/:key/source-url	Per-species nativeplant.com URL
+GET /api/ann-arbor-npn/alias-index	All 130 species with every accepted lookup alias (alias_groups)
+GET /api/ann-arbor-npn/documentation	Source documentation Markdown in FERNS envelope
+Five MCP tools mirror these (minus metadata): ann_arbor_npn__species, ann_arbor_npn__species_list, ann_arbor_npn__species_source_url, ann_arbor_npn__alias_index, ann_arbor_npn__documentation.
+
+Note: The MCP README still lists the old ann_arbor_npn__names tool pointing at /ann-arbor-npn/names — that route and tool no longer exist. The README is stale on that entry.
+
+Current metadata field state
+Both general_summary and technical_details were corrected today to comply with the source onboarding playbook:
+
+general_summary: no internal route URLs, no implementation-level Cloudinary detail, all 7 required points covered including known limitations
+technical_details: route enumeration replaced with a deliberate-exclusions statement; explicit DB schema note added ("no DB cache — static in-memory snapshot, no database table, no TTL-based refresh")
+One open item
+The MCP README table (artifacts/mcp-server/README.md) still lists ann_arbor_npn__names / /ann-arbor-npn/names — a tool and route that no longer exist. The five current tools are not yet reflected there accurately.
+
+
