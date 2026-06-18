@@ -1588,7 +1588,7 @@ const tools: ToolDef[] = [
         type: "object" as const,
         properties: {
           name:    { type: "string", description: "Scientific name (e.g. Trillium grandiflorum)" },
-          state:   { type: "string", description: "Two-letter US state code (e.g. MI)" },
+          state:   { type: "string", description: "Two-letter US state code (e.g. MI, WI, OH). Defaults to MI if omitted — pass your target state code for accurate state-level ranks." },
           refresh: { type: "boolean", description: "Bypass cache" },
           ...PV_PROP,
         },

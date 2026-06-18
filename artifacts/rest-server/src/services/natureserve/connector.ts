@@ -134,7 +134,38 @@ export async function searchSpecies(name: string, stateCode: string = "MI"): Pro
     };
   }
 
-  const first = results[0];
+  const nameLower = name.trim().toLowerCase();
+  const match = results.find(
+    (r) => (r.scientificName as string | undefined)?.trim().toLowerCase() === nameLower,
+  );
+
+  if (!match) {
+    return {
+      scientific_name: null,
+      common_name: null,
+      global_rank: null,
+      rounded_global_rank: null,
+      national_rank: null,
+      rounded_national_rank: null,
+      state_code: stateCode.toUpperCase(),
+      state_rank: null,
+      rounded_state_rank: null,
+      iucn_category: null,
+      iucn_description: null,
+      federal_status: null,
+      federal_status_description: null,
+      state_status: null,
+      cites_description: null,
+      cosewic_code: null,
+      cosewic_description: null,
+      natureserve_url: null,
+      element_global_id: null,
+      search_upstream_url: searchUrl,
+      detail_upstream_url: null,
+    };
+  }
+
+  const first = match;
   const elementGlobalId = first.elementGlobalId as number | undefined;
   if (!elementGlobalId) {
     const gRank = (first.gRank as string) ?? null;
