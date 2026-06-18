@@ -1,10 +1,15 @@
 export type { SeedsToCommunityWashtenawSpeciesEntry, SeedsToCommunityWashtenawYearData } from "./data.js";
+export type { SeedsToCommunityWashtenawSpeciesInformationEntry } from "./species-information-data.js";
 import {
   type SeedsToCommunityWashtenawSpeciesEntry,
   SEEDS_TO_COMMUNITY_WASHTENAW_DATA,
   SEEDS_TO_COMMUNITY_WASHTENAW_AVAILABLE_YEARS,
   lookupByYear,
 } from "./data.js";
+import {
+  type SeedsToCommunityWashtenawSpeciesInformationEntry,
+  SEEDS_TO_COMMUNITY_WASHTENAW_SPECIES_INFORMATION,
+} from "./species-information-data.js";
 
 export { SEEDS_TO_COMMUNITY_WASHTENAW_AVAILABLE_YEARS };
 
@@ -41,4 +46,13 @@ export function getSeedsToCommunityWashtenawYears(): SeedsToCommunityWashtenawYe
     available_years: SEEDS_TO_COMMUNITY_WASHTENAW_AVAILABLE_YEARS,
     years,
   };
+}
+
+export function getSeedsToCommunityWashtenawSpeciesInformation(
+  species: string,
+): SeedsToCommunityWashtenawSpeciesInformationEntry | undefined {
+  const normalized = species.trim().toLowerCase();
+  return SEEDS_TO_COMMUNITY_WASHTENAW_SPECIES_INFORMATION.find(
+    (entry) => entry.botanical_name.trim().toLowerCase() === normalized,
+  );
 }
