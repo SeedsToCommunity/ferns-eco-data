@@ -1,7 +1,10 @@
 # FERNS Data Adapter Interfaces
 
 Mirror of Data Provider to REST and MCP.
-Data /A
+Data Adapter creates only the metatdata route and the response envelope.
+Almost all data should liver in the data provider.
+
+The api-server code should be mostly logistics and nuts and bolts. 
 
 REST
  - /artifacts/api-server/src/routes/*.ts
@@ -18,4 +21,3 @@ REST
 MCP
 
  - /artifacts/mcp-server/src/server.ts
- - 
