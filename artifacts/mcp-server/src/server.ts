@@ -903,7 +903,7 @@ const tools: ToolDef[] = [
   },
   {
     tool: {
-      name: "coefficient_of_conservatism__all",
+      name: "coefficient_of_conservatism__list",
       description:
         "Returns all defined C-value records (0–10) with their labels and descriptions. The complete reference table for the coefficient of conservatism scale.",
       inputSchema: {
@@ -913,7 +913,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/coefficient-of-conservatism/all", {
+      apiGet("/coefficient-of-conservatism/list", {
         provenance_verbosity: pv(args),
       }),
   },

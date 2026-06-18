@@ -5,6 +5,6 @@ export function getCoefficientOfConservatism(value: string): CoefficientOfConser
   return lookupByValue(value);
 }
 
-export function listCoefficientsOfConservatism(): CoefficientOfConservatismEntry[] {
+export function getCoefficientOfConservatismList(): CoefficientOfConservatismEntry[] {
   return COEFFICIENT_OF_CONSERVATISM_DATA;
 }

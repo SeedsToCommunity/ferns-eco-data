@@ -63,7 +63,7 @@ They never appear inside `provenance` on a per-response envelope.
 
 ### Source / Adapter / Source Interface
 
-EC FERNS is organized as a parallel set of single-Source pipelines. Each registered Source — whether an **External Data Provider** (e.g. iNat, GBIF) reached over the network, or an **Internal Data Provider** (e.g. S2C, Coefficients of Conservatism, the name graph) held in-process inside EC FERNS — sits behind its own **Source Interface**. The Source Interface is whatever shape that Source naturally exposes: an HTTP REST API, a function-call API, a graph query interface, a static-data lookup. Source Interfaces vary by Source and are not normalized to a single shape.
+EC FERNS is organized as a parallel set of single-Source pipelines. Each registered Source — whether an **External Data Provider** (e.g. iNat, GBIF) reached over the network, or an **Internal Data Provider** (e.g. S2C, Coefficient of Conservatism, the name graph) held in-process inside EC FERNS — sits behind its own **Source Interface**. The Source Interface is whatever shape that Source naturally exposes: an HTTP REST API, a function-call API, a graph query interface, a static-data lookup. Source Interfaces vary by Source and are not normalized to a single shape.
 
 For each Source there is exactly one **Data Adapter** that knows how to talk to that one Source's Source Interface. The Adapter calls the Source, takes the response data, and wraps it in the EC response envelope with all required metadata. The Adapter is the only thing in EC FERNS that knows the Source's specific interface; everything else in the system sees the Adapter's uniform output.
 

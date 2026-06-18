@@ -4,7 +4,7 @@
 
 Adding a Source means building its **Data Adapter** — the code that calls the Source over its Source Interface, wraps each response in the EC envelope, and exposes the Source's dedicated routes on the EC Data Interface. There is exactly one Data Adapter per Source. An Adapter never combines data across Sources. For the full architecture, see "Source / Adapter / Source Interface" in `docs/data-layer-contract.md` (the contract is the authority on what an Adapter must produce; this playbook is the authority on the steps to build one).
 
-A new Source may be an **External Data Provider** (reached over the network — iNat, GBIF) or an **Internal Data Provider** (held in-process inside EC FERNS — S2C, Coefficients of Conservatism, the name graph). The checklist below applies to both; differences specific to the kind of Provider are noted at the relevant steps.
+A new Source may be an **External Data Provider** (reached over the network — iNat, GBIF) or an **Internal Data Provider** (held in-process inside EC FERNS — S2C, Coefficient of Conservatism, the name graph). The checklist below applies to both; differences specific to the kind of Provider are noted at the relevant steps.
 
 ### Onboarding Checklist (Mandatory — do not skip steps)
 

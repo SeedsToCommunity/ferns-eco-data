@@ -162,7 +162,7 @@ Tool names follow `{source_id}__{action}` (hyphens → underscores, double-under
 | Tool | Path | Required | Optional | Description |
 |---|---|---|---|---|
 | `coefficient_of_conservatism__lookup` | GET /coefficient-of-conservatism | value | — | Look up a single C-value (0–10): label and ecological description of that conservatism level |
-| `coefficient_of_conservatism__all` | GET /coefficient-of-conservatism/all | — | — | All C-value records (0–10) with labels and descriptions — the complete reference table |
+| `coefficient_of_conservatism__list` | GET /coefficient-of-conservatism/list | — | — | All C-value records (0–10) with labels and descriptions — the complete reference table |
 
 ### wetland-indicator-status — Wetland Indicator Status (USDA NRCS)
 

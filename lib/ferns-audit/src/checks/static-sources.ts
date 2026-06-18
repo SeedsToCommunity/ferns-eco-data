@@ -126,7 +126,7 @@ export async function runCoefficientChecks(
 ): Promise<EndpointComparison[]> {
   const allCheck = await checkEndpoint(
     "coefficient",
-    "/api/coefficient-of-conservatism/all",
+    "/api/coefficient-of-conservatism/list",
     "Coefficient of Conservatism — full lookup table",
     fernsBase,
     (envelope) => {

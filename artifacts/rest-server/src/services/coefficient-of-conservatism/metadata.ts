@@ -68,7 +68,7 @@ export const COEFFICIENT_OF_CONSERVATISM_REGISTRY_ENTRY = {
   non_passthrough_endpoints: [
     { endpoint: "/api/coefficient-of-conservatism/metadata", kind: "metadata" },
     { endpoint: "/api/coefficient-of-conservatism", kind: "in_memory" },
-    { endpoint: "/api/coefficient-of-conservatism/all", kind: "in_memory" },
+    { endpoint: "/api/coefficient-of-conservatism/list", kind: "in_memory" },
   ],
   permission_granted: true,
 };

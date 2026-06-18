@@ -2322,9 +2322,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /coefficient-of-conservatism/all:
+  /coefficient-of-conservatism/list:
     get:
-      operationId: getAllCoefficientValues
+      operationId: getCoefficientOfConservatismList
       tags: [coefficient]
       summary: Get all C-value definitions
       description: >

@@ -8,7 +8,7 @@ import {
   COEFFICIENT_OF_CONSERVATISM_LICENSES,
   COEFFICIENT_OF_CONSERVATISM_LICENSE_NOTES,
 } from "../services/coefficient-of-conservatism/metadata.js";
-import { getCoefficientOfConservatism, listCoefficientsOfConservatism } from "@workspace/internal-data-providers/coefficient-of-conservatism";
+import { getCoefficientOfConservatism, getCoefficientOfConservatismList } from "@workspace/internal-data-providers/coefficient-of-conservatism";
 import { ensureCoefficientOfConservatismRegistryEntry } from "../services/coefficient-of-conservatism/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
 import { dbRegistryAccessor } from "../lib/registry-accessor.js";
@@ -42,7 +42,7 @@ router.get("/coefficient-of-conservatism", async (req, res) => {
   res.json(envelope);
 });
 
-router.get("/coefficient-of-conservatism/all", async (req, res) => {
+router.get("/coefficient-of-conservatism/list", async (req, res) => {
   await ensureCoefficientOfConservatismRegistryEntry();
 
   const envelope = await buildEnvelope(
@@ -50,7 +50,7 @@ router.get("/coefficient-of-conservatism/all", async (req, res) => {
       sourceId: COEFFICIENT_OF_CONSERVATISM_SOURCE_ID,
       sourceKind: "in-memory",
       found: true,
-      data: listCoefficientsOfConservatism(),
+      data: getCoefficientOfConservatismList(),
       method: "cache_hit",
       cacheStatus: "hit",
       sourceUrl: null,
