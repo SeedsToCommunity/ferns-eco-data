@@ -7,7 +7,7 @@
  */
 import type { NpnNameGroup } from "./npnNameGroup";
 
-export type GetAnnArborNpnNames200Data = {
+export type GetAnnArborNpnNameGroups200Data = {
   species_count: number;
   name_groups: NpnNameGroup[];
 };

@@ -1,6 +1,7 @@
 # FERNS Data Adapter Interfaces
 
 Mirror of Data Provider to REST and MCP.
+Data /A
 
 REST
  - /artifacts/api-server/src/routes/*.ts

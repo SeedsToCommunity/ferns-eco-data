@@ -5,11 +5,11 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetWucolsByCodeCode } from "./getWucolsByCodeCode";
+import type { GetWucolsWaterUseByCodeCode } from "./getWucolsWaterUseByCodeCode";
 
-export type GetWucolsByCodeParams = {
+export type GetWucolsWaterUseByCodeParams = {
   /**
    * WUCOLS water use code to look up (VL, L, M, or H). Case-insensitive.
    */
-  code: GetWucolsByCodeCode;
+  code: GetWucolsWaterUseByCodeCode;
 };

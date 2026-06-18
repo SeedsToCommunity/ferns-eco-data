@@ -6,8 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { FernsEnvelope } from "./fernsEnvelope";
-import type { GetAnnArborNpnNames200Data } from "./getAnnArborNpnNames200Data";
+import type { GetAnnArborNpnDocumentation200Data } from "./getAnnArborNpnDocumentation200Data";
 
-export type GetAnnArborNpnNames200 = FernsEnvelope & {
-  data?: GetAnnArborNpnNames200Data;
+export type GetAnnArborNpnDocumentation200 = FernsEnvelope & {
+  data?: GetAnnArborNpnDocumentation200Data;
 };

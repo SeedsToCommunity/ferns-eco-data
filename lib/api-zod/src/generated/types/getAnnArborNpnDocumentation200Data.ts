@@ -6,7 +6,6 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type ImportAnnArborNpnBody = {
-  /** Optional subset of acronyms to import; omit to import all */
-  acronyms?: string[];
+export type GetAnnArborNpnDocumentation200Data = {
+  markdown: string;
 };

@@ -5,13 +5,10 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import type {
-  MutationFunction,
   QueryFunction,
   QueryKey,
-  UseMutationOptions,
-  UseMutationResult,
   UseQueryOptions,
   UseQueryResult,
 } from "@tanstack/react-query";
@@ -30,13 +27,17 @@ import type {
   GbifSpeciesResponse,
   GbifSynonymsResponse,
   GbifVernacularNamesResponse,
+  GetAnnArborNpnDocumentation200,
+  GetAnnArborNpnDocumentationParams,
   GetAnnArborNpnMetadata200,
-  GetAnnArborNpnNames200,
-  GetAnnArborNpnNamesParams,
-  GetAnnArborNpnSpeciesBulk200,
-  GetAnnArborNpnSpeciesBulkParams,
+  GetAnnArborNpnNameGroups200,
+  GetAnnArborNpnNameGroupsParams,
   GetAnnArborNpnSpeciesByKey200,
   GetAnnArborNpnSpeciesByKeyParams,
+  GetAnnArborNpnSpeciesList200,
+  GetAnnArborNpnSpeciesListParams,
+  GetAnnArborNpnSpeciesSourceUrl200,
+  GetAnnArborNpnSpeciesSourceUrlParams,
   GetBonapMap200,
   GetBonapMapParams,
   GetBonapMetadata200,
@@ -103,10 +104,8 @@ import type {
   GetUsdaPlantsSearchParams,
   GetWetlandIndicatorByCodeParams,
   GetWetlandIndicatorByWParams,
-  GetWucolsByCodeParams,
+  GetWucolsWaterUseByCodeParams,
   HealthCheck200,
-  ImportAnnArborNpn200,
-  ImportAnnArborNpnBody,
   InatControlledTermsForTaxonResponse,
   InatControlledTermsResponse,
   InatFieldValuesResponse,
@@ -159,7 +158,7 @@ import type {
 } from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
-import type { ErrorType, BodyType } from "../custom-fetch";
+import type { ErrorType } from "../custom-fetch";
 
 type AwaitedInput<T> = PromiseLike<T> | T;
 
@@ -4124,7 +4123,10 @@ export const getWetlandIndicatorByCode = async (
 export const getGetWetlandIndicatorByCodeQueryKey = (
   params?: GetWetlandIndicatorByCodeParams,
 ) => {
-  return [`/api/wetland-indicator-status`, ...(params ? [params] : [])] as const;
+  return [
+    `/api/wetland-indicator-status`,
+    ...(params ? [params] : []),
+  ] as const;
 };
 
 export const getGetWetlandIndicatorByCodeQueryOptions = <
@@ -4232,7 +4234,10 @@ export const getWetlandIndicatorByW = async (
 export const getGetWetlandIndicatorByWQueryKey = (
   params?: GetWetlandIndicatorByWParams,
 ) => {
-  return [`/api/wetland-indicator-status/w`, ...(params ? [params] : [])] as const;
+  return [
+    `/api/wetland-indicator-status/w`,
+    ...(params ? [params] : []),
+  ] as const;
 };
 
 export const getGetWetlandIndicatorByWQueryOptions = <
@@ -4466,7 +4471,9 @@ export function useGetWetlandIndicatorMetadata<
 
  * @summary Look up a WUCOLS water use classification code
  */
-export const getGetWucolsByCodeUrl = (params: GetWucolsByCodeParams) => {
+export const getGetWucolsWaterUseByCodeUrl = (
+  params: GetWucolsWaterUseByCodeParams,
+) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -4478,32 +4485,34 @@ export const getGetWucolsByCodeUrl = (params: GetWucolsByCodeParams) => {
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/wucols?${stringifiedParams}`
-    : `/api/wucols`;
+    ? `/api/wucols-water-use?${stringifiedParams}`
+    : `/api/wucols-water-use`;
 };
 
-export const getWucolsByCode = async (
-  params: GetWucolsByCodeParams,
+export const getWucolsWaterUseByCode = async (
+  params: GetWucolsWaterUseByCodeParams,
   options?: RequestInit,
 ): Promise<WucolsResponse> => {
-  return customFetch<WucolsResponse>(getGetWucolsByCodeUrl(params), {
+  return customFetch<WucolsResponse>(getGetWucolsWaterUseByCodeUrl(params), {
     ...options,
     method: "GET",
   });
 };
 
-export const getGetWucolsByCodeQueryKey = (params?: GetWucolsByCodeParams) => {
-  return [`/api/wucols`, ...(params ? [params] : [])] as const;
+export const getGetWucolsWaterUseByCodeQueryKey = (
+  params?: GetWucolsWaterUseByCodeParams,
+) => {
+  return [`/api/wucols-water-use`, ...(params ? [params] : [])] as const;
 };
 
-export const getGetWucolsByCodeQueryOptions = <
-  TData = Awaited<ReturnType<typeof getWucolsByCode>>,
+export const getGetWucolsWaterUseByCodeQueryOptions = <
+  TData = Awaited<ReturnType<typeof getWucolsWaterUseByCode>>,
   TError = ErrorType<ErrorResponse>,
 >(
-  params: GetWucolsByCodeParams,
+  params: GetWucolsWaterUseByCodeParams,
   options?: {
     query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getWucolsByCode>>,
+      Awaited<ReturnType<typeof getWucolsWaterUseByCode>>,
       TError,
       TData
     >;
@@ -4512,43 +4521,45 @@ export const getGetWucolsByCodeQueryOptions = <
 ) => {
   const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getGetWucolsByCodeQueryKey(params);
+  const queryKey =
+    queryOptions?.queryKey ?? getGetWucolsWaterUseByCodeQueryKey(params);
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getWucolsByCode>>> = ({
-    signal,
-  }) => getWucolsByCode(params, { signal, ...requestOptions });
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getWucolsWaterUseByCode>>
+  > = ({ signal }) =>
+    getWucolsWaterUseByCode(params, { signal, ...requestOptions });
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getWucolsByCode>>,
+    Awaited<ReturnType<typeof getWucolsWaterUseByCode>>,
     TError,
     TData
   > & { queryKey: QueryKey };
 };
 
-export type GetWucolsByCodeQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getWucolsByCode>>
+export type GetWucolsWaterUseByCodeQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getWucolsWaterUseByCode>>
 >;
-export type GetWucolsByCodeQueryError = ErrorType<ErrorResponse>;
+export type GetWucolsWaterUseByCodeQueryError = ErrorType<ErrorResponse>;
 
 /**
  * @summary Look up a WUCOLS water use classification code
  */
 
-export function useGetWucolsByCode<
-  TData = Awaited<ReturnType<typeof getWucolsByCode>>,
+export function useGetWucolsWaterUseByCode<
+  TData = Awaited<ReturnType<typeof getWucolsWaterUseByCode>>,
   TError = ErrorType<ErrorResponse>,
 >(
-  params: GetWucolsByCodeParams,
+  params: GetWucolsWaterUseByCodeParams,
   options?: {
     query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getWucolsByCode>>,
+      Awaited<ReturnType<typeof getWucolsWaterUseByCode>>,
       TError,
       TData
     >;
     request?: SecondParameter<typeof customFetch>;
   },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getGetWucolsByCodeQueryOptions(params, options);
+  const queryOptions = getGetWucolsWaterUseByCodeQueryOptions(params, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;
@@ -4562,29 +4573,29 @@ export function useGetWucolsByCode<
 
  * @summary Get all WUCOLS water use classification definitions
  */
-export const getGetAllWucolsUrl = () => {
-  return `/api/wucols/all`;
+export const getGetAllWucolsWaterUseUrl = () => {
+  return `/api/wucols-water-use/all`;
 };
 
-export const getAllWucols = async (
+export const getAllWucolsWaterUse = async (
   options?: RequestInit,
 ): Promise<WucolsAllResponse> => {
-  return customFetch<WucolsAllResponse>(getGetAllWucolsUrl(), {
+  return customFetch<WucolsAllResponse>(getGetAllWucolsWaterUseUrl(), {
     ...options,
     method: "GET",
   });
 };
 
-export const getGetAllWucolsQueryKey = () => {
-  return [`/api/wucols/all`] as const;
+export const getGetAllWucolsWaterUseQueryKey = () => {
+  return [`/api/wucols-water-use/all`] as const;
 };
 
-export const getGetAllWucolsQueryOptions = <
-  TData = Awaited<ReturnType<typeof getAllWucols>>,
+export const getGetAllWucolsWaterUseQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAllWucolsWaterUse>>,
   TError = ErrorType<unknown>,
 >(options?: {
   query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getAllWucols>>,
+    Awaited<ReturnType<typeof getAllWucolsWaterUse>>,
     TError,
     TData
   >;
@@ -4592,40 +4603,40 @@ export const getGetAllWucolsQueryOptions = <
 }) => {
   const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getGetAllWucolsQueryKey();
+  const queryKey = queryOptions?.queryKey ?? getGetAllWucolsWaterUseQueryKey();
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getAllWucols>>> = ({
-    signal,
-  }) => getAllWucols({ signal, ...requestOptions });
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getAllWucolsWaterUse>>
+  > = ({ signal }) => getAllWucolsWaterUse({ signal, ...requestOptions });
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getAllWucols>>,
+    Awaited<ReturnType<typeof getAllWucolsWaterUse>>,
     TError,
     TData
   > & { queryKey: QueryKey };
 };
 
-export type GetAllWucolsQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getAllWucols>>
+export type GetAllWucolsWaterUseQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAllWucolsWaterUse>>
 >;
-export type GetAllWucolsQueryError = ErrorType<unknown>;
+export type GetAllWucolsWaterUseQueryError = ErrorType<unknown>;
 
 /**
  * @summary Get all WUCOLS water use classification definitions
  */
 
-export function useGetAllWucols<
-  TData = Awaited<ReturnType<typeof getAllWucols>>,
+export function useGetAllWucolsWaterUse<
+  TData = Awaited<ReturnType<typeof getAllWucolsWaterUse>>,
   TError = ErrorType<unknown>,
 >(options?: {
   query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getAllWucols>>,
+    Awaited<ReturnType<typeof getAllWucolsWaterUse>>,
     TError,
     TData
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getGetAllWucolsQueryOptions(options);
+  const queryOptions = getGetAllWucolsWaterUseQueryOptions(options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;
@@ -4639,29 +4650,32 @@ export function useGetAllWucols<
 
  * @summary WUCOLS service metadata
  */
-export const getGetWucolsMetadataUrl = () => {
-  return `/api/wucols/metadata`;
+export const getGetWucolsWaterUseMetadataUrl = () => {
+  return `/api/wucols-water-use/metadata`;
 };
 
-export const getWucolsMetadata = async (
+export const getWucolsWaterUseMetadata = async (
   options?: RequestInit,
 ): Promise<VocabularyMetadataResponse> => {
-  return customFetch<VocabularyMetadataResponse>(getGetWucolsMetadataUrl(), {
-    ...options,
-    method: "GET",
-  });
+  return customFetch<VocabularyMetadataResponse>(
+    getGetWucolsWaterUseMetadataUrl(),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
 };
 
-export const getGetWucolsMetadataQueryKey = () => {
-  return [`/api/wucols/metadata`] as const;
+export const getGetWucolsWaterUseMetadataQueryKey = () => {
+  return [`/api/wucols-water-use/metadata`] as const;
 };
 
-export const getGetWucolsMetadataQueryOptions = <
-  TData = Awaited<ReturnType<typeof getWucolsMetadata>>,
+export const getGetWucolsWaterUseMetadataQueryOptions = <
+  TData = Awaited<ReturnType<typeof getWucolsWaterUseMetadata>>,
   TError = ErrorType<unknown>,
 >(options?: {
   query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getWucolsMetadata>>,
+    Awaited<ReturnType<typeof getWucolsWaterUseMetadata>>,
     TError,
     TData
   >;
@@ -4669,40 +4683,41 @@ export const getGetWucolsMetadataQueryOptions = <
 }) => {
   const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getGetWucolsMetadataQueryKey();
+  const queryKey =
+    queryOptions?.queryKey ?? getGetWucolsWaterUseMetadataQueryKey();
 
   const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getWucolsMetadata>>
-  > = ({ signal }) => getWucolsMetadata({ signal, ...requestOptions });
+    Awaited<ReturnType<typeof getWucolsWaterUseMetadata>>
+  > = ({ signal }) => getWucolsWaterUseMetadata({ signal, ...requestOptions });
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getWucolsMetadata>>,
+    Awaited<ReturnType<typeof getWucolsWaterUseMetadata>>,
     TError,
     TData
   > & { queryKey: QueryKey };
 };
 
-export type GetWucolsMetadataQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getWucolsMetadata>>
+export type GetWucolsWaterUseMetadataQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getWucolsWaterUseMetadata>>
 >;
-export type GetWucolsMetadataQueryError = ErrorType<unknown>;
+export type GetWucolsWaterUseMetadataQueryError = ErrorType<unknown>;
 
 /**
  * @summary WUCOLS service metadata
  */
 
-export function useGetWucolsMetadata<
-  TData = Awaited<ReturnType<typeof getWucolsMetadata>>,
+export function useGetWucolsWaterUseMetadata<
+  TData = Awaited<ReturnType<typeof getWucolsWaterUseMetadata>>,
   TError = ErrorType<unknown>,
 >(options?: {
   query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getWucolsMetadata>>,
+    Awaited<ReturnType<typeof getWucolsWaterUseMetadata>>,
     TError,
     TData
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getGetWucolsMetadataQueryOptions(options);
+  const queryOptions = getGetWucolsWaterUseMetadataQueryOptions(options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;
@@ -9428,8 +9443,8 @@ export function useGetAnnArborNpnMetadata<
 
  * @summary All Ann Arbor Native Plant Nursery species (bulk)
  */
-export const getGetAnnArborNpnSpeciesBulkUrl = (
-  params?: GetAnnArborNpnSpeciesBulkParams,
+export const getGetAnnArborNpnSpeciesListUrl = (
+  params?: GetAnnArborNpnSpeciesListParams,
 ) => {
   const normalizedParams = new URLSearchParams();
 
@@ -9442,16 +9457,16 @@ export const getGetAnnArborNpnSpeciesBulkUrl = (
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/ann-arbor-npn/species?${stringifiedParams}`
-    : `/api/ann-arbor-npn/species`;
+    ? `/api/ann-arbor-npn/species-list?${stringifiedParams}`
+    : `/api/ann-arbor-npn/species-list`;
 };
 
-export const getAnnArborNpnSpeciesBulk = async (
-  params?: GetAnnArborNpnSpeciesBulkParams,
+export const getAnnArborNpnSpeciesList = async (
+  params?: GetAnnArborNpnSpeciesListParams,
   options?: RequestInit,
-): Promise<GetAnnArborNpnSpeciesBulk200> => {
-  return customFetch<GetAnnArborNpnSpeciesBulk200>(
-    getGetAnnArborNpnSpeciesBulkUrl(params),
+): Promise<GetAnnArborNpnSpeciesList200> => {
+  return customFetch<GetAnnArborNpnSpeciesList200>(
+    getGetAnnArborNpnSpeciesListUrl(params),
     {
       ...options,
       method: "GET",
@@ -9459,20 +9474,23 @@ export const getAnnArborNpnSpeciesBulk = async (
   );
 };
 
-export const getGetAnnArborNpnSpeciesBulkQueryKey = (
-  params?: GetAnnArborNpnSpeciesBulkParams,
+export const getGetAnnArborNpnSpeciesListQueryKey = (
+  params?: GetAnnArborNpnSpeciesListParams,
 ) => {
-  return [`/api/ann-arbor-npn/species`, ...(params ? [params] : [])] as const;
+  return [
+    `/api/ann-arbor-npn/species-list`,
+    ...(params ? [params] : []),
+  ] as const;
 };
 
-export const getGetAnnArborNpnSpeciesBulkQueryOptions = <
-  TData = Awaited<ReturnType<typeof getAnnArborNpnSpeciesBulk>>,
+export const getGetAnnArborNpnSpeciesListQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAnnArborNpnSpeciesList>>,
   TError = ErrorType<unknown>,
 >(
-  params?: GetAnnArborNpnSpeciesBulkParams,
+  params?: GetAnnArborNpnSpeciesListParams,
   options?: {
     query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getAnnArborNpnSpeciesBulk>>,
+      Awaited<ReturnType<typeof getAnnArborNpnSpeciesList>>,
       TError,
       TData
     >;
@@ -9482,44 +9500,44 @@ export const getGetAnnArborNpnSpeciesBulkQueryOptions = <
   const { query: queryOptions, request: requestOptions } = options ?? {};
 
   const queryKey =
-    queryOptions?.queryKey ?? getGetAnnArborNpnSpeciesBulkQueryKey(params);
+    queryOptions?.queryKey ?? getGetAnnArborNpnSpeciesListQueryKey(params);
 
   const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getAnnArborNpnSpeciesBulk>>
+    Awaited<ReturnType<typeof getAnnArborNpnSpeciesList>>
   > = ({ signal }) =>
-    getAnnArborNpnSpeciesBulk(params, { signal, ...requestOptions });
+    getAnnArborNpnSpeciesList(params, { signal, ...requestOptions });
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getAnnArborNpnSpeciesBulk>>,
+    Awaited<ReturnType<typeof getAnnArborNpnSpeciesList>>,
     TError,
     TData
   > & { queryKey: QueryKey };
 };
 
-export type GetAnnArborNpnSpeciesBulkQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getAnnArborNpnSpeciesBulk>>
+export type GetAnnArborNpnSpeciesListQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAnnArborNpnSpeciesList>>
 >;
-export type GetAnnArborNpnSpeciesBulkQueryError = ErrorType<unknown>;
+export type GetAnnArborNpnSpeciesListQueryError = ErrorType<unknown>;
 
 /**
  * @summary All Ann Arbor Native Plant Nursery species (bulk)
  */
 
-export function useGetAnnArborNpnSpeciesBulk<
-  TData = Awaited<ReturnType<typeof getAnnArborNpnSpeciesBulk>>,
+export function useGetAnnArborNpnSpeciesList<
+  TData = Awaited<ReturnType<typeof getAnnArborNpnSpeciesList>>,
   TError = ErrorType<unknown>,
 >(
-  params?: GetAnnArborNpnSpeciesBulkParams,
+  params?: GetAnnArborNpnSpeciesListParams,
   options?: {
     query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getAnnArborNpnSpeciesBulk>>,
+      Awaited<ReturnType<typeof getAnnArborNpnSpeciesList>>,
       TError,
       TData
     >;
     request?: SecondParameter<typeof customFetch>;
   },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getGetAnnArborNpnSpeciesBulkQueryOptions(
+  const queryOptions = getGetAnnArborNpnSpeciesListQueryOptions(
     params,
     options,
   );
@@ -9657,12 +9675,12 @@ export function useGetAnnArborNpnSpeciesByKey<
 }
 
 /**
- * Returns all species as name groups, each containing acronym, latin_name, latin_synonym_greg (nullable), common_names (string array, parsed from the semicolon/comma-delimited common_name field), and all_accepted_keys (full list of lowercase aliases indexed for this species). Designed for cross-source name reconciliation against GBIF, USDA PLANTS, or iNaturalist.
+ * Returns all 130 NPN species as name groups served from the in-memory IDP. Each entry contains acronym, latin_name, latin_synonym_greg (nullable), common_names (string array parsed from the semicolon/comma-delimited common_name field), and all_accepted_keys (flat array of every lowercase alias that resolves to this species). Designed for cross-source name reconciliation against GBIF, USDA PLANTS, or iNaturalist. Replaces the former /ann-arbor-npn/alias-index endpoint.
 
- * @summary NPN name groups with common_names array and all_accepted_keys for reconciliation
+ * @summary NPN name groups — all species with every accepted lookup key
  */
-export const getGetAnnArborNpnNamesUrl = (
-  params?: GetAnnArborNpnNamesParams,
+export const getGetAnnArborNpnNameGroupsUrl = (
+  params?: GetAnnArborNpnNameGroupsParams,
 ) => {
   const normalizedParams = new URLSearchParams();
 
@@ -9675,16 +9693,16 @@ export const getGetAnnArborNpnNamesUrl = (
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/ann-arbor-npn/names?${stringifiedParams}`
-    : `/api/ann-arbor-npn/names`;
+    ? `/api/ann-arbor-npn/name-groups?${stringifiedParams}`
+    : `/api/ann-arbor-npn/name-groups`;
 };
 
-export const getAnnArborNpnNames = async (
-  params?: GetAnnArborNpnNamesParams,
+export const getAnnArborNpnNameGroups = async (
+  params?: GetAnnArborNpnNameGroupsParams,
   options?: RequestInit,
-): Promise<GetAnnArborNpnNames200> => {
-  return customFetch<GetAnnArborNpnNames200>(
-    getGetAnnArborNpnNamesUrl(params),
+): Promise<GetAnnArborNpnNameGroups200> => {
+  return customFetch<GetAnnArborNpnNameGroups200>(
+    getGetAnnArborNpnNameGroupsUrl(params),
     {
       ...options,
       method: "GET",
@@ -9692,20 +9710,23 @@ export const getAnnArborNpnNames = async (
   );
 };
 
-export const getGetAnnArborNpnNamesQueryKey = (
-  params?: GetAnnArborNpnNamesParams,
+export const getGetAnnArborNpnNameGroupsQueryKey = (
+  params?: GetAnnArborNpnNameGroupsParams,
 ) => {
-  return [`/api/ann-arbor-npn/names`, ...(params ? [params] : [])] as const;
+  return [
+    `/api/ann-arbor-npn/name-groups`,
+    ...(params ? [params] : []),
+  ] as const;
 };
 
-export const getGetAnnArborNpnNamesQueryOptions = <
-  TData = Awaited<ReturnType<typeof getAnnArborNpnNames>>,
+export const getGetAnnArborNpnNameGroupsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAnnArborNpnNameGroups>>,
   TError = ErrorType<unknown>,
 >(
-  params?: GetAnnArborNpnNamesParams,
+  params?: GetAnnArborNpnNameGroupsParams,
   options?: {
     query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getAnnArborNpnNames>>,
+      Awaited<ReturnType<typeof getAnnArborNpnNameGroups>>,
       TError,
       TData
     >;
@@ -9715,44 +9736,44 @@ export const getGetAnnArborNpnNamesQueryOptions = <
   const { query: queryOptions, request: requestOptions } = options ?? {};
 
   const queryKey =
-    queryOptions?.queryKey ?? getGetAnnArborNpnNamesQueryKey(params);
+    queryOptions?.queryKey ?? getGetAnnArborNpnNameGroupsQueryKey(params);
 
   const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getAnnArborNpnNames>>
+    Awaited<ReturnType<typeof getAnnArborNpnNameGroups>>
   > = ({ signal }) =>
-    getAnnArborNpnNames(params, { signal, ...requestOptions });
+    getAnnArborNpnNameGroups(params, { signal, ...requestOptions });
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getAnnArborNpnNames>>,
+    Awaited<ReturnType<typeof getAnnArborNpnNameGroups>>,
     TError,
     TData
   > & { queryKey: QueryKey };
 };
 
-export type GetAnnArborNpnNamesQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getAnnArborNpnNames>>
+export type GetAnnArborNpnNameGroupsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAnnArborNpnNameGroups>>
 >;
-export type GetAnnArborNpnNamesQueryError = ErrorType<unknown>;
+export type GetAnnArborNpnNameGroupsQueryError = ErrorType<unknown>;
 
 /**
- * @summary NPN name groups with common_names array and all_accepted_keys for reconciliation
+ * @summary NPN name groups — all species with every accepted lookup key
  */
 
-export function useGetAnnArborNpnNames<
-  TData = Awaited<ReturnType<typeof getAnnArborNpnNames>>,
+export function useGetAnnArborNpnNameGroups<
+  TData = Awaited<ReturnType<typeof getAnnArborNpnNameGroups>>,
   TError = ErrorType<unknown>,
 >(
-  params?: GetAnnArborNpnNamesParams,
+  params?: GetAnnArborNpnNameGroupsParams,
   options?: {
     query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getAnnArborNpnNames>>,
+      Awaited<ReturnType<typeof getAnnArborNpnNameGroups>>,
       TError,
       TData
     >;
     request?: SecondParameter<typeof customFetch>;
   },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getGetAnnArborNpnNamesQueryOptions(params, options);
+  const queryOptions = getGetAnnArborNpnNameGroupsQueryOptions(params, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;
@@ -9762,89 +9783,237 @@ export function useGetAnnArborNpnNames<
 }
 
 /**
- * Scrapes nativeplant.com, uploads images to Cloudinary, and populates npn_species and npn_name_aliases. Requires Authorization: Bearer <ADMIN_SECRET>. Optionally accepts an array of acronyms to re-import a subset of species.
+ * Returns the nativeplant.com source URL for the species identified by the given key. Accepts the same name flavors as /ann-arbor-npn/species/{key}: acronym, Latin name, Latin synonym, or any common name. Returns 404 with found=false when not found. Data is served from the in-memory IDP snapshot.
 
- * @summary Trigger NPN import from nativeplant.com (admin-only)
+ * @summary Per-species nativeplant.com URL for a given key
  */
-export const getImportAnnArborNpnUrl = () => {
-  return `/api/ann-arbor-npn/import`;
-};
+export const getGetAnnArborNpnSpeciesSourceUrlUrl = (
+  key: string,
+  params?: GetAnnArborNpnSpeciesSourceUrlParams,
+) => {
+  const normalizedParams = new URLSearchParams();
 
-export const importAnnArborNpn = async (
-  importAnnArborNpnBody?: ImportAnnArborNpnBody,
-  options?: RequestInit,
-): Promise<ImportAnnArborNpn200> => {
-  return customFetch<ImportAnnArborNpn200>(getImportAnnArborNpnUrl(), {
-    ...options,
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...options?.headers },
-    body: JSON.stringify(importAnnArborNpnBody),
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
   });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/ann-arbor-npn/species/${key}/source-url?${stringifiedParams}`
+    : `/api/ann-arbor-npn/species/${key}/source-url`;
 };
 
-export const getImportAnnArborNpnMutationOptions = <
-  TError = ErrorType<ErrorResponse>,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof importAnnArborNpn>>,
+export const getAnnArborNpnSpeciesSourceUrl = async (
+  key: string,
+  params?: GetAnnArborNpnSpeciesSourceUrlParams,
+  options?: RequestInit,
+): Promise<GetAnnArborNpnSpeciesSourceUrl200> => {
+  return customFetch<GetAnnArborNpnSpeciesSourceUrl200>(
+    getGetAnnArborNpnSpeciesSourceUrlUrl(key, params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetAnnArborNpnSpeciesSourceUrlQueryKey = (
+  key: string,
+  params?: GetAnnArborNpnSpeciesSourceUrlParams,
+) => {
+  return [
+    `/api/ann-arbor-npn/species/${key}/source-url`,
+    ...(params ? [params] : []),
+  ] as const;
+};
+
+export const getGetAnnArborNpnSpeciesSourceUrlQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAnnArborNpnSpeciesSourceUrl>>,
+  TError = ErrorType<ErrorResponse | FernsEnvelope>,
+>(
+  key: string,
+  params?: GetAnnArborNpnSpeciesSourceUrlParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getAnnArborNpnSpeciesSourceUrl>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ??
+    getGetAnnArborNpnSpeciesSourceUrlQueryKey(key, params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getAnnArborNpnSpeciesSourceUrl>>
+  > = ({ signal }) =>
+    getAnnArborNpnSpeciesSourceUrl(key, params, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!key,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getAnnArborNpnSpeciesSourceUrl>>,
     TError,
-    { data: BodyType<ImportAnnArborNpnBody> },
-    TContext
-  >;
-  request?: SecondParameter<typeof customFetch>;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof importAnnArborNpn>>,
-  TError,
-  { data: BodyType<ImportAnnArborNpnBody> },
-  TContext
-> => {
-  const mutationKey = ["importAnnArborNpn"];
-  const { mutation: mutationOptions, request: requestOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, request: undefined };
-
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof importAnnArborNpn>>,
-    { data: BodyType<ImportAnnArborNpnBody> }
-  > = (props) => {
-    const { data } = props ?? {};
-
-    return importAnnArborNpn(data, requestOptions);
-  };
-
-  return { mutationFn, ...mutationOptions };
+    TData
+  > & { queryKey: QueryKey };
 };
 
-export type ImportAnnArborNpnMutationResult = NonNullable<
-  Awaited<ReturnType<typeof importAnnArborNpn>>
+export type GetAnnArborNpnSpeciesSourceUrlQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAnnArborNpnSpeciesSourceUrl>>
 >;
-export type ImportAnnArborNpnMutationBody = BodyType<ImportAnnArborNpnBody>;
-export type ImportAnnArborNpnMutationError = ErrorType<ErrorResponse>;
+export type GetAnnArborNpnSpeciesSourceUrlQueryError = ErrorType<
+  ErrorResponse | FernsEnvelope
+>;
 
 /**
- * @summary Trigger NPN import from nativeplant.com (admin-only)
+ * @summary Per-species nativeplant.com URL for a given key
  */
-export const useImportAnnArborNpn = <
-  TError = ErrorType<ErrorResponse>,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof importAnnArborNpn>>,
-    TError,
-    { data: BodyType<ImportAnnArborNpnBody> },
-    TContext
-  >;
-  request?: SecondParameter<typeof customFetch>;
-}): UseMutationResult<
-  Awaited<ReturnType<typeof importAnnArborNpn>>,
-  TError,
-  { data: BodyType<ImportAnnArborNpnBody> },
-  TContext
-> => {
-  return useMutation(getImportAnnArborNpnMutationOptions(options));
+
+export function useGetAnnArborNpnSpeciesSourceUrl<
+  TData = Awaited<ReturnType<typeof getAnnArborNpnSpeciesSourceUrl>>,
+  TError = ErrorType<ErrorResponse | FernsEnvelope>,
+>(
+  key: string,
+  params?: GetAnnArborNpnSpeciesSourceUrlParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getAnnArborNpnSpeciesSourceUrl>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetAnnArborNpnSpeciesSourceUrlQueryOptions(
+    key,
+    params,
+    options,
+  );
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns the full source documentation for the Ann Arbor NPN dataset as Markdown in data.markdown. Covers: Greg Vaclavek's background, dataset contents, field descriptions, Michigan range vocabulary (SE/SW/NL/UP), alias index construction, Cloudinary image storage, and the migration from DB-backed scrape to static in-memory snapshot. Always returns 200 with found=true — the documentation file is static and always present.
+
+ * @summary Source documentation for the Ann Arbor Native Plant Nursery dataset
+ */
+export const getGetAnnArborNpnDocumentationUrl = (
+  params?: GetAnnArborNpnDocumentationParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/ann-arbor-npn/documentation?${stringifiedParams}`
+    : `/api/ann-arbor-npn/documentation`;
 };
+
+export const getAnnArborNpnDocumentation = async (
+  params?: GetAnnArborNpnDocumentationParams,
+  options?: RequestInit,
+): Promise<GetAnnArborNpnDocumentation200> => {
+  return customFetch<GetAnnArborNpnDocumentation200>(
+    getGetAnnArborNpnDocumentationUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetAnnArborNpnDocumentationQueryKey = (
+  params?: GetAnnArborNpnDocumentationParams,
+) => {
+  return [
+    `/api/ann-arbor-npn/documentation`,
+    ...(params ? [params] : []),
+  ] as const;
+};
+
+export const getGetAnnArborNpnDocumentationQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAnnArborNpnDocumentation>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetAnnArborNpnDocumentationParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getAnnArborNpnDocumentation>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetAnnArborNpnDocumentationQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getAnnArborNpnDocumentation>>
+  > = ({ signal }) =>
+    getAnnArborNpnDocumentation(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getAnnArborNpnDocumentation>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetAnnArborNpnDocumentationQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAnnArborNpnDocumentation>>
+>;
+export type GetAnnArborNpnDocumentationQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Source documentation for the Ann Arbor Native Plant Nursery dataset
+ */
+
+export function useGetAnnArborNpnDocumentation<
+  TData = Awaited<ReturnType<typeof getAnnArborNpnDocumentation>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: GetAnnArborNpnDocumentationParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getAnnArborNpnDocumentation>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetAnnArborNpnDocumentationQueryOptions(
+    params,
+    options,
+  );
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}

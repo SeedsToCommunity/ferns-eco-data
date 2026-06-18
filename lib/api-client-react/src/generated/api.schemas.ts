@@ -3232,17 +3232,17 @@ export const GetWetlandIndicatorByWValue = {
   NUMBER_5: 5,
 } as const;
 
-export type GetWucolsByCodeParams = {
+export type GetWucolsWaterUseByCodeParams = {
   /**
    * WUCOLS water use code to look up (VL, L, M, or H). Case-insensitive.
    */
-  code: GetWucolsByCodeCode;
+  code: GetWucolsWaterUseByCodeCode;
 };
 
-export type GetWucolsByCodeCode =
-  (typeof GetWucolsByCodeCode)[keyof typeof GetWucolsByCodeCode];
+export type GetWucolsWaterUseByCodeCode =
+  (typeof GetWucolsWaterUseByCodeCode)[keyof typeof GetWucolsWaterUseByCodeCode];
 
-export const GetWucolsByCodeCode = {
+export const GetWucolsWaterUseByCodeCode = {
   VL: "VL",
   L: "L",
   M: "M",
@@ -3655,29 +3655,29 @@ export type GetAnnArborNpnMetadata200 = FernsEnvelope & {
   data?: NpnMetadataData;
 };
 
-export type GetAnnArborNpnSpeciesBulkParams = {
+export type GetAnnArborNpnSpeciesListParams = {
   /**
    * Controls provenance verbosity in the response ("full", "summary", or "none")
    */
-  provenance_verbosity?: GetAnnArborNpnSpeciesBulkProvenanceVerbosity;
+  provenance_verbosity?: GetAnnArborNpnSpeciesListProvenanceVerbosity;
 };
 
-export type GetAnnArborNpnSpeciesBulkProvenanceVerbosity =
-  (typeof GetAnnArborNpnSpeciesBulkProvenanceVerbosity)[keyof typeof GetAnnArborNpnSpeciesBulkProvenanceVerbosity];
+export type GetAnnArborNpnSpeciesListProvenanceVerbosity =
+  (typeof GetAnnArborNpnSpeciesListProvenanceVerbosity)[keyof typeof GetAnnArborNpnSpeciesListProvenanceVerbosity];
 
-export const GetAnnArborNpnSpeciesBulkProvenanceVerbosity = {
+export const GetAnnArborNpnSpeciesListProvenanceVerbosity = {
   full: "full",
   summary: "summary",
   none: "none",
 } as const;
 
-export type GetAnnArborNpnSpeciesBulk200Data = {
+export type GetAnnArborNpnSpeciesList200Data = {
   species_count: number;
   species: NpnSpeciesRecord[];
 };
 
-export type GetAnnArborNpnSpeciesBulk200 = FernsEnvelope & {
-  data?: GetAnnArborNpnSpeciesBulk200Data;
+export type GetAnnArborNpnSpeciesList200 = FernsEnvelope & {
+  data?: GetAnnArborNpnSpeciesList200Data;
 };
 
 export type GetAnnArborNpnSpeciesByKeyParams = {
@@ -3697,48 +3697,67 @@ export type GetAnnArborNpnSpeciesByKey200 = FernsEnvelope & {
   data?: NpnSpeciesRecord;
 };
 
-export type GetAnnArborNpnNamesParams = {
-  provenance_verbosity?: GetAnnArborNpnNamesProvenanceVerbosity;
+export type GetAnnArborNpnNameGroupsParams = {
+  provenance_verbosity?: GetAnnArborNpnNameGroupsProvenanceVerbosity;
 };
 
-export type GetAnnArborNpnNamesProvenanceVerbosity =
-  (typeof GetAnnArborNpnNamesProvenanceVerbosity)[keyof typeof GetAnnArborNpnNamesProvenanceVerbosity];
+export type GetAnnArborNpnNameGroupsProvenanceVerbosity =
+  (typeof GetAnnArborNpnNameGroupsProvenanceVerbosity)[keyof typeof GetAnnArborNpnNameGroupsProvenanceVerbosity];
 
-export const GetAnnArborNpnNamesProvenanceVerbosity = {
+export const GetAnnArborNpnNameGroupsProvenanceVerbosity = {
   full: "full",
   summary: "summary",
   none: "none",
 } as const;
 
-export type GetAnnArborNpnNames200Data = {
+export type GetAnnArborNpnNameGroups200Data = {
   species_count: number;
   name_groups: NpnNameGroup[];
 };
 
-export type GetAnnArborNpnNames200 = FernsEnvelope & {
-  data?: GetAnnArborNpnNames200Data;
+export type GetAnnArborNpnNameGroups200 = FernsEnvelope & {
+  data?: GetAnnArborNpnNameGroups200Data;
 };
 
-export type ImportAnnArborNpnBody = {
-  /** Optional subset of acronyms to import; omit to import all */
-  acronyms?: string[];
+export type GetAnnArborNpnSpeciesSourceUrlParams = {
+  provenance_verbosity?: GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity;
 };
 
-export type ImportAnnArborNpn200DataErrorsItem = {
-  acronym?: string;
-  error?: string;
+export type GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity =
+  (typeof GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity)[keyof typeof GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity];
+
+export const GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity = {
+  full: "full",
+  summary: "summary",
+  none: "none",
+} as const;
+
+export type GetAnnArborNpnSpeciesSourceUrl200Data = {
+  acronym: string;
+  source_url: string;
 };
 
-export type ImportAnnArborNpn200Data = {
-  speciesUpserted?: number;
-  aliasesUpserted?: number;
-  imagesUploaded?: number;
-  imagesSkipped?: number;
-  errors?: ImportAnnArborNpn200DataErrorsItem[];
+export type GetAnnArborNpnSpeciesSourceUrl200 = FernsEnvelope & {
+  data?: GetAnnArborNpnSpeciesSourceUrl200Data;
 };
 
-export type ImportAnnArborNpn200 = {
-  success?: boolean;
-  queried_at?: string;
-  data?: ImportAnnArborNpn200Data;
+export type GetAnnArborNpnDocumentationParams = {
+  provenance_verbosity?: GetAnnArborNpnDocumentationProvenanceVerbosity;
+};
+
+export type GetAnnArborNpnDocumentationProvenanceVerbosity =
+  (typeof GetAnnArborNpnDocumentationProvenanceVerbosity)[keyof typeof GetAnnArborNpnDocumentationProvenanceVerbosity];
+
+export const GetAnnArborNpnDocumentationProvenanceVerbosity = {
+  full: "full",
+  summary: "summary",
+  none: "none",
+} as const;
+
+export type GetAnnArborNpnDocumentation200Data = {
+  markdown: string;
+};
+
+export type GetAnnArborNpnDocumentation200 = FernsEnvelope & {
+  data?: GetAnnArborNpnDocumentation200Data;
 };

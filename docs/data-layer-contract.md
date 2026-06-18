@@ -85,18 +85,18 @@ A Source is **opaque** to the rest of the system behind its Source Interface. Wh
 >
 > **Action-name consistency across layers.** For every route beyond `/metadata`, the path segment(s) after the source prefix define the canonical **action name**. All three layers — IDP Source Interface, REST route, and MCP tool — derive their names from this anchor by mechanical transformation:
 >
-> | Layer | Derivation rule | `alias-index` example | `species` (bulk) example |
+> | Layer | Derivation rule | `name-groups` example | `species-list` example |
 > |---|---|---|---|
-> | **REST route** | Verbatim path segment | `GET /api/{source-id}/alias-index` | `GET /api/{source-id}/species` |
-> | **MCP tool** | `{source_id_underscored}__{action_underscored}` | `{source}__alias_index` | `{source}__species_list` |
-> | **IDP method (collection)** | `list{SourceName}{ActionPascalCase}()` | `listAnnArborNpnAliasIndex()` | `listAnnArborNpnSpecies()` |
+> | **REST route** | Verbatim path segment | `GET /api/{source-id}/name-groups` | `GET /api/{source-id}/species-list` |
+> | **MCP tool** | `{source_id_underscored}__{action_underscored}` | `{source}__name_groups` | `{source}__species_list` |
+> | **IDP method (collection)** | `get{SourceName}{ActionPascalCase}()` | `getAnnArborNpnNameGroups()` | `getAnnArborNpnSpeciesList()` |
 > | **IDP method (single lookup)** | `get{SourceName}{ActionPascalCase}(key)` | — | `getAnnArborNpnSpecies(key)` |
 >
-> PascalCase action: each hyphen-separated segment capitalized and joined (`alias-index` → `AliasIndex`, `species` → `Species`).
+> PascalCase action: each hyphen-separated segment capitalized and joined (`name-groups` → `NameGroups`, `species-list` → `SpeciesList`).
 >
-> **Bulk vs. single disambiguation:** When a resource has both a bulk endpoint (`GET /{action}`) and a single-lookup endpoint (`GET /{action}/:key`), the MCP tool for the bulk form appends `_list` (`{source}__{action}_list`); the single form carries no suffix (`{source}__{action}`). The IDP follows the same pattern: `list` prefix for the collection method, `get` prefix for the single-record method.
+> **Bulk vs. single disambiguation:** When a resource has both a bulk endpoint (`GET /{action}`) and a single-lookup endpoint (`GET /{action}/:key`), the MCP tool for the bulk form appends `_list` (`{source}__{action}_list`); the single form carries no suffix (`{source}__{action}`). For IDP methods, both collection and single-record forms use the `get` prefix; the collection method takes no key argument and the single-record method takes a `key` argument.
 >
-> **Sub-resource routes** (`GET /{action}/:key/{sub}`) map to MCP tool `{source}__{action}_{sub}` (path slashes dropped, hyphens → underscores) and IDP method `get{Source}{ActionPascalCase}{SubPascalCase}(key)`. If the sub-resource is a field already present on the parent record's method return value, a dedicated IDP method is not required — the Adapter may read the field directly from the parent method result.
+> **Sub-resource routes** (`GET /{action}/:key/{sub}`) map to MCP tool `{source}__{action}_{sub}` (path slashes dropped, hyphens → underscores) and IDP method `get{Source}{ActionPascalCase}{SubPascalCase}(key)`. A dedicated IDP method SHOULD be provided for every route, including sub-resource projections — the Adapter should call the IDP method rather than extracting the field from the parent method result directly.
 >
 > **`/metadata` is exempt.** The `/metadata` route is served by the Adapter's services directory (`metadata.ts`), not by the IDP. It has no IDP method counterpart.
 >

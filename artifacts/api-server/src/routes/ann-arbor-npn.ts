@@ -1,7 +1,4 @@
 import { Router, type IRouter } from "express";
-import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import path from "node:path";
 import {
   ANN_ARBOR_NPN_SOURCE_ID,
   ANN_ARBOR_NPN_REGISTRY_ENTRY,
@@ -14,27 +11,20 @@ import { buildEnvelope } from "@workspace/api-envelope";
 import { dbRegistryAccessor } from "../lib/registry-accessor.js";
 import {
   getAnnArborNpnSpecies,
-  listAnnArborNpnSpecies,
-  listAnnArborNpnNameGroups,
+  getAnnArborNpnSpeciesList,
+  getAnnArborNpnNameGroups,
+  getAnnArborNpnSpeciesSourceUrl,
+  getAnnArborNpnDocumentation,
   ANN_ARBOR_NPN_SNAPSHOT_DATE,
 } from "@workspace/internal-data-providers/ann-arbor-npn";
 
 const router: IRouter = Router();
 
-// import.meta.url in an esbuild ESM bundle refers to the output bundle file at runtime.
-// The dev script also builds to dist/ first, so import.meta.url always points to dist/index.mjs.
-// From dist/index.mjs → up one level → artifacts/api-server/ → src/services/ann-arbor-npn/...
-const DOCUMENTATION_PATH = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "../src/services/ann-arbor-npn/ANN_ARBOR_NPN_SOURCE_DOCUMENTATION.md",
-);
-const DOCUMENTATION_CONTENT = readFileSync(DOCUMENTATION_PATH, "utf-8");
-
 // ── GET /api/ann-arbor-npn/metadata ──────────────────────────────────────────
 
 router.get("/ann-arbor-npn/metadata", async (req, res) => {
   await ensureAnnArborNpnRegistryEntry();
-  const species = listAnnArborNpnSpecies();
+  const species = getAnnArborNpnSpeciesList();
   const speciesCount = species.length;
 
   const envelope = await buildEnvelope(
@@ -64,13 +54,13 @@ router.get("/ann-arbor-npn/metadata", async (req, res) => {
   res.json(envelope);
 });
 
-// ── GET /api/ann-arbor-npn/species ────────────────────────────────────────────
+// ── GET /api/ann-arbor-npn/species-list ──────────────────────────────────────
 // Returns all 130 species from the IDP (bulk).
 
-router.get("/ann-arbor-npn/species", async (req, res) => {
+router.get("/ann-arbor-npn/species-list", async (req, res) => {
   await ensureAnnArborNpnRegistryEntry();
 
-  const species = listAnnArborNpnSpecies();
+  const species = getAnnArborNpnSpeciesList();
 
   const envelope = await buildEnvelope(
     {
@@ -163,9 +153,9 @@ router.get("/ann-arbor-npn/species/:key/source-url", async (req, res) => {
     return;
   }
 
-  const species = getAnnArborNpnSpecies(normalizedKey);
+  const result = getAnnArborNpnSpeciesSourceUrl(normalizedKey);
 
-  if (!species) {
+  if (!result) {
     const envelope = await buildEnvelope(
       {
         sourceId: ANN_ARBOR_NPN_SOURCE_ID,
@@ -192,24 +182,20 @@ router.get("/ann-arbor-npn/species/:key/source-url", async (req, res) => {
       cacheStatus: "hit",
       queriedAt: new Date().toISOString(),
       found: true,
-      data: {
-        acronym: species.acronym,
-        source_url: species.source_url,
-      },
+      data: result,
     },
     { registry: dbRegistryAccessor },
   );
   res.json(envelope);
 });
 
-// ── GET /api/ann-arbor-npn/alias-index ────────────────────────────────────────
+// ── GET /api/ann-arbor-npn/name-groups ────────────────────────────────────────
 // Returns all 130 species with every accepted lookup alias.
-// Replaces the old /names route.
 
-router.get("/ann-arbor-npn/alias-index", async (req, res) => {
+router.get("/ann-arbor-npn/name-groups", async (req, res) => {
   await ensureAnnArborNpnRegistryEntry();
 
-  const nameGroups = listAnnArborNpnNameGroups();
+  const nameGroups = getAnnArborNpnNameGroups();
 
   const envelope = await buildEnvelope(
     {
@@ -246,7 +232,7 @@ router.get("/ann-arbor-npn/documentation", async (req, res) => {
       queriedAt: new Date().toISOString(),
       found: true,
       data: {
-        markdown: DOCUMENTATION_CONTENT,
+        markdown: getAnnArborNpnDocumentation(),
       },
     },
     { registry: dbRegistryAccessor },

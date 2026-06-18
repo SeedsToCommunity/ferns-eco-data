@@ -19,7 +19,7 @@ export const ANN_ARBOR_NPN_GENERAL_SUMMARY =
   "with captions — photographs and pen-and-ink drawings. " +
   "FERNS holds a static in-memory snapshot of the full inventory captured on 2026-06-01, " +
   "enabling lookup by acronym, Latin name, Latin synonym, or any common name. " +
-  "An alias-index endpoint returns all species organized by accepted key for cross-source reconciliation. " +
+  "A name-groups endpoint returns all species organized by accepted key for cross-source reconciliation. " +
   "Images are hosted on Cloudinary CDN (folder: ann-arbor-npn/{acronym}/{position}). " +
   "Greg's nativeplant.com site is no longer actively updated; this snapshot is the definitive FERNS record.";
 
@@ -80,10 +80,10 @@ export const ANN_ARBOR_NPN_REGISTRY_ENTRY = {
   technical_details: ANN_ARBOR_NPN_TECHNICAL_DETAILS,
   non_passthrough_endpoints: [
     { endpoint: "/api/ann-arbor-npn/metadata", kind: "metadata" },
-    { endpoint: "/api/ann-arbor-npn/species", kind: "in_memory" },
+    { endpoint: "/api/ann-arbor-npn/species-list", kind: "in_memory" },
     { endpoint: "/api/ann-arbor-npn/species/{key}", kind: "in_memory" },
     { endpoint: "/api/ann-arbor-npn/species/{key}/source-url", kind: "in_memory" },
-    { endpoint: "/api/ann-arbor-npn/alias-index", kind: "in_memory" },
+    { endpoint: "/api/ann-arbor-npn/name-groups", kind: "in_memory" },
     { endpoint: "/api/ann-arbor-npn/documentation", kind: "in_memory" },
   ],
   permission_granted: false,

@@ -6,6 +6,7 @@ import {
   lookupByAlias,
   ALIAS_INDEX,
 } from "./data.js";
+import { ANN_ARBOR_NPN_DOCUMENTATION_CONTENT } from "./documentation.js";
 
 export { ANN_ARBOR_NPN_SNAPSHOT_DATE };
 
@@ -13,11 +14,11 @@ export function getAnnArborNpnSpecies(key: string): AnnArborNpnSpeciesEntry | un
   return lookupByAlias(key);
 }
 
-export function listAnnArborNpnSpecies(): AnnArborNpnSpeciesEntry[] {
+export function getAnnArborNpnSpeciesList(): AnnArborNpnSpeciesEntry[] {
   return ANN_ARBOR_NPN_DATA;
 }
 
-export function listAnnArborNpnNameGroups(): Array<{
+export function getAnnArborNpnNameGroups(): Array<{
   acronym: string;
   latin_name: string;
   latin_synonym_greg: string | null;
@@ -43,4 +44,16 @@ export function listAnnArborNpnNameGroups(): Array<{
       all_accepted_keys,
     };
   });
+}
+
+export function getAnnArborNpnSpeciesSourceUrl(
+  key: string,
+): { acronym: string; source_url: string } | undefined {
+  const sp = lookupByAlias(key);
+  if (!sp) return undefined;
+  return { acronym: sp.acronym, source_url: sp.source_url };
+}
+
+export function getAnnArborNpnDocumentation(): string {
+  return ANN_ARBOR_NPN_DOCUMENTATION_CONTENT;
 }

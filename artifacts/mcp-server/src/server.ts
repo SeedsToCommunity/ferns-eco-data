@@ -1815,7 +1815,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/ann-arbor-npn/species", {
+      apiGet("/ann-arbor-npn/species-list", {
         provenance_verbosity: pv(args),
       }),
   },
@@ -1846,7 +1846,7 @@ const tools: ToolDef[] = [
   },
   {
     tool: {
-      name: "ann_arbor_npn__alias_index",
+      name: "ann_arbor_npn__name_groups",
       description:
         "Returns all 130 NPN species as name groups, each with an all_accepted_keys array listing " +
         "every lowercase alias that resolves to that species (acronym, Latin name, synonym, common names). " +
@@ -1861,7 +1861,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/ann-arbor-npn/alias-index", {
+      apiGet("/ann-arbor-npn/name-groups", {
         provenance_verbosity: pv(args),
       }),
   },

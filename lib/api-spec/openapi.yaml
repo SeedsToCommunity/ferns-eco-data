@@ -4161,9 +4161,9 @@ paths:
                       data:
                         $ref: "#/components/schemas/NpnMetadataData"
 
-  /ann-arbor-npn/species:
+  /ann-arbor-npn/species-list:
     get:
-      operationId: getAnnArborNpnSpeciesBulk
+      operationId: getAnnArborNpnSpeciesList
       tags: [ann-arbor-npn]
       summary: All Ann Arbor Native Plant Nursery species (bulk)
       description: >
@@ -4253,18 +4253,18 @@ paths:
                 allOf:
                   - $ref: "#/components/schemas/FernsEnvelope"
 
-  /ann-arbor-npn/alias-index:
+  /ann-arbor-npn/name-groups:
     get:
-      operationId: getAnnArborNpnAliasIndex
+      operationId: getAnnArborNpnNameGroups
       tags: [ann-arbor-npn]
-      summary: NPN alias index — all species with every accepted lookup key
+      summary: NPN name groups — all species with every accepted lookup key
       description: >
         Returns all 130 NPN species as name groups served from the in-memory IDP.
         Each entry contains acronym, latin_name, latin_synonym_greg (nullable),
         common_names (string array parsed from the semicolon/comma-delimited common_name field),
         and all_accepted_keys (flat array of every lowercase alias that resolves to this species).
         Designed for cross-source name reconciliation against GBIF, USDA PLANTS, or iNaturalist.
-        Replaces the former /ann-arbor-npn/names endpoint.
+        Replaces the former /ann-arbor-npn/alias-index endpoint.
       parameters:
         - name: provenance_verbosity
           in: query

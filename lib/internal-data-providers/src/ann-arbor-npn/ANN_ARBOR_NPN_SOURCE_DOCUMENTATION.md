@@ -63,7 +63,7 @@ Every species is indexed by multiple lookup keys, all stored lowercase:
 3. **Latin synonym (Greg's)** — where present (e.g. `symphyotrichum cordifolium` for ASTERCO)
 4. **Common names** — each segment split on `;` and `,`, trimmed individually
 
-The alias-index endpoint (`GET /api/ann-arbor-npn/alias-index`) returns the full alias set for each species as `all_accepted_keys`. The single-lookup endpoint (`GET /api/ann-arbor-npn/species/{key}`) resolves any alias case-insensitively.
+The name-groups endpoint (`GET /api/ann-arbor-npn/name-groups`) returns the full alias set for each species as `all_accepted_keys`. The single-lookup endpoint (`GET /api/ann-arbor-npn/species/{key}`) resolves any alias case-insensitively.
 
 ## Images and Cloudinary Storage
 
@@ -92,7 +92,7 @@ Earlier versions of FERNS scraped nativeplant.com on demand, storing results in 
 
 - The PostgreSQL tables are no longer used by this source and will be dropped in a future migration.
 - The `POST /api/ann-arbor-npn/import` admin endpoint has been removed.
-- The `GET /api/ann-arbor-npn/names` endpoint has been replaced by `GET /api/ann-arbor-npn/alias-index`.
+- The `GET /api/ann-arbor-npn/names` endpoint has been replaced by `GET /api/ann-arbor-npn/name-groups`.
 - All routes now serve data from in-memory IDP with `sourceKind: "in-memory"`.
 
 ## Attribution
