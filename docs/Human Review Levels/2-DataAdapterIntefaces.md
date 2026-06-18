@@ -1,6 +1,11 @@
 # FERNS Data Adapter Interfaces
 
 REST
+ - /artifacts/api-server/src/routes/*.ts
+ - /artifacts/api-server/src/services/*/metadata.ts
+ - /artifacts/api-server/src/services/*/seeds.ts
+ - /artifacts/api-server/src/services/*/*DOCUMENTATION*.md
+ - 
 MCP
 
  - Mirror of Data Provider to REST and MCP.
