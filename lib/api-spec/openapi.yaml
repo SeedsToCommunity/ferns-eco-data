@@ -3448,9 +3448,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /google-images:
+  /google-images/search:
     get:
-      operationId: getGoogleImages
+      operationId: getGoogleImagesSearch
       tags: [google-images]
       summary: Construct a Google Images search URL for a species
       description: >
@@ -3481,11 +3481,11 @@ paths:
                       data:
                         $ref: "#/components/schemas/GoogleImagesData"
         "400":
-          description: Missing species parameter
+          description: Missing species parameter — returns a valid FernsEnvelope with found=false
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: "#/components/schemas/FernsEnvelope"
 
   /google-images/metadata:
     get:

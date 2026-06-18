@@ -412,3 +412,40 @@ No technical_details changes — this task only moved the data boundary and fixe
 
 - **400 error shape**: The decision to put `{ error: "invalid_input", message: "..." }` inside `data` for validation errors is a design choice. If the preferred pattern is `data: null` with the error only surfaced via HTTP status, the two 400 paths in `artifacts/rest-server/src/routes/s2c.ts` can be simplified. Either way satisfies the "use buildEnvelope" requirement.
 - **OpenAPI 400 response schema**: The spec's `/s2c` 400 response still references `ErrorResponse` rather than `FernsEnvelope`. This is a minor spec inaccuracy introduced by the envelope fix — worth addressing in a future spec cleanup pass.
+
+---
+
+## Task: Google Images — wire IDP, fix envelope violation, add audit health check
+
+**Date**: 2026-06-18
+
+### What was built
+
+Three coordinated changes were made to complete the Google Images source integration: (1) the REST route was updated to call the new Internal Data Provider (`getGoogleImagesUrl`) instead of constructing the search URL inline; (2) a pre-existing envelope contract violation in the route was fixed — the missing-species-param error response was returning raw JSON without a FERNS envelope, and that response is now wrapped in `buildEnvelope` like every other response in the route; (3) a new health check (`runGoogleImagesChecks`) was added to the ferns-audit library and registered in its main runner, covering the happy path, the error path (specifically guarding against the envelope regression), and the metadata endpoint.
+
+### Derivation summary
+
+Not applicable — no new source was added. The google-images source was registered in a prior task; this task wires the final plumbing.
+
+### Scientific/technical description
+
+Not applicable — google-images is a URL-lookup source (kind: `url_lookup`), not a scientific data source. Its data is a computed Google Images search URL for a given species name.
+
+### Architectural decisions made
+
+- **Envelope wrapping for 400 validation error**: The contract requires all responses from a registered source to use `buildEnvelope`. The error path uses `found: false`, `method: computed`, `cacheStatus: bypass` (matching the source kind), and puts the `{ error, message }` content in the `data` field so the human-readable message is preserved inside the valid envelope structure. HTTP 400 status is preserved.
+- **`ensureGoogleImagesRegistryEntry()` called before error envelope**: The 400 path now seeds the registry entry before building the envelope, because `buildEnvelope` reads from the registry for license/rights and will fail silently without it.
+- **IDP function name**: The IDP exports `getGoogleImagesUrl` (not `getGoogleImages` as the task description suggested). Used the actual export name.
+- **Ferns-audit error path uses raw `fetch`** (not `checkEndpoint`): `checkEndpoint` only handles HTTP 200 responses; the 400 test case needed direct `fetch` to inspect the status code independently. Consistent with how other non-200 checks work in the file.
+
+### What was NOT done
+
+- MCP tool `google_images__search` was verified (no changes needed): tool name correct, calls `GET /google-images`, `species` required in `inputSchema`, handler passes `species` as query param correctly.
+- The MCP tool naming inconsistency (tool name is `google_images__search` but there is no `/search` path segment on the endpoint — the root endpoint IS the search) was not fixed. This requires a breaking API change decision and is flagged as a follow-up.
+- No OpenAPI spec changes were made (none were needed).
+- No database cache was added (google-images is a computed source; caching is not applicable).
+
+### What the user should decide or review
+
+- **MCP tool naming conformance**: The tool is named `google_images__search` but the contract's action-name consistency rule says the tool name should derive from the path segment after the source prefix. Since the search IS the root endpoint (no path segment), the tool name `google_images__search` has no path anchor. The options are: (a) leave it as-is with a `non_passthrough` exception noted; (b) add a `/search` path alias; (c) rename the tool to match the root endpoint convention. This requires a decision before a breaking change is made.
+

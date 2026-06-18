@@ -1546,3 +1546,142 @@ export async function runNpnChecks(fernsBase: string): Promise<EndpointCompariso
 
   return [metaCheck, acronymCheck, latinCheck, aliasCheck, bulkCheck, namesCheck];
 }
+
+export async function runGoogleImagesChecks(fernsBase: string): Promise<EndpointComparison[]> {
+  const TEST_SPECIES_NAME = "Acer rubrum";
+  const encoded = encodeURIComponent(TEST_SPECIES_NAME);
+  const expectedUrl = `https://www.google.com/search?tbm=isch&q=${encoded}`;
+
+  // 1. Happy path: valid species param returns correct envelope with expected URL shape
+  const happyCheck = await checkEndpoint(
+    "google-images",
+    `/api/google-images/search?species=${encoded}`,
+    `Google Images — happy path (Acer rubrum → correct URL shape, found=true)`,
+    fernsBase,
+    (envelope) => {
+      const findings: FieldFinding[] = [];
+      if (envelope.found !== true) {
+        findings.push({ type: "mismatch", sourceField: "found", note: `Expected found=true, got ${envelope.found}` });
+        return findings;
+      }
+      findings.push({ type: "ok", sourceField: "found", note: `found=true ✓` });
+
+      const data = envelope.data as Record<string, unknown> | null | undefined;
+      if (!data) {
+        findings.push({ type: "mismatch", sourceField: "data", note: `data is null or missing` });
+        return findings;
+      }
+
+      const url = typeof data["url"] === "string" ? data["url"] : null;
+      if (url && url.startsWith("https://www.google.com/search?tbm=isch&q=")) {
+        findings.push({ type: "ok", sourceField: "data.url", note: `url starts with expected Google Images prefix ✓` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.url", note: `Expected URL starting with https://www.google.com/search?tbm=isch&q=, got: ${url}` });
+      }
+
+      if (url === expectedUrl) {
+        findings.push({ type: "ok", sourceField: "data.url", note: `url exactly matches expected: ${expectedUrl} ✓` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.url", note: `url mismatch — expected ${expectedUrl}, got ${url}` });
+      }
+
+      const species = data["species"];
+      if (species === TEST_SPECIES_NAME) {
+        findings.push({ type: "ok", sourceField: "data.species", note: `data.species = "${species}" ✓` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.species", note: `Expected data.species="${TEST_SPECIES_NAME}", got "${species}"` });
+      }
+
+      return findings;
+    },
+  );
+
+  // 2. Error path: missing species param must return a valid FernsEnvelope (not raw JSON).
+  // This permanently guards against regression of the envelope violation fixed in this task.
+  const errorUrl = `${fernsBase}/api/google-images/search`;
+  let errorCheck: EndpointComparison;
+  try {
+    const raw = await fetch(errorUrl);
+    const body = await raw.json() as Record<string, unknown>;
+    const urlsCollected = collectUrls(body, "google-images/no-species");
+    const findings: FieldFinding[] = [];
+
+    // The response must have been HTTP 400
+    if (raw.status === 400) {
+      findings.push({ type: "ok", sourceField: "(http)", note: `HTTP 400 (expected for missing species param)` });
+    } else {
+      findings.push({ type: "mismatch", sourceField: "(http)", note: `Expected HTTP 400 for missing species, got HTTP ${raw.status}` });
+    }
+
+    // The body must be a valid FernsEnvelope — not a raw { error, message } object
+    if (body["found"] !== undefined) {
+      findings.push({ type: "ok", sourceField: "found", note: `found field present — response is a FernsEnvelope ✓` });
+    } else {
+      findings.push({ type: "mismatch", sourceField: "found", note: `"found" field missing — response is raw JSON, not a FernsEnvelope (envelope violation)` });
+    }
+
+    if (body["provenance"] !== undefined) {
+      findings.push({ type: "ok", sourceField: "provenance", note: `provenance present — envelope confirmed ✓` });
+    } else {
+      findings.push({ type: "mismatch", sourceField: "provenance", note: `provenance missing — not a valid FernsEnvelope` });
+    }
+
+    // The data field should preserve the human-readable error message
+    const data = body["data"] as Record<string, unknown> | null | undefined;
+    if (data && typeof data["message"] === "string" && data["message"].length > 0) {
+      findings.push({ type: "ok", sourceField: "data.message", note: `human-readable error message present: "${data["message"]}"` });
+    } else {
+      findings.push({ type: "gap", sourceField: "data.message", note: `data.message missing from error envelope` });
+    }
+
+    const hasMismatch = findings.some((f) => f.type === "mismatch");
+    errorCheck = {
+      source: "google-images",
+      endpoint: "/api/google-images/search (no species param)",
+      label: "Google Images — error path (no species → valid FernsEnvelope with HTTP 400)",
+      ok: !hasMismatch,
+      rawFerns: body,
+      findings,
+      urlsCollected,
+    };
+  } catch (err) {
+    errorCheck = {
+      source: "google-images",
+      endpoint: "/api/google-images/search (no species param)",
+      label: "Google Images — error path (no species → valid FernsEnvelope with HTTP 400)",
+      ok: false,
+      error: String(err),
+      findings: [],
+      urlsCollected: [],
+    };
+  }
+
+  // 3. Metadata endpoint
+  const metaCheck = await checkEndpoint(
+    "google-images",
+    "/api/google-images/metadata",
+    "Google Images — metadata endpoint (source_id, name, description present)",
+    fernsBase,
+    (envelope) => {
+      const findings: FieldFinding[] = [];
+      const data = envelope.data as Record<string, unknown> | null | undefined;
+      if (!data) {
+        findings.push({ type: "mismatch", sourceField: "data", note: `metadata data is null` });
+        return findings;
+      }
+      if (data["source_id"] === "google-images") {
+        findings.push({ type: "ok", sourceField: "data.source_id", note: `source_id = "google-images" ✓` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.source_id", note: `Expected "google-images", got "${data["source_id"]}"` });
+      }
+      if (typeof data["name"] === "string" && data["name"].length > 0) {
+        findings.push({ type: "ok", sourceField: "data.name", note: `name present: "${data["name"]}"` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.name", note: `data.name missing or empty` });
+      }
+      return findings;
+    },
+  );
+
+  return [happyCheck, errorCheck, metaCheck];
+}

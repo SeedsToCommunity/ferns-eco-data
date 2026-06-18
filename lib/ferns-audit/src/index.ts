@@ -22,7 +22,7 @@ import { runBonapComparators } from "./comparators/bonap.js";
 import { runMifloraComparators } from "./comparators/miflora.js";
 import { runUniversalFqaComparators } from "./comparators/universal-fqa.js";
 import { runUsdaPlantsComparators } from "./comparators/usda-plants.js";
-import { runCoefficientChecks, runWetlandIndicatorChecks, runWucolsChecks, runS2CChecks, runLcscgChecks, runMnfiChecks, runNatureserveChecks, runSpeciesTextChecks, runLbjChecks, runNpnChecks } from "./checks/static-sources.js";
+import { runCoefficientChecks, runWetlandIndicatorChecks, runWucolsChecks, runS2CChecks, runLcscgChecks, runMnfiChecks, runNatureserveChecks, runSpeciesTextChecks, runLbjChecks, runNpnChecks, runGoogleImagesChecks } from "./checks/static-sources.js";
 import { checkApiDocs, checkRegistry } from "./checks/docs.js";
 import { checkUrls } from "./checks/urls.js";
 import { printReport, printReportJson } from "./report.js";
@@ -72,8 +72,8 @@ async function main(): Promise<void> {
   process.stderr.write("Running USDA PLANTS comparators (species lookup via api_fetch)...\n");
   const usdaPlantsComparisons = await runUsdaPlantsComparators(fernsBase, TEST_SPECIES);
 
-  process.stderr.write("Running static source health checks (Coefficient, Wetland Indicator, WUCOLS, S2C, LCSCG, MNFI, NatureServe, SpeciesText, LBJ, NPN)...\n");
-  const [coeffChecks, wetlandChecks, wucolsChecks, s2cChecks, lcscgChecks, mnfiChecks, natureserveChecks, speciesTextChecks, lbjChecks, npnChecks] = await Promise.all([
+  process.stderr.write("Running static source health checks (Coefficient, Wetland Indicator, WUCOLS, S2C, LCSCG, MNFI, NatureServe, SpeciesText, LBJ, NPN, Google Images)...\n");
+  const [coeffChecks, wetlandChecks, wucolsChecks, s2cChecks, lcscgChecks, mnfiChecks, natureserveChecks, speciesTextChecks, lbjChecks, npnChecks, googleImagesChecks] = await Promise.all([
     runCoefficientChecks(fernsBase, TEST_COEFFICIENT_VALUES),
     runWetlandIndicatorChecks(fernsBase, TEST_WETLAND_CODES, TEST_WETLAND_W_VALUES),
     runWucolsChecks(fernsBase, TEST_WUCOLS_CODES),
@@ -84,6 +84,7 @@ async function main(): Promise<void> {
     runSpeciesTextChecks(fernsBase),
     runLbjChecks(fernsBase),
     runNpnChecks(fernsBase),
+    runGoogleImagesChecks(fernsBase),
   ]);
 
   const allComparisons = [
@@ -103,6 +104,7 @@ async function main(): Promise<void> {
     ...speciesTextChecks,
     ...lbjChecks,
     ...npnChecks,
+    ...googleImagesChecks,
   ];
 
   const allUrls: UrlEntry[] = allComparisons.flatMap((c) => c.urlsCollected);

@@ -16,32 +16,44 @@ import {
 import { ensureGoogleImagesRegistryEntry } from "../services/google-images/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
 import { dbRegistryAccessor } from "../lib/registry-accessor.js";
+import { getGoogleImagesSearchUrl } from "@workspace/internal-data-providers/google-images";
 
 const router: IRouter = Router();
 
-router.get("/google-images", async (req, res) => {
+router.get("/google-images/search", async (req, res) => {
   const speciesParam = typeof req.query["species"] === "string" ? req.query["species"].trim() : null;
   if (!speciesParam) {
-    res.status(400).json({
-      error: "invalid_input",
-      message: "species query parameter is required (e.g. ?species=Acer+rubrum)",
-    });
+    await ensureGoogleImagesRegistryEntry();
+    const envelope = await buildEnvelope(
+      {
+        sourceId: GOOGLE_IMAGES_SOURCE_ID,
+        sourceKind: "in-memory",
+        found: false,
+        data: {
+          error: "invalid_input",
+          message: "species query parameter is required (e.g. ?species=Acer+rubrum)",
+        },
+        method: "computed",
+        cacheStatus: "bypass",
+        sourceUrl: null,
+        queriedAt: new Date().toISOString(),
+      },
+      { registry: dbRegistryAccessor },
+    );
+    res.status(400).json(envelope);
     return;
   }
 
   await ensureGoogleImagesRegistryEntry();
 
-  const url = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(speciesParam)}`;
+  const result = getGoogleImagesSearchUrl(speciesParam);
 
   const envelope = await buildEnvelope(
     {
       sourceId: GOOGLE_IMAGES_SOURCE_ID,
       sourceKind: "in-memory",
       found: true,
-      data: {
-        species: speciesParam,
-        url,
-      },
+      data: result,
       method: "computed",
       cacheStatus: "bypass",
       sourceUrl: null,

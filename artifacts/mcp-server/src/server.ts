@@ -1244,7 +1244,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/google-images", {
+      apiGet("/google-images/search", {
         species: String(args["species"]),
         provenance_verbosity: pv(args),
       }),
