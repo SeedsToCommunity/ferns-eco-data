@@ -112,7 +112,7 @@ function run(): void {
       console.error(`  ${YELLOW}${p}${RESET}`);
     }
     console.error(
-      `\n  Either add the missing routes in artifacts/api-server/src/routes/, or remove the stale paths from the spec.\n`
+      `\n  Either add the missing routes in artifacts/rest-server/src/routes/, or remove the stale paths from the spec.\n`
     );
   }
 

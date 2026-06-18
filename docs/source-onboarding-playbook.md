@@ -20,19 +20,19 @@ Write the proposal using the template below. Present it to the user in a single 
 Create a new Drizzle schema file in `lib/db/src/schema/`. Export the table(s) from `lib/db/src/schema/index.ts`. Run `pnpm --filter @workspace/db run generate` to create a migration file in `lib/db/drizzle/`, then `pnpm --filter @workspace/db run migrate` to apply it to the development database. Commit the generated migration file with the code change. Rebuild DB declarations: `cd lib/db && pnpm exec tsc -p tsconfig.json`. Done when the table exists in the database and is queryable.
 
 **Step 4: Connector / Importer** (required if source needs data ingestion; not needed for direct-construction sources)
-Implement data ingestion in `artifacts/api-server/src/services/{source-id}/`. Done when data is in the DB or loaded into memory. If skipped, state why.
+Implement data ingestion in `artifacts/rest-server/src/services/{source-id}/`. Done when data is in the DB or loaded into memory. If skipped, state why.
 
 **Step 5: Source Metadata and Registry Seed (DO NOT SKIP description quality)**
-Create `artifacts/api-server/src/services/{source-id}/metadata.ts` with the source constants (SOURCE_ID, GENERAL_SUMMARY, TECHNICAL_DETAILS, REGISTRY_ENTRY, PERMISSION_GRANTED, PERMISSION_STATUS). Create `artifacts/api-server/src/services/{source-id}/seed.ts` that upserts into `fernsSourcesTable`. The three description fields (`description`, `general_summary`, `technical_details`) must conform to the standards defined below before this step is considered done. A source is not complete if any description field fails its audience test. Done when `GET /api/v1/sources` includes the new source with description fields that meet the defined standards.
+Create `artifacts/rest-server/src/services/{source-id}/metadata.ts` with the source constants (SOURCE_ID, GENERAL_SUMMARY, TECHNICAL_DETAILS, REGISTRY_ENTRY, PERMISSION_GRANTED, PERMISSION_STATUS). Create `artifacts/rest-server/src/services/{source-id}/seed.ts` that upserts into `fernsSourcesTable`. The three description fields (`description`, `general_summary`, `technical_details`) must conform to the standards defined below before this step is considered done. A source is not complete if any description field fails its audience test. Done when `GET /api/v1/sources` includes the new source with description fields that meet the defined standards.
 
 **Step 6: Route Handler**
-If the upstream source has multiple endpoints, create one FERNS route per upstream endpoint. Do not merge upstream responses. See 'data-layer-contract.md` `Pass-Through Rules`. Create `artifacts/api-server/src/routes/{source-id}.ts`. Implement `GET /api/{source-id}` (data endpoint) and `GET /api/{source-id}/metadata` (metadata endpoint). The metadata endpoint must return the same envelope shape as all existing sources — read `artifacts/api-server/src/routes/miflora.ts` before writing the new one. Register the router in `artifacts/api-server/src/index.ts`. Done when both endpoints return 200 with a correct envelope.
+If the upstream source has multiple endpoints, create one FERNS route per upstream endpoint. Do not merge upstream responses. See 'data-layer-contract.md` `Pass-Through Rules`. Create `artifacts/rest-server/src/routes/{source-id}.ts`. Implement `GET /api/{source-id}` (data endpoint) and `GET /api/{source-id}/metadata` (metadata endpoint). The metadata endpoint must return the same envelope shape as all existing sources — read `artifacts/rest-server/src/routes/miflora.ts` before writing the new one. Register the router in `artifacts/rest-server/src/index.ts`. Done when both endpoints return 200 with a correct envelope.
 
 **Step 7: OpenAPI Spec**
 Add the new endpoints to `lib/api-spec/openapi.yaml`. Follow existing path, parameter, response schema, and tag conventions. Done when the spec is valid and covers the new endpoints. All 
 
 **Step 8: Spec Drift Check**
-Run: `pnpm --filter @workspace/api-server run spec:check`. This script cross-checks every GET route in code against the spec and reports any gap in either direction. Done when the command exits 0 with no drift reported.
+Run: `pnpm --filter @workspace/rest-server run spec:check`. This script cross-checks every GET route in code against the spec and reports any gap in either direction. Done when the command exits 0 with no drift reported.
 
 **Step 9: Codegen**
 Run: `pnpm --filter @workspace/api-spec run codegen`. Done when generated types are updated and there are no TypeScript errors in consumer packages.
@@ -44,7 +44,7 @@ Add a comparator or health check in `lib/ferns-audit/src/`. For API/scrape sourc
 Write all mandatory post-task summaries as expected by replit.md. Include the verbatim text of `description`, `general_summary`, and `technical_details` so the user can verify them. Done when the summary is complete and presented.
 
 **Step 12: MCP Tool Wiring**
-Add a new tool (or tools) to `artifacts/mcp-server/src/index.ts` for each new source endpoint. Follow the `{source_id}__{action}` naming convention (hyphens → underscores, double-underscore separator). One REST endpoint = one MCP tool; no aggregation. Define `inputSchema` covering all required and optional query parameters, matching the route handler in `artifacts/api-server/src/routes/{source-id}.ts`. For path-parameter endpoints, build the URL in the handler directly (e.g., `` fernsGet(`/lcscg/guide/${Number(args["guideId"])}`) ``). Update the tool table in `artifacts/mcp-server/README.md`. Done when `tools/list` on the MCP server includes the new tool(s) and the README table is up to date.
+Add a new tool (or tools) to `artifacts/mcp-server/src/index.ts` for each new source endpoint. Follow the `{source_id}__{action}` naming convention (hyphens → underscores, double-underscore separator). One REST endpoint = one MCP tool; no aggregation. Define `inputSchema` covering all required and optional query parameters, matching the route handler in `artifacts/rest-server/src/routes/{source-id}.ts`. For path-parameter endpoints, build the URL in the handler directly (e.g., `` fernsGet(`/lcscg/guide/${Number(args["guideId"])}`) ``). Update the tool table in `artifacts/mcp-server/README.md`. Done when `tools/list` on the MCP server includes the new tool(s) and the README table is up to date.
 
 ---
 
@@ -222,12 +222,12 @@ Every time a query parameter is added, removed, or has its type changed in `lib/
 - [ ] Verify generated React Query hooks in `lib/api-client-react/src/generated/` accept the new type
 - [ ] Note: the Orval coerce config (`orval.config.ts`) coerces `boolean` and `number` query params from strings — it does NOT coerce `string` params, so changing `integer` → `string` removes coercion for that param
 
-### 3. API server connector (`artifacts/api-server/src/services/<source>/connector.ts`)
+### 3. API server connector (`artifacts/rest-server/src/services/<source>/connector.ts`)
 
 - [ ] The relevant params interface has the correct TypeScript type (e.g. `place_id?: string` not `place_id?: number`)
 - [ ] Any function signature that takes the param as a positional argument is updated (e.g. `fetchObservationSummary(placeId: string | null, ...)`)
 - [ ] Any `Number(params.place_id)` or `String(params.place_id)` coercions are consistent with the new type
-- [ ] Route handler in `artifacts/api-server/src/routes/<source>.ts` passes the value through without incorrect coercion
+- [ ] Route handler in `artifacts/rest-server/src/routes/<source>.ts` passes the value through without incorrect coercion
 
 ### 4. MCP server (`artifacts/mcp-server/src/server.ts`)
 

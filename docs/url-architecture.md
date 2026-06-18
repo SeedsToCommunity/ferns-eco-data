@@ -19,9 +19,9 @@ Apps are independent products. They live at their own domains or subdomains (e.g
 
 ### Why this structure
 
-**Single Express process serves both website and API.** The api-server handles all production traffic for `ecologicalcommons.org` — public website for non-/api paths, REST API for /api/* paths. There is no Host-header branching; the same static files and API handlers are served regardless of which hostname the request arrives on.
+**Single Express process serves both website and API.** The rest-server handles all production traffic for `ecologicalcommons.org` — public website for non-/api paths, REST API for /api/* paths. There is no Host-header branching; the same static files and API handlers are served regardless of which hostname the request arrives on.
 
-**Data explorer is an external application.** The data explorer at `data.ecologicalcommons.org` is an external application. DNS for that subdomain should point directly to the external app — the api-server has no knowledge of it and does not redirect or proxy to it.
+**Data explorer is an external application.** The data explorer at `data.ecologicalcommons.org` is an external application. DNS for that subdomain should point directly to the external app — the rest-server has no knowledge of it and does not redirect or proxy to it.
 
 This mirrors how GBIF organizes itself: `www.gbif.org` is the portal, `api.gbif.org` is a single unified API namespace, and all features (taxonomy, occurrences, registry, maps) are paths under that one API domain — not separate subdomains.
 
@@ -49,11 +49,11 @@ The lesson: do not split into per-product subdomains. Add capabilities as versio
 
 ### How production routing works (implementation)
 
-In production the api-server `artifact.toml` registers `paths = ["/"]`, so ALL requests are routed to the Express process. Express serves:
+In production the rest-server `artifact.toml` registers `paths = ["/"]`, so ALL requests are routed to the Express process. Express serves:
 1. `/api/*` → API route handlers
 2. All other paths → `artifacts/ecological-commons-site/dist/public` with SPA fallback
 
-The api-server's production build (`build.mjs`) builds the public website first (with `BASE_PATH=/`) before bundling Express, so its `dist/public` directory is present when Express starts.
+The rest-server's production build (`build.mjs`) builds the public website first (with `BASE_PATH=/`) before bundling Express, so its `dist/public` directory is present when Express starts.
 
 In development, the ecological-commons-site has its own Vite dev server at its own port. The static serving block in `app.ts` is gated on `NODE_ENV === "production"` and is skipped entirely during development.
 
