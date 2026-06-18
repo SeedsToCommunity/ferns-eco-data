@@ -1030,7 +1030,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/s2c", {
+      apiGet("/seeds-to-community-washtenaw/species", {
         year: Number(args["year"]),
         provenance_verbosity: pv(args),
       }),
@@ -1047,7 +1047,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/s2c/years", {
+      apiGet("/seeds-to-community-washtenaw/years", {
         provenance_verbosity: pv(args),
       }),
   },

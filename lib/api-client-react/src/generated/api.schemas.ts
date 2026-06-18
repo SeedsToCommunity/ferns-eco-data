@@ -3222,32 +3222,32 @@ export const GetWucolsWaterUseByCodeCode = {
   H: 'H',
 } as const;
 
-export type GetS2CSpeciesByYearParams = {
+export type GetSeedsToCommunityWashtenawSpeciesParams = {
 /**
  * Program year (2023–2026).
  */
-year: GetS2CSpeciesByYearYear;
+year: GetSeedsToCommunityWashtenawSpeciesYear;
 };
 
-export type GetS2CSpeciesByYearYear = typeof GetS2CSpeciesByYearYear[keyof typeof GetS2CSpeciesByYearYear];
+export type GetSeedsToCommunityWashtenawSpeciesYear = typeof GetSeedsToCommunityWashtenawSpeciesYear[keyof typeof GetSeedsToCommunityWashtenawSpeciesYear];
 
 
-export const GetS2CSpeciesByYearYear = {
+export const GetSeedsToCommunityWashtenawSpeciesYear = {
   NUMBER_2023: 2023,
   NUMBER_2024: 2024,
   NUMBER_2025: 2025,
   NUMBER_2026: 2026,
 } as const;
 
-export type GetS2CSpeciesByYear200 = FernsEnvelope & {
+export type GetSeedsToCommunityWashtenawSpecies200 = FernsEnvelope & {
   data?: S2CSpeciesData;
 };
 
-export type GetS2CYears200 = FernsEnvelope & {
+export type GetSeedsToCommunityWashtenawYears200 = FernsEnvelope & {
   data?: S2CYearsData;
 };
 
-export type GetS2CMetadata200 = FernsEnvelope & {
+export type GetSeedsToCommunityWashtenawMetadata200 = FernsEnvelope & {
   data?: SourceMetadataData;
 };
 

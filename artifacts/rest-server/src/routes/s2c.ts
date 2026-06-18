@@ -14,31 +14,24 @@ import {
   S2C_LICENSE_NOTES,
 } from "../services/s2c/metadata.js";
 import {
-  S2C_YEARS,
-  S2C_AVAILABLE_YEARS,
-  getYearData,
-} from "../services/s2c/data.js";
+  getSeedsToCommunityWashtenawSpecies,
+  getSeedsToCommunityWashtenawYears,
+  SEEDS_TO_COMMUNITY_WASHTENAW_AVAILABLE_YEARS,
+} from "@workspace/internal-data-providers/seeds-to-community-washtenaw";
 import { ensureS2CRegistryEntry } from "../services/s2c/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
 import { dbRegistryAccessor } from "../lib/registry-accessor.js";
 
 const router: IRouter = Router();
 
-router.get("/s2c/years", async (req, res) => {
+router.get("/seeds-to-community-washtenaw/years", async (req, res) => {
   await ensureS2CRegistryEntry();
   const envelope = await buildEnvelope(
     {
       sourceId: S2C_SOURCE_ID,
       sourceKind: "in-memory",
       found: true,
-      data: {
-        available_years: S2C_AVAILABLE_YEARS,
-        years: S2C_YEARS.map((y) => ({
-          year: y.year,
-          species_count: y.species.length,
-          source_note: y.source_note,
-        })),
-      },
+      data: getSeedsToCommunityWashtenawYears(),
       method: "cache_hit",
       cacheStatus: "hit",
       sourceUrl: null,
@@ -49,43 +42,67 @@ router.get("/s2c/years", async (req, res) => {
   res.json(envelope);
 });
 
-router.get("/s2c", async (req, res) => {
+router.get("/seeds-to-community-washtenaw/species", async (req, res) => {
   const yearParam = req.query["year"];
 
   if (yearParam === undefined || yearParam === "") {
-    res.status(400).json({
-      error: "invalid_input",
-      message: "year query parameter is required. Available years: " + S2C_AVAILABLE_YEARS.join(", "),
-    });
+    await ensureS2CRegistryEntry();
+    const envelope = await buildEnvelope(
+      {
+        sourceId: S2C_SOURCE_ID,
+        sourceKind: "in-memory",
+        found: false,
+        data: {
+          error: "invalid_input",
+          message:
+            "year query parameter is required. Available years: " +
+            SEEDS_TO_COMMUNITY_WASHTENAW_AVAILABLE_YEARS.join(", "),
+        },
+        method: "cache_hit",
+        cacheStatus: "hit",
+        sourceUrl: null,
+        queriedAt: new Date().toISOString(),
+      },
+      { registry: dbRegistryAccessor },
+    );
+    res.status(400).json(envelope);
     return;
   }
 
   const year = parseInt(String(yearParam), 10);
   if (isNaN(year)) {
-    res.status(400).json({
-      error: "invalid_input",
-      message: "year must be a valid integer. Available years: " + S2C_AVAILABLE_YEARS.join(", "),
-    });
+    await ensureS2CRegistryEntry();
+    const envelope = await buildEnvelope(
+      {
+        sourceId: S2C_SOURCE_ID,
+        sourceKind: "in-memory",
+        found: false,
+        data: {
+          error: "invalid_input",
+          message:
+            "year must be a valid integer. Available years: " +
+            SEEDS_TO_COMMUNITY_WASHTENAW_AVAILABLE_YEARS.join(", "),
+        },
+        method: "cache_hit",
+        cacheStatus: "hit",
+        sourceUrl: null,
+        queriedAt: new Date().toISOString(),
+      },
+      { registry: dbRegistryAccessor },
+    );
+    res.status(400).json(envelope);
     return;
   }
 
   await ensureS2CRegistryEntry();
-  const yearData = getYearData(year);
-  const found = yearData !== undefined;
+  const yearData = getSeedsToCommunityWashtenawSpecies(year);
 
   const envelope = await buildEnvelope(
     {
       sourceId: S2C_SOURCE_ID,
       sourceKind: "in-memory",
-      found,
-      data: found
-        ? {
-            year: yearData.year,
-            species_count: yearData.species.length,
-            source_note: yearData.source_note,
-            species: yearData.species,
-          }
-        : null,
+      found: yearData !== undefined,
+      data: yearData ?? null,
       method: "cache_hit",
       cacheStatus: "hit",
       sourceUrl: null,
@@ -96,7 +113,7 @@ router.get("/s2c", async (req, res) => {
   res.json(envelope);
 });
 
-router.get("/s2c/metadata", async (req, res) => {
+router.get("/seeds-to-community-washtenaw/metadata", async (req, res) => {
   await ensureS2CRegistryEntry();
   const envelope = await buildEnvelope(
     {

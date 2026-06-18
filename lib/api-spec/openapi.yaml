@@ -24,7 +24,7 @@ tags:
     description: Wetland Indicator Status & Coefficient of Wetness — USDA NRCS NWPL Reference
   - name: wucols-water-use
     description: WUCOLS — Water Use Classifications of Landscape Species
-  - name: s2c
+  - name: seeds-to-community-washtenaw
     description: Seeds to Community Washtenaw — Annual Native Plant Species Availability
   - name: universal-fqa
     description: Universal FQA — Federated Floristic Quality Assessment Databases
@@ -2513,10 +2513,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/VocabularyMetadataResponse"
 
-  /s2c:
+  /seeds-to-community-washtenaw/species:
     get:
-      operationId: getS2CSpeciesByYear
-      tags: [s2c]
+      operationId: getSeedsToCommunityWashtenawSpecies
+      tags: [seeds-to-community-washtenaw]
       summary: Get species list for a given Seeds to Community Washtenaw program year
       description: >
         Returns the list of botanical names offered by Seeds to Community Washtenaw
@@ -2552,14 +2552,15 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /s2c/years:
+  /seeds-to-community-washtenaw/years:
     get:
-      operationId: getS2CYears
-      tags: [s2c]
+      operationId: getSeedsToCommunityWashtenawYears
+      tags: [seeds-to-community-washtenaw]
       summary: List available Seeds to Community Washtenaw program years
       description: >
         Returns all available program years with species counts and source notes.
-        Use this to discover what data is available before querying /s2c?year=.
+        Use this to discover what data is available before querying
+        /seeds-to-community-washtenaw/species?year=.
         Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
       responses:
         "200":
@@ -2574,10 +2575,10 @@ paths:
                       data:
                         $ref: "#/components/schemas/S2CYearsData"
 
-  /s2c/metadata:
+  /seeds-to-community-washtenaw/metadata:
     get:
-      operationId: getS2CMetadata
-      tags: [s2c]
+      operationId: getSeedsToCommunityWashtenawMetadata
+      tags: [seeds-to-community-washtenaw]
       summary: Seeds to Community Washtenaw source metadata
       description: >
         Returns the registry entry for the Seeds to Community Washtenaw source,

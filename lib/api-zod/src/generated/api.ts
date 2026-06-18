@@ -1916,11 +1916,11 @@ export const GetWucolsWaterUseMetadataResponse = zod.object({
 
  * @summary Get species list for a given Seeds to Community Washtenaw program year
  */
-export const GetS2CSpeciesByYearQueryParams = zod.object({
+export const GetSeedsToCommunityWashtenawSpeciesQueryParams = zod.object({
   "year": zod.union([zod.literal(2023),zod.literal(2024),zod.literal(2025),zod.literal(2026)]).describe('Program year (2023–2026).')
 })
 
-export const GetS2CSpeciesByYearResponse = zod.object({
+export const GetSeedsToCommunityWashtenawSpeciesResponse = zod.object({
   "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
   "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
   "pagination": zod.union([zod.object({
@@ -1957,11 +1957,11 @@ export const GetS2CSpeciesByYearResponse = zod.object({
 
 
 /**
- * Returns all available program years with species counts and source notes. Use this to discover what data is available before querying /s2c?year=. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+ * Returns all available program years with species counts and source notes. Use this to discover what data is available before querying /seeds-to-community-washtenaw/species?year=. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
  * @summary List available Seeds to Community Washtenaw program years
  */
-export const GetS2CYearsResponse = zod.object({
+export const GetSeedsToCommunityWashtenawYearsResponse = zod.object({
   "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
   "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
   "pagination": zod.union([zod.object({
@@ -2000,7 +2000,7 @@ export const GetS2CYearsResponse = zod.object({
 
  * @summary Seeds to Community Washtenaw source metadata
  */
-export const GetS2CMetadataResponse = zod.object({
+export const GetSeedsToCommunityWashtenawMetadataResponse = zod.object({
   "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
   "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
   "pagination": zod.union([zod.object({

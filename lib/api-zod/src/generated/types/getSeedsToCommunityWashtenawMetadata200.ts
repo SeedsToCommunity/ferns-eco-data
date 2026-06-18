@@ -8,6 +8,6 @@
 import type { FernsEnvelope } from './fernsEnvelope';
 import type { SourceMetadataData } from './sourceMetadataData';
 
-export type GetS2CMetadata200 = FernsEnvelope & {
+export type GetSeedsToCommunityWashtenawMetadata200 = FernsEnvelope & {
   data?: SourceMetadataData;
 };

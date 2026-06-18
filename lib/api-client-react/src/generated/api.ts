@@ -96,10 +96,10 @@ import type {
   GetNatureserveSpeciesParams,
   GetPrairieMoonParams,
   GetPrairieMoonSpeciesTextParams,
-  GetS2CMetadata200,
-  GetS2CSpeciesByYear200,
-  GetS2CSpeciesByYearParams,
-  GetS2CYears200,
+  GetSeedsToCommunityWashtenawMetadata200,
+  GetSeedsToCommunityWashtenawSpecies200,
+  GetSeedsToCommunityWashtenawSpeciesParams,
+  GetSeedsToCommunityWashtenawYears200,
   GetSourceRelationshipsParams,
   GetUsdaPlantsParams,
   GetUsdaPlantsProfileParams,
@@ -3914,7 +3914,7 @@ export function useGetWucolsWaterUseMetadata<TData = Awaited<ReturnType<typeof g
 
  * @summary Get species list for a given Seeds to Community Washtenaw program year
  */
-export const getGetS2CSpeciesByYearUrl = (params: GetS2CSpeciesByYearParams,) => {
+export const getGetSeedsToCommunityWashtenawSpeciesUrl = (params: GetSeedsToCommunityWashtenawSpeciesParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -3926,12 +3926,12 @@ export const getGetS2CSpeciesByYearUrl = (params: GetS2CSpeciesByYearParams,) =>
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/s2c?${stringifiedParams}` : `/api/s2c`
+  return stringifiedParams.length > 0 ? `/api/seeds-to-community-washtenaw/species?${stringifiedParams}` : `/api/seeds-to-community-washtenaw/species`
 }
 
-export const getS2CSpeciesByYear = async (params: GetS2CSpeciesByYearParams, options?: RequestInit): Promise<GetS2CSpeciesByYear200> => {
+export const getSeedsToCommunityWashtenawSpecies = async (params: GetSeedsToCommunityWashtenawSpeciesParams, options?: RequestInit): Promise<GetSeedsToCommunityWashtenawSpecies200> => {
   
-  return customFetch<GetS2CSpeciesByYear200>(getGetS2CSpeciesByYearUrl(params),
+  return customFetch<GetSeedsToCommunityWashtenawSpecies200>(getGetSeedsToCommunityWashtenawSpeciesUrl(params),
   {      
     ...options,
     method: 'GET'
@@ -3944,45 +3944,45 @@ export const getS2CSpeciesByYear = async (params: GetS2CSpeciesByYearParams, opt
 
 
 
-export const getGetS2CSpeciesByYearQueryKey = (params?: GetS2CSpeciesByYearParams,) => {
+export const getGetSeedsToCommunityWashtenawSpeciesQueryKey = (params?: GetSeedsToCommunityWashtenawSpeciesParams,) => {
     return [
-    `/api/s2c`, ...(params ? [params] : [])
+    `/api/seeds-to-community-washtenaw/species`, ...(params ? [params] : [])
     ] as const;
     }
 
     
-export const getGetS2CSpeciesByYearQueryOptions = <TData = Awaited<ReturnType<typeof getS2CSpeciesByYear>>, TError = ErrorType<ErrorResponse>>(params: GetS2CSpeciesByYearParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getS2CSpeciesByYear>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetSeedsToCommunityWashtenawSpeciesQueryOptions = <TData = Awaited<ReturnType<typeof getSeedsToCommunityWashtenawSpecies>>, TError = ErrorType<ErrorResponse>>(params: GetSeedsToCommunityWashtenawSpeciesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawSpecies>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetS2CSpeciesByYearQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getGetSeedsToCommunityWashtenawSpeciesQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getS2CSpeciesByYear>>> = ({ signal }) => getS2CSpeciesByYear(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawSpecies>>> = ({ signal }) => getSeedsToCommunityWashtenawSpecies(params, { signal, ...requestOptions });
 
       
 
       
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getS2CSpeciesByYear>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawSpecies>>, TError, TData> & { queryKey: QueryKey }
 }
 
-export type GetS2CSpeciesByYearQueryResult = NonNullable<Awaited<ReturnType<typeof getS2CSpeciesByYear>>>
-export type GetS2CSpeciesByYearQueryError = ErrorType<ErrorResponse>
+export type GetSeedsToCommunityWashtenawSpeciesQueryResult = NonNullable<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawSpecies>>>
+export type GetSeedsToCommunityWashtenawSpeciesQueryError = ErrorType<ErrorResponse>
 
 
 /**
  * @summary Get species list for a given Seeds to Community Washtenaw program year
  */
 
-export function useGetS2CSpeciesByYear<TData = Awaited<ReturnType<typeof getS2CSpeciesByYear>>, TError = ErrorType<ErrorResponse>>(
- params: GetS2CSpeciesByYearParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getS2CSpeciesByYear>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export function useGetSeedsToCommunityWashtenawSpecies<TData = Awaited<ReturnType<typeof getSeedsToCommunityWashtenawSpecies>>, TError = ErrorType<ErrorResponse>>(
+ params: GetSeedsToCommunityWashtenawSpeciesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawSpecies>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetS2CSpeciesByYearQueryOptions(params,options)
+  const queryOptions = getGetSeedsToCommunityWashtenawSpeciesQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -3994,21 +3994,21 @@ export function useGetS2CSpeciesByYear<TData = Awaited<ReturnType<typeof getS2CS
 
 
 /**
- * Returns all available program years with species counts and source notes. Use this to discover what data is available before querying /s2c?year=. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+ * Returns all available program years with species counts and source notes. Use this to discover what data is available before querying /seeds-to-community-washtenaw/species?year=. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
  * @summary List available Seeds to Community Washtenaw program years
  */
-export const getGetS2CYearsUrl = () => {
+export const getGetSeedsToCommunityWashtenawYearsUrl = () => {
 
 
   
 
-  return `/api/s2c/years`
+  return `/api/seeds-to-community-washtenaw/years`
 }
 
-export const getS2CYears = async ( options?: RequestInit): Promise<GetS2CYears200> => {
+export const getSeedsToCommunityWashtenawYears = async ( options?: RequestInit): Promise<GetSeedsToCommunityWashtenawYears200> => {
   
-  return customFetch<GetS2CYears200>(getGetS2CYearsUrl(),
+  return customFetch<GetSeedsToCommunityWashtenawYears200>(getGetSeedsToCommunityWashtenawYearsUrl(),
   {      
     ...options,
     method: 'GET'
@@ -4021,45 +4021,45 @@ export const getS2CYears = async ( options?: RequestInit): Promise<GetS2CYears20
 
 
 
-export const getGetS2CYearsQueryKey = () => {
+export const getGetSeedsToCommunityWashtenawYearsQueryKey = () => {
     return [
-    `/api/s2c/years`
+    `/api/seeds-to-community-washtenaw/years`
     ] as const;
     }
 
     
-export const getGetS2CYearsQueryOptions = <TData = Awaited<ReturnType<typeof getS2CYears>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getS2CYears>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetSeedsToCommunityWashtenawYearsQueryOptions = <TData = Awaited<ReturnType<typeof getSeedsToCommunityWashtenawYears>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawYears>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetS2CYearsQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getGetSeedsToCommunityWashtenawYearsQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getS2CYears>>> = ({ signal }) => getS2CYears({ signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawYears>>> = ({ signal }) => getSeedsToCommunityWashtenawYears({ signal, ...requestOptions });
 
       
 
       
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getS2CYears>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawYears>>, TError, TData> & { queryKey: QueryKey }
 }
 
-export type GetS2CYearsQueryResult = NonNullable<Awaited<ReturnType<typeof getS2CYears>>>
-export type GetS2CYearsQueryError = ErrorType<unknown>
+export type GetSeedsToCommunityWashtenawYearsQueryResult = NonNullable<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawYears>>>
+export type GetSeedsToCommunityWashtenawYearsQueryError = ErrorType<unknown>
 
 
 /**
  * @summary List available Seeds to Community Washtenaw program years
  */
 
-export function useGetS2CYears<TData = Awaited<ReturnType<typeof getS2CYears>>, TError = ErrorType<unknown>>(
-  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getS2CYears>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export function useGetSeedsToCommunityWashtenawYears<TData = Awaited<ReturnType<typeof getSeedsToCommunityWashtenawYears>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawYears>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetS2CYearsQueryOptions(options)
+  const queryOptions = getGetSeedsToCommunityWashtenawYearsQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -4075,17 +4075,17 @@ export function useGetS2CYears<TData = Awaited<ReturnType<typeof getS2CYears>>, 
 
  * @summary Seeds to Community Washtenaw source metadata
  */
-export const getGetS2CMetadataUrl = () => {
+export const getGetSeedsToCommunityWashtenawMetadataUrl = () => {
 
 
   
 
-  return `/api/s2c/metadata`
+  return `/api/seeds-to-community-washtenaw/metadata`
 }
 
-export const getS2CMetadata = async ( options?: RequestInit): Promise<GetS2CMetadata200> => {
+export const getSeedsToCommunityWashtenawMetadata = async ( options?: RequestInit): Promise<GetSeedsToCommunityWashtenawMetadata200> => {
   
-  return customFetch<GetS2CMetadata200>(getGetS2CMetadataUrl(),
+  return customFetch<GetSeedsToCommunityWashtenawMetadata200>(getGetSeedsToCommunityWashtenawMetadataUrl(),
   {      
     ...options,
     method: 'GET'
@@ -4098,45 +4098,45 @@ export const getS2CMetadata = async ( options?: RequestInit): Promise<GetS2CMeta
 
 
 
-export const getGetS2CMetadataQueryKey = () => {
+export const getGetSeedsToCommunityWashtenawMetadataQueryKey = () => {
     return [
-    `/api/s2c/metadata`
+    `/api/seeds-to-community-washtenaw/metadata`
     ] as const;
     }
 
     
-export const getGetS2CMetadataQueryOptions = <TData = Awaited<ReturnType<typeof getS2CMetadata>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getS2CMetadata>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetSeedsToCommunityWashtenawMetadataQueryOptions = <TData = Awaited<ReturnType<typeof getSeedsToCommunityWashtenawMetadata>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawMetadata>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetS2CMetadataQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getGetSeedsToCommunityWashtenawMetadataQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getS2CMetadata>>> = ({ signal }) => getS2CMetadata({ signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawMetadata>>> = ({ signal }) => getSeedsToCommunityWashtenawMetadata({ signal, ...requestOptions });
 
       
 
       
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getS2CMetadata>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawMetadata>>, TError, TData> & { queryKey: QueryKey }
 }
 
-export type GetS2CMetadataQueryResult = NonNullable<Awaited<ReturnType<typeof getS2CMetadata>>>
-export type GetS2CMetadataQueryError = ErrorType<unknown>
+export type GetSeedsToCommunityWashtenawMetadataQueryResult = NonNullable<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawMetadata>>>
+export type GetSeedsToCommunityWashtenawMetadataQueryError = ErrorType<unknown>
 
 
 /**
  * @summary Seeds to Community Washtenaw source metadata
  */
 
-export function useGetS2CMetadata<TData = Awaited<ReturnType<typeof getS2CMetadata>>, TError = ErrorType<unknown>>(
-  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getS2CMetadata>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export function useGetSeedsToCommunityWashtenawMetadata<TData = Awaited<ReturnType<typeof getSeedsToCommunityWashtenawMetadata>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawMetadata>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetS2CMetadataQueryOptions(options)
+  const queryOptions = getGetSeedsToCommunityWashtenawMetadataQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

@@ -53,15 +53,15 @@ export const S2C_REGISTRY_ENTRY = {
     "2023 data sourced from PDF plant sheets — may not represent the complete program offering for that year. " +
     "Botanical names reflect S2C program usage and are not formally reconciled to BONAP, GBIF, or Michigan Flora taxonomies. " +
     "Neat & Tidy flag not tracked for 2023. Sweet & Simple flag only available from 2026 onward.",
-  metadata_url: "/api/s2c/metadata",
+  metadata_url: "/api/seeds-to-community-washtenaw/metadata",
   licenses: S2C_LICENSES,
   license_notes: S2C_LICENSE_NOTES,
   general_summary: S2C_GENERAL_SUMMARY,
   technical_details: S2C_TECHNICAL_DETAILS,
   non_passthrough_endpoints: [
-    { endpoint: "/api/s2c/metadata", kind: "metadata" },
-    { endpoint: "/api/s2c", kind: "in_memory" },
-    { endpoint: "/api/s2c/years", kind: "in_memory" },
+    { endpoint: "/api/seeds-to-community-washtenaw/metadata", kind: "metadata" },
+    { endpoint: "/api/seeds-to-community-washtenaw/species", kind: "in_memory" },
+    { endpoint: "/api/seeds-to-community-washtenaw/years", kind: "in_memory" },
   ],
   permission_granted: true,
 };
