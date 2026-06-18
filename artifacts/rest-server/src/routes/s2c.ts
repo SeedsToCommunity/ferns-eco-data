@@ -16,6 +16,7 @@ import {
 import {
   getSeedsToCommunityWashtenawSpecies,
   getSeedsToCommunityWashtenawYears,
+  getSeedsToCommunityWashtenawSpeciesInformation,
   SEEDS_TO_COMMUNITY_WASHTENAW_AVAILABLE_YEARS,
 } from "@workspace/internal-data-providers/seeds-to-community-washtenaw";
 import { ensureS2CRegistryEntry } from "../services/s2c/seed.js";
@@ -103,6 +104,68 @@ router.get("/seeds-to-community-washtenaw/species", async (req, res) => {
       sourceKind: "in-memory",
       found: yearData !== undefined,
       data: yearData ?? null,
+      method: "cache_hit",
+      cacheStatus: "hit",
+      sourceUrl: null,
+      queriedAt: new Date().toISOString(),
+    },
+    { registry: dbRegistryAccessor },
+  );
+  res.json(envelope);
+});
+
+router.get("/seeds-to-community-washtenaw/species-information", async (req, res) => {
+  const speciesParam = req.query["species"];
+
+  if (speciesParam === undefined || speciesParam === "") {
+    await ensureS2CRegistryEntry();
+    const envelope = await buildEnvelope(
+      {
+        sourceId: S2C_SOURCE_ID,
+        sourceKind: "in-memory",
+        found: false,
+        data: {
+          error: "invalid_input",
+          message: "species query parameter is required. Provide a botanical name, e.g. ?species=Aquilegia+canadensis",
+        },
+        method: "cache_hit",
+        cacheStatus: "hit",
+        sourceUrl: null,
+        queriedAt: new Date().toISOString(),
+      },
+      { registry: dbRegistryAccessor },
+    );
+    res.status(400).json(envelope);
+    return;
+  }
+
+  await ensureS2CRegistryEntry();
+  const info = getSeedsToCommunityWashtenawSpeciesInformation(String(speciesParam));
+
+  if (info === undefined) {
+    const envelope = await buildEnvelope(
+      {
+        sourceId: S2C_SOURCE_ID,
+        sourceKind: "in-memory",
+        found: false,
+        data: null,
+        method: "cache_hit",
+        cacheStatus: "hit",
+        sourceUrl: null,
+        queriedAt: new Date().toISOString(),
+      },
+      { registry: dbRegistryAccessor },
+    );
+    res.status(404).json(envelope);
+    return;
+  }
+
+  const envelope = await buildEnvelope(
+    {
+      sourceId: S2C_SOURCE_ID,
+      sourceKind: "in-memory",
+      found: true,
+      data: info,
       method: "cache_hit",
       cacheStatus: "hit",
       sourceUrl: null,

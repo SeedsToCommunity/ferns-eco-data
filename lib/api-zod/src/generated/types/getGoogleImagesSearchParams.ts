@@ -6,7 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetGoogleImagesParams = {
+export type GetGoogleImagesSearchParams = {
 /**
  * Scientific name to search for (e.g. Acer rubrum)
  * @minLength 1

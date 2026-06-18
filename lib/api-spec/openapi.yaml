@@ -2552,6 +2552,50 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /seeds-to-community-washtenaw/species-information:
+    get:
+      operationId: getSeedsToCommunityWashtenawSpeciesInformation
+      tags: [seeds-to-community-washtenaw]
+      summary: Get per-species growing information for a Seeds to Community Washtenaw species
+      description: >
+        Returns rich per-species growing information for a given botanical name from the
+        Seeds to Community Washtenaw species information dataset (~220 species).
+        Lookup is case-insensitive on the botanical name.
+        Data includes growth habit, germination code, stratification notes, bloom color,
+        height, stature, light requirements, moisture preferences, and additional planting notes.
+        Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+      parameters:
+        - name: species
+          in: query
+          required: true
+          description: Botanical name of the species, e.g. Aquilegia canadensis.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Per-species growing information wrapped in FernsEnvelope
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/S2CSpeciesInformationData"
+        "400":
+          description: Missing species parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Species not found in the information dataset
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /seeds-to-community-washtenaw/years:
     get:
       operationId: getSeedsToCommunityWashtenawYears
@@ -6263,6 +6307,88 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/S2CSpecies"
+
+    S2CSpeciesInformationData:
+      type: object
+      description: Per-species growing information from the Seeds to Community Washtenaw species information dataset.
+      required:
+        - botanical_name
+      properties:
+        botanical_name:
+          type: string
+          description: Botanical (scientific) name of the species as used in the S2C program
+        common_name:
+          type: string
+          nullable: true
+          description: Common name of the species
+        special_collect:
+          type: boolean
+          nullable: true
+          description: Whether this species requires special collection handling
+        s2c_lists:
+          type: string
+          nullable: true
+          description: S2C program list designations (e.g. Neat & Tidy, Sweet & Simple)
+        start_seed_watch:
+          type: string
+          nullable: true
+          description: Month code indicating when to begin seed watch monitoring
+        growth_habit:
+          type: string
+          nullable: true
+          description: Plant growth habit (e.g. forb, grass, shrub)
+        germination_code:
+          type: string
+          nullable: true
+          description: Germination treatment code for this species
+        strat_notes:
+          type: string
+          nullable: true
+          description: Stratification notes describing cold or warm stratification requirements
+        planting_notes:
+          type: string
+          nullable: true
+          description: Notes on planting depth, timing, or technique
+        process_notes:
+          type: string
+          nullable: true
+          description: Notes on seed processing or cleaning
+        bloom_color:
+          type: string
+          nullable: true
+          description: Primary bloom color
+        height:
+          type: string
+          nullable: true
+          description: Typical plant height range (e.g. 2'-3')
+        stature:
+          type: string
+          nullable: true
+          description: Descriptive stature category (e.g. Ankle, Knee, Waist, Chest, Head)
+        compact_bloom_range:
+          type: string
+          nullable: true
+          description: Compact bloom range string (e.g. JUL - AUG)
+        bloom_months:
+          type: string
+          nullable: true
+          description: Comma-separated list of bloom month abbreviations
+        plant_spacing:
+          type: string
+          nullable: true
+          description: Recommended plant spacing
+        light:
+          type: string
+          nullable: true
+          description: Light requirement codes (e.g. Sn, P, Sh)
+        moisture:
+          type: string
+          nullable: true
+          description: Moisture preference codes (e.g. D, M, Ms, W)
+        species_comments:
+          type: string
+          nullable: true
+          description: Additional comments or notes about the species
 
     UniversalFqaDatabaseDetail:
       type: object

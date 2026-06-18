@@ -7,16 +7,19 @@ export const S2C_LICENSE_NOTES =
   "Data is public-facing and published for community use. Permission to serve via FERNS explicitly granted by the program organizer.";
 
 export const S2C_GENERAL_SUMMARY =
-  "Species availability records for Seeds to Community Washtenaw, a native plant seed-growing program " +
-  "run by a Washtenaw County, Michigan community organization; FERNS serves this data with the " +
-  "program organizer's permission. " +
-  "Data type: the list of botanical names offered for growing in each annual workshop series, " +
-  "extracted from program documents (PDFs and Google Sheets). " +
+  "Species availability records and per-species growing information for Seeds to Community Washtenaw, " +
+  "a native plant seed-growing program run by a Washtenaw County, Michigan community organization; " +
+  "FERNS serves this data with the program organizer's permission. " +
+  "Data type: (1) the list of botanical names offered for growing in each annual workshop series, " +
+  "extracted from program documents (PDFs and Google Sheets); " +
+  "(2) rich per-species information — growth habit, germination code, stratification notes, bloom color, " +
+  "height, stature, light, moisture, and additional planting notes — covering ~220 species. " +
   "Geographic scope: Washtenaw County, Michigan; taxonomic scope: native plants suitable for " +
   "seed-growing workshops in the Upper Midwest. " +
   "FERNS serves static in-memory data extracted from program documents; no live API is queried at runtime. " +
   "A query by year returns the species list with optional metadata flags: " +
   "neat_and_tidy (suitable for formal garden settings) and sweet_and_simple (beginner-friendly, 2026+). " +
+  "A query by botanical name returns rich per-species growing data. " +
   "Data is updated annually when new program year documents are processed; " +
   "the 2023 list is from workshop PDFs (24 species) and may be incomplete. " +
   "Botanical names reflect S2C program usage and are not formally reconciled to any single taxonomic authority.";
@@ -29,6 +32,12 @@ export const S2C_TECHNICAL_DETAILS =
   "2024 — Google Sheets 'All Species For Growing Events' tab (file: 12DX2dQ96KUyEeNKREfpNoGHtTBxczan6uZNP3uQYyJk); 96 species; neat_and_tidy from Neat column. " +
   "2025 — Google Sheets 'Species' tab, filter Barn S3=TRUE (file: 121a1HIhNPJwyM1fr_OWgi4jMKRipF9EKDeT7_zo4mA8); 151 species; neat_and_tidy from Neat column. " +
   "2026 — Google Sheets 'Species' tab, filter Collected=TRUE (file: 1sVNi4MuqSI6tugCgDodiUJZMTMkDuK1FEXojexI5f-E); 166 species; neat_and_tidy and sweet_and_simple from S2C Lists column. " +
+  "Species information endpoint: source file S2C_SpeciesInfo.csv; ~220 species after excluding 17 rows " +
+  "(13 flagged as Old Name, 4 Non-Native); " +
+  "19 ingested fields per species: botanical_name, common_name, special_collect, s2c_lists, " +
+  "start_seed_watch, growth_habit, germination_code, strat_notes, planting_notes, process_notes, " +
+  "bloom_color, height, stature, compact_bloom_range, bloom_months, plant_spacing, light, moisture, species_comments; " +
+  "lookup method: case-insensitive match on botanical_name. " +
   "Botanical names reflect S2C program usage; not formally reconciled to a single taxonomic authority. " +
   "No upstream API. No cache TTL — data is in-memory static reference.";
 
@@ -41,10 +50,14 @@ export const S2C_REGISTRY_ENTRY = {
     "Annual lists of native plant botanical names offered at Washtenaw County, Michigan seed-growing workshops, " +
     "covering program years 2023–2026, with optional suitability flags: 'Neat & Tidy' for formal garden settings " +
     "and 'Sweet & Simple' for beginners (available from 2026 onward). " +
+    "Also provides rich per-species growing information for ~220 species: growth habit, germination code, " +
+    "stratification notes, bloom color, height, stature, light, moisture, and planting notes, " +
+    "looked up by botanical name. " +
     "From Seeds to Community Washtenaw, a community seed-growing program in Washtenaw County, Michigan.",
-  input_summary: "Program year (2023–2026)",
+  input_summary: "Program year (2023–2026) for species availability lists; botanical name for per-species growing information",
   output_summary:
-    "List of botanical names offered that year, with optional neat_and_tidy and sweet_and_simple metadata flags where tracked",
+    "Species list for a given year with optional neat_and_tidy and sweet_and_simple flags; " +
+    "or rich per-species growing data (growth habit, germination, bloom, light, moisture, stature, and notes) for a given botanical name",
   dependencies: [] as string[],
   update_frequency:
     "Updated annually after each program year's species list is finalized (typically late fall). " +
@@ -61,6 +74,7 @@ export const S2C_REGISTRY_ENTRY = {
   non_passthrough_endpoints: [
     { endpoint: "/api/seeds-to-community-washtenaw/metadata", kind: "metadata" },
     { endpoint: "/api/seeds-to-community-washtenaw/species", kind: "in_memory" },
+    { endpoint: "/api/seeds-to-community-washtenaw/species-information", kind: "in_memory" },
     { endpoint: "/api/seeds-to-community-washtenaw/years", kind: "in_memory" },
   ],
   permission_granted: true,

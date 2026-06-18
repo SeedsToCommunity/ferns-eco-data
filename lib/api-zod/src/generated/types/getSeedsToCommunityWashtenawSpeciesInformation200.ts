@@ -6,8 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { FernsEnvelope } from './fernsEnvelope';
-import type { GoogleImagesData } from './googleImagesData';
+import type { S2CSpeciesInformationData } from './s2CSpeciesInformationData';
 
-export type GetGoogleImages200 = FernsEnvelope & {
-  data?: GoogleImagesData;
+export type GetSeedsToCommunityWashtenawSpeciesInformation200 = FernsEnvelope & {
+  data?: S2CSpeciesInformationData;
 };

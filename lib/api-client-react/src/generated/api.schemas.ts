@@ -1143,6 +1143,50 @@ export interface S2CSpeciesData {
   species: S2CSpecies[];
 }
 
+/**
+ * Per-species growing information from the Seeds to Community Washtenaw species information dataset.
+ */
+export interface S2CSpeciesInformationData {
+  /** Botanical (scientific) name of the species as used in the S2C program */
+  botanical_name: string;
+  /** Common name of the species */
+  common_name?: string | null;
+  /** Whether this species requires special collection handling */
+  special_collect?: boolean | null;
+  /** S2C program list designations (e.g. Neat & Tidy, Sweet & Simple) */
+  s2c_lists?: string | null;
+  /** Month code indicating when to begin seed watch monitoring */
+  start_seed_watch?: string | null;
+  /** Plant growth habit (e.g. forb, grass, shrub) */
+  growth_habit?: string | null;
+  /** Germination treatment code for this species */
+  germination_code?: string | null;
+  /** Stratification notes describing cold or warm stratification requirements */
+  strat_notes?: string | null;
+  /** Notes on planting depth, timing, or technique */
+  planting_notes?: string | null;
+  /** Notes on seed processing or cleaning */
+  process_notes?: string | null;
+  /** Primary bloom color */
+  bloom_color?: string | null;
+  /** Typical plant height range (e.g. 2'-3') */
+  height?: string | null;
+  /** Descriptive stature category (e.g. Ankle, Knee, Waist, Chest, Head) */
+  stature?: string | null;
+  /** Compact bloom range string (e.g. JUL - AUG) */
+  compact_bloom_range?: string | null;
+  /** Comma-separated list of bloom month abbreviations */
+  bloom_months?: string | null;
+  /** Recommended plant spacing */
+  plant_spacing?: string | null;
+  /** Light requirement codes (e.g. Sn, P, Sh) */
+  light?: string | null;
+  /** Moisture preference codes (e.g. D, M, Ms, W) */
+  moisture?: string | null;
+  /** Additional comments or notes about the species */
+  species_comments?: string | null;
+}
+
 export interface UniversalFqaSpeciesRecord {
   /** Scientific name of the species as listed in this database */
   scientific_name: string;
@@ -3243,6 +3287,17 @@ export type GetSeedsToCommunityWashtenawSpecies200 = FernsEnvelope & {
   data?: S2CSpeciesData;
 };
 
+export type GetSeedsToCommunityWashtenawSpeciesInformationParams = {
+/**
+ * Botanical name of the species, e.g. Aquilegia canadensis.
+ */
+species: string;
+};
+
+export type GetSeedsToCommunityWashtenawSpeciesInformation200 = FernsEnvelope & {
+  data?: S2CSpeciesInformationData;
+};
+
 export type GetSeedsToCommunityWashtenawYears200 = FernsEnvelope & {
   data?: S2CYearsData;
 };
@@ -3404,7 +3459,7 @@ export const GetGobotanySpeciesTextRefresh = {
   false: 'false',
 } as const;
 
-export type GetGoogleImagesParams = {
+export type GetGoogleImagesSearchParams = {
 /**
  * Scientific name to search for (e.g. Acer rubrum)
  * @minLength 1
@@ -3412,7 +3467,7 @@ export type GetGoogleImagesParams = {
 species: string;
 };
 
-export type GetGoogleImages200 = FernsEnvelope & {
+export type GetGoogleImagesSearch200 = FernsEnvelope & {
   data?: GoogleImagesData;
 };
 

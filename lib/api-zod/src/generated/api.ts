@@ -1957,6 +1957,62 @@ export const GetSeedsToCommunityWashtenawSpeciesResponse = zod.object({
 
 
 /**
+ * Returns rich per-species growing information for a given botanical name from the Seeds to Community Washtenaw species information dataset (~220 species). Lookup is case-insensitive on the botanical name. Data includes growth habit, germination code, stratification notes, bloom color, height, stature, light requirements, moisture preferences, and additional planting notes. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+
+ * @summary Get per-species growing information for a Seeds to Community Washtenaw species
+ */
+export const GetSeedsToCommunityWashtenawSpeciesInformationQueryParams = zod.object({
+  "species": zod.string().describe('Botanical name of the species, e.g. Aquilegia canadensis.')
+})
+
+export const GetSeedsToCommunityWashtenawSpeciesInformationResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.object({
+  "botanical_name": zod.string().describe('Botanical (scientific) name of the species as used in the S2C program'),
+  "common_name": zod.string().nullish().describe('Common name of the species'),
+  "special_collect": zod.boolean().nullish().describe('Whether this species requires special collection handling'),
+  "s2c_lists": zod.string().nullish().describe('S2C program list designations (e.g. Neat & Tidy, Sweet & Simple)'),
+  "start_seed_watch": zod.string().nullish().describe('Month code indicating when to begin seed watch monitoring'),
+  "growth_habit": zod.string().nullish().describe('Plant growth habit (e.g. forb, grass, shrub)'),
+  "germination_code": zod.string().nullish().describe('Germination treatment code for this species'),
+  "strat_notes": zod.string().nullish().describe('Stratification notes describing cold or warm stratification requirements'),
+  "planting_notes": zod.string().nullish().describe('Notes on planting depth, timing, or technique'),
+  "process_notes": zod.string().nullish().describe('Notes on seed processing or cleaning'),
+  "bloom_color": zod.string().nullish().describe('Primary bloom color'),
+  "height": zod.string().nullish().describe('Typical plant height range (e.g. 2\'-3\')'),
+  "stature": zod.string().nullish().describe('Descriptive stature category (e.g. Ankle, Knee, Waist, Chest, Head)'),
+  "compact_bloom_range": zod.string().nullish().describe('Compact bloom range string (e.g. JUL - AUG)'),
+  "bloom_months": zod.string().nullish().describe('Comma-separated list of bloom month abbreviations'),
+  "plant_spacing": zod.string().nullish().describe('Recommended plant spacing'),
+  "light": zod.string().nullish().describe('Light requirement codes (e.g. Sn, P, Sh)'),
+  "moisture": zod.string().nullish().describe('Moisture preference codes (e.g. D, M, Ms, W)'),
+  "species_comments": zod.string().nullish().describe('Additional comments or notes about the species')
+}).optional().describe('Per-species growing information from the Seeds to Community Washtenaw species information dataset.')
+}))
+
+
+/**
  * Returns all available program years with species counts and source notes. Use this to discover what data is available before querying /seeds-to-community-washtenaw/species?year=. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
  * @summary List available Seeds to Community Washtenaw program years
@@ -3140,11 +3196,11 @@ export const GetGobotanySpeciesTextResponse = zod.object({
 
 
 
-export const GetGoogleImagesQueryParams = zod.object({
+export const GetGoogleImagesSearchQueryParams = zod.object({
   "species": zod.string().min(1).describe('Scientific name to search for (e.g. Acer rubrum)')
 })
 
-export const GetGoogleImagesResponse = zod.object({
+export const GetGoogleImagesSearchResponse = zod.object({
   "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
   "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
   "pagination": zod.union([zod.object({

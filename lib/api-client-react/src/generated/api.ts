@@ -52,9 +52,9 @@ import type {
   GetGbifSpeciesVernacularNamesParams,
   GetGobotanyParams,
   GetGobotanySpeciesTextParams,
-  GetGoogleImages200,
   GetGoogleImagesMetadata200,
-  GetGoogleImagesParams,
+  GetGoogleImagesSearch200,
+  GetGoogleImagesSearchParams,
   GetIllinoisWildflowersParams,
   GetIllinoisWildflowersSpeciesTextParams,
   GetInatControlledTermsForTaxonParams,
@@ -98,6 +98,8 @@ import type {
   GetPrairieMoonSpeciesTextParams,
   GetSeedsToCommunityWashtenawMetadata200,
   GetSeedsToCommunityWashtenawSpecies200,
+  GetSeedsToCommunityWashtenawSpeciesInformation200,
+  GetSeedsToCommunityWashtenawSpeciesInformationParams,
   GetSeedsToCommunityWashtenawSpeciesParams,
   GetSeedsToCommunityWashtenawYears200,
   GetSourceRelationshipsParams,
@@ -3994,6 +3996,90 @@ export function useGetSeedsToCommunityWashtenawSpecies<TData = Awaited<ReturnTyp
 
 
 /**
+ * Returns rich per-species growing information for a given botanical name from the Seeds to Community Washtenaw species information dataset (~220 species). Lookup is case-insensitive on the botanical name. Data includes growth habit, germination code, stratification notes, bloom color, height, stature, light requirements, moisture preferences, and additional planting notes. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+
+ * @summary Get per-species growing information for a Seeds to Community Washtenaw species
+ */
+export const getGetSeedsToCommunityWashtenawSpeciesInformationUrl = (params: GetSeedsToCommunityWashtenawSpeciesInformationParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/seeds-to-community-washtenaw/species-information?${stringifiedParams}` : `/api/seeds-to-community-washtenaw/species-information`
+}
+
+export const getSeedsToCommunityWashtenawSpeciesInformation = async (params: GetSeedsToCommunityWashtenawSpeciesInformationParams, options?: RequestInit): Promise<GetSeedsToCommunityWashtenawSpeciesInformation200> => {
+  
+  return customFetch<GetSeedsToCommunityWashtenawSpeciesInformation200>(getGetSeedsToCommunityWashtenawSpeciesInformationUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+  
+
+
+
+
+export const getGetSeedsToCommunityWashtenawSpeciesInformationQueryKey = (params?: GetSeedsToCommunityWashtenawSpeciesInformationParams,) => {
+    return [
+    `/api/seeds-to-community-washtenaw/species-information`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getGetSeedsToCommunityWashtenawSpeciesInformationQueryOptions = <TData = Awaited<ReturnType<typeof getSeedsToCommunityWashtenawSpeciesInformation>>, TError = ErrorType<ErrorResponse>>(params: GetSeedsToCommunityWashtenawSpeciesInformationParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawSpeciesInformation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSeedsToCommunityWashtenawSpeciesInformationQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawSpeciesInformation>>> = ({ signal }) => getSeedsToCommunityWashtenawSpeciesInformation(params, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawSpeciesInformation>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSeedsToCommunityWashtenawSpeciesInformationQueryResult = NonNullable<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawSpeciesInformation>>>
+export type GetSeedsToCommunityWashtenawSpeciesInformationQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get per-species growing information for a Seeds to Community Washtenaw species
+ */
+
+export function useGetSeedsToCommunityWashtenawSpeciesInformation<TData = Awaited<ReturnType<typeof getSeedsToCommunityWashtenawSpeciesInformation>>, TError = ErrorType<ErrorResponse>>(
+ params: GetSeedsToCommunityWashtenawSpeciesInformationParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawSpeciesInformation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+  
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSeedsToCommunityWashtenawSpeciesInformationQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
  * Returns all available program years with species counts and source notes. Use this to discover what data is available before querying /seeds-to-community-washtenaw/species?year=. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
  * @summary List available Seeds to Community Washtenaw program years
@@ -6210,7 +6296,7 @@ export function useGetGobotanySpeciesText<TData = Awaited<ReturnType<typeof getG
 
  * @summary Construct a Google Images search URL for a species
  */
-export const getGetGoogleImagesUrl = (params: GetGoogleImagesParams,) => {
+export const getGetGoogleImagesSearchUrl = (params: GetGoogleImagesSearchParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -6222,12 +6308,12 @@ export const getGetGoogleImagesUrl = (params: GetGoogleImagesParams,) => {
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/google-images?${stringifiedParams}` : `/api/google-images`
+  return stringifiedParams.length > 0 ? `/api/google-images/search?${stringifiedParams}` : `/api/google-images/search`
 }
 
-export const getGoogleImages = async (params: GetGoogleImagesParams, options?: RequestInit): Promise<GetGoogleImages200> => {
+export const getGoogleImagesSearch = async (params: GetGoogleImagesSearchParams, options?: RequestInit): Promise<GetGoogleImagesSearch200> => {
   
-  return customFetch<GetGoogleImages200>(getGetGoogleImagesUrl(params),
+  return customFetch<GetGoogleImagesSearch200>(getGetGoogleImagesSearchUrl(params),
   {      
     ...options,
     method: 'GET'
@@ -6240,45 +6326,45 @@ export const getGoogleImages = async (params: GetGoogleImagesParams, options?: R
 
 
 
-export const getGetGoogleImagesQueryKey = (params?: GetGoogleImagesParams,) => {
+export const getGetGoogleImagesSearchQueryKey = (params?: GetGoogleImagesSearchParams,) => {
     return [
-    `/api/google-images`, ...(params ? [params] : [])
+    `/api/google-images/search`, ...(params ? [params] : [])
     ] as const;
     }
 
     
-export const getGetGoogleImagesQueryOptions = <TData = Awaited<ReturnType<typeof getGoogleImages>>, TError = ErrorType<ErrorResponse>>(params: GetGoogleImagesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGoogleImages>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetGoogleImagesSearchQueryOptions = <TData = Awaited<ReturnType<typeof getGoogleImagesSearch>>, TError = ErrorType<FernsEnvelope>>(params: GetGoogleImagesSearchParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGoogleImagesSearch>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetGoogleImagesQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getGetGoogleImagesSearchQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getGoogleImages>>> = ({ signal }) => getGoogleImages(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getGoogleImagesSearch>>> = ({ signal }) => getGoogleImagesSearch(params, { signal, ...requestOptions });
 
       
 
       
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getGoogleImages>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getGoogleImagesSearch>>, TError, TData> & { queryKey: QueryKey }
 }
 
-export type GetGoogleImagesQueryResult = NonNullable<Awaited<ReturnType<typeof getGoogleImages>>>
-export type GetGoogleImagesQueryError = ErrorType<ErrorResponse>
+export type GetGoogleImagesSearchQueryResult = NonNullable<Awaited<ReturnType<typeof getGoogleImagesSearch>>>
+export type GetGoogleImagesSearchQueryError = ErrorType<FernsEnvelope>
 
 
 /**
  * @summary Construct a Google Images search URL for a species
  */
 
-export function useGetGoogleImages<TData = Awaited<ReturnType<typeof getGoogleImages>>, TError = ErrorType<ErrorResponse>>(
- params: GetGoogleImagesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGoogleImages>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export function useGetGoogleImagesSearch<TData = Awaited<ReturnType<typeof getGoogleImagesSearch>>, TError = ErrorType<FernsEnvelope>>(
+ params: GetGoogleImagesSearchParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGoogleImagesSearch>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetGoogleImagesQueryOptions(params,options)
+  const queryOptions = getGetGoogleImagesSearchQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
