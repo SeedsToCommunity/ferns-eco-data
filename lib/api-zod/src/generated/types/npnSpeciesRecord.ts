@@ -5,7 +5,7 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { NpnImage } from "./npnImage";
+import type { NpnImage } from './npnImage';
 
 /**
  * A single species record from The Native Plant Nursery database.
@@ -15,7 +15,7 @@ export interface NpnSpeciesRecord {
   acronym: string;
   latin_name: string;
   /** Greg Vaclavek's Latin synonym. Known quirk: GENAND has "Closed Gentian" (a common name) in this field.
-   */
+ */
   latin_synonym_greg?: string | null;
   /** Raw common name string (may contain ; and , separators) */
   common_name: string;

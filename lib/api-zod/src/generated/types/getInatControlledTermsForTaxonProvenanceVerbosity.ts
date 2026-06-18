@@ -6,11 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetInatControlledTermsForTaxonProvenanceVerbosity =
-  (typeof GetInatControlledTermsForTaxonProvenanceVerbosity)[keyof typeof GetInatControlledTermsForTaxonProvenanceVerbosity];
+export type GetInatControlledTermsForTaxonProvenanceVerbosity = typeof GetInatControlledTermsForTaxonProvenanceVerbosity[keyof typeof GetInatControlledTermsForTaxonProvenanceVerbosity];
+
 
 export const GetInatControlledTermsForTaxonProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;

@@ -5,7 +5,7 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { WetlandIndicatorEntryCode } from "./wetlandIndicatorEntryCode";
+import type { WetlandIndicatorEntryCode } from './wetlandIndicatorEntryCode';
 
 export interface WetlandIndicatorEntry {
   /** WIS code: OBL, FACW, FAC, FACU, or UPL */

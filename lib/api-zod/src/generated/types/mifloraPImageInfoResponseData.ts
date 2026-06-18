@@ -5,7 +5,7 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { MifloraImageRecord } from "./mifloraImageRecord";
+import type { MifloraImageRecord } from './mifloraImageRecord';
 
 export type MifloraPImageInfoResponseData = {
   plant_id?: number | null;

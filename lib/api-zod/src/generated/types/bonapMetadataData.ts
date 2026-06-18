@@ -5,9 +5,9 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { BonapAttribution } from "./bonapAttribution";
-import type { BonapMetadataDataRegistryEntry } from "./bonapMetadataDataRegistryEntry";
-import type { ColorKeyEntry } from "./colorKeyEntry";
+import type { BonapAttribution } from './bonapAttribution';
+import type { BonapMetadataDataRegistryEntry } from './bonapMetadataDataRegistryEntry';
+import type { ColorKeyEntry } from './colorKeyEntry';
 
 /**
  * Data payload returned in the /bonap/metadata FernsEnvelope data field.

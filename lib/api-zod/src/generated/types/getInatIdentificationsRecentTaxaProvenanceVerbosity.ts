@@ -6,11 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetInatIdentificationsRecentTaxaProvenanceVerbosity =
-  (typeof GetInatIdentificationsRecentTaxaProvenanceVerbosity)[keyof typeof GetInatIdentificationsRecentTaxaProvenanceVerbosity];
+export type GetInatIdentificationsRecentTaxaProvenanceVerbosity = typeof GetInatIdentificationsRecentTaxaProvenanceVerbosity[keyof typeof GetInatIdentificationsRecentTaxaProvenanceVerbosity];
+
 
 export const GetInatIdentificationsRecentTaxaProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;

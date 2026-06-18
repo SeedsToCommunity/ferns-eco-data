@@ -10,6 +10,4 @@
  * Verbatim GBIF species/{usageKey}/vernacularNames upstream response. Includes count, offset, limit, endOfRecords, and results array.
 
  */
-export interface GbifVernacularNamesData {
-  [key: string]: unknown;
-}
+export interface GbifVernacularNamesData { [key: string]: unknown }

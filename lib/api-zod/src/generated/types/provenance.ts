@@ -5,9 +5,9 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { EnvelopeCacheStatus } from "./envelopeCacheStatus";
-import type { EnvelopeMethod } from "./envelopeMethod";
-import type { ProvenanceDerivedFromItem } from "./provenanceDerivedFromItem";
+import type { EnvelopeCacheStatus } from './envelopeCacheStatus';
+import type { EnvelopeMethod } from './envelopeMethod';
+import type { ProvenanceDerivedFromItem } from './provenanceDerivedFromItem';
 
 /**
  * Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope's data field. See replit.md "FERNS Response Envelope Contract v1 — Provenance field definitions".
@@ -17,14 +17,14 @@ export interface Provenance {
   /** Stable identifier of the registered FERNS source (e.g. bonap-napa). */
   source_id: string;
   /** Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.
-   */
+ */
   source_url: string | null;
   method: EnvelopeMethod;
   cache_status: EnvelopeCacheStatus;
   /** When FERNS performed this lookup (UTC ISO-8601). */
   queried_at: Date;
   /** List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.
-   */
+ */
   derived_from: ProvenanceDerivedFromItem[] | null;
   /** License URI for the source data, or the literal string "unknown". */
   license: string;

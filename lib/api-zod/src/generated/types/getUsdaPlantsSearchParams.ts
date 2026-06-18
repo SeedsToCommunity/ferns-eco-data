@@ -5,22 +5,22 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetUsdaPlantsSearchField } from "./getUsdaPlantsSearchField";
+import type { GetUsdaPlantsSearchField } from './getUsdaPlantsSearchField';
 
 export type GetUsdaPlantsSearchParams = {
-  /**
-   * Search text (e.g. Trillium, butterfly milkweed)
-   * @minLength 1
-   */
-  q: string;
-  /**
+/**
+ * Search text (e.g. Trillium, butterfly milkweed)
+ * @minLength 1
+ */
+q: string;
+/**
  * Field to search. One of Scientific Name, Common Name, Symbol, Family. Defaults to Scientific Name.
 
  */
-  field?: GetUsdaPlantsSearchField;
-  /**
-   * 1-based page number (default 1)
-   * @minimum 1
-   */
-  page?: number;
+field?: GetUsdaPlantsSearchField;
+/**
+ * 1-based page number (default 1)
+ * @minimum 1
+ */
+page?: number;
 };

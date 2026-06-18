@@ -5,9 +5,9 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { FernsProvenance } from "./fernsProvenance";
-import type { WucolsEntry } from "./wucolsEntry";
-import type { WucolsResponseCacheStatus } from "./wucolsResponseCacheStatus";
+import type { FernsProvenance } from './fernsProvenance';
+import type { WucolsEntry } from './wucolsEntry';
+import type { WucolsResponseCacheStatus } from './wucolsResponseCacheStatus';
 
 export interface WucolsResponse {
   found: boolean;

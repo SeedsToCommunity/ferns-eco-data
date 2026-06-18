@@ -5,11 +5,11 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { UsdaPlantsNativeStatus } from "./usdaPlantsNativeStatus";
-import type { UsdaPlantsSpeciesDataAncestorsItem } from "./usdaPlantsSpeciesDataAncestorsItem";
-import type { UsdaPlantsSpeciesDataLegalStatusesItem } from "./usdaPlantsSpeciesDataLegalStatusesItem";
-import type { UsdaPlantsSpeciesDataSynonymsItem } from "./usdaPlantsSpeciesDataSynonymsItem";
-import type { UsdaPlantsSpeciesDataWetlandDataItem } from "./usdaPlantsSpeciesDataWetlandDataItem";
+import type { UsdaPlantsNativeStatus } from './usdaPlantsNativeStatus';
+import type { UsdaPlantsSpeciesDataAncestorsItem } from './usdaPlantsSpeciesDataAncestorsItem';
+import type { UsdaPlantsSpeciesDataLegalStatusesItem } from './usdaPlantsSpeciesDataLegalStatusesItem';
+import type { UsdaPlantsSpeciesDataSynonymsItem } from './usdaPlantsSpeciesDataSynonymsItem';
+import type { UsdaPlantsSpeciesDataWetlandDataItem } from './usdaPlantsSpeciesDataWetlandDataItem';
 
 export interface UsdaPlantsSpeciesData {
   symbol?: string | null;

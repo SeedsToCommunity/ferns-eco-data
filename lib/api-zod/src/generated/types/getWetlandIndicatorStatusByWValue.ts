@@ -6,8 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetWetlandIndicatorStatusByWValue =
-  (typeof GetWetlandIndicatorStatusByWValue)[keyof typeof GetWetlandIndicatorStatusByWValue];
+export type GetWetlandIndicatorStatusByWValue = typeof GetWetlandIndicatorStatusByWValue[keyof typeof GetWetlandIndicatorStatusByWValue];
+
 
 export const GetWetlandIndicatorStatusByWValue = {
   NUMBER_MINUS_5: -5,

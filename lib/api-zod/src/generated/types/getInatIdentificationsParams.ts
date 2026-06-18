@@ -5,76 +5,76 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetInatIdentificationsOrder } from "./getInatIdentificationsOrder";
-import type { GetInatIdentificationsProvenanceVerbosity } from "./getInatIdentificationsProvenanceVerbosity";
-import type { GetInatIdentificationsQualityGrade } from "./getInatIdentificationsQualityGrade";
+import type { GetInatIdentificationsOrder } from './getInatIdentificationsOrder';
+import type { GetInatIdentificationsProvenanceVerbosity } from './getInatIdentificationsProvenanceVerbosity';
+import type { GetInatIdentificationsQualityGrade } from './getInatIdentificationsQualityGrade';
 
 export type GetInatIdentificationsParams = {
-  taxon_id?: number;
-  /**
-   * Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
-   */
-  place_id?: string;
-  quality_grade?: GetInatIdentificationsQualityGrade;
-  /**
-   * @minimum 1
-   * @maximum 200
-   */
-  per_page?: number;
-  /**
-   * @minimum 1
-   */
-  page?: number;
-  /**
-   * Start date filter (YYYY-MM-DD)
-   */
-  d1?: string;
-  /**
-   * End date filter (YYYY-MM-DD)
-   */
-  d2?: string;
-  /**
-   * Comma-separated month numbers (e.g. 4,5,6)
-   */
-  month?: string;
-  native?: boolean;
-  introduced?: boolean;
-  lat?: number;
-  lng?: number;
-  radius?: number;
-  nelat?: number;
-  nelng?: number;
-  swlat?: number;
-  swlng?: number;
-  /**
-   * Locale for common names (e.g. en, es)
-   */
-  locale?: string;
-  /**
-   * Filter by identifier user ID
-   */
-  user_id?: number;
-  /**
-   * Filter by identifier user login
-   */
-  user_login?: string;
-  /**
-   * Comma-separated iconic taxon names (e.g. Plantae,Fungi)
-   */
-  iconic_taxa?: string;
-  term_id?: number;
-  term_value_id?: number;
-  verifiable?: boolean;
-  /**
-   * Sort order: desc (default) or asc
-   */
-  order?: GetInatIdentificationsOrder;
-  /**
-   * Sort field: created_at (default) or id
-   */
-  order_by?: string;
-  /**
-   * Controls provenance text: full (default), summary, or none
-   */
-  provenance_verbosity?: GetInatIdentificationsProvenanceVerbosity;
+taxon_id?: number;
+/**
+ * Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
+ */
+place_id?: string;
+quality_grade?: GetInatIdentificationsQualityGrade;
+/**
+ * @minimum 1
+ * @maximum 200
+ */
+per_page?: number;
+/**
+ * @minimum 1
+ */
+page?: number;
+/**
+ * Start date filter (YYYY-MM-DD)
+ */
+d1?: string;
+/**
+ * End date filter (YYYY-MM-DD)
+ */
+d2?: string;
+/**
+ * Comma-separated month numbers (e.g. 4,5,6)
+ */
+month?: string;
+native?: boolean;
+introduced?: boolean;
+lat?: number;
+lng?: number;
+radius?: number;
+nelat?: number;
+nelng?: number;
+swlat?: number;
+swlng?: number;
+/**
+ * Locale for common names (e.g. en, es)
+ */
+locale?: string;
+/**
+ * Filter by identifier user ID
+ */
+user_id?: number;
+/**
+ * Filter by identifier user login
+ */
+user_login?: string;
+/**
+ * Comma-separated iconic taxon names (e.g. Plantae,Fungi)
+ */
+iconic_taxa?: string;
+term_id?: number;
+term_value_id?: number;
+verifiable?: boolean;
+/**
+ * Sort order: desc (default) or asc
+ */
+order?: GetInatIdentificationsOrder;
+/**
+ * Sort field: created_at (default) or id
+ */
+order_by?: string;
+/**
+ * Controls provenance text: full (default), summary, or none
+ */
+provenance_verbosity?: GetInatIdentificationsProvenanceVerbosity;
 };

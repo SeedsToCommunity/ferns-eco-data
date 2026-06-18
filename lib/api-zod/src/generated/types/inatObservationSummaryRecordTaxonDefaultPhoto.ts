@@ -6,6 +6,4 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type InatObservationSummaryRecordTaxonDefaultPhoto = {
-  [key: string]: unknown;
-} | null;
+export type InatObservationSummaryRecordTaxonDefaultPhoto = { [key: string]: unknown } | null;

@@ -6,14 +6,14 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type LcscgGuideHabitatType =
-  (typeof LcscgGuideHabitatType)[keyof typeof LcscgGuideHabitatType];
+export type LcscgGuideHabitatType = typeof LcscgGuideHabitatType[keyof typeof LcscgGuideHabitatType];
+
 
 export const LcscgGuideHabitatType = {
-  woodland: "woodland",
-  wetland: "wetland",
-  prairie: "prairie",
-  grasses_and_kin: "grasses_and_kin",
-  asters_and_goldenrods: "asters_and_goldenrods",
-  woody_plants: "woody_plants",
+  woodland: 'woodland',
+  wetland: 'wetland',
+  prairie: 'prairie',
+  grasses_and_kin: 'grasses_and_kin',
+  asters_and_goldenrods: 'asters_and_goldenrods',
+  woody_plants: 'woody_plants',
 } as const;

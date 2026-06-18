@@ -5,7 +5,7 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { SpeciesTextResponseDataSections } from "./speciesTextResponseDataSections";
+import type { SpeciesTextResponseDataSections } from './speciesTextResponseDataSections';
 
 /**
  * Present when found=true. Null when not found.
@@ -16,9 +16,9 @@ export type SpeciesTextResponseData = {
   /** The page URL that was scraped. */
   url?: string;
   /** Labeled prose sections extracted from the page (e.g. Description, Cultivation, Facts, Habitat). Keys are section names, values are plain text content.
-   */
+ */
   sections?: SpeciesTextResponseDataSections;
   /** All sections concatenated as Label-colon-text blocks, separated by double newlines.
-   */
+ */
   full_text?: string | null;
 } | null;

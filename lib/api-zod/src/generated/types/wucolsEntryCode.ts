@@ -9,12 +9,12 @@
 /**
  * WUCOLS code: VL, L, M, or H
  */
-export type WucolsEntryCode =
-  (typeof WucolsEntryCode)[keyof typeof WucolsEntryCode];
+export type WucolsEntryCode = typeof WucolsEntryCode[keyof typeof WucolsEntryCode];
+
 
 export const WucolsEntryCode = {
-  VL: "VL",
-  L: "L",
-  M: "M",
-  H: "H",
+  VL: 'VL',
+  L: 'L',
+  M: 'M',
+  H: 'H',
 } as const;

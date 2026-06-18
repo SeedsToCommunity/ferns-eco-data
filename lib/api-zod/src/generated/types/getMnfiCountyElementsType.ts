@@ -6,10 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetMnfiCountyElementsType =
-  (typeof GetMnfiCountyElementsType)[keyof typeof GetMnfiCountyElementsType];
+export type GetMnfiCountyElementsType = typeof GetMnfiCountyElementsType[keyof typeof GetMnfiCountyElementsType];
+
 
 export const GetMnfiCountyElementsType = {
-  species: "species",
-  community: "community",
+  species: 'species',
+  community: 'community',
 } as const;

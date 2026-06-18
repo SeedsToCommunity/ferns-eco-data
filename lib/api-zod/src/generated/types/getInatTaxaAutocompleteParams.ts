@@ -5,41 +5,41 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetInatTaxaAutocompleteProvenanceVerbosity } from "./getInatTaxaAutocompleteProvenanceVerbosity";
+import type { GetInatTaxaAutocompleteProvenanceVerbosity } from './getInatTaxaAutocompleteProvenanceVerbosity';
 
 export type GetInatTaxaAutocompleteParams = {
-  /**
-   * Partial or full scientific or common name to search for
-   */
-  q: string;
-  /**
-   * Results per page (default 10, max 10 for autocomplete)
-   * @minimum 1
-   * @maximum 10
-   */
-  per_page?: number;
-  /**
-   * Filter to active taxa only (default true)
-   */
-  is_active?: boolean;
-  /**
-   * Taxonomic rank filter (e.g. species, genus, family)
-   */
-  rank?: string;
-  /**
-   * Locale code for common names (e.g. en, es, de)
-   */
-  locale?: string;
-  /**
-   * Include all name variants in search (not just preferred)
-   */
-  all_names?: boolean;
-  /**
-   * iNaturalist place ID to prioritize common names for that place
-   */
-  preferred_place_id?: number;
-  /**
-   * Controls provenance text: full (default), summary, or none
-   */
-  provenance_verbosity?: GetInatTaxaAutocompleteProvenanceVerbosity;
+/**
+ * Partial or full scientific or common name to search for
+ */
+q: string;
+/**
+ * Results per page (default 10, max 10 for autocomplete)
+ * @minimum 1
+ * @maximum 10
+ */
+per_page?: number;
+/**
+ * Filter to active taxa only (default true)
+ */
+is_active?: boolean;
+/**
+ * Taxonomic rank filter (e.g. species, genus, family)
+ */
+rank?: string;
+/**
+ * Locale code for common names (e.g. en, es, de)
+ */
+locale?: string;
+/**
+ * Include all name variants in search (not just preferred)
+ */
+all_names?: boolean;
+/**
+ * iNaturalist place ID to prioritize common names for that place
+ */
+preferred_place_id?: number;
+/**
+ * Controls provenance text: full (default), summary, or none
+ */
+provenance_verbosity?: GetInatTaxaAutocompleteProvenanceVerbosity;
 };

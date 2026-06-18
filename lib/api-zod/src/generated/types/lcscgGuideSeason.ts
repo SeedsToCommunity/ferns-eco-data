@@ -6,12 +6,12 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type LcscgGuideSeason =
-  (typeof LcscgGuideSeason)[keyof typeof LcscgGuideSeason];
+export type LcscgGuideSeason = typeof LcscgGuideSeason[keyof typeof LcscgGuideSeason];
+
 
 export const LcscgGuideSeason = {
-  spring: "spring",
-  summer: "summer",
-  fall: "fall",
-  all: "all",
+  spring: 'spring',
+  summer: 'summer',
+  fall: 'fall',
+  all: 'all',
 } as const;

@@ -6,6 +6,4 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type InatObservationSummaryRecordAnnotationsItem = {
-  [key: string]: unknown;
-};
+export type InatObservationSummaryRecordAnnotationsItem = { [key: string]: unknown };

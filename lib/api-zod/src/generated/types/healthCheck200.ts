@@ -5,8 +5,8 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { FernsEnvelope } from "./fernsEnvelope";
-import type { HealthStatus } from "./healthStatus";
+import type { FernsEnvelope } from './fernsEnvelope';
+import type { HealthStatus } from './healthStatus';
 
 export type HealthCheck200 = FernsEnvelope & {
   data?: HealthStatus;

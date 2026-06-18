@@ -5,8 +5,8 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { TrustGroupSummary } from "./trustGroupSummary";
-import type { TrustTierSummary } from "./trustTierSummary";
+import type { TrustGroupSummary } from './trustGroupSummary';
+import type { TrustTierSummary } from './trustTierSummary';
 
 export type TrustGroupDetailResponseData = {
   group: TrustGroupSummary;

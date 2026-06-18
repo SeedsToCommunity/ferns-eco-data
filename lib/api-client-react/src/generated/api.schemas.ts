@@ -30,10 +30,10 @@ export interface FernsProvenance {
   /** Plain language description readable by a homeowner or community member */
   general_summary?: string;
   /** Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce
-   */
+ */
   technical_details?: string;
   /** The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.
-   */
+ */
   matched_input?: string;
 }
 
@@ -41,41 +41,41 @@ export interface FernsProvenance {
  * How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md "Refinement #7 — method and cache_status are coupled".
 
  */
-export type EnvelopeMethod =
-  (typeof EnvelopeMethod)[keyof typeof EnvelopeMethod];
+export type EnvelopeMethod = typeof EnvelopeMethod[keyof typeof EnvelopeMethod];
+
 
 export const EnvelopeMethod = {
-  api_fetch: "api_fetch",
-  cache_hit: "cache_hit",
-  computed: "computed",
+  api_fetch: 'api_fetch',
+  cache_hit: 'cache_hit',
+  computed: 'computed',
 } as const;
 
 /**
  * Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.
 
  */
-export type EnvelopeCacheStatus =
-  (typeof EnvelopeCacheStatus)[keyof typeof EnvelopeCacheStatus];
+export type EnvelopeCacheStatus = typeof EnvelopeCacheStatus[keyof typeof EnvelopeCacheStatus];
+
 
 export const EnvelopeCacheStatus = {
-  hit: "hit",
-  miss: "miss",
-  stale: "stale",
-  bypass: "bypass",
+  hit: 'hit',
+  miss: 'miss',
+  stale: 'stale',
+  bypass: 'bypass',
 } as const;
 
 /**
  * Classification of the FERNS source kind. Mirrors the SOURCE_KINDS enum in @workspace/api-envelope. Determines how the envelope is filled — see replit.md "How each source kind fills the envelope".
 
  */
-export type EnvelopeSourceType =
-  (typeof EnvelopeSourceType)[keyof typeof EnvelopeSourceType];
+export type EnvelopeSourceType = typeof EnvelopeSourceType[keyof typeof EnvelopeSourceType];
+
 
 export const EnvelopeSourceType = {
-  "in-memory": "in-memory",
-  "pure-algorithm": "pure-algorithm",
-  "single-source-proxy": "single-source-proxy",
-  "multi-source-algorithm": "multi-source-algorithm",
+  'in-memory': 'in-memory',
+  'pure-algorithm': 'pure-algorithm',
+  'single-source-proxy': 'single-source-proxy',
+  'multi-source-algorithm': 'multi-source-algorithm',
 } as const;
 
 /**
@@ -104,14 +104,14 @@ export interface Provenance {
   /** Stable identifier of the registered FERNS source (e.g. bonap-napa). */
   source_id: string;
   /** Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.
-   */
+ */
   source_url: string | null;
   method: EnvelopeMethod;
   cache_status: EnvelopeCacheStatus;
   /** When FERNS performed this lookup (UTC ISO-8601). */
   queried_at: string;
   /** List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.
-   */
+ */
   derived_from: ProvenanceDerivedFromItem[] | null;
   /** License URI for the source data, or the literal string "unknown". */
   license: string;
@@ -125,7 +125,7 @@ export interface Provenance {
  */
 export interface FernsEnvelope {
   /** Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).
-   */
+ */
   found: boolean;
   /** Is the consumer cleared to use this data? Always present, per-endpoint. */
   permission_granted: boolean;
@@ -139,12 +139,12 @@ export interface FernsEnvelope {
 /**
  * Whether this color applies to state backgrounds or county fills
  */
-export type ColorKeyEntryLayer =
-  (typeof ColorKeyEntryLayer)[keyof typeof ColorKeyEntryLayer];
+export type ColorKeyEntryLayer = typeof ColorKeyEntryLayer[keyof typeof ColorKeyEntryLayer];
+
 
 export const ColorKeyEntryLayer = {
-  state_background: "state_background",
-  county_fill: "county_fill",
+  state_background: 'state_background',
+  county_fill: 'county_fill',
 } as const;
 
 export interface ColorKeyEntry {
@@ -173,30 +173,30 @@ export interface BonapAttribution {
   copyright_notice: string;
 }
 
-export type BonapMapDataMapTypeServed =
-  (typeof BonapMapDataMapTypeServed)[keyof typeof BonapMapDataMapTypeServed];
+export type BonapMapDataMapTypeServed = typeof BonapMapDataMapTypeServed[keyof typeof BonapMapDataMapTypeServed];
+
 
 export const BonapMapDataMapTypeServed = {
-  county_species: "county_species",
-  state_species: "state_species",
+  county_species: 'county_species',
+  state_species: 'state_species',
 } as const;
 
 /**
  * found — URL returned a valid image during cache population. not_found — BONAP returned a non-image response for this binomial. unverified — URL was returned from cache without re-verification.
 
  */
-export type BonapMapDataStatus =
-  (typeof BonapMapDataStatus)[keyof typeof BonapMapDataStatus];
+export type BonapMapDataStatus = typeof BonapMapDataStatus[keyof typeof BonapMapDataStatus];
+
 
 export const BonapMapDataStatus = {
-  found: "found",
-  not_found: "not_found",
-  unverified: "unverified",
+  found: 'found',
+  not_found: 'not_found',
+  unverified: 'unverified',
 } as const;
 
 export interface BonapMapData {
   /** Direct URL to the PNG image on BONAP's server. Present when status is found. Null when not found. Applications display this via an img tag — do not proxy.
-   */
+ */
   map_url?: string | null;
   map_type_served: BonapMapDataMapTypeServed;
   /** Normalized genus name as used in URL construction */
@@ -206,7 +206,7 @@ export interface BonapMapData {
   /** True if the caller provided a subspecific epithet that was stripped */
   species_stripped: boolean;
   /** found — URL returned a valid image during cache population. not_found — BONAP returned a non-image response for this binomial. unverified — URL was returned from cache without re-verification.
-   */
+ */
   status: BonapMapDataStatus;
 }
 
@@ -269,9 +269,7 @@ export interface GbifOccurrenceRecord {
  * Verbatim GBIF species/match upstream response. matchType is NONE when no match was found. usageKey is absent or null when matchType is NONE. GBIF always returns HTTP 200 regardless of match outcome.
 
  */
-export interface GbifMatchData {
-  [key: string]: unknown;
-}
+export interface GbifMatchData { [key: string]: unknown }
 
 export interface GbifSynonymRecord {
   key?: number;
@@ -282,15 +280,13 @@ export interface GbifSynonymRecord {
   nameType?: string;
   publishedIn?: string | null;
   [key: string]: unknown;
-}
+ }
 
 /**
  * Verbatim GBIF species/{usageKey}/synonyms upstream response. Includes count, offset, limit, endOfRecords, and results array.
 
  */
-export interface GbifSynonymsData {
-  [key: string]: unknown;
-}
+export interface GbifSynonymsData { [key: string]: unknown }
 
 export type GbifSynonymsResponse = FernsEnvelope & {
   data?: GbifSynonymsData;
@@ -302,15 +298,13 @@ export interface GbifVernacularRecord {
   country?: string | null;
   source?: string | null;
   [key: string]: unknown;
-}
+ }
 
 /**
  * Verbatim GBIF species/{usageKey}/vernacularNames upstream response. Includes count, offset, limit, endOfRecords, and results array.
 
  */
-export interface GbifVernacularNamesData {
-  [key: string]: unknown;
-}
+export interface GbifVernacularNamesData { [key: string]: unknown }
 
 export type GbifVernacularNamesResponse = FernsEnvelope & {
   data?: GbifVernacularNamesData;
@@ -324,9 +318,7 @@ export type GbifMatchResponse = FernsEnvelope & {
  * Verbatim GBIF occurrence/search upstream response. Includes count, offset, limit, endOfRecords, and results array.
 
  */
-export interface GbifOccurrencesData {
-  [key: string]: unknown;
-}
+export interface GbifOccurrencesData { [key: string]: unknown }
 
 export type GbifOccurrencesResponse = FernsEnvelope & {
   data?: GbifOccurrencesData;
@@ -336,9 +328,7 @@ export type GbifOccurrencesResponse = FernsEnvelope & {
  * Verbatim GBIF species/search upstream response filtered to vernacular name matches. Includes count, offset, limit, endOfRecords, and results array.
 
  */
-export interface GbifSearchData {
-  [key: string]: unknown;
-}
+export interface GbifSearchData { [key: string]: unknown }
 
 export type GbifSearchResponse = FernsEnvelope & {
   data?: GbifSearchData;
@@ -348,9 +338,7 @@ export type GbifSearchResponse = FernsEnvelope & {
  * Verbatim GBIF species/{usageKey} upstream response.
 
  */
-export interface GbifSpeciesData {
-  [key: string]: unknown;
-}
+export interface GbifSpeciesData { [key: string]: unknown }
 
 export type GbifSpeciesResponse = FernsEnvelope & {
   data?: GbifSpeciesData;
@@ -429,7 +417,7 @@ export interface InatCommonName {
 
 export interface InatNativeStatusEntry {
   /** native, introduced, endemic, or similar values as recorded by iNaturalist community members for this place
-   */
+ */
   status: string;
   /** Name of the place where this status applies */
   place_name: string;
@@ -441,9 +429,7 @@ export type InatHistogramResponse = FernsEnvelope;
 
 export type InatFieldValuesResponse = FernsEnvelope;
 
-export type InatObservationSummaryRecordTaxonDefaultPhoto = {
-  [key: string]: unknown;
-} | null;
+export type InatObservationSummaryRecordTaxonDefaultPhoto = { [key: string]: unknown } | null;
 
 /**
  * Taxon sub-object with key fields
@@ -454,7 +440,7 @@ export type InatObservationSummaryRecordTaxon = {
   iconic_taxon_name?: string | null;
   default_photo?: InatObservationSummaryRecordTaxonDefaultPhoto;
   [key: string]: unknown;
-} | null;
+ } | null;
 
 /**
  * Observer user sub-object
@@ -464,13 +450,11 @@ export type InatObservationSummaryRecordUser = {
   name?: string | null;
   login?: string | null;
   [key: string]: unknown;
-} | null;
+ } | null;
 
 export type InatObservationSummaryRecordPhotosItem = { [key: string]: unknown };
 
-export type InatObservationSummaryRecordAnnotationsItem = {
-  [key: string]: unknown;
-};
+export type InatObservationSummaryRecordAnnotationsItem = { [key: string]: unknown };
 
 export type InatObservationSummaryRecordOfvsItem = { [key: string]: unknown };
 
@@ -593,16 +577,16 @@ export interface SourceSummary {
   /** Link to this service's full /metadata endpoint */
   metadata_url: string;
   /** Whether FERNS has verified that use of this source is explicitly permitted. true = permission confirmed; null = not yet evaluated.
-   */
+ */
   licenses?: string[];
   /** Plain-English description of the permission situation for this source. Covers license type, access model, and any restrictions on use.
-   */
+ */
   license_notes?: string;
   /** One-paragraph plain-English description of this source suitable for non-technical users, agents, and routing decisions.
-   */
+ */
   general_summary?: string;
   /** Technical description of how this source works, including data model, method, upstream URL, caching behavior, and known edge cases.
-   */
+ */
   technical_details?: string;
 }
 
@@ -624,13 +608,13 @@ export interface SourcesMetadataResponse {
   provenance: FernsProvenance;
 }
 
-export type MifloraCountiesResponseCacheStatus =
-  (typeof MifloraCountiesResponseCacheStatus)[keyof typeof MifloraCountiesResponseCacheStatus];
+export type MifloraCountiesResponseCacheStatus = typeof MifloraCountiesResponseCacheStatus[keyof typeof MifloraCountiesResponseCacheStatus];
+
 
 export const MifloraCountiesResponseCacheStatus = {
-  hit: "hit",
-  miss: "miss",
-  error: "error",
+  hit: 'hit',
+  miss: 'miss',
+  error: 'error',
 } as const;
 
 /**
@@ -645,7 +629,7 @@ export interface MifloraCountiesResponse {
   cache_status: MifloraCountiesResponseCacheStatus;
   queried_at: string;
   /** Raw passthrough response from the Michigan Flora county API endpoint. Array of county records for all 83 Michigan counties. Each record includes county name, FIPS code, and occurrence status. All source fields unchanged.
-   */
+ */
   data?: unknown | null;
   provenance: FernsProvenance;
 }
@@ -664,20 +648,20 @@ export interface MifloraImageRecord {
   /** Photographer credit for this image */
   photographer?: string | null;
   /** Absolute URL to the full-size image on Michigan Flora's server. Constructed as: https://michiganflora.net/static/species_images/_pid_{plant_id}/{image_id}.jpg
-   */
+ */
   image_url: string;
   /** Absolute URL to the thumbnail image on Michigan Flora's server. Constructed as: https://michiganflora.net/static/species_images/_pid_{plant_id}/thumb_{image_id}.jpg
-   */
+ */
   thumbnail_url: string;
 }
 
-export type MifloraImagesResponseCacheStatus =
-  (typeof MifloraImagesResponseCacheStatus)[keyof typeof MifloraImagesResponseCacheStatus];
+export type MifloraImagesResponseCacheStatus = typeof MifloraImagesResponseCacheStatus[keyof typeof MifloraImagesResponseCacheStatus];
+
 
 export const MifloraImagesResponseCacheStatus = {
-  hit: "hit",
-  miss: "miss",
-  error: "error",
+  hit: 'hit',
+  miss: 'miss',
+  error: 'error',
 } as const;
 
 /**
@@ -692,7 +676,7 @@ export interface MifloraImagesResponse {
   cache_status: MifloraImagesResponseCacheStatus;
   queried_at: string;
   /** Array of image records from Michigan Flora allimage_info, each enriched with image_url and thumbnail_url. Null when found is false.
-   */
+ */
   data?: MifloraImageRecord[] | null;
   provenance: FernsProvenance;
 }
@@ -727,14 +711,14 @@ export interface MifloraSpeciesRecord {
   common_name: string[];
 }
 
-export type MifloraFloraSearchResponseCacheStatus =
-  (typeof MifloraFloraSearchResponseCacheStatus)[keyof typeof MifloraFloraSearchResponseCacheStatus];
+export type MifloraFloraSearchResponseCacheStatus = typeof MifloraFloraSearchResponseCacheStatus[keyof typeof MifloraFloraSearchResponseCacheStatus];
+
 
 export const MifloraFloraSearchResponseCacheStatus = {
-  hit: "hit",
-  miss: "miss",
-  bypassed: "bypassed",
-  error: "error",
+  hit: 'hit',
+  miss: 'miss',
+  bypassed: 'bypassed',
+  error: 'error',
 } as const;
 
 /**
@@ -768,14 +752,14 @@ export interface MifloraFloraSearchResponse {
   provenance: FernsProvenance;
 }
 
-export type MifloraSpecTextResponseCacheStatus =
-  (typeof MifloraSpecTextResponseCacheStatus)[keyof typeof MifloraSpecTextResponseCacheStatus];
+export type MifloraSpecTextResponseCacheStatus = typeof MifloraSpecTextResponseCacheStatus[keyof typeof MifloraSpecTextResponseCacheStatus];
+
 
 export const MifloraSpecTextResponseCacheStatus = {
-  hit: "hit",
-  miss: "miss",
-  bypassed: "bypassed",
-  error: "error",
+  hit: 'hit',
+  miss: 'miss',
+  bypassed: 'bypassed',
+  error: 'error',
 } as const;
 
 export type MifloraSpecTextResponseData = {
@@ -809,14 +793,14 @@ export interface MifloraSynonymRecord {
   author?: string | null;
 }
 
-export type MifloraSynonymsResponseCacheStatus =
-  (typeof MifloraSynonymsResponseCacheStatus)[keyof typeof MifloraSynonymsResponseCacheStatus];
+export type MifloraSynonymsResponseCacheStatus = typeof MifloraSynonymsResponseCacheStatus[keyof typeof MifloraSynonymsResponseCacheStatus];
+
 
 export const MifloraSynonymsResponseCacheStatus = {
-  hit: "hit",
-  miss: "miss",
-  bypassed: "bypassed",
-  error: "error",
+  hit: 'hit',
+  miss: 'miss',
+  bypassed: 'bypassed',
+  error: 'error',
 } as const;
 
 export type MifloraSynonymsResponseData = {
@@ -839,14 +823,14 @@ export interface MifloraSynonymsResponse {
   provenance: FernsProvenance;
 }
 
-export type MifloraPImageInfoResponseCacheStatus =
-  (typeof MifloraPImageInfoResponseCacheStatus)[keyof typeof MifloraPImageInfoResponseCacheStatus];
+export type MifloraPImageInfoResponseCacheStatus = typeof MifloraPImageInfoResponseCacheStatus[keyof typeof MifloraPImageInfoResponseCacheStatus];
+
 
 export const MifloraPImageInfoResponseCacheStatus = {
-  hit: "hit",
-  miss: "miss",
-  bypassed: "bypassed",
-  error: "error",
+  hit: 'hit',
+  miss: 'miss',
+  bypassed: 'bypassed',
+  error: 'error',
 } as const;
 
 export type MifloraPImageInfoResponseData = {
@@ -919,13 +903,13 @@ export interface CoefficientEntry {
   is_native: boolean;
 }
 
-export type CoefficientResponseCacheStatus =
-  (typeof CoefficientResponseCacheStatus)[keyof typeof CoefficientResponseCacheStatus];
+export type CoefficientResponseCacheStatus = typeof CoefficientResponseCacheStatus[keyof typeof CoefficientResponseCacheStatus];
+
 
 export const CoefficientResponseCacheStatus = {
-  miss: "miss",
-  hit: "hit",
-  error: "error",
+  miss: 'miss',
+  hit: 'hit',
+  error: 'error',
 } as const;
 
 export interface CoefficientResponse {
@@ -937,13 +921,13 @@ export interface CoefficientResponse {
   data?: CoefficientEntry | null;
 }
 
-export type CoefficientAllResponseCacheStatus =
-  (typeof CoefficientAllResponseCacheStatus)[keyof typeof CoefficientAllResponseCacheStatus];
+export type CoefficientAllResponseCacheStatus = typeof CoefficientAllResponseCacheStatus[keyof typeof CoefficientAllResponseCacheStatus];
+
 
 export const CoefficientAllResponseCacheStatus = {
-  miss: "miss",
-  hit: "hit",
-  error: "error",
+  miss: 'miss',
+  hit: 'hit',
+  error: 'error',
 } as const;
 
 export interface CoefficientAllResponse {
@@ -958,15 +942,15 @@ export interface CoefficientAllResponse {
 /**
  * WIS code: OBL, FACW, FAC, FACU, or UPL
  */
-export type WetlandIndicatorEntryCode =
-  (typeof WetlandIndicatorEntryCode)[keyof typeof WetlandIndicatorEntryCode];
+export type WetlandIndicatorEntryCode = typeof WetlandIndicatorEntryCode[keyof typeof WetlandIndicatorEntryCode];
+
 
 export const WetlandIndicatorEntryCode = {
-  OBL: "OBL",
-  FACW: "FACW",
-  FAC: "FAC",
-  FACU: "FACU",
-  UPL: "UPL",
+  OBL: 'OBL',
+  FACW: 'FACW',
+  FAC: 'FAC',
+  FACU: 'FACU',
+  UPL: 'UPL',
 } as const;
 
 export interface WetlandIndicatorEntry {
@@ -984,13 +968,13 @@ export interface WetlandIndicatorEntry {
   scientific_description: string;
 }
 
-export type WetlandIndicatorResponseCacheStatus =
-  (typeof WetlandIndicatorResponseCacheStatus)[keyof typeof WetlandIndicatorResponseCacheStatus];
+export type WetlandIndicatorResponseCacheStatus = typeof WetlandIndicatorResponseCacheStatus[keyof typeof WetlandIndicatorResponseCacheStatus];
+
 
 export const WetlandIndicatorResponseCacheStatus = {
-  miss: "miss",
-  hit: "hit",
-  error: "error",
+  miss: 'miss',
+  hit: 'hit',
+  error: 'error',
 } as const;
 
 export interface WetlandIndicatorResponse {
@@ -1002,13 +986,13 @@ export interface WetlandIndicatorResponse {
   data?: WetlandIndicatorEntry | null;
 }
 
-export type WetlandIndicatorAllResponseCacheStatus =
-  (typeof WetlandIndicatorAllResponseCacheStatus)[keyof typeof WetlandIndicatorAllResponseCacheStatus];
+export type WetlandIndicatorAllResponseCacheStatus = typeof WetlandIndicatorAllResponseCacheStatus[keyof typeof WetlandIndicatorAllResponseCacheStatus];
+
 
 export const WetlandIndicatorAllResponseCacheStatus = {
-  miss: "miss",
-  hit: "hit",
-  error: "error",
+  miss: 'miss',
+  hit: 'hit',
+  error: 'error',
 } as const;
 
 export interface WetlandIndicatorAllResponse {
@@ -1023,14 +1007,14 @@ export interface WetlandIndicatorAllResponse {
 /**
  * WUCOLS code: VL, L, M, or H
  */
-export type WucolsEntryCode =
-  (typeof WucolsEntryCode)[keyof typeof WucolsEntryCode];
+export type WucolsEntryCode = typeof WucolsEntryCode[keyof typeof WucolsEntryCode];
+
 
 export const WucolsEntryCode = {
-  VL: "VL",
-  L: "L",
-  M: "M",
-  H: "H",
+  VL: 'VL',
+  L: 'L',
+  M: 'M',
+  H: 'H',
 } as const;
 
 export interface WucolsEntry {
@@ -1050,13 +1034,13 @@ export interface WucolsEntry {
   scientific_description: string;
 }
 
-export type WucolsResponseCacheStatus =
-  (typeof WucolsResponseCacheStatus)[keyof typeof WucolsResponseCacheStatus];
+export type WucolsResponseCacheStatus = typeof WucolsResponseCacheStatus[keyof typeof WucolsResponseCacheStatus];
+
 
 export const WucolsResponseCacheStatus = {
-  miss: "miss",
-  hit: "hit",
-  error: "error",
+  miss: 'miss',
+  hit: 'hit',
+  error: 'error',
 } as const;
 
 export interface WucolsResponse {
@@ -1068,13 +1052,13 @@ export interface WucolsResponse {
   data?: WucolsEntry | null;
 }
 
-export type WucolsAllResponseCacheStatus =
-  (typeof WucolsAllResponseCacheStatus)[keyof typeof WucolsAllResponseCacheStatus];
+export type WucolsAllResponseCacheStatus = typeof WucolsAllResponseCacheStatus[keyof typeof WucolsAllResponseCacheStatus];
+
 
 export const WucolsAllResponseCacheStatus = {
-  miss: "miss",
-  hit: "hit",
-  error: "error",
+  miss: 'miss',
+  hit: 'hit',
+  error: 'error',
 } as const;
 
 export interface WucolsAllResponse {
@@ -1118,10 +1102,10 @@ export interface S2CSpecies {
   /** Botanical (scientific) name of the species as used in the S2C program */
   botanical_name: string;
   /** True if this species is designated for 'Neat & Tidy' formal or managed garden settings. Only tracked for 2024 onward.
-   */
+ */
   neat_and_tidy?: boolean;
   /** True if this species is designated as 'Sweet & Simple' for beginner growers. Only tracked from 2026 onward.
-   */
+ */
   sweet_and_simple?: boolean;
 }
 
@@ -1167,13 +1151,13 @@ export interface UniversalFqaSpeciesRecord {
   /** Abbreviated acronym used in this database */
   acronym: string;
   /** Nativity string as provided by the source database. Typically "native" or "non-native" but exact values depend on the database.
-   */
+ */
   native: string;
   /** Coefficient of Conservatism (C-value) for this species in this database. Integer 0–10 for native species; null for non-native or unassigned species. Some databases use string representations. Always check the source database citation for the methodology used to assign C-values.
-   */
+ */
   c: unknown | null;
   /** Coefficient of Wetness (W-value). Numeric, -5 (obligate wetland) to +5 (obligate upland). Null if not assigned.
-   */
+ */
   w: unknown | null;
   /** Plant physiognomic type (e.g. Forb, Shrub, Tree, Grass, Sedge, Rush, Fern, Bryophyte, Vine) */
   physiognomy: string;
@@ -1225,7 +1209,7 @@ export interface UniversalFqaDatabaseEntry {
   /** Publication year string as provided by universalfqa.org */
   year: string;
   /** Full citation string as provided by universalfqa.org. Contains institutional author, year, database name, and sometimes methodology notes. Together with region, provides all information needed to select a database.
-   */
+ */
   citation: string;
 }
 
@@ -1361,13 +1345,9 @@ export interface UniversalFqaAssessmentResponse {
   data?: UniversalFqaAssessmentData | null;
 }
 
-export type UniversalFqaMetadataResponseAttribution = {
-  [key: string]: unknown;
-};
+export type UniversalFqaMetadataResponseAttribution = { [key: string]: unknown };
 
-export type UniversalFqaMetadataResponseRegistryEntry = {
-  [key: string]: unknown;
-};
+export type UniversalFqaMetadataResponseRegistryEntry = { [key: string]: unknown };
 
 export interface UniversalFqaMetadataResponse {
   source_id: string;
@@ -1380,26 +1360,26 @@ export interface UniversalFqaMetadataResponse {
   provenance: FernsProvenance;
 }
 
-export type LcscgGuideSeason =
-  (typeof LcscgGuideSeason)[keyof typeof LcscgGuideSeason];
+export type LcscgGuideSeason = typeof LcscgGuideSeason[keyof typeof LcscgGuideSeason];
+
 
 export const LcscgGuideSeason = {
-  spring: "spring",
-  summer: "summer",
-  fall: "fall",
-  all: "all",
+  spring: 'spring',
+  summer: 'summer',
+  fall: 'fall',
+  all: 'all',
 } as const;
 
-export type LcscgGuideHabitatType =
-  (typeof LcscgGuideHabitatType)[keyof typeof LcscgGuideHabitatType];
+export type LcscgGuideHabitatType = typeof LcscgGuideHabitatType[keyof typeof LcscgGuideHabitatType];
+
 
 export const LcscgGuideHabitatType = {
-  woodland: "woodland",
-  wetland: "wetland",
-  prairie: "prairie",
-  grasses_and_kin: "grasses_and_kin",
-  asters_and_goldenrods: "asters_and_goldenrods",
-  woody_plants: "woody_plants",
+  woodland: 'woodland',
+  wetland: 'wetland',
+  prairie: 'prairie',
+  grasses_and_kin: 'grasses_and_kin',
+  asters_and_goldenrods: 'asters_and_goldenrods',
+  woody_plants: 'woody_plants',
 } as const;
 
 export interface LcscgGuide {
@@ -1440,12 +1420,12 @@ export interface LcscgSpeciesRecord {
   common_name: string;
   family: string;
   /** Reference photograph date (M-D-YY format). Approximates seed collection timing; varies by microclimate, proximity to Lake Michigan, slope, and sun/shade.
-   */
+ */
   photo_date: string;
   /** Authors' harvest notes for this species */
   description: string;
   /** Seed dispersal category names (e.g., Elaiosomes, Ballistic, Fluffy, Milkweed, Berries, Mama's Boys, Shakers, Beaks, Coneheads, Crumbly Coneheads, Shattering, Hitchhikers, Do Not Collect)
-   */
+ */
   seed_group_names: string[];
   seed_group_details: LcscgSeedGroupDetail[];
   /** Original image filenames from the guide */
@@ -1468,27 +1448,27 @@ export interface LcscgSpeciesRecord {
 /**
  * Nature of the relationship between the two sources
  */
-export type SourceRelationshipRelationshipType =
-  (typeof SourceRelationshipRelationshipType)[keyof typeof SourceRelationshipRelationshipType];
+export type SourceRelationshipRelationshipType = typeof SourceRelationshipRelationshipType[keyof typeof SourceRelationshipRelationshipType];
+
 
 export const SourceRelationshipRelationshipType = {
-  overlap: "overlap",
-  conflict: "conflict",
-  complements: "complements",
-  supersedes: "supersedes",
+  overlap: 'overlap',
+  conflict: 'conflict',
+  complements: 'complements',
+  supersedes: 'supersedes',
 } as const;
 
 /**
  * blocking — must account for this before combining these sources; cautionary — awareness required, may cause errors if ignored; informational — useful context, no required action.
 
  */
-export type SourceRelationshipSeverity =
-  (typeof SourceRelationshipSeverity)[keyof typeof SourceRelationshipSeverity];
+export type SourceRelationshipSeverity = typeof SourceRelationshipSeverity[keyof typeof SourceRelationshipSeverity];
+
 
 export const SourceRelationshipSeverity = {
-  blocking: "blocking",
-  cautionary: "cautionary",
-  informational: "informational",
+  blocking: 'blocking',
+  cautionary: 'cautionary',
+  informational: 'informational',
 } as const;
 
 export interface SourceRelationship {
@@ -1500,10 +1480,10 @@ export interface SourceRelationship {
   /** Nature of the relationship between the two sources */
   relationship_type: SourceRelationshipRelationshipType;
   /** Domain in which the relationship applies. One of: taxonomy, occurrence_counts, c_values, conservation_ranks, geographic_coverage, terminology, seed_harvest, community_classification, occurrence.
-   */
+ */
   scope: string;
   /** blocking — must account for this before combining these sources; cautionary — awareness required, may cause errors if ignored; informational — useful context, no required action.
-   */
+ */
   severity: SourceRelationshipSeverity;
   /** Plain-English description of the relationship for agents and non-technical users */
   description: string;
@@ -1526,9 +1506,7 @@ export interface SourceRelationshipsResponse {
   provenance: FernsProvenance;
 }
 
-export type NatureserveMetadataDataCacheStatsTtlDays = {
-  [key: string]: unknown;
-};
+export type NatureserveMetadataDataCacheStatsTtlDays = { [key: string]: unknown };
 
 export type NatureserveMetadataDataCacheStats = {
   species_cached?: number;
@@ -1536,9 +1514,7 @@ export type NatureserveMetadataDataCacheStats = {
   ttl_days?: NatureserveMetadataDataCacheStatsTtlDays;
 };
 
-export type NatureserveMetadataDataWebsiteUrlPatterns = {
-  [key: string]: unknown;
-};
+export type NatureserveMetadataDataWebsiteUrlPatterns = { [key: string]: unknown };
 
 /**
  * Registry descriptive content for the NatureServe Explorer service.
@@ -1581,7 +1557,7 @@ export interface NatureserveSpeciesData {
   federal_status?: string | null;
   federal_status_description?: string | null;
   /** Derived by mapping NatureServe S-rank values to labels — not verbatim upstream data. Plan #148 regression; deferred to plans 16–18.
-   */
+ */
   state_status?: string | null;
   cites_description?: string | null;
   cosewic_code?: string | null;
@@ -1641,20 +1617,20 @@ export type NatureserveSearchResponse = FernsEnvelope & {
  * "hit" — returned from cache. "miss" — live scrape performed and cached. "not_in_species_list" — species URL not in the imported species list; scrape skipped.
 
  */
-export type SpeciesTextResponseCacheStatus =
-  (typeof SpeciesTextResponseCacheStatus)[keyof typeof SpeciesTextResponseCacheStatus];
+export type SpeciesTextResponseCacheStatus = typeof SpeciesTextResponseCacheStatus[keyof typeof SpeciesTextResponseCacheStatus];
+
 
 export const SpeciesTextResponseCacheStatus = {
-  hit: "hit",
-  miss: "miss",
-  not_in_species_list: "not_in_species_list",
+  hit: 'hit',
+  miss: 'miss',
+  not_in_species_list: 'not_in_species_list',
 } as const;
 
 /**
  * Labeled prose sections extracted from the page (e.g. Description, Cultivation, Facts, Habitat). Keys are section names, values are plain text content.
 
  */
-export type SpeciesTextResponseDataSections = { [key: string]: string } | null;
+export type SpeciesTextResponseDataSections = {[key: string]: string} | null;
 
 /**
  * Present when found=true. Null when not found.
@@ -1665,10 +1641,10 @@ export type SpeciesTextResponseData = {
   /** The page URL that was scraped. */
   url?: string;
   /** Labeled prose sections extracted from the page (e.g. Description, Cultivation, Facts, Habitat). Keys are section names, values are plain text content.
-   */
+ */
   sections?: SpeciesTextResponseDataSections;
   /** All sections concatenated as Label-colon-text blocks, separated by double newlines.
-   */
+ */
   full_text?: string | null;
 } | null;
 
@@ -1683,10 +1659,10 @@ export interface SpeciesTextResponse {
   /** The API endpoint URL that served this response. */
   source_url?: string;
   /** "hit" — returned from cache. "miss" — live scrape performed and cached. "not_in_species_list" — species URL not in the imported species list; scrape skipped.
-   */
+ */
   cache_status: SpeciesTextResponseCacheStatus;
   /** Present only when a transient upstream error (network failure, timeout, 5xx) prevented the scrape. The result was NOT cached in this case and the next call will retry the live request.
-   */
+ */
   fetch_error?: string;
   /** Timestamp of when the text was originally scraped. */
   scraped_at?: string;
@@ -1699,13 +1675,13 @@ export interface SpeciesTextResponse {
  * "found" — HTTP 200 returned. "not_found" — 3xx redirect or 4xx returned. "unverified" — 5xx or network error; result not cached.
 
  */
-export type LbjUrlCheckDataStatus =
-  (typeof LbjUrlCheckDataStatus)[keyof typeof LbjUrlCheckDataStatus];
+export type LbjUrlCheckDataStatus = typeof LbjUrlCheckDataStatus[keyof typeof LbjUrlCheckDataStatus];
+
 
 export const LbjUrlCheckDataStatus = {
-  found: "found",
-  not_found: "not_found",
-  unverified: "unverified",
+  found: 'found',
+  not_found: 'not_found',
+  unverified: 'unverified',
 } as const;
 
 /**
@@ -1717,14 +1693,14 @@ export interface LbjUrlCheckData {
   /** Direct profile URL when found; null when not_found or unverified. */
   profile_url?: string | null;
   /** "found" — HTTP 200 returned. "not_found" — 3xx redirect or 4xx returned. "unverified" — 5xx or network error; result not cached.
-   */
+ */
   status?: LbjUrlCheckDataStatus;
   /** HTTP status code returned by the verification request. */
   http_status?: number | null;
   /** Always "http_get_manual_redirect" for this endpoint. */
   validation_method?: string;
   /** Timestamp when the verification HTTP request was made. Null when status is "unverified" (network/5xx error prevented caching).
-   */
+ */
   verified_at?: string | null;
 }
 
@@ -1740,7 +1716,7 @@ export type LbjUrlCheckResponse = FernsEnvelope & {
  * Labeled prose sections extracted from the page (h3-delimited). "Find Seeds or Plants" and "Mr. Smarty Plants says" sections are excluded.
 
  */
-export type LbjSpeciesTextDataSections = { [key: string]: string } | null;
+export type LbjSpeciesTextDataSections = {[key: string]: string} | null;
 
 /**
  * Data payload for /lady-bird-johnson/species-text FernsEnvelope data field.
@@ -1751,7 +1727,7 @@ export interface LbjSpeciesTextData {
   /** The profile URL that was scraped. */
   url?: string;
   /** Labeled prose sections extracted from the page (h3-delimited). "Find Seeds or Plants" and "Mr. Smarty Plants says" sections are excluded.
-   */
+ */
   sections?: LbjSpeciesTextDataSections;
   /** All sections concatenated as Label-colon-text blocks, separated by double newlines. */
   full_text?: string | null;
@@ -1774,7 +1750,7 @@ export type BotanicalWebRefResponseData = {
   /** Direct species page URL. Null when only a search URL is available. */
   url?: string | null;
   /** Search URL when a direct profile URL cannot be constructed (usda-plants). Present instead of url for these sources.
-   */
+ */
   search_url?: string;
   /** How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable */
   validation_method?: string;
@@ -1788,7 +1764,7 @@ export type BotanicalWebRefResponseData = {
  */
 export interface BotanicalWebRefResponse {
   /** True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants), which return a search_url instead.
-   */
+ */
   found: boolean;
   queried_at: string;
   source_url?: string;
@@ -1797,9 +1773,7 @@ export interface BotanicalWebRefResponse {
   data?: BotanicalWebRefResponseData;
 }
 
-export type BotanicalWebRefMetadataResponseRegistryEntry = {
-  [key: string]: unknown;
-};
+export type BotanicalWebRefMetadataResponseRegistryEntry = { [key: string]: unknown };
 
 /**
  * Service metadata response for botanical web reference sources.
@@ -1882,9 +1856,7 @@ export type UsdaPlantsProfileResponse = FernsEnvelope & {
   data?: UsdaPlantsProfileResponseData;
 };
 
-export type UsdaPlantsSearchResultLegalStatusesItem = {
-  [key: string]: unknown;
-};
+export type UsdaPlantsSearchResultLegalStatusesItem = { [key: string]: unknown };
 
 export type UsdaPlantsSearchResultWetlandDataItem = { [key: string]: unknown };
 
@@ -2011,11 +1983,12 @@ export interface TrustGroupSourcesResponse {
  * Inferred from caption text: "pen & ink" or "drawing" → drawing; else photograph
 
  */
-export type NpnImageKind = (typeof NpnImageKind)[keyof typeof NpnImageKind];
+export type NpnImageKind = typeof NpnImageKind[keyof typeof NpnImageKind];
+
 
 export const NpnImageKind = {
-  photograph: "photograph",
-  drawing: "drawing",
+  photograph: 'photograph',
+  drawing: 'drawing',
 } as const;
 
 /**
@@ -2029,7 +2002,7 @@ export interface NpnImage {
   /** Image caption from the source page (may be empty string) */
   caption: string;
   /** Inferred from caption text: "pen & ink" or "drawing" → drawing; else photograph
-   */
+ */
   kind: NpnImageKind;
 }
 
@@ -2041,7 +2014,7 @@ export interface NpnSpeciesRecord {
   acronym: string;
   latin_name: string;
   /** Greg Vaclavek's Latin synonym. Known quirk: GENAND has "Closed Gentian" (a common name) in this field.
-   */
+ */
   latin_synonym_greg?: string | null;
   /** Raw common name string (may contain ; and , separators) */
   common_name: string;
@@ -2179,34 +2152,34 @@ export type HealthCheck200 = FernsEnvelope & {
 };
 
 export type GetBonapMapParams = {
-  /**
+/**
  * Genus name. First letter capitalized, remainder lowercase (e.g. Asclepias). The service normalizes to title case before URL construction.
 
  * @minLength 1
  */
-  genus: string;
-  /**
+genus: string;
+/**
  * Species epithet, all lowercase (e.g. tuberosa). Required when map_type=county_species or map_type=state_species — omitting species returns 400. Subspecies/variety designations are stripped automatically; species_stripped is set true.
 
  */
-  species?: string;
-  /**
+species?: string;
+/**
  * Map type to retrieve. county_species (default) returns a county-level distribution map. state_species returns a state/continental-level distribution map. Both types require a genus+species pair.
 
  */
-  map_type?: GetBonapMapMapType;
-  /**
-   * If true, bypasses cache and fetches fresh from BONAP.
-   */
-  refresh?: boolean;
+map_type?: GetBonapMapMapType;
+/**
+ * If true, bypasses cache and fetches fresh from BONAP.
+ */
+refresh?: boolean;
 };
 
-export type GetBonapMapMapType =
-  (typeof GetBonapMapMapType)[keyof typeof GetBonapMapMapType];
+export type GetBonapMapMapType = typeof GetBonapMapMapType[keyof typeof GetBonapMapMapType];
+
 
 export const GetBonapMapMapType = {
-  county_species: "county_species",
-  state_species: "state_species",
+  county_species: 'county_species',
+  state_species: 'state_species',
 } as const;
 
 export type GetBonapMap200 = FernsEnvelope & {
@@ -2218,1011 +2191,1011 @@ export type GetBonapMetadata200 = FernsEnvelope & {
 };
 
 export type GetGbifMatchParams = {
-  /**
-   * Scientific name to match (e.g. Asclepias tuberosa)
-   * @minLength 1
-   */
-  name: string;
-  /**
-   * If true, bypasses cache and fetches fresh from GBIF
-   */
-  refresh?: boolean;
+/**
+ * Scientific name to match (e.g. Asclepias tuberosa)
+ * @minLength 1
+ */
+name: string;
+/**
+ * If true, bypasses cache and fetches fresh from GBIF
+ */
+refresh?: boolean;
 };
 
 export type GetGbifOccurrencesParams = {
-  /**
-   * GBIF backbone taxon key (integer). The GBIF native parameter name for taxon filtering.
-   */
-  taxonKey?: number;
-  /**
+/**
+ * GBIF backbone taxon key (integer). The GBIF native parameter name for taxon filtering.
+ */
+taxonKey?: number;
+/**
  * ISO 3166-1 alpha-2 country code (e.g. US). Repeatable for multiple countries.
 
  */
-  country?: string;
-  /**
+country?: string;
+/**
  * GBIF continent value. One of AFRICA, ANTARCTICA, ASIA, EUROPE, NORTH_AMERICA, OCEANIA, SOUTH_AMERICA.
 
  */
-  continent?: GetGbifOccurrencesContinent;
-  /**
-   * Filter to records with coordinates (true/false).
-   */
-  hasCoordinate?: boolean;
-  /**
-   * Include/exclude records with geospatial issues (false recommended).
-   */
-  hasGeospatialIssue?: boolean;
-  /**
+continent?: GetGbifOccurrencesContinent;
+/**
+ * Filter to records with coordinates (true/false).
+ */
+hasCoordinate?: boolean;
+/**
+ * Include/exclude records with geospatial issues (false recommended).
+ */
+hasGeospatialIssue?: boolean;
+/**
  * Filter by basis of record. One of PRESERVED_SPECIMEN, HUMAN_OBSERVATION, MACHINE_OBSERVATION, MATERIAL_CITATION, LIVING_SPECIMEN, FOSSIL_SPECIMEN, OCCURRENCE.
 
  */
-  basisOfRecord?: string;
-  /**
-   * Filter by year (single value or range, e.g. 2020 or 2010,2020).
-   */
-  year?: string;
-  /**
-   * Number of results to return (GBIF default 20, max 300).
-   * @minimum 1
-   * @maximum 300
-   */
-  limit?: number;
-  /**
-   * Zero-based offset for pagination.
-   * @minimum 0
-   */
-  offset?: number;
-  /**
-   * If true, bypasses cache and fetches fresh from GBIF.
-   */
-  refresh?: boolean;
+basisOfRecord?: string;
+/**
+ * Filter by year (single value or range, e.g. 2020 or 2010,2020).
+ */
+year?: string;
+/**
+ * Number of results to return (GBIF default 20, max 300).
+ * @minimum 1
+ * @maximum 300
+ */
+limit?: number;
+/**
+ * Zero-based offset for pagination.
+ * @minimum 0
+ */
+offset?: number;
+/**
+ * If true, bypasses cache and fetches fresh from GBIF.
+ */
+refresh?: boolean;
 };
 
-export type GetGbifOccurrencesContinent =
-  (typeof GetGbifOccurrencesContinent)[keyof typeof GetGbifOccurrencesContinent];
+export type GetGbifOccurrencesContinent = typeof GetGbifOccurrencesContinent[keyof typeof GetGbifOccurrencesContinent];
+
 
 export const GetGbifOccurrencesContinent = {
-  AFRICA: "AFRICA",
-  ANTARCTICA: "ANTARCTICA",
-  ASIA: "ASIA",
-  EUROPE: "EUROPE",
-  NORTH_AMERICA: "NORTH_AMERICA",
-  OCEANIA: "OCEANIA",
-  SOUTH_AMERICA: "SOUTH_AMERICA",
+  AFRICA: 'AFRICA',
+  ANTARCTICA: 'ANTARCTICA',
+  ASIA: 'ASIA',
+  EUROPE: 'EUROPE',
+  NORTH_AMERICA: 'NORTH_AMERICA',
+  OCEANIA: 'OCEANIA',
+  SOUTH_AMERICA: 'SOUTH_AMERICA',
 } as const;
 
 export type GetGbifSearchParams = {
-  /**
-   * Common name search string (e.g. butterfly milkweed)
-   * @minLength 1
-   */
-  q: string;
-  /**
-   * If true, bypasses cache and fetches fresh from GBIF.
-   */
-  refresh?: boolean;
+/**
+ * Common name search string (e.g. butterfly milkweed)
+ * @minLength 1
+ */
+q: string;
+/**
+ * If true, bypasses cache and fetches fresh from GBIF.
+ */
+refresh?: boolean;
 };
 
 export type GetGbifSpeciesParams = {
-  /**
-   * If true, bypasses cache and fetches fresh from GBIF.
-   */
-  refresh?: boolean;
+/**
+ * If true, bypasses cache and fetches fresh from GBIF.
+ */
+refresh?: boolean;
 };
 
 export type GetGbifSpeciesSynonymsParams = {
-  /**
-   * Number of results to return (1–1000, default 100)
-   * @minimum 1
-   * @maximum 1000
-   */
-  limit?: number;
-  /**
-   * Zero-based offset for pagination (default 0)
-   * @minimum 0
-   */
-  offset?: number;
-  /**
-   * If true, bypasses cache and fetches fresh from GBIF
-   */
-  refresh?: boolean;
+/**
+ * Number of results to return (1–1000, default 100)
+ * @minimum 1
+ * @maximum 1000
+ */
+limit?: number;
+/**
+ * Zero-based offset for pagination (default 0)
+ * @minimum 0
+ */
+offset?: number;
+/**
+ * If true, bypasses cache and fetches fresh from GBIF
+ */
+refresh?: boolean;
 };
 
 export type GetGbifSpeciesVernacularNamesParams = {
-  /**
-   * Number of results to return (1–1000, default 100)
-   * @minimum 1
-   * @maximum 1000
-   */
-  limit?: number;
-  /**
-   * Zero-based offset for pagination (default 0)
-   * @minimum 0
-   */
-  offset?: number;
-  /**
-   * If true, bypasses cache and fetches fresh from GBIF
-   */
-  refresh?: boolean;
+/**
+ * Number of results to return (1–1000, default 100)
+ * @minimum 1
+ * @maximum 1000
+ */
+limit?: number;
+/**
+ * Zero-based offset for pagination (default 0)
+ * @minimum 0
+ */
+offset?: number;
+/**
+ * If true, bypasses cache and fetches fresh from GBIF
+ */
+refresh?: boolean;
 };
 
 export type GetInatPlacesAutocompleteParams = {
-  /**
-   * Place name to search (e.g. Washtenaw County, Michigan, Sleeping Bear Dunes)
-   * @minLength 1
-   */
-  q: string;
-  /**
-   * If true, bypasses cache and fetches fresh from iNaturalist
-   */
-  refresh?: boolean;
-  /**
-   * Controls provenance text: full (default), summary, or none
-   */
-  provenance_verbosity?: GetInatPlacesAutocompleteProvenanceVerbosity;
+/**
+ * Place name to search (e.g. Washtenaw County, Michigan, Sleeping Bear Dunes)
+ * @minLength 1
+ */
+q: string;
+/**
+ * If true, bypasses cache and fetches fresh from iNaturalist
+ */
+refresh?: boolean;
+/**
+ * Controls provenance text: full (default), summary, or none
+ */
+provenance_verbosity?: GetInatPlacesAutocompleteProvenanceVerbosity;
 };
 
-export type GetInatPlacesAutocompleteProvenanceVerbosity =
-  (typeof GetInatPlacesAutocompleteProvenanceVerbosity)[keyof typeof GetInatPlacesAutocompleteProvenanceVerbosity];
+export type GetInatPlacesAutocompleteProvenanceVerbosity = typeof GetInatPlacesAutocompleteProvenanceVerbosity[keyof typeof GetInatPlacesAutocompleteProvenanceVerbosity];
+
 
 export const GetInatPlacesAutocompleteProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;
 
 export type GetInatObservationsHistogramParams = {
-  /**
-   * iNaturalist numeric taxon ID (from the species endpoint)
-   */
-  taxon_id: number;
-  /**
+/**
+ * iNaturalist numeric taxon ID (from the species endpoint)
+ */
+taxon_id: number;
+/**
  * One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). Place IDs from the place lookup endpoint. Sorted ascending when building cache key. When omitted, returns global (worldwide) data.
 
  */
-  place_id?: string;
-  /**
+place_id?: string;
+/**
  * Controlled annotation term ID to filter by (e.g. 12 for Flowers and Fruits, 36 for Leaves). When provided, only observations annotated with this term are counted. Cache key incorporates this value.
 
  */
-  term_id?: number;
-  /**
+term_id?: number;
+/**
  * Controlled annotation value ID to filter by. Requires term_id. Cache key incorporates this value.
 
  */
-  term_value_id?: number;
-  /**
-   * If true, bypasses cache and fetches fresh from iNaturalist
-   */
-  refresh?: boolean;
-  /**
-   * Controls provenance text: full (default), summary, or none
-   */
-  provenance_verbosity?: GetInatObservationsHistogramProvenanceVerbosity;
+term_value_id?: number;
+/**
+ * If true, bypasses cache and fetches fresh from iNaturalist
+ */
+refresh?: boolean;
+/**
+ * Controls provenance text: full (default), summary, or none
+ */
+provenance_verbosity?: GetInatObservationsHistogramProvenanceVerbosity;
 };
 
-export type GetInatObservationsHistogramProvenanceVerbosity =
-  (typeof GetInatObservationsHistogramProvenanceVerbosity)[keyof typeof GetInatObservationsHistogramProvenanceVerbosity];
+export type GetInatObservationsHistogramProvenanceVerbosity = typeof GetInatObservationsHistogramProvenanceVerbosity[keyof typeof GetInatObservationsHistogramProvenanceVerbosity];
+
 
 export const GetInatObservationsHistogramProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;
 
 export type GetInatObservationsPopularFieldValuesParams = {
-  /**
-   * iNaturalist numeric taxon ID (from the species endpoint)
-   */
-  taxon_id: number;
-  /**
+/**
+ * iNaturalist numeric taxon ID (from the species endpoint)
+ */
+taxon_id: number;
+/**
  * One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). When omitted, returns global data.
 
  */
-  place_id?: string;
-  /**
+place_id?: string;
+/**
  * If true (default), restricts to verifiable observations. Pass false to include all quality grades.
 
  */
-  verifiable?: boolean;
-  /**
-   * If true, bypasses cache and fetches fresh from iNaturalist
-   */
-  refresh?: boolean;
-  /**
-   * Controls provenance text: full (default), summary, or none
-   */
-  provenance_verbosity?: GetInatObservationsPopularFieldValuesProvenanceVerbosity;
+verifiable?: boolean;
+/**
+ * If true, bypasses cache and fetches fresh from iNaturalist
+ */
+refresh?: boolean;
+/**
+ * Controls provenance text: full (default), summary, or none
+ */
+provenance_verbosity?: GetInatObservationsPopularFieldValuesProvenanceVerbosity;
 };
 
-export type GetInatObservationsPopularFieldValuesProvenanceVerbosity =
-  (typeof GetInatObservationsPopularFieldValuesProvenanceVerbosity)[keyof typeof GetInatObservationsPopularFieldValuesProvenanceVerbosity];
+export type GetInatObservationsPopularFieldValuesProvenanceVerbosity = typeof GetInatObservationsPopularFieldValuesProvenanceVerbosity[keyof typeof GetInatObservationsPopularFieldValuesProvenanceVerbosity];
+
 
 export const GetInatObservationsPopularFieldValuesProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;
 
 export type GetInatObservationsParams = {
-  /**
-   * iNaturalist taxon ID to filter by
-   */
-  taxon_id?: number;
-  /**
-   * Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
-   */
-  place_id?: string;
-  /**
-   * Filter by quality grade: research, needs_id, or casual
-   */
-  quality_grade?: GetInatObservationsQualityGrade;
-  /**
-   * Number of results per page (default 30, max 200)
-   * @minimum 1
-   * @maximum 200
-   */
-  per_page?: number;
-  /**
-   * Page number (1-indexed, default 1)
-   * @minimum 1
-   */
-  page?: number;
-  /**
-   * Start date filter (YYYY-MM-DD)
-   */
-  d1?: string;
-  /**
-   * End date filter (YYYY-MM-DD)
-   */
-  d2?: string;
-  /**
-   * Center latitude for radius-based geographic filter. Requires lng and radius.
-   */
-  lat?: number;
-  /**
-   * Center longitude for radius-based geographic filter. Requires lat and radius.
-   */
-  lng?: number;
-  /**
-   * Radius in km around the lat/lng center point.
-   */
-  radius?: number;
-  /**
-   * Northeast corner latitude for bounding box filter.
-   */
-  nelat?: number;
-  /**
-   * Northeast corner longitude for bounding box filter.
-   */
-  nelng?: number;
-  /**
-   * Southwest corner latitude for bounding box filter.
-   */
-  swlat?: number;
-  /**
-   * Southwest corner longitude for bounding box filter.
-   */
-  swlng?: number;
-  /**
-   * Controls provenance text: full (default), summary, or none
-   */
-  provenance_verbosity?: GetInatObservationsProvenanceVerbosity;
+/**
+ * iNaturalist taxon ID to filter by
+ */
+taxon_id?: number;
+/**
+ * Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
+ */
+place_id?: string;
+/**
+ * Filter by quality grade: research, needs_id, or casual
+ */
+quality_grade?: GetInatObservationsQualityGrade;
+/**
+ * Number of results per page (default 30, max 200)
+ * @minimum 1
+ * @maximum 200
+ */
+per_page?: number;
+/**
+ * Page number (1-indexed, default 1)
+ * @minimum 1
+ */
+page?: number;
+/**
+ * Start date filter (YYYY-MM-DD)
+ */
+d1?: string;
+/**
+ * End date filter (YYYY-MM-DD)
+ */
+d2?: string;
+/**
+ * Center latitude for radius-based geographic filter. Requires lng and radius.
+ */
+lat?: number;
+/**
+ * Center longitude for radius-based geographic filter. Requires lat and radius.
+ */
+lng?: number;
+/**
+ * Radius in km around the lat/lng center point.
+ */
+radius?: number;
+/**
+ * Northeast corner latitude for bounding box filter.
+ */
+nelat?: number;
+/**
+ * Northeast corner longitude for bounding box filter.
+ */
+nelng?: number;
+/**
+ * Southwest corner latitude for bounding box filter.
+ */
+swlat?: number;
+/**
+ * Southwest corner longitude for bounding box filter.
+ */
+swlng?: number;
+/**
+ * Controls provenance text: full (default), summary, or none
+ */
+provenance_verbosity?: GetInatObservationsProvenanceVerbosity;
 };
 
-export type GetInatObservationsQualityGrade =
-  (typeof GetInatObservationsQualityGrade)[keyof typeof GetInatObservationsQualityGrade];
+export type GetInatObservationsQualityGrade = typeof GetInatObservationsQualityGrade[keyof typeof GetInatObservationsQualityGrade];
+
 
 export const GetInatObservationsQualityGrade = {
-  research: "research",
-  needs_id: "needs_id",
-  casual: "casual",
+  research: 'research',
+  needs_id: 'needs_id',
+  casual: 'casual',
 } as const;
 
-export type GetInatObservationsProvenanceVerbosity =
-  (typeof GetInatObservationsProvenanceVerbosity)[keyof typeof GetInatObservationsProvenanceVerbosity];
+export type GetInatObservationsProvenanceVerbosity = typeof GetInatObservationsProvenanceVerbosity[keyof typeof GetInatObservationsProvenanceVerbosity];
+
 
 export const GetInatObservationsProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;
 
 export type GetInatObservationsSpeciesCountsParams = {
-  /**
-   * Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
-   */
-  place_id?: string;
-  /**
-   * Filter by quality grade: research, needs_id, or casual
-   */
-  quality_grade?: GetInatObservationsSpeciesCountsQualityGrade;
-  /**
-   * Filter to this iconic taxon group (e.g. Plantae, Aves, Fungi, Mammalia, Reptilia, Amphibia, Actinopterygii, Mollusca, Arachnida, Insecta, Animalia)
-   */
-  iconic_taxon_name?: string;
-  /**
-   * Only include taxa native to the observed location
-   */
-  native?: boolean;
-  /**
-   * Only include taxa introduced at the observed location
-   */
-  introduced?: boolean;
-  /**
-   * Controlled annotation term ID (e.g. 12 for Flowers and Fruits)
-   */
-  term_id?: number;
-  /**
-   * Controlled annotation value ID. Requires term_id.
-   */
-  term_value_id?: number;
-  /**
-   * Comma-separated month numbers to filter by (e.g. 4,5,6 for Apr–Jun)
-   */
-  month?: string;
-  /**
-   * Number of results (default 500, max 500)
-   * @minimum 1
-   * @maximum 500
-   */
-  per_page?: number;
-  /**
-   * Page number (1-indexed, default 1)
-   * @minimum 1
-   */
-  page?: number;
-  /**
-   * Start date filter (YYYY-MM-DD)
-   */
-  d1?: string;
-  /**
-   * End date filter (YYYY-MM-DD)
-   */
-  d2?: string;
-  /**
-   * Center latitude for radius-based geographic filter. Requires lng and radius.
-   */
-  lat?: number;
-  /**
-   * Center longitude for radius-based geographic filter. Requires lat and radius.
-   */
-  lng?: number;
-  /**
-   * Radius in km around the lat/lng center point.
-   */
-  radius?: number;
-  /**
-   * Northeast corner latitude for bounding box filter.
-   */
-  nelat?: number;
-  /**
-   * Northeast corner longitude for bounding box filter.
-   */
-  nelng?: number;
-  /**
-   * Southwest corner latitude for bounding box filter.
-   */
-  swlat?: number;
-  /**
-   * Southwest corner longitude for bounding box filter.
-   */
-  swlng?: number;
-  /**
-   * Controls provenance text: full (default), summary, or none
-   */
-  provenance_verbosity?: GetInatObservationsSpeciesCountsProvenanceVerbosity;
+/**
+ * Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
+ */
+place_id?: string;
+/**
+ * Filter by quality grade: research, needs_id, or casual
+ */
+quality_grade?: GetInatObservationsSpeciesCountsQualityGrade;
+/**
+ * Filter to this iconic taxon group (e.g. Plantae, Aves, Fungi, Mammalia, Reptilia, Amphibia, Actinopterygii, Mollusca, Arachnida, Insecta, Animalia)
+ */
+iconic_taxon_name?: string;
+/**
+ * Only include taxa native to the observed location
+ */
+native?: boolean;
+/**
+ * Only include taxa introduced at the observed location
+ */
+introduced?: boolean;
+/**
+ * Controlled annotation term ID (e.g. 12 for Flowers and Fruits)
+ */
+term_id?: number;
+/**
+ * Controlled annotation value ID. Requires term_id.
+ */
+term_value_id?: number;
+/**
+ * Comma-separated month numbers to filter by (e.g. 4,5,6 for Apr–Jun)
+ */
+month?: string;
+/**
+ * Number of results (default 500, max 500)
+ * @minimum 1
+ * @maximum 500
+ */
+per_page?: number;
+/**
+ * Page number (1-indexed, default 1)
+ * @minimum 1
+ */
+page?: number;
+/**
+ * Start date filter (YYYY-MM-DD)
+ */
+d1?: string;
+/**
+ * End date filter (YYYY-MM-DD)
+ */
+d2?: string;
+/**
+ * Center latitude for radius-based geographic filter. Requires lng and radius.
+ */
+lat?: number;
+/**
+ * Center longitude for radius-based geographic filter. Requires lat and radius.
+ */
+lng?: number;
+/**
+ * Radius in km around the lat/lng center point.
+ */
+radius?: number;
+/**
+ * Northeast corner latitude for bounding box filter.
+ */
+nelat?: number;
+/**
+ * Northeast corner longitude for bounding box filter.
+ */
+nelng?: number;
+/**
+ * Southwest corner latitude for bounding box filter.
+ */
+swlat?: number;
+/**
+ * Southwest corner longitude for bounding box filter.
+ */
+swlng?: number;
+/**
+ * Controls provenance text: full (default), summary, or none
+ */
+provenance_verbosity?: GetInatObservationsSpeciesCountsProvenanceVerbosity;
 };
 
-export type GetInatObservationsSpeciesCountsQualityGrade =
-  (typeof GetInatObservationsSpeciesCountsQualityGrade)[keyof typeof GetInatObservationsSpeciesCountsQualityGrade];
+export type GetInatObservationsSpeciesCountsQualityGrade = typeof GetInatObservationsSpeciesCountsQualityGrade[keyof typeof GetInatObservationsSpeciesCountsQualityGrade];
+
 
 export const GetInatObservationsSpeciesCountsQualityGrade = {
-  research: "research",
-  needs_id: "needs_id",
-  casual: "casual",
+  research: 'research',
+  needs_id: 'needs_id',
+  casual: 'casual',
 } as const;
 
-export type GetInatObservationsSpeciesCountsProvenanceVerbosity =
-  (typeof GetInatObservationsSpeciesCountsProvenanceVerbosity)[keyof typeof GetInatObservationsSpeciesCountsProvenanceVerbosity];
+export type GetInatObservationsSpeciesCountsProvenanceVerbosity = typeof GetInatObservationsSpeciesCountsProvenanceVerbosity[keyof typeof GetInatObservationsSpeciesCountsProvenanceVerbosity];
+
 
 export const GetInatObservationsSpeciesCountsProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;
 
 export type GetInatControlledTermsParams = {
-  /**
-   * Bypass cache and re-fetch from iNaturalist
-   */
-  refresh?: boolean;
-  /**
-   * Controls provenance text: full (default), summary, or none
-   */
-  provenance_verbosity?: GetInatControlledTermsProvenanceVerbosity;
+/**
+ * Bypass cache and re-fetch from iNaturalist
+ */
+refresh?: boolean;
+/**
+ * Controls provenance text: full (default), summary, or none
+ */
+provenance_verbosity?: GetInatControlledTermsProvenanceVerbosity;
 };
 
-export type GetInatControlledTermsProvenanceVerbosity =
-  (typeof GetInatControlledTermsProvenanceVerbosity)[keyof typeof GetInatControlledTermsProvenanceVerbosity];
+export type GetInatControlledTermsProvenanceVerbosity = typeof GetInatControlledTermsProvenanceVerbosity[keyof typeof GetInatControlledTermsProvenanceVerbosity];
+
 
 export const GetInatControlledTermsProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;
 
 export type GetInatControlledTermsForTaxonParams = {
-  /**
-   * iNaturalist taxon ID
-   */
-  taxon_id: number;
-  /**
-   * Bypass cache and re-fetch from iNaturalist
-   */
-  refresh?: boolean;
-  /**
-   * Controls provenance text: full (default), summary, or none
-   */
-  provenance_verbosity?: GetInatControlledTermsForTaxonProvenanceVerbosity;
+/**
+ * iNaturalist taxon ID
+ */
+taxon_id: number;
+/**
+ * Bypass cache and re-fetch from iNaturalist
+ */
+refresh?: boolean;
+/**
+ * Controls provenance text: full (default), summary, or none
+ */
+provenance_verbosity?: GetInatControlledTermsForTaxonProvenanceVerbosity;
 };
 
-export type GetInatControlledTermsForTaxonProvenanceVerbosity =
-  (typeof GetInatControlledTermsForTaxonProvenanceVerbosity)[keyof typeof GetInatControlledTermsForTaxonProvenanceVerbosity];
+export type GetInatControlledTermsForTaxonProvenanceVerbosity = typeof GetInatControlledTermsForTaxonProvenanceVerbosity[keyof typeof GetInatControlledTermsForTaxonProvenanceVerbosity];
+
 
 export const GetInatControlledTermsForTaxonProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;
 
 export type GetInatTaxaAutocompleteParams = {
-  /**
-   * Partial or full scientific or common name to search for
-   */
-  q: string;
-  /**
-   * Results per page (default 10, max 10 for autocomplete)
-   * @minimum 1
-   * @maximum 10
-   */
-  per_page?: number;
-  /**
-   * Filter to active taxa only (default true)
-   */
-  is_active?: boolean;
-  /**
-   * Taxonomic rank filter (e.g. species, genus, family)
-   */
-  rank?: string;
-  /**
-   * Locale code for common names (e.g. en, es, de)
-   */
-  locale?: string;
-  /**
-   * Include all name variants in search (not just preferred)
-   */
-  all_names?: boolean;
-  /**
-   * iNaturalist place ID to prioritize common names for that place
-   */
-  preferred_place_id?: number;
-  /**
-   * Controls provenance text: full (default), summary, or none
-   */
-  provenance_verbosity?: GetInatTaxaAutocompleteProvenanceVerbosity;
+/**
+ * Partial or full scientific or common name to search for
+ */
+q: string;
+/**
+ * Results per page (default 10, max 10 for autocomplete)
+ * @minimum 1
+ * @maximum 10
+ */
+per_page?: number;
+/**
+ * Filter to active taxa only (default true)
+ */
+is_active?: boolean;
+/**
+ * Taxonomic rank filter (e.g. species, genus, family)
+ */
+rank?: string;
+/**
+ * Locale code for common names (e.g. en, es, de)
+ */
+locale?: string;
+/**
+ * Include all name variants in search (not just preferred)
+ */
+all_names?: boolean;
+/**
+ * iNaturalist place ID to prioritize common names for that place
+ */
+preferred_place_id?: number;
+/**
+ * Controls provenance text: full (default), summary, or none
+ */
+provenance_verbosity?: GetInatTaxaAutocompleteProvenanceVerbosity;
 };
 
-export type GetInatTaxaAutocompleteProvenanceVerbosity =
-  (typeof GetInatTaxaAutocompleteProvenanceVerbosity)[keyof typeof GetInatTaxaAutocompleteProvenanceVerbosity];
+export type GetInatTaxaAutocompleteProvenanceVerbosity = typeof GetInatTaxaAutocompleteProvenanceVerbosity[keyof typeof GetInatTaxaAutocompleteProvenanceVerbosity];
+
 
 export const GetInatTaxaAutocompleteProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;
 
 export type GetInatTaxaByIdParams = {
-  /**
-   * Bypass cache and re-fetch from iNaturalist
-   */
-  refresh?: boolean;
-  /**
-   * Controls provenance text: full (default), summary, or none
-   */
-  provenance_verbosity?: GetInatTaxaByIdProvenanceVerbosity;
+/**
+ * Bypass cache and re-fetch from iNaturalist
+ */
+refresh?: boolean;
+/**
+ * Controls provenance text: full (default), summary, or none
+ */
+provenance_verbosity?: GetInatTaxaByIdProvenanceVerbosity;
 };
 
-export type GetInatTaxaByIdProvenanceVerbosity =
-  (typeof GetInatTaxaByIdProvenanceVerbosity)[keyof typeof GetInatTaxaByIdProvenanceVerbosity];
+export type GetInatTaxaByIdProvenanceVerbosity = typeof GetInatTaxaByIdProvenanceVerbosity[keyof typeof GetInatTaxaByIdProvenanceVerbosity];
+
 
 export const GetInatTaxaByIdProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;
 
 export type GetInatPlacesByIdParams = {
-  /**
-   * Admin level filter (e.g. 0=country, 1=state, 2=county)
-   */
-  admin_level?: number;
-  /**
-   * Bypass cache and re-fetch from iNaturalist
-   */
-  refresh?: boolean;
-  /**
-   * Controls provenance text: full (default), summary, or none
-   */
-  provenance_verbosity?: GetInatPlacesByIdProvenanceVerbosity;
+/**
+ * Admin level filter (e.g. 0=country, 1=state, 2=county)
+ */
+admin_level?: number;
+/**
+ * Bypass cache and re-fetch from iNaturalist
+ */
+refresh?: boolean;
+/**
+ * Controls provenance text: full (default), summary, or none
+ */
+provenance_verbosity?: GetInatPlacesByIdProvenanceVerbosity;
 };
 
-export type GetInatPlacesByIdProvenanceVerbosity =
-  (typeof GetInatPlacesByIdProvenanceVerbosity)[keyof typeof GetInatPlacesByIdProvenanceVerbosity];
+export type GetInatPlacesByIdProvenanceVerbosity = typeof GetInatPlacesByIdProvenanceVerbosity[keyof typeof GetInatPlacesByIdProvenanceVerbosity];
+
 
 export const GetInatPlacesByIdProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;
 
 export type GetInatPlacesNearbyParams = {
-  /**
-   * Northeast corner latitude of the bounding box
-   */
-  nelat: number;
-  /**
-   * Northeast corner longitude of the bounding box
-   */
-  nelng: number;
-  /**
-   * Southwest corner latitude of the bounding box
-   */
-  swlat: number;
-  /**
-   * Southwest corner longitude of the bounding box
-   */
-  swlng: number;
-  /**
-   * Optional name filter to narrow results
-   */
-  name?: string;
-  /**
-   * Results per page
-   * @minimum 1
-   */
-  per_page?: number;
-  /**
-   * Controls provenance text: full (default), summary, or none
-   */
-  provenance_verbosity?: GetInatPlacesNearbyProvenanceVerbosity;
+/**
+ * Northeast corner latitude of the bounding box
+ */
+nelat: number;
+/**
+ * Northeast corner longitude of the bounding box
+ */
+nelng: number;
+/**
+ * Southwest corner latitude of the bounding box
+ */
+swlat: number;
+/**
+ * Southwest corner longitude of the bounding box
+ */
+swlng: number;
+/**
+ * Optional name filter to narrow results
+ */
+name?: string;
+/**
+ * Results per page
+ * @minimum 1
+ */
+per_page?: number;
+/**
+ * Controls provenance text: full (default), summary, or none
+ */
+provenance_verbosity?: GetInatPlacesNearbyProvenanceVerbosity;
 };
 
-export type GetInatPlacesNearbyProvenanceVerbosity =
-  (typeof GetInatPlacesNearbyProvenanceVerbosity)[keyof typeof GetInatPlacesNearbyProvenanceVerbosity];
+export type GetInatPlacesNearbyProvenanceVerbosity = typeof GetInatPlacesNearbyProvenanceVerbosity[keyof typeof GetInatPlacesNearbyProvenanceVerbosity];
+
 
 export const GetInatPlacesNearbyProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;
 
 export type GetInatObservationsTaxonSummaryParams = {
-  /**
-   * Controls provenance text: full (default), summary, or none
-   */
-  provenance_verbosity?: GetInatObservationsTaxonSummaryProvenanceVerbosity;
+/**
+ * Controls provenance text: full (default), summary, or none
+ */
+provenance_verbosity?: GetInatObservationsTaxonSummaryProvenanceVerbosity;
 };
 
-export type GetInatObservationsTaxonSummaryProvenanceVerbosity =
-  (typeof GetInatObservationsTaxonSummaryProvenanceVerbosity)[keyof typeof GetInatObservationsTaxonSummaryProvenanceVerbosity];
+export type GetInatObservationsTaxonSummaryProvenanceVerbosity = typeof GetInatObservationsTaxonSummaryProvenanceVerbosity[keyof typeof GetInatObservationsTaxonSummaryProvenanceVerbosity];
+
 
 export const GetInatObservationsTaxonSummaryProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;
 
 export type GetInatIdentificationsSimilarSpeciesParams = {
-  /**
-   * iNaturalist taxon ID to find similar species for
-   */
-  taxon_id: number;
-  /**
-   * Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
-   */
-  place_id?: string;
-  quality_grade?: GetInatIdentificationsSimilarSpeciesQualityGrade;
-  lat?: number;
-  lng?: number;
-  radius?: number;
-  nelat?: number;
-  nelng?: number;
-  swlat?: number;
-  swlng?: number;
-  /**
-   * Controls provenance text: full (default), summary, or none
-   */
-  provenance_verbosity?: GetInatIdentificationsSimilarSpeciesProvenanceVerbosity;
+/**
+ * iNaturalist taxon ID to find similar species for
+ */
+taxon_id: number;
+/**
+ * Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
+ */
+place_id?: string;
+quality_grade?: GetInatIdentificationsSimilarSpeciesQualityGrade;
+lat?: number;
+lng?: number;
+radius?: number;
+nelat?: number;
+nelng?: number;
+swlat?: number;
+swlng?: number;
+/**
+ * Controls provenance text: full (default), summary, or none
+ */
+provenance_verbosity?: GetInatIdentificationsSimilarSpeciesProvenanceVerbosity;
 };
 
-export type GetInatIdentificationsSimilarSpeciesQualityGrade =
-  (typeof GetInatIdentificationsSimilarSpeciesQualityGrade)[keyof typeof GetInatIdentificationsSimilarSpeciesQualityGrade];
+export type GetInatIdentificationsSimilarSpeciesQualityGrade = typeof GetInatIdentificationsSimilarSpeciesQualityGrade[keyof typeof GetInatIdentificationsSimilarSpeciesQualityGrade];
+
 
 export const GetInatIdentificationsSimilarSpeciesQualityGrade = {
-  research: "research",
-  needs_id: "needs_id",
-  casual: "casual",
+  research: 'research',
+  needs_id: 'needs_id',
+  casual: 'casual',
 } as const;
 
-export type GetInatIdentificationsSimilarSpeciesProvenanceVerbosity =
-  (typeof GetInatIdentificationsSimilarSpeciesProvenanceVerbosity)[keyof typeof GetInatIdentificationsSimilarSpeciesProvenanceVerbosity];
+export type GetInatIdentificationsSimilarSpeciesProvenanceVerbosity = typeof GetInatIdentificationsSimilarSpeciesProvenanceVerbosity[keyof typeof GetInatIdentificationsSimilarSpeciesProvenanceVerbosity];
+
 
 export const GetInatIdentificationsSimilarSpeciesProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;
 
 export type GetInatIdentificationsSpeciesCountsParams = {
-  taxon_id?: number;
-  /**
-   * Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
-   */
-  place_id?: string;
-  quality_grade?: GetInatIdentificationsSpeciesCountsQualityGrade;
-  /**
-   * @minimum 1
-   */
-  per_page?: number;
-  /**
-   * @minimum 1
-   */
-  page?: number;
-  /**
-   * Start date filter (YYYY-MM-DD)
-   */
-  d1?: string;
-  /**
-   * End date filter (YYYY-MM-DD)
-   */
-  d2?: string;
-  /**
-   * Comma-separated month numbers (e.g. 4,5,6)
-   */
-  month?: string;
-  native?: boolean;
-  introduced?: boolean;
-  lat?: number;
-  lng?: number;
-  radius?: number;
-  nelat?: number;
-  nelng?: number;
-  swlat?: number;
-  swlng?: number;
-  /**
-   * Sort order: desc (default) or asc
-   */
-  order?: GetInatIdentificationsSpeciesCountsOrder;
-  /**
-   * Sort field: count (default) or id
-   */
-  order_by?: string;
-  /**
-   * Which taxon to count: identification (default) or community
-   */
-  taxon_of?: GetInatIdentificationsSpeciesCountsTaxonOf;
-  /**
-   * Comma-separated iconic taxon names (e.g. Plantae,Fungi)
-   */
-  iconic_taxa?: string;
-  /**
-   * Controls provenance text: full (default), summary, or none
-   */
-  provenance_verbosity?: GetInatIdentificationsSpeciesCountsProvenanceVerbosity;
+taxon_id?: number;
+/**
+ * Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
+ */
+place_id?: string;
+quality_grade?: GetInatIdentificationsSpeciesCountsQualityGrade;
+/**
+ * @minimum 1
+ */
+per_page?: number;
+/**
+ * @minimum 1
+ */
+page?: number;
+/**
+ * Start date filter (YYYY-MM-DD)
+ */
+d1?: string;
+/**
+ * End date filter (YYYY-MM-DD)
+ */
+d2?: string;
+/**
+ * Comma-separated month numbers (e.g. 4,5,6)
+ */
+month?: string;
+native?: boolean;
+introduced?: boolean;
+lat?: number;
+lng?: number;
+radius?: number;
+nelat?: number;
+nelng?: number;
+swlat?: number;
+swlng?: number;
+/**
+ * Sort order: desc (default) or asc
+ */
+order?: GetInatIdentificationsSpeciesCountsOrder;
+/**
+ * Sort field: count (default) or id
+ */
+order_by?: string;
+/**
+ * Which taxon to count: identification (default) or community
+ */
+taxon_of?: GetInatIdentificationsSpeciesCountsTaxonOf;
+/**
+ * Comma-separated iconic taxon names (e.g. Plantae,Fungi)
+ */
+iconic_taxa?: string;
+/**
+ * Controls provenance text: full (default), summary, or none
+ */
+provenance_verbosity?: GetInatIdentificationsSpeciesCountsProvenanceVerbosity;
 };
 
-export type GetInatIdentificationsSpeciesCountsQualityGrade =
-  (typeof GetInatIdentificationsSpeciesCountsQualityGrade)[keyof typeof GetInatIdentificationsSpeciesCountsQualityGrade];
+export type GetInatIdentificationsSpeciesCountsQualityGrade = typeof GetInatIdentificationsSpeciesCountsQualityGrade[keyof typeof GetInatIdentificationsSpeciesCountsQualityGrade];
+
 
 export const GetInatIdentificationsSpeciesCountsQualityGrade = {
-  research: "research",
-  needs_id: "needs_id",
-  casual: "casual",
+  research: 'research',
+  needs_id: 'needs_id',
+  casual: 'casual',
 } as const;
 
-export type GetInatIdentificationsSpeciesCountsOrder =
-  (typeof GetInatIdentificationsSpeciesCountsOrder)[keyof typeof GetInatIdentificationsSpeciesCountsOrder];
+export type GetInatIdentificationsSpeciesCountsOrder = typeof GetInatIdentificationsSpeciesCountsOrder[keyof typeof GetInatIdentificationsSpeciesCountsOrder];
+
 
 export const GetInatIdentificationsSpeciesCountsOrder = {
-  asc: "asc",
-  desc: "desc",
+  asc: 'asc',
+  desc: 'desc',
 } as const;
 
-export type GetInatIdentificationsSpeciesCountsTaxonOf =
-  (typeof GetInatIdentificationsSpeciesCountsTaxonOf)[keyof typeof GetInatIdentificationsSpeciesCountsTaxonOf];
+export type GetInatIdentificationsSpeciesCountsTaxonOf = typeof GetInatIdentificationsSpeciesCountsTaxonOf[keyof typeof GetInatIdentificationsSpeciesCountsTaxonOf];
+
 
 export const GetInatIdentificationsSpeciesCountsTaxonOf = {
-  identification: "identification",
-  community: "community",
+  identification: 'identification',
+  community: 'community',
 } as const;
 
-export type GetInatIdentificationsSpeciesCountsProvenanceVerbosity =
-  (typeof GetInatIdentificationsSpeciesCountsProvenanceVerbosity)[keyof typeof GetInatIdentificationsSpeciesCountsProvenanceVerbosity];
+export type GetInatIdentificationsSpeciesCountsProvenanceVerbosity = typeof GetInatIdentificationsSpeciesCountsProvenanceVerbosity[keyof typeof GetInatIdentificationsSpeciesCountsProvenanceVerbosity];
+
 
 export const GetInatIdentificationsSpeciesCountsProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;
 
 export type GetInatIdentificationsRecentTaxaParams = {
-  /**
-   * Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
-   */
-  place_id?: string;
-  taxon_id?: number;
-  quality_grade?: GetInatIdentificationsRecentTaxaQualityGrade;
-  /**
-   * @minimum 1
-   */
-  per_page?: number;
-  /**
-   * @minimum 1
-   */
-  page?: number;
-  /**
-   * Start date filter (YYYY-MM-DD)
-   */
-  d1?: string;
-  /**
-   * End date filter (YYYY-MM-DD)
-   */
-  d2?: string;
-  /**
-   * Controls provenance text: full (default), summary, or none
-   */
-  provenance_verbosity?: GetInatIdentificationsRecentTaxaProvenanceVerbosity;
+/**
+ * Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
+ */
+place_id?: string;
+taxon_id?: number;
+quality_grade?: GetInatIdentificationsRecentTaxaQualityGrade;
+/**
+ * @minimum 1
+ */
+per_page?: number;
+/**
+ * @minimum 1
+ */
+page?: number;
+/**
+ * Start date filter (YYYY-MM-DD)
+ */
+d1?: string;
+/**
+ * End date filter (YYYY-MM-DD)
+ */
+d2?: string;
+/**
+ * Controls provenance text: full (default), summary, or none
+ */
+provenance_verbosity?: GetInatIdentificationsRecentTaxaProvenanceVerbosity;
 };
 
-export type GetInatIdentificationsRecentTaxaQualityGrade =
-  (typeof GetInatIdentificationsRecentTaxaQualityGrade)[keyof typeof GetInatIdentificationsRecentTaxaQualityGrade];
+export type GetInatIdentificationsRecentTaxaQualityGrade = typeof GetInatIdentificationsRecentTaxaQualityGrade[keyof typeof GetInatIdentificationsRecentTaxaQualityGrade];
+
 
 export const GetInatIdentificationsRecentTaxaQualityGrade = {
-  research: "research",
-  needs_id: "needs_id",
-  casual: "casual",
+  research: 'research',
+  needs_id: 'needs_id',
+  casual: 'casual',
 } as const;
 
-export type GetInatIdentificationsRecentTaxaProvenanceVerbosity =
-  (typeof GetInatIdentificationsRecentTaxaProvenanceVerbosity)[keyof typeof GetInatIdentificationsRecentTaxaProvenanceVerbosity];
+export type GetInatIdentificationsRecentTaxaProvenanceVerbosity = typeof GetInatIdentificationsRecentTaxaProvenanceVerbosity[keyof typeof GetInatIdentificationsRecentTaxaProvenanceVerbosity];
+
 
 export const GetInatIdentificationsRecentTaxaProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;
 
 export type GetInatIdentificationsParams = {
-  taxon_id?: number;
-  /**
-   * Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
-   */
-  place_id?: string;
-  quality_grade?: GetInatIdentificationsQualityGrade;
-  /**
-   * @minimum 1
-   * @maximum 200
-   */
-  per_page?: number;
-  /**
-   * @minimum 1
-   */
-  page?: number;
-  /**
-   * Start date filter (YYYY-MM-DD)
-   */
-  d1?: string;
-  /**
-   * End date filter (YYYY-MM-DD)
-   */
-  d2?: string;
-  /**
-   * Comma-separated month numbers (e.g. 4,5,6)
-   */
-  month?: string;
-  native?: boolean;
-  introduced?: boolean;
-  lat?: number;
-  lng?: number;
-  radius?: number;
-  nelat?: number;
-  nelng?: number;
-  swlat?: number;
-  swlng?: number;
-  /**
-   * Locale for common names (e.g. en, es)
-   */
-  locale?: string;
-  /**
-   * Filter by identifier user ID
-   */
-  user_id?: number;
-  /**
-   * Filter by identifier user login
-   */
-  user_login?: string;
-  /**
-   * Comma-separated iconic taxon names (e.g. Plantae,Fungi)
-   */
-  iconic_taxa?: string;
-  term_id?: number;
-  term_value_id?: number;
-  verifiable?: boolean;
-  /**
-   * Sort order: desc (default) or asc
-   */
-  order?: GetInatIdentificationsOrder;
-  /**
-   * Sort field: created_at (default) or id
-   */
-  order_by?: string;
-  /**
-   * Controls provenance text: full (default), summary, or none
-   */
-  provenance_verbosity?: GetInatIdentificationsProvenanceVerbosity;
+taxon_id?: number;
+/**
+ * Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
+ */
+place_id?: string;
+quality_grade?: GetInatIdentificationsQualityGrade;
+/**
+ * @minimum 1
+ * @maximum 200
+ */
+per_page?: number;
+/**
+ * @minimum 1
+ */
+page?: number;
+/**
+ * Start date filter (YYYY-MM-DD)
+ */
+d1?: string;
+/**
+ * End date filter (YYYY-MM-DD)
+ */
+d2?: string;
+/**
+ * Comma-separated month numbers (e.g. 4,5,6)
+ */
+month?: string;
+native?: boolean;
+introduced?: boolean;
+lat?: number;
+lng?: number;
+radius?: number;
+nelat?: number;
+nelng?: number;
+swlat?: number;
+swlng?: number;
+/**
+ * Locale for common names (e.g. en, es)
+ */
+locale?: string;
+/**
+ * Filter by identifier user ID
+ */
+user_id?: number;
+/**
+ * Filter by identifier user login
+ */
+user_login?: string;
+/**
+ * Comma-separated iconic taxon names (e.g. Plantae,Fungi)
+ */
+iconic_taxa?: string;
+term_id?: number;
+term_value_id?: number;
+verifiable?: boolean;
+/**
+ * Sort order: desc (default) or asc
+ */
+order?: GetInatIdentificationsOrder;
+/**
+ * Sort field: created_at (default) or id
+ */
+order_by?: string;
+/**
+ * Controls provenance text: full (default), summary, or none
+ */
+provenance_verbosity?: GetInatIdentificationsProvenanceVerbosity;
 };
 
-export type GetInatIdentificationsQualityGrade =
-  (typeof GetInatIdentificationsQualityGrade)[keyof typeof GetInatIdentificationsQualityGrade];
+export type GetInatIdentificationsQualityGrade = typeof GetInatIdentificationsQualityGrade[keyof typeof GetInatIdentificationsQualityGrade];
+
 
 export const GetInatIdentificationsQualityGrade = {
-  research: "research",
-  needs_id: "needs_id",
-  casual: "casual",
+  research: 'research',
+  needs_id: 'needs_id',
+  casual: 'casual',
 } as const;
 
-export type GetInatIdentificationsOrder =
-  (typeof GetInatIdentificationsOrder)[keyof typeof GetInatIdentificationsOrder];
+export type GetInatIdentificationsOrder = typeof GetInatIdentificationsOrder[keyof typeof GetInatIdentificationsOrder];
+
 
 export const GetInatIdentificationsOrder = {
-  asc: "asc",
-  desc: "desc",
+  asc: 'asc',
+  desc: 'desc',
 } as const;
 
-export type GetInatIdentificationsProvenanceVerbosity =
-  (typeof GetInatIdentificationsProvenanceVerbosity)[keyof typeof GetInatIdentificationsProvenanceVerbosity];
+export type GetInatIdentificationsProvenanceVerbosity = typeof GetInatIdentificationsProvenanceVerbosity[keyof typeof GetInatIdentificationsProvenanceVerbosity];
+
 
 export const GetInatIdentificationsProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;
 
 export type GetInatIdentificationsByIdParams = {
-  /**
-   * Controls provenance text: full (default), summary, or none
-   */
-  provenance_verbosity?: GetInatIdentificationsByIdProvenanceVerbosity;
+/**
+ * Controls provenance text: full (default), summary, or none
+ */
+provenance_verbosity?: GetInatIdentificationsByIdProvenanceVerbosity;
 };
 
-export type GetInatIdentificationsByIdProvenanceVerbosity =
-  (typeof GetInatIdentificationsByIdProvenanceVerbosity)[keyof typeof GetInatIdentificationsByIdProvenanceVerbosity];
+export type GetInatIdentificationsByIdProvenanceVerbosity = typeof GetInatIdentificationsByIdProvenanceVerbosity[keyof typeof GetInatIdentificationsByIdProvenanceVerbosity];
+
 
 export const GetInatIdentificationsByIdProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;
 
 export type GetMifloraCountiesParams = {
-  /**
-   * Scientific name to look up county records for (e.g. Asclepias tuberosa)
-   * @minLength 1
-   */
-  name: string;
-  /**
-   * If true, bypasses cache and fetches fresh from Michigan Flora API
-   */
-  refresh?: boolean;
+/**
+ * Scientific name to look up county records for (e.g. Asclepias tuberosa)
+ * @minLength 1
+ */
+name: string;
+/**
+ * If true, bypasses cache and fetches fresh from Michigan Flora API
+ */
+refresh?: boolean;
 };
 
 export type GetMifloraImagesParams = {
-  /**
-   * Scientific name to look up (e.g. Asclepias tuberosa)
-   * @minLength 1
-   */
-  name: string;
-  /**
-   * If true, bypasses cache and fetches fresh from Michigan Flora API
-   */
-  refresh?: boolean;
+/**
+ * Scientific name to look up (e.g. Asclepias tuberosa)
+ * @minLength 1
+ */
+name: string;
+/**
+ * If true, bypasses cache and fetches fresh from Michigan Flora API
+ */
+refresh?: boolean;
 };
 
 export type GetMifloraFloraSearchParams = {
-  /**
-   * Scientific name to look up (e.g. Quercus rubra)
-   * @minLength 1
-   */
-  name: string;
-  /**
-   * If true, bypasses cache and fetches fresh from Michigan Flora API
-   */
-  refresh?: boolean;
+/**
+ * Scientific name to look up (e.g. Quercus rubra)
+ * @minLength 1
+ */
+name: string;
+/**
+ * If true, bypasses cache and fetches fresh from Michigan Flora API
+ */
+refresh?: boolean;
 };
 
 export type GetMifloraSpecTextParams = {
-  /**
-   * Michigan Flora plant_id (positive integer, from flora_search_sp)
-   * @minimum 1
-   */
-  id: number;
-  /**
-   * If true, bypasses cache and fetches fresh from Michigan Flora API
-   */
-  refresh?: boolean;
+/**
+ * Michigan Flora plant_id (positive integer, from flora_search_sp)
+ * @minimum 1
+ */
+id: number;
+/**
+ * If true, bypasses cache and fetches fresh from Michigan Flora API
+ */
+refresh?: boolean;
 };
 
 export type GetMifloraSynonymsParams = {
-  /**
-   * Michigan Flora plant_id (positive integer, from flora_search_sp)
-   * @minimum 1
-   */
-  id: number;
-  /**
-   * If true, bypasses cache and fetches fresh from Michigan Flora API
-   */
-  refresh?: boolean;
+/**
+ * Michigan Flora plant_id (positive integer, from flora_search_sp)
+ * @minimum 1
+ */
+id: number;
+/**
+ * If true, bypasses cache and fetches fresh from Michigan Flora API
+ */
+refresh?: boolean;
 };
 
 export type GetMifloraPImageInfoParams = {
-  /**
-   * Michigan Flora plant_id (positive integer, from flora_search_sp)
-   * @minimum 1
-   */
-  id: number;
-  /**
-   * If true, bypasses cache and fetches fresh from Michigan Flora API
-   */
-  refresh?: boolean;
+/**
+ * Michigan Flora plant_id (positive integer, from flora_search_sp)
+ * @minimum 1
+ */
+id: number;
+/**
+ * If true, bypasses cache and fetches fresh from Michigan Flora API
+ */
+refresh?: boolean;
 };
 
 export type GetCoefficientByValueParams = {
-  /**
+/**
  * C-value to look up. Must be a string: '0'–'10' for native species, or '*' for non-native/adventive species.
 
  * @minLength 1
  */
-  value: string;
+value: string;
 };
 
 export type GetWetlandIndicatorStatusByCodeParams = {
-  /**
-   * Wetland Indicator Status code to look up (OBL, FACW, FAC, FACU, or UPL). Case-insensitive.
-   */
-  code: GetWetlandIndicatorStatusByCodeCode;
+/**
+ * Wetland Indicator Status code to look up (OBL, FACW, FAC, FACU, or UPL). Case-insensitive.
+ */
+code: GetWetlandIndicatorStatusByCodeCode;
 };
 
-export type GetWetlandIndicatorStatusByCodeCode =
-  (typeof GetWetlandIndicatorStatusByCodeCode)[keyof typeof GetWetlandIndicatorStatusByCodeCode];
+export type GetWetlandIndicatorStatusByCodeCode = typeof GetWetlandIndicatorStatusByCodeCode[keyof typeof GetWetlandIndicatorStatusByCodeCode];
+
 
 export const GetWetlandIndicatorStatusByCodeCode = {
-  OBL: "OBL",
-  FACW: "FACW",
-  FAC: "FAC",
-  FACU: "FACU",
-  UPL: "UPL",
+  OBL: 'OBL',
+  FACW: 'FACW',
+  FAC: 'FAC',
+  FACU: 'FACU',
+  UPL: 'UPL',
 } as const;
 
 export type GetWetlandIndicatorStatusByWParams = {
-  /**
-   * Numeric W-value to look up (-5, -3, 0, 3, or 5).
-   */
-  value: GetWetlandIndicatorStatusByWValue;
+/**
+ * Numeric W-value to look up (-5, -3, 0, 3, or 5).
+ */
+value: GetWetlandIndicatorStatusByWValue;
 };
 
-export type GetWetlandIndicatorStatusByWValue =
-  (typeof GetWetlandIndicatorStatusByWValue)[keyof typeof GetWetlandIndicatorStatusByWValue];
+export type GetWetlandIndicatorStatusByWValue = typeof GetWetlandIndicatorStatusByWValue[keyof typeof GetWetlandIndicatorStatusByWValue];
+
 
 export const GetWetlandIndicatorStatusByWValue = {
   NUMBER_MINUS_5: -5,
@@ -3233,31 +3206,31 @@ export const GetWetlandIndicatorStatusByWValue = {
 } as const;
 
 export type GetWucolsWaterUseByCodeParams = {
-  /**
-   * WUCOLS water use code to look up (VL, L, M, or H). Case-insensitive.
-   */
-  code: GetWucolsWaterUseByCodeCode;
+/**
+ * WUCOLS water use code to look up (VL, L, M, or H). Case-insensitive.
+ */
+code: GetWucolsWaterUseByCodeCode;
 };
 
-export type GetWucolsWaterUseByCodeCode =
-  (typeof GetWucolsWaterUseByCodeCode)[keyof typeof GetWucolsWaterUseByCodeCode];
+export type GetWucolsWaterUseByCodeCode = typeof GetWucolsWaterUseByCodeCode[keyof typeof GetWucolsWaterUseByCodeCode];
+
 
 export const GetWucolsWaterUseByCodeCode = {
-  VL: "VL",
-  L: "L",
-  M: "M",
-  H: "H",
+  VL: 'VL',
+  L: 'L',
+  M: 'M',
+  H: 'H',
 } as const;
 
 export type GetS2CSpeciesByYearParams = {
-  /**
-   * Program year (2023–2026).
-   */
-  year: GetS2CSpeciesByYearYear;
+/**
+ * Program year (2023–2026).
+ */
+year: GetS2CSpeciesByYearYear;
 };
 
-export type GetS2CSpeciesByYearYear =
-  (typeof GetS2CSpeciesByYearYear)[keyof typeof GetS2CSpeciesByYearYear];
+export type GetS2CSpeciesByYearYear = typeof GetS2CSpeciesByYearYear[keyof typeof GetS2CSpeciesByYearYear];
+
 
 export const GetS2CSpeciesByYearYear = {
   NUMBER_2023: 2023,
@@ -3279,164 +3252,164 @@ export type GetS2CMetadata200 = FernsEnvelope & {
 };
 
 export type GetLcscgSpeciesParams = {
-  /**
+/**
  * Scientific or common name to search (partial match, case-insensitive).
 
  * @minLength 1
  */
-  name: string;
+name: string;
 };
 
 export type GetSourceRelationshipsParams = {
-  /**
+/**
  * If provided, returns only relationships where this source_id is one of the two parties.
 
  */
-  source_id?: string;
+source_id?: string;
 };
 
 export type GetMnfiCommunitiesParams = {
-  /**
-   * Filter by community class (substring match, e.g. Terrestrial)
-   */
-  class?: string;
-  /**
-   * Filter by community group (substring match, e.g. Forest)
-   */
-  group?: string;
-  /**
-   * Filter by community name (substring match, e.g. oak savanna)
-   */
-  name?: string;
+/**
+ * Filter by community class (substring match, e.g. Terrestrial)
+ */
+class?: string;
+/**
+ * Filter by community group (substring match, e.g. Forest)
+ */
+group?: string;
+/**
+ * Filter by community name (substring match, e.g. oak savanna)
+ */
+name?: string;
 };
 
 export type GetMnfiCountyElementsParams = {
-  /**
+/**
  * Michigan county name (e.g. Washtenaw, Leelanau). Case-insensitive. All 83 Michigan county names are accepted.
 
  * @minLength 1
  */
-  county: string;
-  /**
+county: string;
+/**
  * Filter by element type. Must be 'species' or 'community' when provided. When omitted, both types are returned.
 
  */
-  type?: GetMnfiCountyElementsType;
+type?: GetMnfiCountyElementsType;
 };
 
-export type GetMnfiCountyElementsType =
-  (typeof GetMnfiCountyElementsType)[keyof typeof GetMnfiCountyElementsType];
+export type GetMnfiCountyElementsType = typeof GetMnfiCountyElementsType[keyof typeof GetMnfiCountyElementsType];
+
 
 export const GetMnfiCountyElementsType = {
-  species: "species",
-  community: "community",
+  species: 'species',
+  community: 'community',
 } as const;
 
 export type GetNatureserveSpeciesParams = {
-  /**
-   * Scientific name to look up (e.g. Asclepias tuberosa)
-   * @minLength 1
-   */
-  name: string;
-  /**
+/**
+ * Scientific name to look up (e.g. Asclepias tuberosa)
+ * @minLength 1
+ */
+name: string;
+/**
  * Two-letter US state code to scope the state rank (e.g. MI, WI, OH). Defaults to MI (Michigan) when omitted. Must be a valid 2-letter code.
 
  */
-  state?: string;
-  /**
-   * If true, bypasses cache and fetches fresh from NatureServe Explorer
-   */
-  refresh?: boolean;
+state?: string;
+/**
+ * If true, bypasses cache and fetches fresh from NatureServe Explorer
+ */
+refresh?: boolean;
 };
 
 export type GetNatureserveSearchParams = {
-  /**
-   * Search text (e.g. oak savanna, tallgrass prairie, Platanthera leucophaea)
-   * @minLength 1
-   */
-  q: string;
-  /**
+/**
+ * Search text (e.g. oak savanna, tallgrass prairie, Platanthera leucophaea)
+ * @minLength 1
+ */
+q: string;
+/**
  * Type of records to return (default: ECOSYSTEM). ECOSYSTEM — ecological systems and community types; SPECIES — animal and plant species; COMMUNITY — plant communities; GROUP — element groups; ASSOCIATION — plant associations.
 
  */
-  recordType?: GetNatureserveSearchRecordType;
-  /**
-   * Number of results per page (1–50, default 10)
-   * @minimum 1
-   * @maximum 50
-   */
-  limit?: number;
-  /**
-   * Zero-indexed page number (default 0)
-   * @minimum 0
-   */
-  page?: number;
-  /**
-   * If true, bypasses cache and fetches fresh from NatureServe Explorer
-   */
-  refresh?: boolean;
-  /**
+recordType?: GetNatureserveSearchRecordType;
+/**
+ * Number of results per page (1–50, default 10)
+ * @minimum 1
+ * @maximum 50
+ */
+limit?: number;
+/**
+ * Zero-indexed page number (default 0)
+ * @minimum 0
+ */
+page?: number;
+/**
+ * If true, bypasses cache and fetches fresh from NatureServe Explorer
+ */
+refresh?: boolean;
+/**
  * Controls how much provenance text is returned. full (default) returns both general_summary and technical_details; summary returns general_summary only; none omits both.
 
  */
-  provenance_verbosity?: GetNatureserveSearchProvenanceVerbosity;
+provenance_verbosity?: GetNatureserveSearchProvenanceVerbosity;
 };
 
-export type GetNatureserveSearchRecordType =
-  (typeof GetNatureserveSearchRecordType)[keyof typeof GetNatureserveSearchRecordType];
+export type GetNatureserveSearchRecordType = typeof GetNatureserveSearchRecordType[keyof typeof GetNatureserveSearchRecordType];
+
 
 export const GetNatureserveSearchRecordType = {
-  ECOSYSTEM: "ECOSYSTEM",
-  SPECIES: "SPECIES",
-  COMMUNITY: "COMMUNITY",
-  GROUP: "GROUP",
-  ASSOCIATION: "ASSOCIATION",
+  ECOSYSTEM: 'ECOSYSTEM',
+  SPECIES: 'SPECIES',
+  COMMUNITY: 'COMMUNITY',
+  GROUP: 'GROUP',
+  ASSOCIATION: 'ASSOCIATION',
 } as const;
 
-export type GetNatureserveSearchProvenanceVerbosity =
-  (typeof GetNatureserveSearchProvenanceVerbosity)[keyof typeof GetNatureserveSearchProvenanceVerbosity];
+export type GetNatureserveSearchProvenanceVerbosity = typeof GetNatureserveSearchProvenanceVerbosity[keyof typeof GetNatureserveSearchProvenanceVerbosity];
+
 
 export const GetNatureserveSearchProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;
 
 export type GetGobotanyParams = {
-  /**
+/**
  * Binomial scientific name (e.g. Acer rubrum). Genus and species epithet required. Both components must contain only letters.
 
  * @minLength 1
  */
-  species: string;
+species: string;
 };
 
 export type GetGobotanySpeciesTextParams = {
-  /**
-   * Binomial scientific name (e.g. Acer rubrum)
-   * @minLength 1
-   */
-  species: string;
-  /**
-   * If "true", bypass cache and re-scrape the live page
-   */
-  refresh?: GetGobotanySpeciesTextRefresh;
+/**
+ * Binomial scientific name (e.g. Acer rubrum)
+ * @minLength 1
+ */
+species: string;
+/**
+ * If "true", bypass cache and re-scrape the live page
+ */
+refresh?: GetGobotanySpeciesTextRefresh;
 };
 
-export type GetGobotanySpeciesTextRefresh =
-  (typeof GetGobotanySpeciesTextRefresh)[keyof typeof GetGobotanySpeciesTextRefresh];
+export type GetGobotanySpeciesTextRefresh = typeof GetGobotanySpeciesTextRefresh[keyof typeof GetGobotanySpeciesTextRefresh];
+
 
 export const GetGobotanySpeciesTextRefresh = {
-  true: "true",
-  false: "false",
+  true: 'true',
+  false: 'false',
 } as const;
 
 export type GetGoogleImagesParams = {
-  /**
-   * Scientific name to search for (e.g. Acer rubrum)
-   * @minLength 1
-   */
-  species: string;
+/**
+ * Scientific name to search for (e.g. Acer rubrum)
+ * @minLength 1
+ */
+species: string;
 };
 
 export type GetGoogleImages200 = FernsEnvelope & {
@@ -3448,175 +3421,175 @@ export type GetGoogleImagesMetadata200 = FernsEnvelope & {
 };
 
 export type GetIllinoisWildflowersParams = {
-  /**
-   * Scientific name (e.g. Acer rubrum)
-   * @minLength 1
-   */
-  species: string;
+/**
+ * Scientific name (e.g. Acer rubrum)
+ * @minLength 1
+ */
+species: string;
 };
 
 export type GetIllinoisWildflowersSpeciesTextParams = {
-  /**
-   * Scientific name (e.g. Acer rubrum)
-   * @minLength 1
-   */
-  species: string;
-  /**
-   * If "true", bypass cache and re-scrape the live page
-   */
-  refresh?: GetIllinoisWildflowersSpeciesTextRefresh;
+/**
+ * Scientific name (e.g. Acer rubrum)
+ * @minLength 1
+ */
+species: string;
+/**
+ * If "true", bypass cache and re-scrape the live page
+ */
+refresh?: GetIllinoisWildflowersSpeciesTextRefresh;
 };
 
-export type GetIllinoisWildflowersSpeciesTextRefresh =
-  (typeof GetIllinoisWildflowersSpeciesTextRefresh)[keyof typeof GetIllinoisWildflowersSpeciesTextRefresh];
+export type GetIllinoisWildflowersSpeciesTextRefresh = typeof GetIllinoisWildflowersSpeciesTextRefresh[keyof typeof GetIllinoisWildflowersSpeciesTextRefresh];
+
 
 export const GetIllinoisWildflowersSpeciesTextRefresh = {
-  true: "true",
-  false: "false",
+  true: 'true',
+  false: 'false',
 } as const;
 
 export type GetMinnesotaWildflowersParams = {
-  /**
-   * Scientific name (e.g. Acer rubrum)
-   * @minLength 1
-   */
-  species: string;
+/**
+ * Scientific name (e.g. Acer rubrum)
+ * @minLength 1
+ */
+species: string;
 };
 
 export type GetMinnesotaWildflowersSpeciesTextParams = {
-  /**
-   * Scientific name (e.g. Acer rubrum)
-   * @minLength 1
-   */
-  species: string;
-  /**
-   * If "true", bypass cache and re-scrape the live page
-   */
-  refresh?: GetMinnesotaWildflowersSpeciesTextRefresh;
+/**
+ * Scientific name (e.g. Acer rubrum)
+ * @minLength 1
+ */
+species: string;
+/**
+ * If "true", bypass cache and re-scrape the live page
+ */
+refresh?: GetMinnesotaWildflowersSpeciesTextRefresh;
 };
 
-export type GetMinnesotaWildflowersSpeciesTextRefresh =
-  (typeof GetMinnesotaWildflowersSpeciesTextRefresh)[keyof typeof GetMinnesotaWildflowersSpeciesTextRefresh];
+export type GetMinnesotaWildflowersSpeciesTextRefresh = typeof GetMinnesotaWildflowersSpeciesTextRefresh[keyof typeof GetMinnesotaWildflowersSpeciesTextRefresh];
+
 
 export const GetMinnesotaWildflowersSpeciesTextRefresh = {
-  true: "true",
-  false: "false",
+  true: 'true',
+  false: 'false',
 } as const;
 
 export type GetMissouriPlantsParams = {
-  /**
-   * Scientific name (e.g. Acer rubrum)
-   * @minLength 1
-   */
-  species: string;
+/**
+ * Scientific name (e.g. Acer rubrum)
+ * @minLength 1
+ */
+species: string;
 };
 
 export type GetMissouriPlantsSpeciesTextParams = {
-  /**
-   * Scientific name (e.g. Acer rubrum)
-   * @minLength 1
-   */
-  species: string;
-  /**
-   * If "true", bypass cache and re-scrape the live page
-   */
-  refresh?: GetMissouriPlantsSpeciesTextRefresh;
+/**
+ * Scientific name (e.g. Acer rubrum)
+ * @minLength 1
+ */
+species: string;
+/**
+ * If "true", bypass cache and re-scrape the live page
+ */
+refresh?: GetMissouriPlantsSpeciesTextRefresh;
 };
 
-export type GetMissouriPlantsSpeciesTextRefresh =
-  (typeof GetMissouriPlantsSpeciesTextRefresh)[keyof typeof GetMissouriPlantsSpeciesTextRefresh];
+export type GetMissouriPlantsSpeciesTextRefresh = typeof GetMissouriPlantsSpeciesTextRefresh[keyof typeof GetMissouriPlantsSpeciesTextRefresh];
+
 
 export const GetMissouriPlantsSpeciesTextRefresh = {
-  true: "true",
-  false: "false",
+  true: 'true',
+  false: 'false',
 } as const;
 
 export type GetPrairieMoonParams = {
-  /**
-   * Scientific name (e.g. Acer rubrum)
-   * @minLength 1
-   */
-  species: string;
+/**
+ * Scientific name (e.g. Acer rubrum)
+ * @minLength 1
+ */
+species: string;
 };
 
 export type GetPrairieMoonSpeciesTextParams = {
-  /**
-   * Scientific name (e.g. Acer rubrum)
-   * @minLength 1
-   */
-  species: string;
-  /**
-   * If "true", bypass cache and re-scrape the live page
-   */
-  refresh?: GetPrairieMoonSpeciesTextRefresh;
+/**
+ * Scientific name (e.g. Acer rubrum)
+ * @minLength 1
+ */
+species: string;
+/**
+ * If "true", bypass cache and re-scrape the live page
+ */
+refresh?: GetPrairieMoonSpeciesTextRefresh;
 };
 
-export type GetPrairieMoonSpeciesTextRefresh =
-  (typeof GetPrairieMoonSpeciesTextRefresh)[keyof typeof GetPrairieMoonSpeciesTextRefresh];
+export type GetPrairieMoonSpeciesTextRefresh = typeof GetPrairieMoonSpeciesTextRefresh[keyof typeof GetPrairieMoonSpeciesTextRefresh];
+
 
 export const GetPrairieMoonSpeciesTextRefresh = {
-  true: "true",
-  false: "false",
+  true: 'true',
+  false: 'false',
 } as const;
 
 export type GetUsdaPlantsParams = {
-  /**
-   * Scientific name (e.g. Asclepias tuberosa)
-   * @minLength 1
-   */
-  species: string;
-  /**
-   * If true, bypasses cache and fetches fresh from USDA PLANTS
-   */
-  refresh?: boolean;
+/**
+ * Scientific name (e.g. Asclepias tuberosa)
+ * @minLength 1
+ */
+species: string;
+/**
+ * If true, bypasses cache and fetches fresh from USDA PLANTS
+ */
+refresh?: boolean;
 };
 
 export type GetUsdaPlantsProfileParams = {
-  /**
-   * USDA PLANTS symbol (e.g. ASTU)
-   * @minLength 1
-   */
-  symbol: string;
-  /**
-   * If true, bypasses cache and fetches fresh from USDA PLANTS
-   */
-  refresh?: boolean;
+/**
+ * USDA PLANTS symbol (e.g. ASTU)
+ * @minLength 1
+ */
+symbol: string;
+/**
+ * If true, bypasses cache and fetches fresh from USDA PLANTS
+ */
+refresh?: boolean;
 };
 
 export type GetUsdaPlantsSearchParams = {
-  /**
-   * Search text (e.g. Trillium, butterfly milkweed)
-   * @minLength 1
-   */
-  q: string;
-  /**
+/**
+ * Search text (e.g. Trillium, butterfly milkweed)
+ * @minLength 1
+ */
+q: string;
+/**
  * Field to search. One of Scientific Name, Common Name, Symbol, Family. Defaults to Scientific Name.
 
  */
-  field?: GetUsdaPlantsSearchField;
-  /**
-   * 1-based page number (default 1)
-   * @minimum 1
-   */
-  page?: number;
+field?: GetUsdaPlantsSearchField;
+/**
+ * 1-based page number (default 1)
+ * @minimum 1
+ */
+page?: number;
 };
 
-export type GetUsdaPlantsSearchField =
-  (typeof GetUsdaPlantsSearchField)[keyof typeof GetUsdaPlantsSearchField];
+export type GetUsdaPlantsSearchField = typeof GetUsdaPlantsSearchField[keyof typeof GetUsdaPlantsSearchField];
+
 
 export const GetUsdaPlantsSearchField = {
-  Scientific_Name: "Scientific Name",
-  Common_Name: "Common Name",
-  Symbol: "Symbol",
-  Family: "Family",
+  Scientific_Name: 'Scientific Name',
+  Common_Name: 'Common Name',
+  Symbol: 'Symbol',
+  Family: 'Family',
 } as const;
 
 export type GetLadyBirdJohnsonParams = {
-  /**
-   * USDA Plants symbol (e.g. TRGI for Trillium grandiflorum). Obtain via /usda-plants.
-   * @minLength 1
-   */
-  usda_symbol: string;
+/**
+ * USDA Plants symbol (e.g. TRGI for Trillium grandiflorum). Obtain via /usda-plants.
+ * @minLength 1
+ */
+usda_symbol: string;
 };
 
 export type GetLadyBirdJohnson200 = FernsEnvelope & {
@@ -3624,23 +3597,23 @@ export type GetLadyBirdJohnson200 = FernsEnvelope & {
 };
 
 export type GetLadyBirdJohnsonSpeciesTextParams = {
-  /**
-   * USDA Plants symbol (e.g. TRGI for Trillium grandiflorum). Obtain via /usda-plants.
-   * @minLength 1
-   */
-  usda_symbol: string;
-  /**
-   * If "true", bypass cache and re-scrape the live page
-   */
-  refresh?: GetLadyBirdJohnsonSpeciesTextRefresh;
+/**
+ * USDA Plants symbol (e.g. TRGI for Trillium grandiflorum). Obtain via /usda-plants.
+ * @minLength 1
+ */
+usda_symbol: string;
+/**
+ * If "true", bypass cache and re-scrape the live page
+ */
+refresh?: GetLadyBirdJohnsonSpeciesTextRefresh;
 };
 
-export type GetLadyBirdJohnsonSpeciesTextRefresh =
-  (typeof GetLadyBirdJohnsonSpeciesTextRefresh)[keyof typeof GetLadyBirdJohnsonSpeciesTextRefresh];
+export type GetLadyBirdJohnsonSpeciesTextRefresh = typeof GetLadyBirdJohnsonSpeciesTextRefresh[keyof typeof GetLadyBirdJohnsonSpeciesTextRefresh];
+
 
 export const GetLadyBirdJohnsonSpeciesTextRefresh = {
-  true: "true",
-  false: "false",
+  true: 'true',
+  false: 'false',
 } as const;
 
 export type GetLadyBirdJohnsonSpeciesText200 = FernsEnvelope & {
@@ -3656,19 +3629,19 @@ export type GetAnnArborNpnMetadata200 = FernsEnvelope & {
 };
 
 export type GetAnnArborNpnSpeciesListParams = {
-  /**
-   * Controls provenance verbosity in the response ("full", "summary", or "none")
-   */
-  provenance_verbosity?: GetAnnArborNpnSpeciesListProvenanceVerbosity;
+/**
+ * Controls provenance verbosity in the response ("full", "summary", or "none")
+ */
+provenance_verbosity?: GetAnnArborNpnSpeciesListProvenanceVerbosity;
 };
 
-export type GetAnnArborNpnSpeciesListProvenanceVerbosity =
-  (typeof GetAnnArborNpnSpeciesListProvenanceVerbosity)[keyof typeof GetAnnArborNpnSpeciesListProvenanceVerbosity];
+export type GetAnnArborNpnSpeciesListProvenanceVerbosity = typeof GetAnnArborNpnSpeciesListProvenanceVerbosity[keyof typeof GetAnnArborNpnSpeciesListProvenanceVerbosity];
+
 
 export const GetAnnArborNpnSpeciesListProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;
 
 export type GetAnnArborNpnSpeciesList200Data = {
@@ -3681,16 +3654,16 @@ export type GetAnnArborNpnSpeciesList200 = FernsEnvelope & {
 };
 
 export type GetAnnArborNpnSpeciesByKeyParams = {
-  provenance_verbosity?: GetAnnArborNpnSpeciesByKeyProvenanceVerbosity;
+provenance_verbosity?: GetAnnArborNpnSpeciesByKeyProvenanceVerbosity;
 };
 
-export type GetAnnArborNpnSpeciesByKeyProvenanceVerbosity =
-  (typeof GetAnnArborNpnSpeciesByKeyProvenanceVerbosity)[keyof typeof GetAnnArborNpnSpeciesByKeyProvenanceVerbosity];
+export type GetAnnArborNpnSpeciesByKeyProvenanceVerbosity = typeof GetAnnArborNpnSpeciesByKeyProvenanceVerbosity[keyof typeof GetAnnArborNpnSpeciesByKeyProvenanceVerbosity];
+
 
 export const GetAnnArborNpnSpeciesByKeyProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;
 
 export type GetAnnArborNpnSpeciesByKey200 = FernsEnvelope & {
@@ -3698,16 +3671,16 @@ export type GetAnnArborNpnSpeciesByKey200 = FernsEnvelope & {
 };
 
 export type GetAnnArborNpnNameGroupsParams = {
-  provenance_verbosity?: GetAnnArborNpnNameGroupsProvenanceVerbosity;
+provenance_verbosity?: GetAnnArborNpnNameGroupsProvenanceVerbosity;
 };
 
-export type GetAnnArborNpnNameGroupsProvenanceVerbosity =
-  (typeof GetAnnArborNpnNameGroupsProvenanceVerbosity)[keyof typeof GetAnnArborNpnNameGroupsProvenanceVerbosity];
+export type GetAnnArborNpnNameGroupsProvenanceVerbosity = typeof GetAnnArborNpnNameGroupsProvenanceVerbosity[keyof typeof GetAnnArborNpnNameGroupsProvenanceVerbosity];
+
 
 export const GetAnnArborNpnNameGroupsProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;
 
 export type GetAnnArborNpnNameGroups200Data = {
@@ -3720,16 +3693,16 @@ export type GetAnnArborNpnNameGroups200 = FernsEnvelope & {
 };
 
 export type GetAnnArborNpnSpeciesSourceUrlParams = {
-  provenance_verbosity?: GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity;
+provenance_verbosity?: GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity;
 };
 
-export type GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity =
-  (typeof GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity)[keyof typeof GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity];
+export type GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity = typeof GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity[keyof typeof GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity];
+
 
 export const GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;
 
 export type GetAnnArborNpnSpeciesSourceUrl200Data = {
@@ -3742,16 +3715,16 @@ export type GetAnnArborNpnSpeciesSourceUrl200 = FernsEnvelope & {
 };
 
 export type GetAnnArborNpnDocumentationParams = {
-  provenance_verbosity?: GetAnnArborNpnDocumentationProvenanceVerbosity;
+provenance_verbosity?: GetAnnArborNpnDocumentationProvenanceVerbosity;
 };
 
-export type GetAnnArborNpnDocumentationProvenanceVerbosity =
-  (typeof GetAnnArborNpnDocumentationProvenanceVerbosity)[keyof typeof GetAnnArborNpnDocumentationProvenanceVerbosity];
+export type GetAnnArborNpnDocumentationProvenanceVerbosity = typeof GetAnnArborNpnDocumentationProvenanceVerbosity[keyof typeof GetAnnArborNpnDocumentationProvenanceVerbosity];
+
 
 export const GetAnnArborNpnDocumentationProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;
 
 export type GetAnnArborNpnDocumentation200Data = {
@@ -3761,3 +3734,4 @@ export type GetAnnArborNpnDocumentation200Data = {
 export type GetAnnArborNpnDocumentation200 = FernsEnvelope & {
   data?: GetAnnArborNpnDocumentation200Data;
 };
+

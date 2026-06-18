@@ -5,11 +5,11 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetWetlandIndicatorStatusByCodeCode } from "./getWetlandIndicatorStatusByCodeCode";
+import type { GetWetlandIndicatorStatusByCodeCode } from './getWetlandIndicatorStatusByCodeCode';
 
 export type GetWetlandIndicatorStatusByCodeParams = {
-  /**
-   * Wetland Indicator Status code to look up (OBL, FACW, FAC, FACU, or UPL). Case-insensitive.
-   */
-  code: GetWetlandIndicatorStatusByCodeCode;
+/**
+ * Wetland Indicator Status code to look up (OBL, FACW, FAC, FACU, or UPL). Case-insensitive.
+ */
+code: GetWetlandIndicatorStatusByCodeCode;
 };

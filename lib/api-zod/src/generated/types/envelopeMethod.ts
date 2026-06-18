@@ -10,11 +10,11 @@
  * How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md "Refinement #7 — method and cache_status are coupled".
 
  */
-export type EnvelopeMethod =
-  (typeof EnvelopeMethod)[keyof typeof EnvelopeMethod];
+export type EnvelopeMethod = typeof EnvelopeMethod[keyof typeof EnvelopeMethod];
+
 
 export const EnvelopeMethod = {
-  api_fetch: "api_fetch",
-  cache_hit: "cache_hit",
-  computed: "computed",
+  api_fetch: 'api_fetch',
+  cache_hit: 'cache_hit',
+  computed: 'computed',
 } as const;

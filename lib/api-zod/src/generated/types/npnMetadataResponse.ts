@@ -5,8 +5,8 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { FernsEnvelope } from "./fernsEnvelope";
-import type { NpnMetadataData } from "./npnMetadataData";
+import type { FernsEnvelope } from './fernsEnvelope';
+import type { NpnMetadataData } from './npnMetadataData';
 
 /**
  * Legacy envelope schema kept for backwards-compat reference. Route response now uses allOf:FernsEnvelope.

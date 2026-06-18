@@ -9,13 +9,13 @@
 /**
  * WIS code: OBL, FACW, FAC, FACU, or UPL
  */
-export type WetlandIndicatorEntryCode =
-  (typeof WetlandIndicatorEntryCode)[keyof typeof WetlandIndicatorEntryCode];
+export type WetlandIndicatorEntryCode = typeof WetlandIndicatorEntryCode[keyof typeof WetlandIndicatorEntryCode];
+
 
 export const WetlandIndicatorEntryCode = {
-  OBL: "OBL",
-  FACW: "FACW",
-  FAC: "FAC",
-  FACU: "FACU",
-  UPL: "UPL",
+  OBL: 'OBL',
+  FACW: 'FACW',
+  FAC: 'FAC',
+  FACU: 'FACU',
+  UPL: 'UPL',
 } as const;

@@ -9,10 +9,10 @@
 /**
  * Whether this color applies to state backgrounds or county fills
  */
-export type ColorKeyEntryLayer =
-  (typeof ColorKeyEntryLayer)[keyof typeof ColorKeyEntryLayer];
+export type ColorKeyEntryLayer = typeof ColorKeyEntryLayer[keyof typeof ColorKeyEntryLayer];
+
 
 export const ColorKeyEntryLayer = {
-  state_background: "state_background",
-  county_fill: "county_fill",
+  state_background: 'state_background',
+  county_fill: 'county_fill',
 } as const;

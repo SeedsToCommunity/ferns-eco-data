@@ -6,11 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetInatObservationsTaxonSummaryProvenanceVerbosity =
-  (typeof GetInatObservationsTaxonSummaryProvenanceVerbosity)[keyof typeof GetInatObservationsTaxonSummaryProvenanceVerbosity];
+export type GetInatObservationsTaxonSummaryProvenanceVerbosity = typeof GetInatObservationsTaxonSummaryProvenanceVerbosity[keyof typeof GetInatObservationsTaxonSummaryProvenanceVerbosity];
+
 
 export const GetInatObservationsTaxonSummaryProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;

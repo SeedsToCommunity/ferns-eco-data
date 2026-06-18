@@ -7,13 +7,13 @@
  */
 
 export type GetGbifMatchParams = {
-  /**
-   * Scientific name to match (e.g. Asclepias tuberosa)
-   * @minLength 1
-   */
-  name: string;
-  /**
-   * If true, bypasses cache and fetches fresh from GBIF
-   */
-  refresh?: boolean;
+/**
+ * Scientific name to match (e.g. Asclepias tuberosa)
+ * @minLength 1
+ */
+name: string;
+/**
+ * If true, bypasses cache and fetches fresh from GBIF
+ */
+refresh?: boolean;
 };

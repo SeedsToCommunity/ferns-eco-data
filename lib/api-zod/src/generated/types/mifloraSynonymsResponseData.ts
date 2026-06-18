@@ -5,7 +5,7 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { MifloraSynonymRecord } from "./mifloraSynonymRecord";
+import type { MifloraSynonymRecord } from './mifloraSynonymRecord';
 
 export type MifloraSynonymsResponseData = {
   plant_id?: number | null;

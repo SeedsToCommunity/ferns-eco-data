@@ -5,38 +5,38 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetNatureserveSearchProvenanceVerbosity } from "./getNatureserveSearchProvenanceVerbosity";
-import type { GetNatureserveSearchRecordType } from "./getNatureserveSearchRecordType";
+import type { GetNatureserveSearchProvenanceVerbosity } from './getNatureserveSearchProvenanceVerbosity';
+import type { GetNatureserveSearchRecordType } from './getNatureserveSearchRecordType';
 
 export type GetNatureserveSearchParams = {
-  /**
-   * Search text (e.g. oak savanna, tallgrass prairie, Platanthera leucophaea)
-   * @minLength 1
-   */
-  q: string;
-  /**
+/**
+ * Search text (e.g. oak savanna, tallgrass prairie, Platanthera leucophaea)
+ * @minLength 1
+ */
+q: string;
+/**
  * Type of records to return (default: ECOSYSTEM). ECOSYSTEM — ecological systems and community types; SPECIES — animal and plant species; COMMUNITY — plant communities; GROUP — element groups; ASSOCIATION — plant associations.
 
  */
-  recordType?: GetNatureserveSearchRecordType;
-  /**
-   * Number of results per page (1–50, default 10)
-   * @minimum 1
-   * @maximum 50
-   */
-  limit?: number;
-  /**
-   * Zero-indexed page number (default 0)
-   * @minimum 0
-   */
-  page?: number;
-  /**
-   * If true, bypasses cache and fetches fresh from NatureServe Explorer
-   */
-  refresh?: boolean;
-  /**
+recordType?: GetNatureserveSearchRecordType;
+/**
+ * Number of results per page (1–50, default 10)
+ * @minimum 1
+ * @maximum 50
+ */
+limit?: number;
+/**
+ * Zero-indexed page number (default 0)
+ * @minimum 0
+ */
+page?: number;
+/**
+ * If true, bypasses cache and fetches fresh from NatureServe Explorer
+ */
+refresh?: boolean;
+/**
  * Controls how much provenance text is returned. full (default) returns both general_summary and technical_details; summary returns general_summary only; none omits both.
 
  */
-  provenance_verbosity?: GetNatureserveSearchProvenanceVerbosity;
+provenance_verbosity?: GetNatureserveSearchProvenanceVerbosity;
 };

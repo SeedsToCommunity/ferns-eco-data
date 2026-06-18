@@ -5,8 +5,8 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { NatureserveMetadataDataCacheStats } from "./natureserveMetadataDataCacheStats";
-import type { NatureserveMetadataDataWebsiteUrlPatterns } from "./natureserveMetadataDataWebsiteUrlPatterns";
+import type { NatureserveMetadataDataCacheStats } from './natureserveMetadataDataCacheStats';
+import type { NatureserveMetadataDataWebsiteUrlPatterns } from './natureserveMetadataDataWebsiteUrlPatterns';
 
 /**
  * Registry descriptive content for the NatureServe Explorer service.

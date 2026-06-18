@@ -5,53 +5,53 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetGbifOccurrencesContinent } from "./getGbifOccurrencesContinent";
+import type { GetGbifOccurrencesContinent } from './getGbifOccurrencesContinent';
 
 export type GetGbifOccurrencesParams = {
-  /**
-   * GBIF backbone taxon key (integer). The GBIF native parameter name for taxon filtering.
-   */
-  taxonKey?: number;
-  /**
+/**
+ * GBIF backbone taxon key (integer). The GBIF native parameter name for taxon filtering.
+ */
+taxonKey?: number;
+/**
  * ISO 3166-1 alpha-2 country code (e.g. US). Repeatable for multiple countries.
 
  */
-  country?: string;
-  /**
+country?: string;
+/**
  * GBIF continent value. One of AFRICA, ANTARCTICA, ASIA, EUROPE, NORTH_AMERICA, OCEANIA, SOUTH_AMERICA.
 
  */
-  continent?: GetGbifOccurrencesContinent;
-  /**
-   * Filter to records with coordinates (true/false).
-   */
-  hasCoordinate?: boolean;
-  /**
-   * Include/exclude records with geospatial issues (false recommended).
-   */
-  hasGeospatialIssue?: boolean;
-  /**
+continent?: GetGbifOccurrencesContinent;
+/**
+ * Filter to records with coordinates (true/false).
+ */
+hasCoordinate?: boolean;
+/**
+ * Include/exclude records with geospatial issues (false recommended).
+ */
+hasGeospatialIssue?: boolean;
+/**
  * Filter by basis of record. One of PRESERVED_SPECIMEN, HUMAN_OBSERVATION, MACHINE_OBSERVATION, MATERIAL_CITATION, LIVING_SPECIMEN, FOSSIL_SPECIMEN, OCCURRENCE.
 
  */
-  basisOfRecord?: string;
-  /**
-   * Filter by year (single value or range, e.g. 2020 or 2010,2020).
-   */
-  year?: string;
-  /**
-   * Number of results to return (GBIF default 20, max 300).
-   * @minimum 1
-   * @maximum 300
-   */
-  limit?: number;
-  /**
-   * Zero-based offset for pagination.
-   * @minimum 0
-   */
-  offset?: number;
-  /**
-   * If true, bypasses cache and fetches fresh from GBIF.
-   */
-  refresh?: boolean;
+basisOfRecord?: string;
+/**
+ * Filter by year (single value or range, e.g. 2020 or 2010,2020).
+ */
+year?: string;
+/**
+ * Number of results to return (GBIF default 20, max 300).
+ * @minimum 1
+ * @maximum 300
+ */
+limit?: number;
+/**
+ * Zero-based offset for pagination.
+ * @minimum 0
+ */
+offset?: number;
+/**
+ * If true, bypasses cache and fetches fresh from GBIF.
+ */
+refresh?: boolean;
 };

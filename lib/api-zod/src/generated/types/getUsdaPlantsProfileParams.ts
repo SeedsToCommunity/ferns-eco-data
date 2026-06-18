@@ -7,13 +7,13 @@
  */
 
 export type GetUsdaPlantsProfileParams = {
-  /**
-   * USDA PLANTS symbol (e.g. ASTU)
-   * @minLength 1
-   */
-  symbol: string;
-  /**
-   * If true, bypasses cache and fetches fresh from USDA PLANTS
-   */
-  refresh?: boolean;
+/**
+ * USDA PLANTS symbol (e.g. ASTU)
+ * @minLength 1
+ */
+symbol: string;
+/**
+ * If true, bypasses cache and fetches fresh from USDA PLANTS
+ */
+refresh?: boolean;
 };

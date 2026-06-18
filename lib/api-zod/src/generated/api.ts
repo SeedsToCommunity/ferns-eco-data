@@ -5,119 +5,42 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import * as zod from "zod";
+import * as zod from 'zod';
+
 
 /**
  * Returns server health status wrapped in the FERNS Response Envelope. Smoke-test consumer for the FernsEnvelope schema component — the inner data payload is a HealthStatus.
 
  * @summary Health check
  */
-export const HealthCheckResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .object({
-          status: zod.string(),
-        })
-        .optional(),
-    }),
-  );
+export const HealthCheckResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.object({
+  "status": zod.string()
+}).optional()
+}))
+
 
 /**
  * Returns the BONAP distribution map URL for a given species or genus. The map image is served directly from BONAP's server — FERNS returns the URL only and never proxies or stores the image. Results are cached permanently for found species; 30 days for not-found.
@@ -129,331 +52,104 @@ export const getBonapMapQueryMapTypeDefault = `county_species`;
 export const getBonapMapQueryRefreshDefault = false;
 
 export const GetBonapMapQueryParams = zod.object({
-  genus: zod
-    .string()
-    .min(1)
-    .describe(
-      "Genus name. First letter capitalized, remainder lowercase (e.g. Asclepias). The service normalizes to title case before URL construction.\n",
-    ),
-  species: zod
-    .string()
-    .optional()
-    .describe(
-      "Species epithet, all lowercase (e.g. tuberosa). Required when map_type=county_species or map_type=state_species — omitting species returns 400. Subspecies\/variety designations are stripped automatically; species_stripped is set true.\n",
-    ),
-  map_type: zod
-    .enum(["county_species", "state_species"])
-    .default(getBonapMapQueryMapTypeDefault)
-    .describe(
-      "Map type to retrieve. county_species (default) returns a county-level distribution map. state_species returns a state\/continental-level distribution map. Both types require a genus+species pair.\n",
-    ),
-  refresh: zod.coerce
-    .boolean()
-    .default(getBonapMapQueryRefreshDefault)
-    .describe("If true, bypasses cache and fetches fresh from BONAP."),
-});
+  "genus": zod.string().min(1).describe('Genus name. First letter capitalized, remainder lowercase (e.g. Asclepias). The service normalizes to title case before URL construction.\n'),
+  "species": zod.string().optional().describe('Species epithet, all lowercase (e.g. tuberosa). Required when map_type=county_species or map_type=state_species — omitting species returns 400. Subspecies\/variety designations are stripped automatically; species_stripped is set true.\n'),
+  "map_type": zod.enum(['county_species', 'state_species']).default(getBonapMapQueryMapTypeDefault).describe('Map type to retrieve. county_species (default) returns a county-level distribution map. state_species returns a state\/continental-level distribution map. Both types require a genus+species pair.\n'),
+  "refresh": zod.coerce.boolean().default(getBonapMapQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from BONAP.')
+})
 
-export const GetBonapMapResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .object({
-          map_url: zod
-            .string()
-            .nullish()
-            .describe(
-              "Direct URL to the PNG image on BONAP's server. Present when status is found. Null when not found. Applications display this via an img tag — do not proxy.\n",
-            ),
-          map_type_served: zod.enum(["county_species", "state_species"]),
-          genus: zod
-            .string()
-            .describe("Normalized genus name as used in URL construction"),
-          species: zod
-            .string()
-            .nullish()
-            .describe("Normalized species epithet."),
-          species_stripped: zod
-            .boolean()
-            .describe(
-              "True if the caller provided a subspecific epithet that was stripped",
-            ),
-          status: zod
-            .enum(["found", "not_found", "unverified"])
-            .describe(
-              "found — URL returned a valid image during cache population. not_found — BONAP returned a non-image response for this binomial. unverified — URL was returned from cache without re-verification.\n",
-            ),
-        })
-        .optional(),
-    }),
-  );
+export const GetBonapMapResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.object({
+  "map_url": zod.string().nullish().describe('Direct URL to the PNG image on BONAP\'s server. Present when status is found. Null when not found. Applications display this via an img tag — do not proxy.\n'),
+  "map_type_served": zod.enum(['county_species', 'state_species']),
+  "genus": zod.string().describe('Normalized genus name as used in URL construction'),
+  "species": zod.string().nullish().describe('Normalized species epithet.'),
+  "species_stripped": zod.boolean().describe('True if the caller provided a subspecific epithet that was stripped'),
+  "status": zod.enum(['found', 'not_found', 'unverified']).describe('found — URL returned a valid image during cache population. not_found — BONAP returned a non-image response for this binomial. unverified — URL was returned from cache without re-verification.\n')
+}).optional()
+}))
+
 
 /**
  * Returns static service identity, data vintage, attribution, licenses and license notes, and the full color key array. Use this to populate 'About this data' panels in any application displaying BONAP maps. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
  * @summary BONAP service metadata
  */
-export const GetBonapMetadataResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .object({
-          service_id: zod.string().optional(),
-          service_name: zod.string().optional(),
-          data_vintage: zod.string().optional(),
-          licenses: zod.array(zod.string()).optional(),
-          license_notes: zod.string().optional(),
-          attribution: zod
-            .object({
-              source_name: zod.string(),
-              maintainer: zod.string(),
-              organization: zod.string(),
-              website: zod.string(),
-              napa_url: zod.string(),
-              citation_napa: zod.string(),
-              citation_tdc: zod.string(),
-              copyright_notice: zod.string(),
-            })
-            .optional(),
-          color_key: zod
-            .array(
-              zod.object({
-                code: zod
-                  .string()
-                  .describe("Short string identifier for this color entry"),
-                hex_approx: zod
-                  .string()
-                  .describe(
-                    "Approximate hex color value derived from visual inspection of BONAP maps",
-                  ),
-                hex_is_approximate: zod
-                  .boolean()
-                  .describe(
-                    "Always true — BONAP does not publish official hex values",
-                  ),
-                name: zod
-                  .string()
-                  .describe("BONAP's official status name for this color"),
-                description: zod
-                  .string()
-                  .describe("Ecological meaning of this color"),
-                layer: zod
-                  .enum(["state_background", "county_fill"])
-                  .describe(
-                    "Whether this color applies to state backgrounds or county fills",
-                  ),
-              }),
-            )
-            .optional(),
-          color_key_url: zod
-            .string()
-            .optional()
-            .describe("URL of the BONAP map key reference page"),
-          color_key_image_url: zod
-            .string()
-            .optional()
-            .describe(
-              "Direct URL to BONAP's authoritative composite color key GIF image.",
-            ),
-          registry_entry: zod.record(zod.string(), zod.unknown()).optional(),
-        })
-        .optional()
-        .describe(
-          "Data payload returned in the \/bonap\/metadata FernsEnvelope data field.",
-        ),
-    }),
-  );
+export const GetBonapMetadataResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.object({
+  "service_id": zod.string().optional(),
+  "service_name": zod.string().optional(),
+  "data_vintage": zod.string().optional(),
+  "licenses": zod.array(zod.string()).optional(),
+  "license_notes": zod.string().optional(),
+  "attribution": zod.object({
+  "source_name": zod.string(),
+  "maintainer": zod.string(),
+  "organization": zod.string(),
+  "website": zod.string(),
+  "napa_url": zod.string(),
+  "citation_napa": zod.string(),
+  "citation_tdc": zod.string(),
+  "copyright_notice": zod.string()
+}).optional(),
+  "color_key": zod.array(zod.object({
+  "code": zod.string().describe('Short string identifier for this color entry'),
+  "hex_approx": zod.string().describe('Approximate hex color value derived from visual inspection of BONAP maps'),
+  "hex_is_approximate": zod.boolean().describe('Always true — BONAP does not publish official hex values'),
+  "name": zod.string().describe('BONAP\'s official status name for this color'),
+  "description": zod.string().describe('Ecological meaning of this color'),
+  "layer": zod.enum(['state_background', 'county_fill']).describe('Whether this color applies to state backgrounds or county fills')
+})).optional(),
+  "color_key_url": zod.string().optional().describe('URL of the BONAP map key reference page'),
+  "color_key_image_url": zod.string().optional().describe('Direct URL to BONAP\'s authoritative composite color key GIF image.'),
+  "registry_entry": zod.record(zod.string(), zod.unknown()).optional()
+}).optional().describe('Data payload returned in the \/bonap\/metadata FernsEnvelope data field.')
+}))
+
 
 /**
  * Matches a plant scientific name against the GBIF Backbone Taxonomy. Returns the matched taxon's key, canonical name, taxonomic status, match type, confidence, full classification, and provenance. Results are cached 30 days for hits; 7 days for no-match. A no-match is signaled by matchType=NONE in the response data — GBIF always returns HTTP 200. DOUBTFUL status means the name exists but taxonomic standing is uncertain; treat as unusable.
@@ -464,123 +160,36 @@ export const GetBonapMetadataResponse = zod
 export const getGbifMatchQueryRefreshDefault = false;
 
 export const GetGbifMatchQueryParams = zod.object({
-  name: zod
-    .string()
-    .min(1)
-    .describe("Scientific name to match (e.g. Asclepias tuberosa)"),
-  refresh: zod.coerce
-    .boolean()
-    .default(getGbifMatchQueryRefreshDefault)
-    .describe("If true, bypasses cache and fetches fresh from GBIF"),
-});
+  "name": zod.string().min(1).describe('Scientific name to match (e.g. Asclepias tuberosa)'),
+  "refresh": zod.coerce.boolean().default(getGbifMatchQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from GBIF')
+})
 
-export const GetGbifMatchResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .record(zod.string(), zod.unknown())
-        .optional()
-        .describe(
-          "Verbatim GBIF species\/match upstream response. matchType is NONE when no match was found. usageKey is absent or null when matchType is NONE. GBIF always returns HTTP 200 regardless of match outcome.\n",
-        ),
-    }),
-  );
+export const GetGbifMatchResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.record(zod.string(), zod.unknown()).optional().describe('Verbatim GBIF species\/match upstream response. matchType is NONE when no match was found. usageKey is absent or null when matchType is NONE. GBIF always returns HTTP 200 regardless of match outcome.\n')
+}))
+
 
 /**
  * True passthrough to GBIF occurrence/search. Accepts GBIF's native query parameters and forwards them verbatim to https://api.gbif.org/v1/occurrence/search. One upstream call; GBIF's response (including count, offset, limit, endOfRecords, results) is returned in data unchanged. Cached 7 days by MD5 hash of canonicalized query params. BREAKING CHANGE from previous version: accepts taxonKey (GBIF native) instead of usageKey (old FERNS alias). Geography is now expressed using GBIF native params (country, continent, decimalLatitude/Longitude) rather than FERNS geography modes.
@@ -596,178 +205,44 @@ export const getGbifOccurrencesQueryOffsetMin = 0;
 export const getGbifOccurrencesQueryRefreshDefault = false;
 
 export const GetGbifOccurrencesQueryParams = zod.object({
-  taxonKey: zod.coerce
-    .number()
-    .optional()
-    .describe(
-      "GBIF backbone taxon key (integer). The GBIF native parameter name for taxon filtering.",
-    ),
-  country: zod
-    .string()
-    .optional()
-    .describe(
-      "ISO 3166-1 alpha-2 country code (e.g. US). Repeatable for multiple countries.\n",
-    ),
-  continent: zod
-    .enum([
-      "AFRICA",
-      "ANTARCTICA",
-      "ASIA",
-      "EUROPE",
-      "NORTH_AMERICA",
-      "OCEANIA",
-      "SOUTH_AMERICA",
-    ])
-    .optional()
-    .describe(
-      "GBIF continent value. One of AFRICA, ANTARCTICA, ASIA, EUROPE, NORTH_AMERICA, OCEANIA, SOUTH_AMERICA.\n",
-    ),
-  hasCoordinate: zod.coerce
-    .boolean()
-    .optional()
-    .describe("Filter to records with coordinates (true\/false)."),
-  hasGeospatialIssue: zod.coerce
-    .boolean()
-    .optional()
-    .describe(
-      "Include\/exclude records with geospatial issues (false recommended).",
-    ),
-  basisOfRecord: zod
-    .string()
-    .optional()
-    .describe(
-      "Filter by basis of record. One of PRESERVED_SPECIMEN, HUMAN_OBSERVATION, MACHINE_OBSERVATION, MATERIAL_CITATION, LIVING_SPECIMEN, FOSSIL_SPECIMEN, OCCURRENCE.\n",
-    ),
-  year: zod
-    .string()
-    .optional()
-    .describe(
-      "Filter by year (single value or range, e.g. 2020 or 2010,2020).",
-    ),
-  limit: zod.coerce
-    .number()
-    .min(1)
-    .max(getGbifOccurrencesQueryLimitMax)
-    .default(getGbifOccurrencesQueryLimitDefault)
-    .describe("Number of results to return (GBIF default 20, max 300)."),
-  offset: zod.coerce
-    .number()
-    .min(getGbifOccurrencesQueryOffsetMin)
-    .default(getGbifOccurrencesQueryOffsetDefault)
-    .describe("Zero-based offset for pagination."),
-  refresh: zod.coerce
-    .boolean()
-    .default(getGbifOccurrencesQueryRefreshDefault)
-    .describe("If true, bypasses cache and fetches fresh from GBIF."),
-});
+  "taxonKey": zod.coerce.number().optional().describe('GBIF backbone taxon key (integer). The GBIF native parameter name for taxon filtering.'),
+  "country": zod.string().optional().describe('ISO 3166-1 alpha-2 country code (e.g. US). Repeatable for multiple countries.\n'),
+  "continent": zod.enum(['AFRICA', 'ANTARCTICA', 'ASIA', 'EUROPE', 'NORTH_AMERICA', 'OCEANIA', 'SOUTH_AMERICA']).optional().describe('GBIF continent value. One of AFRICA, ANTARCTICA, ASIA, EUROPE, NORTH_AMERICA, OCEANIA, SOUTH_AMERICA.\n'),
+  "hasCoordinate": zod.coerce.boolean().optional().describe('Filter to records with coordinates (true\/false).'),
+  "hasGeospatialIssue": zod.coerce.boolean().optional().describe('Include\/exclude records with geospatial issues (false recommended).'),
+  "basisOfRecord": zod.string().optional().describe('Filter by basis of record. One of PRESERVED_SPECIMEN, HUMAN_OBSERVATION, MACHINE_OBSERVATION, MATERIAL_CITATION, LIVING_SPECIMEN, FOSSIL_SPECIMEN, OCCURRENCE.\n'),
+  "year": zod.string().optional().describe('Filter by year (single value or range, e.g. 2020 or 2010,2020).'),
+  "limit": zod.coerce.number().min(1).max(getGbifOccurrencesQueryLimitMax).default(getGbifOccurrencesQueryLimitDefault).describe('Number of results to return (GBIF default 20, max 300).'),
+  "offset": zod.coerce.number().min(getGbifOccurrencesQueryOffsetMin).default(getGbifOccurrencesQueryOffsetDefault).describe('Zero-based offset for pagination.'),
+  "refresh": zod.coerce.boolean().default(getGbifOccurrencesQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from GBIF.')
+})
 
-export const GetGbifOccurrencesResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .record(zod.string(), zod.unknown())
-        .optional()
-        .describe(
-          "Verbatim GBIF occurrence\/search upstream response. Includes count, offset, limit, endOfRecords, and results array.\n",
-        ),
-    }),
-  );
+export const GetGbifOccurrencesResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.record(zod.string(), zod.unknown()).optional().describe('Verbatim GBIF occurrence\/search upstream response. Includes count, offset, limit, endOfRecords, and results array.\n')
+}))
+
 
 /**
  * Searches GBIF for species whose vernacular names match the query string. Returns the verbatim GBIF species/search response (count, offset, limit, endOfRecords, results). Cached 7 days per normalized query string. Applications are responsible for disambiguation when multiple candidates are returned.
@@ -778,123 +253,36 @@ export const GetGbifOccurrencesResponse = zod
 export const getGbifSearchQueryRefreshDefault = false;
 
 export const GetGbifSearchQueryParams = zod.object({
-  q: zod
-    .string()
-    .min(1)
-    .describe("Common name search string (e.g. butterfly milkweed)"),
-  refresh: zod.coerce
-    .boolean()
-    .default(getGbifSearchQueryRefreshDefault)
-    .describe("If true, bypasses cache and fetches fresh from GBIF."),
-});
+  "q": zod.string().min(1).describe('Common name search string (e.g. butterfly milkweed)'),
+  "refresh": zod.coerce.boolean().default(getGbifSearchQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from GBIF.')
+})
 
-export const GetGbifSearchResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .record(zod.string(), zod.unknown())
-        .optional()
-        .describe(
-          "Verbatim GBIF species\/search upstream response filtered to vernacular name matches. Includes count, offset, limit, endOfRecords, and results array.\n",
-        ),
-    }),
-  );
+export const GetGbifSearchResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.record(zod.string(), zod.unknown()).optional().describe('Verbatim GBIF species\/search upstream response filtered to vernacular name matches. Includes count, offset, limit, endOfRecords, and results array.\n')
+}))
+
 
 /**
  * Returns the verbatim GBIF species record for the given usageKey. Mirrors GBIF's GET /v1/species/{usageKey}. Cached 30 days per usageKey. Use this to resolve an acceptedUsageKey from a SYNONYM match result.
@@ -902,123 +290,41 @@ export const GetGbifSearchResponse = zod
  * @summary Get GBIF species record by usageKey
  */
 export const GetGbifSpeciesParams = zod.object({
-  usageKey: zod.coerce.number().describe("GBIF backbone usage key (integer)"),
-});
+  "usageKey": zod.coerce.number().describe('GBIF backbone usage key (integer)')
+})
 
 export const getGbifSpeciesQueryRefreshDefault = false;
 
 export const GetGbifSpeciesQueryParams = zod.object({
-  refresh: zod.coerce
-    .boolean()
-    .default(getGbifSpeciesQueryRefreshDefault)
-    .describe("If true, bypasses cache and fetches fresh from GBIF."),
-});
+  "refresh": zod.coerce.boolean().default(getGbifSpeciesQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from GBIF.')
+})
 
-export const GetGbifSpeciesResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .record(zod.string(), zod.unknown())
-        .optional()
-        .describe("Verbatim GBIF species\/{usageKey} upstream response.\n"),
-    }),
-  );
+export const GetGbifSpeciesResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.record(zod.string(), zod.unknown()).optional().describe('Verbatim GBIF species\/{usageKey} upstream response.\n')
+}))
+
 
 /**
  * Returns the verbatim GBIF synonyms response for the accepted taxon identified by the given usage key. Mirrors GBIF's GET /v1/species/{usageKey}/synonyms. Cached 30 days per (usageKey, limit, offset). Pagination is surfaced in the envelope pagination field (has_more, total).
@@ -1026,8 +332,8 @@ export const GetGbifSpeciesResponse = zod
  * @summary Get all taxonomic synonyms for a GBIF taxon
  */
 export const GetGbifSpeciesSynonymsParams = zod.object({
-  usageKey: zod.coerce.number().describe("GBIF backbone usage key (integer)"),
-});
+  "usageKey": zod.coerce.number().describe('GBIF backbone usage key (integer)')
+})
 
 export const getGbifSpeciesSynonymsQueryLimitDefault = 100;
 export const getGbifSpeciesSynonymsQueryLimitMax = 1000;
@@ -1038,130 +344,37 @@ export const getGbifSpeciesSynonymsQueryOffsetMin = 0;
 export const getGbifSpeciesSynonymsQueryRefreshDefault = false;
 
 export const GetGbifSpeciesSynonymsQueryParams = zod.object({
-  limit: zod.coerce
-    .number()
-    .min(1)
-    .max(getGbifSpeciesSynonymsQueryLimitMax)
-    .default(getGbifSpeciesSynonymsQueryLimitDefault)
-    .describe("Number of results to return (1–1000, default 100)"),
-  offset: zod.coerce
-    .number()
-    .min(getGbifSpeciesSynonymsQueryOffsetMin)
-    .default(getGbifSpeciesSynonymsQueryOffsetDefault)
-    .describe("Zero-based offset for pagination (default 0)"),
-  refresh: zod.coerce
-    .boolean()
-    .default(getGbifSpeciesSynonymsQueryRefreshDefault)
-    .describe("If true, bypasses cache and fetches fresh from GBIF"),
-});
+  "limit": zod.coerce.number().min(1).max(getGbifSpeciesSynonymsQueryLimitMax).default(getGbifSpeciesSynonymsQueryLimitDefault).describe('Number of results to return (1–1000, default 100)'),
+  "offset": zod.coerce.number().min(getGbifSpeciesSynonymsQueryOffsetMin).default(getGbifSpeciesSynonymsQueryOffsetDefault).describe('Zero-based offset for pagination (default 0)'),
+  "refresh": zod.coerce.boolean().default(getGbifSpeciesSynonymsQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from GBIF')
+})
 
-export const GetGbifSpeciesSynonymsResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .record(zod.string(), zod.unknown())
-        .optional()
-        .describe(
-          "Verbatim GBIF species\/{usageKey}\/synonyms upstream response. Includes count, offset, limit, endOfRecords, and results array.\n",
-        ),
-    }),
-  );
+export const GetGbifSpeciesSynonymsResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.record(zod.string(), zod.unknown()).optional().describe('Verbatim GBIF species\/{usageKey}\/synonyms upstream response. Includes count, offset, limit, endOfRecords, and results array.\n')
+}))
+
 
 /**
  * Returns the verbatim GBIF vernacular names response for the taxon identified by the given usage key. Mirrors GBIF's GET /v1/species/{usageKey}/vernacularNames. Cached 30 days per (usageKey, limit, offset). Pagination is surfaced in the envelope pagination field (has_more, total).
@@ -1169,8 +382,8 @@ export const GetGbifSpeciesSynonymsResponse = zod
  * @summary Get all vernacular (common) names for a GBIF taxon
  */
 export const GetGbifSpeciesVernacularNamesParams = zod.object({
-  usageKey: zod.coerce.number().describe("GBIF backbone usage key (integer)"),
-});
+  "usageKey": zod.coerce.number().describe('GBIF backbone usage key (integer)')
+})
 
 export const getGbifSpeciesVernacularNamesQueryLimitDefault = 100;
 export const getGbifSpeciesVernacularNamesQueryLimitMax = 1000;
@@ -1181,296 +394,105 @@ export const getGbifSpeciesVernacularNamesQueryOffsetMin = 0;
 export const getGbifSpeciesVernacularNamesQueryRefreshDefault = false;
 
 export const GetGbifSpeciesVernacularNamesQueryParams = zod.object({
-  limit: zod.coerce
-    .number()
-    .min(1)
-    .max(getGbifSpeciesVernacularNamesQueryLimitMax)
-    .default(getGbifSpeciesVernacularNamesQueryLimitDefault)
-    .describe("Number of results to return (1–1000, default 100)"),
-  offset: zod.coerce
-    .number()
-    .min(getGbifSpeciesVernacularNamesQueryOffsetMin)
-    .default(getGbifSpeciesVernacularNamesQueryOffsetDefault)
-    .describe("Zero-based offset for pagination (default 0)"),
-  refresh: zod.coerce
-    .boolean()
-    .default(getGbifSpeciesVernacularNamesQueryRefreshDefault)
-    .describe("If true, bypasses cache and fetches fresh from GBIF"),
-});
+  "limit": zod.coerce.number().min(1).max(getGbifSpeciesVernacularNamesQueryLimitMax).default(getGbifSpeciesVernacularNamesQueryLimitDefault).describe('Number of results to return (1–1000, default 100)'),
+  "offset": zod.coerce.number().min(getGbifSpeciesVernacularNamesQueryOffsetMin).default(getGbifSpeciesVernacularNamesQueryOffsetDefault).describe('Zero-based offset for pagination (default 0)'),
+  "refresh": zod.coerce.boolean().default(getGbifSpeciesVernacularNamesQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from GBIF')
+})
 
-export const GetGbifSpeciesVernacularNamesResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .record(zod.string(), zod.unknown())
-        .optional()
-        .describe(
-          "Verbatim GBIF species\/{usageKey}\/vernacularNames upstream response. Includes count, offset, limit, endOfRecords, and results array.\n",
-        ),
-    }),
-  );
+export const GetGbifSpeciesVernacularNamesResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.record(zod.string(), zod.unknown()).optional().describe('Verbatim GBIF species\/{usageKey}\/vernacularNames upstream response. Includes count, offset, limit, endOfRecords, and results array.\n')
+}))
+
 
 /**
  * Returns service identity, attribution, licenses and license notes, controlled vocabulary definitions (basisOfRecord, matchType, taxonomicStatus, occurrenceStatus), and the registry entry for the GBIF service.
 
  * @summary GBIF service metadata and controlled vocabularies
  */
-export const GetGbifMetadataResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .object({
-          description: zod.string().optional(),
-          general_summary: zod.string().optional(),
-          technical_details: zod.string().optional(),
-          licenses: zod.array(zod.string()).optional(),
-          license_notes: zod.string().optional(),
-          attribution: zod
-            .object({
-              source_name: zod.string().optional(),
-              website: zod.string().optional(),
-              license: zod.string().optional(),
-              citation: zod.string().optional(),
-              api_base_url: zod.string().optional(),
-            })
-            .optional(),
-          vocabularies: zod
-            .object({
-              basisOfRecord: zod
-                .array(
-                  zod.object({
-                    code: zod.string(),
-                    label: zod.string(),
-                    description: zod.string(),
-                  }),
-                )
-                .optional(),
-              matchType: zod
-                .array(
-                  zod.object({
-                    code: zod.string(),
-                    label: zod.string(),
-                    description: zod.string(),
-                  }),
-                )
-                .optional(),
-              taxonomicStatus: zod
-                .array(
-                  zod.object({
-                    code: zod.string(),
-                    label: zod.string(),
-                    description: zod.string(),
-                  }),
-                )
-                .optional(),
-              occurrenceStatus: zod
-                .array(
-                  zod.object({
-                    code: zod.string(),
-                    label: zod.string(),
-                    description: zod.string(),
-                  }),
-                )
-                .optional(),
-            })
-            .optional(),
-          metadata_url: zod.string().optional(),
-        })
-        .optional(),
-    }),
-  );
+export const GetGbifMetadataResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.object({
+  "description": zod.string().optional(),
+  "general_summary": zod.string().optional(),
+  "technical_details": zod.string().optional(),
+  "licenses": zod.array(zod.string()).optional(),
+  "license_notes": zod.string().optional(),
+  "attribution": zod.object({
+  "source_name": zod.string().optional(),
+  "website": zod.string().optional(),
+  "license": zod.string().optional(),
+  "citation": zod.string().optional(),
+  "api_base_url": zod.string().optional()
+}).optional(),
+  "vocabularies": zod.object({
+  "basisOfRecord": zod.array(zod.object({
+  "code": zod.string(),
+  "label": zod.string(),
+  "description": zod.string()
+})).optional(),
+  "matchType": zod.array(zod.object({
+  "code": zod.string(),
+  "label": zod.string(),
+  "description": zod.string()
+})).optional(),
+  "taxonomicStatus": zod.array(zod.object({
+  "code": zod.string(),
+  "label": zod.string(),
+  "description": zod.string()
+})).optional(),
+  "occurrenceStatus": zod.array(zod.object({
+  "code": zod.string(),
+  "label": zod.string(),
+  "description": zod.string()
+})).optional()
+}).optional(),
+  "metadata_url": zod.string().optional()
+}).optional()
+}))
+
 
 /**
  * Searches iNaturalist for places matching the query string and returns up to 5 candidates. The iNaturalist place ID from this response is required to filter phenology and observation queries geographically. Place lookups are cached permanently — place IDs are stable once assigned. Applications select the correct place when multiple candidates are returned.
@@ -1481,154 +503,44 @@ export const GetGbifMetadataResponse = zod
 export const getInatPlacesAutocompleteQueryRefreshDefault = false;
 
 export const GetInatPlacesAutocompleteQueryParams = zod.object({
-  q: zod
-    .string()
-    .min(1)
-    .describe(
-      "Place name to search (e.g. Washtenaw County, Michigan, Sleeping Bear Dunes)",
-    ),
-  refresh: zod.coerce
-    .boolean()
-    .default(getInatPlacesAutocompleteQueryRefreshDefault)
-    .describe("If true, bypasses cache and fetches fresh from iNaturalist"),
-  provenance_verbosity: zod
-    .enum(["full", "summary", "none"])
-    .optional()
-    .describe("Controls provenance text: full (default), summary, or none"),
-});
+  "q": zod.string().min(1).describe('Place name to search (e.g. Washtenaw County, Michigan, Sleeping Bear Dunes)'),
+  "refresh": zod.coerce.boolean().default(getInatPlacesAutocompleteQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from iNaturalist'),
+  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+})
 
-export const GetInatPlacesAutocompleteResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .object({
-          results: zod
-            .array(
-              zod.object({
-                id: zod
-                  .number()
-                  .describe(
-                    "iNaturalist numeric place ID. Use this in taxon_id + place_id queries.",
-                  ),
-                display_name: zod
-                  .string()
-                  .describe(
-                    "Human-readable place name as returned by iNaturalist",
-                  ),
-                place_type: zod
-                  .number()
-                  .describe("iNaturalist numeric place type code"),
-                place_type_name: zod
-                  .string()
-                  .describe(
-                    "Human-readable place type (e.g. County, State, Nation)",
-                  ),
-              }),
-            )
-            .optional()
-            .describe(
-              "Up to 5 matching places. Applications select the correct one.",
-            ),
-        })
-        .optional(),
-    }),
-  );
+export const GetInatPlacesAutocompleteResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.object({
+  "results": zod.array(zod.object({
+  "id": zod.number().describe('iNaturalist numeric place ID. Use this in taxon_id + place_id queries.'),
+  "display_name": zod.string().describe('Human-readable place name as returned by iNaturalist'),
+  "place_type": zod.number().describe('iNaturalist numeric place type code'),
+  "place_type_name": zod.string().describe('Human-readable place type (e.g. County, State, Nation)')
+})).optional().describe('Up to 5 matching places. Applications select the correct one.')
+}).optional()
+}))
+
 
 /**
  * Passthrough for iNaturalist's GET /observations/histogram endpoint. Returns the raw iNaturalist response containing observation counts by calendar month (month_of_year key in results). Cached 7 days keyed by taxon_id and sorted set of place_ids.
@@ -1638,134 +550,38 @@ export const GetInatPlacesAutocompleteResponse = zod
 export const getInatObservationsHistogramQueryRefreshDefault = false;
 
 export const GetInatObservationsHistogramQueryParams = zod.object({
-  taxon_id: zod.coerce
-    .number()
-    .describe("iNaturalist numeric taxon ID (from the species endpoint)"),
-  place_id: zod
-    .string()
-    .optional()
-    .describe(
-      "One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). Place IDs from the place lookup endpoint. Sorted ascending when building cache key. When omitted, returns global (worldwide) data.\n",
-    ),
-  term_id: zod.coerce
-    .number()
-    .optional()
-    .describe(
-      "Controlled annotation term ID to filter by (e.g. 12 for Flowers and Fruits, 36 for Leaves). When provided, only observations annotated with this term are counted. Cache key incorporates this value.\n",
-    ),
-  term_value_id: zod.coerce
-    .number()
-    .optional()
-    .describe(
-      "Controlled annotation value ID to filter by. Requires term_id. Cache key incorporates this value.\n",
-    ),
-  refresh: zod.coerce
-    .boolean()
-    .default(getInatObservationsHistogramQueryRefreshDefault)
-    .describe("If true, bypasses cache and fetches fresh from iNaturalist"),
-  provenance_verbosity: zod
-    .enum(["full", "summary", "none"])
-    .optional()
-    .describe("Controls provenance text: full (default), summary, or none"),
-});
+  "taxon_id": zod.coerce.number().describe('iNaturalist numeric taxon ID (from the species endpoint)'),
+  "place_id": zod.string().optional().describe('One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). Place IDs from the place lookup endpoint. Sorted ascending when building cache key. When omitted, returns global (worldwide) data.\n'),
+  "term_id": zod.coerce.number().optional().describe('Controlled annotation term ID to filter by (e.g. 12 for Flowers and Fruits, 36 for Leaves). When provided, only observations annotated with this term are counted. Cache key incorporates this value.\n'),
+  "term_value_id": zod.coerce.number().optional().describe('Controlled annotation value ID to filter by. Requires term_id. Cache key incorporates this value.\n'),
+  "refresh": zod.coerce.boolean().default(getInatObservationsHistogramQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from iNaturalist'),
+  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+})
 
-export const GetInatObservationsHistogramResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  );
+export const GetInatObservationsHistogramResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
 
 /**
  * Passthrough for iNaturalist's GET /observations/popular_field_values endpoint. Returns the raw iNaturalist response containing controlled annotation field values with per-month counts. Stage labels include Flowers, Flower Buds, Fruits or Seeds, No Flowers or Fruits, Green Leaves, Colored Leaves, No Live Leaves, Breaking Leaf Buds. Cached 7 days keyed by taxon_id, sorted place_ids, and verifiable flag.
@@ -1776,128 +592,37 @@ export const getInatObservationsPopularFieldValuesQueryVerifiableDefault = true;
 export const getInatObservationsPopularFieldValuesQueryRefreshDefault = false;
 
 export const GetInatObservationsPopularFieldValuesQueryParams = zod.object({
-  taxon_id: zod.coerce
-    .number()
-    .describe("iNaturalist numeric taxon ID (from the species endpoint)"),
-  place_id: zod
-    .string()
-    .optional()
-    .describe(
-      "One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). When omitted, returns global data.\n",
-    ),
-  verifiable: zod.coerce
-    .boolean()
-    .default(getInatObservationsPopularFieldValuesQueryVerifiableDefault)
-    .describe(
-      "If true (default), restricts to verifiable observations. Pass false to include all quality grades.\n",
-    ),
-  refresh: zod.coerce
-    .boolean()
-    .default(getInatObservationsPopularFieldValuesQueryRefreshDefault)
-    .describe("If true, bypasses cache and fetches fresh from iNaturalist"),
-  provenance_verbosity: zod
-    .enum(["full", "summary", "none"])
-    .optional()
-    .describe("Controls provenance text: full (default), summary, or none"),
-});
+  "taxon_id": zod.coerce.number().describe('iNaturalist numeric taxon ID (from the species endpoint)'),
+  "place_id": zod.string().optional().describe('One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). When omitted, returns global data.\n'),
+  "verifiable": zod.coerce.boolean().default(getInatObservationsPopularFieldValuesQueryVerifiableDefault).describe('If true (default), restricts to verifiable observations. Pass false to include all quality grades.\n'),
+  "refresh": zod.coerce.boolean().default(getInatObservationsPopularFieldValuesQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from iNaturalist'),
+  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+})
 
-export const GetInatObservationsPopularFieldValuesResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  );
+export const GetInatObservationsPopularFieldValuesResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
 
 /**
  * Calls the iNaturalist API live (no cache) and returns a curated subset of observation fields — not the full raw record. Each result includes: id, uri, observed_on, quality_grade, taxon_name, common_name, place_guess, location (lat,lng), observer login, and the first photo URL + attribution. Callers who need the complete record should follow the uri field to iNaturalist directly. Supports pagination via page and per_page. The iNaturalist API enforces a hard ceiling of 10,000 accessible observations (page × per_page ≤ 10,000).
@@ -1909,167 +634,50 @@ export const getInatObservationsQueryPerPageMax = 200;
 
 export const getInatObservationsQueryPageDefault = 1;
 
-export const GetInatObservationsQueryParams = zod.object({
-  taxon_id: zod.coerce
-    .number()
-    .optional()
-    .describe("iNaturalist taxon ID to filter by"),
-  place_id: zod
-    .string()
-    .optional()
-    .describe("Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)"),
-  quality_grade: zod
-    .enum(["research", "needs_id", "casual"])
-    .optional()
-    .describe("Filter by quality grade: research, needs_id, or casual"),
-  per_page: zod.coerce
-    .number()
-    .min(1)
-    .max(getInatObservationsQueryPerPageMax)
-    .default(getInatObservationsQueryPerPageDefault)
-    .describe("Number of results per page (default 30, max 200)"),
-  page: zod.coerce
-    .number()
-    .min(1)
-    .default(getInatObservationsQueryPageDefault)
-    .describe("Page number (1-indexed, default 1)"),
-  d1: zod.string().optional().describe("Start date filter (YYYY-MM-DD)"),
-  d2: zod.string().optional().describe("End date filter (YYYY-MM-DD)"),
-  lat: zod.coerce
-    .number()
-    .optional()
-    .describe(
-      "Center latitude for radius-based geographic filter. Requires lng and radius.",
-    ),
-  lng: zod.coerce
-    .number()
-    .optional()
-    .describe(
-      "Center longitude for radius-based geographic filter. Requires lat and radius.",
-    ),
-  radius: zod.coerce
-    .number()
-    .optional()
-    .describe("Radius in km around the lat\/lng center point."),
-  nelat: zod.coerce
-    .number()
-    .optional()
-    .describe("Northeast corner latitude for bounding box filter."),
-  nelng: zod.coerce
-    .number()
-    .optional()
-    .describe("Northeast corner longitude for bounding box filter."),
-  swlat: zod.coerce
-    .number()
-    .optional()
-    .describe("Southwest corner latitude for bounding box filter."),
-  swlng: zod.coerce
-    .number()
-    .optional()
-    .describe("Southwest corner longitude for bounding box filter."),
-  provenance_verbosity: zod
-    .enum(["full", "summary", "none"])
-    .optional()
-    .describe("Controls provenance text: full (default), summary, or none"),
-});
 
-export const GetInatObservationsResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  );
+
+export const GetInatObservationsQueryParams = zod.object({
+  "taxon_id": zod.coerce.number().optional().describe('iNaturalist taxon ID to filter by'),
+  "place_id": zod.string().optional().describe('Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)'),
+  "quality_grade": zod.enum(['research', 'needs_id', 'casual']).optional().describe('Filter by quality grade: research, needs_id, or casual'),
+  "per_page": zod.coerce.number().min(1).max(getInatObservationsQueryPerPageMax).default(getInatObservationsQueryPerPageDefault).describe('Number of results per page (default 30, max 200)'),
+  "page": zod.coerce.number().min(1).default(getInatObservationsQueryPageDefault).describe('Page number (1-indexed, default 1)'),
+  "d1": zod.string().optional().describe('Start date filter (YYYY-MM-DD)'),
+  "d2": zod.string().optional().describe('End date filter (YYYY-MM-DD)'),
+  "lat": zod.coerce.number().optional().describe('Center latitude for radius-based geographic filter. Requires lng and radius.'),
+  "lng": zod.coerce.number().optional().describe('Center longitude for radius-based geographic filter. Requires lat and radius.'),
+  "radius": zod.coerce.number().optional().describe('Radius in km around the lat\/lng center point.'),
+  "nelat": zod.coerce.number().optional().describe('Northeast corner latitude for bounding box filter.'),
+  "nelng": zod.coerce.number().optional().describe('Northeast corner longitude for bounding box filter.'),
+  "swlat": zod.coerce.number().optional().describe('Southwest corner latitude for bounding box filter.'),
+  "swlng": zod.coerce.number().optional().describe('Southwest corner longitude for bounding box filter.'),
+  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+})
+
+export const GetInatObservationsResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
 
 /**
  * Live passthrough for iNaturalist's GET /observations/species_counts endpoint. Returns species ranked by observation count. Supports filters for place, quality grade, iconic taxon, nativity, phenology annotations, month window, and geographic constraints (place_id, lat/lng radius, or bounding box). No cache — every call is live. Results are wrapped in the standard FERNS provenance envelope.
@@ -2081,191 +689,55 @@ export const getInatObservationsSpeciesCountsQueryPerPageMax = 500;
 
 export const getInatObservationsSpeciesCountsQueryPageDefault = 1;
 
-export const GetInatObservationsSpeciesCountsQueryParams = zod.object({
-  place_id: zod
-    .string()
-    .optional()
-    .describe("Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)"),
-  quality_grade: zod
-    .enum(["research", "needs_id", "casual"])
-    .optional()
-    .describe("Filter by quality grade: research, needs_id, or casual"),
-  iconic_taxon_name: zod
-    .string()
-    .optional()
-    .describe(
-      "Filter to this iconic taxon group (e.g. Plantae, Aves, Fungi, Mammalia, Reptilia, Amphibia, Actinopterygii, Mollusca, Arachnida, Insecta, Animalia)",
-    ),
-  native: zod.coerce
-    .boolean()
-    .optional()
-    .describe("Only include taxa native to the observed location"),
-  introduced: zod.coerce
-    .boolean()
-    .optional()
-    .describe("Only include taxa introduced at the observed location"),
-  term_id: zod.coerce
-    .number()
-    .optional()
-    .describe("Controlled annotation term ID (e.g. 12 for Flowers and Fruits)"),
-  term_value_id: zod.coerce
-    .number()
-    .optional()
-    .describe("Controlled annotation value ID. Requires term_id."),
-  month: zod
-    .string()
-    .optional()
-    .describe(
-      "Comma-separated month numbers to filter by (e.g. 4,5,6 for Apr–Jun)",
-    ),
-  per_page: zod.coerce
-    .number()
-    .min(1)
-    .max(getInatObservationsSpeciesCountsQueryPerPageMax)
-    .default(getInatObservationsSpeciesCountsQueryPerPageDefault)
-    .describe("Number of results (default 500, max 500)"),
-  page: zod.coerce
-    .number()
-    .min(1)
-    .default(getInatObservationsSpeciesCountsQueryPageDefault)
-    .describe("Page number (1-indexed, default 1)"),
-  d1: zod.string().optional().describe("Start date filter (YYYY-MM-DD)"),
-  d2: zod.string().optional().describe("End date filter (YYYY-MM-DD)"),
-  lat: zod.coerce
-    .number()
-    .optional()
-    .describe(
-      "Center latitude for radius-based geographic filter. Requires lng and radius.",
-    ),
-  lng: zod.coerce
-    .number()
-    .optional()
-    .describe(
-      "Center longitude for radius-based geographic filter. Requires lat and radius.",
-    ),
-  radius: zod.coerce
-    .number()
-    .optional()
-    .describe("Radius in km around the lat\/lng center point."),
-  nelat: zod.coerce
-    .number()
-    .optional()
-    .describe("Northeast corner latitude for bounding box filter."),
-  nelng: zod.coerce
-    .number()
-    .optional()
-    .describe("Northeast corner longitude for bounding box filter."),
-  swlat: zod.coerce
-    .number()
-    .optional()
-    .describe("Southwest corner latitude for bounding box filter."),
-  swlng: zod.coerce
-    .number()
-    .optional()
-    .describe("Southwest corner longitude for bounding box filter."),
-  provenance_verbosity: zod
-    .enum(["full", "summary", "none"])
-    .optional()
-    .describe("Controls provenance text: full (default), summary, or none"),
-});
 
-export const GetInatObservationsSpeciesCountsResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  );
+
+export const GetInatObservationsSpeciesCountsQueryParams = zod.object({
+  "place_id": zod.string().optional().describe('Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)'),
+  "quality_grade": zod.enum(['research', 'needs_id', 'casual']).optional().describe('Filter by quality grade: research, needs_id, or casual'),
+  "iconic_taxon_name": zod.string().optional().describe('Filter to this iconic taxon group (e.g. Plantae, Aves, Fungi, Mammalia, Reptilia, Amphibia, Actinopterygii, Mollusca, Arachnida, Insecta, Animalia)'),
+  "native": zod.coerce.boolean().optional().describe('Only include taxa native to the observed location'),
+  "introduced": zod.coerce.boolean().optional().describe('Only include taxa introduced at the observed location'),
+  "term_id": zod.coerce.number().optional().describe('Controlled annotation term ID (e.g. 12 for Flowers and Fruits)'),
+  "term_value_id": zod.coerce.number().optional().describe('Controlled annotation value ID. Requires term_id.'),
+  "month": zod.string().optional().describe('Comma-separated month numbers to filter by (e.g. 4,5,6 for Apr–Jun)'),
+  "per_page": zod.coerce.number().min(1).max(getInatObservationsSpeciesCountsQueryPerPageMax).default(getInatObservationsSpeciesCountsQueryPerPageDefault).describe('Number of results (default 500, max 500)'),
+  "page": zod.coerce.number().min(1).default(getInatObservationsSpeciesCountsQueryPageDefault).describe('Page number (1-indexed, default 1)'),
+  "d1": zod.string().optional().describe('Start date filter (YYYY-MM-DD)'),
+  "d2": zod.string().optional().describe('End date filter (YYYY-MM-DD)'),
+  "lat": zod.coerce.number().optional().describe('Center latitude for radius-based geographic filter. Requires lng and radius.'),
+  "lng": zod.coerce.number().optional().describe('Center longitude for radius-based geographic filter. Requires lat and radius.'),
+  "radius": zod.coerce.number().optional().describe('Radius in km around the lat\/lng center point.'),
+  "nelat": zod.coerce.number().optional().describe('Northeast corner latitude for bounding box filter.'),
+  "nelng": zod.coerce.number().optional().describe('Northeast corner longitude for bounding box filter.'),
+  "swlat": zod.coerce.number().optional().describe('Southwest corner latitude for bounding box filter.'),
+  "swlng": zod.coerce.number().optional().describe('Southwest corner longitude for bounding box filter.'),
+  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+})
+
+export const GetInatObservationsSpeciesCountsResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
 
 /**
  * Returns the full list of iNaturalist controlled annotation terms and their possible values (e.g. term_id=12 "Flowers and Fruits" with values "Flowering", "Fruiting", etc). The controlled terms list is essentially static (iNat changes it extremely rarely). Cached permanently in the DB; use refresh=true to force a re-fetch. Results are wrapped in the standard FERNS provenance envelope.
@@ -2273,113 +745,34 @@ export const GetInatObservationsSpeciesCountsResponse = zod
  * @summary All iNaturalist controlled annotation terms
  */
 export const GetInatControlledTermsQueryParams = zod.object({
-  refresh: zod.coerce
-    .boolean()
-    .optional()
-    .describe("Bypass cache and re-fetch from iNaturalist"),
-  provenance_verbosity: zod
-    .enum(["full", "summary", "none"])
-    .optional()
-    .describe("Controls provenance text: full (default), summary, or none"),
-});
+  "refresh": zod.coerce.boolean().optional().describe('Bypass cache and re-fetch from iNaturalist'),
+  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+})
 
-export const GetInatControlledTermsResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  );
+export const GetInatControlledTermsResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
 
 /**
  * Returns the controlled annotation terms that are applicable to a specific taxon (e.g. Flowers and Fruits applies to plants but not birds). Cached permanently in the DB keyed by taxon_id; use refresh=true to force a re-fetch. Results are wrapped in the standard FERNS provenance envelope.
@@ -2387,114 +780,35 @@ export const GetInatControlledTermsResponse = zod
  * @summary iNaturalist controlled terms applicable to a specific taxon
  */
 export const GetInatControlledTermsForTaxonQueryParams = zod.object({
-  taxon_id: zod.coerce.number().describe("iNaturalist taxon ID"),
-  refresh: zod.coerce
-    .boolean()
-    .optional()
-    .describe("Bypass cache and re-fetch from iNaturalist"),
-  provenance_verbosity: zod
-    .enum(["full", "summary", "none"])
-    .optional()
-    .describe("Controls provenance text: full (default), summary, or none"),
-});
+  "taxon_id": zod.coerce.number().describe('iNaturalist taxon ID'),
+  "refresh": zod.coerce.boolean().optional().describe('Bypass cache and re-fetch from iNaturalist'),
+  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+})
 
-export const GetInatControlledTermsForTaxonResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  );
+export const GetInatControlledTermsForTaxonResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
 
 /**
  * Live passthrough for iNaturalist's /taxa/autocomplete endpoint. Returns matching taxa with photos, observation counts, and common names. Intended for type-ahead / search-as-you-type UIs. No cache — every call is live. Results are wrapped in the standard FERNS provenance envelope.
@@ -2503,139 +817,43 @@ export const GetInatControlledTermsForTaxonResponse = zod
  */
 export const getInatTaxaAutocompleteQueryPerPageMax = 10;
 
-export const GetInatTaxaAutocompleteQueryParams = zod.object({
-  q: zod
-    .string()
-    .describe("Partial or full scientific or common name to search for"),
-  per_page: zod.coerce
-    .number()
-    .min(1)
-    .max(getInatTaxaAutocompleteQueryPerPageMax)
-    .optional()
-    .describe("Results per page (default 10, max 10 for autocomplete)"),
-  is_active: zod.coerce
-    .boolean()
-    .optional()
-    .describe("Filter to active taxa only (default true)"),
-  rank: zod
-    .string()
-    .optional()
-    .describe("Taxonomic rank filter (e.g. species, genus, family)"),
-  locale: zod
-    .string()
-    .optional()
-    .describe("Locale code for common names (e.g. en, es, de)"),
-  all_names: zod.coerce
-    .boolean()
-    .optional()
-    .describe("Include all name variants in search (not just preferred)"),
-  preferred_place_id: zod.coerce
-    .number()
-    .optional()
-    .describe("iNaturalist place ID to prioritize common names for that place"),
-  provenance_verbosity: zod
-    .enum(["full", "summary", "none"])
-    .optional()
-    .describe("Controls provenance text: full (default), summary, or none"),
-});
 
-export const GetInatTaxaAutocompleteResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  );
+
+export const GetInatTaxaAutocompleteQueryParams = zod.object({
+  "q": zod.string().describe('Partial or full scientific or common name to search for'),
+  "per_page": zod.coerce.number().min(1).max(getInatTaxaAutocompleteQueryPerPageMax).optional().describe('Results per page (default 10, max 10 for autocomplete)'),
+  "is_active": zod.coerce.boolean().optional().describe('Filter to active taxa only (default true)'),
+  "rank": zod.string().optional().describe('Taxonomic rank filter (e.g. species, genus, family)'),
+  "locale": zod.string().optional().describe('Locale code for common names (e.g. en, es, de)'),
+  "all_names": zod.coerce.boolean().optional().describe('Include all name variants in search (not just preferred)'),
+  "preferred_place_id": zod.coerce.number().optional().describe('iNaturalist place ID to prioritize common names for that place'),
+  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+})
+
+export const GetInatTaxaAutocompleteResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
 
 /**
  * Returns the full iNaturalist taxon record for a known taxon ID, including Wikipedia summary, listed_taxa (nativity per place — up to 41 entries for common species), children, conservation_status, and default_photo. DB-cached for 30 days keyed by taxon ID; use refresh=true to force a re-fetch. Results are wrapped in the standard FERNS provenance envelope.
@@ -2643,117 +861,38 @@ export const GetInatTaxaAutocompleteResponse = zod
  * @summary Full iNaturalist taxon record by numeric ID
  */
 export const GetInatTaxaByIdParams = zod.object({
-  id: zod.coerce.number().describe("iNaturalist taxon ID (integer)"),
-});
+  "id": zod.coerce.number().describe('iNaturalist taxon ID (integer)')
+})
 
 export const GetInatTaxaByIdQueryParams = zod.object({
-  refresh: zod.coerce
-    .boolean()
-    .optional()
-    .describe("Bypass cache and re-fetch from iNaturalist"),
-  provenance_verbosity: zod
-    .enum(["full", "summary", "none"])
-    .optional()
-    .describe("Controls provenance text: full (default), summary, or none"),
-});
+  "refresh": zod.coerce.boolean().optional().describe('Bypass cache and re-fetch from iNaturalist'),
+  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+})
 
-export const GetInatTaxaByIdResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  );
+export const GetInatTaxaByIdResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
 
 /**
  * Returns the full iNaturalist place record for a known place ID, including centroid, bounding box, admin hierarchy, display name, and place type. DB-cached permanently (place IDs are stable); use refresh=true to force a re-fetch. Results are wrapped in the standard FERNS provenance envelope.
@@ -2761,121 +900,39 @@ export const GetInatTaxaByIdResponse = zod
  * @summary iNaturalist place record by numeric ID
  */
 export const GetInatPlacesByIdParams = zod.object({
-  id: zod.coerce.number().describe("iNaturalist place ID (integer)"),
-});
+  "id": zod.coerce.number().describe('iNaturalist place ID (integer)')
+})
 
 export const GetInatPlacesByIdQueryParams = zod.object({
-  admin_level: zod.coerce
-    .number()
-    .optional()
-    .describe("Admin level filter (e.g. 0=country, 1=state, 2=county)"),
-  refresh: zod.coerce
-    .boolean()
-    .optional()
-    .describe("Bypass cache and re-fetch from iNaturalist"),
-  provenance_verbosity: zod
-    .enum(["full", "summary", "none"])
-    .optional()
-    .describe("Controls provenance text: full (default), summary, or none"),
-});
+  "admin_level": zod.coerce.number().optional().describe('Admin level filter (e.g. 0=country, 1=state, 2=county)'),
+  "refresh": zod.coerce.boolean().optional().describe('Bypass cache and re-fetch from iNaturalist'),
+  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+})
 
-export const GetInatPlacesByIdResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  );
+export const GetInatPlacesByIdResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
 
 /**
  * Live passthrough for iNaturalist's /places/nearby endpoint. Returns standard (admin) and community places within the given bounding box. No cache — bounding box inputs produce a combinatorially large key space. Results are wrapped in the standard FERNS provenance envelope.
@@ -2883,127 +940,42 @@ export const GetInatPlacesByIdResponse = zod
  * @summary iNaturalist places within a bounding box
  */
 
-export const GetInatPlacesNearbyQueryParams = zod.object({
-  nelat: zod.coerce
-    .number()
-    .describe("Northeast corner latitude of the bounding box"),
-  nelng: zod.coerce
-    .number()
-    .describe("Northeast corner longitude of the bounding box"),
-  swlat: zod.coerce
-    .number()
-    .describe("Southwest corner latitude of the bounding box"),
-  swlng: zod.coerce
-    .number()
-    .describe("Southwest corner longitude of the bounding box"),
-  name: zod
-    .string()
-    .optional()
-    .describe("Optional name filter to narrow results"),
-  per_page: zod.coerce.number().min(1).optional().describe("Results per page"),
-  provenance_verbosity: zod
-    .enum(["full", "summary", "none"])
-    .optional()
-    .describe("Controls provenance text: full (default), summary, or none"),
-});
 
-export const GetInatPlacesNearbyResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  );
+
+export const GetInatPlacesNearbyQueryParams = zod.object({
+  "nelat": zod.coerce.number().describe('Northeast corner latitude of the bounding box'),
+  "nelng": zod.coerce.number().describe('Northeast corner longitude of the bounding box'),
+  "swlat": zod.coerce.number().describe('Southwest corner latitude of the bounding box'),
+  "swlng": zod.coerce.number().describe('Southwest corner longitude of the bounding box'),
+  "name": zod.string().optional().describe('Optional name filter to narrow results'),
+  "per_page": zod.coerce.number().min(1).optional().describe('Results per page'),
+  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+})
+
+export const GetInatPlacesNearbyResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
 
 /**
  * Calls GET /observations/{id}/taxon_summary on the iNaturalist API. Returns a Wikipedia summary (500-600 chars), listed_taxon (establishment_means for the observation's place — native/introduced/endemic), and conservation_status. The observation_id is required; it determines which location context is used for nativity data. Live call, no cache.
@@ -3011,113 +983,37 @@ export const GetInatPlacesNearbyResponse = zod
  * @summary Wikipedia summary + nativity + conservation status for a taxon at an observation location
  */
 export const GetInatObservationsTaxonSummaryParams = zod.object({
-  id: zod.coerce.number().describe("iNaturalist observation ID (integer)"),
-});
+  "id": zod.coerce.number().describe('iNaturalist observation ID (integer)')
+})
 
 export const GetInatObservationsTaxonSummaryQueryParams = zod.object({
-  provenance_verbosity: zod
-    .enum(["full", "summary", "none"])
-    .optional()
-    .describe("Controls provenance text: full (default), summary, or none"),
-});
+  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+})
 
-export const GetInatObservationsTaxonSummaryResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  );
+export const GetInatObservationsTaxonSummaryResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
 
 /**
  * Live passthrough for iNaturalist GET /identifications/similar_species. Returns taxa that are frequently confused with the given taxon_id, ranked by co-confusion count. Optionally filtered by place and geography. No cache.
@@ -3125,124 +1021,43 @@ export const GetInatObservationsTaxonSummaryResponse = zod
  * @summary Species commonly confused with a given taxon
  */
 export const GetInatIdentificationsSimilarSpeciesQueryParams = zod.object({
-  taxon_id: zod.coerce
-    .number()
-    .describe("iNaturalist taxon ID to find similar species for"),
-  place_id: zod
-    .string()
-    .optional()
-    .describe("Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)"),
-  quality_grade: zod.enum(["research", "needs_id", "casual"]).optional(),
-  lat: zod.coerce.number().optional(),
-  lng: zod.coerce.number().optional(),
-  radius: zod.coerce.number().optional(),
-  nelat: zod.coerce.number().optional(),
-  nelng: zod.coerce.number().optional(),
-  swlat: zod.coerce.number().optional(),
-  swlng: zod.coerce.number().optional(),
-  provenance_verbosity: zod
-    .enum(["full", "summary", "none"])
-    .optional()
-    .describe("Controls provenance text: full (default), summary, or none"),
-});
+  "taxon_id": zod.coerce.number().describe('iNaturalist taxon ID to find similar species for'),
+  "place_id": zod.string().optional().describe('Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)'),
+  "quality_grade": zod.enum(['research', 'needs_id', 'casual']).optional(),
+  "lat": zod.coerce.number().optional(),
+  "lng": zod.coerce.number().optional(),
+  "radius": zod.coerce.number().optional(),
+  "nelat": zod.coerce.number().optional(),
+  "nelng": zod.coerce.number().optional(),
+  "swlat": zod.coerce.number().optional(),
+  "swlng": zod.coerce.number().optional(),
+  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+})
 
-export const GetInatIdentificationsSimilarSpeciesResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  );
+export const GetInatIdentificationsSimilarSpeciesResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
 
 /**
  * Live passthrough for iNaturalist GET /identifications/species_counts. Returns species ranked by identification engagement (distinct from raw observation count). Supports taxon_of=identification|community to select which taxon is counted. No cache.
@@ -3250,149 +1065,58 @@ export const GetInatIdentificationsSimilarSpeciesResponse = zod
  * @summary Species ranked by identification activity
  */
 
-export const GetInatIdentificationsSpeciesCountsQueryParams = zod.object({
-  taxon_id: zod.coerce.number().optional(),
-  place_id: zod
-    .string()
-    .optional()
-    .describe("Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)"),
-  quality_grade: zod.enum(["research", "needs_id", "casual"]).optional(),
-  per_page: zod.coerce.number().min(1).optional(),
-  page: zod.coerce.number().min(1).optional(),
-  d1: zod.string().optional().describe("Start date filter (YYYY-MM-DD)"),
-  d2: zod.string().optional().describe("End date filter (YYYY-MM-DD)"),
-  month: zod
-    .string()
-    .optional()
-    .describe("Comma-separated month numbers (e.g. 4,5,6)"),
-  native: zod.coerce.boolean().optional(),
-  introduced: zod.coerce.boolean().optional(),
-  lat: zod.coerce.number().optional(),
-  lng: zod.coerce.number().optional(),
-  radius: zod.coerce.number().optional(),
-  nelat: zod.coerce.number().optional(),
-  nelng: zod.coerce.number().optional(),
-  swlat: zod.coerce.number().optional(),
-  swlng: zod.coerce.number().optional(),
-  order: zod
-    .enum(["asc", "desc"])
-    .optional()
-    .describe("Sort order: desc (default) or asc"),
-  order_by: zod
-    .string()
-    .optional()
-    .describe("Sort field: count (default) or id"),
-  taxon_of: zod
-    .enum(["identification", "community"])
-    .optional()
-    .describe("Which taxon to count: identification (default) or community"),
-  iconic_taxa: zod
-    .string()
-    .optional()
-    .describe("Comma-separated iconic taxon names (e.g. Plantae,Fungi)"),
-  provenance_verbosity: zod
-    .enum(["full", "summary", "none"])
-    .optional()
-    .describe("Controls provenance text: full (default), summary, or none"),
-});
 
-export const GetInatIdentificationsSpeciesCountsResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  );
+
+
+export const GetInatIdentificationsSpeciesCountsQueryParams = zod.object({
+  "taxon_id": zod.coerce.number().optional(),
+  "place_id": zod.string().optional().describe('Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)'),
+  "quality_grade": zod.enum(['research', 'needs_id', 'casual']).optional(),
+  "per_page": zod.coerce.number().min(1).optional(),
+  "page": zod.coerce.number().min(1).optional(),
+  "d1": zod.string().optional().describe('Start date filter (YYYY-MM-DD)'),
+  "d2": zod.string().optional().describe('End date filter (YYYY-MM-DD)'),
+  "month": zod.string().optional().describe('Comma-separated month numbers (e.g. 4,5,6)'),
+  "native": zod.coerce.boolean().optional(),
+  "introduced": zod.coerce.boolean().optional(),
+  "lat": zod.coerce.number().optional(),
+  "lng": zod.coerce.number().optional(),
+  "radius": zod.coerce.number().optional(),
+  "nelat": zod.coerce.number().optional(),
+  "nelng": zod.coerce.number().optional(),
+  "swlat": zod.coerce.number().optional(),
+  "swlng": zod.coerce.number().optional(),
+  "order": zod.enum(['asc', 'desc']).optional().describe('Sort order: desc (default) or asc'),
+  "order_by": zod.string().optional().describe('Sort field: count (default) or id'),
+  "taxon_of": zod.enum(['identification', 'community']).optional().describe('Which taxon to count: identification (default) or community'),
+  "iconic_taxa": zod.string().optional().describe('Comma-separated iconic taxon names (e.g. Plantae,Fungi)'),
+  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+})
+
+export const GetInatIdentificationsSpeciesCountsResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
 
 /**
  * Live passthrough for iNaturalist GET /identifications/recent_taxa. Returns taxa that have recently been identified in a given place. Useful for "what's being documented right now" queries. No cache.
@@ -3400,120 +1124,44 @@ export const GetInatIdentificationsSpeciesCountsResponse = zod
  * @summary Taxa recently identified in a place
  */
 
-export const GetInatIdentificationsRecentTaxaQueryParams = zod.object({
-  place_id: zod
-    .string()
-    .optional()
-    .describe("Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)"),
-  taxon_id: zod.coerce.number().optional(),
-  quality_grade: zod.enum(["research", "needs_id", "casual"]).optional(),
-  per_page: zod.coerce.number().min(1).optional(),
-  page: zod.coerce.number().min(1).optional(),
-  d1: zod.string().optional().describe("Start date filter (YYYY-MM-DD)"),
-  d2: zod.string().optional().describe("End date filter (YYYY-MM-DD)"),
-  provenance_verbosity: zod
-    .enum(["full", "summary", "none"])
-    .optional()
-    .describe("Controls provenance text: full (default), summary, or none"),
-});
 
-export const GetInatIdentificationsRecentTaxaResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  );
+
+
+export const GetInatIdentificationsRecentTaxaQueryParams = zod.object({
+  "place_id": zod.string().optional().describe('Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)'),
+  "taxon_id": zod.coerce.number().optional(),
+  "quality_grade": zod.enum(['research', 'needs_id', 'casual']).optional(),
+  "per_page": zod.coerce.number().min(1).optional(),
+  "page": zod.coerce.number().min(1).optional(),
+  "d1": zod.string().optional().describe('Start date filter (YYYY-MM-DD)'),
+  "d2": zod.string().optional().describe('End date filter (YYYY-MM-DD)'),
+  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+})
+
+export const GetInatIdentificationsRecentTaxaResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
 
 /**
  * Live passthrough for iNaturalist GET /identifications. Returns individual identification records (who made an identification, of what taxon, on which observation). A single observation can have multiple identifications. Useful for understanding the community identification process. No cache. Supports pagination via page and per_page.
@@ -3522,164 +1170,63 @@ export const GetInatIdentificationsRecentTaxaResponse = zod
  */
 export const getInatIdentificationsQueryPerPageMax = 200;
 
-export const GetInatIdentificationsQueryParams = zod.object({
-  taxon_id: zod.coerce.number().optional(),
-  place_id: zod
-    .string()
-    .optional()
-    .describe("Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)"),
-  quality_grade: zod.enum(["research", "needs_id", "casual"]).optional(),
-  per_page: zod.coerce
-    .number()
-    .min(1)
-    .max(getInatIdentificationsQueryPerPageMax)
-    .optional(),
-  page: zod.coerce.number().min(1).optional(),
-  d1: zod.string().optional().describe("Start date filter (YYYY-MM-DD)"),
-  d2: zod.string().optional().describe("End date filter (YYYY-MM-DD)"),
-  month: zod
-    .string()
-    .optional()
-    .describe("Comma-separated month numbers (e.g. 4,5,6)"),
-  native: zod.coerce.boolean().optional(),
-  introduced: zod.coerce.boolean().optional(),
-  lat: zod.coerce.number().optional(),
-  lng: zod.coerce.number().optional(),
-  radius: zod.coerce.number().optional(),
-  nelat: zod.coerce.number().optional(),
-  nelng: zod.coerce.number().optional(),
-  swlat: zod.coerce.number().optional(),
-  swlng: zod.coerce.number().optional(),
-  locale: zod
-    .string()
-    .optional()
-    .describe("Locale for common names (e.g. en, es)"),
-  user_id: zod.coerce
-    .number()
-    .optional()
-    .describe("Filter by identifier user ID"),
-  user_login: zod
-    .string()
-    .optional()
-    .describe("Filter by identifier user login"),
-  iconic_taxa: zod
-    .string()
-    .optional()
-    .describe("Comma-separated iconic taxon names (e.g. Plantae,Fungi)"),
-  term_id: zod.coerce.number().optional(),
-  term_value_id: zod.coerce.number().optional(),
-  verifiable: zod.coerce.boolean().optional(),
-  order: zod
-    .enum(["asc", "desc"])
-    .optional()
-    .describe("Sort order: desc (default) or asc"),
-  order_by: zod
-    .string()
-    .optional()
-    .describe("Sort field: created_at (default) or id"),
-  provenance_verbosity: zod
-    .enum(["full", "summary", "none"])
-    .optional()
-    .describe("Controls provenance text: full (default), summary, or none"),
-});
 
-export const GetInatIdentificationsResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  );
+
+
+export const GetInatIdentificationsQueryParams = zod.object({
+  "taxon_id": zod.coerce.number().optional(),
+  "place_id": zod.string().optional().describe('Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)'),
+  "quality_grade": zod.enum(['research', 'needs_id', 'casual']).optional(),
+  "per_page": zod.coerce.number().min(1).max(getInatIdentificationsQueryPerPageMax).optional(),
+  "page": zod.coerce.number().min(1).optional(),
+  "d1": zod.string().optional().describe('Start date filter (YYYY-MM-DD)'),
+  "d2": zod.string().optional().describe('End date filter (YYYY-MM-DD)'),
+  "month": zod.string().optional().describe('Comma-separated month numbers (e.g. 4,5,6)'),
+  "native": zod.coerce.boolean().optional(),
+  "introduced": zod.coerce.boolean().optional(),
+  "lat": zod.coerce.number().optional(),
+  "lng": zod.coerce.number().optional(),
+  "radius": zod.coerce.number().optional(),
+  "nelat": zod.coerce.number().optional(),
+  "nelng": zod.coerce.number().optional(),
+  "swlat": zod.coerce.number().optional(),
+  "swlng": zod.coerce.number().optional(),
+  "locale": zod.string().optional().describe('Locale for common names (e.g. en, es)'),
+  "user_id": zod.coerce.number().optional().describe('Filter by identifier user ID'),
+  "user_login": zod.string().optional().describe('Filter by identifier user login'),
+  "iconic_taxa": zod.string().optional().describe('Comma-separated iconic taxon names (e.g. Plantae,Fungi)'),
+  "term_id": zod.coerce.number().optional(),
+  "term_value_id": zod.coerce.number().optional(),
+  "verifiable": zod.coerce.boolean().optional(),
+  "order": zod.enum(['asc', 'desc']).optional().describe('Sort order: desc (default) or asc'),
+  "order_by": zod.string().optional().describe('Sort field: created_at (default) or id'),
+  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+})
+
+export const GetInatIdentificationsResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
 
 /**
  * Live passthrough for iNaturalist GET /identifications/{id}. Returns the full identification record for a known identification ID. No cache.
@@ -3687,216 +1234,67 @@ export const GetInatIdentificationsResponse = zod
  * @summary Single iNaturalist identification record by ID
  */
 export const GetInatIdentificationsByIdParams = zod.object({
-  id: zod.coerce.number().describe("iNaturalist identification ID (integer)"),
-});
+  "id": zod.coerce.number().describe('iNaturalist identification ID (integer)')
+})
 
 export const GetInatIdentificationsByIdQueryParams = zod.object({
-  provenance_verbosity: zod
-    .enum(["full", "summary", "none"])
-    .optional()
-    .describe("Controls provenance text: full (default), summary, or none"),
-});
+  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+})
 
-export const GetInatIdentificationsByIdResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  );
+export const GetInatIdentificationsByIdResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
 
 /**
  * Returns service identity, attribution, licenses and license notes, and the full registry entry for the iNaturalist service. Use this to populate 'About this data' panels in any application displaying iNaturalist data. Also seeds the iNaturalist entry in the FERNS source registry.
 
  * @summary iNaturalist service metadata
  */
-export const GetInatMetadataResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  );
+export const GetInatMetadataResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
 
 /**
  * Returns county-level occurrence records for all 83 Michigan counties for the given species name. Two-step lookup: first calls flora_search_sp?scientific_name={name} to resolve the plant_id, then calls locs_sp?id={plant_id} for county data. Results are the raw passthrough response from the Michigan Flora county API endpoint. Cached permanently (no TTL) — Michigan Flora data does not change; use ?refresh=true to force a re-fetch from upstream.
@@ -3907,81 +1305,27 @@ export const GetInatMetadataResponse = zod
 export const getMifloraCountiesQueryRefreshDefault = false;
 
 export const GetMifloraCountiesQueryParams = zod.object({
-  name: zod
-    .string()
-    .min(1)
-    .describe(
-      "Scientific name to look up county records for (e.g. Asclepias tuberosa)",
-    ),
-  refresh: zod.coerce
-    .boolean()
-    .default(getMifloraCountiesQueryRefreshDefault)
-    .describe(
-      "If true, bypasses cache and fetches fresh from Michigan Flora API",
-    ),
-});
+  "name": zod.string().min(1).describe('Scientific name to look up county records for (e.g. Asclepias tuberosa)'),
+  "refresh": zod.coerce.boolean().default(getMifloraCountiesQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from Michigan Flora API')
+})
 
-export const GetMifloraCountiesResponse = zod
-  .object({
-    source_url: zod
-      .string()
-      .nullable()
-      .describe("Michigan Flora species page URL for this species."),
-    found: zod
-      .boolean()
-      .describe("Whether county records were found for this species"),
-    cache_status: zod.enum(["hit", "miss", "error"]),
-    queried_at: zod.date(),
-    data: zod
-      .unknown()
-      .nullish()
-      .describe(
-        "Raw passthrough response from the Michigan Flora county API endpoint. Array of county records for all 83 Michigan counties. Each record includes county name, FIPS code, and occurrence status. All source fields unchanged.\n",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-        fetched_at: zod
-          .date()
-          .describe("When this record was obtained from the source"),
-        method: zod
-          .string()
-          .describe(
-            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-          ),
-        upstream_url: zod
-          .string()
-          .describe(
-            "Where this data came from (API endpoint, file path, or registry entry)",
-          ),
-        general_summary: zod
-          .string()
-          .optional()
-          .describe(
-            "Plain language description readable by a homeowner or community member",
-          ),
-        technical_details: zod
-          .string()
-          .optional()
-          .describe(
-            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-          ),
-        matched_input: zod
-          .string()
-          .optional()
-          .describe(
-            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-          ),
-      })
-      .describe(
-        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-      ),
-  })
-  .describe(
-    "FERNS envelope for Michigan Flora county occurrence data. data is the raw passthrough response from the Michigan Flora county endpoint.\n",
-  );
+export const GetMifloraCountiesResponse = zod.object({
+  "source_url": zod.string().nullable().describe('Michigan Flora species page URL for this species.'),
+  "found": zod.boolean().describe('Whether county records were found for this species'),
+  "cache_status": zod.enum(['hit', 'miss', 'error']),
+  "queried_at": zod.date(),
+  "data": zod.unknown().nullish().describe('Raw passthrough response from the Michigan Flora county API endpoint. Array of county records for all 83 Michigan counties. Each record includes county name, FIPS code, and occurrence status. All source fields unchanged.\n'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).describe('FERNS envelope for Michigan Flora county occurrence data. data is the raw passthrough response from the Michigan Flora county endpoint.\n')
+
 
 /**
  * Returns all images from the Michigan Flora allimage_info endpoint for a given species, each enriched with constructed absolute image_url and thumbnail_url fields. Two-step lookup: flora_search_sp resolves the plant_id, then allimage_info fetches all available photos. Results are cached permanently (no TTL) — Michigan Flora image data does not change. Use ?refresh=true to force a re-fetch. Image URL formula (reverse-engineered from Michigan Flora frontend): Full: https://michiganflora.net/static/species_images/_pid_{plant_id}/{image_id}.jpg Thumbnail: https://michiganflora.net/static/species_images/_pid_{plant_id}/thumb_{image_id}.jpg
@@ -3992,115 +1336,34 @@ export const GetMifloraCountiesResponse = zod
 export const getMifloraImagesQueryRefreshDefault = false;
 
 export const GetMifloraImagesQueryParams = zod.object({
-  name: zod
-    .string()
-    .min(1)
-    .describe("Scientific name to look up (e.g. Asclepias tuberosa)"),
-  refresh: zod.coerce
-    .boolean()
-    .default(getMifloraImagesQueryRefreshDefault)
-    .describe(
-      "If true, bypasses cache and fetches fresh from Michigan Flora API",
-    ),
-});
+  "name": zod.string().min(1).describe('Scientific name to look up (e.g. Asclepias tuberosa)'),
+  "refresh": zod.coerce.boolean().default(getMifloraImagesQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from Michigan Flora API')
+})
 
-export const GetMifloraImagesResponse = zod
-  .object({
-    source_url: zod
-      .string()
-      .nullable()
-      .describe(
-        "Michigan Flora species page URL. Null when species not found.",
-      ),
-    found: zod
-      .boolean()
-      .describe("Whether images were found for this species in Michigan Flora"),
-    cache_status: zod.enum(["hit", "miss", "error"]),
-    queried_at: zod.date(),
-    data: zod
-      .array(
-        zod
-          .object({
-            image_id: zod
-              .union([zod.number(), zod.string()])
-              .describe("Michigan Flora internal image ID"),
-            image_name: zod
-              .string()
-              .nullish()
-              .describe(
-                'Short descriptive name for the image (e.g. \"flowers\", \"fruit\")',
-              ),
-            caption: zod
-              .string()
-              .nullish()
-              .describe("Caption text from Michigan Flora for this image"),
-            photographer: zod
-              .string()
-              .nullish()
-              .describe("Photographer credit for this image"),
-            image_url: zod
-              .string()
-              .describe(
-                "Absolute URL to the full-size image on Michigan Flora's server. Constructed as: https:\/\/michiganflora.net\/static\/species_images\/_pid_{plant_id}\/{image_id}.jpg\n",
-              ),
-            thumbnail_url: zod
-              .string()
-              .describe(
-                "Absolute URL to the thumbnail image on Michigan Flora's server. Constructed as: https:\/\/michiganflora.net\/static\/species_images\/_pid_{plant_id}\/thumb_{image_id}.jpg\n",
-              ),
-          })
-          .describe(
-            "A single image record from the Michigan Flora allimage_info endpoint, enriched with constructed absolute image_url and thumbnail_url fields.\n",
-          ),
-      )
-      .nullish()
-      .describe(
-        "Array of image records from Michigan Flora allimage_info, each enriched with image_url and thumbnail_url. Null when found is false.\n",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-        fetched_at: zod
-          .date()
-          .describe("When this record was obtained from the source"),
-        method: zod
-          .string()
-          .describe(
-            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-          ),
-        upstream_url: zod
-          .string()
-          .describe(
-            "Where this data came from (API endpoint, file path, or registry entry)",
-          ),
-        general_summary: zod
-          .string()
-          .optional()
-          .describe(
-            "Plain language description readable by a homeowner or community member",
-          ),
-        technical_details: zod
-          .string()
-          .optional()
-          .describe(
-            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-          ),
-        matched_input: zod
-          .string()
-          .optional()
-          .describe(
-            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-          ),
-      })
-      .describe(
-        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-      ),
-  })
-  .describe(
-    "FERNS envelope for Michigan Flora image gallery. data is the array of image records from allimage_info, each enriched with constructed absolute image_url and thumbnail_url. Cached permanently (no TTL).\n",
-  );
+export const GetMifloraImagesResponse = zod.object({
+  "source_url": zod.string().nullable().describe('Michigan Flora species page URL. Null when species not found.'),
+  "found": zod.boolean().describe('Whether images were found for this species in Michigan Flora'),
+  "cache_status": zod.enum(['hit', 'miss', 'error']),
+  "queried_at": zod.date(),
+  "data": zod.array(zod.object({
+  "image_id": zod.union([zod.number(),zod.string()]).describe('Michigan Flora internal image ID'),
+  "image_name": zod.string().nullish().describe('Short descriptive name for the image (e.g. \"flowers\", \"fruit\")'),
+  "caption": zod.string().nullish().describe('Caption text from Michigan Flora for this image'),
+  "photographer": zod.string().nullish().describe('Photographer credit for this image'),
+  "image_url": zod.string().describe('Absolute URL to the full-size image on Michigan Flora\'s server. Constructed as: https:\/\/michiganflora.net\/static\/species_images\/_pid_{plant_id}\/{image_id}.jpg\n'),
+  "thumbnail_url": zod.string().describe('Absolute URL to the thumbnail image on Michigan Flora\'s server. Constructed as: https:\/\/michiganflora.net\/static\/species_images\/_pid_{plant_id}\/thumb_{image_id}.jpg\n')
+}).describe('A single image record from the Michigan Flora allimage_info endpoint, enriched with constructed absolute image_url and thumbnail_url fields.\n')).nullish().describe('Array of image records from Michigan Flora allimage_info, each enriched with image_url and thumbnail_url. Null when found is false.\n'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).describe('FERNS envelope for Michigan Flora image gallery. data is the array of image records from allimage_info, each enriched with constructed absolute image_url and thumbnail_url. Cached permanently (no TTL).\n')
+
 
 /**
  * Mirrors the Michigan Flora flora_search_sp endpoint verbatim. Returns the first matching species record for the given scientific name, including plant_id, family, native status (na: N=native, A=adventive), C-value, wetland indicator code, physiognomy, and common names. The plant_id is required for the spec_text, synonyms, and pimage_info endpoints. Cached permanently (no TTL) — use ?refresh=true to force a re-fetch.
@@ -4111,150 +1374,50 @@ export const GetMifloraImagesResponse = zod
 export const getMifloraFloraSearchQueryRefreshDefault = false;
 
 export const GetMifloraFloraSearchQueryParams = zod.object({
-  name: zod
-    .string()
-    .min(1)
-    .describe("Scientific name to look up (e.g. Quercus rubra)"),
-  refresh: zod.coerce
-    .boolean()
-    .default(getMifloraFloraSearchQueryRefreshDefault)
-    .describe(
-      "If true, bypasses cache and fetches fresh from Michigan Flora API",
-    ),
-});
+  "name": zod.string().min(1).describe('Scientific name to look up (e.g. Quercus rubra)'),
+  "refresh": zod.coerce.boolean().default(getMifloraFloraSearchQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from Michigan Flora API')
+})
 
-export const GetMifloraFloraSearchResponse = zod
-  .object({
-    source_url: zod
-      .string()
-      .nullable()
-      .describe(
-        "Michigan Flora species page URL. Null when species not found.",
-      ),
-    found: zod
-      .boolean()
-      .describe("Whether a species record was found for this name"),
-    cache_status: zod.enum(["hit", "miss", "bypassed", "error"]),
-    queried_at: zod.date(),
-    data: zod
-      .object({
-        plant_id: zod.number().nullish(),
-        scientific_name: zod.string().nullish(),
-        family_name: zod.string().nullish(),
-        na: zod.string().nullish(),
-        c: zod.string().nullish(),
-        wet: zod.string().nullish(),
-        phys: zod.string().nullish(),
-        common_name: zod.array(zod.string()).optional(),
-        records: zod
-          .array(
-            zod
-              .object({
-                plant_id: zod
-                  .number()
-                  .describe("Michigan Flora internal plant ID"),
-                scientific_name: zod
-                  .string()
-                  .describe("Scientific name of the species"),
-                c: zod
-                  .string()
-                  .nullish()
-                  .describe(
-                    "Coefficient of Conservatism (0–10, or null if not assigned)",
-                  ),
-                st: zod
-                  .string()
-                  .nullish()
-                  .describe(
-                    "State status code (T=threatened, E=endangered, X=probably extirpated, etc.)",
-                  ),
-                w: zod
-                  .number()
-                  .nullish()
-                  .describe("Coefficient of Wetness (-5 to +5)"),
-                wet: zod
-                  .string()
-                  .nullish()
-                  .describe(
-                    "Wetland indicator status code (OBL\/FACW\/FAC\/FACU\/UPL)",
-                  ),
-                phys: zod
-                  .string()
-                  .nullish()
-                  .describe("Physiognomy code (e.g. Wt, Sh, Fo, Gr)"),
-                na: zod
-                  .string()
-                  .nullish()
-                  .describe(
-                    "Native status (N=native, A=adventive\/non-native)",
-                  ),
-                family_name: zod
-                  .string()
-                  .nullish()
-                  .describe("Plant family name"),
-                author: zod.string().nullish().describe("Taxonomic authority"),
-                acronym: zod
-                  .string()
-                  .nullish()
-                  .describe("Short species code used in Michigan Flora"),
-                common_name: zod
-                  .array(zod.string())
-                  .describe("Array of common names for this species"),
-              })
-              .describe(
-                "A single species record from the Michigan Flora flora_search_sp endpoint.",
-              ),
-          )
-          .optional(),
-      })
-      .nullable()
-      .describe(
-        "Species data extracted from the first matching record, plus full records array.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-        fetched_at: zod
-          .date()
-          .describe("When this record was obtained from the source"),
-        method: zod
-          .string()
-          .describe(
-            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-          ),
-        upstream_url: zod
-          .string()
-          .describe(
-            "Where this data came from (API endpoint, file path, or registry entry)",
-          ),
-        general_summary: zod
-          .string()
-          .optional()
-          .describe(
-            "Plain language description readable by a homeowner or community member",
-          ),
-        technical_details: zod
-          .string()
-          .optional()
-          .describe(
-            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-          ),
-        matched_input: zod
-          .string()
-          .optional()
-          .describe(
-            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-          ),
-      })
-      .describe(
-        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-      ),
-  })
-  .describe(
-    "FERNS envelope for Michigan Flora flora_search_sp. data contains the first matching species record plus the full records array. Cached permanently (no TTL).\n",
-  );
+export const GetMifloraFloraSearchResponse = zod.object({
+  "source_url": zod.string().nullable().describe('Michigan Flora species page URL. Null when species not found.'),
+  "found": zod.boolean().describe('Whether a species record was found for this name'),
+  "cache_status": zod.enum(['hit', 'miss', 'bypassed', 'error']),
+  "queried_at": zod.date(),
+  "data": zod.object({
+  "plant_id": zod.number().nullish(),
+  "scientific_name": zod.string().nullish(),
+  "family_name": zod.string().nullish(),
+  "na": zod.string().nullish(),
+  "c": zod.string().nullish(),
+  "wet": zod.string().nullish(),
+  "phys": zod.string().nullish(),
+  "common_name": zod.array(zod.string()).optional(),
+  "records": zod.array(zod.object({
+  "plant_id": zod.number().describe('Michigan Flora internal plant ID'),
+  "scientific_name": zod.string().describe('Scientific name of the species'),
+  "c": zod.string().nullish().describe('Coefficient of Conservatism (0–10, or null if not assigned)'),
+  "st": zod.string().nullish().describe('State status code (T=threatened, E=endangered, X=probably extirpated, etc.)'),
+  "w": zod.number().nullish().describe('Coefficient of Wetness (-5 to +5)'),
+  "wet": zod.string().nullish().describe('Wetland indicator status code (OBL\/FACW\/FAC\/FACU\/UPL)'),
+  "phys": zod.string().nullish().describe('Physiognomy code (e.g. Wt, Sh, Fo, Gr)'),
+  "na": zod.string().nullish().describe('Native status (N=native, A=adventive\/non-native)'),
+  "family_name": zod.string().nullish().describe('Plant family name'),
+  "author": zod.string().nullish().describe('Taxonomic authority'),
+  "acronym": zod.string().nullish().describe('Short species code used in Michigan Flora'),
+  "common_name": zod.array(zod.string()).describe('Array of common names for this species')
+}).describe('A single species record from the Michigan Flora flora_search_sp endpoint.')).optional()
+}).nullable().describe('Species data extracted from the first matching record, plus full records array.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).describe('FERNS envelope for Michigan Flora flora_search_sp. data contains the first matching species record plus the full records array. Cached permanently (no TTL).\n')
+
 
 /**
  * Mirrors the Michigan Flora spec_text endpoint. Returns the botanical description HTML text for the given plant_id. Use flora_search_sp to resolve a scientific name to a plant_id first. Cached permanently (no TTL) — use ?refresh=true to re-fetch.
@@ -4265,84 +1428,30 @@ export const GetMifloraFloraSearchResponse = zod
 export const getMifloraSpecTextQueryRefreshDefault = false;
 
 export const GetMifloraSpecTextQueryParams = zod.object({
-  id: zod.coerce
-    .number()
-    .min(1)
-    .describe(
-      "Michigan Flora plant_id (positive integer, from flora_search_sp)",
-    ),
-  refresh: zod.coerce
-    .boolean()
-    .default(getMifloraSpecTextQueryRefreshDefault)
-    .describe(
-      "If true, bypasses cache and fetches fresh from Michigan Flora API",
-    ),
-});
+  "id": zod.coerce.number().min(1).describe('Michigan Flora plant_id (positive integer, from flora_search_sp)'),
+  "refresh": zod.coerce.boolean().default(getMifloraSpecTextQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from Michigan Flora API')
+})
 
-export const GetMifloraSpecTextResponse = zod
-  .object({
-    source_url: zod
-      .string()
-      .nullable()
-      .describe("Michigan Flora species page URL."),
-    found: zod
-      .boolean()
-      .describe("Whether a description was found for this plant_id"),
-    cache_status: zod.enum(["hit", "miss", "bypassed", "error"]),
-    queried_at: zod.date(),
-    data: zod
-      .object({
-        plant_id: zod.number().nullish(),
-        text: zod
-          .string()
-          .nullish()
-          .describe("Raw HTML botanical description from Michigan Flora"),
-      })
-      .nullable(),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-        fetched_at: zod
-          .date()
-          .describe("When this record was obtained from the source"),
-        method: zod
-          .string()
-          .describe(
-            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-          ),
-        upstream_url: zod
-          .string()
-          .describe(
-            "Where this data came from (API endpoint, file path, or registry entry)",
-          ),
-        general_summary: zod
-          .string()
-          .optional()
-          .describe(
-            "Plain language description readable by a homeowner or community member",
-          ),
-        technical_details: zod
-          .string()
-          .optional()
-          .describe(
-            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-          ),
-        matched_input: zod
-          .string()
-          .optional()
-          .describe(
-            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-          ),
-      })
-      .describe(
-        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-      ),
-  })
-  .describe(
-    "FERNS envelope for Michigan Flora spec_text. data.text is the raw HTML botanical description from Michigan Flora. Cached permanently (no TTL).\n",
-  );
+export const GetMifloraSpecTextResponse = zod.object({
+  "source_url": zod.string().nullable().describe('Michigan Flora species page URL.'),
+  "found": zod.boolean().describe('Whether a description was found for this plant_id'),
+  "cache_status": zod.enum(['hit', 'miss', 'bypassed', 'error']),
+  "queried_at": zod.date(),
+  "data": zod.object({
+  "plant_id": zod.number().nullish(),
+  "text": zod.string().nullish().describe('Raw HTML botanical description from Michigan Flora')
+}).nullable(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).describe('FERNS envelope for Michigan Flora spec_text. data.text is the raw HTML botanical description from Michigan Flora. Cached permanently (no TTL).\n')
+
 
 /**
  * Mirrors the Michigan Flora synonyms endpoint. Returns an array of taxonomic synonyms for the given plant_id, or an empty array if none exist. Use flora_search_sp to resolve a scientific name to a plant_id first. Cached permanently (no TTL) — use ?refresh=true to re-fetch.
@@ -4353,95 +1462,33 @@ export const GetMifloraSpecTextResponse = zod
 export const getMifloraSynonymsQueryRefreshDefault = false;
 
 export const GetMifloraSynonymsQueryParams = zod.object({
-  id: zod.coerce
-    .number()
-    .min(1)
-    .describe(
-      "Michigan Flora plant_id (positive integer, from flora_search_sp)",
-    ),
-  refresh: zod.coerce
-    .boolean()
-    .default(getMifloraSynonymsQueryRefreshDefault)
-    .describe(
-      "If true, bypasses cache and fetches fresh from Michigan Flora API",
-    ),
-});
+  "id": zod.coerce.number().min(1).describe('Michigan Flora plant_id (positive integer, from flora_search_sp)'),
+  "refresh": zod.coerce.boolean().default(getMifloraSynonymsQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from Michigan Flora API')
+})
 
-export const GetMifloraSynonymsResponse = zod
-  .object({
-    source_url: zod
-      .string()
-      .nullable()
-      .describe("Michigan Flora species page URL."),
-    found: zod
-      .boolean()
-      .describe("Whether any synonyms were found for this plant_id"),
-    cache_status: zod.enum(["hit", "miss", "bypassed", "error"]),
-    queried_at: zod.date(),
-    data: zod
-      .object({
-        plant_id: zod.number().nullish(),
-        synonyms: zod
-          .array(
-            zod
-              .object({
-                synonym: zod.string().describe("The synonym scientific name"),
-                author: zod
-                  .string()
-                  .nullish()
-                  .describe("Taxonomic authority for the synonym"),
-              })
-              .describe(
-                "A single taxonomic synonym from the Michigan Flora synonyms endpoint.",
-              ),
-          )
-          .optional(),
-      })
-      .nullable(),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-        fetched_at: zod
-          .date()
-          .describe("When this record was obtained from the source"),
-        method: zod
-          .string()
-          .describe(
-            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-          ),
-        upstream_url: zod
-          .string()
-          .describe(
-            "Where this data came from (API endpoint, file path, or registry entry)",
-          ),
-        general_summary: zod
-          .string()
-          .optional()
-          .describe(
-            "Plain language description readable by a homeowner or community member",
-          ),
-        technical_details: zod
-          .string()
-          .optional()
-          .describe(
-            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-          ),
-        matched_input: zod
-          .string()
-          .optional()
-          .describe(
-            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-          ),
-      })
-      .describe(
-        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-      ),
-  })
-  .describe(
-    "FERNS envelope for Michigan Flora synonyms. data.synonyms is the array of taxonomic synonyms (empty if none exist). Cached permanently (no TTL).\n",
-  );
+export const GetMifloraSynonymsResponse = zod.object({
+  "source_url": zod.string().nullable().describe('Michigan Flora species page URL.'),
+  "found": zod.boolean().describe('Whether any synonyms were found for this plant_id'),
+  "cache_status": zod.enum(['hit', 'miss', 'bypassed', 'error']),
+  "queried_at": zod.date(),
+  "data": zod.object({
+  "plant_id": zod.number().nullish(),
+  "synonyms": zod.array(zod.object({
+  "synonym": zod.string().describe('The synonym scientific name'),
+  "author": zod.string().nullish().describe('Taxonomic authority for the synonym')
+}).describe('A single taxonomic synonym from the Michigan Flora synonyms endpoint.')).optional()
+}).nullable(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).describe('FERNS envelope for Michigan Flora synonyms. data.synonyms is the array of taxonomic synonyms (empty if none exist). Cached permanently (no TTL).\n')
+
 
 /**
  * Mirrors the Michigan Flora pimage_info endpoint. Returns the primary (featured) image record for the given plant_id, enriched with constructed absolute image_url and thumbnail_url fields. Use flora_search_sp to resolve a scientific name to a plant_id first. Cached permanently (no TTL) — use ?refresh=true to re-fetch.
@@ -4452,114 +1499,37 @@ export const GetMifloraSynonymsResponse = zod
 export const getMifloraPImageInfoQueryRefreshDefault = false;
 
 export const GetMifloraPImageInfoQueryParams = zod.object({
-  id: zod.coerce
-    .number()
-    .min(1)
-    .describe(
-      "Michigan Flora plant_id (positive integer, from flora_search_sp)",
-    ),
-  refresh: zod.coerce
-    .boolean()
-    .default(getMifloraPImageInfoQueryRefreshDefault)
-    .describe(
-      "If true, bypasses cache and fetches fresh from Michigan Flora API",
-    ),
-});
+  "id": zod.coerce.number().min(1).describe('Michigan Flora plant_id (positive integer, from flora_search_sp)'),
+  "refresh": zod.coerce.boolean().default(getMifloraPImageInfoQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from Michigan Flora API')
+})
 
-export const GetMifloraPImageInfoResponse = zod
-  .object({
-    source_url: zod
-      .string()
-      .nullable()
-      .describe("Michigan Flora species page URL."),
-    found: zod
-      .boolean()
-      .describe("Whether a primary image was found for this plant_id"),
-    cache_status: zod.enum(["hit", "miss", "bypassed", "error"]),
-    queried_at: zod.date(),
-    data: zod
-      .object({
-        plant_id: zod.number().nullish(),
-        image: zod
-          .object({
-            image_id: zod
-              .union([zod.number(), zod.string()])
-              .describe("Michigan Flora internal image ID"),
-            image_name: zod
-              .string()
-              .nullish()
-              .describe(
-                'Short descriptive name for the image (e.g. \"flowers\", \"fruit\")',
-              ),
-            caption: zod
-              .string()
-              .nullish()
-              .describe("Caption text from Michigan Flora for this image"),
-            photographer: zod
-              .string()
-              .nullish()
-              .describe("Photographer credit for this image"),
-            image_url: zod
-              .string()
-              .describe(
-                "Absolute URL to the full-size image on Michigan Flora's server. Constructed as: https:\/\/michiganflora.net\/static\/species_images\/_pid_{plant_id}\/{image_id}.jpg\n",
-              ),
-            thumbnail_url: zod
-              .string()
-              .describe(
-                "Absolute URL to the thumbnail image on Michigan Flora's server. Constructed as: https:\/\/michiganflora.net\/static\/species_images\/_pid_{plant_id}\/thumb_{image_id}.jpg\n",
-              ),
-          })
-          .nullish()
-          .describe(
-            "A single image record from the Michigan Flora allimage_info endpoint, enriched with constructed absolute image_url and thumbnail_url fields.\n",
-          ),
-      })
-      .nullable(),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-        fetched_at: zod
-          .date()
-          .describe("When this record was obtained from the source"),
-        method: zod
-          .string()
-          .describe(
-            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-          ),
-        upstream_url: zod
-          .string()
-          .describe(
-            "Where this data came from (API endpoint, file path, or registry entry)",
-          ),
-        general_summary: zod
-          .string()
-          .optional()
-          .describe(
-            "Plain language description readable by a homeowner or community member",
-          ),
-        technical_details: zod
-          .string()
-          .optional()
-          .describe(
-            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-          ),
-        matched_input: zod
-          .string()
-          .optional()
-          .describe(
-            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-          ),
-      })
-      .describe(
-        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-      ),
-  })
-  .describe(
-    "FERNS envelope for Michigan Flora pimage_info. data.image is the primary image record enriched with image_url and thumbnail_url (null if no image exists). Cached permanently (no TTL).\n",
-  );
+export const GetMifloraPImageInfoResponse = zod.object({
+  "source_url": zod.string().nullable().describe('Michigan Flora species page URL.'),
+  "found": zod.boolean().describe('Whether a primary image was found for this plant_id'),
+  "cache_status": zod.enum(['hit', 'miss', 'bypassed', 'error']),
+  "queried_at": zod.date(),
+  "data": zod.object({
+  "plant_id": zod.number().nullish(),
+  "image": zod.object({
+  "image_id": zod.union([zod.number(),zod.string()]).describe('Michigan Flora internal image ID'),
+  "image_name": zod.string().nullish().describe('Short descriptive name for the image (e.g. \"flowers\", \"fruit\")'),
+  "caption": zod.string().nullish().describe('Caption text from Michigan Flora for this image'),
+  "photographer": zod.string().nullish().describe('Photographer credit for this image'),
+  "image_url": zod.string().describe('Absolute URL to the full-size image on Michigan Flora\'s server. Constructed as: https:\/\/michiganflora.net\/static\/species_images\/_pid_{plant_id}\/{image_id}.jpg\n'),
+  "thumbnail_url": zod.string().describe('Absolute URL to the thumbnail image on Michigan Flora\'s server. Constructed as: https:\/\/michiganflora.net\/static\/species_images\/_pid_{plant_id}\/thumb_{image_id}.jpg\n')
+}).nullish().describe('A single image record from the Michigan Flora allimage_info endpoint, enriched with constructed absolute image_url and thumbnail_url fields.\n')
+}).nullable(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).describe('FERNS envelope for Michigan Flora pimage_info. data.image is the primary image record enriched with image_url and thumbnail_url (null if no image exists). Cached permanently (no TTL).\n')
+
 
 /**
  * Returns service identity, attribution, licenses and license notes, and the full registry entry for the Michigan Flora service. Use this to populate 'About this data' panels in any application displaying Michigan Flora data. Also seeds the Michigan Flora entry in the FERNS source registry.
@@ -4567,75 +1537,42 @@ export const GetMifloraPImageInfoResponse = zod
  * @summary Michigan Flora service metadata
  */
 export const GetMifloraMetadataResponse = zod.object({
-  service_id: zod.string(),
-  service_name: zod.string(),
-  licenses: zod.array(zod.string()),
-  license_notes: zod.string(),
-  attribution: zod.object({
-    source_name: zod.string(),
-    website: zod.string(),
-    license: zod.string(),
-    citation: zod.string(),
-    api_base_url: zod.string(),
-  }),
-  registry_entry: zod
-    .object({
-      source_id: zod.string().optional(),
-      name: zod.string().optional(),
-      knowledge_type: zod.string().optional(),
-      status: zod.string().optional(),
-      description: zod.string().optional(),
-      input_summary: zod.string().optional(),
-      output_summary: zod.string().optional(),
-      dependencies: zod.array(zod.string()).optional(),
-      update_frequency: zod.string().optional(),
-      known_limitations: zod.string().optional(),
-      metadata_url: zod.string().optional(),
-    })
-    .optional()
-    .describe("Full registry entry for the Michigan Flora service"),
-  queried_at: zod.date(),
-  provenance: zod
-    .object({
-      source_id: zod
-        .string()
-        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod
-        .date()
-        .describe("When this record was obtained from the source"),
-      method: zod
-        .string()
-        .describe(
-          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-        ),
-      upstream_url: zod
-        .string()
-        .describe(
-          "Where this data came from (API endpoint, file path, or registry entry)",
-        ),
-      general_summary: zod
-        .string()
-        .optional()
-        .describe(
-          "Plain language description readable by a homeowner or community member",
-        ),
-      technical_details: zod
-        .string()
-        .optional()
-        .describe(
-          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-        ),
-      matched_input: zod
-        .string()
-        .optional()
-        .describe(
-          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-        ),
-    })
-    .describe(
-      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-    ),
-});
+  "service_id": zod.string(),
+  "service_name": zod.string(),
+  "licenses": zod.array(zod.string()),
+  "license_notes": zod.string(),
+  "attribution": zod.object({
+  "source_name": zod.string(),
+  "website": zod.string(),
+  "license": zod.string(),
+  "citation": zod.string(),
+  "api_base_url": zod.string()
+}),
+  "registry_entry": zod.object({
+  "source_id": zod.string().optional(),
+  "name": zod.string().optional(),
+  "knowledge_type": zod.string().optional(),
+  "status": zod.string().optional(),
+  "description": zod.string().optional(),
+  "input_summary": zod.string().optional(),
+  "output_summary": zod.string().optional(),
+  "dependencies": zod.array(zod.string()).optional(),
+  "update_frequency": zod.string().optional(),
+  "known_limitations": zod.string().optional(),
+  "metadata_url": zod.string().optional()
+}).optional().describe('Full registry entry for the Michigan Flora service'),
+  "queried_at": zod.date(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+})
+
 
 /**
  * Returns the full ecological definition for a given C-value (0–10) or '*' for non-native species. The Coefficient of Conservatism (C-value) is a Floristic Quality Assessment metric developed by Swink & Wilhelm (1994) to rate a plant species' fidelity to high-quality natural habitats. This is NOT the Coefficient of Wetness (W, -5 to +5) and NOT a Wetland Indicator Status code (OBL/FACW/FAC/FACU/UPL).
@@ -4643,82 +1580,35 @@ export const GetMifloraMetadataResponse = zod.object({
  * @summary Look up a Coefficient of Conservatism value
  */
 
+
+
 export const GetCoefficientByValueQueryParams = zod.object({
-  value: zod
-    .string()
-    .min(1)
-    .describe(
-      "C-value to look up. Must be a string: '0'–'10' for native species, or '\*' for non-native\/adventive species.\n",
-    ),
-});
+  "value": zod.string().min(1).describe('C-value to look up. Must be a string: \'0\'–\'10\' for native species, or \'\*\' for non-native\/adventive species.\n')
+})
 
 export const GetCoefficientByValueResponse = zod.object({
-  found: zod.boolean(),
-  cache_status: zod.enum(["miss", "hit", "error"]),
-  queried_at: zod.date(),
-  source_url: zod.string().nullish(),
-  provenance: zod
-    .object({
-      source_id: zod
-        .string()
-        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod
-        .date()
-        .describe("When this record was obtained from the source"),
-      method: zod
-        .string()
-        .describe(
-          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-        ),
-      upstream_url: zod
-        .string()
-        .describe(
-          "Where this data came from (API endpoint, file path, or registry entry)",
-        ),
-      general_summary: zod
-        .string()
-        .optional()
-        .describe(
-          "Plain language description readable by a homeowner or community member",
-        ),
-      technical_details: zod
-        .string()
-        .optional()
-        .describe(
-          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-        ),
-      matched_input: zod
-        .string()
-        .optional()
-        .describe(
-          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-        ),
-    })
-    .describe(
-      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-    ),
-  data: zod
-    .object({
-      value: zod
-        .string()
-        .describe(
-          "C-value: '0'–'10' for native species, or '\*' for non-native\/adventive",
-        ),
-      short_label: zod
-        .string()
-        .describe("Short human-readable label for this C-value level"),
-      ecological_meaning: zod
-        .string()
-        .describe("Plain-language ecological meaning for this C-value"),
-      scientific_description: zod
-        .string()
-        .describe("Scientific description of this C-value level"),
-      is_native: zod
-        .boolean()
-        .describe("false for '\*' (non-native); true for 0–10"),
-    })
-    .nullish(),
-});
+  "found": zod.boolean(),
+  "cache_status": zod.enum(['miss', 'hit', 'error']),
+  "queried_at": zod.date(),
+  "source_url": zod.string().nullish(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+  "data": zod.object({
+  "value": zod.string().describe('C-value: \'0\'–\'10\' for native species, or \'\*\' for non-native\/adventive'),
+  "short_label": zod.string().describe('Short human-readable label for this C-value level'),
+  "ecological_meaning": zod.string().describe('Plain-language ecological meaning for this C-value'),
+  "scientific_description": zod.string().describe('Scientific description of this C-value level'),
+  "is_native": zod.boolean().describe('false for \'\*\' (non-native); true for 0–10')
+}).nullish()
+})
+
 
 /**
  * Returns all 12 C-value definitions (0–10 and '*') in a single call. Useful for populating reference tables or caching locally.
@@ -4726,72 +1616,28 @@ export const GetCoefficientByValueResponse = zod.object({
  * @summary Get all C-value definitions
  */
 export const GetCoefficientOfConservatismListResponse = zod.object({
-  found: zod.boolean(),
-  cache_status: zod.enum(["miss", "hit", "error"]),
-  queried_at: zod.date(),
-  source_url: zod.string().nullish(),
-  provenance: zod
-    .object({
-      source_id: zod
-        .string()
-        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod
-        .date()
-        .describe("When this record was obtained from the source"),
-      method: zod
-        .string()
-        .describe(
-          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-        ),
-      upstream_url: zod
-        .string()
-        .describe(
-          "Where this data came from (API endpoint, file path, or registry entry)",
-        ),
-      general_summary: zod
-        .string()
-        .optional()
-        .describe(
-          "Plain language description readable by a homeowner or community member",
-        ),
-      technical_details: zod
-        .string()
-        .optional()
-        .describe(
-          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-        ),
-      matched_input: zod
-        .string()
-        .optional()
-        .describe(
-          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-        ),
-    })
-    .describe(
-      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-    ),
-  data: zod.array(
-    zod.object({
-      value: zod
-        .string()
-        .describe(
-          "C-value: '0'–'10' for native species, or '\*' for non-native\/adventive",
-        ),
-      short_label: zod
-        .string()
-        .describe("Short human-readable label for this C-value level"),
-      ecological_meaning: zod
-        .string()
-        .describe("Plain-language ecological meaning for this C-value"),
-      scientific_description: zod
-        .string()
-        .describe("Scientific description of this C-value level"),
-      is_native: zod
-        .boolean()
-        .describe("false for '\*' (non-native); true for 0–10"),
-    }),
-  ),
-});
+  "found": zod.boolean(),
+  "cache_status": zod.enum(['miss', 'hit', 'error']),
+  "queried_at": zod.date(),
+  "source_url": zod.string().nullish(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+  "data": zod.array(zod.object({
+  "value": zod.string().describe('C-value: \'0\'–\'10\' for native species, or \'\*\' for non-native\/adventive'),
+  "short_label": zod.string().describe('Short human-readable label for this C-value level'),
+  "ecological_meaning": zod.string().describe('Plain-language ecological meaning for this C-value'),
+  "scientific_description": zod.string().describe('Scientific description of this C-value level'),
+  "is_native": zod.boolean().describe('false for \'\*\' (non-native); true for 0–10')
+}))
+})
+
 
 /**
  * Returns service identity, licenses and license notes, and the full registry entry for the Coefficient of Conservatism source. Also seeds the registry entry on first call.
@@ -4799,68 +1645,35 @@ export const GetCoefficientOfConservatismListResponse = zod.object({
  * @summary Coefficient of Conservatism service metadata
  */
 export const GetCoefficientMetadataResponse = zod.object({
-  service_id: zod.string(),
-  service_name: zod.string(),
-  licenses: zod.array(zod.string()),
-  license_notes: zod.string(),
-  registry_entry: zod
-    .object({
-      source_id: zod.string().optional(),
-      name: zod.string().optional(),
-      knowledge_type: zod.string().optional(),
-      status: zod.string().optional(),
-      description: zod.string().optional(),
-      input_summary: zod.string().optional(),
-      output_summary: zod.string().optional(),
-      dependencies: zod.array(zod.string()).optional(),
-      update_frequency: zod.string().optional(),
-      known_limitations: zod.string().optional(),
-      metadata_url: zod.string().optional(),
-    })
-    .optional()
-    .describe("Full registry entry for this vocabulary source"),
-  queried_at: zod.date(),
-  provenance: zod
-    .object({
-      source_id: zod
-        .string()
-        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod
-        .date()
-        .describe("When this record was obtained from the source"),
-      method: zod
-        .string()
-        .describe(
-          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-        ),
-      upstream_url: zod
-        .string()
-        .describe(
-          "Where this data came from (API endpoint, file path, or registry entry)",
-        ),
-      general_summary: zod
-        .string()
-        .optional()
-        .describe(
-          "Plain language description readable by a homeowner or community member",
-        ),
-      technical_details: zod
-        .string()
-        .optional()
-        .describe(
-          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-        ),
-      matched_input: zod
-        .string()
-        .optional()
-        .describe(
-          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-        ),
-    })
-    .describe(
-      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-    ),
-});
+  "service_id": zod.string(),
+  "service_name": zod.string(),
+  "licenses": zod.array(zod.string()),
+  "license_notes": zod.string(),
+  "registry_entry": zod.object({
+  "source_id": zod.string().optional(),
+  "name": zod.string().optional(),
+  "knowledge_type": zod.string().optional(),
+  "status": zod.string().optional(),
+  "description": zod.string().optional(),
+  "input_summary": zod.string().optional(),
+  "output_summary": zod.string().optional(),
+  "dependencies": zod.array(zod.string()).optional(),
+  "update_frequency": zod.string().optional(),
+  "known_limitations": zod.string().optional(),
+  "metadata_url": zod.string().optional()
+}).optional().describe('Full registry entry for this vocabulary source'),
+  "queried_at": zod.date(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+})
+
 
 /**
  * Returns the full definition for a given WIS code (OBL, FACW, FAC, FACU, or UPL) including its Coefficient of Wetness (W-value) and ecological description. WIS codes are defined by the USDA NRCS National Wetland Plant List (NWPL) under USACE authority. This is NOT WUCOLS (a nursery irrigation system using VL/L/M/H codes) and NOT the Coefficient of Conservatism (0–10).
@@ -4868,81 +1681,33 @@ export const GetCoefficientMetadataResponse = zod.object({
  * @summary Look up a Wetland Indicator Status code
  */
 export const GetWetlandIndicatorStatusByCodeQueryParams = zod.object({
-  code: zod
-    .enum(["OBL", "FACW", "FAC", "FACU", "UPL"])
-    .describe(
-      "Wetland Indicator Status code to look up (OBL, FACW, FAC, FACU, or UPL). Case-insensitive.",
-    ),
-});
+  "code": zod.enum(['OBL', 'FACW', 'FAC', 'FACU', 'UPL']).describe('Wetland Indicator Status code to look up (OBL, FACW, FAC, FACU, or UPL). Case-insensitive.')
+})
 
 export const GetWetlandIndicatorStatusByCodeResponse = zod.object({
-  found: zod.boolean(),
-  cache_status: zod.enum(["miss", "hit", "error"]),
-  queried_at: zod.date(),
-  source_url: zod.string().nullish(),
-  provenance: zod
-    .object({
-      source_id: zod
-        .string()
-        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod
-        .date()
-        .describe("When this record was obtained from the source"),
-      method: zod
-        .string()
-        .describe(
-          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-        ),
-      upstream_url: zod
-        .string()
-        .describe(
-          "Where this data came from (API endpoint, file path, or registry entry)",
-        ),
-      general_summary: zod
-        .string()
-        .optional()
-        .describe(
-          "Plain language description readable by a homeowner or community member",
-        ),
-      technical_details: zod
-        .string()
-        .optional()
-        .describe(
-          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-        ),
-      matched_input: zod
-        .string()
-        .optional()
-        .describe(
-          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-        ),
-    })
-    .describe(
-      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-    ),
-  data: zod
-    .object({
-      code: zod
-        .enum(["OBL", "FACW", "FAC", "FACU", "UPL"])
-        .describe("WIS code: OBL, FACW, FAC, FACU, or UPL"),
-      w_value: zod
-        .number()
-        .describe("Coefficient of Wetness (W): -5, -3, 0, 3, or 5"),
-      full_name: zod.string().describe("Full name of the WIS category"),
-      occurrence_range: zod
-        .string()
-        .describe(
-          "Wetland occurrence frequency range (e.g., '>99% in wetlands')",
-        ),
-      ecological_meaning: zod
-        .string()
-        .describe("Plain-language ecological meaning for this WIS code"),
-      scientific_description: zod
-        .string()
-        .describe("Scientific description including W-value and authority"),
-    })
-    .nullish(),
-});
+  "found": zod.boolean(),
+  "cache_status": zod.enum(['miss', 'hit', 'error']),
+  "queried_at": zod.date(),
+  "source_url": zod.string().nullish(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+  "data": zod.object({
+  "code": zod.enum(['OBL', 'FACW', 'FAC', 'FACU', 'UPL']).describe('WIS code: OBL, FACW, FAC, FACU, or UPL'),
+  "w_value": zod.number().describe('Coefficient of Wetness (W): -5, -3, 0, 3, or 5'),
+  "full_name": zod.string().describe('Full name of the WIS category'),
+  "occurrence_range": zod.string().describe('Wetland occurrence frequency range (e.g., \'>99% in wetlands\')'),
+  "ecological_meaning": zod.string().describe('Plain-language ecological meaning for this WIS code'),
+  "scientific_description": zod.string().describe('Scientific description including W-value and authority')
+}).nullish()
+})
+
 
 /**
  * Returns the WIS code and full definition for a given numeric W-value (-5, -3, 0, 3, or 5). W-values map directly to WIS codes: OBL=-5, FACW=-3, FAC=0, FACU=+3, UPL=+5.
@@ -4950,85 +1715,33 @@ export const GetWetlandIndicatorStatusByCodeResponse = zod.object({
  * @summary Look up a Wetland Indicator Status by Coefficient of Wetness (W-value)
  */
 export const GetWetlandIndicatorStatusByWQueryParams = zod.object({
-  value: zod
-    .union([
-      zod.literal(-5),
-      zod.literal(-3),
-      zod.literal(0),
-      zod.literal(3),
-      zod.literal(5),
-    ])
-    .describe("Numeric W-value to look up (-5, -3, 0, 3, or 5)."),
-});
+  "value": zod.union([zod.literal(-5),zod.literal(-3),zod.literal(0),zod.literal(3),zod.literal(5)]).describe('Numeric W-value to look up (-5, -3, 0, 3, or 5).')
+})
 
 export const GetWetlandIndicatorStatusByWResponse = zod.object({
-  found: zod.boolean(),
-  cache_status: zod.enum(["miss", "hit", "error"]),
-  queried_at: zod.date(),
-  source_url: zod.string().nullish(),
-  provenance: zod
-    .object({
-      source_id: zod
-        .string()
-        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod
-        .date()
-        .describe("When this record was obtained from the source"),
-      method: zod
-        .string()
-        .describe(
-          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-        ),
-      upstream_url: zod
-        .string()
-        .describe(
-          "Where this data came from (API endpoint, file path, or registry entry)",
-        ),
-      general_summary: zod
-        .string()
-        .optional()
-        .describe(
-          "Plain language description readable by a homeowner or community member",
-        ),
-      technical_details: zod
-        .string()
-        .optional()
-        .describe(
-          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-        ),
-      matched_input: zod
-        .string()
-        .optional()
-        .describe(
-          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-        ),
-    })
-    .describe(
-      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-    ),
-  data: zod
-    .object({
-      code: zod
-        .enum(["OBL", "FACW", "FAC", "FACU", "UPL"])
-        .describe("WIS code: OBL, FACW, FAC, FACU, or UPL"),
-      w_value: zod
-        .number()
-        .describe("Coefficient of Wetness (W): -5, -3, 0, 3, or 5"),
-      full_name: zod.string().describe("Full name of the WIS category"),
-      occurrence_range: zod
-        .string()
-        .describe(
-          "Wetland occurrence frequency range (e.g., '>99% in wetlands')",
-        ),
-      ecological_meaning: zod
-        .string()
-        .describe("Plain-language ecological meaning for this WIS code"),
-      scientific_description: zod
-        .string()
-        .describe("Scientific description including W-value and authority"),
-    })
-    .nullish(),
-});
+  "found": zod.boolean(),
+  "cache_status": zod.enum(['miss', 'hit', 'error']),
+  "queried_at": zod.date(),
+  "source_url": zod.string().nullish(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+  "data": zod.object({
+  "code": zod.enum(['OBL', 'FACW', 'FAC', 'FACU', 'UPL']).describe('WIS code: OBL, FACW, FAC, FACU, or UPL'),
+  "w_value": zod.number().describe('Coefficient of Wetness (W): -5, -3, 0, 3, or 5'),
+  "full_name": zod.string().describe('Full name of the WIS category'),
+  "occurrence_range": zod.string().describe('Wetland occurrence frequency range (e.g., \'>99% in wetlands\')'),
+  "ecological_meaning": zod.string().describe('Plain-language ecological meaning for this WIS code'),
+  "scientific_description": zod.string().describe('Scientific description including W-value and authority')
+}).nullish()
+})
+
 
 /**
  * Returns all five WIS code definitions (OBL, FACW, FAC, FACU, UPL) with their W-values and ecological descriptions in a single call.
@@ -5036,73 +1749,29 @@ export const GetWetlandIndicatorStatusByWResponse = zod.object({
  * @summary Get all Wetland Indicator Status definitions
  */
 export const GetWetlandIndicatorStatusListResponse = zod.object({
-  found: zod.boolean(),
-  cache_status: zod.enum(["miss", "hit", "error"]),
-  queried_at: zod.date(),
-  source_url: zod.string().nullish(),
-  provenance: zod
-    .object({
-      source_id: zod
-        .string()
-        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod
-        .date()
-        .describe("When this record was obtained from the source"),
-      method: zod
-        .string()
-        .describe(
-          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-        ),
-      upstream_url: zod
-        .string()
-        .describe(
-          "Where this data came from (API endpoint, file path, or registry entry)",
-        ),
-      general_summary: zod
-        .string()
-        .optional()
-        .describe(
-          "Plain language description readable by a homeowner or community member",
-        ),
-      technical_details: zod
-        .string()
-        .optional()
-        .describe(
-          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-        ),
-      matched_input: zod
-        .string()
-        .optional()
-        .describe(
-          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-        ),
-    })
-    .describe(
-      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-    ),
-  data: zod.array(
-    zod.object({
-      code: zod
-        .enum(["OBL", "FACW", "FAC", "FACU", "UPL"])
-        .describe("WIS code: OBL, FACW, FAC, FACU, or UPL"),
-      w_value: zod
-        .number()
-        .describe("Coefficient of Wetness (W): -5, -3, 0, 3, or 5"),
-      full_name: zod.string().describe("Full name of the WIS category"),
-      occurrence_range: zod
-        .string()
-        .describe(
-          "Wetland occurrence frequency range (e.g., '>99% in wetlands')",
-        ),
-      ecological_meaning: zod
-        .string()
-        .describe("Plain-language ecological meaning for this WIS code"),
-      scientific_description: zod
-        .string()
-        .describe("Scientific description including W-value and authority"),
-    }),
-  ),
-});
+  "found": zod.boolean(),
+  "cache_status": zod.enum(['miss', 'hit', 'error']),
+  "queried_at": zod.date(),
+  "source_url": zod.string().nullish(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+  "data": zod.array(zod.object({
+  "code": zod.enum(['OBL', 'FACW', 'FAC', 'FACU', 'UPL']).describe('WIS code: OBL, FACW, FAC, FACU, or UPL'),
+  "w_value": zod.number().describe('Coefficient of Wetness (W): -5, -3, 0, 3, or 5'),
+  "full_name": zod.string().describe('Full name of the WIS category'),
+  "occurrence_range": zod.string().describe('Wetland occurrence frequency range (e.g., \'>99% in wetlands\')'),
+  "ecological_meaning": zod.string().describe('Plain-language ecological meaning for this WIS code'),
+  "scientific_description": zod.string().describe('Scientific description including W-value and authority')
+}))
+})
+
 
 /**
  * Returns service identity, licenses and license notes, and the full registry entry for the Wetland Indicator Status source. Also seeds the registry entry on first call.
@@ -5110,68 +1779,35 @@ export const GetWetlandIndicatorStatusListResponse = zod.object({
  * @summary Wetland Indicator Status service metadata
  */
 export const GetWetlandIndicatorMetadataResponse = zod.object({
-  service_id: zod.string(),
-  service_name: zod.string(),
-  licenses: zod.array(zod.string()),
-  license_notes: zod.string(),
-  registry_entry: zod
-    .object({
-      source_id: zod.string().optional(),
-      name: zod.string().optional(),
-      knowledge_type: zod.string().optional(),
-      status: zod.string().optional(),
-      description: zod.string().optional(),
-      input_summary: zod.string().optional(),
-      output_summary: zod.string().optional(),
-      dependencies: zod.array(zod.string()).optional(),
-      update_frequency: zod.string().optional(),
-      known_limitations: zod.string().optional(),
-      metadata_url: zod.string().optional(),
-    })
-    .optional()
-    .describe("Full registry entry for this vocabulary source"),
-  queried_at: zod.date(),
-  provenance: zod
-    .object({
-      source_id: zod
-        .string()
-        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod
-        .date()
-        .describe("When this record was obtained from the source"),
-      method: zod
-        .string()
-        .describe(
-          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-        ),
-      upstream_url: zod
-        .string()
-        .describe(
-          "Where this data came from (API endpoint, file path, or registry entry)",
-        ),
-      general_summary: zod
-        .string()
-        .optional()
-        .describe(
-          "Plain language description readable by a homeowner or community member",
-        ),
-      technical_details: zod
-        .string()
-        .optional()
-        .describe(
-          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-        ),
-      matched_input: zod
-        .string()
-        .optional()
-        .describe(
-          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-        ),
-    })
-    .describe(
-      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-    ),
-});
+  "service_id": zod.string(),
+  "service_name": zod.string(),
+  "licenses": zod.array(zod.string()),
+  "license_notes": zod.string(),
+  "registry_entry": zod.object({
+  "source_id": zod.string().optional(),
+  "name": zod.string().optional(),
+  "knowledge_type": zod.string().optional(),
+  "status": zod.string().optional(),
+  "description": zod.string().optional(),
+  "input_summary": zod.string().optional(),
+  "output_summary": zod.string().optional(),
+  "dependencies": zod.array(zod.string()).optional(),
+  "update_frequency": zod.string().optional(),
+  "known_limitations": zod.string().optional(),
+  "metadata_url": zod.string().optional()
+}).optional().describe('Full registry entry for this vocabulary source'),
+  "queried_at": zod.date(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+})
+
 
 /**
  * Returns the full definition for a given WUCOLS code (VL, L, M, or H) including ETo percentage range and irrigation description. WUCOLS is the UC Cooperative Extension system for rating supplemental irrigation needs of landscape plants. This is NOT the Wetland Indicator Status (OBL/FACW/FAC/FACU/UPL), which classifies natural wetland habitat occurrence, not irrigation needs.
@@ -5179,163 +1815,65 @@ export const GetWetlandIndicatorMetadataResponse = zod.object({
  * @summary Look up a WUCOLS water use classification code
  */
 export const GetWucolsWaterUseByCodeQueryParams = zod.object({
-  code: zod
-    .enum(["VL", "L", "M", "H"])
-    .describe(
-      "WUCOLS water use code to look up (VL, L, M, or H). Case-insensitive.",
-    ),
-});
+  "code": zod.enum(['VL', 'L', 'M', 'H']).describe('WUCOLS water use code to look up (VL, L, M, or H). Case-insensitive.')
+})
 
 export const GetWucolsWaterUseByCodeResponse = zod.object({
-  found: zod.boolean(),
-  cache_status: zod.enum(["miss", "hit", "error"]),
-  queried_at: zod.date(),
-  source_url: zod.string().nullish(),
-  provenance: zod
-    .object({
-      source_id: zod
-        .string()
-        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod
-        .date()
-        .describe("When this record was obtained from the source"),
-      method: zod
-        .string()
-        .describe(
-          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-        ),
-      upstream_url: zod
-        .string()
-        .describe(
-          "Where this data came from (API endpoint, file path, or registry entry)",
-        ),
-      general_summary: zod
-        .string()
-        .optional()
-        .describe(
-          "Plain language description readable by a homeowner or community member",
-        ),
-      technical_details: zod
-        .string()
-        .optional()
-        .describe(
-          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-        ),
-      matched_input: zod
-        .string()
-        .optional()
-        .describe(
-          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-        ),
-    })
-    .describe(
-      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-    ),
-  data: zod
-    .object({
-      code: zod
-        .enum(["VL", "L", "M", "H"])
-        .describe("WUCOLS code: VL, L, M, or H"),
-      full_name: zod.string().describe("Full name of the WUCOLS category"),
-      eto_range: zod
-        .string()
-        .describe("ETo percentage range (e.g., '10–30% of ETo')"),
-      eto_percentage_low: zod
-        .number()
-        .nullish()
-        .describe("Lower bound of ETo percentage (null for VL which is <10%)"),
-      eto_percentage_high: zod
-        .number()
-        .describe("Upper bound of ETo percentage"),
-      irrigation_description: zod
-        .string()
-        .describe("Plain-language description of irrigation need"),
-      scientific_description: zod
-        .string()
-        .describe(
-          "Scientific description including ETo methodology and authority",
-        ),
-    })
-    .nullish(),
-});
+  "found": zod.boolean(),
+  "cache_status": zod.enum(['miss', 'hit', 'error']),
+  "queried_at": zod.date(),
+  "source_url": zod.string().nullish(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+  "data": zod.object({
+  "code": zod.enum(['VL', 'L', 'M', 'H']).describe('WUCOLS code: VL, L, M, or H'),
+  "full_name": zod.string().describe('Full name of the WUCOLS category'),
+  "eto_range": zod.string().describe('ETo percentage range (e.g., \'10–30% of ETo\')'),
+  "eto_percentage_low": zod.number().nullish().describe('Lower bound of ETo percentage (null for VL which is <10%)'),
+  "eto_percentage_high": zod.number().describe('Upper bound of ETo percentage'),
+  "irrigation_description": zod.string().describe('Plain-language description of irrigation need'),
+  "scientific_description": zod.string().describe('Scientific description including ETo methodology and authority')
+}).nullish()
+})
+
 
 /**
  * Returns all four WUCOLS classification levels (VL, L, M, H) with their ETo ranges and descriptions in a single call.
 
  * @summary Get all WUCOLS water use classification definitions
  */
-export const GetAllWucolsWaterUseResponse = zod.object({
-  found: zod.boolean(),
-  cache_status: zod.enum(["miss", "hit", "error"]),
-  queried_at: zod.date(),
-  source_url: zod.string().nullish(),
-  provenance: zod
-    .object({
-      source_id: zod
-        .string()
-        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod
-        .date()
-        .describe("When this record was obtained from the source"),
-      method: zod
-        .string()
-        .describe(
-          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-        ),
-      upstream_url: zod
-        .string()
-        .describe(
-          "Where this data came from (API endpoint, file path, or registry entry)",
-        ),
-      general_summary: zod
-        .string()
-        .optional()
-        .describe(
-          "Plain language description readable by a homeowner or community member",
-        ),
-      technical_details: zod
-        .string()
-        .optional()
-        .describe(
-          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-        ),
-      matched_input: zod
-        .string()
-        .optional()
-        .describe(
-          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-        ),
-    })
-    .describe(
-      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-    ),
-  data: zod.array(
-    zod.object({
-      code: zod
-        .enum(["VL", "L", "M", "H"])
-        .describe("WUCOLS code: VL, L, M, or H"),
-      full_name: zod.string().describe("Full name of the WUCOLS category"),
-      eto_range: zod
-        .string()
-        .describe("ETo percentage range (e.g., '10–30% of ETo')"),
-      eto_percentage_low: zod
-        .number()
-        .nullish()
-        .describe("Lower bound of ETo percentage (null for VL which is <10%)"),
-      eto_percentage_high: zod
-        .number()
-        .describe("Upper bound of ETo percentage"),
-      irrigation_description: zod
-        .string()
-        .describe("Plain-language description of irrigation need"),
-      scientific_description: zod
-        .string()
-        .describe(
-          "Scientific description including ETo methodology and authority",
-        ),
-    }),
-  ),
-});
+export const GetWucolsWaterUseListResponse = zod.object({
+  "found": zod.boolean(),
+  "cache_status": zod.enum(['miss', 'hit', 'error']),
+  "queried_at": zod.date(),
+  "source_url": zod.string().nullish(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+  "data": zod.array(zod.object({
+  "code": zod.enum(['VL', 'L', 'M', 'H']).describe('WUCOLS code: VL, L, M, or H'),
+  "full_name": zod.string().describe('Full name of the WUCOLS category'),
+  "eto_range": zod.string().describe('ETo percentage range (e.g., \'10–30% of ETo\')'),
+  "eto_percentage_low": zod.number().nullish().describe('Lower bound of ETo percentage (null for VL which is <10%)'),
+  "eto_percentage_high": zod.number().describe('Upper bound of ETo percentage'),
+  "irrigation_description": zod.string().describe('Plain-language description of irrigation need'),
+  "scientific_description": zod.string().describe('Scientific description including ETo methodology and authority')
+}))
+})
+
 
 /**
  * Returns service identity, licenses and license notes, and the full registry entry for the WUCOLS source. Also seeds the registry entry on first call.
@@ -5343,68 +1881,35 @@ export const GetAllWucolsWaterUseResponse = zod.object({
  * @summary WUCOLS service metadata
  */
 export const GetWucolsWaterUseMetadataResponse = zod.object({
-  service_id: zod.string(),
-  service_name: zod.string(),
-  licenses: zod.array(zod.string()),
-  license_notes: zod.string(),
-  registry_entry: zod
-    .object({
-      source_id: zod.string().optional(),
-      name: zod.string().optional(),
-      knowledge_type: zod.string().optional(),
-      status: zod.string().optional(),
-      description: zod.string().optional(),
-      input_summary: zod.string().optional(),
-      output_summary: zod.string().optional(),
-      dependencies: zod.array(zod.string()).optional(),
-      update_frequency: zod.string().optional(),
-      known_limitations: zod.string().optional(),
-      metadata_url: zod.string().optional(),
-    })
-    .optional()
-    .describe("Full registry entry for this vocabulary source"),
-  queried_at: zod.date(),
-  provenance: zod
-    .object({
-      source_id: zod
-        .string()
-        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod
-        .date()
-        .describe("When this record was obtained from the source"),
-      method: zod
-        .string()
-        .describe(
-          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-        ),
-      upstream_url: zod
-        .string()
-        .describe(
-          "Where this data came from (API endpoint, file path, or registry entry)",
-        ),
-      general_summary: zod
-        .string()
-        .optional()
-        .describe(
-          "Plain language description readable by a homeowner or community member",
-        ),
-      technical_details: zod
-        .string()
-        .optional()
-        .describe(
-          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-        ),
-      matched_input: zod
-        .string()
-        .optional()
-        .describe(
-          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-        ),
-    })
-    .describe(
-      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-    ),
-});
+  "service_id": zod.string(),
+  "service_name": zod.string(),
+  "licenses": zod.array(zod.string()),
+  "license_notes": zod.string(),
+  "registry_entry": zod.object({
+  "source_id": zod.string().optional(),
+  "name": zod.string().optional(),
+  "knowledge_type": zod.string().optional(),
+  "status": zod.string().optional(),
+  "description": zod.string().optional(),
+  "input_summary": zod.string().optional(),
+  "output_summary": zod.string().optional(),
+  "dependencies": zod.array(zod.string()).optional(),
+  "update_frequency": zod.string().optional(),
+  "known_limitations": zod.string().optional(),
+  "metadata_url": zod.string().optional()
+}).optional().describe('Full registry entry for this vocabulary source'),
+  "queried_at": zod.date(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+})
+
 
 /**
  * Returns the list of botanical names offered by Seeds to Community Washtenaw for the specified program year. Program years are labeled by the calendar year in which the January–March growing workshops occur. Available years: 2023, 2024, 2025, 2026. Where tracked, includes neat_and_tidy and sweet_and_simple metadata flags. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
@@ -5412,612 +1917,191 @@ export const GetWucolsWaterUseMetadataResponse = zod.object({
  * @summary Get species list for a given Seeds to Community Washtenaw program year
  */
 export const GetS2CSpeciesByYearQueryParams = zod.object({
-  year: zod
-    .union([
-      zod.literal(2023),
-      zod.literal(2024),
-      zod.literal(2025),
-      zod.literal(2026),
-    ])
-    .describe("Program year (2023–2026)."),
-});
+  "year": zod.union([zod.literal(2023),zod.literal(2024),zod.literal(2025),zod.literal(2026)]).describe('Program year (2023–2026).')
+})
 
-export const GetS2CSpeciesByYearResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .object({
-          year: zod.number(),
-          species_count: zod.number(),
-          source_note: zod.string(),
-          species: zod.array(
-            zod.object({
-              botanical_name: zod
-                .string()
-                .describe(
-                  "Botanical (scientific) name of the species as used in the S2C program",
-                ),
-              neat_and_tidy: zod
-                .boolean()
-                .optional()
-                .describe(
-                  "True if this species is designated for 'Neat & Tidy' formal or managed garden settings. Only tracked for 2024 onward.\n",
-                ),
-              sweet_and_simple: zod
-                .boolean()
-                .optional()
-                .describe(
-                  "True if this species is designated as 'Sweet & Simple' for beginner growers. Only tracked from 2026 onward.\n",
-                ),
-            }),
-          ),
-        })
-        .optional()
-        .describe(
-          "Data payload for the \/s2c endpoint (FernsEnvelope data field).",
-        ),
-    }),
-  );
+export const GetS2CSpeciesByYearResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.object({
+  "year": zod.number(),
+  "species_count": zod.number(),
+  "source_note": zod.string(),
+  "species": zod.array(zod.object({
+  "botanical_name": zod.string().describe('Botanical (scientific) name of the species as used in the S2C program'),
+  "neat_and_tidy": zod.boolean().optional().describe('True if this species is designated for \'Neat & Tidy\' formal or managed garden settings. Only tracked for 2024 onward.\n'),
+  "sweet_and_simple": zod.boolean().optional().describe('True if this species is designated as \'Sweet & Simple\' for beginner growers. Only tracked from 2026 onward.\n')
+}))
+}).optional().describe('Data payload for the \/s2c endpoint (FernsEnvelope data field).')
+}))
+
 
 /**
  * Returns all available program years with species counts and source notes. Use this to discover what data is available before querying /s2c?year=. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
  * @summary List available Seeds to Community Washtenaw program years
  */
-export const GetS2CYearsResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .object({
-          available_years: zod
-            .array(zod.number())
-            .describe("List of available program years"),
-          years: zod.array(
-            zod.object({
-              year: zod
-                .number()
-                .describe("Program year (January–March workshops)"),
-              species_count: zod
-                .number()
-                .describe("Number of species offered this program year"),
-              source_note: zod
-                .string()
-                .describe(
-                  "Description of the data source and any caveats for this year",
-                ),
-            }),
-          ),
-        })
-        .optional(),
-    }),
-  );
+export const GetS2CYearsResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.object({
+  "available_years": zod.array(zod.number()).describe('List of available program years'),
+  "years": zod.array(zod.object({
+  "year": zod.number().describe('Program year (January–March workshops)'),
+  "species_count": zod.number().describe('Number of species offered this program year'),
+  "source_note": zod.string().describe('Description of the data source and any caveats for this year')
+}))
+}).optional()
+}))
+
 
 /**
  * Returns the registry entry for the Seeds to Community Washtenaw source, wrapped in the FERNS Response Envelope. The data payload contains the source's descriptive fields (description, general_summary, technical_details, licenses, etc.). Also seeds the registry entry on first call.
 
  * @summary Seeds to Community Washtenaw source metadata
  */
-export const GetS2CMetadataResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .object({
-          source_id: zod.string(),
-          name: zod.string(),
-          knowledge_type: zod.string(),
-          status: zod.string(),
-          description: zod.string(),
-          input_summary: zod.string().optional(),
-          output_summary: zod.string().optional(),
-          dependencies: zod.array(zod.string()).optional(),
-          update_frequency: zod.string().optional(),
-          known_limitations: zod.string().optional(),
-          metadata_url: zod.string().optional(),
-          licenses: zod.array(zod.string()).optional(),
-          license_notes: zod.string().optional(),
-          general_summary: zod.string().optional(),
-          technical_details: zod.string().optional(),
-        })
-        .optional()
-        .describe(
-          "Data payload for any source's \/metadata endpoint (FernsEnvelope data field). Contains the source's registry descriptive payload.\n",
-        ),
-    }),
-  );
+export const GetS2CMetadataResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.object({
+  "source_id": zod.string(),
+  "name": zod.string(),
+  "knowledge_type": zod.string(),
+  "status": zod.string(),
+  "description": zod.string(),
+  "input_summary": zod.string().optional(),
+  "output_summary": zod.string().optional(),
+  "dependencies": zod.array(zod.string()).optional(),
+  "update_frequency": zod.string().optional(),
+  "known_limitations": zod.string().optional(),
+  "metadata_url": zod.string().optional(),
+  "licenses": zod.array(zod.string()).optional(),
+  "license_notes": zod.string().optional(),
+  "general_summary": zod.string().optional(),
+  "technical_details": zod.string().optional()
+}).optional().describe('Data payload for any source\'s \/metadata endpoint (FernsEnvelope data field). Contains the source\'s registry descriptive payload.\n')
+}))
+
 
 /**
  * Returns service identity, licenses and license notes, guide count, species count, and the full registry entry for the Lake County Seed Collection Guides source. Also seeds the registry entry on first call. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
  * @summary Lake County Seed Collection Guides service metadata
  */
-export const GetLcscgMetadataResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  );
+export const GetLcscgMetadataResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
 
 /**
  * Returns all 12 guide records (Field Museum Guide IDs 1271–1282), including title, season, habitat type, license, Cloudinary folder name, and harvest notes. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
  * @summary List all Lake County Seed Collection Guides
  */
-export const GetLcscgGuidesResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  );
+export const GetLcscgGuidesResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
 
 /**
  * Returns all species records for the specified guide (Field Museum Guide ID 1271–1282). Each species record includes harvest notes, seed dispersal categories, photo date, plant family, and Cloudinary image URLs. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
@@ -6027,111 +2111,36 @@ export const GetLcscgGuidesResponse = zod
 export const getLcscgGuidePathGuideIdMin = 1271;
 export const getLcscgGuidePathGuideIdMax = 1282;
 
-export const GetLcscgGuideParams = zod.object({
-  guideId: zod.coerce
-    .number()
-    .min(getLcscgGuidePathGuideIdMin)
-    .max(getLcscgGuidePathGuideIdMax)
-    .describe("Field Museum Guide ID (1271–1282)."),
-});
 
-export const GetLcscgGuideResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  );
+
+export const GetLcscgGuideParams = zod.object({
+  "guideId": zod.coerce.number().min(getLcscgGuidePathGuideIdMin).max(getLcscgGuidePathGuideIdMax).describe('Field Museum Guide ID (1271–1282).')
+})
+
+export const GetLcscgGuideResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
 
 /**
  * Returns species records matching the given name (partial match against scientific_name and common_name, case-insensitive) across all 12 guides. Results include harvest notes, seed dispersal categories, photo date, plant family, guide context, and Cloudinary image URLs. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
@@ -6139,112 +2148,36 @@ export const GetLcscgGuideResponse = zod
  * @summary Search Lake County Seed Collection Guides species by name
  */
 
-export const GetLcscgSpeciesQueryParams = zod.object({
-  name: zod
-    .string()
-    .min(1)
-    .describe(
-      "Scientific or common name to search (partial match, case-insensitive).\n",
-    ),
-});
 
-export const GetLcscgSpeciesResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  );
+
+export const GetLcscgSpeciesQueryParams = zod.object({
+  "name": zod.string().min(1).describe('Scientific or common name to search (partial match, case-insensitive).\n')
+})
+
+export const GetLcscgSpeciesResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
 
 /**
  * Returns a summary entry for every registered FERNS Knowledge Service. This is the primary discovery endpoint. Each entry contains enough information to make a routing decision without a follow-up call to individual /metadata endpoints.
@@ -6252,114 +2185,38 @@ export const GetLcscgSpeciesResponse = zod
  * @summary List all registered FERNS Knowledge Services
  */
 export const GetSourcesIndexResponse = zod.object({
-  source_url: zod.string(),
-  found: zod.boolean(),
-  data: zod.object({
-    sources: zod.array(
-      zod.object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier for this service (e.g. bonap-napa, gbif)",
-          ),
-        name: zod.string().describe("Human-readable service name"),
-        knowledge_type: zod
-          .string()
-          .describe(
-            "source_wrapper | derived_synthesis | aggregation | system | vocabulary_reference",
-          ),
-        status: zod.string().describe("live | draft | deprecated"),
-        description: zod
-          .string()
-          .describe(
-            "Plain-English description readable by a homeowner or community member",
-          ),
-        input_summary: zod
-          .string()
-          .describe("What you send to query this service"),
-        output_summary: zod.string().describe("What you get back"),
-        dependencies: zod
-          .array(zod.string())
-          .describe("source_ids this service depends on"),
-        update_frequency: zod
-          .string()
-          .describe(
-            "How often the underlying data changes (e.g. live, annual, static)",
-          ),
-        known_limitations: zod
-          .string()
-          .describe("Brief honest statement of gaps and caveats"),
-        metadata_url: zod
-          .string()
-          .describe("Link to this service's full \/metadata endpoint"),
-        licenses: zod
-          .array(zod.string())
-          .optional()
-          .describe(
-            "Whether FERNS has verified that use of this source is explicitly permitted. true = permission confirmed; null = not yet evaluated.\n",
-          ),
-        license_notes: zod
-          .string()
-          .optional()
-          .describe(
-            "Plain-English description of the permission situation for this source. Covers license type, access model, and any restrictions on use.\n",
-          ),
-        general_summary: zod
-          .string()
-          .optional()
-          .describe(
-            "One-paragraph plain-English description of this source suitable for non-technical users, agents, and routing decisions.\n",
-          ),
-        technical_details: zod
-          .string()
-          .optional()
-          .describe(
-            "Technical description of how this source works, including data model, method, upstream URL, caching behavior, and known edge cases.\n",
-          ),
-      }),
-    ),
-  }),
-  provenance: zod
-    .object({
-      source_id: zod
-        .string()
-        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod
-        .date()
-        .describe("When this record was obtained from the source"),
-      method: zod
-        .string()
-        .describe(
-          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-        ),
-      upstream_url: zod
-        .string()
-        .describe(
-          "Where this data came from (API endpoint, file path, or registry entry)",
-        ),
-      general_summary: zod
-        .string()
-        .optional()
-        .describe(
-          "Plain language description readable by a homeowner or community member",
-        ),
-      technical_details: zod
-        .string()
-        .optional()
-        .describe(
-          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-        ),
-      matched_input: zod
-        .string()
-        .optional()
-        .describe(
-          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-        ),
-    })
-    .describe(
-      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-    ),
-});
+  "source_url": zod.string(),
+  "found": zod.boolean(),
+  "data": zod.object({
+  "sources": zod.array(zod.object({
+  "source_id": zod.string().describe('Stable identifier for this service (e.g. bonap-napa, gbif)'),
+  "name": zod.string().describe('Human-readable service name'),
+  "knowledge_type": zod.string().describe('source_wrapper | derived_synthesis | aggregation | system | vocabulary_reference'),
+  "status": zod.string().describe('live | draft | deprecated'),
+  "description": zod.string().describe('Plain-English description readable by a homeowner or community member'),
+  "input_summary": zod.string().describe('What you send to query this service'),
+  "output_summary": zod.string().describe('What you get back'),
+  "dependencies": zod.array(zod.string()).describe('source_ids this service depends on'),
+  "update_frequency": zod.string().describe('How often the underlying data changes (e.g. live, annual, static)'),
+  "known_limitations": zod.string().describe('Brief honest statement of gaps and caveats'),
+  "metadata_url": zod.string().describe('Link to this service\'s full \/metadata endpoint'),
+  "licenses": zod.array(zod.string()).optional().describe('Whether FERNS has verified that use of this source is explicitly permitted. true = permission confirmed; null = not yet evaluated.\n'),
+  "license_notes": zod.string().optional().describe('Plain-English description of the permission situation for this source. Covers license type, access model, and any restrictions on use.\n'),
+  "general_summary": zod.string().optional().describe('One-paragraph plain-English description of this source suitable for non-technical users, agents, and routing decisions.\n'),
+  "technical_details": zod.string().optional().describe('Technical description of how this source works, including data model, method, upstream URL, caching behavior, and known edge cases.\n')
+}))
+}),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+})
+
 
 /**
  * Returns all trust groups with their metadata. Trust groups are curated collections of FERNS data sources organized into named, ordered tiers. Use GET /v1/trust-groups/{slug}/sources to retrieve the full tiered source list for a specific group.
@@ -6367,83 +2224,32 @@ export const GetSourcesIndexResponse = zod.object({
  * @summary List all trust groups
  */
 export const GetTrustGroupsResponse = zod.object({
-  source_url: zod.string(),
-  found: zod.boolean(),
-  data: zod.object({
-    groups: zod.array(
-      zod.object({
-        group_id: zod
-          .string()
-          .uuid()
-          .describe("Stable internal identifier for the trust group"),
-        slug: zod
-          .string()
-          .describe(
-            "URL-safe unique identifier (e.g. default, research-partners)",
-          ),
-        name: zod.string().describe("Human-readable display name"),
-        owner_email: zod
-          .string()
-          .nullish()
-          .describe("Email of the group owner, if set"),
-        geographic_region: zod
-          .string()
-          .nullish()
-          .describe("Geographic scope of the trust group, if set"),
-        domain: zod
-          .string()
-          .nullish()
-          .describe("Subject-matter domain of the trust group, if set"),
-        description: zod
-          .string()
-          .nullish()
-          .describe("Free-text description of the group's purpose"),
-        created_at: zod.date(),
-        updated_at: zod.date(),
-      }),
-    ),
-  }),
-  provenance: zod
-    .object({
-      source_id: zod
-        .string()
-        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod
-        .date()
-        .describe("When this record was obtained from the source"),
-      method: zod
-        .string()
-        .describe(
-          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-        ),
-      upstream_url: zod
-        .string()
-        .describe(
-          "Where this data came from (API endpoint, file path, or registry entry)",
-        ),
-      general_summary: zod
-        .string()
-        .optional()
-        .describe(
-          "Plain language description readable by a homeowner or community member",
-        ),
-      technical_details: zod
-        .string()
-        .optional()
-        .describe(
-          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-        ),
-      matched_input: zod
-        .string()
-        .optional()
-        .describe(
-          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-        ),
-    })
-    .describe(
-      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-    ),
-});
+  "source_url": zod.string(),
+  "found": zod.boolean(),
+  "data": zod.object({
+  "groups": zod.array(zod.object({
+  "group_id": zod.string().uuid().describe('Stable internal identifier for the trust group'),
+  "slug": zod.string().describe('URL-safe unique identifier (e.g. default, research-partners)'),
+  "name": zod.string().describe('Human-readable display name'),
+  "owner_email": zod.string().nullish().describe('Email of the group owner, if set'),
+  "geographic_region": zod.string().nullish().describe('Geographic scope of the trust group, if set'),
+  "domain": zod.string().nullish().describe('Subject-matter domain of the trust group, if set'),
+  "description": zod.string().nullish().describe('Free-text description of the group\'s purpose'),
+  "created_at": zod.date(),
+  "updated_at": zod.date()
+}))
+}),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+})
+
 
 /**
  * Returns group metadata and its ordered list of tiers. Tiers are ordered by position (ascending); lower position = higher trust. To retrieve the full source entries assigned to each tier, use GET /v1/trust-groups/{slug}/sources.
@@ -6451,102 +2257,43 @@ export const GetTrustGroupsResponse = zod.object({
  * @summary Get a trust group with its tier list
  */
 export const GetTrustGroupParams = zod.object({
-  slug: zod
-    .string()
-    .describe("Trust group slug (e.g. default, research-partners)"),
-});
+  "slug": zod.string().describe('Trust group slug (e.g. default, research-partners)')
+})
 
 export const GetTrustGroupResponse = zod.object({
-  source_url: zod.string(),
-  found: zod.boolean(),
-  message: zod.string().optional().describe("Present when found is false"),
-  data: zod
-    .object({
-      group: zod.object({
-        group_id: zod
-          .string()
-          .uuid()
-          .describe("Stable internal identifier for the trust group"),
-        slug: zod
-          .string()
-          .describe(
-            "URL-safe unique identifier (e.g. default, research-partners)",
-          ),
-        name: zod.string().describe("Human-readable display name"),
-        owner_email: zod
-          .string()
-          .nullish()
-          .describe("Email of the group owner, if set"),
-        geographic_region: zod
-          .string()
-          .nullish()
-          .describe("Geographic scope of the trust group, if set"),
-        domain: zod
-          .string()
-          .nullish()
-          .describe("Subject-matter domain of the trust group, if set"),
-        description: zod
-          .string()
-          .nullish()
-          .describe("Free-text description of the group's purpose"),
-        created_at: zod.date(),
-        updated_at: zod.date(),
-      }),
-      tiers: zod.array(
-        zod.object({
-          tier_id: zod.string().uuid(),
-          position: zod
-            .number()
-            .describe("Ascending sort order; lower = higher trust priority"),
-          name: zod
-            .string()
-            .describe("Display name (e.g. Primary, Secondary, Tertiary)"),
-          created_at: zod.date(),
-        }),
-      ),
-    })
-    .nullish(),
-  provenance: zod
-    .object({
-      source_id: zod
-        .string()
-        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod
-        .date()
-        .describe("When this record was obtained from the source"),
-      method: zod
-        .string()
-        .describe(
-          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-        ),
-      upstream_url: zod
-        .string()
-        .describe(
-          "Where this data came from (API endpoint, file path, or registry entry)",
-        ),
-      general_summary: zod
-        .string()
-        .optional()
-        .describe(
-          "Plain language description readable by a homeowner or community member",
-        ),
-      technical_details: zod
-        .string()
-        .optional()
-        .describe(
-          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-        ),
-      matched_input: zod
-        .string()
-        .optional()
-        .describe(
-          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-        ),
-    })
-    .describe(
-      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-    ),
-});
+  "source_url": zod.string(),
+  "found": zod.boolean(),
+  "message": zod.string().optional().describe('Present when found is false'),
+  "data": zod.object({
+  "group": zod.object({
+  "group_id": zod.string().uuid().describe('Stable internal identifier for the trust group'),
+  "slug": zod.string().describe('URL-safe unique identifier (e.g. default, research-partners)'),
+  "name": zod.string().describe('Human-readable display name'),
+  "owner_email": zod.string().nullish().describe('Email of the group owner, if set'),
+  "geographic_region": zod.string().nullish().describe('Geographic scope of the trust group, if set'),
+  "domain": zod.string().nullish().describe('Subject-matter domain of the trust group, if set'),
+  "description": zod.string().nullish().describe('Free-text description of the group\'s purpose'),
+  "created_at": zod.date(),
+  "updated_at": zod.date()
+}),
+  "tiers": zod.array(zod.object({
+  "tier_id": zod.string().uuid(),
+  "position": zod.number().describe('Ascending sort order; lower = higher trust priority'),
+  "name": zod.string().describe('Display name (e.g. Primary, Secondary, Tertiary)'),
+  "created_at": zod.date()
+}))
+}).nullish(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+})
+
 
 /**
  * Returns all sources assigned to a trust group, organized into their respective tiers ordered by position (ascending). Each source entry is identical in shape to entries returned by GET /v1/sources. This is the primary endpoint for resolving which sources to query and in what priority order for a given trust context.
@@ -6554,137 +2301,53 @@ export const GetTrustGroupResponse = zod.object({
  * @summary Get the tiered source list for a trust group
  */
 export const GetTrustGroupSourcesParams = zod.object({
-  slug: zod
-    .string()
-    .describe("Trust group slug (e.g. default, research-partners)"),
-});
+  "slug": zod.string().describe('Trust group slug (e.g. default, research-partners)')
+})
 
 export const GetTrustGroupSourcesResponse = zod.object({
-  source_url: zod.string(),
-  found: zod.boolean(),
-  message: zod.string().optional().describe("Present when found is false"),
-  data: zod
-    .object({
-      group: zod.object({
-        group_id: zod.string().uuid(),
-        slug: zod.string(),
-        name: zod.string(),
-      }),
-      tiers: zod.array(
-        zod.object({
-          tier_id: zod.string().uuid(),
-          position: zod
-            .number()
-            .describe("Ascending sort order; lower = higher trust priority"),
-          name: zod.string(),
-          sources: zod.array(
-            zod.object({
-              source_id: zod
-                .string()
-                .describe(
-                  "Stable identifier for this service (e.g. bonap-napa, gbif)",
-                ),
-              name: zod.string().describe("Human-readable service name"),
-              knowledge_type: zod
-                .string()
-                .describe(
-                  "source_wrapper | derived_synthesis | aggregation | system | vocabulary_reference",
-                ),
-              status: zod.string().describe("live | draft | deprecated"),
-              description: zod
-                .string()
-                .describe(
-                  "Plain-English description readable by a homeowner or community member",
-                ),
-              input_summary: zod
-                .string()
-                .describe("What you send to query this service"),
-              output_summary: zod.string().describe("What you get back"),
-              dependencies: zod
-                .array(zod.string())
-                .describe("source_ids this service depends on"),
-              update_frequency: zod
-                .string()
-                .describe(
-                  "How often the underlying data changes (e.g. live, annual, static)",
-                ),
-              known_limitations: zod
-                .string()
-                .describe("Brief honest statement of gaps and caveats"),
-              metadata_url: zod
-                .string()
-                .describe("Link to this service's full \/metadata endpoint"),
-              licenses: zod
-                .array(zod.string())
-                .optional()
-                .describe(
-                  "Whether FERNS has verified that use of this source is explicitly permitted. true = permission confirmed; null = not yet evaluated.\n",
-                ),
-              license_notes: zod
-                .string()
-                .optional()
-                .describe(
-                  "Plain-English description of the permission situation for this source. Covers license type, access model, and any restrictions on use.\n",
-                ),
-              general_summary: zod
-                .string()
-                .optional()
-                .describe(
-                  "One-paragraph plain-English description of this source suitable for non-technical users, agents, and routing decisions.\n",
-                ),
-              technical_details: zod
-                .string()
-                .optional()
-                .describe(
-                  "Technical description of how this source works, including data model, method, upstream URL, caching behavior, and known edge cases.\n",
-                ),
-            }),
-          ),
-        }),
-      ),
-    })
-    .nullish(),
-  provenance: zod
-    .object({
-      source_id: zod
-        .string()
-        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod
-        .date()
-        .describe("When this record was obtained from the source"),
-      method: zod
-        .string()
-        .describe(
-          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-        ),
-      upstream_url: zod
-        .string()
-        .describe(
-          "Where this data came from (API endpoint, file path, or registry entry)",
-        ),
-      general_summary: zod
-        .string()
-        .optional()
-        .describe(
-          "Plain language description readable by a homeowner or community member",
-        ),
-      technical_details: zod
-        .string()
-        .optional()
-        .describe(
-          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-        ),
-      matched_input: zod
-        .string()
-        .optional()
-        .describe(
-          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-        ),
-    })
-    .describe(
-      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-    ),
-});
+  "source_url": zod.string(),
+  "found": zod.boolean(),
+  "message": zod.string().optional().describe('Present when found is false'),
+  "data": zod.object({
+  "group": zod.object({
+  "group_id": zod.string().uuid(),
+  "slug": zod.string(),
+  "name": zod.string()
+}),
+  "tiers": zod.array(zod.object({
+  "tier_id": zod.string().uuid(),
+  "position": zod.number().describe('Ascending sort order; lower = higher trust priority'),
+  "name": zod.string(),
+  "sources": zod.array(zod.object({
+  "source_id": zod.string().describe('Stable identifier for this service (e.g. bonap-napa, gbif)'),
+  "name": zod.string().describe('Human-readable service name'),
+  "knowledge_type": zod.string().describe('source_wrapper | derived_synthesis | aggregation | system | vocabulary_reference'),
+  "status": zod.string().describe('live | draft | deprecated'),
+  "description": zod.string().describe('Plain-English description readable by a homeowner or community member'),
+  "input_summary": zod.string().describe('What you send to query this service'),
+  "output_summary": zod.string().describe('What you get back'),
+  "dependencies": zod.array(zod.string()).describe('source_ids this service depends on'),
+  "update_frequency": zod.string().describe('How often the underlying data changes (e.g. live, annual, static)'),
+  "known_limitations": zod.string().describe('Brief honest statement of gaps and caveats'),
+  "metadata_url": zod.string().describe('Link to this service\'s full \/metadata endpoint'),
+  "licenses": zod.array(zod.string()).optional().describe('Whether FERNS has verified that use of this source is explicitly permitted. true = permission confirmed; null = not yet evaluated.\n'),
+  "license_notes": zod.string().optional().describe('Plain-English description of the permission situation for this source. Covers license type, access model, and any restrictions on use.\n'),
+  "general_summary": zod.string().optional().describe('One-paragraph plain-English description of this source suitable for non-technical users, agents, and routing decisions.\n'),
+  "technical_details": zod.string().optional().describe('Technical description of how this source works, including data model, method, upstream URL, caching behavior, and known edge cases.\n')
+}))
+}))
+}).nullish(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+})
+
 
 /**
  * Returns service identity, attribution, licenses and license notes, derivation descriptions, and the registry entry for the Universal FQA source.
@@ -6692,54 +2355,24 @@ export const GetTrustGroupSourcesResponse = zod.object({
  * @summary Universal FQA service metadata
  */
 export const GetUniversalFqaMetadataResponse = zod.object({
-  source_id: zod.string(),
-  name: zod.string(),
-  licenses: zod.array(zod.string()),
-  license_notes: zod.string(),
-  attribution: zod.record(zod.string(), zod.unknown()),
-  registry_entry: zod.record(zod.string(), zod.unknown()),
-  queried_at: zod.date().optional(),
-  provenance: zod
-    .object({
-      source_id: zod
-        .string()
-        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod
-        .date()
-        .describe("When this record was obtained from the source"),
-      method: zod
-        .string()
-        .describe(
-          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-        ),
-      upstream_url: zod
-        .string()
-        .describe(
-          "Where this data came from (API endpoint, file path, or registry entry)",
-        ),
-      general_summary: zod
-        .string()
-        .optional()
-        .describe(
-          "Plain language description readable by a homeowner or community member",
-        ),
-      technical_details: zod
-        .string()
-        .optional()
-        .describe(
-          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-        ),
-      matched_input: zod
-        .string()
-        .optional()
-        .describe(
-          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-        ),
-    })
-    .describe(
-      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-    ),
-});
+  "source_id": zod.string(),
+  "name": zod.string(),
+  "licenses": zod.array(zod.string()),
+  "license_notes": zod.string(),
+  "attribution": zod.record(zod.string(), zod.unknown()),
+  "registry_entry": zod.record(zod.string(), zod.unknown()),
+  "queried_at": zod.date().optional(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+})
+
 
 /**
  * Returns all regional FQA databases available on universalfqa.org. Each entry contains an id, region name, year, and full citation string. The region and citation fields together describe geographic scope, ecoregion coverage, institutional source, and methodology — read both in full to determine relevance for a given project or location.
@@ -6747,76 +2380,29 @@ export const GetUniversalFqaMetadataResponse = zod.object({
  * @summary List all Universal FQA regional databases
  */
 export const GetUniversalFqaDatabasesResponse = zod.object({
-  found: zod.boolean(),
-  cache_status: zod.string().nullable(),
-  queried_at: zod.date(),
-  source_url: zod.string(),
-  provenance: zod
-    .object({
-      source_id: zod
-        .string()
-        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod
-        .date()
-        .describe("When this record was obtained from the source"),
-      method: zod
-        .string()
-        .describe(
-          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-        ),
-      upstream_url: zod
-        .string()
-        .describe(
-          "Where this data came from (API endpoint, file path, or registry entry)",
-        ),
-      general_summary: zod
-        .string()
-        .optional()
-        .describe(
-          "Plain language description readable by a homeowner or community member",
-        ),
-      technical_details: zod
-        .string()
-        .optional()
-        .describe(
-          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-        ),
-      matched_input: zod
-        .string()
-        .optional()
-        .describe(
-          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-        ),
-    })
-    .describe(
-      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-    ),
-  data: zod
-    .union([
-      zod.object({
-        databases: zod.array(
-          zod.object({
-            id: zod.number().describe("Universal FQA database ID"),
-            region: zod
-              .string()
-              .describe("Region name as provided by universalfqa.org"),
-            year: zod
-              .string()
-              .describe(
-                "Publication year string as provided by universalfqa.org",
-              ),
-            citation: zod
-              .string()
-              .describe(
-                "Full citation string as provided by universalfqa.org. Contains institutional author, year, database name, and sometimes methodology notes. Together with region, provides all information needed to select a database.\n",
-              ),
-          }),
-        ),
-      }),
-      zod.null(),
-    ])
-    .nullish(),
-});
+  "found": zod.boolean(),
+  "cache_status": zod.string().nullable(),
+  "queried_at": zod.date(),
+  "source_url": zod.string(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+  "data": zod.union([zod.object({
+  "databases": zod.array(zod.object({
+  "id": zod.number().describe('Universal FQA database ID'),
+  "region": zod.string().describe('Region name as provided by universalfqa.org'),
+  "year": zod.string().describe('Publication year string as provided by universalfqa.org'),
+  "citation": zod.string().describe('Full citation string as provided by universalfqa.org. Contains institutional author, year, database name, and sometimes methodology notes. Together with region, provides all information needed to select a database.\n')
+}))
+}),zod.null()]).nullish()
+})
+
 
 /**
  * Returns the complete parsed database for the given ID — all species records with named fields, plus the database-level summary metrics (total species, native/non-native counts, mean C values). On the first request for a given database ID, downloads the database from universalfqa.org and persists it to the FERNS PostgreSQL cache. Subsequent requests are served from the cache (cache_status: hit). Consumers may retrieve the full database and build their own in-memory structures without polling FERNS repeatedly.
@@ -6824,132 +2410,47 @@ export const GetUniversalFqaDatabasesResponse = zod.object({
  * @summary Get a full Universal FQA database with all species records
  */
 export const GetUniversalFqaDatabaseParams = zod.object({
-  id: zod.coerce
-    .number()
-    .describe("Universal FQA database ID (from the databases list)"),
-});
+  "id": zod.coerce.number().describe('Universal FQA database ID (from the databases list)')
+})
 
 export const GetUniversalFqaDatabaseResponse = zod.object({
-  found: zod.boolean(),
-  cache_status: zod.string().nullable(),
-  queried_at: zod.date(),
-  source_url: zod.string(),
-  provenance: zod
-    .object({
-      source_id: zod
-        .string()
-        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod
-        .date()
-        .describe("When this record was obtained from the source"),
-      method: zod
-        .string()
-        .describe(
-          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-        ),
-      upstream_url: zod
-        .string()
-        .describe(
-          "Where this data came from (API endpoint, file path, or registry entry)",
-        ),
-      general_summary: zod
-        .string()
-        .optional()
-        .describe(
-          "Plain language description readable by a homeowner or community member",
-        ),
-      technical_details: zod
-        .string()
-        .optional()
-        .describe(
-          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-        ),
-      matched_input: zod
-        .string()
-        .optional()
-        .describe(
-          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-        ),
-    })
-    .describe(
-      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-    ),
-  data: zod
-    .union([
-      zod.object({
-        id: zod.number().describe("Universal FQA database ID"),
-        region: zod
-          .string()
-          .describe("Region name as provided by universalfqa.org"),
-        year: zod
-          .string()
-          .describe("Publication year string as provided by universalfqa.org"),
-        citation: zod
-          .string()
-          .describe("Full citation string as provided by universalfqa.org"),
-        total_species: zod
-          .number()
-          .describe("Total number of species in this database"),
-        native_species: zod.number().describe("Number of native species"),
-        non_native_species: zod
-          .number()
-          .describe("Number of non-native species"),
-        total_mean_c: zod
-          .number()
-          .nullish()
-          .describe("Mean C-value across all species (native and non-native)"),
-        native_mean_c: zod
-          .number()
-          .nullish()
-          .describe("Mean C-value across native species only"),
-        species: zod
-          .array(
-            zod.object({
-              scientific_name: zod
-                .string()
-                .describe(
-                  "Scientific name of the species as listed in this database",
-                ),
-              family: zod.string().describe("Plant family"),
-              acronym: zod
-                .string()
-                .describe("Abbreviated acronym used in this database"),
-              native: zod
-                .string()
-                .describe(
-                  'Nativity string as provided by the source database. Typically \"native\" or \"non-native\" but exact values depend on the database.\n',
-                ),
-              c: zod
-                .unknown()
-                .nullable()
-                .describe(
-                  "Coefficient of Conservatism (C-value) for this species in this database. Integer 0–10 for native species; null for non-native or unassigned species. Some databases use string representations. Always check the source database citation for the methodology used to assign C-values.\n",
-                ),
-              w: zod
-                .unknown()
-                .nullable()
-                .describe(
-                  "Coefficient of Wetness (W-value). Numeric, -5 (obligate wetland) to +5 (obligate upland). Null if not assigned.\n",
-                ),
-              physiognomy: zod
-                .string()
-                .describe(
-                  "Plant physiognomic type (e.g. Forb, Shrub, Tree, Grass, Sedge, Rush, Fern, Bryophyte, Vine)",
-                ),
-              duration: zod
-                .string()
-                .describe("Life duration (e.g. Annual, Perennial, Biennial)"),
-              common_name: zod
-                .string()
-                .describe("Common name in the source database"),
-            }),
-          )
-          .describe("All species records in this database"),
-      }),
-      zod.null(),
-    ])
-    .nullish(),
-});
+  "found": zod.boolean(),
+  "cache_status": zod.string().nullable(),
+  "queried_at": zod.date(),
+  "source_url": zod.string(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+  "data": zod.union([zod.object({
+  "id": zod.number().describe('Universal FQA database ID'),
+  "region": zod.string().describe('Region name as provided by universalfqa.org'),
+  "year": zod.string().describe('Publication year string as provided by universalfqa.org'),
+  "citation": zod.string().describe('Full citation string as provided by universalfqa.org'),
+  "total_species": zod.number().describe('Total number of species in this database'),
+  "native_species": zod.number().describe('Number of native species'),
+  "non_native_species": zod.number().describe('Number of non-native species'),
+  "total_mean_c": zod.number().nullish().describe('Mean C-value across all species (native and non-native)'),
+  "native_mean_c": zod.number().nullish().describe('Mean C-value across native species only'),
+  "species": zod.array(zod.object({
+  "scientific_name": zod.string().describe('Scientific name of the species as listed in this database'),
+  "family": zod.string().describe('Plant family'),
+  "acronym": zod.string().describe('Abbreviated acronym used in this database'),
+  "native": zod.string().describe('Nativity string as provided by the source database. Typically \"native\" or \"non-native\" but exact values depend on the database.\n'),
+  "c": zod.unknown().nullable().describe('Coefficient of Conservatism (C-value) for this species in this database. Integer 0–10 for native species; null for non-native or unassigned species. Some databases use string representations. Always check the source database citation for the methodology used to assign C-values.\n'),
+  "w": zod.unknown().nullable().describe('Coefficient of Wetness (W-value). Numeric, -5 (obligate wetland) to +5 (obligate upland). Null if not assigned.\n'),
+  "physiognomy": zod.string().describe('Plant physiognomic type (e.g. Forb, Shrub, Tree, Grass, Sedge, Rush, Fern, Bryophyte, Vine)'),
+  "duration": zod.string().describe('Life duration (e.g. Annual, Perennial, Biennial)'),
+  "common_name": zod.string().describe('Common name in the source database')
+})).describe('All species records in this database')
+}),zod.null()]).nullish()
+})
+
 
 /**
  * Returns all publicly shared site assessments for the specified database. Each entry contains the assessment id, name, date, site, and practitioner. Assessment county and state are only available in the individual assessment detail endpoint — the list does not include location fields. Michigan 2014 (ID 50) has 4800+ assessments; Michigan 2024 (ID 267) has 400+.
@@ -6957,84 +2458,35 @@ export const GetUniversalFqaDatabaseResponse = zod.object({
  * @summary List public site assessments for a Universal FQA database
  */
 export const GetUniversalFqaAssessmentsParams = zod.object({
-  id: zod.coerce.number().describe("Universal FQA database ID"),
-});
+  "id": zod.coerce.number().describe('Universal FQA database ID')
+})
 
 export const GetUniversalFqaAssessmentsResponse = zod.object({
-  found: zod.boolean(),
-  cache_status: zod.string().nullable(),
-  queried_at: zod.date(),
-  source_url: zod.string(),
-  provenance: zod
-    .object({
-      source_id: zod
-        .string()
-        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod
-        .date()
-        .describe("When this record was obtained from the source"),
-      method: zod
-        .string()
-        .describe(
-          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-        ),
-      upstream_url: zod
-        .string()
-        .describe(
-          "Where this data came from (API endpoint, file path, or registry entry)",
-        ),
-      general_summary: zod
-        .string()
-        .optional()
-        .describe(
-          "Plain language description readable by a homeowner or community member",
-        ),
-      technical_details: zod
-        .string()
-        .optional()
-        .describe(
-          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-        ),
-      matched_input: zod
-        .string()
-        .optional()
-        .describe(
-          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-        ),
-    })
-    .describe(
-      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-    ),
-  data: zod
-    .union([
-      zod.object({
-        database_id: zod.number(),
-        assessments: zod.array(
-          zod.object({
-            id: zod.number().describe("Assessment ID"),
-            name: zod
-              .string()
-              .describe("Assessment name as entered by the practitioner"),
-            date: zod
-              .string()
-              .describe(
-                "Date of the assessment (string as provided by source)",
-              ),
-            site: zod
-              .string()
-              .describe("Site name as entered by the practitioner"),
-            practitioner: zod
-              .string()
-              .describe(
-                "Name of the practitioner who conducted the assessment",
-              ),
-          }),
-        ),
-      }),
-      zod.null(),
-    ])
-    .nullish(),
-});
+  "found": zod.boolean(),
+  "cache_status": zod.string().nullable(),
+  "queried_at": zod.date(),
+  "source_url": zod.string(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+  "data": zod.union([zod.object({
+  "database_id": zod.number(),
+  "assessments": zod.array(zod.object({
+  "id": zod.number().describe('Assessment ID'),
+  "name": zod.string().describe('Assessment name as entered by the practitioner'),
+  "date": zod.string().describe('Date of the assessment (string as provided by source)'),
+  "site": zod.string().describe('Site name as entered by the practitioner'),
+  "practitioner": zod.string().describe('Name of the practitioner who conducted the assessment')
+}))
+}),zod.null()]).nullish()
+})
+
 
 /**
  * Returns the full detail for a public site assessment: site name, date, city/county/state/country, practitioner, which FQA database was used, all computed FQI metrics (Total/Native FQI, Adjusted FQI, Mean C, Mean Wetness, species richness, physiognomy breakdown, duration breakdown), and the complete observed species list with all nine per-species source fields. Returns 404 if the assessment does not exist or is not public.
@@ -7042,185 +2494,109 @@ export const GetUniversalFqaAssessmentsResponse = zod.object({
  * @summary Get a single Universal FQA site assessment in full detail
  */
 export const GetUniversalFqaAssessmentParams = zod.object({
-  id: zod.coerce
-    .number()
-    .describe("Universal FQA assessment ID (from the assessments list)"),
-});
+  "id": zod.coerce.number().describe('Universal FQA assessment ID (from the assessments list)')
+})
 
 export const GetUniversalFqaAssessmentResponse = zod.object({
-  found: zod.boolean(),
-  cache_status: zod.string().nullable(),
-  queried_at: zod.date(),
-  source_url: zod.string(),
-  provenance: zod
-    .object({
-      source_id: zod
-        .string()
-        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod
-        .date()
-        .describe("When this record was obtained from the source"),
-      method: zod
-        .string()
-        .describe(
-          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-        ),
-      upstream_url: zod
-        .string()
-        .describe(
-          "Where this data came from (API endpoint, file path, or registry entry)",
-        ),
-      general_summary: zod
-        .string()
-        .optional()
-        .describe(
-          "Plain language description readable by a homeowner or community member",
-        ),
-      technical_details: zod
-        .string()
-        .optional()
-        .describe(
-          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-        ),
-      matched_input: zod
-        .string()
-        .optional()
-        .describe(
-          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-        ),
-    })
-    .describe(
-      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-    ),
-  data: zod
-    .union([
-      zod.object({
-        id: zod.number(),
-        site_name: zod.string().nullish(),
-        date: zod.string().nullish(),
-        city: zod.string().nullish(),
-        county: zod.string().nullish(),
-        state: zod.string().nullish(),
-        country: zod.string().nullish(),
-        fqa_db: zod
-          .union([
-            zod.object({
-              region: zod.string().nullish(),
-              year: zod.string().nullish(),
-              citation: zod.string().nullish(),
-            }),
-            zod.null(),
-          ])
-          .nullish(),
-        practitioner: zod.string().nullish(),
-        latitude: zod.string().nullish(),
-        longitude: zod.string().nullish(),
-        weather_notes: zod.string().nullish(),
-        duration_notes: zod.string().nullish(),
-        community_type: zod.string().nullish(),
-        other_notes: zod.string().nullish(),
-        visibility: zod.string().nullish(),
-        metrics: zod
-          .object({
-            total_mean_c: zod.number().nullish(),
-            native_mean_c: zod.number().nullish(),
-            total_fqi: zod.number().nullish(),
-            native_fqi: zod.number().nullish(),
-            adjusted_fqi: zod.number().nullish(),
-            pct_c0: zod.number().nullish(),
-            pct_c1_3: zod.number().nullish(),
-            pct_c4_6: zod.number().nullish(),
-            pct_c7_10: zod.number().nullish(),
-            native_tree_mean_c: zod.number().nullish(),
-            native_shrub_mean_c: zod.number().nullish(),
-            native_herbaceous_mean_c: zod.number().nullish(),
-            total_species: zod.number().nullish(),
-            native_species: zod.number().nullish(),
-            native_species_pct: zod.number().nullish(),
-            non_native_species: zod.number().nullish(),
-            non_native_species_pct: zod.number().nullish(),
-            mean_wetness: zod.number().nullish(),
-            native_mean_wetness: zod.number().nullish(),
-            tree_count: zod.number().nullish(),
-            tree_pct: zod.number().nullish(),
-            shrub_count: zod.number().nullish(),
-            shrub_pct: zod.number().nullish(),
-            vine_count: zod.number().nullish(),
-            vine_pct: zod.number().nullish(),
-            forb_count: zod.number().nullish(),
-            forb_pct: zod.number().nullish(),
-            grass_count: zod.number().nullish(),
-            grass_pct: zod.number().nullish(),
-            sedge_count: zod.number().nullish(),
-            sedge_pct: zod.number().nullish(),
-            rush_count: zod.number().nullish(),
-            rush_pct: zod.number().nullish(),
-            fern_count: zod.number().nullish(),
-            fern_pct: zod.number().nullish(),
-            bryophyte_count: zod.number().nullish(),
-            bryophyte_pct: zod.number().nullish(),
-            annual_count: zod.number().nullish(),
-            annual_pct: zod.number().nullish(),
-            perennial_count: zod.number().nullish(),
-            perennial_pct: zod.number().nullish(),
-            biennial_count: zod.number().nullish(),
-            biennial_pct: zod.number().nullish(),
-            native_annual_count: zod.number().nullish(),
-            native_annual_pct: zod.number().nullish(),
-            native_perennial_count: zod.number().nullish(),
-            native_perennial_pct: zod.number().nullish(),
-            native_biennial_count: zod.number().nullish(),
-            native_biennial_pct: zod.number().nullish(),
-          })
-          .describe(
-            "Computed Floristic Quality Assessment metrics for this site assessment. All numeric values. Null means the source did not provide a value for this assessment.\n",
-          ),
-        species: zod.array(
-          zod.object({
-            scientific_name: zod
-              .string()
-              .describe(
-                "Scientific name of the species as listed in this database",
-              ),
-            family: zod.string().describe("Plant family"),
-            acronym: zod
-              .string()
-              .describe("Abbreviated acronym used in this database"),
-            native: zod
-              .string()
-              .describe(
-                'Nativity string as provided by the source database. Typically \"native\" or \"non-native\" but exact values depend on the database.\n',
-              ),
-            c: zod
-              .unknown()
-              .nullable()
-              .describe(
-                "Coefficient of Conservatism (C-value) for this species in this database. Integer 0–10 for native species; null for non-native or unassigned species. Some databases use string representations. Always check the source database citation for the methodology used to assign C-values.\n",
-              ),
-            w: zod
-              .unknown()
-              .nullable()
-              .describe(
-                "Coefficient of Wetness (W-value). Numeric, -5 (obligate wetland) to +5 (obligate upland). Null if not assigned.\n",
-              ),
-            physiognomy: zod
-              .string()
-              .describe(
-                "Plant physiognomic type (e.g. Forb, Shrub, Tree, Grass, Sedge, Rush, Fern, Bryophyte, Vine)",
-              ),
-            duration: zod
-              .string()
-              .describe("Life duration (e.g. Annual, Perennial, Biennial)"),
-            common_name: zod
-              .string()
-              .describe("Common name in the source database"),
-          }),
-        ),
-      }),
-      zod.null(),
-    ])
-    .nullish(),
-});
+  "found": zod.boolean(),
+  "cache_status": zod.string().nullable(),
+  "queried_at": zod.date(),
+  "source_url": zod.string(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+  "data": zod.union([zod.object({
+  "id": zod.number(),
+  "site_name": zod.string().nullish(),
+  "date": zod.string().nullish(),
+  "city": zod.string().nullish(),
+  "county": zod.string().nullish(),
+  "state": zod.string().nullish(),
+  "country": zod.string().nullish(),
+  "fqa_db": zod.union([zod.object({
+  "region": zod.string().nullish(),
+  "year": zod.string().nullish(),
+  "citation": zod.string().nullish()
+}),zod.null()]).nullish(),
+  "practitioner": zod.string().nullish(),
+  "latitude": zod.string().nullish(),
+  "longitude": zod.string().nullish(),
+  "weather_notes": zod.string().nullish(),
+  "duration_notes": zod.string().nullish(),
+  "community_type": zod.string().nullish(),
+  "other_notes": zod.string().nullish(),
+  "visibility": zod.string().nullish(),
+  "metrics": zod.object({
+  "total_mean_c": zod.number().nullish(),
+  "native_mean_c": zod.number().nullish(),
+  "total_fqi": zod.number().nullish(),
+  "native_fqi": zod.number().nullish(),
+  "adjusted_fqi": zod.number().nullish(),
+  "pct_c0": zod.number().nullish(),
+  "pct_c1_3": zod.number().nullish(),
+  "pct_c4_6": zod.number().nullish(),
+  "pct_c7_10": zod.number().nullish(),
+  "native_tree_mean_c": zod.number().nullish(),
+  "native_shrub_mean_c": zod.number().nullish(),
+  "native_herbaceous_mean_c": zod.number().nullish(),
+  "total_species": zod.number().nullish(),
+  "native_species": zod.number().nullish(),
+  "native_species_pct": zod.number().nullish(),
+  "non_native_species": zod.number().nullish(),
+  "non_native_species_pct": zod.number().nullish(),
+  "mean_wetness": zod.number().nullish(),
+  "native_mean_wetness": zod.number().nullish(),
+  "tree_count": zod.number().nullish(),
+  "tree_pct": zod.number().nullish(),
+  "shrub_count": zod.number().nullish(),
+  "shrub_pct": zod.number().nullish(),
+  "vine_count": zod.number().nullish(),
+  "vine_pct": zod.number().nullish(),
+  "forb_count": zod.number().nullish(),
+  "forb_pct": zod.number().nullish(),
+  "grass_count": zod.number().nullish(),
+  "grass_pct": zod.number().nullish(),
+  "sedge_count": zod.number().nullish(),
+  "sedge_pct": zod.number().nullish(),
+  "rush_count": zod.number().nullish(),
+  "rush_pct": zod.number().nullish(),
+  "fern_count": zod.number().nullish(),
+  "fern_pct": zod.number().nullish(),
+  "bryophyte_count": zod.number().nullish(),
+  "bryophyte_pct": zod.number().nullish(),
+  "annual_count": zod.number().nullish(),
+  "annual_pct": zod.number().nullish(),
+  "perennial_count": zod.number().nullish(),
+  "perennial_pct": zod.number().nullish(),
+  "biennial_count": zod.number().nullish(),
+  "biennial_pct": zod.number().nullish(),
+  "native_annual_count": zod.number().nullish(),
+  "native_annual_pct": zod.number().nullish(),
+  "native_perennial_count": zod.number().nullish(),
+  "native_perennial_pct": zod.number().nullish(),
+  "native_biennial_count": zod.number().nullish(),
+  "native_biennial_pct": zod.number().nullish()
+}).describe('Computed Floristic Quality Assessment metrics for this site assessment. All numeric values. Null means the source did not provide a value for this assessment.\n'),
+  "species": zod.array(zod.object({
+  "scientific_name": zod.string().describe('Scientific name of the species as listed in this database'),
+  "family": zod.string().describe('Plant family'),
+  "acronym": zod.string().describe('Abbreviated acronym used in this database'),
+  "native": zod.string().describe('Nativity string as provided by the source database. Typically \"native\" or \"non-native\" but exact values depend on the database.\n'),
+  "c": zod.unknown().nullable().describe('Coefficient of Conservatism (C-value) for this species in this database. Integer 0–10 for native species; null for non-native or unassigned species. Some databases use string representations. Always check the source database citation for the methodology used to assign C-values.\n'),
+  "w": zod.unknown().nullable().describe('Coefficient of Wetness (W-value). Numeric, -5 (obligate wetland) to +5 (obligate upland). Null if not assigned.\n'),
+  "physiognomy": zod.string().describe('Plant physiognomic type (e.g. Forb, Shrub, Tree, Grass, Sedge, Rush, Fern, Bryophyte, Vine)'),
+  "duration": zod.string().describe('Life duration (e.g. Annual, Perennial, Biennial)'),
+  "common_name": zod.string().describe('Common name in the source database')
+}))
+}),zod.null()]).nullish()
+})
+
 
 /**
  * Returns metadata about the registry service itself — its identity, descriptions, and its own registry entry. Follows the same envelope pattern as all other FERNS /metadata endpoints.
@@ -7228,106 +2604,36 @@ export const GetUniversalFqaAssessmentResponse = zod.object({
  * @summary Metadata for the FERNS Source Registry service itself
  */
 export const GetSourcesMetadataResponse = zod.object({
-  source_url: zod.string(),
-  found: zod.boolean(),
-  data: zod.object({
-    source_id: zod
-      .string()
-      .describe("Stable identifier for this service (e.g. bonap-napa, gbif)"),
-    name: zod.string().describe("Human-readable service name"),
-    knowledge_type: zod
-      .string()
-      .describe(
-        "source_wrapper | derived_synthesis | aggregation | system | vocabulary_reference",
-      ),
-    status: zod.string().describe("live | draft | deprecated"),
-    description: zod
-      .string()
-      .describe(
-        "Plain-English description readable by a homeowner or community member",
-      ),
-    input_summary: zod.string().describe("What you send to query this service"),
-    output_summary: zod.string().describe("What you get back"),
-    dependencies: zod
-      .array(zod.string())
-      .describe("source_ids this service depends on"),
-    update_frequency: zod
-      .string()
-      .describe(
-        "How often the underlying data changes (e.g. live, annual, static)",
-      ),
-    known_limitations: zod
-      .string()
-      .describe("Brief honest statement of gaps and caveats"),
-    metadata_url: zod
-      .string()
-      .describe("Link to this service's full \/metadata endpoint"),
-    licenses: zod
-      .array(zod.string())
-      .optional()
-      .describe(
-        "Whether FERNS has verified that use of this source is explicitly permitted. true = permission confirmed; null = not yet evaluated.\n",
-      ),
-    license_notes: zod
-      .string()
-      .optional()
-      .describe(
-        "Plain-English description of the permission situation for this source. Covers license type, access model, and any restrictions on use.\n",
-      ),
-    general_summary: zod
-      .string()
-      .optional()
-      .describe(
-        "One-paragraph plain-English description of this source suitable for non-technical users, agents, and routing decisions.\n",
-      ),
-    technical_details: zod
-      .string()
-      .optional()
-      .describe(
-        "Technical description of how this source works, including data model, method, upstream URL, caching behavior, and known edge cases.\n",
-      ),
-  }),
-  provenance: zod
-    .object({
-      source_id: zod
-        .string()
-        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod
-        .date()
-        .describe("When this record was obtained from the source"),
-      method: zod
-        .string()
-        .describe(
-          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-        ),
-      upstream_url: zod
-        .string()
-        .describe(
-          "Where this data came from (API endpoint, file path, or registry entry)",
-        ),
-      general_summary: zod
-        .string()
-        .optional()
-        .describe(
-          "Plain language description readable by a homeowner or community member",
-        ),
-      technical_details: zod
-        .string()
-        .optional()
-        .describe(
-          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-        ),
-      matched_input: zod
-        .string()
-        .optional()
-        .describe(
-          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-        ),
-    })
-    .describe(
-      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-    ),
-});
+  "source_url": zod.string(),
+  "found": zod.boolean(),
+  "data": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this service (e.g. bonap-napa, gbif)'),
+  "name": zod.string().describe('Human-readable service name'),
+  "knowledge_type": zod.string().describe('source_wrapper | derived_synthesis | aggregation | system | vocabulary_reference'),
+  "status": zod.string().describe('live | draft | deprecated'),
+  "description": zod.string().describe('Plain-English description readable by a homeowner or community member'),
+  "input_summary": zod.string().describe('What you send to query this service'),
+  "output_summary": zod.string().describe('What you get back'),
+  "dependencies": zod.array(zod.string()).describe('source_ids this service depends on'),
+  "update_frequency": zod.string().describe('How often the underlying data changes (e.g. live, annual, static)'),
+  "known_limitations": zod.string().describe('Brief honest statement of gaps and caveats'),
+  "metadata_url": zod.string().describe('Link to this service\'s full \/metadata endpoint'),
+  "licenses": zod.array(zod.string()).optional().describe('Whether FERNS has verified that use of this source is explicitly permitted. true = permission confirmed; null = not yet evaluated.\n'),
+  "license_notes": zod.string().optional().describe('Plain-English description of the permission situation for this source. Covers license type, access model, and any restrictions on use.\n'),
+  "general_summary": zod.string().optional().describe('One-paragraph plain-English description of this source suitable for non-technical users, agents, and routing decisions.\n'),
+  "technical_details": zod.string().optional().describe('Technical description of how this source works, including data model, method, upstream URL, caching behavior, and known edge cases.\n')
+}),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+})
+
 
 /**
  * Returns all documented relationships between FERNS sources — overlaps, conflicts, and complementary pairings. Optionally filter by source_id to get only relationships involving a specific source. Use this endpoint to understand whether two sources double-count data, disagree on terminology, or cover the same domain from different methodologies. Individual source metadata does not contain cross-source information; this endpoint is the canonical location for all inter-source knowledge.
@@ -7335,203 +2641,69 @@ export const GetSourcesMetadataResponse = zod.object({
  * @summary List cross-source relationships (overlaps, conflicts, complements)
  */
 export const GetSourceRelationshipsQueryParams = zod.object({
-  source_id: zod
-    .string()
-    .optional()
-    .describe(
-      "If provided, returns only relationships where this source_id is one of the two parties.\n",
-    ),
-});
+  "source_id": zod.string().optional().describe('If provided, returns only relationships where this source_id is one of the two parties.\n')
+})
 
 export const GetSourceRelationshipsResponse = zod.object({
-  source_url: zod.string(),
-  found: zod.boolean(),
-  data: zod.object({
-    relationships: zod.array(
-      zod.object({
-        id: zod.number(),
-        source_id_a: zod
-          .string()
-          .describe(
-            "One of the two source IDs (lexically smaller of the pair)",
-          ),
-        source_id_b: zod
-          .string()
-          .describe("The other source ID (lexically larger of the pair)"),
-        relationship_type: zod
-          .enum(["overlap", "conflict", "complements", "supersedes"])
-          .describe("Nature of the relationship between the two sources"),
-        scope: zod
-          .string()
-          .describe(
-            "Domain in which the relationship applies. One of: taxonomy, occurrence_counts, c_values, conservation_ranks, geographic_coverage, terminology, seed_harvest, community_classification, occurrence.\n",
-          ),
-        severity: zod
-          .enum(["blocking", "cautionary", "informational"])
-          .describe(
-            "blocking — must account for this before combining these sources; cautionary — awareness required, may cause errors if ignored; informational — useful context, no required action.\n",
-          ),
-        description: zod
-          .string()
-          .describe(
-            "Plain-English description of the relationship for agents and non-technical users",
-          ),
-        technical_note: zod
-          .string()
-          .describe(
-            "Implementation-level detail for developers and researchers",
-          ),
-        created_at: zod.date(),
-        updated_at: zod.date(),
-      }),
-    ),
-    relationship_count: zod.number(),
-    filtered_by_source_id: zod.string().nullish(),
-  }),
-  provenance: zod
-    .object({
-      source_id: zod
-        .string()
-        .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-      fetched_at: zod
-        .date()
-        .describe("When this record was obtained from the source"),
-      method: zod
-        .string()
-        .describe(
-          "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-        ),
-      upstream_url: zod
-        .string()
-        .describe(
-          "Where this data came from (API endpoint, file path, or registry entry)",
-        ),
-      general_summary: zod
-        .string()
-        .optional()
-        .describe(
-          "Plain language description readable by a homeowner or community member",
-        ),
-      technical_details: zod
-        .string()
-        .optional()
-        .describe(
-          "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-        ),
-      matched_input: zod
-        .string()
-        .optional()
-        .describe(
-          "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-        ),
-    })
-    .describe(
-      "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-    ),
-});
+  "source_url": zod.string(),
+  "found": zod.boolean(),
+  "data": zod.object({
+  "relationships": zod.array(zod.object({
+  "id": zod.number(),
+  "source_id_a": zod.string().describe('One of the two source IDs (lexically smaller of the pair)'),
+  "source_id_b": zod.string().describe('The other source ID (lexically larger of the pair)'),
+  "relationship_type": zod.enum(['overlap', 'conflict', 'complements', 'supersedes']).describe('Nature of the relationship between the two sources'),
+  "scope": zod.string().describe('Domain in which the relationship applies. One of: taxonomy, occurrence_counts, c_values, conservation_ranks, geographic_coverage, terminology, seed_harvest, community_classification, occurrence.\n'),
+  "severity": zod.enum(['blocking', 'cautionary', 'informational']).describe('blocking — must account for this before combining these sources; cautionary — awareness required, may cause errors if ignored; informational — useful context, no required action.\n'),
+  "description": zod.string().describe('Plain-English description of the relationship for agents and non-technical users'),
+  "technical_note": zod.string().describe('Implementation-level detail for developers and researchers'),
+  "created_at": zod.date(),
+  "updated_at": zod.date()
+})),
+  "relationship_count": zod.number(),
+  "filtered_by_source_id": zod.string().nullish()
+}),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+})
+
 
 /**
  * Returns service identity, attribution, licenses and license notes, community class counts, county coverage, and cache statistics for the Michigan Natural Features Inventory (MNFI) service. Also seeds the MNFI entry in the FERNS source registry. Use this to populate 'About this data' panels in any application displaying MNFI community or county element data. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
  * @summary MNFI service metadata
  */
-export const GetMnfiMetadataResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  );
+export const GetMnfiMetadataResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
 
 /**
  * Returns all Michigan Natural Features Inventory (MNFI) natural community types. Optionally filter by community class, group, or name substring (case-insensitive ILIKE match). All data is served from FERNS's local database seeded from the MNFI website — no upstream API call is made at query time. Returns community records sorted by class and name. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
@@ -7539,117 +2711,35 @@ export const GetMnfiMetadataResponse = zod
  * @summary List MNFI natural community types
  */
 export const GetMnfiCommunitiesQueryParams = zod.object({
-  class: zod
-    .string()
-    .optional()
-    .describe("Filter by community class (substring match, e.g. Terrestrial)"),
-  group: zod
-    .string()
-    .optional()
-    .describe("Filter by community group (substring match, e.g. Forest)"),
-  name: zod
-    .string()
-    .optional()
-    .describe("Filter by community name (substring match, e.g. oak savanna)"),
-});
+  "class": zod.string().optional().describe('Filter by community class (substring match, e.g. Terrestrial)'),
+  "group": zod.string().optional().describe('Filter by community group (substring match, e.g. Forest)'),
+  "name": zod.string().optional().describe('Filter by community name (substring match, e.g. oak savanna)')
+})
 
-export const GetMnfiCommunitiesResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  );
+export const GetMnfiCommunitiesResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
 
 /**
  * Returns the full profile for a single MNFI natural community type, including description, acreage estimates, and all characteristic plants grouped by life form. The {id} path parameter accepts either the numeric community_id (e.g. 1234) or the URL slug (e.g. southern-dry-chestnut-oak-forest). Plant lists are included inline — characteristic_plants.by_life_form groups species by life form (tree, shrub, herb, etc.). Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
@@ -7657,110 +2747,36 @@ export const GetMnfiCommunitiesResponse = zod
  * @summary Get a single MNFI community by ID or slug
  */
 
-export const GetMnfiCommunityParams = zod.object({
-  id: zod
-    .string()
-    .min(1)
-    .describe("Numeric community_id or URL slug for the community"),
-});
 
-export const GetMnfiCommunityResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  );
+
+export const GetMnfiCommunityParams = zod.object({
+  "id": zod.string().min(1).describe('Numeric community_id or URL slug for the community')
+})
+
+export const GetMnfiCommunityResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
 
 /**
  * Returns the characteristic plant list for an MNFI natural community, grouped by life form (tree, shrub, herb, graminoid, vine, etc.). The {id} path parameter accepts either the numeric community_id or the URL slug. This is the same plant data included inline in the community detail endpoint, exposed as a dedicated endpoint for applications that only need plant lists. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
@@ -7768,110 +2784,36 @@ export const GetMnfiCommunityResponse = zod
  * @summary Get characteristic plants for an MNFI community
  */
 
-export const GetMnfiCommunityPlantsParams = zod.object({
-  id: zod
-    .string()
-    .min(1)
-    .describe("Numeric community_id or URL slug for the community"),
-});
 
-export const GetMnfiCommunityPlantsResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  );
+
+export const GetMnfiCommunityPlantsParams = zod.object({
+  "id": zod.string().min(1).describe('Numeric community_id or URL slug for the community')
+})
+
+export const GetMnfiCommunityPlantsResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
 
 /**
  * Returns MNFI Element Occurrence records for a given Michigan county. These records document where significant natural features (rare species, natural communities) have been observed. The county parameter is required; all 83 Michigan county names are accepted (case-insensitive). Optionally filter to only species or community element types with the type parameter. Data is served from FERNS's local database seeded from the MNFI county element download — no upstream API call at query time. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
@@ -7879,248 +2821,82 @@ export const GetMnfiCommunityPlantsResponse = zod
  * @summary Get MNFI significant natural features for a Michigan county
  */
 
-export const GetMnfiCountyElementsQueryParams = zod.object({
-  county: zod
-    .string()
-    .min(1)
-    .describe(
-      "Michigan county name (e.g. Washtenaw, Leelanau). Case-insensitive. All 83 Michigan county names are accepted.\n",
-    ),
-  type: zod
-    .enum(["species", "community"])
-    .optional()
-    .describe(
-      "Filter by element type. Must be 'species' or 'community' when provided. When omitted, both types are returned.\n",
-    ),
-});
 
-export const GetMnfiCountyElementsResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  );
+
+export const GetMnfiCountyElementsQueryParams = zod.object({
+  "county": zod.string().min(1).describe('Michigan county name (e.g. Washtenaw, Leelanau). Case-insensitive. All 83 Michigan county names are accepted.\n'),
+  "type": zod.enum(['species', 'community']).optional().describe('Filter by element type. Must be \'species\' or \'community\' when provided. When omitted, both types are returned.\n')
+})
+
+export const GetMnfiCountyElementsResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
 
 /**
  * Returns service identity, attribution, licenses and license notes, cache statistics, and the full registry entry for the NatureServe Explorer service. Use this to populate 'About this data' panels in any application displaying NatureServe conservation status or ecosystem data. Also seeds the NatureServe entry in the FERNS source registry.
 
  * @summary NatureServe service metadata
  */
-export const GetNatureserveMetadataResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .object({
-          description: zod.string().optional(),
-          general_summary: zod.string().optional(),
-          technical_details: zod.string().optional(),
-          licenses: zod.array(zod.string()).optional(),
-          license_notes: zod.string().optional(),
-          cache_stats: zod
-            .object({
-              species_cached: zod.number().optional(),
-              ecosystems_cached: zod.number().optional(),
-              ttl_days: zod.record(zod.string(), zod.unknown()).optional(),
-            })
-            .optional(),
-          metadata_url: zod.string().optional(),
-          website_url_patterns: zod
-            .record(zod.string(), zod.unknown())
-            .optional(),
-        })
-        .optional()
-        .describe(
-          "Registry descriptive content for the NatureServe Explorer service.",
-        ),
-    }),
-  );
+export const GetNatureserveMetadataResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.object({
+  "description": zod.string().optional(),
+  "general_summary": zod.string().optional(),
+  "technical_details": zod.string().optional(),
+  "licenses": zod.array(zod.string()).optional(),
+  "license_notes": zod.string().optional(),
+  "cache_stats": zod.object({
+  "species_cached": zod.number().optional(),
+  "ecosystems_cached": zod.number().optional(),
+  "ttl_days": zod.record(zod.string(), zod.unknown()).optional()
+}).optional(),
+  "metadata_url": zod.string().optional(),
+  "website_url_patterns": zod.record(zod.string(), zod.unknown()).optional()
+}).optional().describe('Registry descriptive content for the NatureServe Explorer service.')
+}))
+
 
 /**
  * Queries NatureServe Explorer for conservation status data for a given scientific name, optionally scoped to a US state. Returns global rank (G-rank), national rank (N-rank), state rank (S-rank), IUCN category, federal status, state status, and a direct NatureServe Explorer URL for the species. Ranks follow NatureServe standard notation (e.g. G3, N2N3, S1). State rank is derived from NatureServe S-rank and reflects rarity status — it is not a formal statutory state listing. Results cached 30 days per name+state combination.
@@ -8132,168 +2908,57 @@ export const getNatureserveSpeciesQueryStateDefault = `MI`;
 export const getNatureserveSpeciesQueryRefreshDefault = false;
 
 export const GetNatureserveSpeciesQueryParams = zod.object({
-  name: zod
-    .string()
-    .min(1)
-    .describe("Scientific name to look up (e.g. Asclepias tuberosa)"),
-  state: zod
-    .string()
-    .default(getNatureserveSpeciesQueryStateDefault)
-    .describe(
-      "Two-letter US state code to scope the state rank (e.g. MI, WI, OH). Defaults to MI (Michigan) when omitted. Must be a valid 2-letter code.\n",
-    ),
-  refresh: zod.coerce
-    .boolean()
-    .default(getNatureserveSpeciesQueryRefreshDefault)
-    .describe(
-      "If true, bypasses cache and fetches fresh from NatureServe Explorer",
-    ),
-});
+  "name": zod.string().min(1).describe('Scientific name to look up (e.g. Asclepias tuberosa)'),
+  "state": zod.string().default(getNatureserveSpeciesQueryStateDefault).describe('Two-letter US state code to scope the state rank (e.g. MI, WI, OH). Defaults to MI (Michigan) when omitted. Must be a valid 2-letter code.\n'),
+  "refresh": zod.coerce.boolean().default(getNatureserveSpeciesQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from NatureServe Explorer')
+})
 
-export const GetNatureserveSpeciesResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .object({
-          scientific_name: zod.string().nullish(),
-          common_name: zod.string().nullish(),
-          global_rank: zod
-            .string()
-            .nullish()
-            .describe("NatureServe G-rank (e.g. G4, G3G4)"),
-          rounded_global_rank: zod.string().nullish(),
-          national_rank: zod
-            .string()
-            .nullish()
-            .describe("NatureServe N-rank for the US (e.g. N3, N4)"),
-          rounded_national_rank: zod.string().nullish(),
-          state_code: zod
-            .string()
-            .optional()
-            .describe("Two-letter US state code this rank is scoped to"),
-          state_rank: zod
-            .string()
-            .nullish()
-            .describe("NatureServe S-rank for the queried state (e.g. S1, S2)"),
-          rounded_state_rank: zod.string().nullish(),
-          iucn_category: zod.string().nullish(),
-          iucn_description: zod.string().nullish(),
-          federal_status: zod.string().nullish(),
-          federal_status_description: zod.string().nullish(),
-          state_status: zod
-            .string()
-            .nullish()
-            .describe(
-              "Derived by mapping NatureServe S-rank values to labels — not verbatim upstream data. Plan #148 regression; deferred to plans 16–18.\n",
-            ),
-          cites_description: zod.string().nullish(),
-          cosewic_code: zod.string().nullish(),
-          cosewic_description: zod.string().nullish(),
-          natureserve_url: zod.string().nullish(),
-          element_global_id: zod.string().nullish(),
-        })
-        .optional()
-        .describe(
-          "Extracted NatureServe species conservation status fields. NOTE: This is a flat struct rather than verbatim upstream JSON — a plan #148 regression deferred to plans 16–18.\n",
-        ),
-    }),
-  );
+export const GetNatureserveSpeciesResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.object({
+  "scientific_name": zod.string().nullish(),
+  "common_name": zod.string().nullish(),
+  "global_rank": zod.string().nullish().describe('NatureServe G-rank (e.g. G4, G3G4)'),
+  "rounded_global_rank": zod.string().nullish(),
+  "national_rank": zod.string().nullish().describe('NatureServe N-rank for the US (e.g. N3, N4)'),
+  "rounded_national_rank": zod.string().nullish(),
+  "state_code": zod.string().optional().describe('Two-letter US state code this rank is scoped to'),
+  "state_rank": zod.string().nullish().describe('NatureServe S-rank for the queried state (e.g. S1, S2)'),
+  "rounded_state_rank": zod.string().nullish(),
+  "iucn_category": zod.string().nullish(),
+  "iucn_description": zod.string().nullish(),
+  "federal_status": zod.string().nullish(),
+  "federal_status_description": zod.string().nullish(),
+  "state_status": zod.string().nullish().describe('Derived by mapping NatureServe S-rank values to labels — not verbatim upstream data. Plan #148 regression; deferred to plans 16–18.\n'),
+  "cites_description": zod.string().nullish(),
+  "cosewic_code": zod.string().nullish(),
+  "cosewic_description": zod.string().nullish(),
+  "natureserve_url": zod.string().nullish(),
+  "element_global_id": zod.string().nullish()
+}).optional().describe('Extracted NatureServe species conservation status fields. NOTE: This is a flat struct rather than verbatim upstream JSON — a plan #148 regression deferred to plans 16–18.\n')
+}))
+
 
 /**
  * FERNS GET wrapper over the upstream NatureServe Explorer POST /api/data/search endpoint. Accepts a free-text query and a recordType filter; translates them into a POST body (criteriaType: combined, recordTypeCriteria array, textCriteria quickSearch) and caches the result so repeated queries are served without hitting the upstream API. Valid recordType values and what they return: ECOSYSTEM — NatureServe Ecological Systems and community types (global rank, US national rank, concept description, NatureServe Explorer URL); SPECIES — animal and plant species (prefer /natureserve/speciesSearch for richer per-species conservation status detail including state rank and federal listing); COMMUNITY — plant communities; GROUP — element groups; ASSOCIATION — plant associations. Results are returned in data.ecosystems regardless of recordType (field name reflects the primary use case; records for other recordType values are shaped identically). Results are cached 7 days per query+recordType+limit+page combination.
@@ -8311,220 +2976,60 @@ export const getNatureserveSearchQueryPageMin = 0;
 export const getNatureserveSearchQueryRefreshDefault = false;
 
 export const GetNatureserveSearchQueryParams = zod.object({
-  q: zod
-    .string()
-    .min(1)
-    .describe(
-      "Search text (e.g. oak savanna, tallgrass prairie, Platanthera leucophaea)",
-    ),
-  recordType: zod
-    .enum(["ECOSYSTEM", "SPECIES", "COMMUNITY", "GROUP", "ASSOCIATION"])
-    .default(getNatureserveSearchQueryRecordTypeDefault)
-    .describe(
-      "Type of records to return (default: ECOSYSTEM). ECOSYSTEM — ecological systems and community types; SPECIES — animal and plant species; COMMUNITY — plant communities; GROUP — element groups; ASSOCIATION — plant associations.\n",
-    ),
-  limit: zod.coerce
-    .number()
-    .min(1)
-    .max(getNatureserveSearchQueryLimitMax)
-    .default(getNatureserveSearchQueryLimitDefault)
-    .describe("Number of results per page (1–50, default 10)"),
-  page: zod.coerce
-    .number()
-    .min(getNatureserveSearchQueryPageMin)
-    .default(getNatureserveSearchQueryPageDefault)
-    .describe("Zero-indexed page number (default 0)"),
-  refresh: zod.coerce
-    .boolean()
-    .default(getNatureserveSearchQueryRefreshDefault)
-    .describe(
-      "If true, bypasses cache and fetches fresh from NatureServe Explorer",
-    ),
-  provenance_verbosity: zod
-    .enum(["full", "summary", "none"])
-    .optional()
-    .describe(
-      "Controls how much provenance text is returned. full (default) returns both general_summary and technical_details; summary returns general_summary only; none omits both.\n",
-    ),
-});
+  "q": zod.string().min(1).describe('Search text (e.g. oak savanna, tallgrass prairie, Platanthera leucophaea)'),
+  "recordType": zod.enum(['ECOSYSTEM', 'SPECIES', 'COMMUNITY', 'GROUP', 'ASSOCIATION']).default(getNatureserveSearchQueryRecordTypeDefault).describe('Type of records to return (default: ECOSYSTEM). ECOSYSTEM — ecological systems and community types; SPECIES — animal and plant species; COMMUNITY — plant communities; GROUP — element groups; ASSOCIATION — plant associations.\n'),
+  "limit": zod.coerce.number().min(1).max(getNatureserveSearchQueryLimitMax).default(getNatureserveSearchQueryLimitDefault).describe('Number of results per page (1–50, default 10)'),
+  "page": zod.coerce.number().min(getNatureserveSearchQueryPageMin).default(getNatureserveSearchQueryPageDefault).describe('Zero-indexed page number (default 0)'),
+  "refresh": zod.coerce.boolean().default(getNatureserveSearchQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from NatureServe Explorer'),
+  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls how much provenance text is returned. full (default) returns both general_summary and technical_details; summary returns general_summary only; none omits both.\n')
+})
 
-export const GetNatureserveSearchResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .object({
-          ecosystems: zod
-            .array(
-              zod.object({
-                system_name: zod
-                  .string()
-                  .optional()
-                  .describe(
-                    "Scientific name of the ecological system, species, or community",
-                  ),
-                global_rank: zod
-                  .string()
-                  .nullish()
-                  .describe("NatureServe G-rank (e.g. G3, G4G5)"),
-                rounded_global_rank: zod.string().nullish(),
-                us_national_rank: zod
-                  .string()
-                  .nullish()
-                  .describe("NatureServe N-rank for the US (e.g. N3, N4)"),
-                rounded_us_national_rank: zod.string().nullish(),
-                description_excerpt: zod
-                  .string()
-                  .nullish()
-                  .describe(
-                    "Concept sentence from ecosystemGlobal.conceptSentence (ecosystem records only)",
-                  ),
-                national_distribution: zod.string().nullish(),
-                characteristic_species: zod
-                  .array(
-                    zod.object({
-                      scientific_name: zod.string().optional(),
-                      stratum: zod.string().nullish(),
-                      constancy_percent: zod.number().nullish(),
-                      cover_class_percent: zod.number().nullish(),
-                    }),
-                  )
-                  .optional()
-                  .describe(
-                    "Characteristic plant species (not populated from search endpoint; empty array)",
-                  ),
-                natureserve_url: zod
-                  .string()
-                  .nullish()
-                  .describe(
-                    "Direct link to this record on NatureServe Explorer",
-                  ),
-                element_global_id: zod
-                  .string()
-                  .optional()
-                  .describe(
-                    "NatureServe element global identifier (e.g. ELEMENT_GLOBAL.2.12345)",
-                  ),
-                record_type: zod
-                  .string()
-                  .optional()
-                  .describe(
-                    "Record type as returned by NatureServe (e.g. ECOSYSTEM, SPECIES)",
-                  ),
-              }),
-            )
-            .optional()
-            .describe(
-              "Array of matching records (ecosystems, species, communities, etc. depending on recordType)",
-            ),
-          total_results: zod
-            .number()
-            .optional()
-            .describe(
-              "Total matching records across all pages (from upstream resultsSummary.totalResults)",
-            ),
-        })
-        .optional()
-        .describe(
-          "NatureServe search results for ecological systems, species, or communities.",
-        ),
-    }),
-  );
+export const GetNatureserveSearchResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.object({
+  "ecosystems": zod.array(zod.object({
+  "system_name": zod.string().optional().describe('Scientific name of the ecological system, species, or community'),
+  "global_rank": zod.string().nullish().describe('NatureServe G-rank (e.g. G3, G4G5)'),
+  "rounded_global_rank": zod.string().nullish(),
+  "us_national_rank": zod.string().nullish().describe('NatureServe N-rank for the US (e.g. N3, N4)'),
+  "rounded_us_national_rank": zod.string().nullish(),
+  "description_excerpt": zod.string().nullish().describe('Concept sentence from ecosystemGlobal.conceptSentence (ecosystem records only)'),
+  "national_distribution": zod.string().nullish(),
+  "characteristic_species": zod.array(zod.object({
+  "scientific_name": zod.string().optional(),
+  "stratum": zod.string().nullish(),
+  "constancy_percent": zod.number().nullish(),
+  "cover_class_percent": zod.number().nullish()
+})).optional().describe('Characteristic plant species (not populated from search endpoint; empty array)'),
+  "natureserve_url": zod.string().nullish().describe('Direct link to this record on NatureServe Explorer'),
+  "element_global_id": zod.string().optional().describe('NatureServe element global identifier (e.g. ELEMENT_GLOBAL.2.12345)'),
+  "record_type": zod.string().optional().describe('Record type as returned by NatureServe (e.g. ECOSYSTEM, SPECIES)')
+})).optional().describe('Array of matching records (ecosystems, species, communities, etc. depending on recordType)'),
+  "total_results": zod.number().optional().describe('Total matching records across all pages (from upstream resultsSummary.totalResults)')
+}).optional().describe('NatureServe search results for ecological systems, species, or communities.')
+}))
+
 
 /**
  * Constructs and validates the Go Botany (Native Plant Trust) species page URL for a given scientific name. The URL is constructed from the genus and species epithet and validated with a live HTTP GET request (HTTP 200 = found). Results are cached 7 days. The species parameter must be a binomial name (genus + epithet); partial names return 400.
@@ -8532,183 +3037,62 @@ export const GetNatureserveSearchResponse = zod
  * @summary Look up a Go Botany species page URL
  */
 
-export const GetGobotanyQueryParams = zod.object({
-  species: zod
-    .string()
-    .min(1)
-    .describe(
-      "Binomial scientific name (e.g. Acer rubrum). Genus and species epithet required. Both components must contain only letters.\n",
-    ),
-});
 
-export const GetGobotanyResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants), which return a search_url instead.\n",
-      ),
-    queried_at: zod.date(),
-    source_url: zod.string().optional(),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-        fetched_at: zod
-          .date()
-          .describe("When this record was obtained from the source"),
-        method: zod
-          .string()
-          .describe(
-            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-          ),
-        upstream_url: zod
-          .string()
-          .describe(
-            "Where this data came from (API endpoint, file path, or registry entry)",
-          ),
-        general_summary: zod
-          .string()
-          .optional()
-          .describe(
-            "Plain language description readable by a homeowner or community member",
-          ),
-        technical_details: zod
-          .string()
-          .optional()
-          .describe(
-            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-          ),
-        matched_input: zod
-          .string()
-          .optional()
-          .describe(
-            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-          ),
-      })
-      .optional()
-      .describe(
-        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-      ),
-    data: zod
-      .object({
-        species: zod
-          .string()
-          .optional()
-          .describe("The species name as queried"),
-        url: zod
-          .string()
-          .nullish()
-          .describe(
-            "Direct species page URL. Null when only a search URL is available.",
-          ),
-        search_url: zod
-          .string()
-          .optional()
-          .describe(
-            "Search URL when a direct profile URL cannot be constructed (usda-plants). Present instead of url for these sources.\n",
-          ),
-        validation_method: zod
-          .string()
-          .optional()
-          .describe(
-            "How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable",
-          ),
-        note: zod
-          .string()
-          .optional()
-          .describe(
-            "Explanatory note when validation_method is not_resolvable",
-          ),
-      })
-      .nullish()
-      .describe(
-        "Present when found=true (or when a search_url is returned). Null when not found.",
-      ),
-  })
-  .describe(
-    "Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants).\n",
-  );
+
+export const GetGobotanyQueryParams = zod.object({
+  "species": zod.string().min(1).describe('Binomial scientific name (e.g. Acer rubrum). Genus and species epithet required. Both components must contain only letters.\n')
+})
+
+export const GetGobotanyResponse = zod.object({
+  "found": zod.boolean().describe('True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants), which return a search_url instead.\n'),
+  "queried_at": zod.date(),
+  "source_url": zod.string().optional(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+  "data": zod.object({
+  "species": zod.string().optional().describe('The species name as queried'),
+  "url": zod.string().nullish().describe('Direct species page URL. Null when only a search URL is available.'),
+  "search_url": zod.string().optional().describe('Search URL when a direct profile URL cannot be constructed (usda-plants). Present instead of url for these sources.\n'),
+  "validation_method": zod.string().optional().describe('How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable'),
+  "note": zod.string().optional().describe('Explanatory note when validation_method is not_resolvable')
+}).nullish().describe('Present when found=true (or when a search_url is returned). Null when not found.')
+}).describe('Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants).\n')
+
 
 /**
  * Returns service identity, URL construction strategy, attribution, and the full registry entry for the Go Botany (Native Plant Trust) service.
 
  * @summary Go Botany service metadata
  */
-export const GetGobotanyMetadataResponse = zod
-  .object({
-    service_id: zod.string(),
-    service_name: zod.string(),
-    licenses: zod.array(zod.string()).optional(),
-    license_notes: zod.string().optional(),
-    url_strategy: zod
-      .string()
-      .optional()
-      .describe(
-        "URL construction strategy: direct_construction | sitemap_scrape | species_list_scrape",
-      ),
-    url_pattern: zod
-      .string()
-      .optional()
-      .describe("URL template pattern used for direct construction sources"),
-    validation: zod
-      .string()
-      .optional()
-      .describe(
-        "Validation method for constructed URLs: http_get | none | not_resolvable",
-      ),
-    indexed_species_count: zod
-      .number()
-      .optional()
-      .describe(
-        "Number of species indexed in FERNS's local database (scrape-based sources only)",
-      ),
-    registry_entry: zod.record(zod.string(), zod.unknown()).optional(),
-    queried_at: zod.date().optional(),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-        fetched_at: zod
-          .date()
-          .describe("When this record was obtained from the source"),
-        method: zod
-          .string()
-          .describe(
-            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-          ),
-        upstream_url: zod
-          .string()
-          .describe(
-            "Where this data came from (API endpoint, file path, or registry entry)",
-          ),
-        general_summary: zod
-          .string()
-          .optional()
-          .describe(
-            "Plain language description readable by a homeowner or community member",
-          ),
-        technical_details: zod
-          .string()
-          .optional()
-          .describe(
-            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-          ),
-        matched_input: zod
-          .string()
-          .optional()
-          .describe(
-            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-          ),
-      })
-      .optional()
-      .describe(
-        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-      ),
-  })
-  .describe("Service metadata response for botanical web reference sources.");
+export const GetGobotanyMetadataResponse = zod.object({
+  "service_id": zod.string(),
+  "service_name": zod.string(),
+  "licenses": zod.array(zod.string()).optional(),
+  "license_notes": zod.string().optional(),
+  "url_strategy": zod.string().optional().describe('URL construction strategy: direct_construction | sitemap_scrape | species_list_scrape'),
+  "url_pattern": zod.string().optional().describe('URL template pattern used for direct construction sources'),
+  "validation": zod.string().optional().describe('Validation method for constructed URLs: http_get | none | not_resolvable'),
+  "indexed_species_count": zod.number().optional().describe('Number of species indexed in FERNS\'s local database (scrape-based sources only)'),
+  "registry_entry": zod.record(zod.string(), zod.unknown()).optional(),
+  "queried_at": zod.date().optional(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).describe('Service metadata response for botanical web reference sources.')
+
 
 /**
  * Fetches and caches botanical prose text from the Go Botany (Native Plant Trust) species detail page. The URL is constructed directly from the binomial name. Sections returned include Facts, Habitat, and Characteristics. First call scrapes live; subsequent calls return the cached text. Use ?refresh=true to force a re-scrape.
@@ -8716,109 +3100,37 @@ export const GetGobotanyMetadataResponse = zod
  * @summary Scrape and return species page text from Go Botany
  */
 
-export const GetGobotanySpeciesTextQueryParams = zod.object({
-  species: zod
-    .string()
-    .min(1)
-    .describe("Binomial scientific name (e.g. Acer rubrum)"),
-  refresh: zod
-    .enum(["true", "false"])
-    .optional()
-    .describe('If \"true\", bypass cache and re-scrape the live page'),
-});
 
-export const GetGobotanySpeciesTextResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe("True if the species page was found and text was extracted."),
-    queried_at: zod.date(),
-    source_url: zod
-      .string()
-      .optional()
-      .describe("The API endpoint URL that served this response."),
-    cache_status: zod
-      .enum(["hit", "miss", "not_in_species_list"])
-      .describe(
-        '\"hit\" — returned from cache. \"miss\" — live scrape performed and cached. \"not_in_species_list\" — species URL not in the imported species list; scrape skipped.\n',
-      ),
-    fetch_error: zod
-      .string()
-      .optional()
-      .describe(
-        "Present only when a transient upstream error (network failure, timeout, 5xx) prevented the scrape. The result was NOT cached in this case and the next call will retry the live request.\n",
-      ),
-    scraped_at: zod
-      .date()
-      .optional()
-      .describe("Timestamp of when the text was originally scraped."),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-        fetched_at: zod
-          .date()
-          .describe("When this record was obtained from the source"),
-        method: zod
-          .string()
-          .describe(
-            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-          ),
-        upstream_url: zod
-          .string()
-          .describe(
-            "Where this data came from (API endpoint, file path, or registry entry)",
-          ),
-        general_summary: zod
-          .string()
-          .optional()
-          .describe(
-            "Plain language description readable by a homeowner or community member",
-          ),
-        technical_details: zod
-          .string()
-          .optional()
-          .describe(
-            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-          ),
-        matched_input: zod
-          .string()
-          .optional()
-          .describe(
-            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-          ),
-      })
-      .optional()
-      .describe(
-        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-      ),
-    data: zod
-      .object({
-        species: zod
-          .string()
-          .optional()
-          .describe("The species name as queried."),
-        url: zod.string().optional().describe("The page URL that was scraped."),
-        sections: zod
-          .record(zod.string(), zod.string())
-          .nullish()
-          .describe(
-            "Labeled prose sections extracted from the page (e.g. Description, Cultivation, Facts, Habitat). Keys are section names, values are plain text content.\n",
-          ),
-        full_text: zod
-          .string()
-          .nullish()
-          .describe(
-            "All sections concatenated as Label-colon-text blocks, separated by double newlines.\n",
-          ),
-      })
-      .nullish()
-      .describe("Present when found=true. Null when not found."),
-  })
-  .describe(
-    "Response shape for species page text scraping endpoints. Returned by \/gobotany\/species-text, \/illinois-wildflowers\/species-text, \/minnesota-wildflowers\/species-text, \/missouri-plants\/species-text, and \/prairie-moon\/species-text.\n",
-  );
+
+export const GetGobotanySpeciesTextQueryParams = zod.object({
+  "species": zod.string().min(1).describe('Binomial scientific name (e.g. Acer rubrum)'),
+  "refresh": zod.enum(['true', 'false']).optional().describe('If \"true\", bypass cache and re-scrape the live page')
+})
+
+export const GetGobotanySpeciesTextResponse = zod.object({
+  "found": zod.boolean().describe('True if the species page was found and text was extracted.'),
+  "queried_at": zod.date(),
+  "source_url": zod.string().optional().describe('The API endpoint URL that served this response.'),
+  "cache_status": zod.enum(['hit', 'miss', 'not_in_species_list']).describe('\"hit\" — returned from cache. \"miss\" — live scrape performed and cached. \"not_in_species_list\" — species URL not in the imported species list; scrape skipped.\n'),
+  "fetch_error": zod.string().optional().describe('Present only when a transient upstream error (network failure, timeout, 5xx) prevented the scrape. The result was NOT cached in this case and the next call will retry the live request.\n'),
+  "scraped_at": zod.date().optional().describe('Timestamp of when the text was originally scraped.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+  "data": zod.object({
+  "species": zod.string().optional().describe('The species name as queried.'),
+  "url": zod.string().optional().describe('The page URL that was scraped.'),
+  "sections": zod.record(zod.string(), zod.string()).nullish().describe('Labeled prose sections extracted from the page (e.g. Description, Cultivation, Facts, Habitat). Keys are section names, values are plain text content.\n'),
+  "full_text": zod.string().nullish().describe('All sections concatenated as Label-colon-text blocks, separated by double newlines.\n')
+}).nullish().describe('Present when found=true. Null when not found.')
+}).describe('Response shape for species page text scraping endpoints. Returned by \/gobotany\/species-text, \/illinois-wildflowers\/species-text, \/minnesota-wildflowers\/species-text, \/missouri-plants\/species-text, and \/prairie-moon\/species-text.\n')
+
 
 /**
  * Constructs a Google Images search URL for a given scientific name. This endpoint always returns found=true and a direct Google Images URL — no validation is performed. The URL is constructed from the species parameter and is not cached. Useful for quickly providing a visual reference link without requiring an image database. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
@@ -8826,256 +3138,89 @@ export const GetGobotanySpeciesTextResponse = zod
  * @summary Construct a Google Images search URL for a species
  */
 
-export const GetGoogleImagesQueryParams = zod.object({
-  species: zod
-    .string()
-    .min(1)
-    .describe("Scientific name to search for (e.g. Acer rubrum)"),
-});
 
-export const GetGoogleImagesResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .object({
-          species: zod
-            .string()
-            .describe("Scientific name as provided in the query."),
-          url: zod
-            .string()
-            .describe("Constructed Google Images search URL for the species."),
-        })
-        .optional()
-        .describe(
-          "Data payload for the \/google-images endpoint (FernsEnvelope data field).",
-        ),
-    }),
-  );
+
+export const GetGoogleImagesQueryParams = zod.object({
+  "species": zod.string().min(1).describe('Scientific name to search for (e.g. Acer rubrum)')
+})
+
+export const GetGoogleImagesResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.object({
+  "species": zod.string().describe('Scientific name as provided in the query.'),
+  "url": zod.string().describe('Constructed Google Images search URL for the species.')
+}).optional().describe('Data payload for the \/google-images endpoint (FernsEnvelope data field).')
+}))
+
 
 /**
  * Returns the registry entry for the Google Images source, wrapped in the FERNS Response Envelope. The data payload contains the source's descriptive fields (description, general_summary, technical_details, licenses, etc.).
 
  * @summary Google Images source metadata
  */
-export const GetGoogleImagesMetadataResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .object({
-          source_id: zod.string(),
-          name: zod.string(),
-          knowledge_type: zod.string(),
-          status: zod.string(),
-          description: zod.string(),
-          input_summary: zod.string().optional(),
-          output_summary: zod.string().optional(),
-          dependencies: zod.array(zod.string()).optional(),
-          update_frequency: zod.string().optional(),
-          known_limitations: zod.string().optional(),
-          metadata_url: zod.string().optional(),
-          licenses: zod.array(zod.string()).optional(),
-          license_notes: zod.string().optional(),
-          general_summary: zod.string().optional(),
-          technical_details: zod.string().optional(),
-        })
-        .optional()
-        .describe(
-          "Data payload for any source's \/metadata endpoint (FernsEnvelope data field). Contains the source's registry descriptive payload.\n",
-        ),
-    }),
-  );
+export const GetGoogleImagesMetadataResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.object({
+  "source_id": zod.string(),
+  "name": zod.string(),
+  "knowledge_type": zod.string(),
+  "status": zod.string(),
+  "description": zod.string(),
+  "input_summary": zod.string().optional(),
+  "output_summary": zod.string().optional(),
+  "dependencies": zod.array(zod.string()).optional(),
+  "update_frequency": zod.string().optional(),
+  "known_limitations": zod.string().optional(),
+  "metadata_url": zod.string().optional(),
+  "licenses": zod.array(zod.string()).optional(),
+  "license_notes": zod.string().optional(),
+  "general_summary": zod.string().optional(),
+  "technical_details": zod.string().optional()
+}).optional().describe('Data payload for any source\'s \/metadata endpoint (FernsEnvelope data field). Contains the source\'s registry descriptive payload.\n')
+}))
+
 
 /**
  * Looks up the Illinois Wildflowers (illinoiswildflowers.info) page URL for a given scientific name. Illinois Wildflowers organizes some species across multiple sections; multiple URLs may be returned in the data.results array. Species list is imported from the site and served from FERNS's local database. Results cached per database import cycle.
@@ -9083,178 +3228,62 @@ export const GetGoogleImagesMetadataResponse = zod
  * @summary Look up an Illinois Wildflowers species page URL
  */
 
-export const GetIllinoisWildflowersQueryParams = zod.object({
-  species: zod.string().min(1).describe("Scientific name (e.g. Acer rubrum)"),
-});
 
-export const GetIllinoisWildflowersResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants), which return a search_url instead.\n",
-      ),
-    queried_at: zod.date(),
-    source_url: zod.string().optional(),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-        fetched_at: zod
-          .date()
-          .describe("When this record was obtained from the source"),
-        method: zod
-          .string()
-          .describe(
-            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-          ),
-        upstream_url: zod
-          .string()
-          .describe(
-            "Where this data came from (API endpoint, file path, or registry entry)",
-          ),
-        general_summary: zod
-          .string()
-          .optional()
-          .describe(
-            "Plain language description readable by a homeowner or community member",
-          ),
-        technical_details: zod
-          .string()
-          .optional()
-          .describe(
-            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-          ),
-        matched_input: zod
-          .string()
-          .optional()
-          .describe(
-            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-          ),
-      })
-      .optional()
-      .describe(
-        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-      ),
-    data: zod
-      .object({
-        species: zod
-          .string()
-          .optional()
-          .describe("The species name as queried"),
-        url: zod
-          .string()
-          .nullish()
-          .describe(
-            "Direct species page URL. Null when only a search URL is available.",
-          ),
-        search_url: zod
-          .string()
-          .optional()
-          .describe(
-            "Search URL when a direct profile URL cannot be constructed (usda-plants). Present instead of url for these sources.\n",
-          ),
-        validation_method: zod
-          .string()
-          .optional()
-          .describe(
-            "How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable",
-          ),
-        note: zod
-          .string()
-          .optional()
-          .describe(
-            "Explanatory note when validation_method is not_resolvable",
-          ),
-      })
-      .nullish()
-      .describe(
-        "Present when found=true (or when a search_url is returned). Null when not found.",
-      ),
-  })
-  .describe(
-    "Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants).\n",
-  );
+
+export const GetIllinoisWildflowersQueryParams = zod.object({
+  "species": zod.string().min(1).describe('Scientific name (e.g. Acer rubrum)')
+})
+
+export const GetIllinoisWildflowersResponse = zod.object({
+  "found": zod.boolean().describe('True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants), which return a search_url instead.\n'),
+  "queried_at": zod.date(),
+  "source_url": zod.string().optional(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+  "data": zod.object({
+  "species": zod.string().optional().describe('The species name as queried'),
+  "url": zod.string().nullish().describe('Direct species page URL. Null when only a search URL is available.'),
+  "search_url": zod.string().optional().describe('Search URL when a direct profile URL cannot be constructed (usda-plants). Present instead of url for these sources.\n'),
+  "validation_method": zod.string().optional().describe('How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable'),
+  "note": zod.string().optional().describe('Explanatory note when validation_method is not_resolvable')
+}).nullish().describe('Present when found=true (or when a search_url is returned). Null when not found.')
+}).describe('Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants).\n')
+
 
 /**
  * Returns service identity, species count, import strategy, attribution, and the full registry entry for the Illinois Wildflowers service.
 
  * @summary Illinois Wildflowers service metadata
  */
-export const GetIllinoisWildflowersMetadataResponse = zod
-  .object({
-    service_id: zod.string(),
-    service_name: zod.string(),
-    licenses: zod.array(zod.string()).optional(),
-    license_notes: zod.string().optional(),
-    url_strategy: zod
-      .string()
-      .optional()
-      .describe(
-        "URL construction strategy: direct_construction | sitemap_scrape | species_list_scrape",
-      ),
-    url_pattern: zod
-      .string()
-      .optional()
-      .describe("URL template pattern used for direct construction sources"),
-    validation: zod
-      .string()
-      .optional()
-      .describe(
-        "Validation method for constructed URLs: http_get | none | not_resolvable",
-      ),
-    indexed_species_count: zod
-      .number()
-      .optional()
-      .describe(
-        "Number of species indexed in FERNS's local database (scrape-based sources only)",
-      ),
-    registry_entry: zod.record(zod.string(), zod.unknown()).optional(),
-    queried_at: zod.date().optional(),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-        fetched_at: zod
-          .date()
-          .describe("When this record was obtained from the source"),
-        method: zod
-          .string()
-          .describe(
-            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-          ),
-        upstream_url: zod
-          .string()
-          .describe(
-            "Where this data came from (API endpoint, file path, or registry entry)",
-          ),
-        general_summary: zod
-          .string()
-          .optional()
-          .describe(
-            "Plain language description readable by a homeowner or community member",
-          ),
-        technical_details: zod
-          .string()
-          .optional()
-          .describe(
-            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-          ),
-        matched_input: zod
-          .string()
-          .optional()
-          .describe(
-            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-          ),
-      })
-      .optional()
-      .describe(
-        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-      ),
-  })
-  .describe("Service metadata response for botanical web reference sources.");
+export const GetIllinoisWildflowersMetadataResponse = zod.object({
+  "service_id": zod.string(),
+  "service_name": zod.string(),
+  "licenses": zod.array(zod.string()).optional(),
+  "license_notes": zod.string().optional(),
+  "url_strategy": zod.string().optional().describe('URL construction strategy: direct_construction | sitemap_scrape | species_list_scrape'),
+  "url_pattern": zod.string().optional().describe('URL template pattern used for direct construction sources'),
+  "validation": zod.string().optional().describe('Validation method for constructed URLs: http_get | none | not_resolvable'),
+  "indexed_species_count": zod.number().optional().describe('Number of species indexed in FERNS\'s local database (scrape-based sources only)'),
+  "registry_entry": zod.record(zod.string(), zod.unknown()).optional(),
+  "queried_at": zod.date().optional(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).describe('Service metadata response for botanical web reference sources.')
+
 
 /**
  * Fetches and caches botanical prose text from the Illinois Wildflowers (illinoiswildflowers.info) species detail page. The page URL is resolved from the imported species list. Sections extracted include Description, Cultivation, Range & Habitat, and Comments. First call scrapes live; subsequent calls return the cached text. Use ?refresh=true to force a re-scrape. Returns found=false when the species is not in the imported list.
@@ -9262,106 +3291,37 @@ export const GetIllinoisWildflowersMetadataResponse = zod
  * @summary Scrape and return species page text from Illinois Wildflowers
  */
 
-export const GetIllinoisWildflowersSpeciesTextQueryParams = zod.object({
-  species: zod.string().min(1).describe("Scientific name (e.g. Acer rubrum)"),
-  refresh: zod
-    .enum(["true", "false"])
-    .optional()
-    .describe('If \"true\", bypass cache and re-scrape the live page'),
-});
 
-export const GetIllinoisWildflowersSpeciesTextResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe("True if the species page was found and text was extracted."),
-    queried_at: zod.date(),
-    source_url: zod
-      .string()
-      .optional()
-      .describe("The API endpoint URL that served this response."),
-    cache_status: zod
-      .enum(["hit", "miss", "not_in_species_list"])
-      .describe(
-        '\"hit\" — returned from cache. \"miss\" — live scrape performed and cached. \"not_in_species_list\" — species URL not in the imported species list; scrape skipped.\n',
-      ),
-    fetch_error: zod
-      .string()
-      .optional()
-      .describe(
-        "Present only when a transient upstream error (network failure, timeout, 5xx) prevented the scrape. The result was NOT cached in this case and the next call will retry the live request.\n",
-      ),
-    scraped_at: zod
-      .date()
-      .optional()
-      .describe("Timestamp of when the text was originally scraped."),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-        fetched_at: zod
-          .date()
-          .describe("When this record was obtained from the source"),
-        method: zod
-          .string()
-          .describe(
-            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-          ),
-        upstream_url: zod
-          .string()
-          .describe(
-            "Where this data came from (API endpoint, file path, or registry entry)",
-          ),
-        general_summary: zod
-          .string()
-          .optional()
-          .describe(
-            "Plain language description readable by a homeowner or community member",
-          ),
-        technical_details: zod
-          .string()
-          .optional()
-          .describe(
-            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-          ),
-        matched_input: zod
-          .string()
-          .optional()
-          .describe(
-            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-          ),
-      })
-      .optional()
-      .describe(
-        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-      ),
-    data: zod
-      .object({
-        species: zod
-          .string()
-          .optional()
-          .describe("The species name as queried."),
-        url: zod.string().optional().describe("The page URL that was scraped."),
-        sections: zod
-          .record(zod.string(), zod.string())
-          .nullish()
-          .describe(
-            "Labeled prose sections extracted from the page (e.g. Description, Cultivation, Facts, Habitat). Keys are section names, values are plain text content.\n",
-          ),
-        full_text: zod
-          .string()
-          .nullish()
-          .describe(
-            "All sections concatenated as Label-colon-text blocks, separated by double newlines.\n",
-          ),
-      })
-      .nullish()
-      .describe("Present when found=true. Null when not found."),
-  })
-  .describe(
-    "Response shape for species page text scraping endpoints. Returned by \/gobotany\/species-text, \/illinois-wildflowers\/species-text, \/minnesota-wildflowers\/species-text, \/missouri-plants\/species-text, and \/prairie-moon\/species-text.\n",
-  );
+
+export const GetIllinoisWildflowersSpeciesTextQueryParams = zod.object({
+  "species": zod.string().min(1).describe('Scientific name (e.g. Acer rubrum)'),
+  "refresh": zod.enum(['true', 'false']).optional().describe('If \"true\", bypass cache and re-scrape the live page')
+})
+
+export const GetIllinoisWildflowersSpeciesTextResponse = zod.object({
+  "found": zod.boolean().describe('True if the species page was found and text was extracted.'),
+  "queried_at": zod.date(),
+  "source_url": zod.string().optional().describe('The API endpoint URL that served this response.'),
+  "cache_status": zod.enum(['hit', 'miss', 'not_in_species_list']).describe('\"hit\" — returned from cache. \"miss\" — live scrape performed and cached. \"not_in_species_list\" — species URL not in the imported species list; scrape skipped.\n'),
+  "fetch_error": zod.string().optional().describe('Present only when a transient upstream error (network failure, timeout, 5xx) prevented the scrape. The result was NOT cached in this case and the next call will retry the live request.\n'),
+  "scraped_at": zod.date().optional().describe('Timestamp of when the text was originally scraped.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+  "data": zod.object({
+  "species": zod.string().optional().describe('The species name as queried.'),
+  "url": zod.string().optional().describe('The page URL that was scraped.'),
+  "sections": zod.record(zod.string(), zod.string()).nullish().describe('Labeled prose sections extracted from the page (e.g. Description, Cultivation, Facts, Habitat). Keys are section names, values are plain text content.\n'),
+  "full_text": zod.string().nullish().describe('All sections concatenated as Label-colon-text blocks, separated by double newlines.\n')
+}).nullish().describe('Present when found=true. Null when not found.')
+}).describe('Response shape for species page text scraping endpoints. Returned by \/gobotany\/species-text, \/illinois-wildflowers\/species-text, \/minnesota-wildflowers\/species-text, \/missouri-plants\/species-text, and \/prairie-moon\/species-text.\n')
+
 
 /**
  * Looks up the Minnesota Wildflowers (minnesotawildflowers.info) species page URL for a given scientific name. Species list is imported from the site and served from FERNS's local database — no live upstream call at query time.
@@ -9369,178 +3329,62 @@ export const GetIllinoisWildflowersSpeciesTextResponse = zod
  * @summary Look up a Minnesota Wildflowers species page URL
  */
 
-export const GetMinnesotaWildflowersQueryParams = zod.object({
-  species: zod.string().min(1).describe("Scientific name (e.g. Acer rubrum)"),
-});
 
-export const GetMinnesotaWildflowersResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants), which return a search_url instead.\n",
-      ),
-    queried_at: zod.date(),
-    source_url: zod.string().optional(),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-        fetched_at: zod
-          .date()
-          .describe("When this record was obtained from the source"),
-        method: zod
-          .string()
-          .describe(
-            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-          ),
-        upstream_url: zod
-          .string()
-          .describe(
-            "Where this data came from (API endpoint, file path, or registry entry)",
-          ),
-        general_summary: zod
-          .string()
-          .optional()
-          .describe(
-            "Plain language description readable by a homeowner or community member",
-          ),
-        technical_details: zod
-          .string()
-          .optional()
-          .describe(
-            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-          ),
-        matched_input: zod
-          .string()
-          .optional()
-          .describe(
-            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-          ),
-      })
-      .optional()
-      .describe(
-        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-      ),
-    data: zod
-      .object({
-        species: zod
-          .string()
-          .optional()
-          .describe("The species name as queried"),
-        url: zod
-          .string()
-          .nullish()
-          .describe(
-            "Direct species page URL. Null when only a search URL is available.",
-          ),
-        search_url: zod
-          .string()
-          .optional()
-          .describe(
-            "Search URL when a direct profile URL cannot be constructed (usda-plants). Present instead of url for these sources.\n",
-          ),
-        validation_method: zod
-          .string()
-          .optional()
-          .describe(
-            "How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable",
-          ),
-        note: zod
-          .string()
-          .optional()
-          .describe(
-            "Explanatory note when validation_method is not_resolvable",
-          ),
-      })
-      .nullish()
-      .describe(
-        "Present when found=true (or when a search_url is returned). Null when not found.",
-      ),
-  })
-  .describe(
-    "Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants).\n",
-  );
+
+export const GetMinnesotaWildflowersQueryParams = zod.object({
+  "species": zod.string().min(1).describe('Scientific name (e.g. Acer rubrum)')
+})
+
+export const GetMinnesotaWildflowersResponse = zod.object({
+  "found": zod.boolean().describe('True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants), which return a search_url instead.\n'),
+  "queried_at": zod.date(),
+  "source_url": zod.string().optional(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+  "data": zod.object({
+  "species": zod.string().optional().describe('The species name as queried'),
+  "url": zod.string().nullish().describe('Direct species page URL. Null when only a search URL is available.'),
+  "search_url": zod.string().optional().describe('Search URL when a direct profile URL cannot be constructed (usda-plants). Present instead of url for these sources.\n'),
+  "validation_method": zod.string().optional().describe('How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable'),
+  "note": zod.string().optional().describe('Explanatory note when validation_method is not_resolvable')
+}).nullish().describe('Present when found=true (or when a search_url is returned). Null when not found.')
+}).describe('Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants).\n')
+
 
 /**
  * Returns service identity, species count, import strategy, attribution, and the full registry entry for the Minnesota Wildflowers service.
 
  * @summary Minnesota Wildflowers service metadata
  */
-export const GetMinnesotaWildflowersMetadataResponse = zod
-  .object({
-    service_id: zod.string(),
-    service_name: zod.string(),
-    licenses: zod.array(zod.string()).optional(),
-    license_notes: zod.string().optional(),
-    url_strategy: zod
-      .string()
-      .optional()
-      .describe(
-        "URL construction strategy: direct_construction | sitemap_scrape | species_list_scrape",
-      ),
-    url_pattern: zod
-      .string()
-      .optional()
-      .describe("URL template pattern used for direct construction sources"),
-    validation: zod
-      .string()
-      .optional()
-      .describe(
-        "Validation method for constructed URLs: http_get | none | not_resolvable",
-      ),
-    indexed_species_count: zod
-      .number()
-      .optional()
-      .describe(
-        "Number of species indexed in FERNS's local database (scrape-based sources only)",
-      ),
-    registry_entry: zod.record(zod.string(), zod.unknown()).optional(),
-    queried_at: zod.date().optional(),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-        fetched_at: zod
-          .date()
-          .describe("When this record was obtained from the source"),
-        method: zod
-          .string()
-          .describe(
-            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-          ),
-        upstream_url: zod
-          .string()
-          .describe(
-            "Where this data came from (API endpoint, file path, or registry entry)",
-          ),
-        general_summary: zod
-          .string()
-          .optional()
-          .describe(
-            "Plain language description readable by a homeowner or community member",
-          ),
-        technical_details: zod
-          .string()
-          .optional()
-          .describe(
-            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-          ),
-        matched_input: zod
-          .string()
-          .optional()
-          .describe(
-            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-          ),
-      })
-      .optional()
-      .describe(
-        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-      ),
-  })
-  .describe("Service metadata response for botanical web reference sources.");
+export const GetMinnesotaWildflowersMetadataResponse = zod.object({
+  "service_id": zod.string(),
+  "service_name": zod.string(),
+  "licenses": zod.array(zod.string()).optional(),
+  "license_notes": zod.string().optional(),
+  "url_strategy": zod.string().optional().describe('URL construction strategy: direct_construction | sitemap_scrape | species_list_scrape'),
+  "url_pattern": zod.string().optional().describe('URL template pattern used for direct construction sources'),
+  "validation": zod.string().optional().describe('Validation method for constructed URLs: http_get | none | not_resolvable'),
+  "indexed_species_count": zod.number().optional().describe('Number of species indexed in FERNS\'s local database (scrape-based sources only)'),
+  "registry_entry": zod.record(zod.string(), zod.unknown()).optional(),
+  "queried_at": zod.date().optional(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).describe('Service metadata response for botanical web reference sources.')
+
 
 /**
  * Fetches and caches botanical prose text from the Minnesota Wildflowers (minnesotawildflowers.info) species detail page. The page URL is resolved from the imported species list. Sections include quick-facts table rows and h4-delimited prose sections. First call scrapes live; subsequent calls return cached text. Use ?refresh=true to force a re-scrape. Returns found=false when the species is not in the imported list.
@@ -9548,106 +3392,37 @@ export const GetMinnesotaWildflowersMetadataResponse = zod
  * @summary Scrape and return species page text from Minnesota Wildflowers
  */
 
-export const GetMinnesotaWildflowersSpeciesTextQueryParams = zod.object({
-  species: zod.string().min(1).describe("Scientific name (e.g. Acer rubrum)"),
-  refresh: zod
-    .enum(["true", "false"])
-    .optional()
-    .describe('If \"true\", bypass cache and re-scrape the live page'),
-});
 
-export const GetMinnesotaWildflowersSpeciesTextResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe("True if the species page was found and text was extracted."),
-    queried_at: zod.date(),
-    source_url: zod
-      .string()
-      .optional()
-      .describe("The API endpoint URL that served this response."),
-    cache_status: zod
-      .enum(["hit", "miss", "not_in_species_list"])
-      .describe(
-        '\"hit\" — returned from cache. \"miss\" — live scrape performed and cached. \"not_in_species_list\" — species URL not in the imported species list; scrape skipped.\n',
-      ),
-    fetch_error: zod
-      .string()
-      .optional()
-      .describe(
-        "Present only when a transient upstream error (network failure, timeout, 5xx) prevented the scrape. The result was NOT cached in this case and the next call will retry the live request.\n",
-      ),
-    scraped_at: zod
-      .date()
-      .optional()
-      .describe("Timestamp of when the text was originally scraped."),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-        fetched_at: zod
-          .date()
-          .describe("When this record was obtained from the source"),
-        method: zod
-          .string()
-          .describe(
-            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-          ),
-        upstream_url: zod
-          .string()
-          .describe(
-            "Where this data came from (API endpoint, file path, or registry entry)",
-          ),
-        general_summary: zod
-          .string()
-          .optional()
-          .describe(
-            "Plain language description readable by a homeowner or community member",
-          ),
-        technical_details: zod
-          .string()
-          .optional()
-          .describe(
-            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-          ),
-        matched_input: zod
-          .string()
-          .optional()
-          .describe(
-            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-          ),
-      })
-      .optional()
-      .describe(
-        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-      ),
-    data: zod
-      .object({
-        species: zod
-          .string()
-          .optional()
-          .describe("The species name as queried."),
-        url: zod.string().optional().describe("The page URL that was scraped."),
-        sections: zod
-          .record(zod.string(), zod.string())
-          .nullish()
-          .describe(
-            "Labeled prose sections extracted from the page (e.g. Description, Cultivation, Facts, Habitat). Keys are section names, values are plain text content.\n",
-          ),
-        full_text: zod
-          .string()
-          .nullish()
-          .describe(
-            "All sections concatenated as Label-colon-text blocks, separated by double newlines.\n",
-          ),
-      })
-      .nullish()
-      .describe("Present when found=true. Null when not found."),
-  })
-  .describe(
-    "Response shape for species page text scraping endpoints. Returned by \/gobotany\/species-text, \/illinois-wildflowers\/species-text, \/minnesota-wildflowers\/species-text, \/missouri-plants\/species-text, and \/prairie-moon\/species-text.\n",
-  );
+
+export const GetMinnesotaWildflowersSpeciesTextQueryParams = zod.object({
+  "species": zod.string().min(1).describe('Scientific name (e.g. Acer rubrum)'),
+  "refresh": zod.enum(['true', 'false']).optional().describe('If \"true\", bypass cache and re-scrape the live page')
+})
+
+export const GetMinnesotaWildflowersSpeciesTextResponse = zod.object({
+  "found": zod.boolean().describe('True if the species page was found and text was extracted.'),
+  "queried_at": zod.date(),
+  "source_url": zod.string().optional().describe('The API endpoint URL that served this response.'),
+  "cache_status": zod.enum(['hit', 'miss', 'not_in_species_list']).describe('\"hit\" — returned from cache. \"miss\" — live scrape performed and cached. \"not_in_species_list\" — species URL not in the imported species list; scrape skipped.\n'),
+  "fetch_error": zod.string().optional().describe('Present only when a transient upstream error (network failure, timeout, 5xx) prevented the scrape. The result was NOT cached in this case and the next call will retry the live request.\n'),
+  "scraped_at": zod.date().optional().describe('Timestamp of when the text was originally scraped.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+  "data": zod.object({
+  "species": zod.string().optional().describe('The species name as queried.'),
+  "url": zod.string().optional().describe('The page URL that was scraped.'),
+  "sections": zod.record(zod.string(), zod.string()).nullish().describe('Labeled prose sections extracted from the page (e.g. Description, Cultivation, Facts, Habitat). Keys are section names, values are plain text content.\n'),
+  "full_text": zod.string().nullish().describe('All sections concatenated as Label-colon-text blocks, separated by double newlines.\n')
+}).nullish().describe('Present when found=true. Null when not found.')
+}).describe('Response shape for species page text scraping endpoints. Returned by \/gobotany\/species-text, \/illinois-wildflowers\/species-text, \/minnesota-wildflowers\/species-text, \/missouri-plants\/species-text, and \/prairie-moon\/species-text.\n')
+
 
 /**
  * Looks up the Missouri Plants (missouriplants.com) species page URL for a given scientific name. Species list is imported from the site and served from FERNS's local database — no live upstream call at query time.
@@ -9655,178 +3430,62 @@ export const GetMinnesotaWildflowersSpeciesTextResponse = zod
  * @summary Look up a Missouri Plants species page URL
  */
 
-export const GetMissouriPlantsQueryParams = zod.object({
-  species: zod.string().min(1).describe("Scientific name (e.g. Acer rubrum)"),
-});
 
-export const GetMissouriPlantsResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants), which return a search_url instead.\n",
-      ),
-    queried_at: zod.date(),
-    source_url: zod.string().optional(),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-        fetched_at: zod
-          .date()
-          .describe("When this record was obtained from the source"),
-        method: zod
-          .string()
-          .describe(
-            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-          ),
-        upstream_url: zod
-          .string()
-          .describe(
-            "Where this data came from (API endpoint, file path, or registry entry)",
-          ),
-        general_summary: zod
-          .string()
-          .optional()
-          .describe(
-            "Plain language description readable by a homeowner or community member",
-          ),
-        technical_details: zod
-          .string()
-          .optional()
-          .describe(
-            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-          ),
-        matched_input: zod
-          .string()
-          .optional()
-          .describe(
-            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-          ),
-      })
-      .optional()
-      .describe(
-        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-      ),
-    data: zod
-      .object({
-        species: zod
-          .string()
-          .optional()
-          .describe("The species name as queried"),
-        url: zod
-          .string()
-          .nullish()
-          .describe(
-            "Direct species page URL. Null when only a search URL is available.",
-          ),
-        search_url: zod
-          .string()
-          .optional()
-          .describe(
-            "Search URL when a direct profile URL cannot be constructed (usda-plants). Present instead of url for these sources.\n",
-          ),
-        validation_method: zod
-          .string()
-          .optional()
-          .describe(
-            "How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable",
-          ),
-        note: zod
-          .string()
-          .optional()
-          .describe(
-            "Explanatory note when validation_method is not_resolvable",
-          ),
-      })
-      .nullish()
-      .describe(
-        "Present when found=true (or when a search_url is returned). Null when not found.",
-      ),
-  })
-  .describe(
-    "Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants).\n",
-  );
+
+export const GetMissouriPlantsQueryParams = zod.object({
+  "species": zod.string().min(1).describe('Scientific name (e.g. Acer rubrum)')
+})
+
+export const GetMissouriPlantsResponse = zod.object({
+  "found": zod.boolean().describe('True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants), which return a search_url instead.\n'),
+  "queried_at": zod.date(),
+  "source_url": zod.string().optional(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+  "data": zod.object({
+  "species": zod.string().optional().describe('The species name as queried'),
+  "url": zod.string().nullish().describe('Direct species page URL. Null when only a search URL is available.'),
+  "search_url": zod.string().optional().describe('Search URL when a direct profile URL cannot be constructed (usda-plants). Present instead of url for these sources.\n'),
+  "validation_method": zod.string().optional().describe('How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable'),
+  "note": zod.string().optional().describe('Explanatory note when validation_method is not_resolvable')
+}).nullish().describe('Present when found=true (or when a search_url is returned). Null when not found.')
+}).describe('Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants).\n')
+
 
 /**
  * Returns service identity, species count, import strategy, attribution, and the full registry entry for the Missouri Plants service.
 
  * @summary Missouri Plants service metadata
  */
-export const GetMissouriPlantsMetadataResponse = zod
-  .object({
-    service_id: zod.string(),
-    service_name: zod.string(),
-    licenses: zod.array(zod.string()).optional(),
-    license_notes: zod.string().optional(),
-    url_strategy: zod
-      .string()
-      .optional()
-      .describe(
-        "URL construction strategy: direct_construction | sitemap_scrape | species_list_scrape",
-      ),
-    url_pattern: zod
-      .string()
-      .optional()
-      .describe("URL template pattern used for direct construction sources"),
-    validation: zod
-      .string()
-      .optional()
-      .describe(
-        "Validation method for constructed URLs: http_get | none | not_resolvable",
-      ),
-    indexed_species_count: zod
-      .number()
-      .optional()
-      .describe(
-        "Number of species indexed in FERNS's local database (scrape-based sources only)",
-      ),
-    registry_entry: zod.record(zod.string(), zod.unknown()).optional(),
-    queried_at: zod.date().optional(),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-        fetched_at: zod
-          .date()
-          .describe("When this record was obtained from the source"),
-        method: zod
-          .string()
-          .describe(
-            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-          ),
-        upstream_url: zod
-          .string()
-          .describe(
-            "Where this data came from (API endpoint, file path, or registry entry)",
-          ),
-        general_summary: zod
-          .string()
-          .optional()
-          .describe(
-            "Plain language description readable by a homeowner or community member",
-          ),
-        technical_details: zod
-          .string()
-          .optional()
-          .describe(
-            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-          ),
-        matched_input: zod
-          .string()
-          .optional()
-          .describe(
-            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-          ),
-      })
-      .optional()
-      .describe(
-        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-      ),
-  })
-  .describe("Service metadata response for botanical web reference sources.");
+export const GetMissouriPlantsMetadataResponse = zod.object({
+  "service_id": zod.string(),
+  "service_name": zod.string(),
+  "licenses": zod.array(zod.string()).optional(),
+  "license_notes": zod.string().optional(),
+  "url_strategy": zod.string().optional().describe('URL construction strategy: direct_construction | sitemap_scrape | species_list_scrape'),
+  "url_pattern": zod.string().optional().describe('URL template pattern used for direct construction sources'),
+  "validation": zod.string().optional().describe('Validation method for constructed URLs: http_get | none | not_resolvable'),
+  "indexed_species_count": zod.number().optional().describe('Number of species indexed in FERNS\'s local database (scrape-based sources only)'),
+  "registry_entry": zod.record(zod.string(), zod.unknown()).optional(),
+  "queried_at": zod.date().optional(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).describe('Service metadata response for botanical web reference sources.')
+
 
 /**
  * Fetches and caches botanical prose text from the Missouri Plants (missouriplants.com) species detail page. The page URL is resolved from the imported species list. Sections are extracted from labeled norm-class paragraphs. First call scrapes live; subsequent calls return cached text. Use ?refresh=true to force a re-scrape. Returns found=false when the species is not in the imported list.
@@ -9834,106 +3493,37 @@ export const GetMissouriPlantsMetadataResponse = zod
  * @summary Scrape and return species page text from Missouri Plants
  */
 
-export const GetMissouriPlantsSpeciesTextQueryParams = zod.object({
-  species: zod.string().min(1).describe("Scientific name (e.g. Acer rubrum)"),
-  refresh: zod
-    .enum(["true", "false"])
-    .optional()
-    .describe('If \"true\", bypass cache and re-scrape the live page'),
-});
 
-export const GetMissouriPlantsSpeciesTextResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe("True if the species page was found and text was extracted."),
-    queried_at: zod.date(),
-    source_url: zod
-      .string()
-      .optional()
-      .describe("The API endpoint URL that served this response."),
-    cache_status: zod
-      .enum(["hit", "miss", "not_in_species_list"])
-      .describe(
-        '\"hit\" — returned from cache. \"miss\" — live scrape performed and cached. \"not_in_species_list\" — species URL not in the imported species list; scrape skipped.\n',
-      ),
-    fetch_error: zod
-      .string()
-      .optional()
-      .describe(
-        "Present only when a transient upstream error (network failure, timeout, 5xx) prevented the scrape. The result was NOT cached in this case and the next call will retry the live request.\n",
-      ),
-    scraped_at: zod
-      .date()
-      .optional()
-      .describe("Timestamp of when the text was originally scraped."),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-        fetched_at: zod
-          .date()
-          .describe("When this record was obtained from the source"),
-        method: zod
-          .string()
-          .describe(
-            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-          ),
-        upstream_url: zod
-          .string()
-          .describe(
-            "Where this data came from (API endpoint, file path, or registry entry)",
-          ),
-        general_summary: zod
-          .string()
-          .optional()
-          .describe(
-            "Plain language description readable by a homeowner or community member",
-          ),
-        technical_details: zod
-          .string()
-          .optional()
-          .describe(
-            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-          ),
-        matched_input: zod
-          .string()
-          .optional()
-          .describe(
-            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-          ),
-      })
-      .optional()
-      .describe(
-        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-      ),
-    data: zod
-      .object({
-        species: zod
-          .string()
-          .optional()
-          .describe("The species name as queried."),
-        url: zod.string().optional().describe("The page URL that was scraped."),
-        sections: zod
-          .record(zod.string(), zod.string())
-          .nullish()
-          .describe(
-            "Labeled prose sections extracted from the page (e.g. Description, Cultivation, Facts, Habitat). Keys are section names, values are plain text content.\n",
-          ),
-        full_text: zod
-          .string()
-          .nullish()
-          .describe(
-            "All sections concatenated as Label-colon-text blocks, separated by double newlines.\n",
-          ),
-      })
-      .nullish()
-      .describe("Present when found=true. Null when not found."),
-  })
-  .describe(
-    "Response shape for species page text scraping endpoints. Returned by \/gobotany\/species-text, \/illinois-wildflowers\/species-text, \/minnesota-wildflowers\/species-text, \/missouri-plants\/species-text, and \/prairie-moon\/species-text.\n",
-  );
+
+export const GetMissouriPlantsSpeciesTextQueryParams = zod.object({
+  "species": zod.string().min(1).describe('Scientific name (e.g. Acer rubrum)'),
+  "refresh": zod.enum(['true', 'false']).optional().describe('If \"true\", bypass cache and re-scrape the live page')
+})
+
+export const GetMissouriPlantsSpeciesTextResponse = zod.object({
+  "found": zod.boolean().describe('True if the species page was found and text was extracted.'),
+  "queried_at": zod.date(),
+  "source_url": zod.string().optional().describe('The API endpoint URL that served this response.'),
+  "cache_status": zod.enum(['hit', 'miss', 'not_in_species_list']).describe('\"hit\" — returned from cache. \"miss\" — live scrape performed and cached. \"not_in_species_list\" — species URL not in the imported species list; scrape skipped.\n'),
+  "fetch_error": zod.string().optional().describe('Present only when a transient upstream error (network failure, timeout, 5xx) prevented the scrape. The result was NOT cached in this case and the next call will retry the live request.\n'),
+  "scraped_at": zod.date().optional().describe('Timestamp of when the text was originally scraped.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+  "data": zod.object({
+  "species": zod.string().optional().describe('The species name as queried.'),
+  "url": zod.string().optional().describe('The page URL that was scraped.'),
+  "sections": zod.record(zod.string(), zod.string()).nullish().describe('Labeled prose sections extracted from the page (e.g. Description, Cultivation, Facts, Habitat). Keys are section names, values are plain text content.\n'),
+  "full_text": zod.string().nullish().describe('All sections concatenated as Label-colon-text blocks, separated by double newlines.\n')
+}).nullish().describe('Present when found=true. Null when not found.')
+}).describe('Response shape for species page text scraping endpoints. Returned by \/gobotany\/species-text, \/illinois-wildflowers\/species-text, \/minnesota-wildflowers\/species-text, \/missouri-plants\/species-text, and \/prairie-moon\/species-text.\n')
+
 
 /**
  * Looks up the Prairie Moon Nursery (prairiemoon.com) species catalog URL for a given scientific name. Species list is imported from the Prairie Moon sitemap and served from FERNS's local database. Returns the direct product page URL when found. No live upstream call at query time.
@@ -9941,178 +3531,62 @@ export const GetMissouriPlantsSpeciesTextResponse = zod
  * @summary Look up a Prairie Moon Nursery species page URL
  */
 
-export const GetPrairieMoonQueryParams = zod.object({
-  species: zod.string().min(1).describe("Scientific name (e.g. Acer rubrum)"),
-});
 
-export const GetPrairieMoonResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants), which return a search_url instead.\n",
-      ),
-    queried_at: zod.date(),
-    source_url: zod.string().optional(),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-        fetched_at: zod
-          .date()
-          .describe("When this record was obtained from the source"),
-        method: zod
-          .string()
-          .describe(
-            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-          ),
-        upstream_url: zod
-          .string()
-          .describe(
-            "Where this data came from (API endpoint, file path, or registry entry)",
-          ),
-        general_summary: zod
-          .string()
-          .optional()
-          .describe(
-            "Plain language description readable by a homeowner or community member",
-          ),
-        technical_details: zod
-          .string()
-          .optional()
-          .describe(
-            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-          ),
-        matched_input: zod
-          .string()
-          .optional()
-          .describe(
-            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-          ),
-      })
-      .optional()
-      .describe(
-        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-      ),
-    data: zod
-      .object({
-        species: zod
-          .string()
-          .optional()
-          .describe("The species name as queried"),
-        url: zod
-          .string()
-          .nullish()
-          .describe(
-            "Direct species page URL. Null when only a search URL is available.",
-          ),
-        search_url: zod
-          .string()
-          .optional()
-          .describe(
-            "Search URL when a direct profile URL cannot be constructed (usda-plants). Present instead of url for these sources.\n",
-          ),
-        validation_method: zod
-          .string()
-          .optional()
-          .describe(
-            "How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable",
-          ),
-        note: zod
-          .string()
-          .optional()
-          .describe(
-            "Explanatory note when validation_method is not_resolvable",
-          ),
-      })
-      .nullish()
-      .describe(
-        "Present when found=true (or when a search_url is returned). Null when not found.",
-      ),
-  })
-  .describe(
-    "Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants).\n",
-  );
+
+export const GetPrairieMoonQueryParams = zod.object({
+  "species": zod.string().min(1).describe('Scientific name (e.g. Acer rubrum)')
+})
+
+export const GetPrairieMoonResponse = zod.object({
+  "found": zod.boolean().describe('True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants), which return a search_url instead.\n'),
+  "queried_at": zod.date(),
+  "source_url": zod.string().optional(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+  "data": zod.object({
+  "species": zod.string().optional().describe('The species name as queried'),
+  "url": zod.string().nullish().describe('Direct species page URL. Null when only a search URL is available.'),
+  "search_url": zod.string().optional().describe('Search URL when a direct profile URL cannot be constructed (usda-plants). Present instead of url for these sources.\n'),
+  "validation_method": zod.string().optional().describe('How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable'),
+  "note": zod.string().optional().describe('Explanatory note when validation_method is not_resolvable')
+}).nullish().describe('Present when found=true (or when a search_url is returned). Null when not found.')
+}).describe('Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants).\n')
+
 
 /**
  * Returns service identity, indexed species count, sitemap import strategy, attribution, and the full registry entry for the Prairie Moon Nursery service.
 
  * @summary Prairie Moon Nursery service metadata
  */
-export const GetPrairieMoonMetadataResponse = zod
-  .object({
-    service_id: zod.string(),
-    service_name: zod.string(),
-    licenses: zod.array(zod.string()).optional(),
-    license_notes: zod.string().optional(),
-    url_strategy: zod
-      .string()
-      .optional()
-      .describe(
-        "URL construction strategy: direct_construction | sitemap_scrape | species_list_scrape",
-      ),
-    url_pattern: zod
-      .string()
-      .optional()
-      .describe("URL template pattern used for direct construction sources"),
-    validation: zod
-      .string()
-      .optional()
-      .describe(
-        "Validation method for constructed URLs: http_get | none | not_resolvable",
-      ),
-    indexed_species_count: zod
-      .number()
-      .optional()
-      .describe(
-        "Number of species indexed in FERNS's local database (scrape-based sources only)",
-      ),
-    registry_entry: zod.record(zod.string(), zod.unknown()).optional(),
-    queried_at: zod.date().optional(),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-        fetched_at: zod
-          .date()
-          .describe("When this record was obtained from the source"),
-        method: zod
-          .string()
-          .describe(
-            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-          ),
-        upstream_url: zod
-          .string()
-          .describe(
-            "Where this data came from (API endpoint, file path, or registry entry)",
-          ),
-        general_summary: zod
-          .string()
-          .optional()
-          .describe(
-            "Plain language description readable by a homeowner or community member",
-          ),
-        technical_details: zod
-          .string()
-          .optional()
-          .describe(
-            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-          ),
-        matched_input: zod
-          .string()
-          .optional()
-          .describe(
-            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-          ),
-      })
-      .optional()
-      .describe(
-        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-      ),
-  })
-  .describe("Service metadata response for botanical web reference sources.");
+export const GetPrairieMoonMetadataResponse = zod.object({
+  "service_id": zod.string(),
+  "service_name": zod.string(),
+  "licenses": zod.array(zod.string()).optional(),
+  "license_notes": zod.string().optional(),
+  "url_strategy": zod.string().optional().describe('URL construction strategy: direct_construction | sitemap_scrape | species_list_scrape'),
+  "url_pattern": zod.string().optional().describe('URL template pattern used for direct construction sources'),
+  "validation": zod.string().optional().describe('Validation method for constructed URLs: http_get | none | not_resolvable'),
+  "indexed_species_count": zod.number().optional().describe('Number of species indexed in FERNS\'s local database (scrape-based sources only)'),
+  "registry_entry": zod.record(zod.string(), zod.unknown()).optional(),
+  "queried_at": zod.date().optional(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).describe('Service metadata response for botanical web reference sources.')
+
 
 /**
  * Fetches and caches botanical prose text from the Prairie Moon Nursery (prairiemoon.com) species catalog page. The page URL is resolved from the imported sitemap-based species list. Sections include a product description prose block and structured growing details. First call scrapes live; subsequent calls return cached text. Use ?refresh=true to force a re-scrape. Returns found=false when the species is not in the imported list.
@@ -10120,106 +3594,37 @@ export const GetPrairieMoonMetadataResponse = zod
  * @summary Scrape and return species page text from Prairie Moon Nursery
  */
 
-export const GetPrairieMoonSpeciesTextQueryParams = zod.object({
-  species: zod.string().min(1).describe("Scientific name (e.g. Acer rubrum)"),
-  refresh: zod
-    .enum(["true", "false"])
-    .optional()
-    .describe('If \"true\", bypass cache and re-scrape the live page'),
-});
 
-export const GetPrairieMoonSpeciesTextResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe("True if the species page was found and text was extracted."),
-    queried_at: zod.date(),
-    source_url: zod
-      .string()
-      .optional()
-      .describe("The API endpoint URL that served this response."),
-    cache_status: zod
-      .enum(["hit", "miss", "not_in_species_list"])
-      .describe(
-        '\"hit\" — returned from cache. \"miss\" — live scrape performed and cached. \"not_in_species_list\" — species URL not in the imported species list; scrape skipped.\n',
-      ),
-    fetch_error: zod
-      .string()
-      .optional()
-      .describe(
-        "Present only when a transient upstream error (network failure, timeout, 5xx) prevented the scrape. The result was NOT cached in this case and the next call will retry the live request.\n",
-      ),
-    scraped_at: zod
-      .date()
-      .optional()
-      .describe("Timestamp of when the text was originally scraped."),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe("Stable identifier for this data source (e.g. bonap-napa)"),
-        fetched_at: zod
-          .date()
-          .describe("When this record was obtained from the source"),
-        method: zod
-          .string()
-          .describe(
-            "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-          ),
-        upstream_url: zod
-          .string()
-          .describe(
-            "Where this data came from (API endpoint, file path, or registry entry)",
-          ),
-        general_summary: zod
-          .string()
-          .optional()
-          .describe(
-            "Plain language description readable by a homeowner or community member",
-          ),
-        technical_details: zod
-          .string()
-          .optional()
-          .describe(
-            "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-          ),
-        matched_input: zod
-          .string()
-          .optional()
-          .describe(
-            "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-          ),
-      })
-      .optional()
-      .describe(
-        "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-      ),
-    data: zod
-      .object({
-        species: zod
-          .string()
-          .optional()
-          .describe("The species name as queried."),
-        url: zod.string().optional().describe("The page URL that was scraped."),
-        sections: zod
-          .record(zod.string(), zod.string())
-          .nullish()
-          .describe(
-            "Labeled prose sections extracted from the page (e.g. Description, Cultivation, Facts, Habitat). Keys are section names, values are plain text content.\n",
-          ),
-        full_text: zod
-          .string()
-          .nullish()
-          .describe(
-            "All sections concatenated as Label-colon-text blocks, separated by double newlines.\n",
-          ),
-      })
-      .nullish()
-      .describe("Present when found=true. Null when not found."),
-  })
-  .describe(
-    "Response shape for species page text scraping endpoints. Returned by \/gobotany\/species-text, \/illinois-wildflowers\/species-text, \/minnesota-wildflowers\/species-text, \/missouri-plants\/species-text, and \/prairie-moon\/species-text.\n",
-  );
+
+export const GetPrairieMoonSpeciesTextQueryParams = zod.object({
+  "species": zod.string().min(1).describe('Scientific name (e.g. Acer rubrum)'),
+  "refresh": zod.enum(['true', 'false']).optional().describe('If \"true\", bypass cache and re-scrape the live page')
+})
+
+export const GetPrairieMoonSpeciesTextResponse = zod.object({
+  "found": zod.boolean().describe('True if the species page was found and text was extracted.'),
+  "queried_at": zod.date(),
+  "source_url": zod.string().optional().describe('The API endpoint URL that served this response.'),
+  "cache_status": zod.enum(['hit', 'miss', 'not_in_species_list']).describe('\"hit\" — returned from cache. \"miss\" — live scrape performed and cached. \"not_in_species_list\" — species URL not in the imported species list; scrape skipped.\n'),
+  "fetch_error": zod.string().optional().describe('Present only when a transient upstream error (network failure, timeout, 5xx) prevented the scrape. The result was NOT cached in this case and the next call will retry the live request.\n'),
+  "scraped_at": zod.date().optional().describe('Timestamp of when the text was originally scraped.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+  "data": zod.object({
+  "species": zod.string().optional().describe('The species name as queried.'),
+  "url": zod.string().optional().describe('The page URL that was scraped.'),
+  "sections": zod.record(zod.string(), zod.string()).nullish().describe('Labeled prose sections extracted from the page (e.g. Description, Cultivation, Facts, Habitat). Keys are section names, values are plain text content.\n'),
+  "full_text": zod.string().nullish().describe('All sections concatenated as Label-colon-text blocks, separated by double newlines.\n')
+}).nullish().describe('Present when found=true. Null when not found.')
+}).describe('Response shape for species page text scraping endpoints. Returned by \/gobotany\/species-text, \/illinois-wildflowers\/species-text, \/minnesota-wildflowers\/species-text, \/missouri-plants\/species-text, and \/prairie-moon\/species-text.\n')
+
 
 /**
  * Resolves a scientific name to a USDA symbol via the PlantSearch API, then fetches the full PlantProfile. Returns the symbol, canonical name, common name, taxonomic rank, nativity status per US region, wetland indicator data, legal statuses, taxonomy hierarchy (Ancestors), synonyms, fact sheets, and plant guide URLs. Name matches are cached 30 days for hits and 7 days for misses; profiles are cached 30 days. Use ?refresh=true to bypass both caches.
@@ -10230,168 +3635,58 @@ export const GetPrairieMoonSpeciesTextResponse = zod
 export const getUsdaPlantsQueryRefreshDefault = false;
 
 export const GetUsdaPlantsQueryParams = zod.object({
-  species: zod
-    .string()
-    .min(1)
-    .describe("Scientific name (e.g. Asclepias tuberosa)"),
-  refresh: zod.coerce
-    .boolean()
-    .default(getUsdaPlantsQueryRefreshDefault)
-    .describe("If true, bypasses cache and fetches fresh from USDA PLANTS"),
-});
+  "species": zod.string().min(1).describe('Scientific name (e.g. Asclepias tuberosa)'),
+  "refresh": zod.coerce.boolean().default(getUsdaPlantsQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from USDA PLANTS')
+})
 
-export const GetUsdaPlantsResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .object({
-          symbol: zod.string().nullish(),
-          canonical_name: zod.string().nullish(),
-          common_name: zod.string().nullish(),
-          rank: zod.string().nullish(),
-          usda_id: zod.number().nullish(),
-          native_statuses: zod
-            .array(
-              zod
-                .object({
-                  Region: zod
-                    .string()
-                    .optional()
-                    .describe(
-                      "Region code (L48, AK, HI, PR, VI, CAN, GU, MP, SPM, UM)",
-                    ),
-                  Status: zod
-                    .string()
-                    .optional()
-                    .describe("N=Native, I=Introduced"),
-                  Type: zod
-                    .string()
-                    .optional()
-                    .describe("Native or Introduced"),
-                })
-                .describe("Nativity status for a US region."),
-            )
-            .nullish(),
-          wetland_data: zod
-            .array(zod.record(zod.string(), zod.unknown()))
-            .nullish(),
-          legal_statuses: zod
-            .array(zod.record(zod.string(), zod.unknown()))
-            .nullish(),
-          durations: zod.array(zod.string()).nullish(),
-          growth_habits: zod.array(zod.string()).nullish(),
-          group: zod.string().nullish(),
-          ancestors: zod
-            .array(zod.record(zod.string(), zod.unknown()))
-            .nullish()
-            .describe("Taxonomy hierarchy from Kingdom to parent rank"),
-          synonyms: zod
-            .array(zod.record(zod.string(), zod.unknown()))
-            .nullish(),
-          fact_sheet_urls: zod.array(zod.string()).optional(),
-          plant_guide_urls: zod.array(zod.string()).optional(),
-          other_common_names: zod.array(zod.string()).nullish(),
-          profile_image_filename: zod.string().nullish(),
-        })
-        .optional(),
-    }),
-  );
+export const GetUsdaPlantsResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.object({
+  "symbol": zod.string().nullish(),
+  "canonical_name": zod.string().nullish(),
+  "common_name": zod.string().nullish(),
+  "rank": zod.string().nullish(),
+  "usda_id": zod.number().nullish(),
+  "native_statuses": zod.array(zod.object({
+  "Region": zod.string().optional().describe('Region code (L48, AK, HI, PR, VI, CAN, GU, MP, SPM, UM)'),
+  "Status": zod.string().optional().describe('N=Native, I=Introduced'),
+  "Type": zod.string().optional().describe('Native or Introduced')
+}).describe('Nativity status for a US region.')).nullish(),
+  "wetland_data": zod.array(zod.record(zod.string(), zod.unknown())).nullish(),
+  "legal_statuses": zod.array(zod.record(zod.string(), zod.unknown())).nullish(),
+  "durations": zod.array(zod.string()).nullish(),
+  "growth_habits": zod.array(zod.string()).nullish(),
+  "group": zod.string().nullish(),
+  "ancestors": zod.array(zod.record(zod.string(), zod.unknown())).nullish().describe('Taxonomy hierarchy from Kingdom to parent rank'),
+  "synonyms": zod.array(zod.record(zod.string(), zod.unknown())).nullish(),
+  "fact_sheet_urls": zod.array(zod.string()).optional(),
+  "plant_guide_urls": zod.array(zod.string()).optional(),
+  "other_common_names": zod.array(zod.string()).nullish(),
+  "profile_image_filename": zod.string().nullish()
+}).optional()
+}))
+
 
 /**
  * Fetches the PlantProfile for a known USDA symbol (e.g. ASTU for Asclepias tuberosa). Returns the complete raw profile object as returned by the USDA PLANTS API. Profiles are cached 30 days. Use ?refresh=true to bypass the cache. Use the /usda-plants/PlantSearch?species= endpoint to resolve a scientific name to a symbol if the symbol is not already known.
@@ -10402,123 +3697,39 @@ export const GetUsdaPlantsResponse = zod
 export const getUsdaPlantsProfileQueryRefreshDefault = false;
 
 export const GetUsdaPlantsProfileQueryParams = zod.object({
-  symbol: zod.string().min(1).describe("USDA PLANTS symbol (e.g. ASTU)"),
-  refresh: zod.coerce
-    .boolean()
-    .default(getUsdaPlantsProfileQueryRefreshDefault)
-    .describe("If true, bypasses cache and fetches fresh from USDA PLANTS"),
-});
+  "symbol": zod.string().min(1).describe('USDA PLANTS symbol (e.g. ASTU)'),
+  "refresh": zod.coerce.boolean().default(getUsdaPlantsProfileQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from USDA PLANTS')
+})
 
-export const GetUsdaPlantsProfileResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .object({
-          symbol: zod.string().optional(),
-          profile: zod
-            .record(zod.string(), zod.unknown())
-            .optional()
-            .describe("Raw PlantProfile object from the USDA PLANTS API"),
-        })
-        .optional(),
-    }),
-  );
+export const GetUsdaPlantsProfileResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.object({
+  "symbol": zod.string().optional(),
+  "profile": zod.record(zod.string(), zod.unknown()).optional().describe('Raw PlantProfile object from the USDA PLANTS API')
+}).optional()
+}))
+
 
 /**
  * Performs a paginated text search against the USDA PLANTS plants-search-results endpoint. Supports searching by Scientific Name, Common Name, Symbol, or Family. Returns matching records with symbol, common name, family, wetland data, legal status, and image info. Search results are not cached — each call hits the USDA PLANTS API directly.
@@ -10529,271 +3740,91 @@ export const GetUsdaPlantsProfileResponse = zod
 export const getUsdaPlantsSearchQueryFieldDefault = `Scientific Name`;
 export const getUsdaPlantsSearchQueryPageDefault = 1;
 
-export const GetUsdaPlantsSearchQueryParams = zod.object({
-  q: zod
-    .string()
-    .min(1)
-    .describe("Search text (e.g. Trillium, butterfly milkweed)"),
-  field: zod
-    .enum(["Scientific Name", "Common Name", "Symbol", "Family"])
-    .default(getUsdaPlantsSearchQueryFieldDefault)
-    .describe(
-      "Field to search. One of Scientific Name, Common Name, Symbol, Family. Defaults to Scientific Name.\n",
-    ),
-  page: zod.coerce
-    .number()
-    .min(1)
-    .default(getUsdaPlantsSearchQueryPageDefault)
-    .describe("1-based page number (default 1)"),
-});
 
-export const GetUsdaPlantsSearchResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .object({
-          total: zod.number().optional(),
-          results: zod
-            .array(
-              zod.object({
-                id: zod.number().optional(),
-                symbol: zod.string().optional(),
-                accepted_symbol: zod.string().nullish(),
-                is_synonym: zod.boolean().optional(),
-                scientific_name: zod
-                  .string()
-                  .optional()
-                  .describe("Scientific name with HTML italic tags"),
-                scientific_name_without_author: zod.string().nullish(),
-                common_name: zod.string().nullish(),
-                family_name: zod.string().nullish(),
-                rank_id: zod.number().nullish(),
-                num_images: zod.number().optional(),
-                profile_image_filename: zod.string().nullish(),
-                fact_sheet_urls: zod.array(zod.string()).optional(),
-                plant_guide_urls: zod.array(zod.string()).optional(),
-                legal_statuses: zod
-                  .array(zod.record(zod.string(), zod.unknown()))
-                  .optional(),
-                wetland_data: zod
-                  .array(zod.record(zod.string(), zod.unknown()))
-                  .optional(),
-              }),
-            )
-            .optional(),
-        })
-        .optional(),
-    }),
-  );
+
+export const GetUsdaPlantsSearchQueryParams = zod.object({
+  "q": zod.string().min(1).describe('Search text (e.g. Trillium, butterfly milkweed)'),
+  "field": zod.enum(['Scientific Name', 'Common Name', 'Symbol', 'Family']).default(getUsdaPlantsSearchQueryFieldDefault).describe('Field to search. One of Scientific Name, Common Name, Symbol, Family. Defaults to Scientific Name.\n'),
+  "page": zod.coerce.number().min(1).default(getUsdaPlantsSearchQueryPageDefault).describe('1-based page number (default 1)')
+})
+
+export const GetUsdaPlantsSearchResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.object({
+  "total": zod.number().optional(),
+  "results": zod.array(zod.object({
+  "id": zod.number().optional(),
+  "symbol": zod.string().optional(),
+  "accepted_symbol": zod.string().nullish(),
+  "is_synonym": zod.boolean().optional(),
+  "scientific_name": zod.string().optional().describe('Scientific name with HTML italic tags'),
+  "scientific_name_without_author": zod.string().nullish(),
+  "common_name": zod.string().nullish(),
+  "family_name": zod.string().nullish(),
+  "rank_id": zod.number().nullish(),
+  "num_images": zod.number().optional(),
+  "profile_image_filename": zod.string().nullish(),
+  "fact_sheet_urls": zod.array(zod.string()).optional(),
+  "plant_guide_urls": zod.array(zod.string()).optional(),
+  "legal_statuses": zod.array(zod.record(zod.string(), zod.unknown())).optional(),
+  "wetland_data": zod.array(zod.record(zod.string(), zod.unknown())).optional()
+})).optional()
+}).optional()
+}))
+
 
 /**
  * Returns service identity, access method (api_fetch), attribution, permission status, and the full registry entry for the USDA PLANTS Database service.
 
  * @summary USDA PLANTS Database service metadata
  */
-export const GetUsdaPlantsMetadataResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .record(zod.string(), zod.unknown())
-        .optional()
-        .describe(
-          "Registry entry descriptive payload for the USDA PLANTS source",
-        ),
-    }),
-  );
+export const GetUsdaPlantsMetadataResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.record(zod.string(), zod.unknown()).optional().describe('Registry entry descriptive payload for the USDA PLANTS source')
+}))
+
 
 /**
  * Accepts a USDA Plants symbol (e.g. TRGI for Trillium grandiflorum) and returns a verified direct species profile URL at https://www.wildflower.org/plants/result.php?id_plant={SYMBOL}. Verification is performed via HTTP GET with redirect:manual and a browser-like User-Agent (required — the site returns 403 to generic agents). HTTP 200 = found; 3xx redirect = not_found; 5xx/network = unverified (not cached). Results are cached in lbj_url_cache (90-day TTL when found, 30-day when not_found). Obtain USDA Plants symbols via /usda-plants.
@@ -10801,153 +3832,45 @@ export const GetUsdaPlantsMetadataResponse = zod
  * @summary Verify a Lady Bird Johnson Wildflower Center species profile URL from a USDA Plants symbol
  */
 
-export const GetLadyBirdJohnsonQueryParams = zod.object({
-  usda_symbol: zod
-    .string()
-    .min(1)
-    .describe(
-      "USDA Plants symbol (e.g. TRGI for Trillium grandiflorum). Obtain via \/usda-plants.",
-    ),
-});
 
-export const GetLadyBirdJohnsonResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .object({
-          usda_symbol: zod
-            .string()
-            .optional()
-            .describe("USDA Plants symbol (uppercased)."),
-          profile_url: zod
-            .string()
-            .nullish()
-            .describe(
-              "Direct profile URL when found; null when not_found or unverified.",
-            ),
-          status: zod
-            .enum(["found", "not_found", "unverified"])
-            .optional()
-            .describe(
-              '\"found\" — HTTP 200 returned. \"not_found\" — 3xx redirect or 4xx returned. \"unverified\" — 5xx or network error; result not cached.\n',
-            ),
-          http_status: zod
-            .number()
-            .nullish()
-            .describe("HTTP status code returned by the verification request."),
-          validation_method: zod
-            .string()
-            .optional()
-            .describe('Always \"http_get_manual_redirect\" for this endpoint.'),
-          verified_at: zod
-            .date()
-            .nullish()
-            .describe(
-              'Timestamp when the verification HTTP request was made. Null when status is \"unverified\" (network\/5xx error prevented caching).\n',
-            ),
-        })
-        .optional()
-        .describe(
-          "Data payload for \/lady-bird-johnson FernsEnvelope data field.",
-        ),
-    }),
-  );
+
+export const GetLadyBirdJohnsonQueryParams = zod.object({
+  "usda_symbol": zod.string().min(1).describe('USDA Plants symbol (e.g. TRGI for Trillium grandiflorum). Obtain via \/usda-plants.')
+})
+
+export const GetLadyBirdJohnsonResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.object({
+  "usda_symbol": zod.string().optional().describe('USDA Plants symbol (uppercased).'),
+  "profile_url": zod.string().nullish().describe('Direct profile URL when found; null when not_found or unverified.'),
+  "status": zod.enum(['found', 'not_found', 'unverified']).optional().describe('\"found\" — HTTP 200 returned. \"not_found\" — 3xx redirect or 4xx returned. \"unverified\" — 5xx or network error; result not cached.\n'),
+  "http_status": zod.number().nullish().describe('HTTP status code returned by the verification request.'),
+  "validation_method": zod.string().optional().describe('Always \"http_get_manual_redirect\" for this endpoint.'),
+  "verified_at": zod.date().nullish().describe('Timestamp when the verification HTTP request was made. Null when status is \"unverified\" (network\/5xx error prevented caching).\n')
+}).optional().describe('Data payload for \/lady-bird-johnson FernsEnvelope data field.')
+}))
+
 
 /**
  * Fetches and caches botanical prose text from the Lady Bird Johnson Wildflower Center (wildflower.org/plants) species profile page identified by a USDA Plants symbol. Verification and scraping use a browser-like User-Agent (required — site returns 403 to generic agents) with redirect:manual to detect not-found responses (3xx redirect). Sections extracted include all h3-delimited prose; "Find Seeds or Plants" and "Mr. Smarty Plants says" sections are excluded. First call fetches live; subsequent calls return the cached text. Use ?refresh=true to force a re-scrape. Returns found=false when the symbol is not found on the Wildflower Center site. Obtain USDA Plants symbols via /usda-plants.
@@ -10955,454 +3878,135 @@ export const GetLadyBirdJohnsonResponse = zod
  * @summary Scrape and return species page text from Lady Bird Johnson Wildflower Center
  */
 
-export const GetLadyBirdJohnsonSpeciesTextQueryParams = zod.object({
-  usda_symbol: zod
-    .string()
-    .min(1)
-    .describe(
-      "USDA Plants symbol (e.g. TRGI for Trillium grandiflorum). Obtain via \/usda-plants.",
-    ),
-  refresh: zod
-    .enum(["true", "false"])
-    .optional()
-    .describe('If \"true\", bypass cache and re-scrape the live page'),
-});
 
-export const GetLadyBirdJohnsonSpeciesTextResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .object({
-          usda_symbol: zod
-            .string()
-            .optional()
-            .describe("USDA Plants symbol (uppercased)."),
-          url: zod
-            .string()
-            .optional()
-            .describe("The profile URL that was scraped."),
-          sections: zod
-            .record(zod.string(), zod.string())
-            .nullish()
-            .describe(
-              'Labeled prose sections extracted from the page (h3-delimited). \"Find Seeds or Plants\" and \"Mr. Smarty Plants says\" sections are excluded.\n',
-            ),
-          full_text: zod
-            .string()
-            .nullish()
-            .describe(
-              "All sections concatenated as Label-colon-text blocks, separated by double newlines.",
-            ),
-        })
-        .optional()
-        .describe(
-          "Data payload for \/lady-bird-johnson\/species-text FernsEnvelope data field.",
-        ),
-    }),
-  );
+
+export const GetLadyBirdJohnsonSpeciesTextQueryParams = zod.object({
+  "usda_symbol": zod.string().min(1).describe('USDA Plants symbol (e.g. TRGI for Trillium grandiflorum). Obtain via \/usda-plants.'),
+  "refresh": zod.enum(['true', 'false']).optional().describe('If \"true\", bypass cache and re-scrape the live page')
+})
+
+export const GetLadyBirdJohnsonSpeciesTextResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.object({
+  "usda_symbol": zod.string().optional().describe('USDA Plants symbol (uppercased).'),
+  "url": zod.string().optional().describe('The profile URL that was scraped.'),
+  "sections": zod.record(zod.string(), zod.string()).nullish().describe('Labeled prose sections extracted from the page (h3-delimited). \"Find Seeds or Plants\" and \"Mr. Smarty Plants says\" sections are excluded.\n'),
+  "full_text": zod.string().nullish().describe('All sections concatenated as Label-colon-text blocks, separated by double newlines.')
+}).optional().describe('Data payload for \/lady-bird-johnson\/species-text FernsEnvelope data field.')
+}))
+
 
 /**
  * Returns service identity, URL verification strategy, cache configuration, attribution, and the full registry entry for the Lady Bird Johnson Wildflower Center service.
 
  * @summary Lady Bird Johnson Wildflower Center service metadata
  */
-export const GetLadyBirdJohnsonMetadataResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .object({
-          service_id: zod.string(),
-          service_name: zod.string(),
-          licenses: zod.array(zod.string()).optional(),
-          license_notes: zod.string().optional(),
-          url_strategy: zod
-            .string()
-            .optional()
-            .describe(
-              "URL construction strategy: direct_construction | sitemap_scrape | species_list_scrape",
-            ),
-          url_pattern: zod
-            .string()
-            .optional()
-            .describe(
-              "URL template pattern used for direct construction sources",
-            ),
-          validation: zod
-            .string()
-            .optional()
-            .describe(
-              "Validation method for constructed URLs: http_get | none | not_resolvable",
-            ),
-          indexed_species_count: zod
-            .number()
-            .optional()
-            .describe(
-              "Number of species indexed in FERNS's local database (scrape-based sources only)",
-            ),
-          registry_entry: zod.record(zod.string(), zod.unknown()).optional(),
-          queried_at: zod.date().optional(),
-          provenance: zod
-            .object({
-              source_id: zod
-                .string()
-                .describe(
-                  "Stable identifier for this data source (e.g. bonap-napa)",
-                ),
-              fetched_at: zod
-                .date()
-                .describe("When this record was obtained from the source"),
-              method: zod
-                .string()
-                .describe(
-                  "How the data was obtained: api_fetch | blob_import | llm_synthesis",
-                ),
-              upstream_url: zod
-                .string()
-                .describe(
-                  "Where this data came from (API endpoint, file path, or registry entry)",
-                ),
-              general_summary: zod
-                .string()
-                .optional()
-                .describe(
-                  "Plain language description readable by a homeowner or community member",
-                ),
-              technical_details: zod
-                .string()
-                .optional()
-                .describe(
-                  "Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n",
-                ),
-              matched_input: zod
-                .string()
-                .optional()
-                .describe(
-                  "The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n",
-                ),
-            })
-            .optional()
-            .describe(
-              "Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n",
-            ),
-        })
-        .optional()
-        .describe(
-          "Service metadata response for botanical web reference sources.",
-        ),
-    }),
-  );
+export const GetLadyBirdJohnsonMetadataResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.object({
+  "service_id": zod.string(),
+  "service_name": zod.string(),
+  "licenses": zod.array(zod.string()).optional(),
+  "license_notes": zod.string().optional(),
+  "url_strategy": zod.string().optional().describe('URL construction strategy: direct_construction | sitemap_scrape | species_list_scrape'),
+  "url_pattern": zod.string().optional().describe('URL template pattern used for direct construction sources'),
+  "validation": zod.string().optional().describe('Validation method for constructed URLs: http_get | none | not_resolvable'),
+  "indexed_species_count": zod.number().optional().describe('Number of species indexed in FERNS\'s local database (scrape-based sources only)'),
+  "registry_entry": zod.record(zod.string(), zod.unknown()).optional(),
+  "queried_at": zod.date().optional(),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "fetched_at": zod.date().describe('When this record was obtained from the source'),
+  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
+  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
+  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
+  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
+  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).optional().describe('Service metadata response for botanical web reference sources.')
+}))
+
 
 /**
  * Returns service identity, current species count, licenses and license notes, and the full registry entry for The Native Plant Nursery (nativeplant.com, Ann Arbor, MI — Greg Vaclavek). Includes known limitations, update frequency, and technical details.
 
  * @summary Ann Arbor Native Plant Nursery service metadata
  */
-export const GetAnnArborNpnMetadataResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .object({
-          service_id: zod.string().optional(),
-          service_name: zod.string().optional(),
-          licenses: zod.array(zod.string()).optional(),
-          license_notes: zod.string().optional(),
-          species_count: zod.number().optional(),
-          registry_entry: zod.record(zod.string(), zod.unknown()).optional(),
-        })
-        .optional()
-        .describe(
-          "Data payload for \/ann-arbor-npn\/metadata FernsEnvelope data field.",
-        ),
-    }),
-  );
+export const GetAnnArborNpnMetadataResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.object({
+  "service_id": zod.string().optional(),
+  "service_name": zod.string().optional(),
+  "licenses": zod.array(zod.string()).optional(),
+  "license_notes": zod.string().optional(),
+  "species_count": zod.number().optional(),
+  "registry_entry": zod.record(zod.string(), zod.unknown()).optional()
+}).optional().describe('Data payload for \/ann-arbor-npn\/metadata FernsEnvelope data field.')
+}))
+
 
 /**
  * Returns all ~130 species from The Native Plant Nursery database ordered by Latin name. Each record includes ecological attributes (light, moisture, height, flowering time, habitat, range within Michigan), nursery pricing, and Cloudinary image URLs with captions and kind (photograph / drawing). Returns an empty list if the import has not yet been run.
@@ -11410,186 +4014,59 @@ export const GetAnnArborNpnMetadataResponse = zod
  * @summary All Ann Arbor Native Plant Nursery species (bulk)
  */
 export const GetAnnArborNpnSpeciesListQueryParams = zod.object({
-  provenance_verbosity: zod
-    .enum(["full", "summary", "none"])
-    .optional()
-    .describe(
-      'Controls provenance verbosity in the response (\"full\", \"summary\", or \"none\")',
-    ),
-});
+  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance verbosity in the response (\"full\", \"summary\", or \"none\")')
+})
 
-export const GetAnnArborNpnSpeciesListResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .object({
-          species_count: zod.number(),
-          species: zod.array(
-            zod
-              .object({
-                acronym: zod
-                  .string()
-                  .describe(
-                    "Primary key — 4–7 character code (e.g. LOBSIP). Carex uses CX prefix.",
-                  ),
-                latin_name: zod.string(),
-                latin_synonym_greg: zod
-                  .string()
-                  .nullish()
-                  .describe(
-                    'Greg Vaclavek\'s Latin synonym. Known quirk: GENAND has \"Closed Gentian\" (a common name) in this field.\n',
-                  ),
-                common_name: zod
-                  .string()
-                  .describe(
-                    "Raw common name string (may contain ; and , separators)",
-                  ),
-                light: zod.string().nullish(),
-                moisture: zod.string().nullish(),
-                height: zod.string().nullish(),
-                flowering_time: zod.string().nullish(),
-                habitat: zod.string().nullish(),
-                notes: zod.string().nullish(),
-                range_michigan: zod
-                  .array(zod.string())
-                  .nullish()
-                  .describe("County or region strings within Michigan"),
-                npn_price_sizes: zod.string().nullish(),
-                images: zod.array(
-                  zod
-                    .object({
-                      position: zod
-                        .number()
-                        .describe(
-                          "1-based position of this image in the species gallery",
-                        ),
-                      url: zod
-                        .string()
-                        .describe(
-                          "Cloudinary CDN URL (or original nativeplant.com URL as fallback)",
-                        ),
-                      caption: zod
-                        .string()
-                        .describe(
-                          "Image caption from the source page (may be empty string)",
-                        ),
-                      kind: zod
-                        .enum(["photograph", "drawing"])
-                        .describe(
-                          'Inferred from caption text: \"pen & ink\" or \"drawing\" → drawing; else photograph\n',
-                        ),
-                    })
-                    .describe(
-                      "A single image associated with an NPN species record.",
-                    ),
-                ),
-                source_url: zod.string(),
-                scraped_at: zod.date(),
-              })
-              .describe(
-                "A single species record from The Native Plant Nursery database.",
-              ),
-          ),
-        })
-        .optional(),
-    }),
-  );
+export const GetAnnArborNpnSpeciesListResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.object({
+  "species_count": zod.number(),
+  "species": zod.array(zod.object({
+  "acronym": zod.string().describe('Primary key — 4–7 character code (e.g. LOBSIP). Carex uses CX prefix.'),
+  "latin_name": zod.string(),
+  "latin_synonym_greg": zod.string().nullish().describe('Greg Vaclavek\'s Latin synonym. Known quirk: GENAND has \"Closed Gentian\" (a common name) in this field.\n'),
+  "common_name": zod.string().describe('Raw common name string (may contain ; and , separators)'),
+  "light": zod.string().nullish(),
+  "moisture": zod.string().nullish(),
+  "height": zod.string().nullish(),
+  "flowering_time": zod.string().nullish(),
+  "habitat": zod.string().nullish(),
+  "notes": zod.string().nullish(),
+  "range_michigan": zod.array(zod.string()).nullish().describe('County or region strings within Michigan'),
+  "npn_price_sizes": zod.string().nullish(),
+  "images": zod.array(zod.object({
+  "position": zod.number().describe('1-based position of this image in the species gallery'),
+  "url": zod.string().describe('Cloudinary CDN URL (or original nativeplant.com URL as fallback)'),
+  "caption": zod.string().describe('Image caption from the source page (may be empty string)'),
+  "kind": zod.enum(['photograph', 'drawing']).describe('Inferred from caption text: \"pen & ink\" or \"drawing\" → drawing; else photograph\n')
+}).describe('A single image associated with an NPN species record.')),
+  "source_url": zod.string(),
+  "scraped_at": zod.date()
+}).describe('A single species record from The Native Plant Nursery database.'))
+}).optional()
+}))
+
 
 /**
  * Resolves any NPN name flavor to a species record via the npn_name_aliases index (case-insensitive). Accepted inputs: acronym (e.g. LOBSIP), Latin name (e.g. "Lobelia spicata"), Greg's Latin synonym, or any common name (semicolon/comma-delimited common names are each indexed separately). Returns HTTP 404 with found=false when the key does not appear in the alias index. The alias index is built during import; 404 is also returned before import has run.
@@ -11597,185 +4074,63 @@ export const GetAnnArborNpnSpeciesListResponse = zod
  * @summary Single NPN species by acronym, Latin name, synonym, or common name
  */
 
+
+
 export const GetAnnArborNpnSpeciesByKeyParams = zod.object({
-  key: zod
-    .string()
-    .min(1)
-    .describe(
-      "Acronym, Latin name, synonym, or common name (any capitalisation)",
-    ),
-});
+  "key": zod.string().min(1).describe('Acronym, Latin name, synonym, or common name (any capitalisation)')
+})
 
 export const GetAnnArborNpnSpeciesByKeyQueryParams = zod.object({
-  provenance_verbosity: zod.enum(["full", "summary", "none"]).optional(),
-});
+  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional()
+})
 
-export const GetAnnArborNpnSpeciesByKeyResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .object({
-          acronym: zod
-            .string()
-            .describe(
-              "Primary key — 4–7 character code (e.g. LOBSIP). Carex uses CX prefix.",
-            ),
-          latin_name: zod.string(),
-          latin_synonym_greg: zod
-            .string()
-            .nullish()
-            .describe(
-              'Greg Vaclavek\'s Latin synonym. Known quirk: GENAND has \"Closed Gentian\" (a common name) in this field.\n',
-            ),
-          common_name: zod
-            .string()
-            .describe(
-              "Raw common name string (may contain ; and , separators)",
-            ),
-          light: zod.string().nullish(),
-          moisture: zod.string().nullish(),
-          height: zod.string().nullish(),
-          flowering_time: zod.string().nullish(),
-          habitat: zod.string().nullish(),
-          notes: zod.string().nullish(),
-          range_michigan: zod
-            .array(zod.string())
-            .nullish()
-            .describe("County or region strings within Michigan"),
-          npn_price_sizes: zod.string().nullish(),
-          images: zod.array(
-            zod
-              .object({
-                position: zod
-                  .number()
-                  .describe(
-                    "1-based position of this image in the species gallery",
-                  ),
-                url: zod
-                  .string()
-                  .describe(
-                    "Cloudinary CDN URL (or original nativeplant.com URL as fallback)",
-                  ),
-                caption: zod
-                  .string()
-                  .describe(
-                    "Image caption from the source page (may be empty string)",
-                  ),
-                kind: zod
-                  .enum(["photograph", "drawing"])
-                  .describe(
-                    'Inferred from caption text: \"pen & ink\" or \"drawing\" → drawing; else photograph\n',
-                  ),
-              })
-              .describe(
-                "A single image associated with an NPN species record.",
-              ),
-          ),
-          source_url: zod.string(),
-          scraped_at: zod.date(),
-        })
-        .optional()
-        .describe(
-          "A single species record from The Native Plant Nursery database.",
-        ),
-    }),
-  );
+export const GetAnnArborNpnSpeciesByKeyResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.object({
+  "acronym": zod.string().describe('Primary key — 4–7 character code (e.g. LOBSIP). Carex uses CX prefix.'),
+  "latin_name": zod.string(),
+  "latin_synonym_greg": zod.string().nullish().describe('Greg Vaclavek\'s Latin synonym. Known quirk: GENAND has \"Closed Gentian\" (a common name) in this field.\n'),
+  "common_name": zod.string().describe('Raw common name string (may contain ; and , separators)'),
+  "light": zod.string().nullish(),
+  "moisture": zod.string().nullish(),
+  "height": zod.string().nullish(),
+  "flowering_time": zod.string().nullish(),
+  "habitat": zod.string().nullish(),
+  "notes": zod.string().nullish(),
+  "range_michigan": zod.array(zod.string()).nullish().describe('County or region strings within Michigan'),
+  "npn_price_sizes": zod.string().nullish(),
+  "images": zod.array(zod.object({
+  "position": zod.number().describe('1-based position of this image in the species gallery'),
+  "url": zod.string().describe('Cloudinary CDN URL (or original nativeplant.com URL as fallback)'),
+  "caption": zod.string().describe('Image caption from the source page (may be empty string)'),
+  "kind": zod.enum(['photograph', 'drawing']).describe('Inferred from caption text: \"pen & ink\" or \"drawing\" → drawing; else photograph\n')
+}).describe('A single image associated with an NPN species record.')),
+  "source_url": zod.string(),
+  "scraped_at": zod.date()
+}).optional().describe('A single species record from The Native Plant Nursery database.')
+}))
+
 
 /**
  * Returns all 130 NPN species as name groups served from the in-memory IDP. Each entry contains acronym, latin_name, latin_synonym_greg (nullable), common_names (string array parsed from the semicolon/comma-delimited common_name field), and all_accepted_keys (flat array of every lowercase alias that resolves to this species). Designed for cross-source name reconciliation against GBIF, USDA PLANTS, or iNaturalist. Replaces the former /ann-arbor-npn/alias-index endpoint.
@@ -11783,132 +4138,44 @@ export const GetAnnArborNpnSpeciesByKeyResponse = zod
  * @summary NPN name groups — all species with every accepted lookup key
  */
 export const GetAnnArborNpnNameGroupsQueryParams = zod.object({
-  provenance_verbosity: zod.enum(["full", "summary", "none"]).optional(),
-});
+  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional()
+})
 
-export const GetAnnArborNpnNameGroupsResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .object({
-          species_count: zod.number(),
-          name_groups: zod.array(
-            zod
-              .object({
-                acronym: zod.string(),
-                latin_name: zod.string(),
-                latin_synonym_greg: zod.string().nullish(),
-                common_names: zod
-                  .array(zod.string())
-                  .describe(
-                    "Parsed segments (split on ; and , from common_name)",
-                  ),
-                all_accepted_keys: zod
-                  .array(zod.string())
-                  .describe("All lowercase aliases for this species"),
-              })
-              .describe("Name group entry for a single NPN species."),
-          ),
-        })
-        .optional(),
-    }),
-  );
+export const GetAnnArborNpnNameGroupsResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.object({
+  "species_count": zod.number(),
+  "name_groups": zod.array(zod.object({
+  "acronym": zod.string(),
+  "latin_name": zod.string(),
+  "latin_synonym_greg": zod.string().nullish(),
+  "common_names": zod.array(zod.string()).describe('Parsed segments (split on ; and , from common_name)'),
+  "all_accepted_keys": zod.array(zod.string()).describe('All lowercase aliases for this species')
+}).describe('Name group entry for a single NPN species.'))
+}).optional()
+}))
+
 
 /**
  * Returns the nativeplant.com source URL for the species identified by the given key. Accepts the same name flavors as /ann-arbor-npn/species/{key}: acronym, Latin name, Latin synonym, or any common name. Returns 404 with found=false when not found. Data is served from the in-memory IDP snapshot.
@@ -11916,126 +4183,45 @@ export const GetAnnArborNpnNameGroupsResponse = zod
  * @summary Per-species nativeplant.com URL for a given key
  */
 
+
+
 export const GetAnnArborNpnSpeciesSourceUrlParams = zod.object({
-  key: zod
-    .string()
-    .min(1)
-    .describe(
-      "Acronym, Latin name, synonym, or common name (any capitalisation)",
-    ),
-});
+  "key": zod.string().min(1).describe('Acronym, Latin name, synonym, or common name (any capitalisation)')
+})
 
 export const GetAnnArborNpnSpeciesSourceUrlQueryParams = zod.object({
-  provenance_verbosity: zod.enum(["full", "summary", "none"]).optional(),
-});
+  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional()
+})
 
-export const GetAnnArborNpnSpeciesSourceUrlResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .object({
-          acronym: zod.string(),
-          source_url: zod.string(),
-        })
-        .optional(),
-    }),
-  );
+export const GetAnnArborNpnSpeciesSourceUrlResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.object({
+  "acronym": zod.string(),
+  "source_url": zod.string()
+}).optional()
+}))
+
 
 /**
  * Returns the full source documentation for the Ann Arbor NPN dataset as Markdown in data.markdown. Covers: Greg Vaclavek's background, dataset contents, field descriptions, Michigan range vocabulary (SE/SW/NL/UP), alias index construction, Cloudinary image storage, and the migration from DB-backed scrape to static in-memory snapshot. Always returns 200 with found=true — the documentation file is static and always present.
@@ -12043,112 +4229,35 @@ export const GetAnnArborNpnSpeciesSourceUrlResponse = zod
  * @summary Source documentation for the Ann Arbor Native Plant Nursery dataset
  */
 export const GetAnnArborNpnDocumentationQueryParams = zod.object({
-  provenance_verbosity: zod.enum(["full", "summary", "none"]).optional(),
-});
+  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional()
+})
 
-export const GetAnnArborNpnDocumentationResponse = zod
-  .object({
-    found: zod
-      .boolean()
-      .describe(
-        "Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n",
-      ),
-    permission_granted: zod
-      .boolean()
-      .describe(
-        "Is the consumer cleared to use this data? Always present, per-endpoint.",
-      ),
-    pagination: zod
-      .union([
-        zod
-          .object({
-            has_more: zod
-              .boolean()
-              .describe("True if more pages exist beyond this one."),
-            next: zod
-              .string()
-              .nullable()
-              .describe(
-                "Opaque cursor or token for fetching the next page; null if no next page.",
-              ),
-            total: zod
-              .number()
-              .nullable()
-              .describe(
-                "Total record count across all pages, if known; null when not provided by the source.",
-              ),
-          })
-          .describe(
-            'Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n',
-          ),
-        zod.null(),
-      ])
-      .describe(
-        "Pagination metadata, or null when the response is inherently whole.",
-      ),
-    provenance: zod
-      .object({
-        source_id: zod
-          .string()
-          .describe(
-            "Stable identifier of the registered FERNS source (e.g. bonap-napa).",
-          ),
-        source_url: zod
-          .string()
-          .url()
-          .nullable()
-          .describe(
-            "Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n",
-          ),
-        method: zod
-          .enum(["api_fetch", "cache_hit", "computed"])
-          .describe(
-            'How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n',
-          ),
-        cache_status: zod
-          .enum(["hit", "miss", "stale", "bypass"])
-          .describe(
-            "Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n",
-          ),
-        queried_at: zod
-          .date()
-          .describe("When FERNS performed this lookup (UTC ISO-8601)."),
-        derived_from: zod
-          .array(
-            zod.object({
-              source_id: zod.string(),
-              queried_at: zod.date(),
-            }),
-          )
-          .nullable()
-          .describe(
-            "List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n",
-          ),
-        license: zod
-          .string()
-          .describe(
-            'License URI for the source data, or the literal string \"unknown\".',
-          ),
-        rights: zod
-          .string()
-          .describe("Rights statement \/ attribution for the source."),
-      })
-      .describe(
-        'Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n',
-      ),
-    data: zod
-      .unknown()
-      .describe("Verbatim payload from the source. Shape varies per endpoint."),
-  })
-  .describe(
-    'The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n',
-  )
-  .and(
-    zod.object({
-      data: zod
-        .object({
-          markdown: zod.string(),
-        })
-        .optional(),
-    }),
-  );
+export const GetAnnArborNpnDocumentationResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.object({
+  "markdown": zod.string()
+}).optional()
+}))
+
+

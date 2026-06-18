@@ -5,8 +5,8 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { BotanicalWebRefMetadataResponseRegistryEntry } from "./botanicalWebRefMetadataResponseRegistryEntry";
-import type { FernsProvenance } from "./fernsProvenance";
+import type { BotanicalWebRefMetadataResponseRegistryEntry } from './botanicalWebRefMetadataResponseRegistryEntry';
+import type { FernsProvenance } from './fernsProvenance';
 
 /**
  * Service metadata response for botanical web reference sources.

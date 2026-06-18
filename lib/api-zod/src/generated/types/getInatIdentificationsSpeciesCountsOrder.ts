@@ -6,10 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetInatIdentificationsSpeciesCountsOrder =
-  (typeof GetInatIdentificationsSpeciesCountsOrder)[keyof typeof GetInatIdentificationsSpeciesCountsOrder];
+export type GetInatIdentificationsSpeciesCountsOrder = typeof GetInatIdentificationsSpeciesCountsOrder[keyof typeof GetInatIdentificationsSpeciesCountsOrder];
+
 
 export const GetInatIdentificationsSpeciesCountsOrder = {
-  asc: "asc",
-  desc: "desc",
+  asc: 'asc',
+  desc: 'desc',
 } as const;

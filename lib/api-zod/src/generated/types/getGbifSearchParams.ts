@@ -7,13 +7,13 @@
  */
 
 export type GetGbifSearchParams = {
-  /**
-   * Common name search string (e.g. butterfly milkweed)
-   * @minLength 1
-   */
-  q: string;
-  /**
-   * If true, bypasses cache and fetches fresh from GBIF.
-   */
-  refresh?: boolean;
+/**
+ * Common name search string (e.g. butterfly milkweed)
+ * @minLength 1
+ */
+q: string;
+/**
+ * If true, bypasses cache and fetches fresh from GBIF.
+ */
+refresh?: boolean;
 };

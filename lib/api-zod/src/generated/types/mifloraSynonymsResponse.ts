@@ -5,9 +5,9 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { FernsProvenance } from "./fernsProvenance";
-import type { MifloraSynonymsResponseCacheStatus } from "./mifloraSynonymsResponseCacheStatus";
-import type { MifloraSynonymsResponseData } from "./mifloraSynonymsResponseData";
+import type { FernsProvenance } from './fernsProvenance';
+import type { MifloraSynonymsResponseCacheStatus } from './mifloraSynonymsResponseCacheStatus';
+import type { MifloraSynonymsResponseData } from './mifloraSynonymsResponseData';
 
 /**
  * FERNS envelope for Michigan Flora synonyms. data.synonyms is the array of taxonomic synonyms (empty if none exist). Cached permanently (no TTL).

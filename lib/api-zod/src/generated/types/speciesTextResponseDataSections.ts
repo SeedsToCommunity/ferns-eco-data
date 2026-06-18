@@ -10,4 +10,4 @@
  * Labeled prose sections extracted from the page (e.g. Description, Cultivation, Facts, Habitat). Keys are section names, values are plain text content.
 
  */
-export type SpeciesTextResponseDataSections = { [key: string]: string } | null;
+export type SpeciesTextResponseDataSections = {[key: string]: string} | null;

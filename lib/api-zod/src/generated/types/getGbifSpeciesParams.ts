@@ -7,8 +7,8 @@
  */
 
 export type GetGbifSpeciesParams = {
-  /**
-   * If true, bypasses cache and fetches fresh from GBIF.
-   */
-  refresh?: boolean;
+/**
+ * If true, bypasses cache and fetches fresh from GBIF.
+ */
+refresh?: boolean;
 };

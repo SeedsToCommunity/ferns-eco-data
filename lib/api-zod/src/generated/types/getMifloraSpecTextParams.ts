@@ -7,13 +7,13 @@
  */
 
 export type GetMifloraSpecTextParams = {
-  /**
-   * Michigan Flora plant_id (positive integer, from flora_search_sp)
-   * @minimum 1
-   */
-  id: number;
-  /**
-   * If true, bypasses cache and fetches fresh from Michigan Flora API
-   */
-  refresh?: boolean;
+/**
+ * Michigan Flora plant_id (positive integer, from flora_search_sp)
+ * @minimum 1
+ */
+id: number;
+/**
+ * If true, bypasses cache and fetches fresh from Michigan Flora API
+ */
+refresh?: boolean;
 };

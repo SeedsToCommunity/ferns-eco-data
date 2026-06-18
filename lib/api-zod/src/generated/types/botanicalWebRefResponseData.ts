@@ -15,7 +15,7 @@ export type BotanicalWebRefResponseData = {
   /** Direct species page URL. Null when only a search URL is available. */
   url?: string | null;
   /** Search URL when a direct profile URL cannot be constructed (usda-plants). Present instead of url for these sources.
-   */
+ */
   search_url?: string;
   /** How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable */
   validation_method?: string;

@@ -10,6 +10,4 @@
  * Verbatim GBIF species/{usageKey}/synonyms upstream response. Includes count, offset, limit, endOfRecords, and results array.
 
  */
-export interface GbifSynonymsData {
-  [key: string]: unknown;
-}
+export interface GbifSynonymsData { [key: string]: unknown }

@@ -12,4 +12,4 @@ export interface GbifVernacularRecord {
   country?: string | null;
   source?: string | null;
   [key: string]: unknown;
-}
+ }

@@ -10,12 +10,12 @@
  * Classification of the FERNS source kind. Mirrors the SOURCE_KINDS enum in @workspace/api-envelope. Determines how the envelope is filled — see replit.md "How each source kind fills the envelope".
 
  */
-export type EnvelopeSourceType =
-  (typeof EnvelopeSourceType)[keyof typeof EnvelopeSourceType];
+export type EnvelopeSourceType = typeof EnvelopeSourceType[keyof typeof EnvelopeSourceType];
+
 
 export const EnvelopeSourceType = {
-  "in-memory": "in-memory",
-  "pure-algorithm": "pure-algorithm",
-  "single-source-proxy": "single-source-proxy",
-  "multi-source-algorithm": "multi-source-algorithm",
+  'in-memory': 'in-memory',
+  'pure-algorithm': 'pure-algorithm',
+  'single-source-proxy': 'single-source-proxy',
+  'multi-source-algorithm': 'multi-source-algorithm',
 } as const;

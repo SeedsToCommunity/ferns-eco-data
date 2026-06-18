@@ -6,11 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type WucolsAllResponseCacheStatus =
-  (typeof WucolsAllResponseCacheStatus)[keyof typeof WucolsAllResponseCacheStatus];
+export type WucolsAllResponseCacheStatus = typeof WucolsAllResponseCacheStatus[keyof typeof WucolsAllResponseCacheStatus];
+
 
 export const WucolsAllResponseCacheStatus = {
-  miss: "miss",
-  hit: "hit",
-  error: "error",
+  miss: 'miss',
+  hit: 'hit',
+  error: 'error',
 } as const;

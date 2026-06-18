@@ -6,11 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type CoefficientResponseCacheStatus =
-  (typeof CoefficientResponseCacheStatus)[keyof typeof CoefficientResponseCacheStatus];
+export type CoefficientResponseCacheStatus = typeof CoefficientResponseCacheStatus[keyof typeof CoefficientResponseCacheStatus];
+
 
 export const CoefficientResponseCacheStatus = {
-  miss: "miss",
-  hit: "hit",
-  error: "error",
+  miss: 'miss',
+  hit: 'hit',
+  error: 'error',
 } as const;

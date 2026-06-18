@@ -6,10 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetMinnesotaWildflowersSpeciesTextRefresh =
-  (typeof GetMinnesotaWildflowersSpeciesTextRefresh)[keyof typeof GetMinnesotaWildflowersSpeciesTextRefresh];
+export type GetMinnesotaWildflowersSpeciesTextRefresh = typeof GetMinnesotaWildflowersSpeciesTextRefresh[keyof typeof GetMinnesotaWildflowersSpeciesTextRefresh];
+
 
 export const GetMinnesotaWildflowersSpeciesTextRefresh = {
-  true: "true",
-  false: "false",
+  true: 'true',
+  false: 'false',
 } as const;

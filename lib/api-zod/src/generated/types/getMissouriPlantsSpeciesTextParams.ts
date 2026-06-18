@@ -5,16 +5,16 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetMissouriPlantsSpeciesTextRefresh } from "./getMissouriPlantsSpeciesTextRefresh";
+import type { GetMissouriPlantsSpeciesTextRefresh } from './getMissouriPlantsSpeciesTextRefresh';
 
 export type GetMissouriPlantsSpeciesTextParams = {
-  /**
-   * Scientific name (e.g. Acer rubrum)
-   * @minLength 1
-   */
-  species: string;
-  /**
-   * If "true", bypass cache and re-scrape the live page
-   */
-  refresh?: GetMissouriPlantsSpeciesTextRefresh;
+/**
+ * Scientific name (e.g. Acer rubrum)
+ * @minLength 1
+ */
+species: string;
+/**
+ * If "true", bypass cache and re-scrape the live page
+ */
+refresh?: GetMissouriPlantsSpeciesTextRefresh;
 };

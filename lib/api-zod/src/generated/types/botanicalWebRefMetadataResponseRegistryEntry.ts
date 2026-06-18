@@ -6,6 +6,4 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type BotanicalWebRefMetadataResponseRegistryEntry = {
-  [key: string]: unknown;
-};
+export type BotanicalWebRefMetadataResponseRegistryEntry = { [key: string]: unknown };

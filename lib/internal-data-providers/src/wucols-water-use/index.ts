@@ -5,6 +5,6 @@ export function getWucolsWaterUse(code: string): WucolsWaterUseEntry | undefined
   return lookupByCode(code);
 }
 
-export function listWucolsWaterUse(): WucolsWaterUseEntry[] {
+export function getWucolsWaterUseList(): WucolsWaterUseEntry[] {
   return WUCOLS_WATER_USE_DATA;
 }

@@ -5,7 +5,7 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { NpnMetadataDataRegistryEntry } from "./npnMetadataDataRegistryEntry";
+import type { NpnMetadataDataRegistryEntry } from './npnMetadataDataRegistryEntry';
 
 /**
  * Data payload for /ann-arbor-npn/metadata FernsEnvelope data field.

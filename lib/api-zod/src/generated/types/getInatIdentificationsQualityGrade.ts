@@ -6,11 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetInatIdentificationsQualityGrade =
-  (typeof GetInatIdentificationsQualityGrade)[keyof typeof GetInatIdentificationsQualityGrade];
+export type GetInatIdentificationsQualityGrade = typeof GetInatIdentificationsQualityGrade[keyof typeof GetInatIdentificationsQualityGrade];
+
 
 export const GetInatIdentificationsQualityGrade = {
-  research: "research",
-  needs_id: "needs_id",
-  casual: "casual",
+  research: 'research',
+  needs_id: 'needs_id',
+  casual: 'casual',
 } as const;

@@ -6,10 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetPrairieMoonSpeciesTextRefresh =
-  (typeof GetPrairieMoonSpeciesTextRefresh)[keyof typeof GetPrairieMoonSpeciesTextRefresh];
+export type GetPrairieMoonSpeciesTextRefresh = typeof GetPrairieMoonSpeciesTextRefresh[keyof typeof GetPrairieMoonSpeciesTextRefresh];
+
 
 export const GetPrairieMoonSpeciesTextRefresh = {
-  true: "true",
-  false: "false",
+  true: 'true',
+  false: 'false',
 } as const;

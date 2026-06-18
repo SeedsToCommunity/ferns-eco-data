@@ -7,19 +7,19 @@
  */
 
 export type GetGbifSpeciesSynonymsParams = {
-  /**
-   * Number of results to return (1–1000, default 100)
-   * @minimum 1
-   * @maximum 1000
-   */
-  limit?: number;
-  /**
-   * Zero-based offset for pagination (default 0)
-   * @minimum 0
-   */
-  offset?: number;
-  /**
-   * If true, bypasses cache and fetches fresh from GBIF
-   */
-  refresh?: boolean;
+/**
+ * Number of results to return (1–1000, default 100)
+ * @minimum 1
+ * @maximum 1000
+ */
+limit?: number;
+/**
+ * Zero-based offset for pagination (default 0)
+ * @minimum 0
+ */
+offset?: number;
+/**
+ * If true, bypasses cache and fetches fresh from GBIF
+ */
+refresh?: boolean;
 };

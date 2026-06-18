@@ -5,16 +5,16 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetLadyBirdJohnsonSpeciesTextRefresh } from "./getLadyBirdJohnsonSpeciesTextRefresh";
+import type { GetLadyBirdJohnsonSpeciesTextRefresh } from './getLadyBirdJohnsonSpeciesTextRefresh';
 
 export type GetLadyBirdJohnsonSpeciesTextParams = {
-  /**
-   * USDA Plants symbol (e.g. TRGI for Trillium grandiflorum). Obtain via /usda-plants.
-   * @minLength 1
-   */
-  usda_symbol: string;
-  /**
-   * If "true", bypass cache and re-scrape the live page
-   */
-  refresh?: GetLadyBirdJohnsonSpeciesTextRefresh;
+/**
+ * USDA Plants symbol (e.g. TRGI for Trillium grandiflorum). Obtain via /usda-plants.
+ * @minLength 1
+ */
+usda_symbol: string;
+/**
+ * If "true", bypass cache and re-scrape the live page
+ */
+refresh?: GetLadyBirdJohnsonSpeciesTextRefresh;
 };

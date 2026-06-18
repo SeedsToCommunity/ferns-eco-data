@@ -14,13 +14,13 @@ export interface UniversalFqaSpeciesRecord {
   /** Abbreviated acronym used in this database */
   acronym: string;
   /** Nativity string as provided by the source database. Typically "native" or "non-native" but exact values depend on the database.
-   */
+ */
   native: string;
   /** Coefficient of Conservatism (C-value) for this species in this database. Integer 0–10 for native species; null for non-native or unassigned species. Some databases use string representations. Always check the source database citation for the methodology used to assign C-values.
-   */
+ */
   c: unknown | null;
   /** Coefficient of Wetness (W-value). Numeric, -5 (obligate wetland) to +5 (obligate upland). Null if not assigned.
-   */
+ */
   w: unknown | null;
   /** Plant physiognomic type (e.g. Forb, Shrub, Tree, Grass, Sedge, Rush, Fern, Bryophyte, Vine) */
   physiognomy: string;

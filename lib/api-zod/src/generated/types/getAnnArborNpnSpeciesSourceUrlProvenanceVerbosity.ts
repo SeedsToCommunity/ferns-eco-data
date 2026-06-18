@@ -6,11 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity =
-  (typeof GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity)[keyof typeof GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity];
+export type GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity = typeof GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity[keyof typeof GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity];
+
 
 export const GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;

@@ -7,9 +7,9 @@
  */
 
 export type GetSourceRelationshipsParams = {
-  /**
+/**
  * If provided, returns only relationships where this source_id is one of the two parties.
 
  */
-  source_id?: string;
+source_id?: string;
 };

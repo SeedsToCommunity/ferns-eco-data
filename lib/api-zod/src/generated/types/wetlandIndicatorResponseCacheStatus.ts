@@ -6,11 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type WetlandIndicatorResponseCacheStatus =
-  (typeof WetlandIndicatorResponseCacheStatus)[keyof typeof WetlandIndicatorResponseCacheStatus];
+export type WetlandIndicatorResponseCacheStatus = typeof WetlandIndicatorResponseCacheStatus[keyof typeof WetlandIndicatorResponseCacheStatus];
+
 
 export const WetlandIndicatorResponseCacheStatus = {
-  miss: "miss",
-  hit: "hit",
-  error: "error",
+  miss: 'miss',
+  hit: 'hit',
+  error: 'error',
 } as const;

@@ -5,8 +5,8 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { BonapMapData } from "./bonapMapData";
-import type { FernsProvenance } from "./fernsProvenance";
+import type { BonapMapData } from './bonapMapData';
+import type { FernsProvenance } from './fernsProvenance';
 
 /**
  * Standard FERNS response envelope for BONAP map lookups

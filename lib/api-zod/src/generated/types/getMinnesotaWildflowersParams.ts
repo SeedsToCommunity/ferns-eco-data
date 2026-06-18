@@ -7,9 +7,9 @@
  */
 
 export type GetMinnesotaWildflowersParams = {
-  /**
-   * Scientific name (e.g. Acer rubrum)
-   * @minLength 1
-   */
-  species: string;
+/**
+ * Scientific name (e.g. Acer rubrum)
+ * @minLength 1
+ */
+species: string;
 };

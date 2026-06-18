@@ -9,12 +9,12 @@
 /**
  * Nature of the relationship between the two sources
  */
-export type SourceRelationshipRelationshipType =
-  (typeof SourceRelationshipRelationshipType)[keyof typeof SourceRelationshipRelationshipType];
+export type SourceRelationshipRelationshipType = typeof SourceRelationshipRelationshipType[keyof typeof SourceRelationshipRelationshipType];
+
 
 export const SourceRelationshipRelationshipType = {
-  overlap: "overlap",
-  conflict: "conflict",
-  complements: "complements",
-  supersedes: "supersedes",
+  overlap: 'overlap',
+  conflict: 'conflict',
+  complements: 'complements',
+  supersedes: 'supersedes',
 } as const;

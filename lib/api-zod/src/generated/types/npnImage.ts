@@ -5,7 +5,7 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { NpnImageKind } from "./npnImageKind";
+import type { NpnImageKind } from './npnImageKind';
 
 /**
  * A single image associated with an NPN species record.
@@ -18,6 +18,6 @@ export interface NpnImage {
   /** Image caption from the source page (may be empty string) */
   caption: string;
   /** Inferred from caption text: "pen & ink" or "drawing" → drawing; else photograph
-   */
+ */
   kind: NpnImageKind;
 }

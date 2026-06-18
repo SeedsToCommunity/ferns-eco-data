@@ -5,8 +5,8 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { BotanicalWebRefResponseData } from "./botanicalWebRefResponseData";
-import type { FernsProvenance } from "./fernsProvenance";
+import type { BotanicalWebRefResponseData } from './botanicalWebRefResponseData';
+import type { FernsProvenance } from './fernsProvenance';
 
 /**
  * Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants).
@@ -14,7 +14,7 @@ import type { FernsProvenance } from "./fernsProvenance";
  */
 export interface BotanicalWebRefResponse {
   /** True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants), which return a search_url instead.
-   */
+ */
   found: boolean;
   queried_at: Date;
   source_url?: string;

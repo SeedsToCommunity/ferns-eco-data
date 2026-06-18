@@ -5,8 +5,8 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { FernsProvenance } from "./fernsProvenance";
-import type { MifloraCountiesResponseCacheStatus } from "./mifloraCountiesResponseCacheStatus";
+import type { FernsProvenance } from './fernsProvenance';
+import type { MifloraCountiesResponseCacheStatus } from './mifloraCountiesResponseCacheStatus';
 
 /**
  * FERNS envelope for Michigan Flora county occurrence data. data is the raw passthrough response from the Michigan Flora county endpoint.
@@ -20,7 +20,7 @@ export interface MifloraCountiesResponse {
   cache_status: MifloraCountiesResponseCacheStatus;
   queried_at: Date;
   /** Raw passthrough response from the Michigan Flora county API endpoint. Array of county records for all 83 Michigan counties. Each record includes county name, FIPS code, and occurrence status. All source fields unchanged.
-   */
+ */
   data?: unknown | null;
   provenance: FernsProvenance;
 }

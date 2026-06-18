@@ -5,7 +5,7 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { NatureserveSearchResponseItem } from "./natureserveSearchResponseItem";
+import type { NatureserveSearchResponseItem } from './natureserveSearchResponseItem';
 
 /**
  * NatureServe search results for ecological systems, species, or communities.

@@ -6,6 +6,4 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type UniversalFqaMetadataResponseAttribution = {
-  [key: string]: unknown;
-};
+export type UniversalFqaMetadataResponseAttribution = { [key: string]: unknown };

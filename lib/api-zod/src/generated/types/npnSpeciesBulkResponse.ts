@@ -5,8 +5,8 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { FernsProvenance } from "./fernsProvenance";
-import type { NpnSpeciesBulkResponseData } from "./npnSpeciesBulkResponseData";
+import type { FernsProvenance } from './fernsProvenance';
+import type { NpnSpeciesBulkResponseData } from './npnSpeciesBulkResponseData';
 
 /**
  * FERNS envelope for bulk NPN species list.

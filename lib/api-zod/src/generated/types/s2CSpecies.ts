@@ -10,9 +10,9 @@ export interface S2CSpecies {
   /** Botanical (scientific) name of the species as used in the S2C program */
   botanical_name: string;
   /** True if this species is designated for 'Neat & Tidy' formal or managed garden settings. Only tracked for 2024 onward.
-   */
+ */
   neat_and_tidy?: boolean;
   /** True if this species is designated as 'Sweet & Simple' for beginner growers. Only tracked from 2026 onward.
-   */
+ */
   sweet_and_simple?: boolean;
 }

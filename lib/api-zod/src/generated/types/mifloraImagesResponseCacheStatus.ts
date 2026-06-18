@@ -6,11 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type MifloraImagesResponseCacheStatus =
-  (typeof MifloraImagesResponseCacheStatus)[keyof typeof MifloraImagesResponseCacheStatus];
+export type MifloraImagesResponseCacheStatus = typeof MifloraImagesResponseCacheStatus[keyof typeof MifloraImagesResponseCacheStatus];
+
 
 export const MifloraImagesResponseCacheStatus = {
-  hit: "hit",
-  miss: "miss",
-  error: "error",
+  hit: 'hit',
+  miss: 'miss',
+  error: 'error',
 } as const;

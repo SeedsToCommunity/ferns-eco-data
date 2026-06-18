@@ -5,15 +5,15 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetInatTaxaByIdProvenanceVerbosity } from "./getInatTaxaByIdProvenanceVerbosity";
+import type { GetInatTaxaByIdProvenanceVerbosity } from './getInatTaxaByIdProvenanceVerbosity';
 
 export type GetInatTaxaByIdParams = {
-  /**
-   * Bypass cache and re-fetch from iNaturalist
-   */
-  refresh?: boolean;
-  /**
-   * Controls provenance text: full (default), summary, or none
-   */
-  provenance_verbosity?: GetInatTaxaByIdProvenanceVerbosity;
+/**
+ * Bypass cache and re-fetch from iNaturalist
+ */
+refresh?: boolean;
+/**
+ * Controls provenance text: full (default), summary, or none
+ */
+provenance_verbosity?: GetInatTaxaByIdProvenanceVerbosity;
 };

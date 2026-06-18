@@ -6,11 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type MifloraCountiesResponseCacheStatus =
-  (typeof MifloraCountiesResponseCacheStatus)[keyof typeof MifloraCountiesResponseCacheStatus];
+export type MifloraCountiesResponseCacheStatus = typeof MifloraCountiesResponseCacheStatus[keyof typeof MifloraCountiesResponseCacheStatus];
+
 
 export const MifloraCountiesResponseCacheStatus = {
-  hit: "hit",
-  miss: "miss",
-  error: "error",
+  hit: 'hit',
+  miss: 'miss',
+  error: 'error',
 } as const;

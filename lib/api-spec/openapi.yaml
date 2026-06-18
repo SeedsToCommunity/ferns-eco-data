@@ -2481,9 +2481,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /wucols-water-use/all:
+  /wucols-water-use/list:
     get:
-      operationId: getAllWucolsWaterUse
+      operationId: getWucolsWaterUseList
       tags: [wucols-water-use]
       summary: Get all WUCOLS water use classification definitions
       description: >

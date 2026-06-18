@@ -6,13 +6,13 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetNatureserveSearchRecordType =
-  (typeof GetNatureserveSearchRecordType)[keyof typeof GetNatureserveSearchRecordType];
+export type GetNatureserveSearchRecordType = typeof GetNatureserveSearchRecordType[keyof typeof GetNatureserveSearchRecordType];
+
 
 export const GetNatureserveSearchRecordType = {
-  ECOSYSTEM: "ECOSYSTEM",
-  SPECIES: "SPECIES",
-  COMMUNITY: "COMMUNITY",
-  GROUP: "GROUP",
-  ASSOCIATION: "ASSOCIATION",
+  ECOSYSTEM: 'ECOSYSTEM',
+  SPECIES: 'SPECIES',
+  COMMUNITY: 'COMMUNITY',
+  GROUP: 'GROUP',
+  ASSOCIATION: 'ASSOCIATION',
 } as const;

@@ -10,6 +10,4 @@
  * Verbatim GBIF occurrence/search upstream response. Includes count, offset, limit, endOfRecords, and results array.
 
  */
-export interface GbifOccurrencesData {
-  [key: string]: unknown;
-}
+export interface GbifOccurrencesData { [key: string]: unknown }

@@ -5,9 +5,9 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { CoefficientEntry } from "./coefficientEntry";
-import type { CoefficientResponseCacheStatus } from "./coefficientResponseCacheStatus";
-import type { FernsProvenance } from "./fernsProvenance";
+import type { CoefficientEntry } from './coefficientEntry';
+import type { CoefficientResponseCacheStatus } from './coefficientResponseCacheStatus';
+import type { FernsProvenance } from './fernsProvenance';
 
 export interface CoefficientResponse {
   found: boolean;

@@ -6,12 +6,12 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetUsdaPlantsSearchField =
-  (typeof GetUsdaPlantsSearchField)[keyof typeof GetUsdaPlantsSearchField];
+export type GetUsdaPlantsSearchField = typeof GetUsdaPlantsSearchField[keyof typeof GetUsdaPlantsSearchField];
+
 
 export const GetUsdaPlantsSearchField = {
-  Scientific_Name: "Scientific Name",
-  Common_Name: "Common Name",
-  Symbol: "Symbol",
-  Family: "Family",
+  Scientific_Name: 'Scientific Name',
+  Common_Name: 'Common Name',
+  Symbol: 'Symbol',
+  Family: 'Family',
 } as const;

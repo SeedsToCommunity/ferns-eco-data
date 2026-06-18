@@ -5,7 +5,7 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { S2CYearSummary } from "./s2CYearSummary";
+import type { S2CYearSummary } from './s2CYearSummary';
 
 export interface S2CYearsData {
   /** List of available program years */

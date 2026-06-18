@@ -6,15 +6,15 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetGbifOccurrencesContinent =
-  (typeof GetGbifOccurrencesContinent)[keyof typeof GetGbifOccurrencesContinent];
+export type GetGbifOccurrencesContinent = typeof GetGbifOccurrencesContinent[keyof typeof GetGbifOccurrencesContinent];
+
 
 export const GetGbifOccurrencesContinent = {
-  AFRICA: "AFRICA",
-  ANTARCTICA: "ANTARCTICA",
-  ASIA: "ASIA",
-  EUROPE: "EUROPE",
-  NORTH_AMERICA: "NORTH_AMERICA",
-  OCEANIA: "OCEANIA",
-  SOUTH_AMERICA: "SOUTH_AMERICA",
+  AFRICA: 'AFRICA',
+  ANTARCTICA: 'ANTARCTICA',
+  ASIA: 'ASIA',
+  EUROPE: 'EUROPE',
+  NORTH_AMERICA: 'NORTH_AMERICA',
+  OCEANIA: 'OCEANIA',
+  SOUTH_AMERICA: 'SOUTH_AMERICA',
 } as const;

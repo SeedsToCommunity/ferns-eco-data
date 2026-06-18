@@ -6,10 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetMissouriPlantsSpeciesTextRefresh =
-  (typeof GetMissouriPlantsSpeciesTextRefresh)[keyof typeof GetMissouriPlantsSpeciesTextRefresh];
+export type GetMissouriPlantsSpeciesTextRefresh = typeof GetMissouriPlantsSpeciesTextRefresh[keyof typeof GetMissouriPlantsSpeciesTextRefresh];
+
 
 export const GetMissouriPlantsSpeciesTextRefresh = {
-  true: "true",
-  false: "false",
+  true: 'true',
+  false: 'false',
 } as const;

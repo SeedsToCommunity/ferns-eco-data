@@ -29,7 +29,7 @@ export interface NatureserveSpeciesData {
   federal_status?: string | null;
   federal_status_description?: string | null;
   /** Derived by mapping NatureServe S-rank values to labels — not verbatim upstream data. Plan #148 regression; deferred to plans 16–18.
-   */
+ */
   state_status?: string | null;
   cites_description?: string | null;
   cosewic_code?: string | null;

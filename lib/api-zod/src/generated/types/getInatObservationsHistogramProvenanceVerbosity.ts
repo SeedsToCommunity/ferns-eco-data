@@ -6,11 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetInatObservationsHistogramProvenanceVerbosity =
-  (typeof GetInatObservationsHistogramProvenanceVerbosity)[keyof typeof GetInatObservationsHistogramProvenanceVerbosity];
+export type GetInatObservationsHistogramProvenanceVerbosity = typeof GetInatObservationsHistogramProvenanceVerbosity[keyof typeof GetInatObservationsHistogramProvenanceVerbosity];
+
 
 export const GetInatObservationsHistogramProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;

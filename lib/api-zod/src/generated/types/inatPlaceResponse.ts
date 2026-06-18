@@ -5,8 +5,8 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { FernsEnvelope } from "./fernsEnvelope";
-import type { InatPlaceData } from "./inatPlaceData";
+import type { FernsEnvelope } from './fernsEnvelope';
+import type { InatPlaceData } from './inatPlaceData';
 
 export type InatPlaceResponse = FernsEnvelope & {
   data?: InatPlaceData;

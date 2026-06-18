@@ -5,36 +5,36 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetInatPlacesNearbyProvenanceVerbosity } from "./getInatPlacesNearbyProvenanceVerbosity";
+import type { GetInatPlacesNearbyProvenanceVerbosity } from './getInatPlacesNearbyProvenanceVerbosity';
 
 export type GetInatPlacesNearbyParams = {
-  /**
-   * Northeast corner latitude of the bounding box
-   */
-  nelat: number;
-  /**
-   * Northeast corner longitude of the bounding box
-   */
-  nelng: number;
-  /**
-   * Southwest corner latitude of the bounding box
-   */
-  swlat: number;
-  /**
-   * Southwest corner longitude of the bounding box
-   */
-  swlng: number;
-  /**
-   * Optional name filter to narrow results
-   */
-  name?: string;
-  /**
-   * Results per page
-   * @minimum 1
-   */
-  per_page?: number;
-  /**
-   * Controls provenance text: full (default), summary, or none
-   */
-  provenance_verbosity?: GetInatPlacesNearbyProvenanceVerbosity;
+/**
+ * Northeast corner latitude of the bounding box
+ */
+nelat: number;
+/**
+ * Northeast corner longitude of the bounding box
+ */
+nelng: number;
+/**
+ * Southwest corner latitude of the bounding box
+ */
+swlat: number;
+/**
+ * Southwest corner longitude of the bounding box
+ */
+swlng: number;
+/**
+ * Optional name filter to narrow results
+ */
+name?: string;
+/**
+ * Results per page
+ * @minimum 1
+ */
+per_page?: number;
+/**
+ * Controls provenance text: full (default), summary, or none
+ */
+provenance_verbosity?: GetInatPlacesNearbyProvenanceVerbosity;
 };

@@ -10,11 +10,11 @@
  * blocking — must account for this before combining these sources; cautionary — awareness required, may cause errors if ignored; informational — useful context, no required action.
 
  */
-export type SourceRelationshipSeverity =
-  (typeof SourceRelationshipSeverity)[keyof typeof SourceRelationshipSeverity];
+export type SourceRelationshipSeverity = typeof SourceRelationshipSeverity[keyof typeof SourceRelationshipSeverity];
+
 
 export const SourceRelationshipSeverity = {
-  blocking: "blocking",
-  cautionary: "cautionary",
-  informational: "informational",
+  blocking: 'blocking',
+  cautionary: 'cautionary',
+  informational: 'informational',
 } as const;

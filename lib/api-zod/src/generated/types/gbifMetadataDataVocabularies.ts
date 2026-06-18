@@ -5,7 +5,7 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GbifVocabularyEntry } from "./gbifVocabularyEntry";
+import type { GbifVocabularyEntry } from './gbifVocabularyEntry';
 
 export type GbifMetadataDataVocabularies = {
   basisOfRecord?: GbifVocabularyEntry[];

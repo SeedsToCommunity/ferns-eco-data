@@ -30,15 +30,15 @@ export interface SourceSummary {
   /** Link to this service's full /metadata endpoint */
   metadata_url: string;
   /** Whether FERNS has verified that use of this source is explicitly permitted. true = permission confirmed; null = not yet evaluated.
-   */
+ */
   licenses?: string[];
   /** Plain-English description of the permission situation for this source. Covers license type, access model, and any restrictions on use.
-   */
+ */
   license_notes?: string;
   /** One-paragraph plain-English description of this source suitable for non-technical users, agents, and routing decisions.
-   */
+ */
   general_summary?: string;
   /** Technical description of how this source works, including data model, method, upstream URL, caching behavior, and known edge cases.
-   */
+ */
   technical_details?: string;
 }

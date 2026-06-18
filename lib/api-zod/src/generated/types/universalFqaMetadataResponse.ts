@@ -5,9 +5,9 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { FernsProvenance } from "./fernsProvenance";
-import type { UniversalFqaMetadataResponseAttribution } from "./universalFqaMetadataResponseAttribution";
-import type { UniversalFqaMetadataResponseRegistryEntry } from "./universalFqaMetadataResponseRegistryEntry";
+import type { FernsProvenance } from './fernsProvenance';
+import type { UniversalFqaMetadataResponseAttribution } from './universalFqaMetadataResponseAttribution';
+import type { UniversalFqaMetadataResponseRegistryEntry } from './universalFqaMetadataResponseRegistryEntry';
 
 export interface UniversalFqaMetadataResponse {
   source_id: string;

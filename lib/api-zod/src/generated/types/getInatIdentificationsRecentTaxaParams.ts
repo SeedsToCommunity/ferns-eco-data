@@ -5,34 +5,34 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetInatIdentificationsRecentTaxaProvenanceVerbosity } from "./getInatIdentificationsRecentTaxaProvenanceVerbosity";
-import type { GetInatIdentificationsRecentTaxaQualityGrade } from "./getInatIdentificationsRecentTaxaQualityGrade";
+import type { GetInatIdentificationsRecentTaxaProvenanceVerbosity } from './getInatIdentificationsRecentTaxaProvenanceVerbosity';
+import type { GetInatIdentificationsRecentTaxaQualityGrade } from './getInatIdentificationsRecentTaxaQualityGrade';
 
 export type GetInatIdentificationsRecentTaxaParams = {
-  /**
-   * Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
-   */
-  place_id?: string;
-  taxon_id?: number;
-  quality_grade?: GetInatIdentificationsRecentTaxaQualityGrade;
-  /**
-   * @minimum 1
-   */
-  per_page?: number;
-  /**
-   * @minimum 1
-   */
-  page?: number;
-  /**
-   * Start date filter (YYYY-MM-DD)
-   */
-  d1?: string;
-  /**
-   * End date filter (YYYY-MM-DD)
-   */
-  d2?: string;
-  /**
-   * Controls provenance text: full (default), summary, or none
-   */
-  provenance_verbosity?: GetInatIdentificationsRecentTaxaProvenanceVerbosity;
+/**
+ * Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
+ */
+place_id?: string;
+taxon_id?: number;
+quality_grade?: GetInatIdentificationsRecentTaxaQualityGrade;
+/**
+ * @minimum 1
+ */
+per_page?: number;
+/**
+ * @minimum 1
+ */
+page?: number;
+/**
+ * Start date filter (YYYY-MM-DD)
+ */
+d1?: string;
+/**
+ * End date filter (YYYY-MM-DD)
+ */
+d2?: string;
+/**
+ * Controls provenance text: full (default), summary, or none
+ */
+provenance_verbosity?: GetInatIdentificationsRecentTaxaProvenanceVerbosity;
 };

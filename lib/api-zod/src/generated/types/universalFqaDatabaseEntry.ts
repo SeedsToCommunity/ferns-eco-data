@@ -14,6 +14,6 @@ export interface UniversalFqaDatabaseEntry {
   /** Publication year string as provided by universalfqa.org */
   year: string;
   /** Full citation string as provided by universalfqa.org. Contains institutional author, year, database name, and sometimes methodology notes. Together with region, provides all information needed to select a database.
-   */
+ */
   citation: string;
 }

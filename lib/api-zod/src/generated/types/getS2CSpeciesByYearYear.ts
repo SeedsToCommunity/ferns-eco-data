@@ -6,8 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetS2CSpeciesByYearYear =
-  (typeof GetS2CSpeciesByYearYear)[keyof typeof GetS2CSpeciesByYearYear];
+export type GetS2CSpeciesByYearYear = typeof GetS2CSpeciesByYearYear[keyof typeof GetS2CSpeciesByYearYear];
+
 
 export const GetS2CSpeciesByYearYear = {
   NUMBER_2023: 2023,

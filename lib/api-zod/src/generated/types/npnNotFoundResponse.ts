@@ -5,7 +5,7 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { FernsProvenance } from "./fernsProvenance";
+import type { FernsProvenance } from './fernsProvenance';
 
 /**
  * FERNS envelope when a name key is not in the alias index (HTTP 404). found=false.

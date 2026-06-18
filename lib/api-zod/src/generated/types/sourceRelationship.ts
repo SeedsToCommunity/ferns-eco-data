@@ -5,8 +5,8 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { SourceRelationshipRelationshipType } from "./sourceRelationshipRelationshipType";
-import type { SourceRelationshipSeverity } from "./sourceRelationshipSeverity";
+import type { SourceRelationshipRelationshipType } from './sourceRelationshipRelationshipType';
+import type { SourceRelationshipSeverity } from './sourceRelationshipSeverity';
 
 export interface SourceRelationship {
   id: number;
@@ -17,10 +17,10 @@ export interface SourceRelationship {
   /** Nature of the relationship between the two sources */
   relationship_type: SourceRelationshipRelationshipType;
   /** Domain in which the relationship applies. One of: taxonomy, occurrence_counts, c_values, conservation_ranks, geographic_coverage, terminology, seed_harvest, community_classification, occurrence.
-   */
+ */
   scope: string;
   /** blocking — must account for this before combining these sources; cautionary — awareness required, may cause errors if ignored; informational — useful context, no required action.
-   */
+ */
   severity: SourceRelationshipSeverity;
   /** Plain-English description of the relationship for agents and non-technical users */
   description: string;

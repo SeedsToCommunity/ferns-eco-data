@@ -6,12 +6,12 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type MifloraPImageInfoResponseCacheStatus =
-  (typeof MifloraPImageInfoResponseCacheStatus)[keyof typeof MifloraPImageInfoResponseCacheStatus];
+export type MifloraPImageInfoResponseCacheStatus = typeof MifloraPImageInfoResponseCacheStatus[keyof typeof MifloraPImageInfoResponseCacheStatus];
+
 
 export const MifloraPImageInfoResponseCacheStatus = {
-  hit: "hit",
-  miss: "miss",
-  bypassed: "bypassed",
-  error: "error",
+  hit: 'hit',
+  miss: 'miss',
+  bypassed: 'bypassed',
+  error: 'error',
 } as const;

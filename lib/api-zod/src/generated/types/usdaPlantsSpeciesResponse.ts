@@ -5,8 +5,8 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { FernsEnvelope } from "./fernsEnvelope";
-import type { UsdaPlantsSpeciesData } from "./usdaPlantsSpeciesData";
+import type { FernsEnvelope } from './fernsEnvelope';
+import type { UsdaPlantsSpeciesData } from './usdaPlantsSpeciesData';
 
 export type UsdaPlantsSpeciesResponse = FernsEnvelope & {
   data?: UsdaPlantsSpeciesData;

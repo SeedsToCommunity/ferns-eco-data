@@ -6,12 +6,12 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetWucolsWaterUseByCodeCode =
-  (typeof GetWucolsWaterUseByCodeCode)[keyof typeof GetWucolsWaterUseByCodeCode];
+export type GetWucolsWaterUseByCodeCode = typeof GetWucolsWaterUseByCodeCode[keyof typeof GetWucolsWaterUseByCodeCode];
+
 
 export const GetWucolsWaterUseByCodeCode = {
-  VL: "VL",
-  L: "L",
-  M: "M",
-  H: "H",
+  VL: 'VL',
+  L: 'L',
+  M: 'M',
+  H: 'H',
 } as const;

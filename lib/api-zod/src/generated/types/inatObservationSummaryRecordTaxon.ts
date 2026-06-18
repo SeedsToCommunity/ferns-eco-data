@@ -5,7 +5,7 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { InatObservationSummaryRecordTaxonDefaultPhoto } from "./inatObservationSummaryRecordTaxonDefaultPhoto";
+import type { InatObservationSummaryRecordTaxonDefaultPhoto } from './inatObservationSummaryRecordTaxonDefaultPhoto';
 
 /**
  * Taxon sub-object with key fields
@@ -16,4 +16,4 @@ export type InatObservationSummaryRecordTaxon = {
   iconic_taxon_name?: string | null;
   default_photo?: InatObservationSummaryRecordTaxonDefaultPhoto;
   [key: string]: unknown;
-} | null;
+ } | null;

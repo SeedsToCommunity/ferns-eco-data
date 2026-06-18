@@ -10,6 +10,4 @@
  * Verbatim GBIF species/{usageKey} upstream response.
 
  */
-export interface GbifSpeciesData {
-  [key: string]: unknown;
-}
+export interface GbifSpeciesData { [key: string]: unknown }

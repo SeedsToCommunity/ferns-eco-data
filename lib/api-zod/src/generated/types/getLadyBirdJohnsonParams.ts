@@ -7,9 +7,9 @@
  */
 
 export type GetLadyBirdJohnsonParams = {
-  /**
-   * USDA Plants symbol (e.g. TRGI for Trillium grandiflorum). Obtain via /usda-plants.
-   * @minLength 1
-   */
-  usda_symbol: string;
+/**
+ * USDA Plants symbol (e.g. TRGI for Trillium grandiflorum). Obtain via /usda-plants.
+ * @minLength 1
+ */
+usda_symbol: string;
 };

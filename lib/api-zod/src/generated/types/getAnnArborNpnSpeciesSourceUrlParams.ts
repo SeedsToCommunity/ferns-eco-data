@@ -5,8 +5,8 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity } from "./getAnnArborNpnSpeciesSourceUrlProvenanceVerbosity";
+import type { GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity } from './getAnnArborNpnSpeciesSourceUrlProvenanceVerbosity';
 
 export type GetAnnArborNpnSpeciesSourceUrlParams = {
-  provenance_verbosity?: GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity;
+provenance_verbosity?: GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity;
 };

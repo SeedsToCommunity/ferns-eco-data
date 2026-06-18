@@ -7,13 +7,13 @@
  */
 
 export type GetMifloraCountiesParams = {
-  /**
-   * Scientific name to look up county records for (e.g. Asclepias tuberosa)
-   * @minLength 1
-   */
-  name: string;
-  /**
-   * If true, bypasses cache and fetches fresh from Michigan Flora API
-   */
-  refresh?: boolean;
+/**
+ * Scientific name to look up county records for (e.g. Asclepias tuberosa)
+ * @minLength 1
+ */
+name: string;
+/**
+ * If true, bypasses cache and fetches fresh from Michigan Flora API
+ */
+refresh?: boolean;
 };

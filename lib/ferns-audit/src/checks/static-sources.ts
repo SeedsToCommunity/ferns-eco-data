@@ -280,7 +280,7 @@ export async function runWucolsChecks(
 ): Promise<EndpointComparison[]> {
   const allCheck = await checkEndpoint(
     "wucols-water-use",
-    "/api/wucols-water-use/all",
+    "/api/wucols-water-use/list",
     "WUCOLS — full water use classification table",
     fernsBase,
     (envelope) => {

@@ -5,7 +5,7 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { MifloraSpeciesRecord } from "./mifloraSpeciesRecord";
+import type { MifloraSpeciesRecord } from './mifloraSpeciesRecord';
 
 /**
  * Species data extracted from the first matching record, plus full records array.

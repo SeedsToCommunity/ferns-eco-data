@@ -5,8 +5,8 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { FernsEnvelope } from "./fernsEnvelope";
-import type { LbjUrlCheckData } from "./lbjUrlCheckData";
+import type { FernsEnvelope } from './fernsEnvelope';
+import type { LbjUrlCheckData } from './lbjUrlCheckData';
 
 export type GetLadyBirdJohnson200 = FernsEnvelope & {
   data?: LbjUrlCheckData;

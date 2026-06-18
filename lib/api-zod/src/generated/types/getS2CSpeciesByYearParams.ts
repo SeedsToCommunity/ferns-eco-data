@@ -5,11 +5,11 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetS2CSpeciesByYearYear } from "./getS2CSpeciesByYearYear";
+import type { GetS2CSpeciesByYearYear } from './getS2CSpeciesByYearYear';
 
 export type GetS2CSpeciesByYearParams = {
-  /**
-   * Program year (2023–2026).
-   */
-  year: GetS2CSpeciesByYearYear;
+/**
+ * Program year (2023–2026).
+ */
+year: GetS2CSpeciesByYearYear;
 };

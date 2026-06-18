@@ -6,11 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetInatPlacesNearbyProvenanceVerbosity =
-  (typeof GetInatPlacesNearbyProvenanceVerbosity)[keyof typeof GetInatPlacesNearbyProvenanceVerbosity];
+export type GetInatPlacesNearbyProvenanceVerbosity = typeof GetInatPlacesNearbyProvenanceVerbosity[keyof typeof GetInatPlacesNearbyProvenanceVerbosity];
+
 
 export const GetInatPlacesNearbyProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;

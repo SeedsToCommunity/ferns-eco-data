@@ -10,9 +10,10 @@
  * Inferred from caption text: "pen & ink" or "drawing" → drawing; else photograph
 
  */
-export type NpnImageKind = (typeof NpnImageKind)[keyof typeof NpnImageKind];
+export type NpnImageKind = typeof NpnImageKind[keyof typeof NpnImageKind];
+
 
 export const NpnImageKind = {
-  photograph: "photograph",
-  drawing: "drawing",
+  photograph: 'photograph',
+  drawing: 'drawing',
 } as const;

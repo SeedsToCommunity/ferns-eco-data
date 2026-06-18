@@ -10,6 +10,4 @@
  * Verbatim GBIF species/search upstream response filtered to vernacular name matches. Includes count, offset, limit, endOfRecords, and results array.
 
  */
-export interface GbifSearchData {
-  [key: string]: unknown;
-}
+export interface GbifSearchData { [key: string]: unknown }

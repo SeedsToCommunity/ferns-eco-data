@@ -6,11 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetInatPlacesAutocompleteProvenanceVerbosity =
-  (typeof GetInatPlacesAutocompleteProvenanceVerbosity)[keyof typeof GetInatPlacesAutocompleteProvenanceVerbosity];
+export type GetInatPlacesAutocompleteProvenanceVerbosity = typeof GetInatPlacesAutocompleteProvenanceVerbosity[keyof typeof GetInatPlacesAutocompleteProvenanceVerbosity];
+
 
 export const GetInatPlacesAutocompleteProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;

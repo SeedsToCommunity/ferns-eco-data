@@ -7,10 +7,10 @@
  */
 
 export type GetLcscgSpeciesParams = {
-  /**
+/**
  * Scientific or common name to search (partial match, case-insensitive).
 
  * @minLength 1
  */
-  name: string;
+name: string;
 };

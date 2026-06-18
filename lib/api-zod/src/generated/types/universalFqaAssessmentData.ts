@@ -5,9 +5,9 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { UniversalFqaDbInfo } from "./universalFqaDbInfo";
-import type { UniversalFqaMetrics } from "./universalFqaMetrics";
-import type { UniversalFqaSpeciesRecord } from "./universalFqaSpeciesRecord";
+import type { UniversalFqaDbInfo } from './universalFqaDbInfo';
+import type { UniversalFqaMetrics } from './universalFqaMetrics';
+import type { UniversalFqaSpeciesRecord } from './universalFqaSpeciesRecord';
 
 export interface UniversalFqaAssessmentData {
   id: number;

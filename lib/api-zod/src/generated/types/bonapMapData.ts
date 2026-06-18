@@ -5,12 +5,12 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { BonapMapDataMapTypeServed } from "./bonapMapDataMapTypeServed";
-import type { BonapMapDataStatus } from "./bonapMapDataStatus";
+import type { BonapMapDataMapTypeServed } from './bonapMapDataMapTypeServed';
+import type { BonapMapDataStatus } from './bonapMapDataStatus';
 
 export interface BonapMapData {
   /** Direct URL to the PNG image on BONAP's server. Present when status is found. Null when not found. Applications display this via an img tag — do not proxy.
-   */
+ */
   map_url?: string | null;
   map_type_served: BonapMapDataMapTypeServed;
   /** Normalized genus name as used in URL construction */
@@ -20,6 +20,6 @@ export interface BonapMapData {
   /** True if the caller provided a subspecific epithet that was stripped */
   species_stripped: boolean;
   /** found — URL returned a valid image during cache population. not_found — BONAP returned a non-image response for this binomial. unverified — URL was returned from cache without re-verification.
-   */
+ */
   status: BonapMapDataStatus;
 }

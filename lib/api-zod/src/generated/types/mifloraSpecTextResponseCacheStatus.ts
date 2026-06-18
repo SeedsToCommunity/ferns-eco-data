@@ -6,12 +6,12 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type MifloraSpecTextResponseCacheStatus =
-  (typeof MifloraSpecTextResponseCacheStatus)[keyof typeof MifloraSpecTextResponseCacheStatus];
+export type MifloraSpecTextResponseCacheStatus = typeof MifloraSpecTextResponseCacheStatus[keyof typeof MifloraSpecTextResponseCacheStatus];
+
 
 export const MifloraSpecTextResponseCacheStatus = {
-  hit: "hit",
-  miss: "miss",
-  bypassed: "bypassed",
-  error: "error",
+  hit: 'hit',
+  miss: 'miss',
+  bypassed: 'bypassed',
+  error: 'error',
 } as const;

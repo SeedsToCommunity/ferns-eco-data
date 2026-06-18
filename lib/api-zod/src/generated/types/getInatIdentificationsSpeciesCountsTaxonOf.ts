@@ -6,10 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetInatIdentificationsSpeciesCountsTaxonOf =
-  (typeof GetInatIdentificationsSpeciesCountsTaxonOf)[keyof typeof GetInatIdentificationsSpeciesCountsTaxonOf];
+export type GetInatIdentificationsSpeciesCountsTaxonOf = typeof GetInatIdentificationsSpeciesCountsTaxonOf[keyof typeof GetInatIdentificationsSpeciesCountsTaxonOf];
+
 
 export const GetInatIdentificationsSpeciesCountsTaxonOf = {
-  identification: "identification",
-  community: "community",
+  identification: 'identification',
+  community: 'community',
 } as const;

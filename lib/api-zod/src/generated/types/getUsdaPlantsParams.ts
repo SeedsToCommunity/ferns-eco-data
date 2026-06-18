@@ -7,13 +7,13 @@
  */
 
 export type GetUsdaPlantsParams = {
-  /**
-   * Scientific name (e.g. Asclepias tuberosa)
-   * @minLength 1
-   */
-  species: string;
-  /**
-   * If true, bypasses cache and fetches fresh from USDA PLANTS
-   */
-  refresh?: boolean;
+/**
+ * Scientific name (e.g. Asclepias tuberosa)
+ * @minLength 1
+ */
+species: string;
+/**
+ * If true, bypasses cache and fetches fresh from USDA PLANTS
+ */
+refresh?: boolean;
 };

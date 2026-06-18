@@ -5,8 +5,8 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { BotanicalWebRefMetadataResponse } from "./botanicalWebRefMetadataResponse";
-import type { FernsEnvelope } from "./fernsEnvelope";
+import type { BotanicalWebRefMetadataResponse } from './botanicalWebRefMetadataResponse';
+import type { FernsEnvelope } from './fernsEnvelope';
 
 export type GetLadyBirdJohnsonMetadata200 = FernsEnvelope & {
   data?: BotanicalWebRefMetadataResponse;

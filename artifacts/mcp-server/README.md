@@ -177,7 +177,7 @@ Tool names follow `{source_id}__{action}` (hyphens → underscores, double-under
 | Tool | Path | Required | Optional | Description |
 |---|---|---|---|---|
 | `wucols_water_use__lookup` | GET /wucols | code | — | WUCOLS water-use classification for a code (H, M, L, VL): label and irrigation need description |
-| `wucols_water_use__all` | GET /wucols/all | — | — | All WUCOLS water-use codes with descriptions covering High, Medium, Low, and Very Low categories |
+| `wucols_water_use__list` | GET /wucols/list | — | — | All WUCOLS water-use codes with descriptions covering High, Medium, Low, and Very Low categories |
 
 ### seeds-to-community-washtenaw — Seeds to Community Washtenaw
 

@@ -6,11 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetInatIdentificationsSimilarSpeciesProvenanceVerbosity =
-  (typeof GetInatIdentificationsSimilarSpeciesProvenanceVerbosity)[keyof typeof GetInatIdentificationsSimilarSpeciesProvenanceVerbosity];
+export type GetInatIdentificationsSimilarSpeciesProvenanceVerbosity = typeof GetInatIdentificationsSimilarSpeciesProvenanceVerbosity[keyof typeof GetInatIdentificationsSimilarSpeciesProvenanceVerbosity];
+
 
 export const GetInatIdentificationsSimilarSpeciesProvenanceVerbosity = {
-  full: "full",
-  summary: "summary",
-  none: "none",
+  full: 'full',
+  summary: 'summary',
+  none: 'none',
 } as const;

@@ -5,8 +5,8 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { LcscgGuideHabitatType } from "./lcscgGuideHabitatType";
-import type { LcscgGuideSeason } from "./lcscgGuideSeason";
+import type { LcscgGuideHabitatType } from './lcscgGuideHabitatType';
+import type { LcscgGuideSeason } from './lcscgGuideSeason';
 
 export interface LcscgGuide {
   /** Field Museum Guide ID (1271–1282) */

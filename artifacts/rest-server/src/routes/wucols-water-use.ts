@@ -8,7 +8,7 @@ import {
   WUCOLS_WATER_USE_LICENSES,
   WUCOLS_WATER_USE_LICENSE_NOTES,
 } from "../services/wucols-water-use/metadata.js";
-import { getWucolsWaterUse, listWucolsWaterUse } from "@workspace/internal-data-providers/wucols-water-use";
+import { getWucolsWaterUse, getWucolsWaterUseList } from "@workspace/internal-data-providers/wucols-water-use";
 import { ensureWucolsWaterUseRegistryEntry } from "../services/wucols-water-use/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
 import { dbRegistryAccessor } from "../lib/registry-accessor.js";
@@ -42,7 +42,7 @@ router.get("/wucols-water-use", async (req, res) => {
   res.json(envelope);
 });
 
-router.get("/wucols-water-use/all", async (req, res) => {
+router.get("/wucols-water-use/list", async (req, res) => {
   await ensureWucolsWaterUseRegistryEntry();
 
   const envelope = await buildEnvelope(
@@ -50,7 +50,7 @@ router.get("/wucols-water-use/all", async (req, res) => {
       sourceId: WUCOLS_WATER_USE_SOURCE_ID,
       sourceKind: "in-memory",
       found: true,
-      data: listWucolsWaterUse(),
+      data: getWucolsWaterUseList(),
       method: "cache_hit",
       cacheStatus: "hit",
       sourceUrl: null,

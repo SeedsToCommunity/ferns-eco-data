@@ -5,8 +5,8 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { Pagination } from "./pagination";
-import type { Provenance } from "./provenance";
+import type { Pagination } from './pagination';
+import type { Provenance } from './provenance';
 
 /**
  * The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS's act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md "FERNS Response Envelope Contract v1". Note: OpenAPI cannot express the full method/cache_status coupling table nor the source-kind-specific source_url/derived_from rules — those are enforced at runtime by the @workspace/api-envelope builder and by the forthcoming structural audit.
@@ -14,7 +14,7 @@ import type { Provenance } from "./provenance";
  */
 export interface FernsEnvelope {
   /** Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).
-   */
+ */
   found: boolean;
   /** Is the consumer cleared to use this data? Always present, per-endpoint. */
   permission_granted: boolean;

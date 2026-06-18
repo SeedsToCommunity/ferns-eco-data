@@ -5,8 +5,8 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { FernsEnvelope } from "./fernsEnvelope";
-import type { GetAnnArborNpnNameGroups200Data } from "./getAnnArborNpnNameGroups200Data";
+import type { FernsEnvelope } from './fernsEnvelope';
+import type { GetAnnArborNpnNameGroups200Data } from './getAnnArborNpnNameGroups200Data';
 
 export type GetAnnArborNpnNameGroups200 = FernsEnvelope & {
   data?: GetAnnArborNpnNameGroups200Data;

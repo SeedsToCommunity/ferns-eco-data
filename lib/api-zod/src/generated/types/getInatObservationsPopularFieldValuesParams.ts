@@ -5,29 +5,29 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetInatObservationsPopularFieldValuesProvenanceVerbosity } from "./getInatObservationsPopularFieldValuesProvenanceVerbosity";
+import type { GetInatObservationsPopularFieldValuesProvenanceVerbosity } from './getInatObservationsPopularFieldValuesProvenanceVerbosity';
 
 export type GetInatObservationsPopularFieldValuesParams = {
-  /**
-   * iNaturalist numeric taxon ID (from the species endpoint)
-   */
-  taxon_id: number;
-  /**
+/**
+ * iNaturalist numeric taxon ID (from the species endpoint)
+ */
+taxon_id: number;
+/**
  * One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). When omitted, returns global data.
 
  */
-  place_id?: string;
-  /**
+place_id?: string;
+/**
  * If true (default), restricts to verifiable observations. Pass false to include all quality grades.
 
  */
-  verifiable?: boolean;
-  /**
-   * If true, bypasses cache and fetches fresh from iNaturalist
-   */
-  refresh?: boolean;
-  /**
-   * Controls provenance text: full (default), summary, or none
-   */
-  provenance_verbosity?: GetInatObservationsPopularFieldValuesProvenanceVerbosity;
+verifiable?: boolean;
+/**
+ * If true, bypasses cache and fetches fresh from iNaturalist
+ */
+refresh?: boolean;
+/**
+ * Controls provenance text: full (default), summary, or none
+ */
+provenance_verbosity?: GetInatObservationsPopularFieldValuesProvenanceVerbosity;
 };

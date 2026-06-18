@@ -10,12 +10,12 @@
  * Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.
 
  */
-export type EnvelopeCacheStatus =
-  (typeof EnvelopeCacheStatus)[keyof typeof EnvelopeCacheStatus];
+export type EnvelopeCacheStatus = typeof EnvelopeCacheStatus[keyof typeof EnvelopeCacheStatus];
+
 
 export const EnvelopeCacheStatus = {
-  hit: "hit",
-  miss: "miss",
-  stale: "stale",
-  bypass: "bypass",
+  hit: 'hit',
+  miss: 'miss',
+  stale: 'stale',
+  bypass: 'bypass',
 } as const;

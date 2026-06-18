@@ -5,11 +5,11 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetWetlandIndicatorStatusByWValue } from "./getWetlandIndicatorStatusByWValue";
+import type { GetWetlandIndicatorStatusByWValue } from './getWetlandIndicatorStatusByWValue';
 
 export type GetWetlandIndicatorStatusByWParams = {
-  /**
-   * Numeric W-value to look up (-5, -3, 0, 3, or 5).
-   */
-  value: GetWetlandIndicatorStatusByWValue;
+/**
+ * Numeric W-value to look up (-5, -3, 0, 3, or 5).
+ */
+value: GetWetlandIndicatorStatusByWValue;
 };

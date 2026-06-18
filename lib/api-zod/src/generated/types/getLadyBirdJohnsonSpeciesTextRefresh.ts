@@ -6,10 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetLadyBirdJohnsonSpeciesTextRefresh =
-  (typeof GetLadyBirdJohnsonSpeciesTextRefresh)[keyof typeof GetLadyBirdJohnsonSpeciesTextRefresh];
+export type GetLadyBirdJohnsonSpeciesTextRefresh = typeof GetLadyBirdJohnsonSpeciesTextRefresh[keyof typeof GetLadyBirdJohnsonSpeciesTextRefresh];
+
 
 export const GetLadyBirdJohnsonSpeciesTextRefresh = {
-  true: "true",
-  false: "false",
+  true: 'true',
+  false: 'false',
 } as const;

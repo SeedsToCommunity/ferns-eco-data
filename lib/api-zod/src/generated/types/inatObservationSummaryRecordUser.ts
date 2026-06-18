@@ -14,4 +14,4 @@ export type InatObservationSummaryRecordUser = {
   name?: string | null;
   login?: string | null;
   [key: string]: unknown;
-} | null;
+ } | null;

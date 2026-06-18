@@ -5,9 +5,9 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { FernsProvenance } from "./fernsProvenance";
-import type { MifloraImageRecord } from "./mifloraImageRecord";
-import type { MifloraImagesResponseCacheStatus } from "./mifloraImagesResponseCacheStatus";
+import type { FernsProvenance } from './fernsProvenance';
+import type { MifloraImageRecord } from './mifloraImageRecord';
+import type { MifloraImagesResponseCacheStatus } from './mifloraImagesResponseCacheStatus';
 
 /**
  * FERNS envelope for Michigan Flora image gallery. data is the array of image records from allimage_info, each enriched with constructed absolute image_url and thumbnail_url. Cached permanently (no TTL).
@@ -21,7 +21,7 @@ export interface MifloraImagesResponse {
   cache_status: MifloraImagesResponseCacheStatus;
   queried_at: Date;
   /** Array of image records from Michigan Flora allimage_info, each enriched with image_url and thumbnail_url. Null when found is false.
-   */
+ */
   data?: MifloraImageRecord[] | null;
   provenance: FernsProvenance;
 }

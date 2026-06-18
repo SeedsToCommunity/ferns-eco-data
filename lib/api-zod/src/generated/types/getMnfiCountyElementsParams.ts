@@ -5,18 +5,18 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetMnfiCountyElementsType } from "./getMnfiCountyElementsType";
+import type { GetMnfiCountyElementsType } from './getMnfiCountyElementsType';
 
 export type GetMnfiCountyElementsParams = {
-  /**
+/**
  * Michigan county name (e.g. Washtenaw, Leelanau). Case-insensitive. All 83 Michigan county names are accepted.
 
  * @minLength 1
  */
-  county: string;
-  /**
+county: string;
+/**
  * Filter by element type. Must be 'species' or 'community' when provided. When omitted, both types are returned.
 
  */
-  type?: GetMnfiCountyElementsType;
+type?: GetMnfiCountyElementsType;
 };

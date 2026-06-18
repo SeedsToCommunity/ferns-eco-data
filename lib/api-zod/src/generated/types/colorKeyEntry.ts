@@ -5,7 +5,7 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { ColorKeyEntryLayer } from "./colorKeyEntryLayer";
+import type { ColorKeyEntryLayer } from './colorKeyEntryLayer';
 
 export interface ColorKeyEntry {
   /** Short string identifier for this color entry */

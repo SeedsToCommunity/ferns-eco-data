@@ -10,6 +10,4 @@
  * Verbatim GBIF species/match upstream response. matchType is NONE when no match was found. usageKey is absent or null when matchType is NONE. GBIF always returns HTTP 200 regardless of match outcome.
 
  */
-export interface GbifMatchData {
-  [key: string]: unknown;
-}
+export interface GbifMatchData { [key: string]: unknown }

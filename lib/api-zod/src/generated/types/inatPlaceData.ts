@@ -5,7 +5,7 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { InatPlaceResult } from "./inatPlaceResult";
+import type { InatPlaceResult } from './inatPlaceResult';
 
 export interface InatPlaceData {
   /** Up to 5 matching places. Applications select the correct one. */

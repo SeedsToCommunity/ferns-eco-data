@@ -5,9 +5,9 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { FernsProvenance } from "./fernsProvenance";
-import type { WetlandIndicatorEntry } from "./wetlandIndicatorEntry";
-import type { WetlandIndicatorResponseCacheStatus } from "./wetlandIndicatorResponseCacheStatus";
+import type { FernsProvenance } from './fernsProvenance';
+import type { WetlandIndicatorEntry } from './wetlandIndicatorEntry';
+import type { WetlandIndicatorResponseCacheStatus } from './wetlandIndicatorResponseCacheStatus';
 
 export interface WetlandIndicatorResponse {
   found: boolean;

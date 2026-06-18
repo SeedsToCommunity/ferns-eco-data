@@ -5,7 +5,7 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { LcscgSeedGroupDetail } from "./lcscgSeedGroupDetail";
+import type { LcscgSeedGroupDetail } from './lcscgSeedGroupDetail';
 
 export interface LcscgSpeciesRecord {
   id: number;
@@ -18,12 +18,12 @@ export interface LcscgSpeciesRecord {
   common_name: string;
   family: string;
   /** Reference photograph date (M-D-YY format). Approximates seed collection timing; varies by microclimate, proximity to Lake Michigan, slope, and sun/shade.
-   */
+ */
   photo_date: string;
   /** Authors' harvest notes for this species */
   description: string;
   /** Seed dispersal category names (e.g., Elaiosomes, Ballistic, Fluffy, Milkweed, Berries, Mama's Boys, Shakers, Beaks, Coneheads, Crumbly Coneheads, Shattering, Hitchhikers, Do Not Collect)
-   */
+ */
   seed_group_names: string[];
   seed_group_details: LcscgSeedGroupDetail[];
   /** Original image filenames from the guide */

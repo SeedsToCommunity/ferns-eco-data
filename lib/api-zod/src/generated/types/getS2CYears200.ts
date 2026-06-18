@@ -5,8 +5,8 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { FernsEnvelope } from "./fernsEnvelope";
-import type { S2CYearsData } from "./s2CYearsData";
+import type { FernsEnvelope } from './fernsEnvelope';
+import type { S2CYearsData } from './s2CYearsData';
 
 export type GetS2CYears200 = FernsEnvelope & {
   data?: S2CYearsData;

@@ -5,9 +5,9 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { FernsProvenance } from "./fernsProvenance";
-import type { MifloraSpecTextResponseCacheStatus } from "./mifloraSpecTextResponseCacheStatus";
-import type { MifloraSpecTextResponseData } from "./mifloraSpecTextResponseData";
+import type { FernsProvenance } from './fernsProvenance';
+import type { MifloraSpecTextResponseCacheStatus } from './mifloraSpecTextResponseCacheStatus';
+import type { MifloraSpecTextResponseData } from './mifloraSpecTextResponseData';
 
 /**
  * FERNS envelope for Michigan Flora spec_text. data.text is the raw HTML botanical description from Michigan Flora. Cached permanently (no TTL).

@@ -5,11 +5,11 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetInatObservationsTaxonSummaryProvenanceVerbosity } from "./getInatObservationsTaxonSummaryProvenanceVerbosity";
+import type { GetInatObservationsTaxonSummaryProvenanceVerbosity } from './getInatObservationsTaxonSummaryProvenanceVerbosity';
 
 export type GetInatObservationsTaxonSummaryParams = {
-  /**
-   * Controls provenance text: full (default), summary, or none
-   */
-  provenance_verbosity?: GetInatObservationsTaxonSummaryProvenanceVerbosity;
+/**
+ * Controls provenance text: full (default), summary, or none
+ */
+provenance_verbosity?: GetInatObservationsTaxonSummaryProvenanceVerbosity;
 };

@@ -20,9 +20,9 @@ export interface MifloraImageRecord {
   /** Photographer credit for this image */
   photographer?: string | null;
   /** Absolute URL to the full-size image on Michigan Flora's server. Constructed as: https://michiganflora.net/static/species_images/_pid_{plant_id}/{image_id}.jpg
-   */
+ */
   image_url: string;
   /** Absolute URL to the thumbnail image on Michigan Flora's server. Constructed as: https://michiganflora.net/static/species_images/_pid_{plant_id}/thumb_{image_id}.jpg
-   */
+ */
   thumbnail_url: string;
 }

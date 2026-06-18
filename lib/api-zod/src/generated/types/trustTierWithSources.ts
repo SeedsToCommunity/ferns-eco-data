@@ -5,7 +5,7 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { SourceSummary } from "./sourceSummary";
+import type { SourceSummary } from './sourceSummary';
 
 export interface TrustTierWithSources {
   tier_id: string;

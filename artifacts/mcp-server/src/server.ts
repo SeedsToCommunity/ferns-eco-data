@@ -999,7 +999,7 @@ const tools: ToolDef[] = [
   },
   {
     tool: {
-      name: "wucols_water_use__all",
+      name: "wucols_water_use__list",
       description:
         "Returns all WUCOLS water-use classification codes with descriptions, covering High, Medium, Low, and Very Low categories.",
       inputSchema: {
@@ -1009,7 +1009,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/wucols-water-use/all", {
+      apiGet("/wucols-water-use/list", {
         provenance_verbosity: pv(args),
       }),
   },

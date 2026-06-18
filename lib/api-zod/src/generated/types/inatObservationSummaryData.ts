@@ -5,7 +5,7 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { InatObservationSummaryRecord } from "./inatObservationSummaryRecord";
+import type { InatObservationSummaryRecord } from './inatObservationSummaryRecord';
 
 export interface InatObservationSummaryData {
   /** Total observations matching the query (iNat API limit is 10,000) */

@@ -8,7 +8,7 @@
 
 export interface InatNativeStatusEntry {
   /** native, introduced, endemic, or similar values as recorded by iNaturalist community members for this place
-   */
+ */
   status: string;
   /** Name of the place where this status applies */
   place_name: string;

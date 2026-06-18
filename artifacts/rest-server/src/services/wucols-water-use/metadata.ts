@@ -71,7 +71,7 @@ export const WUCOLS_WATER_USE_REGISTRY_ENTRY = {
   non_passthrough_endpoints: [
     { endpoint: "/api/wucols-water-use/metadata", kind: "metadata" },
     { endpoint: "/api/wucols-water-use", kind: "in_memory" },
-    { endpoint: "/api/wucols-water-use/all", kind: "in_memory" },
+    { endpoint: "/api/wucols-water-use/list", kind: "in_memory" },
   ],
   permission_granted: true,
 };

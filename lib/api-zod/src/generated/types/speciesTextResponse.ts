@@ -5,9 +5,9 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { FernsProvenance } from "./fernsProvenance";
-import type { SpeciesTextResponseCacheStatus } from "./speciesTextResponseCacheStatus";
-import type { SpeciesTextResponseData } from "./speciesTextResponseData";
+import type { FernsProvenance } from './fernsProvenance';
+import type { SpeciesTextResponseCacheStatus } from './speciesTextResponseCacheStatus';
+import type { SpeciesTextResponseData } from './speciesTextResponseData';
 
 /**
  * Response shape for species page text scraping endpoints. Returned by /gobotany/species-text, /illinois-wildflowers/species-text, /minnesota-wildflowers/species-text, /missouri-plants/species-text, and /prairie-moon/species-text.
@@ -20,10 +20,10 @@ export interface SpeciesTextResponse {
   /** The API endpoint URL that served this response. */
   source_url?: string;
   /** "hit" — returned from cache. "miss" — live scrape performed and cached. "not_in_species_list" — species URL not in the imported species list; scrape skipped.
-   */
+ */
   cache_status: SpeciesTextResponseCacheStatus;
   /** Present only when a transient upstream error (network failure, timeout, 5xx) prevented the scrape. The result was NOT cached in this case and the next call will retry the live request.
-   */
+ */
   fetch_error?: string;
   /** Timestamp of when the text was originally scraped. */
   scraped_at?: Date;
