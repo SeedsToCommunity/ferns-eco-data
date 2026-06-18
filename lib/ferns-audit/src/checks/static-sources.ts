@@ -180,7 +180,7 @@ export async function runWetlandIndicatorChecks(
 ): Promise<EndpointComparison[]> {
   const allCheck = await checkEndpoint(
     "wetland-indicator",
-    "/api/wetland-indicator-status/all",
+    "/api/wetland-indicator-status/list",
     "Wetland Indicator Status — full code table",
     fernsBase,
     (envelope) => {

@@ -6,10 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetWetlandIndicatorByCodeCode =
-  (typeof GetWetlandIndicatorByCodeCode)[keyof typeof GetWetlandIndicatorByCodeCode];
+export type GetWetlandIndicatorStatusByCodeCode =
+  (typeof GetWetlandIndicatorStatusByCodeCode)[keyof typeof GetWetlandIndicatorStatusByCodeCode];
 
-export const GetWetlandIndicatorByCodeCode = {
+export const GetWetlandIndicatorStatusByCodeCode = {
   OBL: "OBL",
   FACW: "FACW",
   FAC: "FAC",

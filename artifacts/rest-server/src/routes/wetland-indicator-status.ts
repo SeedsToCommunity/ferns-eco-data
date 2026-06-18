@@ -11,7 +11,7 @@ import {
 import {
   getWetlandIndicatorStatusByCode,
   getWetlandIndicatorStatusByW,
-  listWetlandIndicatorStatuses,
+  getWetlandIndicatorStatusList,
 } from "@workspace/internal-data-providers/wetland-indicator-status";
 import { ensureWetlandIndicatorStatusRegistryEntry } from "../services/wetland-indicator-status/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
@@ -79,7 +79,7 @@ router.get("/wetland-indicator-status/w", async (req, res) => {
   res.json(envelope);
 });
 
-router.get("/wetland-indicator-status/all", async (req, res) => {
+router.get("/wetland-indicator-status/list", async (req, res) => {
   await ensureWetlandIndicatorStatusRegistryEntry();
 
   const envelope = await buildEnvelope(
@@ -87,7 +87,7 @@ router.get("/wetland-indicator-status/all", async (req, res) => {
       sourceId: WETLAND_INDICATOR_STATUS_SOURCE_ID,
       sourceKind: "in-memory",
       found: true,
-      data: listWetlandIndicatorStatuses(),
+      data: getWetlandIndicatorStatusList(),
       method: "cache_hit",
       cacheStatus: "hit",
       sourceUrl: null,

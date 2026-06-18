@@ -72,7 +72,7 @@ export const WETLAND_INDICATOR_STATUS_REGISTRY_ENTRY = {
     { endpoint: "/api/wetland-indicator-status/metadata", kind: "metadata" },
     { endpoint: "/api/wetland-indicator-status", kind: "in_memory" },
     { endpoint: "/api/wetland-indicator-status/w", kind: "in_memory" },
-    { endpoint: "/api/wetland-indicator-status/all", kind: "in_memory" },
+    { endpoint: "/api/wetland-indicator-status/list", kind: "in_memory" },
   ],
   permission_granted: true,
 };

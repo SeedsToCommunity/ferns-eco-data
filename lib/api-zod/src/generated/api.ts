@@ -4725,7 +4725,7 @@ export const GetCoefficientByValueResponse = zod.object({
 
  * @summary Get all C-value definitions
  */
-export const GetAllCoefficientValuesResponse = zod.object({
+export const GetCoefficientOfConservatismListResponse = zod.object({
   found: zod.boolean(),
   cache_status: zod.enum(["miss", "hit", "error"]),
   queried_at: zod.date(),
@@ -4867,7 +4867,7 @@ export const GetCoefficientMetadataResponse = zod.object({
 
  * @summary Look up a Wetland Indicator Status code
  */
-export const GetWetlandIndicatorByCodeQueryParams = zod.object({
+export const GetWetlandIndicatorStatusByCodeQueryParams = zod.object({
   code: zod
     .enum(["OBL", "FACW", "FAC", "FACU", "UPL"])
     .describe(
@@ -4875,7 +4875,7 @@ export const GetWetlandIndicatorByCodeQueryParams = zod.object({
     ),
 });
 
-export const GetWetlandIndicatorByCodeResponse = zod.object({
+export const GetWetlandIndicatorStatusByCodeResponse = zod.object({
   found: zod.boolean(),
   cache_status: zod.enum(["miss", "hit", "error"]),
   queried_at: zod.date(),
@@ -4949,7 +4949,7 @@ export const GetWetlandIndicatorByCodeResponse = zod.object({
 
  * @summary Look up a Wetland Indicator Status by Coefficient of Wetness (W-value)
  */
-export const GetWetlandIndicatorByWQueryParams = zod.object({
+export const GetWetlandIndicatorStatusByWQueryParams = zod.object({
   value: zod
     .union([
       zod.literal(-5),
@@ -4961,7 +4961,7 @@ export const GetWetlandIndicatorByWQueryParams = zod.object({
     .describe("Numeric W-value to look up (-5, -3, 0, 3, or 5)."),
 });
 
-export const GetWetlandIndicatorByWResponse = zod.object({
+export const GetWetlandIndicatorStatusByWResponse = zod.object({
   found: zod.boolean(),
   cache_status: zod.enum(["miss", "hit", "error"]),
   queried_at: zod.date(),
@@ -5035,7 +5035,7 @@ export const GetWetlandIndicatorByWResponse = zod.object({
 
  * @summary Get all Wetland Indicator Status definitions
  */
-export const GetAllWetlandIndicatorsResponse = zod.object({
+export const GetWetlandIndicatorStatusListResponse = zod.object({
   found: zod.boolean(),
   cache_status: zod.enum(["miss", "hit", "error"]),
   queried_at: zod.date(),

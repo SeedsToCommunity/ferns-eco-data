@@ -9,6 +9,6 @@ export function getWetlandIndicatorStatusByW(w: number): WetlandIndicatorStatusE
   return lookupByW(w);
 }
 
-export function listWetlandIndicatorStatuses(): WetlandIndicatorStatusEntry[] {
+export function getWetlandIndicatorStatusList(): WetlandIndicatorStatusEntry[] {
   return WETLAND_INDICATOR_STATUS_DATA;
 }

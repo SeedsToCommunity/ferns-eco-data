@@ -941,7 +941,7 @@ const tools: ToolDef[] = [
   },
   {
     tool: {
-      name: "wetland_indicator_status__by_w_value",
+      name: "wetland_indicator_status__by_w",
       description:
         "Returns the Wetland Indicator Status record for a numeric W-value, which is the numeric analogue of the five-category USDA NRCS code system.",
       inputSchema: {
@@ -961,7 +961,7 @@ const tools: ToolDef[] = [
   },
   {
     tool: {
-      name: "wetland_indicator_status__all",
+      name: "wetland_indicator_status__list",
       description:
         "Returns all five Wetland Indicator Status codes with their descriptions and corresponding W numeric values. The complete USDA NRCS wetland indicator reference table.",
       inputSchema: {
@@ -971,7 +971,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/wetland-indicator-status/all", {
+      apiGet("/wetland-indicator-status/list", {
         provenance_verbosity: pv(args),
       }),
   },

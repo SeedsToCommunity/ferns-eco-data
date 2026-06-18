@@ -2356,7 +2356,7 @@ paths:
 
   /wetland-indicator-status:
     get:
-      operationId: getWetlandIndicatorByCode
+      operationId: getWetlandIndicatorStatusByCode
       tags: [wetland-indicator-status]
       summary: Look up a Wetland Indicator Status code
       description: >
@@ -2388,7 +2388,7 @@ paths:
 
   /wetland-indicator-status/w:
     get:
-      operationId: getWetlandIndicatorByW
+      operationId: getWetlandIndicatorStatusByW
       tags: [wetland-indicator-status]
       summary: Look up a Wetland Indicator Status by Coefficient of Wetness (W-value)
       description: >
@@ -2416,9 +2416,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /wetland-indicator-status/all:
+  /wetland-indicator-status/list:
     get:
-      operationId: getAllWetlandIndicators
+      operationId: getWetlandIndicatorStatusList
       tags: [wetland-indicator-status]
       summary: Get all Wetland Indicator Status definitions
       description: >
