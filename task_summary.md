@@ -449,3 +449,36 @@ Not applicable — google-images is a URL-lookup source (kind: `url_lookup`), no
 
 - **MCP tool naming conformance**: The tool is named `google_images__search` but the contract's action-name consistency rule says the tool name should derive from the path segment after the source prefix. Since the search IS the root endpoint (no path segment), the tool name `google_images__search` has no path anchor. The options are: (a) leave it as-is with a `non_passthrough` exception noted; (b) add a `/search` path alias; (c) rename the tool to match the root endpoint convention. This requires a decision before a breaking change is made.
 
+
+---
+
+## Task: S2C Species Information — MCP Tool + Audit (2026-06-18)
+
+### What was built
+
+A new MCP tool (`seeds_to_community_washtenaw__species_information`) was added to the Ecological Commons MCP server, exposing the existing REST endpoint `GET /api/seeds-to-community-washtenaw/species-information` as a callable tool for any MCP-compatible AI assistant. The tool accepts a single required `species` parameter (botanical name) and returns the full S2C species record — growth habit, germination code, bloom color, height, light and moisture requirements, and planting notes — for any of the ~220 species in the Seeds to Community Washtenaw dataset. An audit health check was added to `lib/ferns-audit` that verifies the endpoint returns HTTP 200, `found=true`, `data.botanical_name` present, correct `provenance.source_id`, and `provenance.method=cache_hit` for *Aquilegia canadensis*. All 10 assertions pass. The MCP README tool table was updated and the tool count bumped from 58 to 59.
+
+### Derivation summary
+
+> Species availability records and per-species growing information for Seeds to Community Washtenaw, a native plant seed-growing program run by a Washtenaw County, Michigan community organization; FERNS serves this data with the program organizer's permission. Data type: (1) the list of botanical names offered for growing in each annual workshop series, extracted from program documents (PDFs and Google Sheets); (2) rich per-species information — growth habit, germination code, stratification notes, bloom color, height, stature, light, moisture, and additional planting notes — covering ~220 species. Geographic scope: Washtenaw County, Michigan; taxonomic scope: native plants suitable for seed-growing workshops in the Upper Midwest. FERNS serves static in-memory data extracted from program documents; no live API is queried at runtime. A query by year returns the species list with optional metadata flags: neat_and_tidy (suitable for formal garden settings) and sweet_and_simple (beginner-friendly, 2026+). A query by botanical name returns rich per-species growing data. Data is updated annually when new program year documents are processed; the 2023 list is from workshop PDFs (24 species) and may be incomplete. Botanical names reflect S2C program usage and are not formally reconciled to any single taxonomic authority.
+
+### Scientific/technical description
+
+> Source: Seeds to Community Washtenaw native plant program, Washtenaw County, Michigan. Data owner: program organizer. Permission: granted explicitly. Method: static_data. Species lists extracted from program documents per year: 2023 — plant-sheet PDF (202303-PlantSheets.pdf); 24 species; botanical names transcribed from PDF. 2024 — Google Sheets 'All Species For Growing Events' tab (file: 12DX2dQ96KUyEeNKREfpNoGHtTBxczan6uZNP3uQYyJk); 96 species; neat_and_tidy from Neat column. 2025 — Google Sheets 'Species' tab, filter Barn S3=TRUE (file: 121a1HIhNPJwyM1fr_OWgi4jMKRipF9EKDeT7_zo4mA8); 151 species; neat_and_tidy from Neat column. 2026 — Google Sheets 'Species' tab, filter Collected=TRUE (file: 1sVNi4MuqSI6tugCgDodiUJZMTMkDuK1FEXojexI5f-E); 166 species; neat_and_tidy and sweet_and_simple from S2C Lists column. Species information endpoint: source file S2C_SpeciesInfo.csv; ~220 species after excluding 17 rows (13 flagged as Old Name, 4 Non-Native); 19 ingested fields per species: botanical_name, common_name, special_collect, s2c_lists, start_seed_watch, growth_habit, germination_code, strat_notes, planting_notes, process_notes, bloom_color, height, stature, compact_bloom_range, bloom_months, plant_spacing, light, moisture, species_comments; lookup method: case-insensitive match on botanical_name. Botanical names reflect S2C program usage; not formally reconciled to a single taxonomic authority. No upstream API. No cache TTL — data is in-memory static reference.
+
+### Architectural decisions made
+
+- **Followed exact S2C tool pattern** — `provenance_verbosity` spread via `PV_PROP` and `pv(args)` helper, consistent with other S2C tools and the full pattern across the server.
+- **Audit check placed at end of `runS2CChecks`** — the new `speciesInfoCheck` is appended to the return array alongside the existing years and species-list checks, keeping all S2C assertions in one function and in `index.ts`'s existing `s2cChecks` slot. No new import or `Promise.all` entry needed.
+- **Audit asserts `method === "cache_hit"`** — the S2C adapter always returns `method: cache_hit` (in-memory static data, no upstream fetch). This is intentional and correct per the data-layer contract for in-memory sources.
+
+### What was NOT done
+
+- No changes to the REST route or OpenAPI spec (out of scope per task instructions).
+- No changes to existing MCP tools or audit checks.
+- The pre-existing `provenance.rights` empty-string flag in the `envelopeFindings` helper shows as a mismatch for S2C responses — this is a pre-existing issue across all S2C endpoints, not introduced here, and was not fixed.
+
+### What the user should decide or review
+
+- **`provenance.rights` empty string** — the S2C adapter sets `rights: ""` which the standard `envelopeFindings` check flags as a mismatch. This affects all three S2C checks (years, species lists, and now species-information). Decide whether to set a meaningful rights string in the S2C adapter, or treat the empty string as acceptable for internal data providers.
+- **MCP tool description accuracy** — the description says "includes availability across catalog years and seed collection notes"; confirm this reflects the actual fields returned (the endpoint returns a single species record keyed to in-memory data, not year-by-year availability breakdowns).

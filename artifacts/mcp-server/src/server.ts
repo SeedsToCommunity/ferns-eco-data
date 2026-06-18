@@ -1051,6 +1051,26 @@ const tools: ToolDef[] = [
         provenance_verbosity: pv(args),
       }),
   },
+  {
+    tool: {
+      name: "seeds_to_community_washtenaw__species_information",
+      description:
+        "Returns detailed species information for a single plant in the Seeds to Community Washtenaw dataset, looked up by botanical name. Includes availability across catalog years, seed collection notes, and any associated ecological data recorded by Seeds to Community Washtenaw.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          species: { type: "string", description: "Botanical (scientific) name of the species (e.g. Aquilegia canadensis)" },
+          ...PV_PROP,
+        },
+        required: ["species"],
+      },
+    },
+    handler: async (args) =>
+      apiGet("/seeds-to-community-washtenaw/species-information", {
+        species: String(args["species"]),
+        provenance_verbosity: pv(args),
+      }),
+  },
 
   // ── lcscg ───────────────────────────────────────────────────────────────
   {

@@ -108,7 +108,7 @@ This runs the server directly from TypeScript source using `tsx`, without compil
 
 ---
 
-## Tool inventory (58 tools)
+## Tool inventory (59 tools)
 
 Tool names follow `{source_id}__{action}` (hyphens → underscores, double-underscore separator).
 
@@ -185,6 +185,7 @@ Tool names follow `{source_id}__{action}` (hyphens → underscores, double-under
 |---|---|---|---|---|
 | `seeds_to_community_washtenaw__species` | GET /s2c | year | — | Species available in the Seeds to Community Washtenaw seed catalog for a given year |
 | `seeds_to_community_washtenaw__years` | GET /s2c/years | — | — | Years for which Seeds to Community Washtenaw seed availability data exists |
+| `seeds_to_community_washtenaw__species_information` | GET /seeds-to-community-washtenaw/species-information | species | provenance_verbosity | Detailed species record for a single plant in the S2C dataset, looked up by botanical name; includes availability across catalog years and seed collection notes |
 
 ### lcscg — Lake County Seed Collection Guides
 

@@ -617,7 +617,43 @@ export async function runS2CChecks(
     ),
   );
 
-  return [yearsCheck, ...speciesChecks];
+  const speciesInfoCheck = await checkEndpoint(
+    "s2c",
+    "/api/seeds-to-community-washtenaw/species-information?species=Aquilegia+canadensis",
+    "Seeds to Community — species information (Aquilegia canadensis)",
+    fernsBase,
+    (envelope) => {
+      const findings: FieldFinding[] = [];
+      if (envelope.found !== true) {
+        findings.push({
+          type: "mismatch",
+          sourceField: "found",
+          note: `Expected found=true for Aquilegia canadensis, got ${envelope.found}`,
+        });
+        return findings;
+      }
+      const data = envelope.data as Record<string, unknown> | null | undefined;
+      if (data && typeof data["botanical_name"] === "string" && data["botanical_name"].length > 0) {
+        findings.push({ type: "ok", sourceField: "data.botanical_name", note: `botanical_name present: "${data["botanical_name"]}"` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.botanical_name", note: `data.botanical_name missing or empty` });
+      }
+      const prov = envelope.provenance as Record<string, unknown> | null | undefined;
+      if (prov?.source_id === "seeds-to-community-washtenaw") {
+        findings.push({ type: "ok", sourceField: "provenance.source_id", note: `source_id = "seeds-to-community-washtenaw" (expected)` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "provenance.source_id", note: `Expected "seeds-to-community-washtenaw", got "${prov?.source_id}"` });
+      }
+      if (prov?.method === "cache_hit") {
+        findings.push({ type: "ok", sourceField: "provenance.method", note: `method = "cache_hit" (expected for in-memory source)` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "provenance.method", note: `Expected method="cache_hit", got "${prov?.method}"` });
+      }
+      return findings;
+    },
+  );
+
+  return [yearsCheck, ...speciesChecks, speciesInfoCheck];
 }
 
 export async function runMnfiChecks(fernsBase: string): Promise<EndpointComparison[]> {
