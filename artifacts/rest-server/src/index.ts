@@ -11,7 +11,7 @@ import { ensureWetlandIndicatorStatusRegistryEntry } from "./services/wetland-in
 import { ensureWucolsWaterUseRegistryEntry } from "./services/wucols-water-use/seed.js";
 import { ensureS2CRegistryEntry } from "./services/s2c/seed.js";
 import { ensureUniversalFqaRegistryEntry } from "./services/universal-fqa/seed.js";
-import { ensureLcscgRegistryEntry, seedLcscgData } from "./services/lcscg/seed.js";
+import { ensureLcscgRegistryEntry } from "./services/lcscg/seed.js";
 import { ensureGobotanyRegistryEntry } from "./services/gobotany/seed.js";
 import { ensureGoogleImagesRegistryEntry } from "./services/google-images/seed.js";
 import { ensureMissouriPlantsRegistryEntry } from "./services/missouri-plants/seed.js";
@@ -56,10 +56,6 @@ async function main() {
 
     autoImportMnfiIfEmpty(port).catch((err) => {
       logger.error({ err }, "MNFI auto-import check failed at startup");
-    });
-
-    seedLcscgData().catch((seedErr) => {
-      logger.error({ err: seedErr }, "Failed to seed LCSCG data at startup");
     });
 
     autoImportMissouriPlantsIfEmpty().catch((err) => {

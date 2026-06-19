@@ -1,6 +1,9 @@
+// Lake County Savanna and Grassland Guide — thin route adapter.
+// Internal Data Provider: @workspace/internal-data-providers/lcscg
+// Envelope Contract v1: docs/data-layer-contract.md
+
 import { Router, type IRouter } from "express";
-import { db, lcscgGuidesTable, lcscgSpeciesTable } from "@workspace/db";
-import { eq, ilike, or, sql } from "drizzle-orm";
+import { buildEnvelope } from "@workspace/api-envelope";
 import {
   LCSCG_SOURCE_ID,
   LCSCG_GENERAL_SUMMARY,
@@ -11,8 +14,12 @@ import {
 } from "../services/lcscg/metadata.js";
 import { ensureLcscgRegistryEntry } from "../services/lcscg/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
-import { buildEnvelope } from "@workspace/api-envelope";
 import { dbRegistryAccessor } from "../lib/registry-accessor.js";
+import {
+  getLcscgGuides,
+  getLcscgGuide,
+  getLcscgSpecies,
+} from "@workspace/internal-data-providers/lcscg";
 
 const router: IRouter = Router();
 
@@ -21,10 +28,12 @@ router.get("/lcscg/metadata", async (req, res) => {
 
   const queriedAt = new Date().toISOString();
 
-  const [guideCount, speciesCount] = await Promise.all([
-    db.$count(lcscgGuidesTable),
-    db.$count(lcscgSpeciesTable),
-  ]);
+  const guides = getLcscgGuides();
+  const guideCount = guides.length;
+  const speciesCount = guides.reduce((sum: number, g) => {
+    const result = getLcscgGuide(g.guide_id);
+    return sum + (result?.species.length ?? 0);
+  }, 0);
 
   res.json(await buildEnvelope({
     sourceId: LCSCG_SOURCE_ID,
@@ -35,8 +44,8 @@ router.get("/lcscg/metadata", async (req, res) => {
       service_name: LCSCG_REGISTRY_ENTRY.name,
       licenses: LCSCG_LICENSES,
       license_notes: LCSCG_LICENSE_NOTES,
-      guide_count: Number(guideCount),
-      species_count: Number(speciesCount),
+      guide_count: guideCount,
+      species_count: speciesCount,
       registry_entry: {
         ...LCSCG_REGISTRY_ENTRY,
         metadata_url: resolveUrl(req, LCSCG_REGISTRY_ENTRY.metadata_url),
@@ -54,27 +63,13 @@ router.get("/lcscg/metadata", async (req, res) => {
 router.get("/lcscg/guides", async (req, res) => {
   await ensureLcscgRegistryEntry();
 
-  const guides = await db.select().from(lcscgGuidesTable).orderBy(lcscgGuidesTable.guide_id);
-
-  const countRows = await db
-    .select({ guide_id: lcscgSpeciesTable.guide_id, count: sql<number>`count(*)::int` })
-    .from(lcscgSpeciesTable)
-    .groupBy(lcscgSpeciesTable.guide_id);
-  const countMap = new Map(countRows.map((r) => [r.guide_id, r.count]));
-
-  const guidesWithCounts = guides.map((g) => ({
-    ...g,
-    species_count: countMap.get(g.guide_id) ?? 0,
-  }));
+  const guides = getLcscgGuides();
 
   res.json(await buildEnvelope({
     sourceId: LCSCG_SOURCE_ID,
     sourceKind: "in-memory",
     found: true,
-    data: {
-      guide_count: guides.length,
-      guides: guidesWithCounts,
-    },
+    data: { guides },
     method: "cache_hit",
     cacheStatus: "hit",
     sourceUrl: null,
@@ -83,31 +78,21 @@ router.get("/lcscg/guides", async (req, res) => {
 });
 
 router.get("/lcscg/guide/:guideId", async (req, res) => {
-  await ensureLcscgRegistryEntry();
-
   const rawId = parseInt(req.params["guideId"] ?? "", 10);
 
   if (isNaN(rawId)) {
-    res.status(400).json(await buildEnvelope({
-      sourceId: LCSCG_SOURCE_ID,
-      sourceKind: "in-memory",
-      found: false,
-      data: { error: "invalid_input", message: "guideId must be an integer between 1271 and 1282" },
-      method: "computed",
-      cacheStatus: "bypass",
-      sourceUrl: null,
-      queriedAt: new Date().toISOString(),
-    }, { registry: dbRegistryAccessor }));
+    res.status(400).json({
+      error: "invalid_input",
+      message: "guideId must be an integer between 1271 and 1282",
+    });
     return;
   }
 
-  const [guide] = await db
-    .select()
-    .from(lcscgGuidesTable)
-    .where(eq(lcscgGuidesTable.guide_id, rawId))
-    .limit(1);
+  await ensureLcscgRegistryEntry();
 
-  if (!guide) {
+  const result = getLcscgGuide(rawId);
+
+  if (!result) {
     res.json(await buildEnvelope({
       sourceId: LCSCG_SOURCE_ID,
       sourceKind: "in-memory",
@@ -121,21 +106,11 @@ router.get("/lcscg/guide/:guideId", async (req, res) => {
     return;
   }
 
-  const species = await db
-    .select()
-    .from(lcscgSpeciesTable)
-    .where(eq(lcscgSpeciesTable.guide_id, rawId))
-    .orderBy(lcscgSpeciesTable.page_number, lcscgSpeciesTable.species_id);
-
   res.json(await buildEnvelope({
     sourceId: LCSCG_SOURCE_ID,
     sourceKind: "in-memory",
     found: true,
-    data: {
-      guide,
-      species_count: species.length,
-      species,
-    },
+    data: { guide: result.guide, species: result.species },
     method: "cache_hit",
     cacheStatus: "hit",
     sourceUrl: null,
@@ -144,66 +119,25 @@ router.get("/lcscg/guide/:guideId", async (req, res) => {
 });
 
 router.get("/lcscg/species", async (req, res) => {
-  await ensureLcscgRegistryEntry();
-
   const nameParam = req.query["name"];
 
   if (!nameParam || typeof nameParam !== "string" || nameParam.trim() === "") {
-    res.status(400).json(await buildEnvelope({
-      sourceId: LCSCG_SOURCE_ID,
-      sourceKind: "in-memory",
-      found: false,
-      data: { error: "invalid_input", message: "name query parameter is required (scientific name, partial match supported)" },
-      method: "computed",
-      cacheStatus: "bypass",
-      sourceUrl: null,
-      queriedAt: new Date().toISOString(),
-    }, { registry: dbRegistryAccessor }));
+    res.status(400).json({
+      error: "invalid_input",
+      message: "name query parameter is required (scientific name, partial match supported)",
+    });
     return;
   }
 
-  const name = nameParam.trim();
+  await ensureLcscgRegistryEntry();
 
-  const records = await db
-    .select({
-      id: lcscgSpeciesTable.id,
-      guide_id: lcscgSpeciesTable.guide_id,
-      species_id: lcscgSpeciesTable.species_id,
-      scientific_name: lcscgSpeciesTable.scientific_name,
-      common_name: lcscgSpeciesTable.common_name,
-      family: lcscgSpeciesTable.family,
-      photo_date: lcscgSpeciesTable.photo_date,
-      description: lcscgSpeciesTable.description,
-      seed_group_names: lcscgSpeciesTable.seed_group_names,
-      seed_group_details: lcscgSpeciesTable.seed_group_details,
-      image_filenames: lcscgSpeciesTable.image_filenames,
-      image_urls: lcscgSpeciesTable.image_urls,
-      page_number: lcscgSpeciesTable.page_number,
-      imported_at: lcscgSpeciesTable.imported_at,
-      guide_title: lcscgGuidesTable.title,
-      guide_season: lcscgGuidesTable.season,
-      guide_habitat_type: lcscgGuidesTable.habitat_type,
-      guide_cloudinary_folder: lcscgGuidesTable.cloudinary_folder,
-    })
-    .from(lcscgSpeciesTable)
-    .innerJoin(lcscgGuidesTable, eq(lcscgSpeciesTable.guide_id, lcscgGuidesTable.guide_id))
-    .where(
-      or(
-        ilike(lcscgSpeciesTable.scientific_name, `%${name}%`),
-        ilike(lcscgSpeciesTable.common_name, `%${name}%`),
-      ),
-    )
-    .orderBy(lcscgSpeciesTable.scientific_name);
+  const records = getLcscgSpecies(nameParam.trim());
 
   res.json(await buildEnvelope({
     sourceId: LCSCG_SOURCE_ID,
     sourceKind: "in-memory",
     found: records.length > 0,
-    data: {
-      queried_name: name,
-      result_count: records.length,
-      records,
-    },
+    data: { records },
     method: "cache_hit",
     cacheStatus: "hit",
     sourceUrl: null,

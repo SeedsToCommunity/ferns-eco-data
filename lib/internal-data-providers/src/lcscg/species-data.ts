@@ -7,7 +7,7 @@ export interface LcscgSpeciesRecord {
     photo_date: string;
     description: string;
     seed_group_names: string[];
-    seed_group_details: Array<{ name: string; description: string; images: string[] }>;
+    seed_group_details: Array<{ name: string; description: string; images: string[]; image_urls: (string | null)[] }>;
     image_filenames: string[];
     image_urls: (string | null)[];
     page_number: number;
@@ -31,7 +31,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858443/Fluffy_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_noirmm.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -63,7 +66,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858388/Berries_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_arzcxu.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -95,7 +101,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858515/Shattering_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_mxxopq.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -125,7 +134,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858388/Berries_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_arzcxu.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -156,14 +168,20 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Hitchhikers_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect."
+        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858452/Hitchhikers_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_v92ez1.png"
+        ]
       },
       {
         "name": "Shattering",
         "images": [
           "Shattering_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858515/Shattering_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_mxxopq.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -196,14 +214,20 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Hitchhikers_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect."
+        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858452/Hitchhikers_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_v92ez1.png"
+        ]
       },
       {
         "name": "Shattering",
         "images": [
           "Shattering_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858515/Shattering_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_mxxopq.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -235,7 +259,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858388/Beaks_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_st8ijl.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -267,7 +294,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858388/Berries_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_arzcxu.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -299,7 +329,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858388/Beaks_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_st8ijl.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -331,7 +364,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Ballistic_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two."
+        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858385/Ballistic_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_owigmd.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -363,7 +399,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858388/Beaks_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_st8ijl.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -395,7 +434,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858418/Coneheads_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_crbzk3.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -427,7 +469,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shakers_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs."
+        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858513/Shakers_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_ohfmn3.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -457,7 +502,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858515/Shattering_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_mxxopq.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -487,7 +535,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shakers_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs."
+        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858513/Shakers_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_ohfmn3.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -519,7 +570,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858515/Shattering_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_mxxopq.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -551,7 +605,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Hitchhikers_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect."
+        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858452/Hitchhikers_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_v92ez1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -583,7 +640,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858515/Shattering_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_mxxopq.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -615,7 +675,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858388/Berries_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_arzcxu.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -645,7 +708,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Hitchhikers_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect."
+        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858452/Hitchhikers_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_v92ez1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -677,7 +743,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858388/Berries_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_arzcxu.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -709,7 +778,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858515/Shattering_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_mxxopq.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -741,7 +813,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Ballistic_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two."
+        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858385/Ballistic_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_owigmd.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -773,7 +848,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shakers_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs."
+        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858513/Shakers_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_ohfmn3.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -805,7 +883,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Hitchhikers_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect."
+        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858452/Hitchhikers_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_v92ez1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -837,7 +918,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Hitchhikers_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect."
+        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858452/Hitchhikers_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_v92ez1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -869,7 +953,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858388/Beaks_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_st8ijl.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -901,7 +988,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766858443/Fluffy_1271_usa_illinois_lakecounty_summerwoodlandforbs_v2_page1_img1_noirmm.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -933,7 +1023,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -965,7 +1058,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -997,7 +1093,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1029,7 +1128,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1061,7 +1163,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1093,7 +1198,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1125,7 +1233,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1157,7 +1268,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1189,7 +1303,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1221,7 +1338,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1253,7 +1373,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1285,7 +1408,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1317,7 +1443,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1349,7 +1478,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1381,7 +1513,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1413,7 +1548,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1443,7 +1581,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1475,7 +1616,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871778/1272_usa_illinois_lakecounty_woodyplantsv2/Shattering_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1507,7 +1651,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1539,7 +1686,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1571,7 +1721,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1603,7 +1756,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1635,7 +1791,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1667,7 +1826,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1699,7 +1861,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1731,7 +1896,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1763,7 +1931,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1795,7 +1966,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1827,7 +2001,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1859,7 +2036,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1891,7 +2071,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1923,7 +2106,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1955,7 +2141,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -1987,7 +2176,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871778/1272_usa_illinois_lakecounty_woodyplantsv2/Shattering_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -2019,7 +2211,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871778/1272_usa_illinois_lakecounty_woodyplantsv2/Shattering_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -2051,7 +2246,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Ballistic_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two."
+        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871771/1272_usa_illinois_lakecounty_woodyplantsv2/Ballistic_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -2083,7 +2281,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871772/1272_usa_illinois_lakecounty_woodyplantsv2/Beaks_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -2115,7 +2316,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -2147,7 +2351,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -2179,7 +2386,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871772/1272_usa_illinois_lakecounty_woodyplantsv2/Beaks_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -2211,7 +2421,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871772/1272_usa_illinois_lakecounty_woodyplantsv2/Beaks_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -2243,7 +2456,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -2275,7 +2491,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -2307,7 +2526,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -2339,7 +2561,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -2371,7 +2596,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -2403,7 +2631,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -2435,7 +2666,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Berries_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -2467,7 +2701,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871772/1272_usa_illinois_lakecounty_woodyplantsv2/Beaks_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -2499,7 +2736,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766871773/1272_usa_illinois_lakecounty_woodyplantsv2/Coneheads_1272_usa_illinois_lakecounty_woodyplantsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -3341,7 +3581,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Ballistic_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
         ],
-        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two."
+        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766872324/1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1/Ballistic_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -3374,14 +3617,20 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Hitchhikers_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
         ],
-        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect."
+        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766872328/1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1/Hitchhikers_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
+        ]
       },
       {
         "name": "Shattering",
         "images": [
           "Shattering_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766872330/1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1/Shattering_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -3413,7 +3662,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766872325/1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1/Beaks_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -3445,7 +3697,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766872328/1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1/Fluffy_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -3477,7 +3732,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766872328/1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1/Fluffy_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -3509,7 +3767,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766872325/1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1/Beaks_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -3541,7 +3802,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766872325/1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1/Berries_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -3573,7 +3837,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766872330/1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1/Shattering_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -3605,7 +3872,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766872330/1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1/Shattering_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -3637,7 +3907,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Ballistic_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
         ],
-        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two."
+        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766872324/1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1/Ballistic_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -3669,7 +3942,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766872330/1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1/Shattering_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -3702,14 +3978,20 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Hitchhikers_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
         ],
-        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect."
+        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766872328/1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1/Hitchhikers_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
+        ]
       },
       {
         "name": "Coneheads",
         "images": [
           "Coneheads_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766872326/1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1/Coneheads_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -3741,7 +4023,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766872326/1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1/Coneheads_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -3773,7 +4058,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766872330/1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1/Shattering_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -3805,7 +4093,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766872330/1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1/Shattering_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -3837,7 +4128,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766872326/1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1/Coneheads_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -3869,7 +4163,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766872325/1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1/Beaks_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -3901,7 +4198,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shakers_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
         ],
-        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs."
+        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766872329/1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1/Shakers_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -3933,7 +4233,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766872325/1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1/Beaks_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -3965,7 +4268,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766872330/1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1/Shattering_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -3997,7 +4303,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766872325/1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1/Beaks_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4029,7 +4338,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Hitchhikers_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
         ],
-        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect."
+        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766872328/1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1/Hitchhikers_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4061,7 +4373,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766872328/1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1/Fluffy_1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4093,7 +4408,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881927/1275_usa_illinois_lakecounty_summerprairieforbsv2/Fluffy_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4125,7 +4443,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881927/1275_usa_illinois_lakecounty_summerprairieforbsv2/Fluffy_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4157,7 +4478,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881924/1275_usa_illinois_lakecounty_summerprairieforbsv2/Beaks_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4189,7 +4513,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Ballistic_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two."
+        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881923/1275_usa_illinois_lakecounty_summerprairieforbsv2/Ballistic_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4222,14 +4549,20 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881927/1275_usa_illinois_lakecounty_summerprairieforbsv2/Fluffy_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       },
       {
         "name": "Shattering",
         "images": [
           "Shattering_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881930/1275_usa_illinois_lakecounty_summerprairieforbsv2/Shattering_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4261,7 +4594,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881924/1275_usa_illinois_lakecounty_summerprairieforbsv2/Beaks_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4293,7 +4629,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881927/1275_usa_illinois_lakecounty_summerprairieforbsv2/Fluffy_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4325,7 +4664,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881927/1275_usa_illinois_lakecounty_summerprairieforbsv2/Fluffy_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4357,7 +4699,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881924/1275_usa_illinois_lakecounty_summerprairieforbsv2/Beaks_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4389,7 +4734,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881927/1275_usa_illinois_lakecounty_summerprairieforbsv2/Fluffy_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4421,7 +4769,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881927/1275_usa_illinois_lakecounty_summerprairieforbsv2/Fluffy_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4453,7 +4804,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881927/1275_usa_illinois_lakecounty_summerprairieforbsv2/Fluffy_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4485,7 +4839,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881927/1275_usa_illinois_lakecounty_summerprairieforbsv2/Fluffy_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4518,14 +4875,20 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Elaiosomes_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Elaiosomes are “ant candy” attached to the seeds. Ants are strong and motivated, able to quickly carry the candy back to their home and tossing the heavy “candy wrapper” (seeds) into their compost piles."
+        "description": "Elaiosomes are “ant candy” attached to the seeds. Ants are strong and motivated, able to quickly carry the candy back to their home and tossing the heavy “candy wrapper” (seeds) into their compost piles.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881926/1275_usa_illinois_lakecounty_summerprairieforbsv2/Elaiosomes_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       },
       {
         "name": "Ballistic",
         "images": [
           "Ballistic_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two."
+        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881923/1275_usa_illinois_lakecounty_summerprairieforbsv2/Ballistic_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4557,7 +4920,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881930/1275_usa_illinois_lakecounty_summerprairieforbsv2/Shattering_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4590,14 +4956,20 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Elaiosomes_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Elaiosomes are “ant candy” attached to the seeds. Ants are strong and motivated, able to quickly carry the candy back to their home and tossing the heavy “candy wrapper” (seeds) into their compost piles."
+        "description": "Elaiosomes are “ant candy” attached to the seeds. Ants are strong and motivated, able to quickly carry the candy back to their home and tossing the heavy “candy wrapper” (seeds) into their compost piles.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881926/1275_usa_illinois_lakecounty_summerprairieforbsv2/Elaiosomes_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       },
       {
         "name": "Beaks",
         "images": [
           "Beaks_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881924/1275_usa_illinois_lakecounty_summerprairieforbsv2/Beaks_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4629,7 +5001,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881927/1275_usa_illinois_lakecounty_summerprairieforbsv2/Fluffy_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4661,7 +5036,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881924/1275_usa_illinois_lakecounty_summerprairieforbsv2/Beaks_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4693,7 +5071,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881925/1275_usa_illinois_lakecounty_summerprairieforbsv2/Berries_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4725,7 +5106,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881925/1275_usa_illinois_lakecounty_summerprairieforbsv2/Berries_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4757,7 +5141,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881930/1275_usa_illinois_lakecounty_summerprairieforbsv2/Shattering_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4789,7 +5176,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Ballistic_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two."
+        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881923/1275_usa_illinois_lakecounty_summerprairieforbsv2/Ballistic_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4821,7 +5211,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881924/1275_usa_illinois_lakecounty_summerprairieforbsv2/Beaks_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4853,7 +5246,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881930/1275_usa_illinois_lakecounty_summerprairieforbsv2/Shattering_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4885,7 +5281,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881925/1275_usa_illinois_lakecounty_summerprairieforbsv2/Coneheads_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4917,7 +5316,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881930/1275_usa_illinois_lakecounty_summerprairieforbsv2/Shattering_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4949,7 +5351,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881927/1275_usa_illinois_lakecounty_summerprairieforbsv2/Fluffy_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -4981,7 +5386,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881930/1275_usa_illinois_lakecounty_summerprairieforbsv2/Shattering_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -5013,7 +5421,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881924/1275_usa_illinois_lakecounty_summerprairieforbsv2/Beaks_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -5045,7 +5456,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881924/1275_usa_illinois_lakecounty_summerprairieforbsv2/Beaks_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -5077,7 +5491,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881925/1275_usa_illinois_lakecounty_summerprairieforbsv2/Coneheads_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -5131,7 +5548,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Hitchhikers_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect."
+        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881927/1275_usa_illinois_lakecounty_summerprairieforbsv2/Hitchhikers_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -5163,7 +5583,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shakers_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs."
+        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881929/1275_usa_illinois_lakecounty_summerprairieforbsv2/Shakers_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -5195,7 +5618,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881924/1275_usa_illinois_lakecounty_summerprairieforbsv2/Beaks_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -5227,7 +5653,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881924/1275_usa_illinois_lakecounty_summerprairieforbsv2/Beaks_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -5259,7 +5688,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881927/1275_usa_illinois_lakecounty_summerprairieforbsv2/Fluffy_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -5291,7 +5723,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881924/1275_usa_illinois_lakecounty_summerprairieforbsv2/Beaks_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -5323,7 +5758,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Milkweed_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Milkweed seeds are ripe when pods are split open & seeds are brown."
+        "description": "Milkweed seeds are ripe when pods are split open & seeds are brown.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881928/1275_usa_illinois_lakecounty_summerprairieforbsv2/Milkweed_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -5355,7 +5793,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881924/1275_usa_illinois_lakecounty_summerprairieforbsv2/Beaks_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -5391,7 +5832,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881924/1275_usa_illinois_lakecounty_summerprairieforbsv2/Beaks_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -5423,7 +5867,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766881924/1275_usa_illinois_lakecounty_summerprairieforbsv2/Beaks_1275_usa_illinois_lakecounty_summerprairieforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -6288,14 +6735,20 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Elaiosomes_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Elaiosomes are “ant candy” attached to the seeds. Ants are strong and motivated, able to quickly carry the candy back to their home and tossing the heavy “candy wrapper” (seeds) into their compost piles."
+        "description": "Elaiosomes are “ant candy” attached to the seeds. Ants are strong and motivated, able to quickly carry the candy back to their home and tossing the heavy “candy wrapper” (seeds) into their compost piles.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855257/Elaiosomes_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_xu0kty.png"
+        ]
       },
       {
         "name": "Beaks",
         "images": [
           "Beaks_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855098/Beaks_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_oaamtt.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -6327,7 +6780,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855355/Shattering_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_yjnhij.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -6357,7 +6813,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855355/Shattering_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_yjnhij.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -6390,14 +6849,20 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Elaiosomes_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Elaiosomes are “ant candy” attached to the seeds. Ants are strong and motivated, able to quickly carry the candy back to their home and tossing the heavy “candy wrapper” (seeds) into their compost piles."
+        "description": "Elaiosomes are “ant candy” attached to the seeds. Ants are strong and motivated, able to quickly carry the candy back to their home and tossing the heavy “candy wrapper” (seeds) into their compost piles.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855257/Elaiosomes_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_xu0kty.png"
+        ]
       },
       {
         "name": "Beaks",
         "images": [
           "Beaks_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855098/Beaks_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_oaamtt.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -6429,7 +6894,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Elaiosomes_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Elaiosomes are “ant candy” attached to the seeds. Ants are strong and motivated, able to quickly carry the candy back to their home and tossing the heavy “candy wrapper” (seeds) into their compost piles."
+        "description": "Elaiosomes are “ant candy” attached to the seeds. Ants are strong and motivated, able to quickly carry the candy back to their home and tossing the heavy “candy wrapper” (seeds) into their compost piles.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855257/Elaiosomes_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_xu0kty.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -6461,7 +6929,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855355/Shattering_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_yjnhij.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -6493,7 +6964,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855355/Shattering_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_yjnhij.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -6526,14 +7000,20 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Elaiosomes_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Elaiosomes are “ant candy” attached to the seeds. Ants are strong and motivated, able to quickly carry the candy back to their home and tossing the heavy “candy wrapper” (seeds) into their compost piles."
+        "description": "Elaiosomes are “ant candy” attached to the seeds. Ants are strong and motivated, able to quickly carry the candy back to their home and tossing the heavy “candy wrapper” (seeds) into their compost piles.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855257/Elaiosomes_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_xu0kty.png"
+        ]
       },
       {
         "name": "Beaks",
         "images": [
           "Beaks_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855098/Beaks_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_oaamtt.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -6565,7 +7045,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Elaiosomes_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Elaiosomes are “ant candy” attached to the seeds. Ants are strong and motivated, able to quickly carry the candy back to their home and tossing the heavy “candy wrapper” (seeds) into their compost piles."
+        "description": "Elaiosomes are “ant candy” attached to the seeds. Ants are strong and motivated, able to quickly carry the candy back to their home and tossing the heavy “candy wrapper” (seeds) into their compost piles.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855257/Elaiosomes_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_xu0kty.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -6598,14 +7081,20 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855355/Shattering_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_yjnhij.png"
+        ]
       },
       {
         "name": "Beaks",
         "images": [
           "Beaks_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855098/Beaks_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_oaamtt.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -6637,7 +7126,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855355/Shattering_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_yjnhij.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -6671,7 +7163,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855355/Shattering_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_yjnhij.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -6703,7 +7198,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855355/Shattering_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_yjnhij.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -6735,7 +7233,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855355/Shattering_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_yjnhij.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -6767,7 +7268,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Ballistic_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two."
+        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855018/Ballistic_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_okrd9w.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -6799,7 +7303,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Ballistic_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two."
+        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855018/Ballistic_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_okrd9w.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -6831,7 +7338,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855098/Beaks_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_oaamtt.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -6863,7 +7373,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855098/Beaks_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_oaamtt.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -6896,14 +7409,20 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Elaiosomes_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Elaiosomes are “ant candy” attached to the seeds. Ants are strong and motivated, able to quickly carry the candy back to their home and tossing the heavy “candy wrapper” (seeds) into their compost piles."
+        "description": "Elaiosomes are “ant candy” attached to the seeds. Ants are strong and motivated, able to quickly carry the candy back to their home and tossing the heavy “candy wrapper” (seeds) into their compost piles.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855257/Elaiosomes_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_xu0kty.png"
+        ]
       },
       {
         "name": "Ballistic",
         "images": [
           "Ballistic_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two."
+        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855018/Ballistic_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_okrd9w.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -6933,7 +7452,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Ballistic_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two."
+        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855018/Ballistic_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_okrd9w.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -6965,7 +7487,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855098/Beaks_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_oaamtt.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -6997,7 +7522,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Elaiosomes_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Elaiosomes are “ant candy” attached to the seeds. Ants are strong and motivated, able to quickly carry the candy back to their home and tossing the heavy “candy wrapper” (seeds) into their compost piles."
+        "description": "Elaiosomes are “ant candy” attached to the seeds. Ants are strong and motivated, able to quickly carry the candy back to their home and tossing the heavy “candy wrapper” (seeds) into their compost piles.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855257/Elaiosomes_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_xu0kty.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7030,14 +7558,20 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Elaiosomes_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Elaiosomes are “ant candy” attached to the seeds. Ants are strong and motivated, able to quickly carry the candy back to their home and tossing the heavy “candy wrapper” (seeds) into their compost piles."
+        "description": "Elaiosomes are “ant candy” attached to the seeds. Ants are strong and motivated, able to quickly carry the candy back to their home and tossing the heavy “candy wrapper” (seeds) into their compost piles.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855257/Elaiosomes_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_xu0kty.png"
+        ]
       },
       {
         "name": "Beaks",
         "images": [
           "Beaks_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855098/Beaks_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_oaamtt.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7069,7 +7603,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Ballistic_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two."
+        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855018/Ballistic_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_okrd9w.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7101,7 +7638,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855098/Beaks_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_oaamtt.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7134,14 +7674,20 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Elaiosomes_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Elaiosomes are “ant candy” attached to the seeds. Ants are strong and motivated, able to quickly carry the candy back to their home and tossing the heavy “candy wrapper” (seeds) into their compost piles."
+        "description": "Elaiosomes are “ant candy” attached to the seeds. Ants are strong and motivated, able to quickly carry the candy back to their home and tossing the heavy “candy wrapper” (seeds) into their compost piles.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855257/Elaiosomes_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_xu0kty.png"
+        ]
       },
       {
         "name": "Beaks",
         "images": [
           "Beaks_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855098/Beaks_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_oaamtt.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7174,14 +7720,20 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Elaiosomes_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Elaiosomes are “ant candy” attached to the seeds. Ants are strong and motivated, able to quickly carry the candy back to their home and tossing the heavy “candy wrapper” (seeds) into their compost piles."
+        "description": "Elaiosomes are “ant candy” attached to the seeds. Ants are strong and motivated, able to quickly carry the candy back to their home and tossing the heavy “candy wrapper” (seeds) into their compost piles.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855257/Elaiosomes_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_xu0kty.png"
+        ]
       },
       {
         "name": "Beaks",
         "images": [
           "Beaks_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855098/Beaks_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_oaamtt.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7213,7 +7765,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Elaiosomes_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Elaiosomes are “ant candy” attached to the seeds. Ants are strong and motivated, able to quickly carry the candy back to their home and tossing the heavy “candy wrapper” (seeds) into their compost piles."
+        "description": "Elaiosomes are “ant candy” attached to the seeds. Ants are strong and motivated, able to quickly carry the candy back to their home and tossing the heavy “candy wrapper” (seeds) into their compost piles.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855257/Elaiosomes_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_xu0kty.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7245,7 +7800,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Elaiosomes_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1.png"
         ],
-        "description": "Elaiosomes are “ant candy” attached to the seeds. Ants are strong and motivated, able to quickly carry the candy back to their home and tossing the heavy “candy wrapper” (seeds) into their compost piles."
+        "description": "Elaiosomes are “ant candy” attached to the seeds. Ants are strong and motivated, able to quickly carry the candy back to their home and tossing the heavy “candy wrapper” (seeds) into their compost piles.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766855257/Elaiosomes_1277_usa_illinois_lakecounty_springwoodlandforbsv2_0_page1_img1_xu0kty.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7277,7 +7835,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891839/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Berries_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7309,7 +7870,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891839/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Berries_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7341,7 +7905,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891843/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Fluffy_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7373,7 +7940,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891843/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Fluffy_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7405,7 +7975,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891843/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Fluffy_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7437,7 +8010,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Hitchhikers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect."
+        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891844/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Hitchhikers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7469,7 +8045,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Hitchhikers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect."
+        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891844/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Hitchhikers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7501,7 +8080,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Hitchhikers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect."
+        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891844/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Hitchhikers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7533,7 +8115,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891843/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Fluffy_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7565,7 +8150,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Hitchhikers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect."
+        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891844/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Hitchhikers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7597,7 +8185,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Hitchhikers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect."
+        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891844/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Hitchhikers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7629,7 +8220,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Milkweed_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Milkweed seeds are ripe when pods are split open & seeds are brown."
+        "description": "Milkweed seeds are ripe when pods are split open & seeds are brown.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891844/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Milkweed_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7661,7 +8255,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Milkweed_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Milkweed seeds are ripe when pods are split open & seeds are brown."
+        "description": "Milkweed seeds are ripe when pods are split open & seeds are brown.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891844/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Milkweed_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7693,7 +8290,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891839/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Berries_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7725,7 +8325,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Hitchhikers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect."
+        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891844/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Hitchhikers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7757,7 +8360,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Hitchhikers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect."
+        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891844/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Hitchhikers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7789,7 +8395,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Hitchhikers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect."
+        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891844/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Hitchhikers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7821,7 +8430,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shakers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs."
+        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891845/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Shakers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7853,7 +8465,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891843/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Fluffy_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7885,7 +8500,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shakers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs."
+        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891845/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Shakers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7917,7 +8535,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891840/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Coneheads_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7949,7 +8570,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891840/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Coneheads_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -7981,7 +8605,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891840/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Coneheads_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8013,7 +8640,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891839/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Berries_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8045,7 +8675,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891839/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Berries_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8075,7 +8708,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shakers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs."
+        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891845/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Shakers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8107,7 +8743,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Hitchhikers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect."
+        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891844/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Hitchhikers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8139,7 +8778,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891839/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Berries_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8171,7 +8813,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891839/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Berries_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8203,7 +8848,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891839/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Berries_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8235,7 +8883,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891839/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Berries_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8267,7 +8918,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shakers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs."
+        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891845/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Shakers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8299,7 +8953,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shakers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs."
+        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891845/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Shakers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8331,7 +8988,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shakers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs."
+        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891845/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Shakers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8363,7 +9023,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891843/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Fluffy_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8395,7 +9058,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891846/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Shattering_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8427,7 +9093,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shakers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs."
+        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891845/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Shakers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8459,7 +9128,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891839/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Beaks_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8491,7 +9163,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891843/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Fluffy_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8523,7 +9198,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891839/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Beaks_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8555,7 +9233,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891839/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Beaks_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8587,7 +9268,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891846/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Shattering_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8619,7 +9303,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891843/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Fluffy_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8651,7 +9338,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891846/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Shattering_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8681,7 +9371,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Hitchhikers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect."
+        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891844/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Hitchhikers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8713,7 +9406,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891843/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Fluffy_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8745,7 +9441,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891846/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Shattering_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8777,7 +9476,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891846/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Shattering_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8809,7 +9511,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shakers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs."
+        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891845/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Shakers_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8841,7 +9546,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Ballistic_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two."
+        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891838/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Ballistic_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8873,7 +9581,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891839/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Beaks_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8905,7 +9616,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891839/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Beaks_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8937,7 +9651,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891840/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Coneheads_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -8969,7 +9686,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891843/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Fluffy_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9001,7 +9721,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766891843/1278_usa_illinois_lakecounty_fallwoodlandforbsv2/Fluffy_1278_usa_illinois_lakecounty_fallwoodlandforbsv2_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9033,7 +9756,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Ballistic_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two."
+        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892581/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Ballistic_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9065,7 +9791,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Ballistic_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two."
+        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892581/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Ballistic_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9097,7 +9826,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892582/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Berries_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9129,7 +9861,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892582/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Berries_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9161,7 +9896,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892581/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9193,7 +9931,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892581/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9225,7 +9966,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892581/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9257,7 +10001,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892581/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9289,7 +10036,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892581/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9321,7 +10071,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892586/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Shattering_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9353,7 +10106,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892581/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9385,7 +10141,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shakers_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs."
+        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892586/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Shakers_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9417,7 +10176,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892586/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Shattering_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9449,7 +10211,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892586/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Shattering_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9481,7 +10246,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892586/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Shattering_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9513,7 +10281,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892584/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Fluffy_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9545,7 +10316,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892584/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Fluffy_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9577,7 +10351,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892583/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Coneheads_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9609,7 +10386,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892583/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Coneheads_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9641,7 +10421,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892581/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9673,7 +10456,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892581/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9705,7 +10491,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892581/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9737,7 +10526,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892581/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9769,7 +10561,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shakers_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs."
+        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892586/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Shakers_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9801,7 +10596,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892586/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Shattering_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9833,7 +10631,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shakers_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs."
+        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892586/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Shakers_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9865,7 +10666,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892583/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Coneheads_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9897,7 +10701,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892583/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Coneheads_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9930,14 +10737,20 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892581/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       },
       {
         "name": "Coneheads",
         "images": [
           "Coneheads_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892583/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Coneheads_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -9969,7 +10782,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892584/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Fluffy_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10001,7 +10817,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892581/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10031,7 +10850,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892581/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10063,7 +10885,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892581/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10095,7 +10920,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892581/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10125,7 +10953,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892584/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Fluffy_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10157,7 +10988,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892581/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10189,7 +11023,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892581/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10221,7 +11058,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892581/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10253,7 +11093,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892581/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10285,7 +11128,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shakers_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs."
+        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892586/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Shakers_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10317,7 +11163,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shakers_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs."
+        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892586/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Shakers_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10349,7 +11198,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shakers_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs."
+        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892586/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Shakers_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10381,7 +11233,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Milkweed_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Milkweed seeds are ripe when pods are split open & seeds are brown."
+        "description": "Milkweed seeds are ripe when pods are split open & seeds are brown.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892585/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Milkweed_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10411,7 +11266,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892584/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Fluffy_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10443,7 +11301,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892582/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Berries_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10475,7 +11336,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892586/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Shattering_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10507,7 +11371,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892586/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Shattering_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10539,7 +11406,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892586/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Shattering_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10571,7 +11441,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892584/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Fluffy_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10603,7 +11476,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shakers_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs."
+        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892586/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Shakers_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10635,7 +11511,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892584/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Fluffy_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10667,7 +11546,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892586/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Shattering_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10699,7 +11581,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892586/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Shattering_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10731,7 +11616,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892586/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Shattering_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10763,7 +11651,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shakers_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs."
+        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892586/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Shakers_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10795,7 +11686,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892586/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Shattering_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10827,7 +11721,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892586/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Shattering_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10859,7 +11756,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892581/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10891,7 +11791,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892581/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10923,7 +11826,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shakers_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs."
+        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892586/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Shakers_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10955,7 +11861,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892583/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Coneheads_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -10987,7 +11896,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892581/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Beaks_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -11019,7 +11931,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892583/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Coneheads_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -11051,7 +11966,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892584/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Fluffy_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -11083,7 +12001,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892584/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Fluffy_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -11115,7 +12036,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766892583/1279_usa_illinois_lakecounty_fallwetlandforbsv2_1/Coneheads_1279_usa_illinois_lakecounty_fallwetlandforbsv2_1_page1_img1.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -11849,7 +12773,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -11881,7 +12808,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -11913,7 +12843,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -11945,7 +12878,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -11977,7 +12913,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12009,7 +12948,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12041,7 +12983,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12073,7 +13018,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12105,7 +13053,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12137,7 +13088,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12169,7 +13123,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12201,7 +13158,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12233,7 +13193,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12265,7 +13228,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12297,7 +13263,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12329,7 +13298,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12361,7 +13333,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12393,7 +13368,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12425,7 +13403,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12457,7 +13438,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12489,7 +13473,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12521,7 +13508,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12553,7 +13543,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12585,7 +13578,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12617,7 +13613,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12649,7 +13648,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12681,7 +13683,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12735,7 +13740,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12767,7 +13775,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12799,7 +13810,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12831,7 +13845,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12863,7 +13880,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12895,7 +13915,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766853487/Fluffy_1281_usa_illinois_lakecounty_astersgoldenodsv2_0_page1_img1_tnc5ne.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12927,7 +13950,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865109/Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_yfviql.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12959,7 +13985,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865109/Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_yfviql.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -12991,7 +14020,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Hitchhikers_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect."
+        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865221/Hitchhikers_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_elrjux.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13023,7 +14055,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865109/Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_yfviql.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13055,7 +14090,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865109/Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_yfviql.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13087,7 +14125,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865084/Beaks_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_y916ek.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13119,7 +14160,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shakers_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs."
+        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865338/Shakers_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_ygwx2w.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13151,7 +14195,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865109/Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_yfviql.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13183,7 +14230,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865109/Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_yfviql.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13215,7 +14265,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865109/Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_yfviql.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13247,7 +14300,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865109/Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_yfviql.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13279,7 +14335,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865160/Fluffy_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_xktxem.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13311,7 +14370,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Ballistic_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two."
+        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865083/Ballistic_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_i9hhop.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13343,7 +14405,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Hitchhikers_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect."
+        "description": "Hitchhikers are easy to tell when ripe – they hitch a ride on your pants! Color can be an indicator, but not always. Do Not Collect.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865221/Hitchhikers_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_elrjux.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13375,7 +14440,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Milkweed_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Milkweed seeds are ripe when pods are split open & seeds are brown."
+        "description": "Milkweed seeds are ripe when pods are split open & seeds are brown.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865249/Milkweed_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_njddem.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13407,7 +14475,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Milkweed_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Milkweed seeds are ripe when pods are split open & seeds are brown."
+        "description": "Milkweed seeds are ripe when pods are split open & seeds are brown.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865249/Milkweed_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_njddem.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13439,7 +14510,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Milkweed_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Milkweed seeds are ripe when pods are split open & seeds are brown."
+        "description": "Milkweed seeds are ripe when pods are split open & seeds are brown.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865249/Milkweed_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_njddem.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13471,7 +14545,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Milkweed_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Milkweed seeds are ripe when pods are split open & seeds are brown."
+        "description": "Milkweed seeds are ripe when pods are split open & seeds are brown.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865249/Milkweed_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_njddem.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13503,7 +14580,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865344/Shattering_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_po6ylh.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13535,7 +14615,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shakers_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs."
+        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865338/Shakers_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_ygwx2w.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13567,7 +14650,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865344/Shattering_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_po6ylh.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13599,7 +14685,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865344/Shattering_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_po6ylh.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13631,7 +14720,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865084/Beaks_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_y916ek.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13663,7 +14755,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865109/Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_yfviql.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13695,7 +14790,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865109/Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_yfviql.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13727,7 +14825,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865109/Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_yfviql.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13759,7 +14860,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865109/Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_yfviql.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13791,7 +14895,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865109/Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_yfviql.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13823,7 +14930,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865109/Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_yfviql.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13855,7 +14965,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865084/Beaks_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_y916ek.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13887,7 +15000,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865160/Fluffy_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_xktxem.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13919,7 +15035,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865160/Fluffy_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_xktxem.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13951,7 +15070,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865084/Beaks_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_y916ek.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -13983,7 +15105,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865084/Beaks_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_y916ek.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -14015,7 +15140,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shakers_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs."
+        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865338/Shakers_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_ygwx2w.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -14047,7 +15175,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865160/Fluffy_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_xktxem.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -14079,7 +15210,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865085/Berries_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_e039et.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -14111,7 +15245,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865109/Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_yfviql.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -14143,7 +15280,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865344/Shattering_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_po6ylh.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -14175,7 +15315,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shakers_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs."
+        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865338/Shakers_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_ygwx2w.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -14207,7 +15350,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shakers_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs."
+        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865338/Shakers_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_ygwx2w.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -14239,7 +15385,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865160/Fluffy_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_xktxem.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -14271,7 +15420,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865160/Fluffy_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_xktxem.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -14303,7 +15455,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865160/Fluffy_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_xktxem.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -14335,7 +15490,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865160/Fluffy_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_xktxem.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -14368,14 +15526,20 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865160/Fluffy_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_xktxem.png"
+        ]
       },
       {
         "name": "Milkweed",
         "images": [
           "Milkweed_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Milkweed seeds are ripe when pods are split open & seeds are brown."
+        "description": "Milkweed seeds are ripe when pods are split open & seeds are brown.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865249/Milkweed_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_njddem.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -14407,7 +15571,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shakers_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs."
+        "description": "Shakers drop seeds very close to the mother plant, when shaken loose by the wind or a passing critter. Usually a Mama’s Boy, unless strong weather occurs.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865338/Shakers_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_ygwx2w.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -14439,7 +15606,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865344/Shattering_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_po6ylh.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -14471,7 +15641,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865084/Beaks_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_y916ek.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -14503,7 +15676,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865109/Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_yfviql.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -14535,7 +15711,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865084/Beaks_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_y916ek.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -14571,7 +15750,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Beaks_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open."
+        "description": "Beaks are a subset of the shaker group, with seed capsules that split open like a beak when the seeds are ripe. Collect when beaks are open.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865084/Beaks_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_y916ek.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -14603,7 +15785,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Shattering_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen."
+        "description": "Shattering seeds can be tough to visually judge for ripeness. Use a *gentle* touch test to see if the seeds easily loosen.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865344/Shattering_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_po6ylh.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -14635,7 +15820,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865160/Fluffy_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_xktxem.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -14667,7 +15855,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Fluffy_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy."
+        "description": "Fluffy seeds are quite common, allowing for wind to efficiently move seeds over long distances. Collect when fluffy.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865160/Fluffy_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_xktxem.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -14699,7 +15890,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865109/Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_yfviql.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -14731,7 +15925,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe."
+        "description": "Coneheads are flowers with a cone-shaped center. Imagine these flowers without their colorful parts, and you know exactly what they look like when seeds are ripe.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865109/Coneheads_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_yfviql.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -14783,7 +15980,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Ballistic_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two."
+        "description": "Ballistic capsules catapult their babies away, up to 30 feet! Search YouTube for “exploding seeds” to see these in action. To harvest: learn the ripening sequence & harvest just before explosion; store in a *sealed* paper bag or mesh bag for a day or two.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865083/Ballistic_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_i9hhop.png"
+        ]
       }
     ],
     "image_filenames": [
@@ -14815,7 +16015,10 @@ export interface LcscgSpeciesRecord {
         "images": [
           "Berries_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1.png"
         ],
-        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds."
+        "description": "Berries turn a vibrant color when ripe, as an advertisement to the wildlife to EAT ME and disperse the seed. Collection window is small for some of these seeds.",
+        "image_urls": [
+          "https://res.cloudinary.com/dqe2vv0fo/image/upload/v1766865085/Berries_1282_usa_illinois_lakecounty_fallprairieforbsv2_0_page1_img1_e039et.png"
+        ]
       }
     ],
     "image_filenames": [

@@ -482,3 +482,39 @@ A new MCP tool (`seeds_to_community_washtenaw__species_information`) was added t
 
 - **`provenance.rights` empty string** — the S2C adapter sets `rights: ""` which the standard `envelopeFindings` check flags as a mismatch. This affects all three S2C checks (years, species lists, and now species-information). Decide whether to set a meaningful rights string in the S2C adapter, or treat the empty string as acceptable for internal data providers.
 - **MCP tool description accuracy** — the description says "includes availability across catalog years and seed collection notes"; confirm this reflects the actual fields returned (the endpoint returns a single species record keyed to in-memory data, not year-by-year availability breakdowns).
+
+---
+
+## Task #256 — LCSCG REST thin-route refactor + violation fixes
+
+### What was built
+
+The LCSCG route handler was rewritten to use the in-process Internal Data Provider (`@workspace/internal-data-providers/lcscg`) instead of querying the PostgreSQL database directly. The route file now has zero database or Drizzle-ORM imports — it calls three IDP functions (`getLcscgGuides`, `getLcscgGuide`, `getLcscgSpecies`) and wraps their results in the standard EC envelope. Seven contract violations were removed (five data-purity violations and two HTTP-status violations). The startup seed call for LCSCG data (`seedLcscgData`) was removed from the server startup block, and the seed file was trimmed to retain only the registry upsert.
+
+### Derivation summary
+
+N/A — no new source was added in this task.
+
+### Scientific/technical description
+
+N/A — no new source was added in this task.
+
+### Architectural decisions made
+
+- **Metadata route counts via IDP instead of DB**: The `/lcscg/metadata` route previously fetched `guide_count` and `species_count` via `db.$count()`. Since these are descriptive dataset-size fields (not query-result counts flagged as violations), and since the task requires zero DB imports in the route file, the counts are now computed from IDP calls: `getLcscgGuides().length` for guide_count and a reduce over `getLcscgGuide(id)` for species_count. This is pure in-memory work and fast.
+- **`seedLcscgData` removed, not stubbed**: The task spec said "remove or stub out" the function. Removal was chosen because the function is entirely superseded by the IDP; keeping a stub would create dead code with no caller.
+- **Dev-tool files left untouched**: `import.ts`, `reimport-images.ts`, `import-final.ts`, `import-remaining.ts` still reference `./data/` and the DB tables. The task explicitly excluded them; the `./data/` directory is still present for them.
+
+### What was NOT done
+
+- OpenAPI schema not updated (next task, #257)
+- Codegen not run (next task)
+- `lcscg_guides` and `lcscg_species` DB tables not dropped (deferred — a follow-up task should confirm no other code references them before dropping)
+- Audit assertions not updated (fourth task per sequencing plan)
+- Dev-tool files (`import.ts`, `reimport-images.ts`, etc.) not modified
+
+### What the user should decide or review
+
+- **DB table drop**: `lcscg_guides` and `lcscg_species` tables remain in the schema. Once the team confirms the dev-tool import scripts no longer need them (or can be updated/retired), a follow-up migration can drop them.
+- **Dev-tool import scripts**: These files (`services/lcscg/import.ts`, `reimport-images.ts`, `import-final.ts`, `import-remaining.ts`) still reference the old `./data/` static files and the DB tables. They are not on any production path, but they will break if those tables are dropped without updating them first.
+
