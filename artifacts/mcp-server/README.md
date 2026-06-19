@@ -183,7 +183,7 @@ Tool names follow `{source_id}__{action}` (hyphens → underscores, double-under
 
 | Tool | Path | Required | Optional | Description |
 |---|---|---|---|---|
-| `seeds_to_community_washtenaw__species` | GET /s2c | year | — | Species available in the Seeds to Community Washtenaw seed catalog for a given year |
+| `seeds_to_community_washtenaw__seed_availability` | GET /seeds-to-community-washtenaw/seed-availability | year | — | Species available in the Seeds to Community Washtenaw seed catalog for a given year |
 | `seeds_to_community_washtenaw__years` | GET /s2c/years | — | — | Years for which Seeds to Community Washtenaw seed availability data exists |
 | `seeds_to_community_washtenaw__species_information` | GET /seeds-to-community-washtenaw/species-information | species | provenance_verbosity | Detailed species record for a single plant in the S2C dataset, looked up by botanical name; includes availability across catalog years and seed collection notes |
 

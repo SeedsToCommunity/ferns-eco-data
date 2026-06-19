@@ -1017,7 +1017,7 @@ const tools: ToolDef[] = [
   // ── seeds-to-community-washtenaw ────────────────────────────────────────
   {
     tool: {
-      name: "seeds_to_community_washtenaw__species",
+      name: "seeds_to_community_washtenaw__seed_availability",
       description:
         "Returns the list of plant species available in the Seeds to Community Washtenaw seed catalog for a given year. Call seeds_to_community_washtenaw__years first to get valid year values.",
       inputSchema: {
@@ -1030,7 +1030,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/seeds-to-community-washtenaw/species", {
+      apiGet("/seeds-to-community-washtenaw/seed-availability", {
         year: Number(args["year"]),
         provenance_verbosity: pv(args),
       }),
