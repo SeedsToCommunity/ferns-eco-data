@@ -52,6 +52,14 @@ A simple test for any field: did the upstream source produce it, or did FERNS pr
   - On `found: false`, `data` is the source's verbatim "not found" payload, or `null` when none exists. Never an invented placeholder, never an empty object dressed up to look like a hit.
   - Fields a Data Adapter generates must not be injected into data. In particular, the following names are reserved and must not be added by an Adapter: `matched_input`, `query`, `resolved_at`, and any duplicated `source_url`. If an upstream Source genuinely returns one of these names, it stays; the prohibition is only on the Adapter adding them.
 
+### HTTP status conventions
+
+Two rules govern how FERNS routes map outcomes to HTTP status codes.
+
+**200 for all well-formed envelopes.** Every response that produces a valid envelope — whether `found: true` or `found: false` — returns HTTP 200. `found: false` is honest absence, not an error; the source was reached, the query was valid, and the answer is simply "nothing matched." 404 is reserved for routes or paths that do not exist on the server.
+
+**400 with a bare error object for invalid client input.** When a request is rejected before any source lookup is attempted — a missing required parameter, an unrecognized enum value, a malformed key — the route returns HTTP 400 with a bare JSON object: `{ "error": "<machine_code>", "message": "<human_readable>" }`. No envelope wraps this response, because no source was queried and there is no provenance to record. The `error` value is a stable, machine-readable code (e.g. `invalid_input`) that clients can branch on without parsing the human-readable `message`.
+
 ### `general_summary` and `technical_details` are not envelope fields
 
 `general_summary` and `technical_details` are removed from per-response provenance. They live only in:
@@ -275,9 +283,9 @@ This section records explicit user-approved exceptions to the rules above. Each 
 
 ## Open Questions
 
-1. **HTTP status code for `found: false` responses.** Currently a 200 in most routes, but no rule says it must be. Candidates: 200 with `found: false` (honest absence is not an error), 404 (REST-traditional), or per-source policy.
+1. ~~**HTTP status code for `found: false` responses.**~~ **Resolved.** `found: false` returns HTTP 200. Honest absence is not an error; 404 is reserved for routes or paths that do not exist. See [HTTP status conventions](#http-status-conventions).
 2. **Final per-endpoint response behavior when `permission_granted: false`** at launch. Prototype mode returns `data`; launch behavior is undecided (withhold `data` entirely / return a citation stub / return partial fields / return data with a stronger machine-checkable warning).
 3. **Whether a request/trace ID belongs in the envelope.** A top-level `request_id` would help debugging and audit correlation. Not added yet because it slightly expands the envelope; pending user decision.
 4. **Whether `provenance.license` should be derived from per-element rights inside `data`** (more accurate, but means FERNS interprets source-specific structures) or asserted from the source's registered site-wide policy (simpler, less accurate). The current contract adopts the latter (registry-asserted). This question is whether to revisit that choice.
 5. **Whether the FERNS-asserted nature of a supplied `rights` statement should also be carried as a separate machine-checkable flag**, in addition to being stated in plain language inside `rights`.
-6. **The error condition** — how a genuine failure is reported, as distinct from `found: false`. v1 covers success and absence; the failure envelope is its own piece of work.
+6. **The error condition for genuine upstream and processing failures** — how a timeout, a 5xx from an External Data Provider, or a parse failure on an otherwise-valid response is reported. Invalid client input is now resolved (HTTP 400 with a bare error object; see [HTTP status conventions](#http-status-conventions)). What remains open is the shape of the failure envelope when a source was reached or attempted but the result cannot be trusted — its own piece of work.
