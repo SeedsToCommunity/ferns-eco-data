@@ -2677,6 +2677,16 @@ paths:
               schema:
                 allOf:
                   - $ref: "#/components/schemas/FernsEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        required: [guides]
+                        properties:
+                          guides:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/LcscgGuide"
 
   /lcscg/guide/{guideId}:
     get:
@@ -2705,6 +2715,18 @@ paths:
               schema:
                 allOf:
                   - $ref: "#/components/schemas/FernsEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        nullable: true
+                        properties:
+                          guide:
+                            $ref: "#/components/schemas/LcscgGuide"
+                          species:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/LcscgSpeciesRecord"
         "400":
           description: Invalid guideId
           content:
@@ -2740,6 +2762,16 @@ paths:
               schema:
                 allOf:
                   - $ref: "#/components/schemas/FernsEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        required: [records]
+                        properties:
+                          records:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/LcscgSpeciesRecord"
         "400":
           description: Missing name parameter
           content:

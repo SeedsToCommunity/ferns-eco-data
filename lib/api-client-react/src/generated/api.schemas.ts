@@ -3306,6 +3306,23 @@ export type GetSeedsToCommunityWashtenawMetadata200 = FernsEnvelope & {
   data?: SourceMetadataData;
 };
 
+export type GetLcscgGuides200Data = {
+  guides: LcscgGuide[];
+};
+
+export type GetLcscgGuides200 = FernsEnvelope & {
+  data?: GetLcscgGuides200Data;
+};
+
+export type GetLcscgGuide200Data = {
+  guide?: LcscgGuide;
+  species?: LcscgSpeciesRecord[];
+} | null;
+
+export type GetLcscgGuide200 = FernsEnvelope & {
+  data?: GetLcscgGuide200Data;
+};
+
 export type GetLcscgSpeciesParams = {
 /**
  * Scientific or common name to search (partial match, case-insensitive).
@@ -3313,6 +3330,14 @@ export type GetLcscgSpeciesParams = {
  * @minLength 1
  */
 name: string;
+};
+
+export type GetLcscgSpecies200Data = {
+  records: LcscgSpeciesRecord[];
+};
+
+export type GetLcscgSpecies200 = FernsEnvelope & {
+  data?: GetLcscgSpecies200Data;
 };
 
 export type GetSourceRelationshipsParams = {

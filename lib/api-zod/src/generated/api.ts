@@ -2156,7 +2156,26 @@ export const GetLcscgGuidesResponse = zod.object({
   "rights": zod.string().describe('Rights statement \/ attribution for the source.')
 }).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
   "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
-}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.object({
+  "guides": zod.array(zod.object({
+  "guide_id": zod.number().describe('Field Museum Guide ID (1271–1282)'),
+  "title": zod.string(),
+  "subtitle": zod.string(),
+  "season": zod.enum(['spring', 'summer', 'fall', 'all']),
+  "habitat_type": zod.enum(['woodland', 'wetland', 'prairie', 'grasses_and_kin', 'asters_and_goldenrods', 'woody_plants']),
+  "authors": zod.string(),
+  "license": zod.string(),
+  "attribution_text": zod.string(),
+  "harvest_notes": zod.string(),
+  "version": zod.string(),
+  "field_museum_url": zod.string(),
+  "cloudinary_folder": zod.string(),
+  "status": zod.string(),
+  "imported_at": zod.date()
+}))
+}).optional()
+}))
 
 
 /**
@@ -2195,7 +2214,50 @@ export const GetLcscgGuideResponse = zod.object({
   "rights": zod.string().describe('Rights statement \/ attribution for the source.')
 }).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
   "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
-}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.object({
+  "guide": zod.object({
+  "guide_id": zod.number().describe('Field Museum Guide ID (1271–1282)'),
+  "title": zod.string(),
+  "subtitle": zod.string(),
+  "season": zod.enum(['spring', 'summer', 'fall', 'all']),
+  "habitat_type": zod.enum(['woodland', 'wetland', 'prairie', 'grasses_and_kin', 'asters_and_goldenrods', 'woody_plants']),
+  "authors": zod.string(),
+  "license": zod.string(),
+  "attribution_text": zod.string(),
+  "harvest_notes": zod.string(),
+  "version": zod.string(),
+  "field_museum_url": zod.string(),
+  "cloudinary_folder": zod.string(),
+  "status": zod.string(),
+  "imported_at": zod.date()
+}).optional(),
+  "species": zod.array(zod.object({
+  "id": zod.number(),
+  "guide_id": zod.number().describe('Field Museum Guide ID (1271–1282)'),
+  "species_id": zod.string().describe('Per-guide species identifier string'),
+  "scientific_name": zod.string().describe('Scientific name per Flora of the Chicago Region (Wilhelm & Rericha, 2017)'),
+  "common_name": zod.string(),
+  "family": zod.string(),
+  "photo_date": zod.string().describe('Reference photograph date (M-D-YY format). Approximates seed collection timing; varies by microclimate, proximity to Lake Michigan, slope, and sun\/shade.\n'),
+  "description": zod.string().describe('Authors\' harvest notes for this species'),
+  "seed_group_names": zod.array(zod.string()).describe('Seed dispersal category names (e.g., Elaiosomes, Ballistic, Fluffy, Milkweed, Berries, Mama\'s Boys, Shakers, Beaks, Coneheads, Crumbly Coneheads, Shattering, Hitchhikers, Do Not Collect)\n'),
+  "seed_group_details": zod.array(zod.object({
+  "name": zod.string().describe('Seed dispersal category name'),
+  "description": zod.string().describe('Harvest technique description for this seed group'),
+  "images": zod.array(zod.string()).describe('Image filenames for this seed group')
+})),
+  "image_filenames": zod.array(zod.string()).describe('Original image filenames from the guide'),
+  "image_urls": zod.array(zod.string().nullable()).describe('Cloudinary CDN URLs for guide photographs (null for unresolved filenames)'),
+  "page_number": zod.number().describe('Page number within the guide'),
+  "imported_at": zod.date(),
+  "guide_title": zod.string().nullish().describe('Present in \/lcscg\/species search results'),
+  "guide_season": zod.string().nullish().describe('Present in \/lcscg\/species search results'),
+  "guide_habitat_type": zod.string().nullish().describe('Present in \/lcscg\/species search results'),
+  "guide_cloudinary_folder": zod.string().nullish().describe('Present in \/lcscg\/species search results')
+})).optional()
+}).nullish()
+}))
 
 
 /**
@@ -2232,7 +2294,34 @@ export const GetLcscgSpeciesResponse = zod.object({
   "rights": zod.string().describe('Rights statement \/ attribution for the source.')
 }).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
   "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
-}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
+  "data": zod.object({
+  "records": zod.array(zod.object({
+  "id": zod.number(),
+  "guide_id": zod.number().describe('Field Museum Guide ID (1271–1282)'),
+  "species_id": zod.string().describe('Per-guide species identifier string'),
+  "scientific_name": zod.string().describe('Scientific name per Flora of the Chicago Region (Wilhelm & Rericha, 2017)'),
+  "common_name": zod.string(),
+  "family": zod.string(),
+  "photo_date": zod.string().describe('Reference photograph date (M-D-YY format). Approximates seed collection timing; varies by microclimate, proximity to Lake Michigan, slope, and sun\/shade.\n'),
+  "description": zod.string().describe('Authors\' harvest notes for this species'),
+  "seed_group_names": zod.array(zod.string()).describe('Seed dispersal category names (e.g., Elaiosomes, Ballistic, Fluffy, Milkweed, Berries, Mama\'s Boys, Shakers, Beaks, Coneheads, Crumbly Coneheads, Shattering, Hitchhikers, Do Not Collect)\n'),
+  "seed_group_details": zod.array(zod.object({
+  "name": zod.string().describe('Seed dispersal category name'),
+  "description": zod.string().describe('Harvest technique description for this seed group'),
+  "images": zod.array(zod.string()).describe('Image filenames for this seed group')
+})),
+  "image_filenames": zod.array(zod.string()).describe('Original image filenames from the guide'),
+  "image_urls": zod.array(zod.string().nullable()).describe('Cloudinary CDN URLs for guide photographs (null for unresolved filenames)'),
+  "page_number": zod.number().describe('Page number within the guide'),
+  "imported_at": zod.date(),
+  "guide_title": zod.string().nullish().describe('Present in \/lcscg\/species search results'),
+  "guide_season": zod.string().nullish().describe('Present in \/lcscg\/species search results'),
+  "guide_habitat_type": zod.string().nullish().describe('Present in \/lcscg\/species search results'),
+  "guide_cloudinary_folder": zod.string().nullish().describe('Present in \/lcscg\/species search results')
+}))
+}).optional()
+}))
 
 
 /**

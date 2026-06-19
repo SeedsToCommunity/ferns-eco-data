@@ -79,6 +79,9 @@ import type {
   GetLadyBirdJohnsonParams,
   GetLadyBirdJohnsonSpeciesText200,
   GetLadyBirdJohnsonSpeciesTextParams,
+  GetLcscgGuide200,
+  GetLcscgGuides200,
+  GetLcscgSpecies200,
   GetLcscgSpeciesParams,
   GetMifloraCountiesParams,
   GetMifloraFloraSearchParams,
@@ -4323,9 +4326,9 @@ export const getGetLcscgGuidesUrl = () => {
   return `/api/lcscg/guides`
 }
 
-export const getLcscgGuides = async ( options?: RequestInit): Promise<FernsEnvelope> => {
+export const getLcscgGuides = async ( options?: RequestInit): Promise<GetLcscgGuides200> => {
   
-  return customFetch<FernsEnvelope>(getGetLcscgGuidesUrl(),
+  return customFetch<GetLcscgGuides200>(getGetLcscgGuidesUrl(),
   {      
     ...options,
     method: 'GET'
@@ -4400,9 +4403,9 @@ export const getGetLcscgGuideUrl = (guideId: number,) => {
   return `/api/lcscg/guide/${guideId}`
 }
 
-export const getLcscgGuide = async (guideId: number, options?: RequestInit): Promise<FernsEnvelope> => {
+export const getLcscgGuide = async (guideId: number, options?: RequestInit): Promise<GetLcscgGuide200> => {
   
-  return customFetch<FernsEnvelope>(getGetLcscgGuideUrl(guideId),
+  return customFetch<GetLcscgGuide200>(getGetLcscgGuideUrl(guideId),
   {      
     ...options,
     method: 'GET'
@@ -4484,9 +4487,9 @@ export const getGetLcscgSpeciesUrl = (params: GetLcscgSpeciesParams,) => {
   return stringifiedParams.length > 0 ? `/api/lcscg/species?${stringifiedParams}` : `/api/lcscg/species`
 }
 
-export const getLcscgSpecies = async (params: GetLcscgSpeciesParams, options?: RequestInit): Promise<FernsEnvelope> => {
+export const getLcscgSpecies = async (params: GetLcscgSpeciesParams, options?: RequestInit): Promise<GetLcscgSpecies200> => {
   
-  return customFetch<FernsEnvelope>(getGetLcscgSpeciesUrl(params),
+  return customFetch<GetLcscgSpecies200>(getGetLcscgSpeciesUrl(params),
   {      
     ...options,
     method: 'GET'
