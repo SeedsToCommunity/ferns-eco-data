@@ -24,7 +24,7 @@ export interface LcscgGuideRecord {
     "attribution_text": "Lake County Seed Collection Guide | Summer Woodland Forbs | Lake County, Illinois, USA | Lake County Forest Preserve District | Authors: Kelly Schultz & Dale Shields | Photos by DJ Shields | License: CC BY-NC 4.0",
     "harvest_notes": "Successful collection of viable seed requires an understanding of when to collect, how to collect, how to store, how to process, and when to sow. Determine these criteria and have a plan before harvesting seeds, especially of uncommon species. The species are listed in order of the photo dates, so will give an approximate time for collection, but collection dates vary according to local weather effects on blooming and pollinators; proximity to Lake Michigan; slopes; sun vs shade, etc. Many seed harvest charts are available with collection dates, but it is best to scout each site rather than relying on historic dates. Seeds collected before mid-June should be sown right away. They are intolerant of dry storage and most of them require both warm & cold treatments to stimulate germination. Late June seeds are more tolerant of dry storage; sow these seeds soon, but you can let them dry for a few weeks. Seeds ripening July and later can be held for fall/ winter sowing, sow by Jan 1st for best results.",
     "version": "version 2",
-    "field_museum_url": "https://science.fieldmuseum.org/fieldguides/guides/guide/1271",
+    "field_museum_url": "https://fieldguides.fieldmuseum.org/guides/guide/1271",
     "cloudinary_folder": "1271_usa_illinois_lakecounty_summerwoodlandforbs_v2",
     "status": "live"
   },
@@ -38,7 +38,7 @@ export interface LcscgGuideRecord {
     "attribution_text": "Lake County Seed Collection Guide | Woody Plants | Lake County, Illinois, USA | Lake County Forest Preserve District | Authors: Kelly Schultz & Dale Shields | Photos by DJ Shields | License: CC BY-NC 4.0",
     "harvest_notes": "Successful collection of viable seed requires an understanding of when to collect, how to collect, how to store, how to process, and when to sow. Determine these criteria and have a plan before harvesting seeds, especially of uncommon species. The species are listed in order of the photo dates, so will give an approximate time for collection, but collection dates vary according to local weather effects on blooming and pollinators; proximity to Lake Michigan; slopes; sun vs shade, etc. Many seed harvest charts are available with collection dates, but it is best to scout each site rather than relying on historic dates. Seeds collected before mid-June should be sown right away. They are intolerant of dry storage and most of them require both warm & cold treatments to stimulate germination. Late June seeds are more tolerant of dry storage; sow these seeds soon, but you can let them dry for a few weeks. Seeds ripening July and later can be held for fall/ winter sowing, sow by Jan 1st for best results.",
     "version": "version 2",
-    "field_museum_url": "https://science.fieldmuseum.org/fieldguides/guides/guide/1272",
+    "field_museum_url": "https://fieldguides.fieldmuseum.org/guides/guide/1272",
     "cloudinary_folder": "1272_usa_illinois_lakecounty_woodyplantsv2",
     "status": "live"
   },
@@ -52,7 +52,7 @@ export interface LcscgGuideRecord {
     "attribution_text": "Lake County Seed Collection Guide | Summer Wetland Grasses and Kin | Lake County, Illinois, USA | Lake County Forest Preserve District | Authors: Kelly Schultz & Dale Shields | Photos by DJ Shields | License: CC BY-NC 4.0",
     "harvest_notes": "Successful collection of viable seed requires an understanding of when to collect, how to collect, how to store, how to process, and when to sow. Determine these criteria and have a plan before harvesting seeds, especially of uncommon species. The species are listed in order of the photo dates, so will give an approximate time for collection, but collection dates vary according to local weather effects on blooming and pollinators; proximity to Lake Michigan; slopes; sun vs shade, etc. Many seed harvest charts are available with collection dates, but it is best to scout each site rather than relying on historic dates. Seeds collected before mid-June should be sown right away. They are intolerant of dry storage and most of them require both warm & cold treatments to stimulate germination. Late June seeds are more tolerant of dry storage; sow these seeds soon, but you can let them dry for a few weeks. Seeds ripening July and later can be held for fall/ winter sowing, sow by Jan 1st for best results.",
     "version": "version 2",
-    "field_museum_url": "https://science.fieldmuseum.org/fieldguides/guides/guide/1273",
+    "field_museum_url": "https://fieldguides.fieldmuseum.org/guides/guide/1273",
     "cloudinary_folder": "1273_usa_illinois_lakecounty_summerwetlandgrassesandkinv2",
     "status": "live"
   },
@@ -66,7 +66,7 @@ export interface LcscgGuideRecord {
     "attribution_text": "Lake County Seed Collection Guide | Summer Wetland Forbs | Lake County, Illinois, USA | Lake County Forest Preserve District | Authors: Kelly Schultz & Dale Shields | Photos by DJ Shields | License: CC BY-NC 4.0",
     "harvest_notes": "Successful collection of viable seed requires an understanding of when to collect, how to collect, how to store, how to process, and when to sow. Determine these criteria and have a plan before harvesting seeds, especially of uncommon species. The species are listed in order of the photo dates, so will give an approximate time for collection, but collection dates vary according to local weather effects on blooming and pollinators; proximity to Lake Michigan; slopes; sun vs shade, etc. Many seed harvest charts are available with collection dates, but it is best to scout each site rather than relying on historic dates. Seeds collected before mid-June should be sown right away. They are intolerant of dry storage and most of them require both warm & cold treatments to stimulate germination. Late June seeds are more tolerant of dry storage; sow these seeds soon, but you can let them dry for a few weeks. Seeds ripening July and later can be held for fall/ winter sowing, sow by Jan 1st for best results.",
     "version": "version 2",
-    "field_museum_url": "https://science.fieldmuseum.org/fieldguides/guides/guide/1274",
+    "field_museum_url": "https://fieldguides.fieldmuseum.org/guides/guide/1274",
     "cloudinary_folder": "1274_usa_illinois_lakecounty_summerwetlandforbs_v2_1",
     "status": "live"
   },
@@ -80,7 +80,7 @@ export interface LcscgGuideRecord {
     "attribution_text": "Lake County Seed Collection Guide | Summer Prairie Forbs | Lake County, Illinois, USA | Lake County Forest Preserve District | Authors: Kelly Schultz & Dale Shields | Photos by DJ Shields | License: CC BY-NC 4.0",
     "harvest_notes": "Successful collection of viable seed requires an understanding of when to collect, how to collect, how to store, how to process, and when to sow. Determine these criteria and have a plan before harvesting seeds, especially of uncommon species. The species are listed in order of the photo dates, so will give an approximate time for collection, but collection dates vary according to local weather effects on blooming and pollinators; proximity to Lake Michigan; slopes; sun vs shade, etc. Many seed harvest charts are available with collection dates, but it is best to scout each site rather than relying on historic dates. Seeds collected before mid-June should be sown right away. They are intolerant of dry storage and most of them require both warm & cold treatments to stimulate germination. Late June seeds are more tolerant of dry storage; sow these seeds soon, but you can let them dry for a few weeks. Seeds ripening July and later can be held for fall/ winter sowing, sow by Jan 1st for best results.",
     "version": "version 2",
-    "field_museum_url": "https://science.fieldmuseum.org/fieldguides/guides/guide/1275",
+    "field_museum_url": "https://fieldguides.fieldmuseum.org/guides/guide/1275",
     "cloudinary_folder": "1275_usa_illinois_lakecounty_summerprairieforbsv2",
     "status": "live"
   },
@@ -94,7 +94,7 @@ export interface LcscgGuideRecord {
     "attribution_text": "Lake County Seed Collection Guide | Summer Grasses and Kin | Lake County, Illinois, USA | Lake County Forest Preserve District | Authors: Kelly Schultz & Dale Shields | Photos by DJ Shields | License: CC BY-NC 4.0",
     "harvest_notes": "Successful collection of viable seed requires an understanding of when to collect, how to collect, how to store, how to process, and when to sow. Determine these criteria and have a plan before harvesting seeds, especially of uncommon species. The species are listed in order of the photo dates, so will give an approximate time for collection, but collection dates vary according to local weather effects on blooming and pollinators; proximity to Lake Michigan; slopes; sun vs shade, etc. Many seed harvest charts are available with collection dates, but it is best to scout each site rather than relying on historic dates. Seeds collected before mid-June should be sown right away. They are intolerant of dry storage and most of them require both warm & cold treatments to stimulate germination. Late June seeds are more tolerant of dry storage; sow these seeds soon, but you can let them dry for a few weeks. Seeds ripening July and later can be held for fall/ winter sowing, sow by Jan 1st for best results.",
     "version": "version 2",
-    "field_museum_url": "https://science.fieldmuseum.org/fieldguides/guides/guide/1276",
+    "field_museum_url": "https://fieldguides.fieldmuseum.org/guides/guide/1276",
     "cloudinary_folder": "1276_usa_illinois_lakecounty_summergrassesandkin_v2",
     "status": "live"
   },
@@ -108,7 +108,7 @@ export interface LcscgGuideRecord {
     "attribution_text": "Lake County Seed Collection Guide | Spring Woodland Forbs | Lake County, Illinois, USA | Lake County Forest Preserve District | Authors: Kelly Schultz & Dale Shields | Photos by DJ Shields | License: CC BY-NC 4.0",
     "harvest_notes": "Successful collection of viable seed requires an understanding of when to collect, how to collect, how to store, how to process, and when to sow. Determine these criteria and have a plan before harvesting seeds, especially of uncommon species. The species are listed in order of the photo dates, so will give an approximate time for collection, but collection dates vary according to local weather effects on blooming and pollinators; proximity to Lake Michigan; slopes; sun vs shade, etc. Many seed harvest charts are available with collection dates, but it is best to scout each site rather than relying on historic dates. Seeds collected before mid-June should be sown right away. They are intolerant of dry storage and most of them require both warm & cold treatments to stimulate germination. Late June seeds are more tolerant of dry storage; sow these seeds soon, but you can let them dry for a few weeks. Seeds ripening July and later can be held for fall/ winter sowing, sow by Jan 1st for best results.",
     "version": "version 2",
-    "field_museum_url": "https://science.fieldmuseum.org/fieldguides/guides/guide/1277",
+    "field_museum_url": "https://fieldguides.fieldmuseum.org/guides/guide/1277",
     "cloudinary_folder": "1277_usa_illinois_lakecounty_springwoodlandforbsv2_0",
     "status": "live"
   },
@@ -122,7 +122,7 @@ export interface LcscgGuideRecord {
     "attribution_text": "Lake County Seed Collection Guide | Fall Woodland Forbs | Lake County, Illinois, USA | Lake County Forest Preserve District | Authors: Kelly Schultz & Dale Shields | Photos by DJ Shields | License: CC BY-NC 4.0",
     "harvest_notes": "Successful collection of viable seed requires an understanding of when to collect, how to collect, how to store, how to process, and when to sow. Determine these criteria and have a plan before harvesting seeds, especially of uncommon species. The species are listed in order of the photo dates, so will give an approximate time for collection, but collection dates vary according to local weather effects on blooming and pollinators; proximity to Lake Michigan; slopes; sun vs shade, etc. Many seed harvest charts are available with collection dates, but it is best to scout each site rather than relying on historic dates. Seeds collected before mid-June should be sown right away. They are intolerant of dry storage and most of them require both warm & cold treatments to stimulate germination. Late June seeds are more tolerant of dry storage; sow these seeds soon, but you can let them dry for a few weeks. Seeds ripening July and later can be held for fall/ winter sowing, sow by Jan 1st for best results.",
     "version": "version 2",
-    "field_museum_url": "https://science.fieldmuseum.org/fieldguides/guides/guide/1278",
+    "field_museum_url": "https://fieldguides.fieldmuseum.org/guides/guide/1278",
     "cloudinary_folder": "1278_usa_illinois_lakecounty_fallwoodlandforbsv2",
     "status": "live"
   },
@@ -136,7 +136,7 @@ export interface LcscgGuideRecord {
     "attribution_text": "Lake County Seed Collection Guide | Fall Wetland Forbs | Lake County, Illinois, USA | Lake County Forest Preserve District | Authors: Kelly Schultz & Dale Shields | Photos by DJ Shields | License: CC BY-NC 4.0",
     "harvest_notes": "Successful collection of viable seed requires an understanding of when to collect, how to collect, how to store, how to process, and when to sow. Determine these criteria and have a plan before harvesting seeds, especially of uncommon species. The species are listed in order of the photo dates, so will give an approximate time for collection, but collection dates vary according to local weather effects on blooming and pollinators; proximity to Lake Michigan; slopes; sun vs shade, etc. Many seed harvest charts are available with collection dates, but it is best to scout each site rather than relying on historic dates. Seeds collected before mid-June should be sown right away. They are intolerant of dry storage and most of them require both warm & cold treatments to stimulate germination. Late June seeds are more tolerant of dry storage; sow these seeds soon, but you can let them dry for a few weeks. Seeds ripening July and later can be held for fall/ winter sowing, sow by Jan 1st for best results.",
     "version": "version 2",
-    "field_museum_url": "https://science.fieldmuseum.org/fieldguides/guides/guide/1279",
+    "field_museum_url": "https://fieldguides.fieldmuseum.org/guides/guide/1279",
     "cloudinary_folder": "1279_usa_illinois_lakecounty_fallwetlandforbsv2_1",
     "status": "live"
   },
@@ -150,7 +150,7 @@ export interface LcscgGuideRecord {
     "attribution_text": "Lake County Seed Collection Guide | Fall Grasses and Kin | Lake County, Illinois, USA | Lake County Forest Preserve District | Authors: Kelly Schultz & Dale Shields | Photos by DJ Shields | License: CC BY-NC 4.0",
     "harvest_notes": "Successful collection of viable seed requires an understanding of when to collect, how to collect, how to store, how to process, and when to sow. Determine these criteria and have a plan before harvesting seeds, especially of uncommon species. The species are listed in order of the photo dates, so will give an approximate time for collection, but collection dates vary according to local weather effects on blooming and pollinators; proximity to Lake Michigan; slopes; sun vs shade, etc. Many seed harvest charts are available with collection dates, but it is best to scout each site rather than relying on historic dates. Seeds collected before mid-June should be sown right away. They are intolerant of dry storage and most of them require both warm & cold treatments to stimulate germination. Late June seeds are more tolerant of dry storage; sow these seeds soon, but you can let them dry for a few weeks. Seeds ripening July and later can be held for fall/ winter sowing, sow by Jan 1st for best results.",
     "version": "version 2",
-    "field_museum_url": "https://science.fieldmuseum.org/fieldguides/guides/guide/1280",
+    "field_museum_url": "https://fieldguides.fieldmuseum.org/guides/guide/1280",
     "cloudinary_folder": "1280_usa_illinois_lakecounty_fallgrassesandkinv2_1",
     "status": "live"
   },
@@ -164,7 +164,7 @@ export interface LcscgGuideRecord {
     "attribution_text": "Lake County Seed Collection Guide | Asters and Goldenrods | Lake County, Illinois, USA | Lake County Forest Preserve District | Authors: Kelly Schultz & Dale Shields | Photos by DJ Shields | License: CC BY-NC 4.0",
     "harvest_notes": "Successful collection of viable seed requires an understanding of when to collect, how to collect, how to store, how to process, and when to sow. Determine these criteria and have a plan before harvesting seeds, especially of uncommon species. The species are listed in order of the photo dates, so will give an approximate time for collection, but collection dates vary according to local weather effects on blooming and pollinators; proximity to Lake Michigan; slopes; sun vs shade, etc. Many seed harvest charts are available with collection dates, but it is best to scout each site rather than relying on historic dates. Seeds collected before mid-June should be sown right away. They are intolerant of dry storage and most of them require both warm & cold treatments to stimulate germination. Late June seeds are more tolerant of dry storage; sow these seeds soon, but you can let them dry for a few weeks. Seeds ripening July and later can be held for fall/ winter sowing, sow by Jan 1st for best results.",
     "version": "version 2",
-    "field_museum_url": "https://science.fieldmuseum.org/fieldguides/guides/guide/1281",
+    "field_museum_url": "https://fieldguides.fieldmuseum.org/guides/guide/1281",
     "cloudinary_folder": "1281_usa_illinois_lakecounty_astersgoldenodsv2_0",
     "status": "live"
   },
@@ -178,7 +178,7 @@ export interface LcscgGuideRecord {
     "attribution_text": "Lake County Seed Collection Guide | Fall Prairie Forbs | Lake County, Illinois, USA | Lake County Forest Preserve District | Authors: Kelly Schultz & Dale Shields | Photos by DJ Shields | License: CC BY-NC 4.0",
     "harvest_notes": "Successful collection of viable seed requires an understanding of when to collect, how to collect, how to store, how to process, and when to sow. Determine these criteria and have a plan before harvesting seeds, especially of uncommon species. The species are listed in order of the photo dates, so will give an approximate time for collection, but collection dates vary according to local weather effects on blooming and pollinators; proximity to Lake Michigan; slopes; sun vs shade, etc. Many seed harvest charts are available with collection dates, but it is best to scout each site rather than relying on historic dates. Seeds collected before mid-June should be sown right away. They are intolerant of dry storage and most of them require both warm & cold treatments to stimulate germination. Late June seeds are more tolerant of dry storage; sow these seeds soon, but you can let them dry for a few weeks. Seeds ripening July and later can be held for fall/ winter sowing, sow by Jan 1st for best results.",
     "version": "version 2",
-    "field_museum_url": "https://science.fieldmuseum.org/fieldguides/guides/guide/1282",
+    "field_museum_url": "https://fieldguides.fieldmuseum.org/guides/guide/1282",
     "cloudinary_folder": "1282_usa_illinois_lakecounty_fallprairieforbsv2_0",
     "status": "live"
   }

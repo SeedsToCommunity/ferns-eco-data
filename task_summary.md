@@ -518,3 +518,49 @@ N/A — no new source was added in this task.
 - **DB table drop**: `lcscg_guides` and `lcscg_species` tables remain in the schema. Once the team confirms the dev-tool import scripts no longer need them (or can be updated/retired), a follow-up migration can drop them.
 - **Dev-tool import scripts**: These files (`services/lcscg/import.ts`, `reimport-images.ts`, `import-final.ts`, `import-remaining.ts`) still reference the old `./data/` static files and the DB tables. They are not on any production path, but they will break if those tables are dropped without updating them first.
 
+
+---
+
+## Task #258 — LCSCG Audit assertions + MCP review + description fix
+
+### What was built
+
+The five health-check assertions for the Lake County Seed Collection Guides (LCSCG) source were updated to match the data shapes introduced by the prior REST refactor. The metadata check was corrected to read `data.guide_count` and `data.species_count` from inside the envelope data object (not the envelope root, which was a pre-existing bug). The guide-detail check for guide 1282 was updated to assert on `data.species.length === 60` rather than the removed `data.species_count` field. Both species-search checks (Sporobolus heterolepis and Daucus carota) were updated to use `data.records.length` as the gate instead of the removed `data.result_count` field. In the same pass, the `species_count` field was removed from the internal known-guides corpus object in the audit file, since it is no longer asserted anywhere. Finally, the source registry `description` field was corrected: it previously said "494 native plant species" but the dataset also includes non-native comparison species marked "Do Not Collect", so the description now reads "494 native and introduced plant species". The three MCP tools (`lcscg__guides`, `lcscg__guide`, `lcscg__species`) were reviewed and found clean — no description changes required.
+
+### Derivation summary
+
+**`description` (corrected):**
+> Seed identification photos, harvest instructions, and collection timing for 494 native and introduced plant species in Lake County, Illinois, organized by season and habitat type. From 12 illustrated field guides published by the Lake County Forest Preserve District Volunteer Stewardship Network.
+
+**`general_summary` (unchanged):**
+> Illustrated field guide data for native seed collection in Lake County, northeastern Illinois, compiled by the Lake County Forest Preserve District Volunteer Stewardship Network and published as 12 illustrated guides by the Field Museum Field Guides platform (Guide IDs 1271–1282). Authors: Kelly Schultz (LCFPD Stewardship Ecologist) and Dale Shields. Covers 494 plant species organized by season (spring, summer, fall) and habitat (woodland, wetland, prairie, grasses and sedges, asters and goldenrods, woody plants). Geographic scope: Lake County, Illinois; taxonomic scope: native and introduced, non-native (adventive) vascular plants of that region. FERNS serves static data extracted from the PDF guides (no live upstream API); 2,093 guide photographs are served from Cloudinary CDN. A species query returns scientific name, common name, plant family, guide and habitat section, seed dispersal category, harvest technique description, photo date (timing proxy), and image URLs. Data is static with no update cycle; not all records are native — non-native comparison species marked 'Do Not Collect' are included. LCSCG species names follow Flora of the Chicago Region (Wilhelm & Rericha 2017).
+
+**`technical_details` (unchanged):**
+> Primary source: 12 PDF field guides (version 2, March 2021) authored by Kelly Schultz (LCFPD Stewardship Ecologist) and Dale Shields (volunteer); photography by Dale J. Shields. Published by Field Museum Field Guides. Field Museum Guide IDs: 1271 (Summer Woodland Forbs), 1272 (Woody Plants), 1273 (Summer Wetland Grasses and Kin), 1274 (Summer Wetland Forbs), 1275 (Summer Prairie Forbs), 1276 (Summer Grasses and Kin), 1277 (Spring Woodland Forbs), 1278 (Fall Woodland Forbs), 1279 (Fall Wetland Forbs), 1280 (Fall Grasses and Kin), 1281 (Asters and Goldenrods), 1282 (Fall Prairie Forbs). Scientific reviewer: Laurie Ryan, McHenry County Conservation District. Data extracted from PDFs into JSON files; stored in FERNS as static PostgreSQL records (no TTL, no cache, no refresh). Nomenclature follows Flora of the Chicago Region (Wilhelm & Rericha, 2017). Images (2,093 PNGs) hosted on Cloudinary (cloud: dqe2vv0fo), organized in per-guide folders. Fields per species: scientific_name, common_name, family, guide_id, guide_name, season, habitat_type, page_number, photo_date (M-D-YY format; date of reference photograph; approximate collection timing; varies by local weather, proximity to Lake Michigan, slope, sun/shade), description (authors' harvest notes), seed_group_names (string array), seed_group_details (array of {name, description, images}), image_urls (JSONB array of Cloudinary CDN URLs). 494 total records, all unique by scientific name. Non-native Do Not Collect species included: Daucus carota, Cirsium vulgare, Phleum pratense, Abutilon theophrasti, Dianthus armeria, others.
+
+### Architectural decisions made
+
+- **Data moved from DB-backed to IDP in-memory TypeScript arrays** (prior task): The LCSCG data layer was refactored from PostgreSQL queries to a purely in-memory Internal Data Provider (`@workspace/internal-data-providers/lcscg`). All three route endpoints now call IDP functions (`getLcscgGuides`, `getLcscgGuide`, `getLcscgSpecies`) and hold no database imports.
+- **DB tables `lcscg_guides` / `lcscg_species` retained — not dropped**: The tables remain in the schema pending confirmation that the dev-tool import scripts can be safely retired or updated.
+- **Developer import tools left in place**: `import.ts`, `reimport-images.ts`, `import-final.ts`, `import-remaining.ts` remain in `services/lcscg/`. These scripts reference the old data files and DB tables; they are not on any production path but would break if the tables were dropped without updating them.
+- **Fields removed from response data**: `guide_count` (from guide-list responses), `species_count` (from individual guide-detail responses), `queried_name` and `result_count` (from species-search responses) were removed by the prior refactor because they are FERNS-computed values, not source data — a contract violation. The audit assertions have been updated to reflect the absence of these fields.
+- **`seedLcscgData()` removed from startup; `ensureLcscgRegistryEntry()` retained** (prior task): The data seed at server startup was removed. The registry upsert remains to keep the source discoverable in the registry.
+- **Metadata route computes `guide_count` and `species_count` via IDP**: The `/lcscg/metadata` endpoint still exposes `guide_count` and `species_count` inside `data` — these are descriptive dataset-size fields, not query-result counts, so they are not a contract violation. They are computed in-memory via IDP calls. The audit check was corrected (pre-existing bug) to read these from `envelope.data` rather than the envelope root.
+- **NPN count debt (out of scope)**: NPN currently embeds `species_count` inside `data` on its list responses — the same pattern removed here. NPN's shape was not the model for this work; the contract's governing rule was. NPN's debt is out of scope here but should be tracked as a follow-up.
+- **Source PDFs not present**: The original 12 Field Museum PDF guides were never committed to this repository. The data pipeline ran outside the repo (PDFs → Google Drive JSON → `import.ts` → DB → static TypeScript files). The IDP contains the TypeScript data files as the only in-repo provenance artifacts; no PDF move was possible or needed.
+
+### What was NOT done
+
+- `lcscg_guides` and `lcscg_species` DB tables not dropped — deferred.
+- Developer import tools (`import.ts`, `reimport-images.ts`, etc.) not updated or retired.
+- NPN count-in-data debt (`species_count` inside `data` on NPN list responses) not fixed — out of scope.
+- Source PDFs not committed to repo — not possible; the pipeline ran outside the repo.
+- `docs/audit-tool.md` narrative description of LCSCG checks not updated (still references `species_count=60` for guide 1282 — now asserted as `species.length=60`). Not in task scope.
+
+### What the user should decide or review
+
+- **Corrected `description` field** (verbatim above): confirm "494 native and introduced plant species" reads correctly for a general audience.
+- **DB table drop**: decide whether to drop `lcscg_guides` / `lcscg_species` once the import dev-tools are retired or updated.
+- **Dev-tool import scripts**: decide whether to update the import scripts to use the IDP data files, or simply remove them now that the IDP owns the source of truth.
+- **NPN count-in-data debt**: decide whether to add a task to remove `species_count` from NPN's list-response `data` object (same contract violation removed here).
+

@@ -1,4 +1,4 @@
-// Lake County Savanna and Grassland Guide — thin route adapter.
+// Lake County Seed Collection Guides — thin route adapter.
 // Internal Data Provider: @workspace/internal-data-providers/lcscg
 // Envelope Contract v1: docs/data-layer-contract.md
 

@@ -53,7 +53,7 @@ export const LCSCG_REGISTRY_ENTRY = {
   knowledge_type: "source_wrapper",
   status: "live",
   description:
-    "Seed identification photos, harvest instructions, and collection timing for 494 native plant species " +
+    "Seed identification photos, harvest instructions, and collection timing for 494 native and introduced plant species " +
     "in Lake County, Illinois, organized by season and habitat type. " +
     "From 12 illustrated field guides published by the Lake County Forest Preserve District Volunteer Stewardship Network.",
   input_summary: "Scientific name (partial or exact) or guide ID (1271–1282)",
@@ -81,7 +81,7 @@ export const LCSCG_REGISTRY_ENTRY = {
     "Published by the Lake County Forest Preserve District Volunteer Stewardship Network. " +
     "Authors: Kelly Schultz and Dale Shields. Published by Field Museum Field Guides.",
   website_url_patterns: {
-    guide: "https://fieldguides.fieldmuseum.org/guides/{guide_id}",
+    guide: "https://fieldguides.fieldmuseum.org/guides/guide/{guide_id}",
   },
   general_summary: LCSCG_GENERAL_SUMMARY,
   technical_details: LCSCG_TECHNICAL_DETAILS,
