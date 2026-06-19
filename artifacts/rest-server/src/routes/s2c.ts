@@ -47,51 +47,23 @@ router.get("/seeds-to-community-washtenaw/seed-availability", async (req, res) =
   const yearParam = req.query["year"];
 
   if (yearParam === undefined || yearParam === "") {
-    await ensureS2CRegistryEntry();
-    const envelope = await buildEnvelope(
-      {
-        sourceId: S2C_SOURCE_ID,
-        sourceKind: "in-memory",
-        found: false,
-        data: {
-          error: "invalid_input",
-          message:
-            "year query parameter is required. Available years: " +
-            SEEDS_TO_COMMUNITY_WASHTENAW_AVAILABLE_YEARS.join(", "),
-        },
-        method: "cache_hit",
-        cacheStatus: "hit",
-        sourceUrl: null,
-        queriedAt: new Date().toISOString(),
-      },
-      { registry: dbRegistryAccessor },
-    );
-    res.status(400).json(envelope);
+    res.status(400).json({
+      error: "invalid_input",
+      message:
+        "year query parameter is required. Available years: " +
+        SEEDS_TO_COMMUNITY_WASHTENAW_AVAILABLE_YEARS.join(", "),
+    });
     return;
   }
 
   const year = parseInt(String(yearParam), 10);
   if (isNaN(year)) {
-    await ensureS2CRegistryEntry();
-    const envelope = await buildEnvelope(
-      {
-        sourceId: S2C_SOURCE_ID,
-        sourceKind: "in-memory",
-        found: false,
-        data: {
-          error: "invalid_input",
-          message:
-            "year must be a valid integer. Available years: " +
-            SEEDS_TO_COMMUNITY_WASHTENAW_AVAILABLE_YEARS.join(", "),
-        },
-        method: "cache_hit",
-        cacheStatus: "hit",
-        sourceUrl: null,
-        queriedAt: new Date().toISOString(),
-      },
-      { registry: dbRegistryAccessor },
-    );
-    res.status(400).json(envelope);
+    res.status(400).json({
+      error: "invalid_input",
+      message:
+        "year must be a valid integer. Available years: " +
+        SEEDS_TO_COMMUNITY_WASHTENAW_AVAILABLE_YEARS.join(", "),
+    });
     return;
   }
 
@@ -118,24 +90,10 @@ router.get("/seeds-to-community-washtenaw/species-information", async (req, res)
   const speciesParam = req.query["species"];
 
   if (speciesParam === undefined || speciesParam === "") {
-    await ensureS2CRegistryEntry();
-    const envelope = await buildEnvelope(
-      {
-        sourceId: S2C_SOURCE_ID,
-        sourceKind: "in-memory",
-        found: false,
-        data: {
-          error: "invalid_input",
-          message: "species query parameter is required. Provide a botanical name, e.g. ?species=Aquilegia+canadensis",
-        },
-        method: "cache_hit",
-        cacheStatus: "hit",
-        sourceUrl: null,
-        queriedAt: new Date().toISOString(),
-      },
-      { registry: dbRegistryAccessor },
-    );
-    res.status(400).json(envelope);
+    res.status(400).json({
+      error: "invalid_input",
+      message: "species query parameter is required. Provide a botanical name, e.g. ?species=Aquilegia+canadensis",
+    });
     return;
   }
 
@@ -156,7 +114,7 @@ router.get("/seeds-to-community-washtenaw/species-information", async (req, res)
       },
       { registry: dbRegistryAccessor },
     );
-    res.status(404).json(envelope);
+    res.json(envelope);
     return;
   }
 
