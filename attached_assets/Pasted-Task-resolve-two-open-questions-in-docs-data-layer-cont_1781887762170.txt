@@ -1,0 +1,24 @@
+Task: resolve two open questions in docs/data-layer-contract.md
+Both edits codify existing intent; neither changes architecture. The contract already treats found: false as honest absence and already says nothing FERNS-generated may sit in data — these edits just make the HTTP-status consequences explicit and close the two relevant Open Questions.
+Edit 1 — add a new subsection immediately after ### Data field:
+
+HTTP status conventions
+These rules fix the HTTP status code a route returns, independent of the envelope's found flag.
+
+Success and honest absence both return 200. A found: true response and a found: false response are both the route working correctly. found: false is honest absence, not an error, and must not be signaled with 404. 404 is reserved for a route or path that does not exist. Every envelope-carrying route returns 200 whenever it produced a well-formed envelope, regardless of the found value.
+Invalid client input returns 400 with a bare error object — no envelope. When a request is rejected before any source lookup is attempted — a missing required parameter, an out-of-range or unrecognized enum value, a malformed key — the route returns HTTP 400 with the body { "error": "<machine_code>", "message": "<human_readable>" } and nothing else. It does NOT carry the response envelope: no source was queried, so there is no provenance to record, and per the governing rule the FERNS-produced error text must never be placed inside data. The error value is a stable machine-readable code (e.g. invalid_input); message is human-readable guidance.
+
+
+Edit 2 — in ## Open Questions, replace item 1 with:
+
+
+HTTP status code for found: false responses. Resolved — see "HTTP status conventions" above. Honest absence returns 200 with found: false; 404 is reserved for routes or paths that do not exist.
+
+
+Edit 3 — in ## Open Questions, replace item 6 with:
+
+
+The error condition — how a genuine upstream or processing failure is reported, as distinct from found: false (honest absence, resolved above) and from invalid client input (resolved — see "HTTP status conventions"). v1 now covers success, absence, and rejected input. What remains open is the shape for a failure that occurs after a valid request reaches a source: an upstream timeout, a 5xx from an External Data Provider, or a parse failure on an otherwise-valid response. That failure envelope is its own piece of work.
+
+
+Do not renumber the other Open Questions; leave 2–5 as they are.
