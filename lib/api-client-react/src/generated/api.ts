@@ -97,10 +97,10 @@ import type {
   GetPrairieMoonParams,
   GetPrairieMoonSpeciesTextParams,
   GetSeedsToCommunityWashtenawMetadata200,
-  GetSeedsToCommunityWashtenawSpecies200,
+  GetSeedsToCommunityWashtenawSeedAvailability200,
+  GetSeedsToCommunityWashtenawSeedAvailabilityParams,
   GetSeedsToCommunityWashtenawSpeciesInformation200,
   GetSeedsToCommunityWashtenawSpeciesInformationParams,
-  GetSeedsToCommunityWashtenawSpeciesParams,
   GetSeedsToCommunityWashtenawYears200,
   GetSourceRelationshipsParams,
   GetUsdaPlantsParams,
@@ -3914,9 +3914,9 @@ export function useGetWucolsWaterUseMetadata<TData = Awaited<ReturnType<typeof g
 /**
  * Returns the list of botanical names offered by Seeds to Community Washtenaw for the specified program year. Program years are labeled by the calendar year in which the January–March growing workshops occur. Available years: 2023, 2024, 2025, 2026. Where tracked, includes neat_and_tidy and sweet_and_simple metadata flags. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
- * @summary Get species list for a given Seeds to Community Washtenaw program year
+ * @summary Get seed availability list for a given Seeds to Community Washtenaw program year
  */
-export const getGetSeedsToCommunityWashtenawSpeciesUrl = (params: GetSeedsToCommunityWashtenawSpeciesParams,) => {
+export const getGetSeedsToCommunityWashtenawSeedAvailabilityUrl = (params: GetSeedsToCommunityWashtenawSeedAvailabilityParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -3928,12 +3928,12 @@ export const getGetSeedsToCommunityWashtenawSpeciesUrl = (params: GetSeedsToComm
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/seeds-to-community-washtenaw/species?${stringifiedParams}` : `/api/seeds-to-community-washtenaw/species`
+  return stringifiedParams.length > 0 ? `/api/seeds-to-community-washtenaw/seed-availability?${stringifiedParams}` : `/api/seeds-to-community-washtenaw/seed-availability`
 }
 
-export const getSeedsToCommunityWashtenawSpecies = async (params: GetSeedsToCommunityWashtenawSpeciesParams, options?: RequestInit): Promise<GetSeedsToCommunityWashtenawSpecies200> => {
+export const getSeedsToCommunityWashtenawSeedAvailability = async (params: GetSeedsToCommunityWashtenawSeedAvailabilityParams, options?: RequestInit): Promise<GetSeedsToCommunityWashtenawSeedAvailability200> => {
   
-  return customFetch<GetSeedsToCommunityWashtenawSpecies200>(getGetSeedsToCommunityWashtenawSpeciesUrl(params),
+  return customFetch<GetSeedsToCommunityWashtenawSeedAvailability200>(getGetSeedsToCommunityWashtenawSeedAvailabilityUrl(params),
   {      
     ...options,
     method: 'GET'
@@ -3946,45 +3946,45 @@ export const getSeedsToCommunityWashtenawSpecies = async (params: GetSeedsToComm
 
 
 
-export const getGetSeedsToCommunityWashtenawSpeciesQueryKey = (params?: GetSeedsToCommunityWashtenawSpeciesParams,) => {
+export const getGetSeedsToCommunityWashtenawSeedAvailabilityQueryKey = (params?: GetSeedsToCommunityWashtenawSeedAvailabilityParams,) => {
     return [
-    `/api/seeds-to-community-washtenaw/species`, ...(params ? [params] : [])
+    `/api/seeds-to-community-washtenaw/seed-availability`, ...(params ? [params] : [])
     ] as const;
     }
 
     
-export const getGetSeedsToCommunityWashtenawSpeciesQueryOptions = <TData = Awaited<ReturnType<typeof getSeedsToCommunityWashtenawSpecies>>, TError = ErrorType<ErrorResponse>>(params: GetSeedsToCommunityWashtenawSpeciesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawSpecies>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetSeedsToCommunityWashtenawSeedAvailabilityQueryOptions = <TData = Awaited<ReturnType<typeof getSeedsToCommunityWashtenawSeedAvailability>>, TError = ErrorType<ErrorResponse>>(params: GetSeedsToCommunityWashtenawSeedAvailabilityParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawSeedAvailability>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetSeedsToCommunityWashtenawSpeciesQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getGetSeedsToCommunityWashtenawSeedAvailabilityQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawSpecies>>> = ({ signal }) => getSeedsToCommunityWashtenawSpecies(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawSeedAvailability>>> = ({ signal }) => getSeedsToCommunityWashtenawSeedAvailability(params, { signal, ...requestOptions });
 
       
 
       
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawSpecies>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawSeedAvailability>>, TError, TData> & { queryKey: QueryKey }
 }
 
-export type GetSeedsToCommunityWashtenawSpeciesQueryResult = NonNullable<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawSpecies>>>
-export type GetSeedsToCommunityWashtenawSpeciesQueryError = ErrorType<ErrorResponse>
+export type GetSeedsToCommunityWashtenawSeedAvailabilityQueryResult = NonNullable<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawSeedAvailability>>>
+export type GetSeedsToCommunityWashtenawSeedAvailabilityQueryError = ErrorType<ErrorResponse>
 
 
 /**
- * @summary Get species list for a given Seeds to Community Washtenaw program year
+ * @summary Get seed availability list for a given Seeds to Community Washtenaw program year
  */
 
-export function useGetSeedsToCommunityWashtenawSpecies<TData = Awaited<ReturnType<typeof getSeedsToCommunityWashtenawSpecies>>, TError = ErrorType<ErrorResponse>>(
- params: GetSeedsToCommunityWashtenawSpeciesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawSpecies>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export function useGetSeedsToCommunityWashtenawSeedAvailability<TData = Awaited<ReturnType<typeof getSeedsToCommunityWashtenawSeedAvailability>>, TError = ErrorType<ErrorResponse>>(
+ params: GetSeedsToCommunityWashtenawSeedAvailabilityParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSeedsToCommunityWashtenawSeedAvailability>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetSeedsToCommunityWashtenawSpeciesQueryOptions(params,options)
+  const queryOptions = getGetSeedsToCommunityWashtenawSeedAvailabilityQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -4080,7 +4080,7 @@ export function useGetSeedsToCommunityWashtenawSpeciesInformation<TData = Awaite
 
 
 /**
- * Returns all available program years with species counts and source notes. Use this to discover what data is available before querying /seeds-to-community-washtenaw/species?year=. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+ * Returns all available program years with species counts and source notes. Use this to discover what data is available before querying /seeds-to-community-washtenaw/seed-availability?year=. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
  * @summary List available Seeds to Community Washtenaw program years
  */

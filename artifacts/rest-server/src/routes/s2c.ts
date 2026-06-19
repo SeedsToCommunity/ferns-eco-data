@@ -14,7 +14,7 @@ import {
   S2C_LICENSE_NOTES,
 } from "../services/s2c/metadata.js";
 import {
-  getSeedsToCommunityWashtenawSpecies,
+  getSeedsToCommunityWashtenawSeedAvailability,
   getSeedsToCommunityWashtenawYears,
   getSeedsToCommunityWashtenawSpeciesInformation,
   SEEDS_TO_COMMUNITY_WASHTENAW_AVAILABLE_YEARS,
@@ -43,7 +43,7 @@ router.get("/seeds-to-community-washtenaw/years", async (req, res) => {
   res.json(envelope);
 });
 
-router.get("/seeds-to-community-washtenaw/species", async (req, res) => {
+router.get("/seeds-to-community-washtenaw/seed-availability", async (req, res) => {
   const yearParam = req.query["year"];
 
   if (yearParam === undefined || yearParam === "") {
@@ -96,7 +96,7 @@ router.get("/seeds-to-community-washtenaw/species", async (req, res) => {
   }
 
   await ensureS2CRegistryEntry();
-  const yearData = getSeedsToCommunityWashtenawSpecies(year);
+  const yearData = getSeedsToCommunityWashtenawSeedAvailability(year);
 
   const envelope = await buildEnvelope(
     {

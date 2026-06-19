@@ -1914,13 +1914,13 @@ export const GetWucolsWaterUseMetadataResponse = zod.object({
 /**
  * Returns the list of botanical names offered by Seeds to Community Washtenaw for the specified program year. Program years are labeled by the calendar year in which the January–March growing workshops occur. Available years: 2023, 2024, 2025, 2026. Where tracked, includes neat_and_tidy and sweet_and_simple metadata flags. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
- * @summary Get species list for a given Seeds to Community Washtenaw program year
+ * @summary Get seed availability list for a given Seeds to Community Washtenaw program year
  */
-export const GetSeedsToCommunityWashtenawSpeciesQueryParams = zod.object({
+export const GetSeedsToCommunityWashtenawSeedAvailabilityQueryParams = zod.object({
   "year": zod.union([zod.literal(2023),zod.literal(2024),zod.literal(2025),zod.literal(2026)]).describe('Program year (2023–2026).')
 })
 
-export const GetSeedsToCommunityWashtenawSpeciesResponse = zod.object({
+export const GetSeedsToCommunityWashtenawSeedAvailabilityResponse = zod.object({
   "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
   "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
   "pagination": zod.union([zod.object({
@@ -1952,7 +1952,7 @@ export const GetSeedsToCommunityWashtenawSpeciesResponse = zod.object({
   "neat_and_tidy": zod.boolean().optional().describe('True if this species is designated for \'Neat & Tidy\' formal or managed garden settings. Only tracked for 2024 onward.\n'),
   "sweet_and_simple": zod.boolean().optional().describe('True if this species is designated as \'Sweet & Simple\' for beginner growers. Only tracked from 2026 onward.\n')
 }))
-}).optional().describe('Data payload for the \/s2c endpoint (FernsEnvelope data field).')
+}).optional().describe('Data payload for the seed-availability endpoint (FernsEnvelope data field).')
 }))
 
 
@@ -2013,7 +2013,7 @@ export const GetSeedsToCommunityWashtenawSpeciesInformationResponse = zod.object
 
 
 /**
- * Returns all available program years with species counts and source notes. Use this to discover what data is available before querying /seeds-to-community-washtenaw/species?year=. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+ * Returns all available program years with species counts and source notes. Use this to discover what data is available before querying /seeds-to-community-washtenaw/seed-availability?year=. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
  * @summary List available Seeds to Community Washtenaw program years
  */

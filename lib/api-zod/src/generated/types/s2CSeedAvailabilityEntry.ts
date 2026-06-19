@@ -6,7 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface S2CSpecies {
+export interface S2CSeedAvailabilityEntry {
   /** Botanical (scientific) name of the species as used in the S2C program */
   botanical_name: string;
   /** True if this species is designated for 'Neat & Tidy' formal or managed garden settings. Only tracked for 2024 onward.

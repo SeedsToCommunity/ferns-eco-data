@@ -5,14 +5,14 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { S2CSpecies } from './s2CSpecies';
+import type { S2CSeedAvailabilityEntry } from './s2CSeedAvailabilityEntry';
 
 /**
- * Data payload for the /s2c endpoint (FernsEnvelope data field).
+ * Data payload for the seed-availability endpoint (FernsEnvelope data field).
  */
-export interface S2CSpeciesData {
+export interface S2CSeedAvailabilityData {
   year: number;
   species_count: number;
   source_note: string;
-  species: S2CSpecies[];
+  species: S2CSeedAvailabilityEntry[];
 }

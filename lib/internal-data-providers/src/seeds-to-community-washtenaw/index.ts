@@ -1,4 +1,4 @@
-export type { SeedsToCommunityWashtenawSpeciesEntry, SeedsToCommunityWashtenawYearData } from "./data.js";
+export type { SeedsToCommunityWashtenawSpeciesEntry as SeedsToCommunityWashtenawSeedAvailabilityEntry, SeedsToCommunityWashtenawYearData } from "./data.js";
 export type { SeedsToCommunityWashtenawSpeciesInformationEntry } from "./species-information-data.js";
 import {
   type SeedsToCommunityWashtenawSpeciesEntry,
@@ -13,7 +13,7 @@ import {
 
 export { SEEDS_TO_COMMUNITY_WASHTENAW_AVAILABLE_YEARS };
 
-export interface SeedsToCommunityWashtenawSpeciesResult {
+export interface SeedsToCommunityWashtenawSeedAvailabilityResult {
   year: number;
   species_count: number;
   source_note: string;
@@ -25,7 +25,7 @@ export interface SeedsToCommunityWashtenawYearsResult {
   years: Array<{ year: number; species_count: number; source_note: string }>;
 }
 
-export function getSeedsToCommunityWashtenawSpecies(year: number): SeedsToCommunityWashtenawSpeciesResult | undefined {
+export function getSeedsToCommunityWashtenawSeedAvailability(year: number): SeedsToCommunityWashtenawSeedAvailabilityResult | undefined {
   const data = lookupByYear(year);
   if (!data) return undefined;
   return {

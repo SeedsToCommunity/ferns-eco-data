@@ -73,7 +73,7 @@ export const S2C_REGISTRY_ENTRY = {
   technical_details: S2C_TECHNICAL_DETAILS,
   non_passthrough_endpoints: [
     { endpoint: "/api/seeds-to-community-washtenaw/metadata", kind: "metadata" },
-    { endpoint: "/api/seeds-to-community-washtenaw/species", kind: "in_memory" },
+    { endpoint: "/api/seeds-to-community-washtenaw/seed-availability", kind: "in_memory" },
     { endpoint: "/api/seeds-to-community-washtenaw/species-information", kind: "in_memory" },
     { endpoint: "/api/seeds-to-community-washtenaw/years", kind: "in_memory" },
   ],

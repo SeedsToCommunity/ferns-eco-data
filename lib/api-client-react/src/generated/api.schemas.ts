@@ -1098,7 +1098,7 @@ export interface VocabularyMetadataResponse {
   provenance: FernsProvenance;
 }
 
-export interface S2CSpecies {
+export interface S2CSeedAvailabilityEntry {
   /** Botanical (scientific) name of the species as used in the S2C program */
   botanical_name: string;
   /** True if this species is designated for 'Neat & Tidy' formal or managed garden settings. Only tracked for 2024 onward.
@@ -1134,13 +1134,13 @@ export interface S2CYearsResponse {
 }
 
 /**
- * Data payload for the /s2c endpoint (FernsEnvelope data field).
+ * Data payload for the seed-availability endpoint (FernsEnvelope data field).
  */
-export interface S2CSpeciesData {
+export interface S2CSeedAvailabilityData {
   year: number;
   species_count: number;
   source_note: string;
-  species: S2CSpecies[];
+  species: S2CSeedAvailabilityEntry[];
 }
 
 /**
@@ -3266,25 +3266,25 @@ export const GetWucolsWaterUseByCodeCode = {
   H: 'H',
 } as const;
 
-export type GetSeedsToCommunityWashtenawSpeciesParams = {
+export type GetSeedsToCommunityWashtenawSeedAvailabilityParams = {
 /**
  * Program year (2023–2026).
  */
-year: GetSeedsToCommunityWashtenawSpeciesYear;
+year: GetSeedsToCommunityWashtenawSeedAvailabilityYear;
 };
 
-export type GetSeedsToCommunityWashtenawSpeciesYear = typeof GetSeedsToCommunityWashtenawSpeciesYear[keyof typeof GetSeedsToCommunityWashtenawSpeciesYear];
+export type GetSeedsToCommunityWashtenawSeedAvailabilityYear = typeof GetSeedsToCommunityWashtenawSeedAvailabilityYear[keyof typeof GetSeedsToCommunityWashtenawSeedAvailabilityYear];
 
 
-export const GetSeedsToCommunityWashtenawSpeciesYear = {
+export const GetSeedsToCommunityWashtenawSeedAvailabilityYear = {
   NUMBER_2023: 2023,
   NUMBER_2024: 2024,
   NUMBER_2025: 2025,
   NUMBER_2026: 2026,
 } as const;
 
-export type GetSeedsToCommunityWashtenawSpecies200 = FernsEnvelope & {
-  data?: S2CSpeciesData;
+export type GetSeedsToCommunityWashtenawSeedAvailability200 = FernsEnvelope & {
+  data?: S2CSeedAvailabilityData;
 };
 
 export type GetSeedsToCommunityWashtenawSpeciesInformationParams = {

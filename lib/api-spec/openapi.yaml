@@ -2513,11 +2513,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/VocabularyMetadataResponse"
 
-  /seeds-to-community-washtenaw/species:
+  /seeds-to-community-washtenaw/seed-availability:
     get:
-      operationId: getSeedsToCommunityWashtenawSpecies
+      operationId: getSeedsToCommunityWashtenawSeedAvailability
       tags: [seeds-to-community-washtenaw]
-      summary: Get species list for a given Seeds to Community Washtenaw program year
+      summary: Get seed availability list for a given Seeds to Community Washtenaw program year
       description: >
         Returns the list of botanical names offered by Seeds to Community Washtenaw
         for the specified program year. Program years are labeled by the calendar year
@@ -2535,7 +2535,7 @@ paths:
             enum: [2023, 2024, 2025, 2026]
       responses:
         "200":
-          description: Species list for the given year, wrapped in FernsEnvelope
+          description: Seed availability list for the given year, wrapped in FernsEnvelope
           content:
             application/json:
               schema:
@@ -2544,7 +2544,7 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: "#/components/schemas/S2CSpeciesData"
+                        $ref: "#/components/schemas/S2CSeedAvailabilityData"
         "400":
           description: Missing or invalid year parameter
           content:
@@ -2604,7 +2604,7 @@ paths:
       description: >
         Returns all available program years with species counts and source notes.
         Use this to discover what data is available before querying
-        /seeds-to-community-washtenaw/species?year=.
+        /seeds-to-community-washtenaw/seed-availability?year=.
         Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
       responses:
         "200":
@@ -6211,7 +6211,7 @@ components:
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
 
-    S2CSpecies:
+    S2CSeedAvailabilityEntry:
       type: object
       required:
         - botanical_name
@@ -6288,9 +6288,9 @@ components:
         data:
           $ref: "#/components/schemas/S2CYearsData"
 
-    S2CSpeciesData:
+    S2CSeedAvailabilityData:
       type: object
-      description: Data payload for the /s2c endpoint (FernsEnvelope data field).
+      description: Data payload for the seed-availability endpoint (FernsEnvelope data field).
       required:
         - year
         - species_count
@@ -6306,7 +6306,7 @@ components:
         species:
           type: array
           items:
-            $ref: "#/components/schemas/S2CSpecies"
+            $ref: "#/components/schemas/S2CSeedAvailabilityEntry"
 
     S2CSpeciesInformationData:
       type: object
