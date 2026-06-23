@@ -564,3 +564,44 @@ The five health-check assertions for the Lake County Seed Collection Guides (LCS
 - **Dev-tool import scripts**: decide whether to update the import scripts to use the IDP data files, or simply remove them now that the IDP owns the source of truth.
 - **NPN count-in-data debt**: decide whether to add a task to remove `species_count` from NPN's list-response `data` object (same contract violation removed here).
 
+
+---
+
+## Task #267 — EDP: Species-list sources (IL, MN, MO, Prairie Moon)
+
+### 1. What was built
+
+Four External Data Provider modules were created — one each for Illinois Wildflowers, Minnesota Wildflowers, Missouri Plants, and Prairie Moon Nursery. Each module now owns the complete data-retrieval path for its source: it looks up the species URL from the internal FERNS database, makes a live HTTP request to the source website, extracts the structured botanical text, and returns it. Previously the URL lookup was scattered across four separate REST route files; it now lives in the data layer where it belongs. A URL-only method (`getXxxUrl`) is also exported on each module so callers can do just the database lookup without a live fetch. The shared type library was extended with two new result types for database-backed URL lookups, and the species-information type was updated to allow a null URL (which occurs when a species is absent from the imported list).
+
+### 2. Derivation summary
+
+*Not applicable — no new source was added in this task.*
+
+### 3. Scientific/technical description
+
+*Not applicable — no new source was added in this task.*
+
+### 4. Architectural decisions made
+
+- **URL lookup moved into the EDP, not the REST Adapter.** The original task spec said the URL lookup stays in the REST Adapter and the EDP receives a pre-resolved URL. The user overrode this mid-task: "The Data Provider is the basis for all data." The EDP now imports `@workspace/db` and queries `botanicalSpeciesListsTable` directly. **Tradeoff:** the EDP package now has a DB dependency, making it heavier and coupling it to the internal schema; the gain is a clean single-entry-point per source that owns its full retrieval path.
+
+- **`getXxxSpeciesInformation` signature changed from `(url: string)` to `(species: string)`.** Since the EDP now does the URL lookup, callers pass a scientific name rather than a pre-resolved URL. **Tradeoff:** this is a breaking change to the method signature; the downstream REST refactor task (Task E) must be updated to call the new signature instead of passing a pre-resolved URL.
+
+- **Illinois Wildflowers uses `getIllinoisWildflowersSpeciesInformation` takes the first section URL.** IL is the only source where one species can appear in multiple habitat sections (prairie, savanna, etc.). `getIllinoisWildflowersUrl` returns all sections; `getIllinoisWildflowersSpeciesInformation` uses the first one, matching the current REST Adapter behavior. **Tradeoff:** a multi-section species only gets the text from one page; if distinct ecological content exists per section this is a lossy representation. The REST Adapter could call `getIllinoisWildflowersUrl` and iterate sections if needed.
+
+- **`BotanicalSpeciesInformation.url` widened to `string | null`.** GoBotany always constructs a URL even when a species is not found; DB-backed sources have no URL when the species is absent. Widening the shared type is accurate and backward-compatible (GoBotany still returns a non-null string; the type simply allows null). **Tradeoff:** REST Adapter code that passes `result.url` to `sourceUrl` (which already accepts `string | null`) is unaffected; code that assumes `url` is always a string would need a null guard.
+
+- **REST Adapter caching left unchanged.** The user confirmed they don't object to the REST layer also caching results on top of the EDP. No changes were made to `fetchAndCacheSpeciesText` or the four route files.
+
+### 5. What was NOT done
+
+- REST route files for the four sources were **not updated** — they still do the DB lookup themselves and call `fetchAndCacheSpeciesText`. That migration is Task E (REST refactor).
+- No new audit corpus entries were added.
+- No MCP tool renames were made (Task G scope).
+- The `fetchAndCacheSpeciesText` shared scraper was **not modified or removed** — it remains the path the REST routes use until Task E.
+
+### 6. What the user should decide or review
+
+- **Multi-section Illinois Wildflowers species:** `getIllinoisWildflowersSpeciesInformation` only fetches the first section's page. Decide whether the REST Adapter (in Task E) should iterate all sections and merge the text, or whether first-section is the intended behavior.
+- **Signature change awareness for Task E:** Task E (REST refactor) must call `getXxxSpeciesInformation(species)` and `getXxxUrl(species)`, not the old `(url)` signatures. The downstream task description should be updated to reflect this.
+

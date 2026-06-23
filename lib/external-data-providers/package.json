@@ -4,7 +4,15 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./gobotany": "./src/gobotany/index.ts"
+    "./gobotany": "./src/gobotany/index.ts",
+    "./illinois-wildflowers": "./src/illinois-wildflowers/index.ts",
+    "./minnesota-wildflowers": "./src/minnesota-wildflowers/index.ts",
+    "./missouri-plants": "./src/missouri-plants/index.ts",
+    "./prairie-moon": "./src/prairie-moon/index.ts"
+  },
+  "dependencies": {
+    "@workspace/db": "workspace:*",
+    "drizzle-orm": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:"
