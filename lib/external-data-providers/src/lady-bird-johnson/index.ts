@@ -189,19 +189,21 @@ export async function getLadyBirdJohnsonUrl(
 
 /**
  * Returns species information from the Lady Bird Johnson Wildflower Center
- * profile page for a given profile URL.
+ * profile page for a given USDA Plants symbol.
  *
- * Retrieves the botanical prose from the LBJ profile page, extracted into
- * labeled sections and as full text. Uses redirect:manual; returns
- * found: false when the page redirects (not found) or fails.
+ * Constructs the canonical LBJ profile URL internally and retrieves the
+ * botanical prose, extracted into labeled sections and as full text.
+ * Uses redirect:manual; returns found: false when the page redirects
+ * (not found) or fails.
  *
- * - `profileUrl`: the profileUrl returned by getLadyBirdJohnsonUrl
+ * - `usdaSymbol`: USDA Plants symbol (e.g. "TRGI"); normalized to uppercase internally
  * - Does NOT read or write any database table
  * - Never throws
  */
 export async function getLadyBirdJohnsonSpeciesInformation(
-  profileUrl: string,
+  usdaSymbol: string,
 ): Promise<LadyBirdJohnsonSpeciesInformation> {
+  const profileUrl = buildLbjProfileUrl(usdaSymbol.toUpperCase());
   try {
     const resp = await fetch(profileUrl, {
       method: "GET",

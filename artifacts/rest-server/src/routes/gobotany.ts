@@ -1,8 +1,11 @@
 import { Router, type IRouter } from "express";
-import { db, botanicalWebRefsCacheTable } from "@workspace/db";
+import { db, botanicalWebRefsCacheTable, speciesPageTextCacheTable } from "@workspace/db";
 import { and, eq, gt } from "drizzle-orm";
-import { buildEnvelope, type Method, type CacheStatus } from "@workspace/api-envelope";
-import { fetchAndCacheSpeciesText } from "../services/botanical-refs/scraper.js";
+import { buildEnvelope } from "@workspace/api-envelope";
+import {
+  getGobotanyUrl,
+  getGobotanySpeciesInformation,
+} from "@workspace/external-data-providers/gobotany";
 import {
   GOBOTANY_SOURCE_ID,
   GOBOTANY_LICENSES,
@@ -19,19 +22,12 @@ const router: IRouter = Router();
 
 const GOBOTANY_BASE = "https://gobotany.nativeplanttrust.org";
 
-function parseSpecies(input: string): { genus: string; species: string } | null {
+function isValidBinomial(input: string): boolean {
   const parts = input.trim().split(/\s+/);
-  if (parts.length < 2) return null;
+  if (parts.length < 2) return false;
   const genus = parts[0].toLowerCase();
   const species = parts[1].toLowerCase();
-  if (!/^[a-z]+$/.test(genus) || !/^[a-z]+$/.test(species)) return null;
-  return { genus, species };
-}
-
-function mapScrapeStatus(cs: "hit" | "miss" | "not_in_species_list"): [Method, CacheStatus] {
-  if (cs === "hit") return ["cache_hit", "hit"];
-  if (cs === "miss") return ["api_fetch", "miss"];
-  return ["computed", "bypass"];
+  return /^[a-z]+$/.test(genus) && /^[a-z]+$/.test(species);
 }
 
 router.get("/gobotany/metadata", async (req, res) => {
@@ -68,7 +64,8 @@ router.get("/gobotany/metadata", async (req, res) => {
 router.get("/gobotany", async (req, res) => {
   await ensureGobotanyRegistryEntry();
 
-  const speciesParam = typeof req.query["species"] === "string" ? req.query["species"].trim() : null;
+  const speciesParam =
+    typeof req.query["species"] === "string" ? req.query["species"].trim() : null;
   if (!speciesParam) {
     res.status(400).json({
       error: "invalid_input",
@@ -76,9 +73,7 @@ router.get("/gobotany", async (req, res) => {
     });
     return;
   }
-
-  const parsed = parseSpecies(speciesParam);
-  if (!parsed) {
+  if (!isValidBinomial(speciesParam)) {
     res.status(400).json({
       error: "invalid_input",
       message: "species must be a binomial name (genus + species epithet, e.g. Acer rubrum)",
@@ -86,9 +81,7 @@ router.get("/gobotany", async (req, res) => {
     return;
   }
 
-  const { genus, species } = parsed;
-  const url = `${GOBOTANY_BASE}/species/${genus}/${species}/`;
-  const cacheKey = speciesParam.trim().toLowerCase();
+  const cacheKey = speciesParam.toLowerCase();
   const cacheThreshold = new Date(Date.now() - CACHE_TTL_MS);
 
   const cached = await db
@@ -110,13 +103,11 @@ router.get("/gobotany", async (req, res) => {
         sourceId: GOBOTANY_SOURCE_ID,
         sourceKind: "single-source-proxy",
         found: hit.found,
-        data: hit.found
-          ? { species: speciesParam, url: hit.url, validation_method: hit.validation_method }
-          : null,
+        data: hit.found ? { url: hit.url } : null,
         method: "cache_hit",
         cacheStatus: "hit",
         sourceUrl: hit.url ?? null,
-        queriedAt: new Date().toISOString(),
+        queriedAt: hit.cached_at.toISOString(),
       },
       { registry: dbRegistryAccessor },
     );
@@ -124,24 +115,10 @@ router.get("/gobotany", async (req, res) => {
     return;
   }
 
-  let found = false;
-  let validationMethod: string;
-  let httpStatus: number | null = null;
-
-  try {
-    const resp = await fetch(url, {
-      method: "GET",
-      headers: { "User-Agent": "FERNS/1.0 (ecological data aggregator; research use)" },
-      redirect: "follow",
-      signal: AbortSignal.timeout(10000),
-    });
-    httpStatus = resp.status;
-    found = resp.status === 200;
-    validationMethod = "http_get";
-  } catch {
-    validationMethod = "http_get_failed";
-    found = false;
-  }
+  const result = await getGobotanyUrl(speciesParam);
+  const found = result!.found;
+  const url = result!.url;
+  const fetchedAt = new Date();
 
   await db
     .insert(botanicalWebRefsCacheTable)
@@ -150,11 +127,11 @@ router.get("/gobotany", async (req, res) => {
       scientific_name: cacheKey,
       url: found ? url : null,
       found,
-      validation_method: validationMethod,
+      validation_method: "http_get",
     })
     .onConflictDoUpdate({
       target: [botanicalWebRefsCacheTable.site_id, botanicalWebRefsCacheTable.scientific_name],
-      set: { url: found ? url : null, found, validation_method: validationMethod, cached_at: new Date() },
+      set: { url: found ? url : null, found, validation_method: "http_get", cached_at: fetchedAt },
     });
 
   const envelope = await buildEnvelope(
@@ -162,13 +139,11 @@ router.get("/gobotany", async (req, res) => {
       sourceId: GOBOTANY_SOURCE_ID,
       sourceKind: "single-source-proxy",
       found,
-      data: found
-        ? { species: speciesParam, url, validation_method: validationMethod, http_status: httpStatus }
-        : null,
+      data: found ? { url } : null,
       method: "api_fetch",
       cacheStatus: "miss",
       sourceUrl: url,
-      queriedAt: new Date().toISOString(),
+      queriedAt: fetchedAt.toISOString(),
     },
     { registry: dbRegistryAccessor },
   );
@@ -178,7 +153,8 @@ router.get("/gobotany", async (req, res) => {
 router.get("/gobotany/species-text", async (req, res) => {
   await ensureGobotanyRegistryEntry();
 
-  const speciesParam = typeof req.query["species"] === "string" ? req.query["species"].trim() : null;
+  const speciesParam =
+    typeof req.query["species"] === "string" ? req.query["species"].trim() : null;
   const refresh = req.query["refresh"] === "true";
 
   if (!speciesParam) {
@@ -188,9 +164,7 @@ router.get("/gobotany/species-text", async (req, res) => {
     });
     return;
   }
-
-  const parsed = parseSpecies(speciesParam);
-  if (!parsed) {
+  if (!isValidBinomial(speciesParam)) {
     res.status(400).json({
       error: "invalid_input",
       message: "species must be a binomial name (genus + species epithet, e.g. Acer rubrum)",
@@ -198,36 +172,77 @@ router.get("/gobotany/species-text", async (req, res) => {
     return;
   }
 
-  const { genus, species } = parsed;
-  const url = `${GOBOTANY_BASE}/species/${genus}/${species}/`;
-  const cacheKey = speciesParam.trim().toLowerCase();
-  const result = await fetchAndCacheSpeciesText(GOBOTANY_SOURCE_ID, cacheKey, url, refresh);
+  const cacheKey = speciesParam.toLowerCase();
 
-  const [method, cacheStatus] = mapScrapeStatus(result.cache_status);
+  if (!refresh) {
+    const cached = await db
+      .select()
+      .from(speciesPageTextCacheTable)
+      .where(
+        and(
+          eq(speciesPageTextCacheTable.site_id, GOBOTANY_SOURCE_ID),
+          eq(speciesPageTextCacheTable.scientific_name, cacheKey),
+        ),
+      )
+      .limit(1);
+
+    if (cached.length > 0) {
+      const hit = cached[0];
+      const envelope = await buildEnvelope(
+        {
+          sourceId: GOBOTANY_SOURCE_ID,
+          sourceKind: "single-source-proxy",
+          found: hit.found,
+          data: hit.found ? { sections: hit.sections, full_text: hit.full_text } : null,
+          method: "cache_hit",
+          cacheStatus: "hit",
+          sourceUrl: hit.url ?? null,
+          queriedAt: hit.scraped_at.toISOString(),
+          permissionGranted: false,
+        },
+        { registry: dbRegistryAccessor },
+      );
+      res.json(envelope);
+      return;
+    }
+  }
+
+  const result = await getGobotanySpeciesInformation(speciesParam);
+  const fetchedAt = new Date();
+
+  if (result.found || result.fetchError === null) {
+    await db
+      .insert(speciesPageTextCacheTable)
+      .values({
+        site_id: GOBOTANY_SOURCE_ID,
+        scientific_name: cacheKey,
+        url: result.found ? result.url : null,
+        found: result.found,
+        sections: result.sections ?? null,
+        full_text: result.fullText ?? null,
+      })
+      .onConflictDoUpdate({
+        target: [speciesPageTextCacheTable.site_id, speciesPageTextCacheTable.scientific_name],
+        set: {
+          url: result.found ? result.url : null,
+          found: result.found,
+          sections: result.sections ?? null,
+          full_text: result.fullText ?? null,
+          scraped_at: fetchedAt,
+        },
+      });
+  }
 
   const envelope = await buildEnvelope(
     {
       sourceId: GOBOTANY_SOURCE_ID,
       sourceKind: "single-source-proxy",
       found: result.found,
-      data: result.found
-        ? {
-            species: speciesParam,
-            url: result.url,
-            sections: result.sections,
-            full_text: result.full_text,
-            scraped_at: result.scraped_at instanceof Date
-              ? result.scraped_at.toISOString()
-              : String(result.scraped_at),
-            ...(result.fetch_error ? { fetch_error: result.fetch_error } : {}),
-          }
-        : result.fetch_error
-          ? { species: speciesParam, url: result.url, fetch_error: result.fetch_error }
-          : null,
-      method,
-      cacheStatus,
+      data: result.found ? { sections: result.sections, full_text: result.fullText } : null,
+      method: "api_fetch",
+      cacheStatus: "miss",
       sourceUrl: result.url,
-      queriedAt: new Date().toISOString(),
+      queriedAt: fetchedAt.toISOString(),
       permissionGranted: false,
     },
     { registry: dbRegistryAccessor },

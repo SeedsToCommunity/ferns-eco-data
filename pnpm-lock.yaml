@@ -433,6 +433,9 @@ importers:
       '@workspace/db':
         specifier: workspace:*
         version: link:../../lib/db
+      '@workspace/external-data-providers':
+        specifier: workspace:*
+        version: link:../../lib/external-data-providers
       '@workspace/internal-data-providers':
         specifier: workspace:*
         version: link:../../lib/internal-data-providers
