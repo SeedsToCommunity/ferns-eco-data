@@ -5,16 +5,16 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetIllinoisWildflowersSpeciesTextRefresh } from './getIllinoisWildflowersSpeciesTextRefresh';
+import type { GetGobotanySpeciesInformationRefresh } from './getGobotanySpeciesInformationRefresh';
 
-export type GetIllinoisWildflowersSpeciesTextParams = {
+export type GetGobotanySpeciesInformationParams = {
 /**
- * Scientific name (e.g. Acer rubrum)
+ * Binomial scientific name (e.g. Acer rubrum)
  * @minLength 1
  */
 species: string;
 /**
  * If "true", bypass cache and re-scrape the live page
  */
-refresh?: GetIllinoisWildflowersSpeciesTextRefresh;
+refresh?: GetGobotanySpeciesInformationRefresh;
 };

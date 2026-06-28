@@ -50,13 +50,14 @@ import type {
   GetGbifSpeciesParams,
   GetGbifSpeciesSynonymsParams,
   GetGbifSpeciesVernacularNamesParams,
-  GetGobotanyParams,
-  GetGobotanySpeciesTextParams,
+  GetGobotanySpeciesInformationParams,
+  GetGobotanyUrlParams,
   GetGoogleImagesMetadata200,
   GetGoogleImagesSearch200,
   GetGoogleImagesSearchParams,
-  GetIllinoisWildflowersParams,
-  GetIllinoisWildflowersSpeciesTextParams,
+  GetIllinoisWildflowersSpeciesInformationParams,
+  GetIllinoisWildflowersUrl200,
+  GetIllinoisWildflowersUrlParams,
   GetInatControlledTermsForTaxonParams,
   GetInatControlledTermsParams,
   GetInatIdentificationsByIdParams,
@@ -74,11 +75,11 @@ import type {
   GetInatPlacesNearbyParams,
   GetInatTaxaAutocompleteParams,
   GetInatTaxaByIdParams,
-  GetLadyBirdJohnson200,
   GetLadyBirdJohnsonMetadata200,
-  GetLadyBirdJohnsonParams,
-  GetLadyBirdJohnsonSpeciesText200,
-  GetLadyBirdJohnsonSpeciesTextParams,
+  GetLadyBirdJohnsonSpeciesInformation200,
+  GetLadyBirdJohnsonSpeciesInformationParams,
+  GetLadyBirdJohnsonUrl200,
+  GetLadyBirdJohnsonUrlParams,
   GetLcscgGuide200,
   GetLcscgGuides200,
   GetLcscgSpecies200,
@@ -89,16 +90,16 @@ import type {
   GetMifloraPImageInfoParams,
   GetMifloraSpecTextParams,
   GetMifloraSynonymsParams,
-  GetMinnesotaWildflowersParams,
-  GetMinnesotaWildflowersSpeciesTextParams,
-  GetMissouriPlantsParams,
-  GetMissouriPlantsSpeciesTextParams,
+  GetMinnesotaWildflowersSpeciesInformationParams,
+  GetMinnesotaWildflowersUrlParams,
+  GetMissouriPlantsSpeciesInformationParams,
+  GetMissouriPlantsUrlParams,
   GetMnfiCommunitiesParams,
   GetMnfiCountyElementsParams,
   GetNatureserveSearchParams,
   GetNatureserveSpeciesParams,
-  GetPrairieMoonParams,
-  GetPrairieMoonSpeciesTextParams,
+  GetPrairieMoonSpeciesInformationParams,
+  GetPrairieMoonUrlParams,
   GetSeedsToCommunityWashtenawMetadata200,
   GetSeedsToCommunityWashtenawSeedAvailability200,
   GetSeedsToCommunityWashtenawSeedAvailabilityParams,
@@ -6054,7 +6055,7 @@ export function useGetNatureserveSearch<TData = Awaited<ReturnType<typeof getNat
 
  * @summary Look up a Go Botany species page URL
  */
-export const getGetGobotanyUrl = (params: GetGobotanyParams,) => {
+export const getGetGobotanyUrlUrl = (params: GetGobotanyUrlParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -6066,12 +6067,12 @@ export const getGetGobotanyUrl = (params: GetGobotanyParams,) => {
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/gobotany?${stringifiedParams}` : `/api/gobotany`
+  return stringifiedParams.length > 0 ? `/api/gobotany/url?${stringifiedParams}` : `/api/gobotany/url`
 }
 
-export const getGobotany = async (params: GetGobotanyParams, options?: RequestInit): Promise<BotanicalWebRefResponse> => {
+export const getGobotanyUrl = async (params: GetGobotanyUrlParams, options?: RequestInit): Promise<BotanicalWebRefResponse> => {
   
-  return customFetch<BotanicalWebRefResponse>(getGetGobotanyUrl(params),
+  return customFetch<BotanicalWebRefResponse>(getGetGobotanyUrlUrl(params),
   {      
     ...options,
     method: 'GET'
@@ -6084,45 +6085,45 @@ export const getGobotany = async (params: GetGobotanyParams, options?: RequestIn
 
 
 
-export const getGetGobotanyQueryKey = (params?: GetGobotanyParams,) => {
+export const getGetGobotanyUrlQueryKey = (params?: GetGobotanyUrlParams,) => {
     return [
-    `/api/gobotany`, ...(params ? [params] : [])
+    `/api/gobotany/url`, ...(params ? [params] : [])
     ] as const;
     }
 
     
-export const getGetGobotanyQueryOptions = <TData = Awaited<ReturnType<typeof getGobotany>>, TError = ErrorType<ErrorResponse>>(params: GetGobotanyParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGobotany>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetGobotanyUrlQueryOptions = <TData = Awaited<ReturnType<typeof getGobotanyUrl>>, TError = ErrorType<ErrorResponse>>(params: GetGobotanyUrlParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGobotanyUrl>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetGobotanyQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getGetGobotanyUrlQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getGobotany>>> = ({ signal }) => getGobotany(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getGobotanyUrl>>> = ({ signal }) => getGobotanyUrl(params, { signal, ...requestOptions });
 
       
 
       
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getGobotany>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getGobotanyUrl>>, TError, TData> & { queryKey: QueryKey }
 }
 
-export type GetGobotanyQueryResult = NonNullable<Awaited<ReturnType<typeof getGobotany>>>
-export type GetGobotanyQueryError = ErrorType<ErrorResponse>
+export type GetGobotanyUrlQueryResult = NonNullable<Awaited<ReturnType<typeof getGobotanyUrl>>>
+export type GetGobotanyUrlQueryError = ErrorType<ErrorResponse>
 
 
 /**
  * @summary Look up a Go Botany species page URL
  */
 
-export function useGetGobotany<TData = Awaited<ReturnType<typeof getGobotany>>, TError = ErrorType<ErrorResponse>>(
- params: GetGobotanyParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGobotany>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export function useGetGobotanyUrl<TData = Awaited<ReturnType<typeof getGobotanyUrl>>, TError = ErrorType<ErrorResponse>>(
+ params: GetGobotanyUrlParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGobotanyUrl>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetGobotanyQueryOptions(params,options)
+  const queryOptions = getGetGobotanyUrlQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -6215,7 +6216,7 @@ export function useGetGobotanyMetadata<TData = Awaited<ReturnType<typeof getGobo
 
  * @summary Scrape and return species page text from Go Botany
  */
-export const getGetGobotanySpeciesTextUrl = (params: GetGobotanySpeciesTextParams,) => {
+export const getGetGobotanySpeciesInformationUrl = (params: GetGobotanySpeciesInformationParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -6227,12 +6228,12 @@ export const getGetGobotanySpeciesTextUrl = (params: GetGobotanySpeciesTextParam
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/gobotany/species-text?${stringifiedParams}` : `/api/gobotany/species-text`
+  return stringifiedParams.length > 0 ? `/api/gobotany/species-information?${stringifiedParams}` : `/api/gobotany/species-information`
 }
 
-export const getGobotanySpeciesText = async (params: GetGobotanySpeciesTextParams, options?: RequestInit): Promise<SpeciesTextResponse> => {
+export const getGobotanySpeciesInformation = async (params: GetGobotanySpeciesInformationParams, options?: RequestInit): Promise<SpeciesTextResponse> => {
   
-  return customFetch<SpeciesTextResponse>(getGetGobotanySpeciesTextUrl(params),
+  return customFetch<SpeciesTextResponse>(getGetGobotanySpeciesInformationUrl(params),
   {      
     ...options,
     method: 'GET'
@@ -6245,45 +6246,45 @@ export const getGobotanySpeciesText = async (params: GetGobotanySpeciesTextParam
 
 
 
-export const getGetGobotanySpeciesTextQueryKey = (params?: GetGobotanySpeciesTextParams,) => {
+export const getGetGobotanySpeciesInformationQueryKey = (params?: GetGobotanySpeciesInformationParams,) => {
     return [
-    `/api/gobotany/species-text`, ...(params ? [params] : [])
+    `/api/gobotany/species-information`, ...(params ? [params] : [])
     ] as const;
     }
 
     
-export const getGetGobotanySpeciesTextQueryOptions = <TData = Awaited<ReturnType<typeof getGobotanySpeciesText>>, TError = ErrorType<ErrorResponse>>(params: GetGobotanySpeciesTextParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGobotanySpeciesText>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetGobotanySpeciesInformationQueryOptions = <TData = Awaited<ReturnType<typeof getGobotanySpeciesInformation>>, TError = ErrorType<ErrorResponse>>(params: GetGobotanySpeciesInformationParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGobotanySpeciesInformation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetGobotanySpeciesTextQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getGetGobotanySpeciesInformationQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getGobotanySpeciesText>>> = ({ signal }) => getGobotanySpeciesText(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getGobotanySpeciesInformation>>> = ({ signal }) => getGobotanySpeciesInformation(params, { signal, ...requestOptions });
 
       
 
       
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getGobotanySpeciesText>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getGobotanySpeciesInformation>>, TError, TData> & { queryKey: QueryKey }
 }
 
-export type GetGobotanySpeciesTextQueryResult = NonNullable<Awaited<ReturnType<typeof getGobotanySpeciesText>>>
-export type GetGobotanySpeciesTextQueryError = ErrorType<ErrorResponse>
+export type GetGobotanySpeciesInformationQueryResult = NonNullable<Awaited<ReturnType<typeof getGobotanySpeciesInformation>>>
+export type GetGobotanySpeciesInformationQueryError = ErrorType<ErrorResponse>
 
 
 /**
  * @summary Scrape and return species page text from Go Botany
  */
 
-export function useGetGobotanySpeciesText<TData = Awaited<ReturnType<typeof getGobotanySpeciesText>>, TError = ErrorType<ErrorResponse>>(
- params: GetGobotanySpeciesTextParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGobotanySpeciesText>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export function useGetGobotanySpeciesInformation<TData = Awaited<ReturnType<typeof getGobotanySpeciesInformation>>, TError = ErrorType<ErrorResponse>>(
+ params: GetGobotanySpeciesInformationParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGobotanySpeciesInformation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetGobotanySpeciesTextQueryOptions(params,options)
+  const queryOptions = getGetGobotanySpeciesInformationQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -6460,7 +6461,7 @@ export function useGetGoogleImagesMetadata<TData = Awaited<ReturnType<typeof get
 
  * @summary Look up an Illinois Wildflowers species page URL
  */
-export const getGetIllinoisWildflowersUrl = (params: GetIllinoisWildflowersParams,) => {
+export const getGetIllinoisWildflowersUrlUrl = (params: GetIllinoisWildflowersUrlParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -6472,12 +6473,12 @@ export const getGetIllinoisWildflowersUrl = (params: GetIllinoisWildflowersParam
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/illinois-wildflowers?${stringifiedParams}` : `/api/illinois-wildflowers`
+  return stringifiedParams.length > 0 ? `/api/illinois-wildflowers/url?${stringifiedParams}` : `/api/illinois-wildflowers/url`
 }
 
-export const getIllinoisWildflowers = async (params: GetIllinoisWildflowersParams, options?: RequestInit): Promise<BotanicalWebRefResponse> => {
+export const getIllinoisWildflowersUrl = async (params: GetIllinoisWildflowersUrlParams, options?: RequestInit): Promise<GetIllinoisWildflowersUrl200> => {
   
-  return customFetch<BotanicalWebRefResponse>(getGetIllinoisWildflowersUrl(params),
+  return customFetch<GetIllinoisWildflowersUrl200>(getGetIllinoisWildflowersUrlUrl(params),
   {      
     ...options,
     method: 'GET'
@@ -6490,45 +6491,45 @@ export const getIllinoisWildflowers = async (params: GetIllinoisWildflowersParam
 
 
 
-export const getGetIllinoisWildflowersQueryKey = (params?: GetIllinoisWildflowersParams,) => {
+export const getGetIllinoisWildflowersUrlQueryKey = (params?: GetIllinoisWildflowersUrlParams,) => {
     return [
-    `/api/illinois-wildflowers`, ...(params ? [params] : [])
+    `/api/illinois-wildflowers/url`, ...(params ? [params] : [])
     ] as const;
     }
 
     
-export const getGetIllinoisWildflowersQueryOptions = <TData = Awaited<ReturnType<typeof getIllinoisWildflowers>>, TError = ErrorType<ErrorResponse>>(params: GetIllinoisWildflowersParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getIllinoisWildflowers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetIllinoisWildflowersUrlQueryOptions = <TData = Awaited<ReturnType<typeof getIllinoisWildflowersUrl>>, TError = ErrorType<ErrorResponse>>(params: GetIllinoisWildflowersUrlParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getIllinoisWildflowersUrl>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetIllinoisWildflowersQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getGetIllinoisWildflowersUrlQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getIllinoisWildflowers>>> = ({ signal }) => getIllinoisWildflowers(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getIllinoisWildflowersUrl>>> = ({ signal }) => getIllinoisWildflowersUrl(params, { signal, ...requestOptions });
 
       
 
       
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getIllinoisWildflowers>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getIllinoisWildflowersUrl>>, TError, TData> & { queryKey: QueryKey }
 }
 
-export type GetIllinoisWildflowersQueryResult = NonNullable<Awaited<ReturnType<typeof getIllinoisWildflowers>>>
-export type GetIllinoisWildflowersQueryError = ErrorType<ErrorResponse>
+export type GetIllinoisWildflowersUrlQueryResult = NonNullable<Awaited<ReturnType<typeof getIllinoisWildflowersUrl>>>
+export type GetIllinoisWildflowersUrlQueryError = ErrorType<ErrorResponse>
 
 
 /**
  * @summary Look up an Illinois Wildflowers species page URL
  */
 
-export function useGetIllinoisWildflowers<TData = Awaited<ReturnType<typeof getIllinoisWildflowers>>, TError = ErrorType<ErrorResponse>>(
- params: GetIllinoisWildflowersParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getIllinoisWildflowers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export function useGetIllinoisWildflowersUrl<TData = Awaited<ReturnType<typeof getIllinoisWildflowersUrl>>, TError = ErrorType<ErrorResponse>>(
+ params: GetIllinoisWildflowersUrlParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getIllinoisWildflowersUrl>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetIllinoisWildflowersQueryOptions(params,options)
+  const queryOptions = getGetIllinoisWildflowersUrlQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -6621,7 +6622,7 @@ export function useGetIllinoisWildflowersMetadata<TData = Awaited<ReturnType<typ
 
  * @summary Scrape and return species page text from Illinois Wildflowers
  */
-export const getGetIllinoisWildflowersSpeciesTextUrl = (params: GetIllinoisWildflowersSpeciesTextParams,) => {
+export const getGetIllinoisWildflowersSpeciesInformationUrl = (params: GetIllinoisWildflowersSpeciesInformationParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -6633,12 +6634,12 @@ export const getGetIllinoisWildflowersSpeciesTextUrl = (params: GetIllinoisWildf
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/illinois-wildflowers/species-text?${stringifiedParams}` : `/api/illinois-wildflowers/species-text`
+  return stringifiedParams.length > 0 ? `/api/illinois-wildflowers/species-information?${stringifiedParams}` : `/api/illinois-wildflowers/species-information`
 }
 
-export const getIllinoisWildflowersSpeciesText = async (params: GetIllinoisWildflowersSpeciesTextParams, options?: RequestInit): Promise<SpeciesTextResponse> => {
+export const getIllinoisWildflowersSpeciesInformation = async (params: GetIllinoisWildflowersSpeciesInformationParams, options?: RequestInit): Promise<SpeciesTextResponse> => {
   
-  return customFetch<SpeciesTextResponse>(getGetIllinoisWildflowersSpeciesTextUrl(params),
+  return customFetch<SpeciesTextResponse>(getGetIllinoisWildflowersSpeciesInformationUrl(params),
   {      
     ...options,
     method: 'GET'
@@ -6651,45 +6652,45 @@ export const getIllinoisWildflowersSpeciesText = async (params: GetIllinoisWildf
 
 
 
-export const getGetIllinoisWildflowersSpeciesTextQueryKey = (params?: GetIllinoisWildflowersSpeciesTextParams,) => {
+export const getGetIllinoisWildflowersSpeciesInformationQueryKey = (params?: GetIllinoisWildflowersSpeciesInformationParams,) => {
     return [
-    `/api/illinois-wildflowers/species-text`, ...(params ? [params] : [])
+    `/api/illinois-wildflowers/species-information`, ...(params ? [params] : [])
     ] as const;
     }
 
     
-export const getGetIllinoisWildflowersSpeciesTextQueryOptions = <TData = Awaited<ReturnType<typeof getIllinoisWildflowersSpeciesText>>, TError = ErrorType<ErrorResponse>>(params: GetIllinoisWildflowersSpeciesTextParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getIllinoisWildflowersSpeciesText>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetIllinoisWildflowersSpeciesInformationQueryOptions = <TData = Awaited<ReturnType<typeof getIllinoisWildflowersSpeciesInformation>>, TError = ErrorType<ErrorResponse>>(params: GetIllinoisWildflowersSpeciesInformationParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getIllinoisWildflowersSpeciesInformation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetIllinoisWildflowersSpeciesTextQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getGetIllinoisWildflowersSpeciesInformationQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getIllinoisWildflowersSpeciesText>>> = ({ signal }) => getIllinoisWildflowersSpeciesText(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getIllinoisWildflowersSpeciesInformation>>> = ({ signal }) => getIllinoisWildflowersSpeciesInformation(params, { signal, ...requestOptions });
 
       
 
       
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getIllinoisWildflowersSpeciesText>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getIllinoisWildflowersSpeciesInformation>>, TError, TData> & { queryKey: QueryKey }
 }
 
-export type GetIllinoisWildflowersSpeciesTextQueryResult = NonNullable<Awaited<ReturnType<typeof getIllinoisWildflowersSpeciesText>>>
-export type GetIllinoisWildflowersSpeciesTextQueryError = ErrorType<ErrorResponse>
+export type GetIllinoisWildflowersSpeciesInformationQueryResult = NonNullable<Awaited<ReturnType<typeof getIllinoisWildflowersSpeciesInformation>>>
+export type GetIllinoisWildflowersSpeciesInformationQueryError = ErrorType<ErrorResponse>
 
 
 /**
  * @summary Scrape and return species page text from Illinois Wildflowers
  */
 
-export function useGetIllinoisWildflowersSpeciesText<TData = Awaited<ReturnType<typeof getIllinoisWildflowersSpeciesText>>, TError = ErrorType<ErrorResponse>>(
- params: GetIllinoisWildflowersSpeciesTextParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getIllinoisWildflowersSpeciesText>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export function useGetIllinoisWildflowersSpeciesInformation<TData = Awaited<ReturnType<typeof getIllinoisWildflowersSpeciesInformation>>, TError = ErrorType<ErrorResponse>>(
+ params: GetIllinoisWildflowersSpeciesInformationParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getIllinoisWildflowersSpeciesInformation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetIllinoisWildflowersSpeciesTextQueryOptions(params,options)
+  const queryOptions = getGetIllinoisWildflowersSpeciesInformationQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -6705,7 +6706,7 @@ export function useGetIllinoisWildflowersSpeciesText<TData = Awaited<ReturnType<
 
  * @summary Look up a Minnesota Wildflowers species page URL
  */
-export const getGetMinnesotaWildflowersUrl = (params: GetMinnesotaWildflowersParams,) => {
+export const getGetMinnesotaWildflowersUrlUrl = (params: GetMinnesotaWildflowersUrlParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -6717,12 +6718,12 @@ export const getGetMinnesotaWildflowersUrl = (params: GetMinnesotaWildflowersPar
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/minnesota-wildflowers?${stringifiedParams}` : `/api/minnesota-wildflowers`
+  return stringifiedParams.length > 0 ? `/api/minnesota-wildflowers/url?${stringifiedParams}` : `/api/minnesota-wildflowers/url`
 }
 
-export const getMinnesotaWildflowers = async (params: GetMinnesotaWildflowersParams, options?: RequestInit): Promise<BotanicalWebRefResponse> => {
+export const getMinnesotaWildflowersUrl = async (params: GetMinnesotaWildflowersUrlParams, options?: RequestInit): Promise<BotanicalWebRefResponse> => {
   
-  return customFetch<BotanicalWebRefResponse>(getGetMinnesotaWildflowersUrl(params),
+  return customFetch<BotanicalWebRefResponse>(getGetMinnesotaWildflowersUrlUrl(params),
   {      
     ...options,
     method: 'GET'
@@ -6735,45 +6736,45 @@ export const getMinnesotaWildflowers = async (params: GetMinnesotaWildflowersPar
 
 
 
-export const getGetMinnesotaWildflowersQueryKey = (params?: GetMinnesotaWildflowersParams,) => {
+export const getGetMinnesotaWildflowersUrlQueryKey = (params?: GetMinnesotaWildflowersUrlParams,) => {
     return [
-    `/api/minnesota-wildflowers`, ...(params ? [params] : [])
+    `/api/minnesota-wildflowers/url`, ...(params ? [params] : [])
     ] as const;
     }
 
     
-export const getGetMinnesotaWildflowersQueryOptions = <TData = Awaited<ReturnType<typeof getMinnesotaWildflowers>>, TError = ErrorType<ErrorResponse>>(params: GetMinnesotaWildflowersParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMinnesotaWildflowers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetMinnesotaWildflowersUrlQueryOptions = <TData = Awaited<ReturnType<typeof getMinnesotaWildflowersUrl>>, TError = ErrorType<ErrorResponse>>(params: GetMinnesotaWildflowersUrlParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMinnesotaWildflowersUrl>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetMinnesotaWildflowersQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getGetMinnesotaWildflowersUrlQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMinnesotaWildflowers>>> = ({ signal }) => getMinnesotaWildflowers(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMinnesotaWildflowersUrl>>> = ({ signal }) => getMinnesotaWildflowersUrl(params, { signal, ...requestOptions });
 
       
 
       
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMinnesotaWildflowers>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMinnesotaWildflowersUrl>>, TError, TData> & { queryKey: QueryKey }
 }
 
-export type GetMinnesotaWildflowersQueryResult = NonNullable<Awaited<ReturnType<typeof getMinnesotaWildflowers>>>
-export type GetMinnesotaWildflowersQueryError = ErrorType<ErrorResponse>
+export type GetMinnesotaWildflowersUrlQueryResult = NonNullable<Awaited<ReturnType<typeof getMinnesotaWildflowersUrl>>>
+export type GetMinnesotaWildflowersUrlQueryError = ErrorType<ErrorResponse>
 
 
 /**
  * @summary Look up a Minnesota Wildflowers species page URL
  */
 
-export function useGetMinnesotaWildflowers<TData = Awaited<ReturnType<typeof getMinnesotaWildflowers>>, TError = ErrorType<ErrorResponse>>(
- params: GetMinnesotaWildflowersParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMinnesotaWildflowers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export function useGetMinnesotaWildflowersUrl<TData = Awaited<ReturnType<typeof getMinnesotaWildflowersUrl>>, TError = ErrorType<ErrorResponse>>(
+ params: GetMinnesotaWildflowersUrlParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMinnesotaWildflowersUrl>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetMinnesotaWildflowersQueryOptions(params,options)
+  const queryOptions = getGetMinnesotaWildflowersUrlQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -6866,7 +6867,7 @@ export function useGetMinnesotaWildflowersMetadata<TData = Awaited<ReturnType<ty
 
  * @summary Scrape and return species page text from Minnesota Wildflowers
  */
-export const getGetMinnesotaWildflowersSpeciesTextUrl = (params: GetMinnesotaWildflowersSpeciesTextParams,) => {
+export const getGetMinnesotaWildflowersSpeciesInformationUrl = (params: GetMinnesotaWildflowersSpeciesInformationParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -6878,12 +6879,12 @@ export const getGetMinnesotaWildflowersSpeciesTextUrl = (params: GetMinnesotaWil
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/minnesota-wildflowers/species-text?${stringifiedParams}` : `/api/minnesota-wildflowers/species-text`
+  return stringifiedParams.length > 0 ? `/api/minnesota-wildflowers/species-information?${stringifiedParams}` : `/api/minnesota-wildflowers/species-information`
 }
 
-export const getMinnesotaWildflowersSpeciesText = async (params: GetMinnesotaWildflowersSpeciesTextParams, options?: RequestInit): Promise<SpeciesTextResponse> => {
+export const getMinnesotaWildflowersSpeciesInformation = async (params: GetMinnesotaWildflowersSpeciesInformationParams, options?: RequestInit): Promise<SpeciesTextResponse> => {
   
-  return customFetch<SpeciesTextResponse>(getGetMinnesotaWildflowersSpeciesTextUrl(params),
+  return customFetch<SpeciesTextResponse>(getGetMinnesotaWildflowersSpeciesInformationUrl(params),
   {      
     ...options,
     method: 'GET'
@@ -6896,45 +6897,45 @@ export const getMinnesotaWildflowersSpeciesText = async (params: GetMinnesotaWil
 
 
 
-export const getGetMinnesotaWildflowersSpeciesTextQueryKey = (params?: GetMinnesotaWildflowersSpeciesTextParams,) => {
+export const getGetMinnesotaWildflowersSpeciesInformationQueryKey = (params?: GetMinnesotaWildflowersSpeciesInformationParams,) => {
     return [
-    `/api/minnesota-wildflowers/species-text`, ...(params ? [params] : [])
+    `/api/minnesota-wildflowers/species-information`, ...(params ? [params] : [])
     ] as const;
     }
 
     
-export const getGetMinnesotaWildflowersSpeciesTextQueryOptions = <TData = Awaited<ReturnType<typeof getMinnesotaWildflowersSpeciesText>>, TError = ErrorType<ErrorResponse>>(params: GetMinnesotaWildflowersSpeciesTextParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMinnesotaWildflowersSpeciesText>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetMinnesotaWildflowersSpeciesInformationQueryOptions = <TData = Awaited<ReturnType<typeof getMinnesotaWildflowersSpeciesInformation>>, TError = ErrorType<ErrorResponse>>(params: GetMinnesotaWildflowersSpeciesInformationParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMinnesotaWildflowersSpeciesInformation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetMinnesotaWildflowersSpeciesTextQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getGetMinnesotaWildflowersSpeciesInformationQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMinnesotaWildflowersSpeciesText>>> = ({ signal }) => getMinnesotaWildflowersSpeciesText(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMinnesotaWildflowersSpeciesInformation>>> = ({ signal }) => getMinnesotaWildflowersSpeciesInformation(params, { signal, ...requestOptions });
 
       
 
       
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMinnesotaWildflowersSpeciesText>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMinnesotaWildflowersSpeciesInformation>>, TError, TData> & { queryKey: QueryKey }
 }
 
-export type GetMinnesotaWildflowersSpeciesTextQueryResult = NonNullable<Awaited<ReturnType<typeof getMinnesotaWildflowersSpeciesText>>>
-export type GetMinnesotaWildflowersSpeciesTextQueryError = ErrorType<ErrorResponse>
+export type GetMinnesotaWildflowersSpeciesInformationQueryResult = NonNullable<Awaited<ReturnType<typeof getMinnesotaWildflowersSpeciesInformation>>>
+export type GetMinnesotaWildflowersSpeciesInformationQueryError = ErrorType<ErrorResponse>
 
 
 /**
  * @summary Scrape and return species page text from Minnesota Wildflowers
  */
 
-export function useGetMinnesotaWildflowersSpeciesText<TData = Awaited<ReturnType<typeof getMinnesotaWildflowersSpeciesText>>, TError = ErrorType<ErrorResponse>>(
- params: GetMinnesotaWildflowersSpeciesTextParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMinnesotaWildflowersSpeciesText>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export function useGetMinnesotaWildflowersSpeciesInformation<TData = Awaited<ReturnType<typeof getMinnesotaWildflowersSpeciesInformation>>, TError = ErrorType<ErrorResponse>>(
+ params: GetMinnesotaWildflowersSpeciesInformationParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMinnesotaWildflowersSpeciesInformation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetMinnesotaWildflowersSpeciesTextQueryOptions(params,options)
+  const queryOptions = getGetMinnesotaWildflowersSpeciesInformationQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -6950,7 +6951,7 @@ export function useGetMinnesotaWildflowersSpeciesText<TData = Awaited<ReturnType
 
  * @summary Look up a Missouri Plants species page URL
  */
-export const getGetMissouriPlantsUrl = (params: GetMissouriPlantsParams,) => {
+export const getGetMissouriPlantsUrlUrl = (params: GetMissouriPlantsUrlParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -6962,12 +6963,12 @@ export const getGetMissouriPlantsUrl = (params: GetMissouriPlantsParams,) => {
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/missouri-plants?${stringifiedParams}` : `/api/missouri-plants`
+  return stringifiedParams.length > 0 ? `/api/missouri-plants/url?${stringifiedParams}` : `/api/missouri-plants/url`
 }
 
-export const getMissouriPlants = async (params: GetMissouriPlantsParams, options?: RequestInit): Promise<BotanicalWebRefResponse> => {
+export const getMissouriPlantsUrl = async (params: GetMissouriPlantsUrlParams, options?: RequestInit): Promise<BotanicalWebRefResponse> => {
   
-  return customFetch<BotanicalWebRefResponse>(getGetMissouriPlantsUrl(params),
+  return customFetch<BotanicalWebRefResponse>(getGetMissouriPlantsUrlUrl(params),
   {      
     ...options,
     method: 'GET'
@@ -6980,45 +6981,45 @@ export const getMissouriPlants = async (params: GetMissouriPlantsParams, options
 
 
 
-export const getGetMissouriPlantsQueryKey = (params?: GetMissouriPlantsParams,) => {
+export const getGetMissouriPlantsUrlQueryKey = (params?: GetMissouriPlantsUrlParams,) => {
     return [
-    `/api/missouri-plants`, ...(params ? [params] : [])
+    `/api/missouri-plants/url`, ...(params ? [params] : [])
     ] as const;
     }
 
     
-export const getGetMissouriPlantsQueryOptions = <TData = Awaited<ReturnType<typeof getMissouriPlants>>, TError = ErrorType<ErrorResponse>>(params: GetMissouriPlantsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMissouriPlants>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetMissouriPlantsUrlQueryOptions = <TData = Awaited<ReturnType<typeof getMissouriPlantsUrl>>, TError = ErrorType<ErrorResponse>>(params: GetMissouriPlantsUrlParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMissouriPlantsUrl>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetMissouriPlantsQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getGetMissouriPlantsUrlQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMissouriPlants>>> = ({ signal }) => getMissouriPlants(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMissouriPlantsUrl>>> = ({ signal }) => getMissouriPlantsUrl(params, { signal, ...requestOptions });
 
       
 
       
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMissouriPlants>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMissouriPlantsUrl>>, TError, TData> & { queryKey: QueryKey }
 }
 
-export type GetMissouriPlantsQueryResult = NonNullable<Awaited<ReturnType<typeof getMissouriPlants>>>
-export type GetMissouriPlantsQueryError = ErrorType<ErrorResponse>
+export type GetMissouriPlantsUrlQueryResult = NonNullable<Awaited<ReturnType<typeof getMissouriPlantsUrl>>>
+export type GetMissouriPlantsUrlQueryError = ErrorType<ErrorResponse>
 
 
 /**
  * @summary Look up a Missouri Plants species page URL
  */
 
-export function useGetMissouriPlants<TData = Awaited<ReturnType<typeof getMissouriPlants>>, TError = ErrorType<ErrorResponse>>(
- params: GetMissouriPlantsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMissouriPlants>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export function useGetMissouriPlantsUrl<TData = Awaited<ReturnType<typeof getMissouriPlantsUrl>>, TError = ErrorType<ErrorResponse>>(
+ params: GetMissouriPlantsUrlParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMissouriPlantsUrl>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetMissouriPlantsQueryOptions(params,options)
+  const queryOptions = getGetMissouriPlantsUrlQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -7111,7 +7112,7 @@ export function useGetMissouriPlantsMetadata<TData = Awaited<ReturnType<typeof g
 
  * @summary Scrape and return species page text from Missouri Plants
  */
-export const getGetMissouriPlantsSpeciesTextUrl = (params: GetMissouriPlantsSpeciesTextParams,) => {
+export const getGetMissouriPlantsSpeciesInformationUrl = (params: GetMissouriPlantsSpeciesInformationParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -7123,12 +7124,12 @@ export const getGetMissouriPlantsSpeciesTextUrl = (params: GetMissouriPlantsSpec
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/missouri-plants/species-text?${stringifiedParams}` : `/api/missouri-plants/species-text`
+  return stringifiedParams.length > 0 ? `/api/missouri-plants/species-information?${stringifiedParams}` : `/api/missouri-plants/species-information`
 }
 
-export const getMissouriPlantsSpeciesText = async (params: GetMissouriPlantsSpeciesTextParams, options?: RequestInit): Promise<SpeciesTextResponse> => {
+export const getMissouriPlantsSpeciesInformation = async (params: GetMissouriPlantsSpeciesInformationParams, options?: RequestInit): Promise<SpeciesTextResponse> => {
   
-  return customFetch<SpeciesTextResponse>(getGetMissouriPlantsSpeciesTextUrl(params),
+  return customFetch<SpeciesTextResponse>(getGetMissouriPlantsSpeciesInformationUrl(params),
   {      
     ...options,
     method: 'GET'
@@ -7141,45 +7142,45 @@ export const getMissouriPlantsSpeciesText = async (params: GetMissouriPlantsSpec
 
 
 
-export const getGetMissouriPlantsSpeciesTextQueryKey = (params?: GetMissouriPlantsSpeciesTextParams,) => {
+export const getGetMissouriPlantsSpeciesInformationQueryKey = (params?: GetMissouriPlantsSpeciesInformationParams,) => {
     return [
-    `/api/missouri-plants/species-text`, ...(params ? [params] : [])
+    `/api/missouri-plants/species-information`, ...(params ? [params] : [])
     ] as const;
     }
 
     
-export const getGetMissouriPlantsSpeciesTextQueryOptions = <TData = Awaited<ReturnType<typeof getMissouriPlantsSpeciesText>>, TError = ErrorType<ErrorResponse>>(params: GetMissouriPlantsSpeciesTextParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMissouriPlantsSpeciesText>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetMissouriPlantsSpeciesInformationQueryOptions = <TData = Awaited<ReturnType<typeof getMissouriPlantsSpeciesInformation>>, TError = ErrorType<ErrorResponse>>(params: GetMissouriPlantsSpeciesInformationParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMissouriPlantsSpeciesInformation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetMissouriPlantsSpeciesTextQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getGetMissouriPlantsSpeciesInformationQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMissouriPlantsSpeciesText>>> = ({ signal }) => getMissouriPlantsSpeciesText(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMissouriPlantsSpeciesInformation>>> = ({ signal }) => getMissouriPlantsSpeciesInformation(params, { signal, ...requestOptions });
 
       
 
       
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMissouriPlantsSpeciesText>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMissouriPlantsSpeciesInformation>>, TError, TData> & { queryKey: QueryKey }
 }
 
-export type GetMissouriPlantsSpeciesTextQueryResult = NonNullable<Awaited<ReturnType<typeof getMissouriPlantsSpeciesText>>>
-export type GetMissouriPlantsSpeciesTextQueryError = ErrorType<ErrorResponse>
+export type GetMissouriPlantsSpeciesInformationQueryResult = NonNullable<Awaited<ReturnType<typeof getMissouriPlantsSpeciesInformation>>>
+export type GetMissouriPlantsSpeciesInformationQueryError = ErrorType<ErrorResponse>
 
 
 /**
  * @summary Scrape and return species page text from Missouri Plants
  */
 
-export function useGetMissouriPlantsSpeciesText<TData = Awaited<ReturnType<typeof getMissouriPlantsSpeciesText>>, TError = ErrorType<ErrorResponse>>(
- params: GetMissouriPlantsSpeciesTextParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMissouriPlantsSpeciesText>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export function useGetMissouriPlantsSpeciesInformation<TData = Awaited<ReturnType<typeof getMissouriPlantsSpeciesInformation>>, TError = ErrorType<ErrorResponse>>(
+ params: GetMissouriPlantsSpeciesInformationParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMissouriPlantsSpeciesInformation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetMissouriPlantsSpeciesTextQueryOptions(params,options)
+  const queryOptions = getGetMissouriPlantsSpeciesInformationQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -7195,7 +7196,7 @@ export function useGetMissouriPlantsSpeciesText<TData = Awaited<ReturnType<typeo
 
  * @summary Look up a Prairie Moon Nursery species page URL
  */
-export const getGetPrairieMoonUrl = (params: GetPrairieMoonParams,) => {
+export const getGetPrairieMoonUrlUrl = (params: GetPrairieMoonUrlParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -7207,12 +7208,12 @@ export const getGetPrairieMoonUrl = (params: GetPrairieMoonParams,) => {
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/prairie-moon?${stringifiedParams}` : `/api/prairie-moon`
+  return stringifiedParams.length > 0 ? `/api/prairie-moon/url?${stringifiedParams}` : `/api/prairie-moon/url`
 }
 
-export const getPrairieMoon = async (params: GetPrairieMoonParams, options?: RequestInit): Promise<BotanicalWebRefResponse> => {
+export const getPrairieMoonUrl = async (params: GetPrairieMoonUrlParams, options?: RequestInit): Promise<BotanicalWebRefResponse> => {
   
-  return customFetch<BotanicalWebRefResponse>(getGetPrairieMoonUrl(params),
+  return customFetch<BotanicalWebRefResponse>(getGetPrairieMoonUrlUrl(params),
   {      
     ...options,
     method: 'GET'
@@ -7225,45 +7226,45 @@ export const getPrairieMoon = async (params: GetPrairieMoonParams, options?: Req
 
 
 
-export const getGetPrairieMoonQueryKey = (params?: GetPrairieMoonParams,) => {
+export const getGetPrairieMoonUrlQueryKey = (params?: GetPrairieMoonUrlParams,) => {
     return [
-    `/api/prairie-moon`, ...(params ? [params] : [])
+    `/api/prairie-moon/url`, ...(params ? [params] : [])
     ] as const;
     }
 
     
-export const getGetPrairieMoonQueryOptions = <TData = Awaited<ReturnType<typeof getPrairieMoon>>, TError = ErrorType<ErrorResponse>>(params: GetPrairieMoonParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPrairieMoon>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetPrairieMoonUrlQueryOptions = <TData = Awaited<ReturnType<typeof getPrairieMoonUrl>>, TError = ErrorType<ErrorResponse>>(params: GetPrairieMoonUrlParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPrairieMoonUrl>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetPrairieMoonQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getGetPrairieMoonUrlQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPrairieMoon>>> = ({ signal }) => getPrairieMoon(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPrairieMoonUrl>>> = ({ signal }) => getPrairieMoonUrl(params, { signal, ...requestOptions });
 
       
 
       
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPrairieMoon>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPrairieMoonUrl>>, TError, TData> & { queryKey: QueryKey }
 }
 
-export type GetPrairieMoonQueryResult = NonNullable<Awaited<ReturnType<typeof getPrairieMoon>>>
-export type GetPrairieMoonQueryError = ErrorType<ErrorResponse>
+export type GetPrairieMoonUrlQueryResult = NonNullable<Awaited<ReturnType<typeof getPrairieMoonUrl>>>
+export type GetPrairieMoonUrlQueryError = ErrorType<ErrorResponse>
 
 
 /**
  * @summary Look up a Prairie Moon Nursery species page URL
  */
 
-export function useGetPrairieMoon<TData = Awaited<ReturnType<typeof getPrairieMoon>>, TError = ErrorType<ErrorResponse>>(
- params: GetPrairieMoonParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPrairieMoon>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export function useGetPrairieMoonUrl<TData = Awaited<ReturnType<typeof getPrairieMoonUrl>>, TError = ErrorType<ErrorResponse>>(
+ params: GetPrairieMoonUrlParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPrairieMoonUrl>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetPrairieMoonQueryOptions(params,options)
+  const queryOptions = getGetPrairieMoonUrlQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -7356,7 +7357,7 @@ export function useGetPrairieMoonMetadata<TData = Awaited<ReturnType<typeof getP
 
  * @summary Scrape and return species page text from Prairie Moon Nursery
  */
-export const getGetPrairieMoonSpeciesTextUrl = (params: GetPrairieMoonSpeciesTextParams,) => {
+export const getGetPrairieMoonSpeciesInformationUrl = (params: GetPrairieMoonSpeciesInformationParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -7368,12 +7369,12 @@ export const getGetPrairieMoonSpeciesTextUrl = (params: GetPrairieMoonSpeciesTex
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/prairie-moon/species-text?${stringifiedParams}` : `/api/prairie-moon/species-text`
+  return stringifiedParams.length > 0 ? `/api/prairie-moon/species-information?${stringifiedParams}` : `/api/prairie-moon/species-information`
 }
 
-export const getPrairieMoonSpeciesText = async (params: GetPrairieMoonSpeciesTextParams, options?: RequestInit): Promise<SpeciesTextResponse> => {
+export const getPrairieMoonSpeciesInformation = async (params: GetPrairieMoonSpeciesInformationParams, options?: RequestInit): Promise<SpeciesTextResponse> => {
   
-  return customFetch<SpeciesTextResponse>(getGetPrairieMoonSpeciesTextUrl(params),
+  return customFetch<SpeciesTextResponse>(getGetPrairieMoonSpeciesInformationUrl(params),
   {      
     ...options,
     method: 'GET'
@@ -7386,45 +7387,45 @@ export const getPrairieMoonSpeciesText = async (params: GetPrairieMoonSpeciesTex
 
 
 
-export const getGetPrairieMoonSpeciesTextQueryKey = (params?: GetPrairieMoonSpeciesTextParams,) => {
+export const getGetPrairieMoonSpeciesInformationQueryKey = (params?: GetPrairieMoonSpeciesInformationParams,) => {
     return [
-    `/api/prairie-moon/species-text`, ...(params ? [params] : [])
+    `/api/prairie-moon/species-information`, ...(params ? [params] : [])
     ] as const;
     }
 
     
-export const getGetPrairieMoonSpeciesTextQueryOptions = <TData = Awaited<ReturnType<typeof getPrairieMoonSpeciesText>>, TError = ErrorType<ErrorResponse>>(params: GetPrairieMoonSpeciesTextParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPrairieMoonSpeciesText>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetPrairieMoonSpeciesInformationQueryOptions = <TData = Awaited<ReturnType<typeof getPrairieMoonSpeciesInformation>>, TError = ErrorType<ErrorResponse>>(params: GetPrairieMoonSpeciesInformationParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPrairieMoonSpeciesInformation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetPrairieMoonSpeciesTextQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getGetPrairieMoonSpeciesInformationQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPrairieMoonSpeciesText>>> = ({ signal }) => getPrairieMoonSpeciesText(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPrairieMoonSpeciesInformation>>> = ({ signal }) => getPrairieMoonSpeciesInformation(params, { signal, ...requestOptions });
 
       
 
       
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPrairieMoonSpeciesText>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPrairieMoonSpeciesInformation>>, TError, TData> & { queryKey: QueryKey }
 }
 
-export type GetPrairieMoonSpeciesTextQueryResult = NonNullable<Awaited<ReturnType<typeof getPrairieMoonSpeciesText>>>
-export type GetPrairieMoonSpeciesTextQueryError = ErrorType<ErrorResponse>
+export type GetPrairieMoonSpeciesInformationQueryResult = NonNullable<Awaited<ReturnType<typeof getPrairieMoonSpeciesInformation>>>
+export type GetPrairieMoonSpeciesInformationQueryError = ErrorType<ErrorResponse>
 
 
 /**
  * @summary Scrape and return species page text from Prairie Moon Nursery
  */
 
-export function useGetPrairieMoonSpeciesText<TData = Awaited<ReturnType<typeof getPrairieMoonSpeciesText>>, TError = ErrorType<ErrorResponse>>(
- params: GetPrairieMoonSpeciesTextParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPrairieMoonSpeciesText>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export function useGetPrairieMoonSpeciesInformation<TData = Awaited<ReturnType<typeof getPrairieMoonSpeciesInformation>>, TError = ErrorType<ErrorResponse>>(
+ params: GetPrairieMoonSpeciesInformationParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPrairieMoonSpeciesInformation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetPrairieMoonSpeciesTextQueryOptions(params,options)
+  const queryOptions = getGetPrairieMoonSpeciesInformationQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -7769,7 +7770,7 @@ export function useGetUsdaPlantsMetadata<TData = Awaited<ReturnType<typeof getUs
 
  * @summary Verify a Lady Bird Johnson Wildflower Center species profile URL from a USDA Plants symbol
  */
-export const getGetLadyBirdJohnsonUrl = (params: GetLadyBirdJohnsonParams,) => {
+export const getGetLadyBirdJohnsonUrlUrl = (params: GetLadyBirdJohnsonUrlParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -7781,12 +7782,12 @@ export const getGetLadyBirdJohnsonUrl = (params: GetLadyBirdJohnsonParams,) => {
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/lady-bird-johnson?${stringifiedParams}` : `/api/lady-bird-johnson`
+  return stringifiedParams.length > 0 ? `/api/lady-bird-johnson/url?${stringifiedParams}` : `/api/lady-bird-johnson/url`
 }
 
-export const getLadyBirdJohnson = async (params: GetLadyBirdJohnsonParams, options?: RequestInit): Promise<GetLadyBirdJohnson200> => {
+export const getLadyBirdJohnsonUrl = async (params: GetLadyBirdJohnsonUrlParams, options?: RequestInit): Promise<GetLadyBirdJohnsonUrl200> => {
   
-  return customFetch<GetLadyBirdJohnson200>(getGetLadyBirdJohnsonUrl(params),
+  return customFetch<GetLadyBirdJohnsonUrl200>(getGetLadyBirdJohnsonUrlUrl(params),
   {      
     ...options,
     method: 'GET'
@@ -7799,45 +7800,45 @@ export const getLadyBirdJohnson = async (params: GetLadyBirdJohnsonParams, optio
 
 
 
-export const getGetLadyBirdJohnsonQueryKey = (params?: GetLadyBirdJohnsonParams,) => {
+export const getGetLadyBirdJohnsonUrlQueryKey = (params?: GetLadyBirdJohnsonUrlParams,) => {
     return [
-    `/api/lady-bird-johnson`, ...(params ? [params] : [])
+    `/api/lady-bird-johnson/url`, ...(params ? [params] : [])
     ] as const;
     }
 
     
-export const getGetLadyBirdJohnsonQueryOptions = <TData = Awaited<ReturnType<typeof getLadyBirdJohnson>>, TError = ErrorType<ErrorResponse>>(params: GetLadyBirdJohnsonParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLadyBirdJohnson>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetLadyBirdJohnsonUrlQueryOptions = <TData = Awaited<ReturnType<typeof getLadyBirdJohnsonUrl>>, TError = ErrorType<ErrorResponse>>(params: GetLadyBirdJohnsonUrlParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLadyBirdJohnsonUrl>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetLadyBirdJohnsonQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getGetLadyBirdJohnsonUrlQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLadyBirdJohnson>>> = ({ signal }) => getLadyBirdJohnson(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLadyBirdJohnsonUrl>>> = ({ signal }) => getLadyBirdJohnsonUrl(params, { signal, ...requestOptions });
 
       
 
       
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLadyBirdJohnson>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLadyBirdJohnsonUrl>>, TError, TData> & { queryKey: QueryKey }
 }
 
-export type GetLadyBirdJohnsonQueryResult = NonNullable<Awaited<ReturnType<typeof getLadyBirdJohnson>>>
-export type GetLadyBirdJohnsonQueryError = ErrorType<ErrorResponse>
+export type GetLadyBirdJohnsonUrlQueryResult = NonNullable<Awaited<ReturnType<typeof getLadyBirdJohnsonUrl>>>
+export type GetLadyBirdJohnsonUrlQueryError = ErrorType<ErrorResponse>
 
 
 /**
  * @summary Verify a Lady Bird Johnson Wildflower Center species profile URL from a USDA Plants symbol
  */
 
-export function useGetLadyBirdJohnson<TData = Awaited<ReturnType<typeof getLadyBirdJohnson>>, TError = ErrorType<ErrorResponse>>(
- params: GetLadyBirdJohnsonParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLadyBirdJohnson>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export function useGetLadyBirdJohnsonUrl<TData = Awaited<ReturnType<typeof getLadyBirdJohnsonUrl>>, TError = ErrorType<ErrorResponse>>(
+ params: GetLadyBirdJohnsonUrlParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLadyBirdJohnsonUrl>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetLadyBirdJohnsonQueryOptions(params,options)
+  const queryOptions = getGetLadyBirdJohnsonUrlQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -7853,7 +7854,7 @@ export function useGetLadyBirdJohnson<TData = Awaited<ReturnType<typeof getLadyB
 
  * @summary Scrape and return species page text from Lady Bird Johnson Wildflower Center
  */
-export const getGetLadyBirdJohnsonSpeciesTextUrl = (params: GetLadyBirdJohnsonSpeciesTextParams,) => {
+export const getGetLadyBirdJohnsonSpeciesInformationUrl = (params: GetLadyBirdJohnsonSpeciesInformationParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -7865,12 +7866,12 @@ export const getGetLadyBirdJohnsonSpeciesTextUrl = (params: GetLadyBirdJohnsonSp
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/lady-bird-johnson/species-text?${stringifiedParams}` : `/api/lady-bird-johnson/species-text`
+  return stringifiedParams.length > 0 ? `/api/lady-bird-johnson/species-information?${stringifiedParams}` : `/api/lady-bird-johnson/species-information`
 }
 
-export const getLadyBirdJohnsonSpeciesText = async (params: GetLadyBirdJohnsonSpeciesTextParams, options?: RequestInit): Promise<GetLadyBirdJohnsonSpeciesText200> => {
+export const getLadyBirdJohnsonSpeciesInformation = async (params: GetLadyBirdJohnsonSpeciesInformationParams, options?: RequestInit): Promise<GetLadyBirdJohnsonSpeciesInformation200> => {
   
-  return customFetch<GetLadyBirdJohnsonSpeciesText200>(getGetLadyBirdJohnsonSpeciesTextUrl(params),
+  return customFetch<GetLadyBirdJohnsonSpeciesInformation200>(getGetLadyBirdJohnsonSpeciesInformationUrl(params),
   {      
     ...options,
     method: 'GET'
@@ -7883,45 +7884,45 @@ export const getLadyBirdJohnsonSpeciesText = async (params: GetLadyBirdJohnsonSp
 
 
 
-export const getGetLadyBirdJohnsonSpeciesTextQueryKey = (params?: GetLadyBirdJohnsonSpeciesTextParams,) => {
+export const getGetLadyBirdJohnsonSpeciesInformationQueryKey = (params?: GetLadyBirdJohnsonSpeciesInformationParams,) => {
     return [
-    `/api/lady-bird-johnson/species-text`, ...(params ? [params] : [])
+    `/api/lady-bird-johnson/species-information`, ...(params ? [params] : [])
     ] as const;
     }
 
     
-export const getGetLadyBirdJohnsonSpeciesTextQueryOptions = <TData = Awaited<ReturnType<typeof getLadyBirdJohnsonSpeciesText>>, TError = ErrorType<ErrorResponse>>(params: GetLadyBirdJohnsonSpeciesTextParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLadyBirdJohnsonSpeciesText>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetLadyBirdJohnsonSpeciesInformationQueryOptions = <TData = Awaited<ReturnType<typeof getLadyBirdJohnsonSpeciesInformation>>, TError = ErrorType<ErrorResponse>>(params: GetLadyBirdJohnsonSpeciesInformationParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLadyBirdJohnsonSpeciesInformation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetLadyBirdJohnsonSpeciesTextQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getGetLadyBirdJohnsonSpeciesInformationQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLadyBirdJohnsonSpeciesText>>> = ({ signal }) => getLadyBirdJohnsonSpeciesText(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLadyBirdJohnsonSpeciesInformation>>> = ({ signal }) => getLadyBirdJohnsonSpeciesInformation(params, { signal, ...requestOptions });
 
       
 
       
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLadyBirdJohnsonSpeciesText>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLadyBirdJohnsonSpeciesInformation>>, TError, TData> & { queryKey: QueryKey }
 }
 
-export type GetLadyBirdJohnsonSpeciesTextQueryResult = NonNullable<Awaited<ReturnType<typeof getLadyBirdJohnsonSpeciesText>>>
-export type GetLadyBirdJohnsonSpeciesTextQueryError = ErrorType<ErrorResponse>
+export type GetLadyBirdJohnsonSpeciesInformationQueryResult = NonNullable<Awaited<ReturnType<typeof getLadyBirdJohnsonSpeciesInformation>>>
+export type GetLadyBirdJohnsonSpeciesInformationQueryError = ErrorType<ErrorResponse>
 
 
 /**
  * @summary Scrape and return species page text from Lady Bird Johnson Wildflower Center
  */
 
-export function useGetLadyBirdJohnsonSpeciesText<TData = Awaited<ReturnType<typeof getLadyBirdJohnsonSpeciesText>>, TError = ErrorType<ErrorResponse>>(
- params: GetLadyBirdJohnsonSpeciesTextParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLadyBirdJohnsonSpeciesText>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export function useGetLadyBirdJohnsonSpeciesInformation<TData = Awaited<ReturnType<typeof getLadyBirdJohnsonSpeciesInformation>>, TError = ErrorType<ErrorResponse>>(
+ params: GetLadyBirdJohnsonSpeciesInformationParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLadyBirdJohnsonSpeciesInformation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetLadyBirdJohnsonSpeciesTextQueryOptions(params,options)
+  const queryOptions = getGetLadyBirdJohnsonSpeciesInformationQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

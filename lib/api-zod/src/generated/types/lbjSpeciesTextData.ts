@@ -8,13 +8,9 @@
 import type { LbjSpeciesTextDataSections } from './lbjSpeciesTextDataSections';
 
 /**
- * Data payload for /lady-bird-johnson/species-text FernsEnvelope data field.
+ * Data payload for /lady-bird-johnson/species-information FernsEnvelope data field.
  */
 export interface LbjSpeciesTextData {
-  /** USDA Plants symbol (uppercased). */
-  usda_symbol?: string;
-  /** The profile URL that was scraped. */
-  url?: string;
   /** Labeled prose sections extracted from the page (h3-delimited). "Find Seeds or Plants" and "Mr. Smarty Plants says" sections are excluded.
  */
   sections?: LbjSpeciesTextDataSections;

@@ -6,7 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetMinnesotaWildflowersParams = {
+export type GetIllinoisWildflowersUrlParams = {
 /**
  * Scientific name (e.g. Acer rubrum)
  * @minLength 1

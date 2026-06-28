@@ -3184,12 +3184,12 @@ export const GetNatureserveSearchResponse = zod.object({
 
 
 
-export const GetGobotanyQueryParams = zod.object({
+export const GetGobotanyUrlQueryParams = zod.object({
   "species": zod.string().min(1).describe('Binomial scientific name (e.g. Acer rubrum). Genus and species epithet required. Both components must contain only letters.\n')
 })
 
-export const GetGobotanyResponse = zod.object({
-  "found": zod.boolean().describe('True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants), which return a search_url instead.\n'),
+export const GetGobotanyUrlResponse = zod.object({
+  "found": zod.boolean().describe('True if a direct species page URL was resolved.'),
   "queried_at": zod.date(),
   "source_url": zod.string().optional(),
   "provenance": zod.object({
@@ -3202,13 +3202,9 @@ export const GetGobotanyResponse = zod.object({
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
 }).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
   "data": zod.object({
-  "species": zod.string().optional().describe('The species name as queried'),
-  "url": zod.string().nullish().describe('Direct species page URL. Null when only a search URL is available.'),
-  "search_url": zod.string().optional().describe('Search URL when a direct profile URL cannot be constructed (usda-plants). Present instead of url for these sources.\n'),
-  "validation_method": zod.string().optional().describe('How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable'),
-  "note": zod.string().optional().describe('Explanatory note when validation_method is not_resolvable')
-}).nullish().describe('Present when found=true (or when a search_url is returned). Null when not found.')
-}).describe('Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants).\n')
+  "url": zod.string().nullish().describe('Direct species page URL. Null when not found.')
+}).nullish().describe('Present when found=true. Null when not found.')
+}).describe('Response shape for botanical web reference source URL lookup endpoints (gobotany\/url, minnesota-wildflowers\/url, missouri-plants\/url, prairie-moon\/url). Illinois Wildflowers uses its own inline schema due to its multi-URL structure.\n')
 
 
 /**
@@ -3247,18 +3243,17 @@ export const GetGobotanyMetadataResponse = zod.object({
 
 
 
-export const GetGobotanySpeciesTextQueryParams = zod.object({
+export const GetGobotanySpeciesInformationQueryParams = zod.object({
   "species": zod.string().min(1).describe('Binomial scientific name (e.g. Acer rubrum)'),
   "refresh": zod.enum(['true', 'false']).optional().describe('If \"true\", bypass cache and re-scrape the live page')
 })
 
-export const GetGobotanySpeciesTextResponse = zod.object({
+export const GetGobotanySpeciesInformationResponse = zod.object({
   "found": zod.boolean().describe('True if the species page was found and text was extracted.'),
   "queried_at": zod.date(),
   "source_url": zod.string().optional().describe('The API endpoint URL that served this response.'),
   "cache_status": zod.enum(['hit', 'miss', 'not_in_species_list']).describe('\"hit\" — returned from cache. \"miss\" — live scrape performed and cached. \"not_in_species_list\" — species URL not in the imported species list; scrape skipped.\n'),
   "fetch_error": zod.string().optional().describe('Present only when a transient upstream error (network failure, timeout, 5xx) prevented the scrape. The result was NOT cached in this case and the next call will retry the live request.\n'),
-  "scraped_at": zod.date().optional().describe('Timestamp of when the text was originally scraped.'),
   "provenance": zod.object({
   "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
@@ -3269,12 +3264,10 @@ export const GetGobotanySpeciesTextResponse = zod.object({
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
 }).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
   "data": zod.object({
-  "species": zod.string().optional().describe('The species name as queried.'),
-  "url": zod.string().optional().describe('The page URL that was scraped.'),
   "sections": zod.record(zod.string(), zod.string()).nullish().describe('Labeled prose sections extracted from the page (e.g. Description, Cultivation, Facts, Habitat). Keys are section names, values are plain text content.\n'),
   "full_text": zod.string().nullish().describe('All sections concatenated as Label-colon-text blocks, separated by double newlines.\n')
 }).nullish().describe('Present when found=true. Null when not found.')
-}).describe('Response shape for species page text scraping endpoints. Returned by \/gobotany\/species-text, \/illinois-wildflowers\/species-text, \/minnesota-wildflowers\/species-text, \/missouri-plants\/species-text, and \/prairie-moon\/species-text.\n')
+}).describe('Response shape for species page text scraping endpoints. Returned by \/gobotany\/species-information, \/illinois-wildflowers\/species-information, \/minnesota-wildflowers\/species-information, \/missouri-plants\/species-information, and \/prairie-moon\/species-information.\n')
 
 
 /**
@@ -3375,31 +3368,40 @@ export const GetGoogleImagesMetadataResponse = zod.object({
 
 
 
-export const GetIllinoisWildflowersQueryParams = zod.object({
+export const GetIllinoisWildflowersUrlQueryParams = zod.object({
   "species": zod.string().min(1).describe('Scientific name (e.g. Acer rubrum)')
 })
 
-export const GetIllinoisWildflowersResponse = zod.object({
-  "found": zod.boolean().describe('True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants), which return a search_url instead.\n'),
-  "queried_at": zod.date(),
-  "source_url": zod.string().optional(),
+export const GetIllinoisWildflowersUrlResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
-  "fetched_at": zod.date().describe('When this record was obtained from the source'),
-  "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
-  "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
-  "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
-  "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
-  "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
   "data": zod.object({
-  "species": zod.string().optional().describe('The species name as queried'),
-  "url": zod.string().nullish().describe('Direct species page URL. Null when only a search URL is available.'),
-  "search_url": zod.string().optional().describe('Search URL when a direct profile URL cannot be constructed (usda-plants). Present instead of url for these sources.\n'),
-  "validation_method": zod.string().optional().describe('How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable'),
-  "note": zod.string().optional().describe('Explanatory note when validation_method is not_resolvable')
-}).nullish().describe('Present when found=true (or when a search_url is returned). Null when not found.')
-}).describe('Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants).\n')
+  "results": zod.array(zod.object({
+  "url": zod.string().describe('Direct species page URL for this section.'),
+  "section": zod.string().describe('Section name (e.g. prairie, woodland, wetland).')
+})).optional().describe('One entry per Illinois Wildflowers section page for this species.')
+}).nullish().describe('Present when found=true. Null when not found.')
+}))
 
 
 /**
@@ -3438,18 +3440,17 @@ export const GetIllinoisWildflowersMetadataResponse = zod.object({
 
 
 
-export const GetIllinoisWildflowersSpeciesTextQueryParams = zod.object({
+export const GetIllinoisWildflowersSpeciesInformationQueryParams = zod.object({
   "species": zod.string().min(1).describe('Scientific name (e.g. Acer rubrum)'),
   "refresh": zod.enum(['true', 'false']).optional().describe('If \"true\", bypass cache and re-scrape the live page')
 })
 
-export const GetIllinoisWildflowersSpeciesTextResponse = zod.object({
+export const GetIllinoisWildflowersSpeciesInformationResponse = zod.object({
   "found": zod.boolean().describe('True if the species page was found and text was extracted.'),
   "queried_at": zod.date(),
   "source_url": zod.string().optional().describe('The API endpoint URL that served this response.'),
   "cache_status": zod.enum(['hit', 'miss', 'not_in_species_list']).describe('\"hit\" — returned from cache. \"miss\" — live scrape performed and cached. \"not_in_species_list\" — species URL not in the imported species list; scrape skipped.\n'),
   "fetch_error": zod.string().optional().describe('Present only when a transient upstream error (network failure, timeout, 5xx) prevented the scrape. The result was NOT cached in this case and the next call will retry the live request.\n'),
-  "scraped_at": zod.date().optional().describe('Timestamp of when the text was originally scraped.'),
   "provenance": zod.object({
   "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
@@ -3460,12 +3461,10 @@ export const GetIllinoisWildflowersSpeciesTextResponse = zod.object({
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
 }).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
   "data": zod.object({
-  "species": zod.string().optional().describe('The species name as queried.'),
-  "url": zod.string().optional().describe('The page URL that was scraped.'),
   "sections": zod.record(zod.string(), zod.string()).nullish().describe('Labeled prose sections extracted from the page (e.g. Description, Cultivation, Facts, Habitat). Keys are section names, values are plain text content.\n'),
   "full_text": zod.string().nullish().describe('All sections concatenated as Label-colon-text blocks, separated by double newlines.\n')
 }).nullish().describe('Present when found=true. Null when not found.')
-}).describe('Response shape for species page text scraping endpoints. Returned by \/gobotany\/species-text, \/illinois-wildflowers\/species-text, \/minnesota-wildflowers\/species-text, \/missouri-plants\/species-text, and \/prairie-moon\/species-text.\n')
+}).describe('Response shape for species page text scraping endpoints. Returned by \/gobotany\/species-information, \/illinois-wildflowers\/species-information, \/minnesota-wildflowers\/species-information, \/missouri-plants\/species-information, and \/prairie-moon\/species-information.\n')
 
 
 /**
@@ -3476,12 +3475,12 @@ export const GetIllinoisWildflowersSpeciesTextResponse = zod.object({
 
 
 
-export const GetMinnesotaWildflowersQueryParams = zod.object({
+export const GetMinnesotaWildflowersUrlQueryParams = zod.object({
   "species": zod.string().min(1).describe('Scientific name (e.g. Acer rubrum)')
 })
 
-export const GetMinnesotaWildflowersResponse = zod.object({
-  "found": zod.boolean().describe('True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants), which return a search_url instead.\n'),
+export const GetMinnesotaWildflowersUrlResponse = zod.object({
+  "found": zod.boolean().describe('True if a direct species page URL was resolved.'),
   "queried_at": zod.date(),
   "source_url": zod.string().optional(),
   "provenance": zod.object({
@@ -3494,13 +3493,9 @@ export const GetMinnesotaWildflowersResponse = zod.object({
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
 }).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
   "data": zod.object({
-  "species": zod.string().optional().describe('The species name as queried'),
-  "url": zod.string().nullish().describe('Direct species page URL. Null when only a search URL is available.'),
-  "search_url": zod.string().optional().describe('Search URL when a direct profile URL cannot be constructed (usda-plants). Present instead of url for these sources.\n'),
-  "validation_method": zod.string().optional().describe('How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable'),
-  "note": zod.string().optional().describe('Explanatory note when validation_method is not_resolvable')
-}).nullish().describe('Present when found=true (or when a search_url is returned). Null when not found.')
-}).describe('Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants).\n')
+  "url": zod.string().nullish().describe('Direct species page URL. Null when not found.')
+}).nullish().describe('Present when found=true. Null when not found.')
+}).describe('Response shape for botanical web reference source URL lookup endpoints (gobotany\/url, minnesota-wildflowers\/url, missouri-plants\/url, prairie-moon\/url). Illinois Wildflowers uses its own inline schema due to its multi-URL structure.\n')
 
 
 /**
@@ -3539,18 +3534,17 @@ export const GetMinnesotaWildflowersMetadataResponse = zod.object({
 
 
 
-export const GetMinnesotaWildflowersSpeciesTextQueryParams = zod.object({
+export const GetMinnesotaWildflowersSpeciesInformationQueryParams = zod.object({
   "species": zod.string().min(1).describe('Scientific name (e.g. Acer rubrum)'),
   "refresh": zod.enum(['true', 'false']).optional().describe('If \"true\", bypass cache and re-scrape the live page')
 })
 
-export const GetMinnesotaWildflowersSpeciesTextResponse = zod.object({
+export const GetMinnesotaWildflowersSpeciesInformationResponse = zod.object({
   "found": zod.boolean().describe('True if the species page was found and text was extracted.'),
   "queried_at": zod.date(),
   "source_url": zod.string().optional().describe('The API endpoint URL that served this response.'),
   "cache_status": zod.enum(['hit', 'miss', 'not_in_species_list']).describe('\"hit\" — returned from cache. \"miss\" — live scrape performed and cached. \"not_in_species_list\" — species URL not in the imported species list; scrape skipped.\n'),
   "fetch_error": zod.string().optional().describe('Present only when a transient upstream error (network failure, timeout, 5xx) prevented the scrape. The result was NOT cached in this case and the next call will retry the live request.\n'),
-  "scraped_at": zod.date().optional().describe('Timestamp of when the text was originally scraped.'),
   "provenance": zod.object({
   "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
@@ -3561,12 +3555,10 @@ export const GetMinnesotaWildflowersSpeciesTextResponse = zod.object({
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
 }).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
   "data": zod.object({
-  "species": zod.string().optional().describe('The species name as queried.'),
-  "url": zod.string().optional().describe('The page URL that was scraped.'),
   "sections": zod.record(zod.string(), zod.string()).nullish().describe('Labeled prose sections extracted from the page (e.g. Description, Cultivation, Facts, Habitat). Keys are section names, values are plain text content.\n'),
   "full_text": zod.string().nullish().describe('All sections concatenated as Label-colon-text blocks, separated by double newlines.\n')
 }).nullish().describe('Present when found=true. Null when not found.')
-}).describe('Response shape for species page text scraping endpoints. Returned by \/gobotany\/species-text, \/illinois-wildflowers\/species-text, \/minnesota-wildflowers\/species-text, \/missouri-plants\/species-text, and \/prairie-moon\/species-text.\n')
+}).describe('Response shape for species page text scraping endpoints. Returned by \/gobotany\/species-information, \/illinois-wildflowers\/species-information, \/minnesota-wildflowers\/species-information, \/missouri-plants\/species-information, and \/prairie-moon\/species-information.\n')
 
 
 /**
@@ -3577,12 +3569,12 @@ export const GetMinnesotaWildflowersSpeciesTextResponse = zod.object({
 
 
 
-export const GetMissouriPlantsQueryParams = zod.object({
+export const GetMissouriPlantsUrlQueryParams = zod.object({
   "species": zod.string().min(1).describe('Scientific name (e.g. Acer rubrum)')
 })
 
-export const GetMissouriPlantsResponse = zod.object({
-  "found": zod.boolean().describe('True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants), which return a search_url instead.\n'),
+export const GetMissouriPlantsUrlResponse = zod.object({
+  "found": zod.boolean().describe('True if a direct species page URL was resolved.'),
   "queried_at": zod.date(),
   "source_url": zod.string().optional(),
   "provenance": zod.object({
@@ -3595,13 +3587,9 @@ export const GetMissouriPlantsResponse = zod.object({
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
 }).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
   "data": zod.object({
-  "species": zod.string().optional().describe('The species name as queried'),
-  "url": zod.string().nullish().describe('Direct species page URL. Null when only a search URL is available.'),
-  "search_url": zod.string().optional().describe('Search URL when a direct profile URL cannot be constructed (usda-plants). Present instead of url for these sources.\n'),
-  "validation_method": zod.string().optional().describe('How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable'),
-  "note": zod.string().optional().describe('Explanatory note when validation_method is not_resolvable')
-}).nullish().describe('Present when found=true (or when a search_url is returned). Null when not found.')
-}).describe('Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants).\n')
+  "url": zod.string().nullish().describe('Direct species page URL. Null when not found.')
+}).nullish().describe('Present when found=true. Null when not found.')
+}).describe('Response shape for botanical web reference source URL lookup endpoints (gobotany\/url, minnesota-wildflowers\/url, missouri-plants\/url, prairie-moon\/url). Illinois Wildflowers uses its own inline schema due to its multi-URL structure.\n')
 
 
 /**
@@ -3640,18 +3628,17 @@ export const GetMissouriPlantsMetadataResponse = zod.object({
 
 
 
-export const GetMissouriPlantsSpeciesTextQueryParams = zod.object({
+export const GetMissouriPlantsSpeciesInformationQueryParams = zod.object({
   "species": zod.string().min(1).describe('Scientific name (e.g. Acer rubrum)'),
   "refresh": zod.enum(['true', 'false']).optional().describe('If \"true\", bypass cache and re-scrape the live page')
 })
 
-export const GetMissouriPlantsSpeciesTextResponse = zod.object({
+export const GetMissouriPlantsSpeciesInformationResponse = zod.object({
   "found": zod.boolean().describe('True if the species page was found and text was extracted.'),
   "queried_at": zod.date(),
   "source_url": zod.string().optional().describe('The API endpoint URL that served this response.'),
   "cache_status": zod.enum(['hit', 'miss', 'not_in_species_list']).describe('\"hit\" — returned from cache. \"miss\" — live scrape performed and cached. \"not_in_species_list\" — species URL not in the imported species list; scrape skipped.\n'),
   "fetch_error": zod.string().optional().describe('Present only when a transient upstream error (network failure, timeout, 5xx) prevented the scrape. The result was NOT cached in this case and the next call will retry the live request.\n'),
-  "scraped_at": zod.date().optional().describe('Timestamp of when the text was originally scraped.'),
   "provenance": zod.object({
   "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
@@ -3662,12 +3649,10 @@ export const GetMissouriPlantsSpeciesTextResponse = zod.object({
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
 }).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
   "data": zod.object({
-  "species": zod.string().optional().describe('The species name as queried.'),
-  "url": zod.string().optional().describe('The page URL that was scraped.'),
   "sections": zod.record(zod.string(), zod.string()).nullish().describe('Labeled prose sections extracted from the page (e.g. Description, Cultivation, Facts, Habitat). Keys are section names, values are plain text content.\n'),
   "full_text": zod.string().nullish().describe('All sections concatenated as Label-colon-text blocks, separated by double newlines.\n')
 }).nullish().describe('Present when found=true. Null when not found.')
-}).describe('Response shape for species page text scraping endpoints. Returned by \/gobotany\/species-text, \/illinois-wildflowers\/species-text, \/minnesota-wildflowers\/species-text, \/missouri-plants\/species-text, and \/prairie-moon\/species-text.\n')
+}).describe('Response shape for species page text scraping endpoints. Returned by \/gobotany\/species-information, \/illinois-wildflowers\/species-information, \/minnesota-wildflowers\/species-information, \/missouri-plants\/species-information, and \/prairie-moon\/species-information.\n')
 
 
 /**
@@ -3678,12 +3663,12 @@ export const GetMissouriPlantsSpeciesTextResponse = zod.object({
 
 
 
-export const GetPrairieMoonQueryParams = zod.object({
+export const GetPrairieMoonUrlQueryParams = zod.object({
   "species": zod.string().min(1).describe('Scientific name (e.g. Acer rubrum)')
 })
 
-export const GetPrairieMoonResponse = zod.object({
-  "found": zod.boolean().describe('True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants), which return a search_url instead.\n'),
+export const GetPrairieMoonUrlResponse = zod.object({
+  "found": zod.boolean().describe('True if a direct species page URL was resolved.'),
   "queried_at": zod.date(),
   "source_url": zod.string().optional(),
   "provenance": zod.object({
@@ -3696,13 +3681,9 @@ export const GetPrairieMoonResponse = zod.object({
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
 }).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
   "data": zod.object({
-  "species": zod.string().optional().describe('The species name as queried'),
-  "url": zod.string().nullish().describe('Direct species page URL. Null when only a search URL is available.'),
-  "search_url": zod.string().optional().describe('Search URL when a direct profile URL cannot be constructed (usda-plants). Present instead of url for these sources.\n'),
-  "validation_method": zod.string().optional().describe('How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable'),
-  "note": zod.string().optional().describe('Explanatory note when validation_method is not_resolvable')
-}).nullish().describe('Present when found=true (or when a search_url is returned). Null when not found.')
-}).describe('Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants).\n')
+  "url": zod.string().nullish().describe('Direct species page URL. Null when not found.')
+}).nullish().describe('Present when found=true. Null when not found.')
+}).describe('Response shape for botanical web reference source URL lookup endpoints (gobotany\/url, minnesota-wildflowers\/url, missouri-plants\/url, prairie-moon\/url). Illinois Wildflowers uses its own inline schema due to its multi-URL structure.\n')
 
 
 /**
@@ -3741,18 +3722,17 @@ export const GetPrairieMoonMetadataResponse = zod.object({
 
 
 
-export const GetPrairieMoonSpeciesTextQueryParams = zod.object({
+export const GetPrairieMoonSpeciesInformationQueryParams = zod.object({
   "species": zod.string().min(1).describe('Scientific name (e.g. Acer rubrum)'),
   "refresh": zod.enum(['true', 'false']).optional().describe('If \"true\", bypass cache and re-scrape the live page')
 })
 
-export const GetPrairieMoonSpeciesTextResponse = zod.object({
+export const GetPrairieMoonSpeciesInformationResponse = zod.object({
   "found": zod.boolean().describe('True if the species page was found and text was extracted.'),
   "queried_at": zod.date(),
   "source_url": zod.string().optional().describe('The API endpoint URL that served this response.'),
   "cache_status": zod.enum(['hit', 'miss', 'not_in_species_list']).describe('\"hit\" — returned from cache. \"miss\" — live scrape performed and cached. \"not_in_species_list\" — species URL not in the imported species list; scrape skipped.\n'),
   "fetch_error": zod.string().optional().describe('Present only when a transient upstream error (network failure, timeout, 5xx) prevented the scrape. The result was NOT cached in this case and the next call will retry the live request.\n'),
-  "scraped_at": zod.date().optional().describe('Timestamp of when the text was originally scraped.'),
   "provenance": zod.object({
   "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
@@ -3763,12 +3743,10 @@ export const GetPrairieMoonSpeciesTextResponse = zod.object({
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
 }).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
   "data": zod.object({
-  "species": zod.string().optional().describe('The species name as queried.'),
-  "url": zod.string().optional().describe('The page URL that was scraped.'),
   "sections": zod.record(zod.string(), zod.string()).nullish().describe('Labeled prose sections extracted from the page (e.g. Description, Cultivation, Facts, Habitat). Keys are section names, values are plain text content.\n'),
   "full_text": zod.string().nullish().describe('All sections concatenated as Label-colon-text blocks, separated by double newlines.\n')
 }).nullish().describe('Present when found=true. Null when not found.')
-}).describe('Response shape for species page text scraping endpoints. Returned by \/gobotany\/species-text, \/illinois-wildflowers\/species-text, \/minnesota-wildflowers\/species-text, \/missouri-plants\/species-text, and \/prairie-moon\/species-text.\n')
+}).describe('Response shape for species page text scraping endpoints. Returned by \/gobotany\/species-information, \/illinois-wildflowers\/species-information, \/minnesota-wildflowers\/species-information, \/missouri-plants\/species-information, and \/prairie-moon\/species-information.\n')
 
 
 /**
@@ -3979,11 +3957,11 @@ export const GetUsdaPlantsMetadataResponse = zod.object({
 
 
 
-export const GetLadyBirdJohnsonQueryParams = zod.object({
+export const GetLadyBirdJohnsonUrlQueryParams = zod.object({
   "usda_symbol": zod.string().min(1).describe('USDA Plants symbol (e.g. TRGI for Trillium grandiflorum). Obtain via \/usda-plants.')
 })
 
-export const GetLadyBirdJohnsonResponse = zod.object({
+export const GetLadyBirdJohnsonUrlResponse = zod.object({
   "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
   "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
   "pagination": zod.union([zod.object({
@@ -4007,13 +3985,8 @@ export const GetLadyBirdJohnsonResponse = zod.object({
   "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
 }).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
   "data": zod.object({
-  "usda_symbol": zod.string().optional().describe('USDA Plants symbol (uppercased).'),
-  "profile_url": zod.string().nullish().describe('Direct profile URL when found; null when not_found or unverified.'),
-  "status": zod.enum(['found', 'not_found', 'unverified']).optional().describe('\"found\" — HTTP 200 returned. \"not_found\" — 3xx redirect or 4xx returned. \"unverified\" — 5xx or network error; result not cached.\n'),
-  "http_status": zod.number().nullish().describe('HTTP status code returned by the verification request.'),
-  "validation_method": zod.string().optional().describe('Always \"http_get_manual_redirect\" for this endpoint.'),
-  "verified_at": zod.date().nullish().describe('Timestamp when the verification HTTP request was made. Null when status is \"unverified\" (network\/5xx error prevented caching).\n')
-}).optional().describe('Data payload for \/lady-bird-johnson FernsEnvelope data field.')
+  "profile_url": zod.string().nullish().describe('Direct profile URL when found; null when not found or unverified.')
+}).optional().describe('Data payload for \/lady-bird-johnson\/url FernsEnvelope data field.')
 }))
 
 
@@ -4025,12 +3998,12 @@ export const GetLadyBirdJohnsonResponse = zod.object({
 
 
 
-export const GetLadyBirdJohnsonSpeciesTextQueryParams = zod.object({
+export const GetLadyBirdJohnsonSpeciesInformationQueryParams = zod.object({
   "usda_symbol": zod.string().min(1).describe('USDA Plants symbol (e.g. TRGI for Trillium grandiflorum). Obtain via \/usda-plants.'),
   "refresh": zod.enum(['true', 'false']).optional().describe('If \"true\", bypass cache and re-scrape the live page')
 })
 
-export const GetLadyBirdJohnsonSpeciesTextResponse = zod.object({
+export const GetLadyBirdJohnsonSpeciesInformationResponse = zod.object({
   "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
   "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
   "pagination": zod.union([zod.object({
@@ -4054,11 +4027,9 @@ export const GetLadyBirdJohnsonSpeciesTextResponse = zod.object({
   "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
 }).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
   "data": zod.object({
-  "usda_symbol": zod.string().optional().describe('USDA Plants symbol (uppercased).'),
-  "url": zod.string().optional().describe('The profile URL that was scraped.'),
   "sections": zod.record(zod.string(), zod.string()).nullish().describe('Labeled prose sections extracted from the page (h3-delimited). \"Find Seeds or Plants\" and \"Mr. Smarty Plants says\" sections are excluded.\n'),
   "full_text": zod.string().nullish().describe('All sections concatenated as Label-colon-text blocks, separated by double newlines.')
-}).optional().describe('Data payload for \/lady-bird-johnson\/species-text FernsEnvelope data field.')
+}).optional().describe('Data payload for \/lady-bird-johnson\/species-information FernsEnvelope data field.')
 }))
 
 

@@ -6,9 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetMissouriPlantsParams = {
+export type GetGobotanyUrlParams = {
 /**
- * Scientific name (e.g. Acer rubrum)
+ * Binomial scientific name (e.g. Acer rubrum). Genus and species epithet required. Both components must contain only letters.
+
  * @minLength 1
  */
 species: string;

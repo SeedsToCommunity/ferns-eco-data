@@ -5,9 +5,9 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetPrairieMoonSpeciesTextRefresh } from './getPrairieMoonSpeciesTextRefresh';
+import type { GetPrairieMoonSpeciesInformationRefresh } from './getPrairieMoonSpeciesInformationRefresh';
 
-export type GetPrairieMoonSpeciesTextParams = {
+export type GetPrairieMoonSpeciesInformationParams = {
 /**
  * Scientific name (e.g. Acer rubrum)
  * @minLength 1
@@ -16,5 +16,5 @@ species: string;
 /**
  * If "true", bypass cache and re-scrape the live page
  */
-refresh?: GetPrairieMoonSpeciesTextRefresh;
+refresh?: GetPrairieMoonSpeciesInformationRefresh;
 };

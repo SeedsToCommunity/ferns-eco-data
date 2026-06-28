@@ -6,10 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetGobotanySpeciesTextRefresh = typeof GetGobotanySpeciesTextRefresh[keyof typeof GetGobotanySpeciesTextRefresh];
+export type GetGobotanySpeciesInformationRefresh = typeof GetGobotanySpeciesInformationRefresh[keyof typeof GetGobotanySpeciesInformationRefresh];
 
 
-export const GetGobotanySpeciesTextRefresh = {
+export const GetGobotanySpeciesInformationRefresh = {
   true: 'true',
   false: 'false',
 } as const;

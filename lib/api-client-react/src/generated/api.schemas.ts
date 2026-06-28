@@ -1680,10 +1680,6 @@ export type SpeciesTextResponseDataSections = {[key: string]: string} | null;
  * Present when found=true. Null when not found.
  */
 export type SpeciesTextResponseData = {
-  /** The species name as queried. */
-  species?: string;
-  /** The page URL that was scraped. */
-  url?: string;
   /** Labeled prose sections extracted from the page (e.g. Description, Cultivation, Facts, Habitat). Keys are section names, values are plain text content.
  */
   sections?: SpeciesTextResponseDataSections;
@@ -1693,7 +1689,7 @@ export type SpeciesTextResponseData = {
 } | null;
 
 /**
- * Response shape for species page text scraping endpoints. Returned by /gobotany/species-text, /illinois-wildflowers/species-text, /minnesota-wildflowers/species-text, /missouri-plants/species-text, and /prairie-moon/species-text.
+ * Response shape for species page text scraping endpoints. Returned by /gobotany/species-information, /illinois-wildflowers/species-information, /minnesota-wildflowers/species-information, /missouri-plants/species-information, and /prairie-moon/species-information.
 
  */
 export interface SpeciesTextResponse {
@@ -1708,44 +1704,17 @@ export interface SpeciesTextResponse {
   /** Present only when a transient upstream error (network failure, timeout, 5xx) prevented the scrape. The result was NOT cached in this case and the next call will retry the live request.
  */
   fetch_error?: string;
-  /** Timestamp of when the text was originally scraped. */
-  scraped_at?: string;
   provenance?: FernsProvenance;
   /** Present when found=true. Null when not found. */
   data?: SpeciesTextResponseData;
 }
 
 /**
- * "found" — HTTP 200 returned. "not_found" — 3xx redirect or 4xx returned. "unverified" — 5xx or network error; result not cached.
-
- */
-export type LbjUrlCheckDataStatus = typeof LbjUrlCheckDataStatus[keyof typeof LbjUrlCheckDataStatus];
-
-
-export const LbjUrlCheckDataStatus = {
-  found: 'found',
-  not_found: 'not_found',
-  unverified: 'unverified',
-} as const;
-
-/**
- * Data payload for /lady-bird-johnson FernsEnvelope data field.
+ * Data payload for /lady-bird-johnson/url FernsEnvelope data field.
  */
 export interface LbjUrlCheckData {
-  /** USDA Plants symbol (uppercased). */
-  usda_symbol?: string;
-  /** Direct profile URL when found; null when not_found or unverified. */
+  /** Direct profile URL when found; null when not found or unverified. */
   profile_url?: string | null;
-  /** "found" — HTTP 200 returned. "not_found" — 3xx redirect or 4xx returned. "unverified" — 5xx or network error; result not cached.
- */
-  status?: LbjUrlCheckDataStatus;
-  /** HTTP status code returned by the verification request. */
-  http_status?: number | null;
-  /** Always "http_get_manual_redirect" for this endpoint. */
-  validation_method?: string;
-  /** Timestamp when the verification HTTP request was made. Null when status is "unverified" (network/5xx error prevented caching).
- */
-  verified_at?: string | null;
 }
 
 /**
@@ -1763,13 +1732,9 @@ export type LbjUrlCheckResponse = FernsEnvelope & {
 export type LbjSpeciesTextDataSections = {[key: string]: string} | null;
 
 /**
- * Data payload for /lady-bird-johnson/species-text FernsEnvelope data field.
+ * Data payload for /lady-bird-johnson/species-information FernsEnvelope data field.
  */
 export interface LbjSpeciesTextData {
-  /** USDA Plants symbol (uppercased). */
-  usda_symbol?: string;
-  /** The profile URL that was scraped. */
-  url?: string;
   /** Labeled prose sections extracted from the page (h3-delimited). "Find Seeds or Plants" and "Mr. Smarty Plants says" sections are excluded.
  */
   sections?: LbjSpeciesTextDataSections;
@@ -1786,34 +1751,24 @@ export type LbjSpeciesTextResponse = FernsEnvelope & {
 };
 
 /**
- * Present when found=true (or when a search_url is returned). Null when not found.
+ * Present when found=true. Null when not found.
  */
 export type BotanicalWebRefResponseData = {
-  /** The species name as queried */
-  species?: string;
-  /** Direct species page URL. Null when only a search URL is available. */
+  /** Direct species page URL. Null when not found. */
   url?: string | null;
-  /** Search URL when a direct profile URL cannot be constructed (usda-plants). Present instead of url for these sources.
- */
-  search_url?: string;
-  /** How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable */
-  validation_method?: string;
-  /** Explanatory note when validation_method is not_resolvable */
-  note?: string;
 } | null;
 
 /**
- * Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants).
+ * Response shape for botanical web reference source URL lookup endpoints (gobotany/url, minnesota-wildflowers/url, missouri-plants/url, prairie-moon/url). Illinois Wildflowers uses its own inline schema due to its multi-URL structure.
 
  */
 export interface BotanicalWebRefResponse {
-  /** True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants), which return a search_url instead.
- */
+  /** True if a direct species page URL was resolved. */
   found: boolean;
   queried_at: string;
   source_url?: string;
   provenance?: FernsProvenance;
-  /** Present when found=true (or when a search_url is returned). Null when not found. */
+  /** Present when found=true. Null when not found. */
   data?: BotanicalWebRefResponseData;
 }
 
@@ -3455,7 +3410,7 @@ export const GetNatureserveSearchProvenanceVerbosity = {
   none: 'none',
 } as const;
 
-export type GetGobotanyParams = {
+export type GetGobotanyUrlParams = {
 /**
  * Binomial scientific name (e.g. Acer rubrum). Genus and species epithet required. Both components must contain only letters.
 
@@ -3464,7 +3419,7 @@ export type GetGobotanyParams = {
 species: string;
 };
 
-export type GetGobotanySpeciesTextParams = {
+export type GetGobotanySpeciesInformationParams = {
 /**
  * Binomial scientific name (e.g. Acer rubrum)
  * @minLength 1
@@ -3473,13 +3428,13 @@ species: string;
 /**
  * If "true", bypass cache and re-scrape the live page
  */
-refresh?: GetGobotanySpeciesTextRefresh;
+refresh?: GetGobotanySpeciesInformationRefresh;
 };
 
-export type GetGobotanySpeciesTextRefresh = typeof GetGobotanySpeciesTextRefresh[keyof typeof GetGobotanySpeciesTextRefresh];
+export type GetGobotanySpeciesInformationRefresh = typeof GetGobotanySpeciesInformationRefresh[keyof typeof GetGobotanySpeciesInformationRefresh];
 
 
-export const GetGobotanySpeciesTextRefresh = {
+export const GetGobotanySpeciesInformationRefresh = {
   true: 'true',
   false: 'false',
 } as const;
@@ -3500,7 +3455,7 @@ export type GetGoogleImagesMetadata200 = FernsEnvelope & {
   data?: SourceMetadataData;
 };
 
-export type GetIllinoisWildflowersParams = {
+export type GetIllinoisWildflowersUrlParams = {
 /**
  * Scientific name (e.g. Acer rubrum)
  * @minLength 1
@@ -3508,7 +3463,27 @@ export type GetIllinoisWildflowersParams = {
 species: string;
 };
 
-export type GetIllinoisWildflowersSpeciesTextParams = {
+export type GetIllinoisWildflowersUrl200DataResultsItem = {
+  /** Direct species page URL for this section. */
+  url: string;
+  /** Section name (e.g. prairie, woodland, wetland). */
+  section: string;
+};
+
+/**
+ * Present when found=true. Null when not found.
+ */
+export type GetIllinoisWildflowersUrl200Data = {
+  /** One entry per Illinois Wildflowers section page for this species. */
+  results?: GetIllinoisWildflowersUrl200DataResultsItem[];
+} | null;
+
+export type GetIllinoisWildflowersUrl200 = FernsEnvelope & {
+  /** Present when found=true. Null when not found. */
+  data?: GetIllinoisWildflowersUrl200Data;
+};
+
+export type GetIllinoisWildflowersSpeciesInformationParams = {
 /**
  * Scientific name (e.g. Acer rubrum)
  * @minLength 1
@@ -3517,18 +3492,18 @@ species: string;
 /**
  * If "true", bypass cache and re-scrape the live page
  */
-refresh?: GetIllinoisWildflowersSpeciesTextRefresh;
+refresh?: GetIllinoisWildflowersSpeciesInformationRefresh;
 };
 
-export type GetIllinoisWildflowersSpeciesTextRefresh = typeof GetIllinoisWildflowersSpeciesTextRefresh[keyof typeof GetIllinoisWildflowersSpeciesTextRefresh];
+export type GetIllinoisWildflowersSpeciesInformationRefresh = typeof GetIllinoisWildflowersSpeciesInformationRefresh[keyof typeof GetIllinoisWildflowersSpeciesInformationRefresh];
 
 
-export const GetIllinoisWildflowersSpeciesTextRefresh = {
+export const GetIllinoisWildflowersSpeciesInformationRefresh = {
   true: 'true',
   false: 'false',
 } as const;
 
-export type GetMinnesotaWildflowersParams = {
+export type GetMinnesotaWildflowersUrlParams = {
 /**
  * Scientific name (e.g. Acer rubrum)
  * @minLength 1
@@ -3536,7 +3511,7 @@ export type GetMinnesotaWildflowersParams = {
 species: string;
 };
 
-export type GetMinnesotaWildflowersSpeciesTextParams = {
+export type GetMinnesotaWildflowersSpeciesInformationParams = {
 /**
  * Scientific name (e.g. Acer rubrum)
  * @minLength 1
@@ -3545,18 +3520,18 @@ species: string;
 /**
  * If "true", bypass cache and re-scrape the live page
  */
-refresh?: GetMinnesotaWildflowersSpeciesTextRefresh;
+refresh?: GetMinnesotaWildflowersSpeciesInformationRefresh;
 };
 
-export type GetMinnesotaWildflowersSpeciesTextRefresh = typeof GetMinnesotaWildflowersSpeciesTextRefresh[keyof typeof GetMinnesotaWildflowersSpeciesTextRefresh];
+export type GetMinnesotaWildflowersSpeciesInformationRefresh = typeof GetMinnesotaWildflowersSpeciesInformationRefresh[keyof typeof GetMinnesotaWildflowersSpeciesInformationRefresh];
 
 
-export const GetMinnesotaWildflowersSpeciesTextRefresh = {
+export const GetMinnesotaWildflowersSpeciesInformationRefresh = {
   true: 'true',
   false: 'false',
 } as const;
 
-export type GetMissouriPlantsParams = {
+export type GetMissouriPlantsUrlParams = {
 /**
  * Scientific name (e.g. Acer rubrum)
  * @minLength 1
@@ -3564,7 +3539,7 @@ export type GetMissouriPlantsParams = {
 species: string;
 };
 
-export type GetMissouriPlantsSpeciesTextParams = {
+export type GetMissouriPlantsSpeciesInformationParams = {
 /**
  * Scientific name (e.g. Acer rubrum)
  * @minLength 1
@@ -3573,18 +3548,18 @@ species: string;
 /**
  * If "true", bypass cache and re-scrape the live page
  */
-refresh?: GetMissouriPlantsSpeciesTextRefresh;
+refresh?: GetMissouriPlantsSpeciesInformationRefresh;
 };
 
-export type GetMissouriPlantsSpeciesTextRefresh = typeof GetMissouriPlantsSpeciesTextRefresh[keyof typeof GetMissouriPlantsSpeciesTextRefresh];
+export type GetMissouriPlantsSpeciesInformationRefresh = typeof GetMissouriPlantsSpeciesInformationRefresh[keyof typeof GetMissouriPlantsSpeciesInformationRefresh];
 
 
-export const GetMissouriPlantsSpeciesTextRefresh = {
+export const GetMissouriPlantsSpeciesInformationRefresh = {
   true: 'true',
   false: 'false',
 } as const;
 
-export type GetPrairieMoonParams = {
+export type GetPrairieMoonUrlParams = {
 /**
  * Scientific name (e.g. Acer rubrum)
  * @minLength 1
@@ -3592,7 +3567,7 @@ export type GetPrairieMoonParams = {
 species: string;
 };
 
-export type GetPrairieMoonSpeciesTextParams = {
+export type GetPrairieMoonSpeciesInformationParams = {
 /**
  * Scientific name (e.g. Acer rubrum)
  * @minLength 1
@@ -3601,13 +3576,13 @@ species: string;
 /**
  * If "true", bypass cache and re-scrape the live page
  */
-refresh?: GetPrairieMoonSpeciesTextRefresh;
+refresh?: GetPrairieMoonSpeciesInformationRefresh;
 };
 
-export type GetPrairieMoonSpeciesTextRefresh = typeof GetPrairieMoonSpeciesTextRefresh[keyof typeof GetPrairieMoonSpeciesTextRefresh];
+export type GetPrairieMoonSpeciesInformationRefresh = typeof GetPrairieMoonSpeciesInformationRefresh[keyof typeof GetPrairieMoonSpeciesInformationRefresh];
 
 
-export const GetPrairieMoonSpeciesTextRefresh = {
+export const GetPrairieMoonSpeciesInformationRefresh = {
   true: 'true',
   false: 'false',
 } as const;
@@ -3664,7 +3639,7 @@ export const GetUsdaPlantsSearchField = {
   Family: 'Family',
 } as const;
 
-export type GetLadyBirdJohnsonParams = {
+export type GetLadyBirdJohnsonUrlParams = {
 /**
  * USDA Plants symbol (e.g. TRGI for Trillium grandiflorum). Obtain via /usda-plants.
  * @minLength 1
@@ -3672,11 +3647,11 @@ export type GetLadyBirdJohnsonParams = {
 usda_symbol: string;
 };
 
-export type GetLadyBirdJohnson200 = FernsEnvelope & {
+export type GetLadyBirdJohnsonUrl200 = FernsEnvelope & {
   data?: LbjUrlCheckData;
 };
 
-export type GetLadyBirdJohnsonSpeciesTextParams = {
+export type GetLadyBirdJohnsonSpeciesInformationParams = {
 /**
  * USDA Plants symbol (e.g. TRGI for Trillium grandiflorum). Obtain via /usda-plants.
  * @minLength 1
@@ -3685,18 +3660,18 @@ usda_symbol: string;
 /**
  * If "true", bypass cache and re-scrape the live page
  */
-refresh?: GetLadyBirdJohnsonSpeciesTextRefresh;
+refresh?: GetLadyBirdJohnsonSpeciesInformationRefresh;
 };
 
-export type GetLadyBirdJohnsonSpeciesTextRefresh = typeof GetLadyBirdJohnsonSpeciesTextRefresh[keyof typeof GetLadyBirdJohnsonSpeciesTextRefresh];
+export type GetLadyBirdJohnsonSpeciesInformationRefresh = typeof GetLadyBirdJohnsonSpeciesInformationRefresh[keyof typeof GetLadyBirdJohnsonSpeciesInformationRefresh];
 
 
-export const GetLadyBirdJohnsonSpeciesTextRefresh = {
+export const GetLadyBirdJohnsonSpeciesInformationRefresh = {
   true: 'true',
   false: 'false',
 } as const;
 
-export type GetLadyBirdJohnsonSpeciesText200 = FernsEnvelope & {
+export type GetLadyBirdJohnsonSpeciesInformation200 = FernsEnvelope & {
   data?: LbjSpeciesTextData;
 };
 

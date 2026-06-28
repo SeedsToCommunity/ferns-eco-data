@@ -6,7 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetPrairieMoonParams = {
+export type GetPrairieMoonUrlParams = {
 /**
  * Scientific name (e.g. Acer rubrum)
  * @minLength 1

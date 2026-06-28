@@ -11,10 +11,6 @@ import type { SpeciesTextResponseDataSections } from './speciesTextResponseDataS
  * Present when found=true. Null when not found.
  */
 export type SpeciesTextResponseData = {
-  /** The species name as queried. */
-  species?: string;
-  /** The page URL that was scraped. */
-  url?: string;
   /** Labeled prose sections extracted from the page (e.g. Description, Cultivation, Facts, Habitat). Keys are section names, values are plain text content.
  */
   sections?: SpeciesTextResponseDataSections;

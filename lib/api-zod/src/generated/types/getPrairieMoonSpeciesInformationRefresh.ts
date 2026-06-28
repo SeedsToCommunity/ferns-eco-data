@@ -6,10 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetLadyBirdJohnsonSpeciesTextRefresh = typeof GetLadyBirdJohnsonSpeciesTextRefresh[keyof typeof GetLadyBirdJohnsonSpeciesTextRefresh];
+export type GetPrairieMoonSpeciesInformationRefresh = typeof GetPrairieMoonSpeciesInformationRefresh[keyof typeof GetPrairieMoonSpeciesInformationRefresh];
 
 
-export const GetLadyBirdJohnsonSpeciesTextRefresh = {
+export const GetPrairieMoonSpeciesInformationRefresh = {
   true: 'true',
   false: 'false',
 } as const;

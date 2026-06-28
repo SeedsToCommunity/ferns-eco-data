@@ -9,16 +9,15 @@ import type { BotanicalWebRefResponseData } from './botanicalWebRefResponseData'
 import type { FernsProvenance } from './fernsProvenance';
 
 /**
- * Standard response shape for botanical web reference source lookups (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers, missouri-plants, prairie-moon, usda-plants).
+ * Response shape for botanical web reference source URL lookup endpoints (gobotany/url, minnesota-wildflowers/url, missouri-plants/url, prairie-moon/url). Illinois Wildflowers uses its own inline schema due to its multi-URL structure.
 
  */
 export interface BotanicalWebRefResponse {
-  /** True if a direct species page URL was resolved. False for sources that cannot resolve a profile URL (usda-plants), which return a search_url instead.
- */
+  /** True if a direct species page URL was resolved. */
   found: boolean;
   queried_at: Date;
   source_url?: string;
   provenance?: FernsProvenance;
-  /** Present when found=true (or when a search_url is returned). Null when not found. */
+  /** Present when found=true. Null when not found. */
   data?: BotanicalWebRefResponseData;
 }

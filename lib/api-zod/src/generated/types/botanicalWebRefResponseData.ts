@@ -7,18 +7,9 @@
  */
 
 /**
- * Present when found=true (or when a search_url is returned). Null when not found.
+ * Present when found=true. Null when not found.
  */
 export type BotanicalWebRefResponseData = {
-  /** The species name as queried */
-  species?: string;
-  /** Direct species page URL. Null when only a search URL is available. */
+  /** Direct species page URL. Null when not found. */
   url?: string | null;
-  /** Search URL when a direct profile URL cannot be constructed (usda-plants). Present instead of url for these sources.
- */
-  search_url?: string;
-  /** How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable */
-  validation_method?: string;
-  /** Explanatory note when validation_method is not_resolvable */
-  note?: string;
 } | null;

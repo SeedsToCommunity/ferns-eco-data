@@ -6,8 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { FernsEnvelope } from './fernsEnvelope';
-import type { LbjSpeciesTextData } from './lbjSpeciesTextData';
+import type { LbjUrlCheckData } from './lbjUrlCheckData';
 
-export type GetLadyBirdJohnsonSpeciesText200 = FernsEnvelope & {
-  data?: LbjSpeciesTextData;
+export type GetLadyBirdJohnsonUrl200 = FernsEnvelope & {
+  data?: LbjUrlCheckData;
 };

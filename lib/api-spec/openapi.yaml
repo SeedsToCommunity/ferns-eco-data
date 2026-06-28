@@ -3433,9 +3433,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /gobotany:
+  /gobotany/url:
     get:
-      operationId: getGobotany
+      operationId: getGobotanyUrl
       tags: [gobotany]
       summary: Look up a Go Botany species page URL
       description: >
@@ -3484,9 +3484,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/BotanicalWebRefMetadataResponse"
 
-  /gobotany/species-text:
+  /gobotany/species-information:
     get:
-      operationId: getGobotanySpeciesText
+      operationId: getGobotanySpeciesInformation
       tags: [gobotany]
       summary: Scrape and return species page text from Go Botany
       description: >
@@ -3585,9 +3585,9 @@ paths:
                       data:
                         $ref: "#/components/schemas/SourceMetadataData"
 
-  /illinois-wildflowers:
+  /illinois-wildflowers/url:
     get:
-      operationId: getIllinoisWildflowers
+      operationId: getIllinoisWildflowersUrl
       tags: [illinois-wildflowers]
       summary: Look up an Illinois Wildflowers species page URL
       description: >
@@ -3610,7 +3610,28 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BotanicalWebRefResponse"
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        nullable: true
+                        type: object
+                        description: Present when found=true. Null when not found.
+                        properties:
+                          results:
+                            type: array
+                            description: One entry per Illinois Wildflowers section page for this species.
+                            items:
+                              type: object
+                              required: [url, section]
+                              properties:
+                                url:
+                                  type: string
+                                  description: Direct species page URL for this section.
+                                section:
+                                  type: string
+                                  description: Section name (e.g. prairie, woodland, wetland).
         "400":
           description: Missing species parameter
           content:
@@ -3634,9 +3655,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/BotanicalWebRefMetadataResponse"
 
-  /illinois-wildflowers/species-text:
+  /illinois-wildflowers/species-information:
     get:
-      operationId: getIllinoisWildflowersSpeciesText
+      operationId: getIllinoisWildflowersSpeciesInformation
       tags: [illinois-wildflowers]
       summary: Scrape and return species page text from Illinois Wildflowers
       description: >
@@ -3675,9 +3696,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /minnesota-wildflowers:
+  /minnesota-wildflowers/url:
     get:
-      operationId: getMinnesotaWildflowers
+      operationId: getMinnesotaWildflowersUrl
       tags: [minnesota-wildflowers]
       summary: Look up a Minnesota Wildflowers species page URL
       description: >
@@ -3722,9 +3743,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/BotanicalWebRefMetadataResponse"
 
-  /minnesota-wildflowers/species-text:
+  /minnesota-wildflowers/species-information:
     get:
-      operationId: getMinnesotaWildflowersSpeciesText
+      operationId: getMinnesotaWildflowersSpeciesInformation
       tags: [minnesota-wildflowers]
       summary: Scrape and return species page text from Minnesota Wildflowers
       description: >
@@ -3763,9 +3784,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /missouri-plants:
+  /missouri-plants/url:
     get:
-      operationId: getMissouriPlants
+      operationId: getMissouriPlantsUrl
       tags: [missouri-plants]
       summary: Look up a Missouri Plants species page URL
       description: >
@@ -3810,9 +3831,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/BotanicalWebRefMetadataResponse"
 
-  /missouri-plants/species-text:
+  /missouri-plants/species-information:
     get:
-      operationId: getMissouriPlantsSpeciesText
+      operationId: getMissouriPlantsSpeciesInformation
       tags: [missouri-plants]
       summary: Scrape and return species page text from Missouri Plants
       description: >
@@ -3851,9 +3872,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /prairie-moon:
+  /prairie-moon/url:
     get:
-      operationId: getPrairieMoon
+      operationId: getPrairieMoonUrl
       tags: [prairie-moon]
       summary: Look up a Prairie Moon Nursery species page URL
       description: >
@@ -3899,9 +3920,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/BotanicalWebRefMetadataResponse"
 
-  /prairie-moon/species-text:
+  /prairie-moon/species-information:
     get:
-      operationId: getPrairieMoonSpeciesText
+      operationId: getPrairieMoonSpeciesInformation
       tags: [prairie-moon]
       summary: Scrape and return species page text from Prairie Moon Nursery
       description: >
@@ -4107,9 +4128,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/UsdaPlantsMetadataResponse"
 
-  /lady-bird-johnson:
+  /lady-bird-johnson/url:
     get:
-      operationId: getLadyBirdJohnson
+      operationId: getLadyBirdJohnsonUrl
       tags: [lady-bird-johnson]
       summary: Verify a Lady Bird Johnson Wildflower Center species profile URL from a USDA Plants symbol
       description: >
@@ -4146,9 +4167,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /lady-bird-johnson/species-text:
+  /lady-bird-johnson/species-information:
     get:
-      operationId: getLadyBirdJohnsonSpeciesText
+      operationId: getLadyBirdJohnsonSpeciesInformation
       tags: [lady-bird-johnson]
       summary: Scrape and return species page text from Lady Bird Johnson Wildflower Center
       description: >
@@ -7412,9 +7433,9 @@ components:
       type: object
       description: >
         Response shape for species page text scraping endpoints. Returned by
-        /gobotany/species-text, /illinois-wildflowers/species-text,
-        /minnesota-wildflowers/species-text, /missouri-plants/species-text,
-        and /prairie-moon/species-text.
+        /gobotany/species-information, /illinois-wildflowers/species-information,
+        /minnesota-wildflowers/species-information, /missouri-plants/species-information,
+        and /prairie-moon/species-information.
       required:
         - found
         - queried_at
@@ -7442,10 +7463,6 @@ components:
             Present only when a transient upstream error (network failure,
             timeout, 5xx) prevented the scrape. The result was NOT cached
             in this case and the next call will retry the live request.
-        scraped_at:
-          type: string
-          format: date-time
-          description: Timestamp of when the text was originally scraped.
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
         data:
@@ -7453,12 +7470,6 @@ components:
           type: object
           description: Present when found=true. Null when not found.
           properties:
-            species:
-              type: string
-              description: The species name as queried.
-            url:
-              type: string
-              description: The page URL that was scraped.
             sections:
               type: object
               nullable: true
@@ -7476,35 +7487,12 @@ components:
 
     LbjUrlCheckData:
       type: object
-      description: Data payload for /lady-bird-johnson FernsEnvelope data field.
+      description: Data payload for /lady-bird-johnson/url FernsEnvelope data field.
       properties:
-        usda_symbol:
-          type: string
-          description: USDA Plants symbol (uppercased).
         profile_url:
           type: string
           nullable: true
-          description: Direct profile URL when found; null when not_found or unverified.
-        status:
-          type: string
-          enum: [found, not_found, unverified]
-          description: >
-            "found" — HTTP 200 returned. "not_found" — 3xx redirect or 4xx returned.
-            "unverified" — 5xx or network error; result not cached.
-        http_status:
-          type: integer
-          nullable: true
-          description: HTTP status code returned by the verification request.
-        validation_method:
-          type: string
-          description: Always "http_get_manual_redirect" for this endpoint.
-        verified_at:
-          type: string
-          format: date-time
-          nullable: true
-          description: >
-            Timestamp when the verification HTTP request was made.
-            Null when status is "unverified" (network/5xx error prevented caching).
+          description: Direct profile URL when found; null when not found or unverified.
 
     LbjUrlCheckResponse:
       description: >
@@ -7518,14 +7506,8 @@ components:
 
     LbjSpeciesTextData:
       type: object
-      description: Data payload for /lady-bird-johnson/species-text FernsEnvelope data field.
+      description: Data payload for /lady-bird-johnson/species-information FernsEnvelope data field.
       properties:
-        usda_symbol:
-          type: string
-          description: USDA Plants symbol (uppercased).
-        url:
-          type: string
-          description: The profile URL that was scraped.
         sections:
           type: object
           nullable: true
@@ -7553,19 +7535,16 @@ components:
     BotanicalWebRefResponse:
       type: object
       description: >
-        Standard response shape for botanical web reference source lookups
-        (gobotany, google-images, illinois-wildflowers, minnesota-wildflowers,
-        missouri-plants, prairie-moon, usda-plants).
+        Response shape for botanical web reference source URL lookup endpoints
+        (gobotany/url, minnesota-wildflowers/url, missouri-plants/url, prairie-moon/url).
+        Illinois Wildflowers uses its own inline schema due to its multi-URL structure.
       required:
         - found
         - queried_at
       properties:
         found:
           type: boolean
-          description: >
-            True if a direct species page URL was resolved. False for sources
-            that cannot resolve a profile URL (usda-plants),
-            which return a search_url instead.
+          description: True if a direct species page URL was resolved.
         queried_at:
           type: string
           format: date-time
@@ -7576,26 +7555,12 @@ components:
         data:
           nullable: true
           type: object
-          description: Present when found=true (or when a search_url is returned). Null when not found.
+          description: Present when found=true. Null when not found.
           properties:
-            species:
-              type: string
-              description: The species name as queried
             url:
               type: string
               nullable: true
-              description: Direct species page URL. Null when only a search URL is available.
-            search_url:
-              type: string
-              description: >
-                Search URL when a direct profile URL cannot be constructed
-                (usda-plants). Present instead of url for these sources.
-            validation_method:
-              type: string
-              description: "How the URL was validated: http_get | species_list_lookup | direct_construction | not_resolvable"
-            note:
-              type: string
-              description: Explanatory note when validation_method is not_resolvable
+              description: Direct species page URL. Null when not found.
 
     BotanicalWebRefMetadataResponse:
       type: object

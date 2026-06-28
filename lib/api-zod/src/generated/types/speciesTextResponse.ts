@@ -10,7 +10,7 @@ import type { SpeciesTextResponseCacheStatus } from './speciesTextResponseCacheS
 import type { SpeciesTextResponseData } from './speciesTextResponseData';
 
 /**
- * Response shape for species page text scraping endpoints. Returned by /gobotany/species-text, /illinois-wildflowers/species-text, /minnesota-wildflowers/species-text, /missouri-plants/species-text, and /prairie-moon/species-text.
+ * Response shape for species page text scraping endpoints. Returned by /gobotany/species-information, /illinois-wildflowers/species-information, /minnesota-wildflowers/species-information, /missouri-plants/species-information, and /prairie-moon/species-information.
 
  */
 export interface SpeciesTextResponse {
@@ -25,8 +25,6 @@ export interface SpeciesTextResponse {
   /** Present only when a transient upstream error (network failure, timeout, 5xx) prevented the scrape. The result was NOT cached in this case and the next call will retry the live request.
  */
   fetch_error?: string;
-  /** Timestamp of when the text was originally scraped. */
-  scraped_at?: Date;
   provenance?: FernsProvenance;
   /** Present when found=true. Null when not found. */
   data?: SpeciesTextResponseData;
