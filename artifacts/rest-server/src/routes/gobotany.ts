@@ -61,7 +61,7 @@ router.get("/gobotany/metadata", async (req, res) => {
   res.json(envelope);
 });
 
-router.get("/gobotany", async (req, res) => {
+router.get("/gobotany/url", async (req, res) => {
   await ensureGobotanyRegistryEntry();
 
   const speciesParam =
@@ -150,7 +150,7 @@ router.get("/gobotany", async (req, res) => {
   res.json(envelope);
 });
 
-router.get("/gobotany/species-text", async (req, res) => {
+router.get("/gobotany/species-information", async (req, res) => {
   await ensureGobotanyRegistryEntry();
 
   const speciesParam =

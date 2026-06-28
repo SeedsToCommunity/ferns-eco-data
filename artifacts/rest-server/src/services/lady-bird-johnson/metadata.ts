@@ -19,7 +19,7 @@ export const LADY_BIRD_JOHNSON_GENERAL_SUMMARY =
   "FERNS accepts a USDA Plants symbol (e.g. TRGI) and constructs a direct species profile URL at " +
   "https://www.wildflower.org/plants/result.php?id_plant={SYMBOL}. " +
   "Presence is verified via HTTP (200 = found; redirect = not found); results are cached (90-day TTL for found, 30-day for not found). " +
-  "Species page text is scraped and permanently cached on first request; use the species-text endpoint to retrieve it. " +
+  "Species page text is scraped and permanently cached on first request; use the species-information endpoint to retrieve it. " +
   "Live — verification and scraping are performed at query time; the Wildflower Center database is updated by staff periodically. " +
   "Lady Bird Johnson Wildflower Center covers all North American natives at broad geographic scope; " +
   "it does not provide conservation ranks, C-values, or nursery availability.";
@@ -34,7 +34,7 @@ export const LADY_BIRD_JOHNSON_TECHNICAL_DETAILS =
   "  HTTP 3xx redirect → not_found (cached 30 days). " +
   "  HTTP 4xx → not_found (cached 30 days). " +
   "  HTTP 5xx or network error → unverified (not cached, retry on next call). " +
-  "Species page text: scraped via /lady-bird-johnson/species-text?usda_symbol={SYMBOL}, " +
+  "Species page text: scraped via /lady-bird-johnson/species-information?usda_symbol={SYMBOL}, " +
   "stored in species_page_text_cache (site_id='lady-bird-johnson', scientific_name=SYMBOL_UPPER). " +
   "Permanent text cache (no TTL); use ?refresh=true to re-scrape. " +
   "Scraping uses a browser-like User-Agent (required — site returns 403 to generic UAs). " +
@@ -73,8 +73,8 @@ export const LADY_BIRD_JOHNSON_REGISTRY_ENTRY = {
   technical_details: LADY_BIRD_JOHNSON_TECHNICAL_DETAILS,
   non_passthrough_endpoints: [
     { endpoint: "/api/lady-bird-johnson/metadata", kind: "metadata" },
-    { endpoint: "/api/lady-bird-johnson", kind: "url_lookup" },
-    { endpoint: "/api/lady-bird-johnson/species-text", kind: "scraped_text" },
+    { endpoint: "/api/lady-bird-johnson/url", kind: "url_lookup" },
+    { endpoint: "/api/lady-bird-johnson/species-information", kind: "scraped_text" },
   ],
   permission_granted: true,
   license: "Copyright © Lady Bird Johnson Wildflower Center, The University of Texas at Austin. Publicly accessible for research use. See https://www.wildflower.org/terms",

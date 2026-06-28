@@ -234,8 +234,8 @@ export async function getPrairieMoonUrl(
  * sections and as full text. Commercial metadata (price, availability, SKU,
  * etc.) is excluded from the output.
  *
- * Returns found: false with fetchError: null when the species is not in
- * the imported list (no live request is made in that case).
+ * Returns found: false with url: null when the species is not in the
+ * imported list (no live request is made in that case).
  *
  * Does NOT read or write the species page text cache — that remains in
  * the REST Adapter layer.

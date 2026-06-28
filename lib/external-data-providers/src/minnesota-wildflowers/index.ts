@@ -157,8 +157,8 @@ export async function getMinnesotaWildflowersUrl(
  * and extracts the botanical text from that page, organized into labeled
  * sections and as full text.
  *
- * Returns found: false with fetchError: null when the species is not in
- * the imported list (no live request is made in that case).
+ * Returns found: false with url: null when the species is not in the
+ * imported list (no live request is made in that case).
  *
  * Does NOT read or write the species page text cache — that remains in
  * the REST Adapter layer.

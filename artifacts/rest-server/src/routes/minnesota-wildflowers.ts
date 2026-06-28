@@ -1,8 +1,11 @@
 import { Router, type IRouter } from "express";
-import { db, botanicalSpeciesListsTable } from "@workspace/db";
-import { eq, ilike, and } from "drizzle-orm";
-import { buildEnvelope, type Method, type CacheStatus } from "@workspace/api-envelope";
-import { fetchAndCacheSpeciesText } from "../services/botanical-refs/scraper.js";
+import { db, botanicalSpeciesListsTable, speciesPageTextCacheTable } from "@workspace/db";
+import { eq, and } from "drizzle-orm";
+import { buildEnvelope } from "@workspace/api-envelope";
+import {
+  getMinnesotaWildflowersUrl,
+  getMinnesotaWildflowersSpeciesInformation,
+} from "@workspace/external-data-providers/minnesota-wildflowers";
 import {
   MINNESOTA_WILDFLOWERS_SOURCE_ID,
   MINNESOTA_WILDFLOWERS_LICENSES,
@@ -17,12 +20,6 @@ import { dbRegistryAccessor } from "../lib/registry-accessor.js";
 
 const router: IRouter = Router();
 const SITE_ID = MINNESOTA_WILDFLOWERS_SOURCE_ID;
-
-function mapScrapeStatus(cs: "hit" | "miss" | "not_in_species_list"): [Method, CacheStatus] {
-  if (cs === "hit") return ["cache_hit", "hit"];
-  if (cs === "miss") return ["api_fetch", "miss"];
-  return ["computed", "bypass"];
-}
 
 router.get("/minnesota-wildflowers/metadata", async (req, res) => {
   await ensureMinnesotaWildflowersRegistryEntry();
@@ -56,7 +53,7 @@ router.get("/minnesota-wildflowers/metadata", async (req, res) => {
   res.json(envelope);
 });
 
-router.get("/minnesota-wildflowers", async (req, res) => {
+router.get("/minnesota-wildflowers/url", async (req, res) => {
   await ensureMinnesotaWildflowersRegistryEntry();
 
   const speciesParam = typeof req.query["species"] === "string" ? req.query["species"].trim() : null;
@@ -68,34 +65,17 @@ router.get("/minnesota-wildflowers", async (req, res) => {
     return;
   }
 
-  const rows = await db
-    .select()
-    .from(botanicalSpeciesListsTable)
-    .where(
-      and(
-        eq(botanicalSpeciesListsTable.site_id, SITE_ID),
-        ilike(botanicalSpeciesListsTable.scientific_name, speciesParam),
-      ),
-    )
-    .limit(5);
+  const result = await getMinnesotaWildflowersUrl(speciesParam);
 
-  const found = rows.length > 0;
   const envelope = await buildEnvelope(
     {
       sourceId: SITE_ID,
       sourceKind: "single-source-proxy",
-      found,
-      data: found
-        ? {
-            species: rows[0].scientific_name,
-            url: rows[0].url,
-            validation_method: "species_list_lookup",
-            imported_at: rows[0].imported_at,
-          }
-        : null,
+      found: result.found,
+      data: result.found ? { url: result.url } : null,
       method: "cache_hit",
       cacheStatus: "hit",
-      sourceUrl: found ? rows[0].url : null,
+      sourceUrl: result.url,
       queriedAt: new Date().toISOString(),
     },
     { registry: dbRegistryAccessor },
@@ -103,7 +83,7 @@ router.get("/minnesota-wildflowers", async (req, res) => {
   res.json(envelope);
 });
 
-router.get("/minnesota-wildflowers/species-text", async (req, res) => {
+router.get("/minnesota-wildflowers/species-information", async (req, res) => {
   await ensureMinnesotaWildflowersRegistryEntry();
 
   const speciesParam = typeof req.query["species"] === "string" ? req.query["species"].trim() : null;
@@ -117,46 +97,98 @@ router.get("/minnesota-wildflowers/species-text", async (req, res) => {
     return;
   }
 
-  const rows = await db
-    .select()
-    .from(botanicalSpeciesListsTable)
-    .where(
-      and(
-        eq(botanicalSpeciesListsTable.site_id, SITE_ID),
-        ilike(botanicalSpeciesListsTable.scientific_name, speciesParam),
-      ),
-    )
-    .limit(1);
-
-  const speciesUrl = rows.length > 0 ? rows[0].url : null;
   const cacheKey = speciesParam.toLowerCase();
-  const result = await fetchAndCacheSpeciesText(SITE_ID, cacheKey, speciesUrl, refresh);
 
-  const [method, cacheStatus] = mapScrapeStatus(result.cache_status);
+  if (!refresh) {
+    const cached = await db
+      .select()
+      .from(speciesPageTextCacheTable)
+      .where(
+        and(
+          eq(speciesPageTextCacheTable.site_id, SITE_ID),
+          eq(speciesPageTextCacheTable.scientific_name, cacheKey),
+        ),
+      )
+      .limit(1);
+
+    if (cached.length > 0) {
+      const hit = cached[0];
+      const envelope = await buildEnvelope(
+        {
+          sourceId: SITE_ID,
+          sourceKind: "single-source-proxy",
+          found: hit.found,
+          data: hit.found ? { sections: hit.sections, full_text: hit.full_text } : null,
+          method: "cache_hit",
+          cacheStatus: "hit",
+          sourceUrl: hit.url ?? null,
+          queriedAt: hit.scraped_at.toISOString(),
+          permissionGranted: false,
+        },
+        { registry: dbRegistryAccessor },
+      );
+      res.json(envelope);
+      return;
+    }
+  }
+
+  const result = await getMinnesotaWildflowersSpeciesInformation(speciesParam);
+
+  // Species not in imported list — no HTTP request was made, nothing to cache
+  if (result.url === null) {
+    const envelope = await buildEnvelope(
+      {
+        sourceId: SITE_ID,
+        sourceKind: "single-source-proxy",
+        found: false,
+        data: null,
+        method: "computed",
+        cacheStatus: "bypass",
+        sourceUrl: null,
+        queriedAt: new Date().toISOString(),
+        permissionGranted: false,
+      },
+      { registry: dbRegistryAccessor },
+    );
+    res.json(envelope);
+    return;
+  }
+
+  const fetchedAt = new Date();
+
+  if (result.fetchError === null) {
+    await db
+      .insert(speciesPageTextCacheTable)
+      .values({
+        site_id: SITE_ID,
+        scientific_name: cacheKey,
+        url: result.url,
+        found: result.found,
+        sections: result.sections ?? null,
+        full_text: result.fullText ?? null,
+      })
+      .onConflictDoUpdate({
+        target: [speciesPageTextCacheTable.site_id, speciesPageTextCacheTable.scientific_name],
+        set: {
+          url: result.url,
+          found: result.found,
+          sections: result.sections ?? null,
+          full_text: result.fullText ?? null,
+          scraped_at: fetchedAt,
+        },
+      });
+  }
 
   const envelope = await buildEnvelope(
     {
       sourceId: SITE_ID,
       sourceKind: "single-source-proxy",
       found: result.found,
-      data: result.found
-        ? {
-            species: speciesParam,
-            url: result.url,
-            sections: result.sections,
-            full_text: result.full_text,
-            scraped_at: result.scraped_at instanceof Date
-              ? result.scraped_at.toISOString()
-              : String(result.scraped_at),
-            ...(result.fetch_error ? { fetch_error: result.fetch_error } : {}),
-          }
-        : result.fetch_error
-          ? { species: speciesParam, url: result.url, fetch_error: result.fetch_error }
-          : null,
-      method,
-      cacheStatus,
+      data: result.found ? { sections: result.sections, full_text: result.fullText } : null,
+      method: "api_fetch",
+      cacheStatus: "miss",
       sourceUrl: result.url,
-      queriedAt: new Date().toISOString(),
+      queriedAt: fetchedAt.toISOString(),
       permissionGranted: false,
     },
     { registry: dbRegistryAccessor },

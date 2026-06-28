@@ -27,7 +27,7 @@ export const GOBOTANY_GENERAL_SUMMARY =
   "a 200 HTTP response confirms the species is in the Go Botany database. " +
   "URLs are validated at query time; the Go Botany database is updated periodically by Native Plant Trust staff. " +
   "Taxonomic synonyms not recognized by Go Botany will return 404 even if the species occurs in New England. " +
-  "FERNS also provides a species-text endpoint that fetches and parses the full Go Botany species page HTML, " +
+  "FERNS also provides a species-information endpoint that fetches and parses the full Go Botany species page HTML, " +
   "extracting named prose sections (Facts, Native New England Distribution, Growing Conditions, Similar Plants, and more) " +
   "and caching the result permanently in the local database; the cache can be bypassed with refresh=true.";
 
@@ -42,7 +42,7 @@ export const GOBOTANY_TECHNICAL_DETAILS =
   "No DB table for URL lookup — URL is constructed at query time and validated via HTTP GET; no data is persisted for the base endpoint. " +
   "Coverage: New England vascular plants (native and naturalized) across the six states; Go Botany does not publish a fixed species count. " +
   "Method: direct_construction with HTTP validation. " +
-  "Species-text endpoint: GET /api/gobotany/species-text?species={binomial}&refresh={bool}. " +
+  "Species-information endpoint: GET /api/gobotany/species-information?species={binomial}&refresh={bool}. " +
   "Fetches the Go Botany species page HTML and extracts prose sections using CSS selectors. " +
   "Cache: permanent (no TTL); refresh=true bypasses cache and re-scrapes. " +
   "Envelope: FERNS Envelope Contract v1; permission_granted=false for species-text (scraped_text endpoint).";
@@ -59,7 +59,7 @@ export const GOBOTANY_REGISTRY_ENTRY = {
   input_summary: "Scientific name (binomial: genus + species epithet)",
   output_summary:
     "Direct URL to the Go Botany species profile page and found/not-found status (base endpoint); " +
-    "or parsed prose sections from the species page via provenance envelope (species-text endpoint)",
+    "or parsed prose sections from the species page via provenance envelope (species-information endpoint)",
   dependencies: [] as string[],
   update_frequency:
     "Live — URLs are validated at query time via HTTP. The Go Botany database is updated periodically by Native Plant Trust staff.",
@@ -78,7 +78,8 @@ export const GOBOTANY_REGISTRY_ENTRY = {
   technical_details: GOBOTANY_TECHNICAL_DETAILS,
   non_passthrough_endpoints: [
     { endpoint: "/api/gobotany/metadata", kind: "metadata" },
-    { endpoint: "/api/gobotany/species-text", kind: "scraped_text" },
+    { endpoint: "/api/gobotany/url", kind: "url_lookup" },
+    { endpoint: "/api/gobotany/species-information", kind: "scraped_text" },
   ],
   permission_granted: true,
 };

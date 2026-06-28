@@ -605,3 +605,109 @@ Four External Data Provider modules were created — one each for Illinois Wildf
 - **Multi-section Illinois Wildflowers species:** `getIllinoisWildflowersSpeciesInformation` only fetches the first section's page. Decide whether the REST Adapter (in Task E) should iterate all sections and merge the text, or whether first-section is the intended behavior.
 - **Signature change awareness for Task E:** Task E (REST refactor) must call `getXxxSpeciesInformation(species)` and `getXxxUrl(species)`, not the old `(url)` signatures. The downstream task description should be updated to reflect this.
 
+
+---
+
+## Task #270 — REST Refactor: Species-List Routes (IL, MN, MO, Prairie Moon)
+
+### 1. What was built
+
+Four sets of botanical reference routes — Illinois Wildflowers, Minnesota Wildflowers, Missouri Plants, and Prairie Moon — were cleaned up to follow the same architecture already in place for GoBotany. Previously, these routes bundled the web scrape, cache read, and cache write into a single internal function call (`fetchAndCacheSpeciesText`) and were leaking internal bookkeeping fields (timestamps, validation labels, input echoes) directly into the API response. Now each route explicitly: (1) looks up the species page URL from the database, (2) checks its own cache, (3) calls the dedicated External Data Provider on a cache miss, (4) writes the result back to the cache, and (5) returns only the upstream-derived content to the caller. The API response for each of these sources is now clean — it contains only what the upstream site actually said, nothing FERNS computed or stored for its own purposes.
+
+### 2. Derivation summary
+
+N/A — no new source added.
+
+### 3. Scientific/technical description
+
+N/A — no new source added.
+
+### 4. Architectural decisions made
+
+- **EDP functions now accept a URL, not a species name.** The `getXxxSpeciesInformation` functions in `lib/external-data-providers/` were changed to take a URL string directly rather than a species name. The REST Adapter is now responsible for the database URL lookup and passes only the URL to the EDP. This removes a redundant DB query inside the EDP (which had been doing the same lookup the route was already doing) and makes the boundary clear: the EDP owns fetch + extract; the adapter owns cache and DB. Tradeoff: any non-route consumer of these EDP functions now needs to supply a URL rather than a name — but the URL-returning variants (`getXxxUrl`) are still exported for that purpose.
+
+- **Cache write only on definitive outcomes.** Transient HTTP failures (5xx, network errors) are not cached — matching the existing `fetchAndCacheSpeciesText` contract. Only 200 OK (found) and 404 (definitively absent, `fetchError === null`) are written. This means a flaky upstream never locks a species out of the cache permanently.
+
+- **`queriedAt` on cache hits uses the original fetch timestamp.** On a cache hit, `queriedAt` is set to `hit.scraped_at.toISOString()` — the time the data was first fetched — not the current serve time. This matches the envelope contract and lets consumers judge data age accurately.
+
+- **"Not in species list" handled as an early return before the cache check.** If the species URL lookup returns nothing (species not in the imported list), the route returns immediately with `method: computed, cacheStatus: bypass` — no cache lookup, no EDP call. This matches the previous scraper behavior and avoids a pointless cache query.
+
+- **EDP declarations rebuilt.** After updating the EDP source files, `pnpm exec tsc -p tsconfig.json` was run inside `lib/external-data-providers/` to regenerate the `dist/*.d.ts` files, which the rest-server's TypeScript project references require.
+
+### 5. What was NOT done
+
+- **MCP tool renames** — the MCP tool names for these four sources (e.g. `illinois_wildflowers__species_text`) are unchanged. Task G covers those renames.
+- **OpenAPI / codegen** — the spec and generated client types are not updated. That is the downstream task already queued.
+- **`fetchAndCacheSpeciesText` removal** — this function in `scraper.ts` is now dead code (no route imports it) but was not deleted, as it was out of scope. It can be removed once any remaining references are confirmed gone.
+
+### 6. What the user should decide or review
+
+- **Illinois multi-section behavior** — Illinois Wildflowers species can appear in multiple habitat sections (prairie, savanna, woodland, etc.), each with its own page. The species-text route fetches only the first section's URL. If full multi-section text is wanted, the route would need to iterate all matching URLs and merge the extracted text. Currently it silently uses only the first one.
+- **No new decisions required on the data shape** — the cleaned-up shapes (`{ results: [{url, section}] }` for Illinois URL lookup; `{ url }` for MN/MO/PM; `{ sections, full_text }` for all species-text routes) follow directly from the task spec and envelope contract.
+
+---
+
+## Task: REST Refactor — Species-List Routes (IL, MN, MO, Prairie Moon)
+
+**Date**: 2026-06-24
+
+### What was built
+
+Four species-list route sets — Illinois Wildflowers, Minnesota Wildflowers, Missouri Plants, and Prairie Moon — were refactored to use the approved EDP-based adapter pattern, matching what GoBotany already uses. Previously, these routes called an internal scraper helper (`fetchAndCacheSpeciesText`) that bundled the URL lookup, HTTP fetch, and cache write in one opaque call, and leaked internal bookkeeping fields into API responses (`species`, `result_count`, `validation_method`, `imported_at`, `url`, `scraped_at`, `fetch_error`). After this task: the adapter owns cache read and cache write explicitly; the EDP owns URL lookup + HTTP fetch; no internal fields appear in `data`.
+
+### Derivation summary
+
+N/A — no new source added.
+
+### Scientific/technical description
+
+N/A — no new source added.
+
+### Architectural decisions made
+
+**EDP function signatures: `(species: string)`, not `(url: string)`.** The approved interfaces for `getIllinoisWildflowersSpeciesInformation`, `getMinnesotaWildflowersSpeciesInformation`, `getMissouriPlantsSpeciesInformation`, and `getPrairieMoonSpeciesInformation` accept a species name. Each EDP does its own `botanicalSpeciesListsTable` URL lookup internally. The REST Adapter calls the EDP with the species name and does not do a redundant URL lookup for the species-text routes. The URL-lookup routes (`GET /xxx?species=...`) still do their own direct DB query, since they return URL data directly and do not call the EDP.
+
+**"Not in species list" is detected via `result.url === null`.** When the EDP returns `url: null`, no HTTP request was made — the adapter returns immediately with `method: "computed", cacheStatus: "bypass"` and does not write to cache. This preserves the old `fetchAndCacheSpeciesText` behavior and keeps the cache clean (a stale species list doesn't permanently poison cache entries).
+
+**Cache write gated on `result.fetchError === null` and `result.url !== null`.** Transient HTTP failures are not cached. Only 200 OK (found) and 404 (not found at URL) are written to `speciesPageTextCacheTable`.
+
+**`queriedAt` on cache hits uses `hit.scraped_at.toISOString()`.** The original fetch timestamp, not the current serve time. Consumers can judge actual data age.
+
+**EDP `package.json` exports unchanged** (bare string paths to source `.ts` files). The TS2307 "Cannot find module" error for EDP subpath imports is a pre-existing infrastructure issue also present in `gobotany` and `lady-bird-johnson` before this task. All four of our new EDP-importing routes inherit the same pre-existing error. Runtime behavior is unaffected (tsx resolves workspace sources correctly); only the type-checker is affected.
+
+### Data shape before → after
+
+**Before** (`data` object on species-text routes):
+```json
+{
+  "species": "Acer rubrum",
+  "result_count": 1,
+  "validation_method": "species_list_lookup",
+  "imported_at": "...",
+  "url": "https://...",
+  "scraped_at": "...",
+  "fetch_error": null,
+  "sections": { ... },
+  "full_text": "..."
+}
+```
+
+**After** (`data` object on species-text routes):
+```json
+{
+  "sections": { ... },
+  "full_text": "..."
+}
+```
+
+All removed fields are either internal FERNS bookkeeping (`imported_at`, `scraped_at`, `fetch_error`, `validation_method`, `result_count`) or redundant envelope fields (`url` is now in `sourceUrl`, `species` is the caller's own input).
+
+### What was NOT done
+
+- MCP tool renames — out of scope.
+- OpenAPI / codegen updates — downstream task.
+- `fetchAndCacheSpeciesText` in `scraper.ts` is now dead code (no route imports it) but was not deleted; safe to remove once confirmed no other consumers exist.
+
+### What the user should decide or review
+
+- **Illinois multi-section behavior**: Illinois Wildflowers species can appear in multiple habitat sections, each with its own URL. `getIllinoisWildflowersSpeciesInformation` fetches only the first section's URL (ordered by section name). If full multi-section text is needed, the EDP would need to iterate all matching URLs.

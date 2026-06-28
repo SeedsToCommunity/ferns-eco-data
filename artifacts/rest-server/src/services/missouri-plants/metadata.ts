@@ -29,7 +29,7 @@ export const MISSOURI_PLANTS_GENERAL_SUMMARY =
   "synonym genera and are not derivable from scientific names alone — the species list is authoritative. " +
   "The index reflects the site at the time of the last admin-triggered import; ~1,464 species at last import. " +
   "Exact genus + species match required (case-insensitive); subspecies and varieties not individually listed. " +
-  "FERNS also provides a species-text endpoint that fetches and parses the full Missouri Plants species page HTML, " +
+  "FERNS also provides a species-information endpoint that fetches and parses the full Missouri Plants species page HTML, " +
   "extracting named prose sections (Description, Similar Species, Habitat, Origin, Uses, and more) " +
   "and caching the result permanently in the local database; the cache can be bypassed with refresh=true.";
 
@@ -45,7 +45,7 @@ export const MISSOURI_PLANTS_TECHNICAL_DETAILS =
   "Method: species_list_scrape with DB lookup. No HTTP validation at query time. " +
   "DB table: botanical_species_lists (columns: id serial PK, site_id text, scientific_name text, url text, section text, imported_at; " +
   "unique on (site_id, scientific_name, section)). Coverage: ~1,464 species at last import. " +
-  "Species-text endpoint: GET /api/missouri-plants/species-text?species={binomial}&refresh={bool}. " +
+  "Species-information endpoint: GET /api/missouri-plants/species-information?species={binomial}&refresh={bool}. " +
   "Cache: permanent (no TTL); refresh=true bypasses cache and re-scrapes. " +
   "Envelope: FERNS Envelope Contract v1; permission_granted=false for species-text (scraped_text endpoint).";
 
@@ -60,7 +60,7 @@ export const MISSOURI_PLANTS_REGISTRY_ENTRY = {
   input_summary: "Scientific name (binomial: genus + species epithet)",
   output_summary:
     "Direct URL to the Missouri Plants species page, or found: false if not in the database (base endpoint); " +
-    "or parsed prose sections from the species page via provenance envelope (species-text endpoint)",
+    "or parsed prose sections from the species page via provenance envelope (species-information endpoint)",
   dependencies: [] as string[],
   update_frequency:
     "Manual re-import via admin endpoint. The species list is re-scraped and the database updated when triggered.",
@@ -79,7 +79,8 @@ export const MISSOURI_PLANTS_REGISTRY_ENTRY = {
   technical_details: MISSOURI_PLANTS_TECHNICAL_DETAILS,
   non_passthrough_endpoints: [
     { endpoint: "/api/missouri-plants/metadata", kind: "metadata" },
-    { endpoint: "/api/missouri-plants/species-text", kind: "scraped_text" },
+    { endpoint: "/api/missouri-plants/url", kind: "url_lookup" },
+    { endpoint: "/api/missouri-plants/species-information", kind: "scraped_text" },
   ],
   permission_granted: true,
 };

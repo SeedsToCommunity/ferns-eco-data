@@ -30,7 +30,7 @@ export const MINNESOTA_WILDFLOWERS_GENERAL_SUMMARY =
   "URLs use common-name slugs not derivable from scientific names — the species list index is authoritative. " +
   "The index reflects the site at the time of the last admin-triggered import. " +
   "Exact binomial match required (case-insensitive); subspecies and varieties follow site taxonomy. " +
-  "FERNS also provides a species-text endpoint that fetches and parses the full Minnesota Wildflowers species page HTML, " +
+  "FERNS also provides a species-information endpoint that fetches and parses the full Minnesota Wildflowers species page HTML, " +
   "extracting named prose sections (Description, Habitat, Leaves, Flowers, Fruit, Notes, and more) " +
   "and caching the result permanently in the local database; the cache can be bypassed with refresh=true.";
 
@@ -46,7 +46,7 @@ export const MINNESOTA_WILDFLOWERS_TECHNICAL_DETAILS =
   "Method: species_list_scrape with DB lookup. No HTTP validation at query time. " +
   "DB table: botanical_species_lists (columns: id serial PK, site_id text, scientific_name text, url text, section text, imported_at; " +
   "unique on (site_id, scientific_name, section)). Coverage: ~1,861 taxa at last import. " +
-  "Species-text endpoint: GET /api/minnesota-wildflowers/species-text?species={binomial}&refresh={bool}. " +
+  "Species-information endpoint: GET /api/minnesota-wildflowers/species-information?species={binomial}&refresh={bool}. " +
   "Cache: permanent (no TTL); refresh=true bypasses cache and re-scrapes. " +
   "Envelope: FERNS Envelope Contract v1; permission_granted=false for species-text (scraped_text endpoint).";
 
@@ -61,7 +61,7 @@ export const MINNESOTA_WILDFLOWERS_REGISTRY_ENTRY = {
   input_summary: "Scientific name (binomial: genus + species epithet)",
   output_summary:
     "Direct URL to the Minnesota Wildflowers species page, or found: false if not indexed (base endpoint); " +
-    "or parsed prose sections from the species page via provenance envelope (species-text endpoint)",
+    "or parsed prose sections from the species page via provenance envelope (species-information endpoint)",
   dependencies: [] as string[],
   update_frequency:
     "Manual re-import via admin endpoint. Species list re-scraped from the site when triggered.",
@@ -79,7 +79,8 @@ export const MINNESOTA_WILDFLOWERS_REGISTRY_ENTRY = {
   technical_details: MINNESOTA_WILDFLOWERS_TECHNICAL_DETAILS,
   non_passthrough_endpoints: [
     { endpoint: "/api/minnesota-wildflowers/metadata", kind: "metadata" },
-    { endpoint: "/api/minnesota-wildflowers/species-text", kind: "scraped_text" },
+    { endpoint: "/api/minnesota-wildflowers/url", kind: "url_lookup" },
+    { endpoint: "/api/minnesota-wildflowers/species-information", kind: "scraped_text" },
   ],
   permission_granted: true,
 };

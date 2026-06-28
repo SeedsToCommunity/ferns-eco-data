@@ -27,7 +27,7 @@ export const PRAIRIE_MOON_GENERAL_SUMMARY =
   "The data reflects the time of the last import, not live nursery stock. " +
   "Prairie Moon covers nursery availability and growing information only — it is not a scientific taxonomic source " +
   "and does not include distribution data, nativity status, or conservation rankings. " +
-  "FERNS also provides a species-text endpoint that fetches and parses the full Prairie Moon plant page HTML, " +
+  "FERNS also provides a species-information endpoint that fetches and parses the full Prairie Moon plant page HTML, " +
   "extracting named prose sections (Description, Culture, Wildlife Value, Comments, and more) " +
   "and caching the result permanently in the local database; the cache can be bypassed with refresh=true.";
 
@@ -43,7 +43,7 @@ export const PRAIRIE_MOON_TECHNICAL_DETAILS =
   "Auto-import on startup when the botanical_species_lists table has no Prairie Moon rows. " +
   "Lookup method: ILIKE match on scientific_name column — case-insensitive, no fuzzy matching, exact binomial required. " +
   "Coverage: ~970 plant URLs across vascular plants commercially available from Prairie Moon Nursery at time of last import. " +
-  "Species-text endpoint: GET /api/prairie-moon/species-text?species={binomial}&refresh={bool}. " +
+  "Species-information endpoint: GET /api/prairie-moon/species-information?species={binomial}&refresh={bool}. " +
   "Cache: permanent (no TTL); refresh=true bypasses cache and re-scrapes. " +
   "Envelope: FERNS Envelope Contract v1; permission_granted=false for species-text (scraped_text endpoint).";
 
@@ -58,7 +58,7 @@ export const PRAIRIE_MOON_REGISTRY_ENTRY = {
   input_summary: "Scientific name (binomial or trinomial with subsp./var.)",
   output_summary:
     "Direct URL to the Prairie Moon Nursery plant page, or found: false if not in the catalog (base endpoint); " +
-    "or parsed prose sections from the plant page via provenance envelope (species-text endpoint)",
+    "or parsed prose sections from the plant page via provenance envelope (species-information endpoint)",
   dependencies: [] as string[],
   update_frequency:
     "Manual re-import via admin endpoint. Sitemap re-parsed and database updated when triggered.",
@@ -76,7 +76,8 @@ export const PRAIRIE_MOON_REGISTRY_ENTRY = {
   technical_details: PRAIRIE_MOON_TECHNICAL_DETAILS,
   non_passthrough_endpoints: [
     { endpoint: "/api/prairie-moon/metadata", kind: "metadata" },
-    { endpoint: "/api/prairie-moon/species-text", kind: "scraped_text" },
+    { endpoint: "/api/prairie-moon/url", kind: "url_lookup" },
+    { endpoint: "/api/prairie-moon/species-information", kind: "scraped_text" },
   ],
   permission_granted: true,
 };

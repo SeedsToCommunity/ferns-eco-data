@@ -150,8 +150,8 @@ export async function getIllinoisWildflowersUrl(
  * sections and as full text. When a species appears in multiple sections
  * the first URL (ordered by section) is used.
  *
- * Returns found: false with fetchError: null when the species is not in
- * the imported list (no live request is made in that case).
+ * Returns found: false with url: null when the species is not in the
+ * imported list (no live request is made in that case).
  *
  * Does NOT read or write the species page text cache — that remains in
  * the REST Adapter layer.

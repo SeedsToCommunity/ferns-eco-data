@@ -73,7 +73,7 @@ router.get("/lady-bird-johnson/metadata", async (req, res) => {
   res.json(envelope);
 });
 
-router.get("/lady-bird-johnson", async (req, res) => {
+router.get("/lady-bird-johnson/url", async (req, res) => {
   await ensureLadyBirdJohnsonRegistryEntry();
 
   const symbolParam =
@@ -130,7 +130,7 @@ router.get("/lady-bird-johnson", async (req, res) => {
         cache_key: cacheKey,
         usda_symbol: usdaSymbolUpper,
         profile_url: result.profileUrl,
-        source_url: resolveUrl(req, "/api/lady-bird-johnson"),
+        source_url: resolveUrl(req, "/api/lady-bird-johnson/url"),
         upstream_url: result.profileUrl,
         status,
         found: result.found,
@@ -145,7 +145,7 @@ router.get("/lady-bird-johnson", async (req, res) => {
         set: {
           usda_symbol: usdaSymbolUpper,
           profile_url: result.profileUrl,
-          source_url: resolveUrl(req, "/api/lady-bird-johnson"),
+          source_url: resolveUrl(req, "/api/lady-bird-johnson/url"),
           upstream_url: result.profileUrl,
           status,
           found: result.found,
@@ -174,7 +174,7 @@ router.get("/lady-bird-johnson", async (req, res) => {
   res.json(envelope);
 });
 
-router.get("/lady-bird-johnson/species-text", async (req, res) => {
+router.get("/lady-bird-johnson/species-information", async (req, res) => {
   await ensureLadyBirdJohnsonRegistryEntry();
 
   const symbolParam =
