@@ -1,6 +1,4 @@
 import {
-  BONAP_TECHNICAL_DETAILS,
-  BONAP_GENERAL_SUMMARY,
   BONAP_SOURCE_ID,
 } from "./metadata.js";
 
@@ -151,7 +149,5 @@ export function buildProvenance(result: VerificationResult) {
     fetched_at: new Date(),
     method: "api_fetch",
     upstream_url: result.upstream_url,
-    general_summary: BONAP_GENERAL_SUMMARY,
-    technical_details: BONAP_TECHNICAL_DETAILS,
   };
 }

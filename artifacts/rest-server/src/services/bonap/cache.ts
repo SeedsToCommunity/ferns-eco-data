@@ -31,8 +31,6 @@ export async function storeCache(
     fetched_at: Date;
     method: string;
     upstream_url: string;
-    general_summary: string;
-    technical_details: string;
   },
 ): Promise<BonapMap> {
   const expiresAt =
@@ -54,8 +52,6 @@ export async function storeCache(
     fetched_at: provenance.fetched_at,
     method: provenance.method,
     upstream_url: provenance.upstream_url,
-    general_summary: provenance.general_summary,
-    technical_details: provenance.technical_details,
   };
 
   const rows = await db

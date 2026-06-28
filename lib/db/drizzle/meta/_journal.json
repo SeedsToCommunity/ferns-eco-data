@@ -141,6 +141,13 @@
       "when": 1750118400000,
       "tag": "0019_drop-npn-tables",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1751068800000,
+      "tag": "0020_drop-bonap-provenance-text-columns",
+      "breakpoints": true
     }
   ]
 }

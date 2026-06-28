@@ -17,8 +17,6 @@ export const bonapMapsTable = pgTable("bonap_maps", {
   fetched_at: timestamp("fetched_at", { withTimezone: true }).notNull(),
   method: text("method").notNull().default("api_fetch"),
   upstream_url: text("upstream_url").notNull(),
-  general_summary: text("general_summary").notNull(),
-  technical_details: text("technical_details").notNull(),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
