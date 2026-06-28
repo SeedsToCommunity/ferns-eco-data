@@ -24,8 +24,6 @@ const router: IRouter = Router();
 
 router.get("/ann-arbor-npn/metadata", async (req, res) => {
   await ensureAnnArborNpnRegistryEntry();
-  const species = getAnnArborNpnSpeciesList();
-  const speciesCount = species.length;
 
   const envelope = await buildEnvelope(
     {
@@ -41,7 +39,6 @@ router.get("/ann-arbor-npn/metadata", async (req, res) => {
         service_name: ANN_ARBOR_NPN_REGISTRY_ENTRY.name,
         licenses: ANN_ARBOR_NPN_LICENSES,
         license_notes: ANN_ARBOR_NPN_LICENSE_NOTES,
-        species_count: speciesCount,
         snapshot_date: ANN_ARBOR_NPN_SNAPSHOT_DATE,
         registry_entry: {
           ...ANN_ARBOR_NPN_REGISTRY_ENTRY,
@@ -72,7 +69,6 @@ router.get("/ann-arbor-npn/species-list", async (req, res) => {
       queriedAt: new Date().toISOString(),
       found: species.length > 0,
       data: {
-        species_count: species.length,
         species,
       },
     },
@@ -207,7 +203,6 @@ router.get("/ann-arbor-npn/name-groups", async (req, res) => {
       queriedAt: new Date().toISOString(),
       found: nameGroups.length > 0,
       data: {
-        species_count: nameGroups.length,
         name_groups: nameGroups,
       },
     },

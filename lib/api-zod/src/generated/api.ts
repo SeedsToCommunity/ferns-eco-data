@@ -4118,7 +4118,6 @@ export const GetAnnArborNpnMetadataResponse = zod.object({
   "service_name": zod.string().optional(),
   "licenses": zod.array(zod.string()).optional(),
   "license_notes": zod.string().optional(),
-  "species_count": zod.number().optional(),
   "registry_entry": zod.record(zod.string(), zod.unknown()).optional()
 }).optional().describe('Data payload for \/ann-arbor-npn\/metadata FernsEnvelope data field.')
 }))
@@ -4157,7 +4156,6 @@ export const GetAnnArborNpnSpeciesListResponse = zod.object({
   "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
 }).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
   "data": zod.object({
-  "species_count": zod.number(),
   "species": zod.array(zod.object({
   "acronym": zod.string().describe('Primary key — 4–7 character code (e.g. LOBSIP). Carex uses CX prefix.'),
   "latin_name": zod.string(),
@@ -4281,7 +4279,6 @@ export const GetAnnArborNpnNameGroupsResponse = zod.object({
   "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
 }).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
   "data": zod.object({
-  "species_count": zod.number(),
   "name_groups": zod.array(zod.object({
   "acronym": zod.string(),
   "latin_name": zod.string(),

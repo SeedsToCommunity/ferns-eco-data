@@ -1489,12 +1489,6 @@ export async function runNpnChecks(fernsBase: string): Promise<EndpointCompariso
         } else {
           findings.push({ type: "mismatch", sourceField: "service_id", note: `expected "ann-arbor-npn", got "${envelope.service_id}"` });
         }
-        // species_count — numeric
-        if (typeof envelope.species_count === "number") {
-          findings.push({ type: "ok", sourceField: "species_count", note: `species_count=${envelope.species_count}` });
-        } else {
-          findings.push({ type: "gap", sourceField: "species_count", note: "species_count missing" });
-        }
         // licenses — should be a string array
         if (Array.isArray(envelope.licenses) && envelope.licenses.length > 0) {
           findings.push({ type: "ok", sourceField: "licenses", note: `licenses=${JSON.stringify(envelope.licenses)}` });
@@ -1571,23 +1565,6 @@ export async function runNpnChecks(fernsBase: string): Promise<EndpointCompariso
       (envelope) => {
         const findings: FieldFinding[] = [];
         const data = envelope.data as Record<string, unknown> | null | undefined;
-        if (data && typeof data.species_count === "number") {
-          const count = data.species_count;
-          findings.push({ type: "ok", sourceField: "data.species_count", note: `species_count=${count}` });
-          if (count === 0) {
-            findings.push({ type: "gap", sourceField: "data.species_count", note: "count=0 — import may not have run yet" });
-          } else if (count !== EXPECTED_COUNT) {
-            findings.push({
-              type: "mismatch",
-              sourceField: "data.species_count",
-              note: `expected ${EXPECTED_COUNT} species, got ${count} — database may be stale or source changed`,
-            });
-          } else {
-            findings.push({ type: "ok", sourceField: "data.species_count", note: `count=${count} matches expected ${EXPECTED_COUNT} ✓` });
-          }
-        } else {
-          findings.push({ type: "gap", sourceField: "data.species_count", note: "data.species_count missing (import may not have run yet)" });
-        }
         if (data && Array.isArray(data.species)) {
           findings.push({ type: "ok", sourceField: "data.species", note: `${data.species.length} species in list` });
         } else {

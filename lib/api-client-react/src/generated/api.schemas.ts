@@ -2051,7 +2051,6 @@ export interface NpnNotFoundResponse {
 }
 
 export type NpnSpeciesBulkResponseData = {
-  species_count: number;
   species: NpnSpeciesRecord[];
 };
 
@@ -2079,7 +2078,6 @@ export interface NpnNameGroup {
 }
 
 export type NpnNamesResponseData = {
-  species_count: number;
   name_groups: NpnNameGroup[];
 };
 
@@ -2134,7 +2132,6 @@ export interface NpnMetadataData {
   service_name?: string;
   licenses?: string[];
   license_notes?: string;
-  species_count?: number;
   registry_entry?: NpnMetadataDataRegistryEntry;
 }
 
@@ -3700,7 +3697,6 @@ export const GetAnnArborNpnSpeciesListProvenanceVerbosity = {
 } as const;
 
 export type GetAnnArborNpnSpeciesList200Data = {
-  species_count: number;
   species: NpnSpeciesRecord[];
 };
 
@@ -3739,7 +3735,6 @@ export const GetAnnArborNpnNameGroupsProvenanceVerbosity = {
 } as const;
 
 export type GetAnnArborNpnNameGroups200Data = {
-  species_count: number;
   name_groups: NpnNameGroup[];
 };
 

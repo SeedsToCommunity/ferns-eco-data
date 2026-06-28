@@ -8,6 +8,5 @@
 import type { NpnSpeciesRecord } from './npnSpeciesRecord';
 
 export type NpnSpeciesBulkResponseData = {
-  species_count: number;
   species: NpnSpeciesRecord[];
 };

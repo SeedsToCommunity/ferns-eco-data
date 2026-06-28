@@ -15,6 +15,5 @@ export interface NpnMetadataData {
   service_name?: string;
   licenses?: string[];
   license_notes?: string;
-  species_count?: number;
   registry_entry?: NpnMetadataDataRegistryEntry;
 }

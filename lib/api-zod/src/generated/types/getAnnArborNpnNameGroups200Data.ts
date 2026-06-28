@@ -8,6 +8,5 @@
 import type { NpnNameGroup } from './npnNameGroup';
 
 export type GetAnnArborNpnNameGroups200Data = {
-  species_count: number;
   name_groups: NpnNameGroup[];
 };

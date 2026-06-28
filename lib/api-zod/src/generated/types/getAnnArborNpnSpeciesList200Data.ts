@@ -8,6 +8,5 @@
 import type { NpnSpeciesRecord } from './npnSpeciesRecord';
 
 export type GetAnnArborNpnSpeciesList200Data = {
-  species_count: number;
   species: NpnSpeciesRecord[];
 };

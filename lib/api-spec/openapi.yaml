@@ -4290,10 +4290,8 @@ paths:
                     properties:
                       data:
                         type: object
-                        required: [species_count, species]
+                        required: [species]
                         properties:
-                          species_count:
-                            type: integer
                           species:
                             type: array
                             items:
@@ -4382,10 +4380,8 @@ paths:
                     properties:
                       data:
                         type: object
-                        required: [species_count, name_groups]
+                        required: [name_groups]
                         properties:
-                          species_count:
-                            type: integer
                           name_groups:
                             type: array
                             items:
@@ -8086,10 +8082,8 @@ components:
           $ref: "#/components/schemas/FernsProvenance"
         data:
           type: object
-          required: [species_count, species]
+          required: [species]
           properties:
-            species_count:
-              type: integer
             species:
               type: array
               items:
@@ -8129,10 +8123,8 @@ components:
           $ref: "#/components/schemas/FernsProvenance"
         data:
           type: object
-          required: [species_count, name_groups]
+          required: [name_groups]
           properties:
-            species_count:
-              type: integer
             name_groups:
               type: array
               items:
@@ -8207,8 +8199,6 @@ components:
             type: string
         license_notes:
           type: string
-        species_count:
-          type: integer
         registry_entry:
           type: object
           additionalProperties: true
