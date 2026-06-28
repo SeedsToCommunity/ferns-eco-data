@@ -1067,12 +1067,131 @@ export async function runNatureserveChecks(fernsBase: string): Promise<EndpointC
   return [metadataCheck, speciesCheck, ecosystemSearchCheck];
 }
 
+// ─── Botanical URL-Lookup Health Checks ───────────────────────────────────────
+// Tests the /url endpoint for each of the five botanical reference sources that
+// take a species-name parameter (Go Botany, Illinois Wildflowers, Minnesota
+// Wildflowers, Missouri Plants, Prairie Moon). Lady Bird Johnson uses
+// /url?usda_symbol= and is covered separately in runLbjChecks.
+// Uses Asclepias tuberosa — a common native wildflower present on all five sites.
+// Verifies: found (bool), and when found=true: data.url (string, all except IL)
+// or data.results[0].url + data.results[0].section (IL multi-section format).
+
+export async function runBotanicalUrlChecks(fernsBase: string): Promise<EndpointComparison[]> {
+  const TEST_SPECIES_NAME = "Asclepias tuberosa";
+  const encodedSpecies = encodeURIComponent(TEST_SPECIES_NAME);
+
+  function standardUrlChecks(source: string) {
+    return (envelope: Record<string, unknown>): FieldFinding[] => {
+      const findings: FieldFinding[] = [];
+      if (typeof envelope.found === "boolean") {
+        findings.push({ type: "ok", sourceField: "found", note: `found=${envelope.found}` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "found", note: "found field missing or not boolean" });
+      }
+      if (envelope.found === true) {
+        const data = envelope.data as Record<string, unknown> | null | undefined;
+        if (data && typeof data.url === "string" && data.url.startsWith("http")) {
+          findings.push({ type: "ok", sourceField: "data.url", note: `url=${data.url}` });
+        } else {
+          findings.push({ type: "mismatch", sourceField: "data.url", note: `data.url missing or not a URL: ${data?.url}` });
+        }
+      } else {
+        findings.push({ type: "ok", sourceField: "data.url", note: `found=false on ${source} — url check skipped` });
+      }
+      const prov = envelope.provenance as Record<string, unknown> | null | undefined;
+      if (prov && prov.source_id) {
+        findings.push({ type: "ok", sourceField: "provenance.source_id", note: `${prov.source_id}` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "provenance", note: "provenance.source_id missing" });
+      }
+      return findings;
+    };
+  }
+
+  function illinoisUrlChecks(envelope: Record<string, unknown>): FieldFinding[] {
+    const findings: FieldFinding[] = [];
+    if (typeof envelope.found === "boolean") {
+      findings.push({ type: "ok", sourceField: "found", note: `found=${envelope.found}` });
+    } else {
+      findings.push({ type: "mismatch", sourceField: "found", note: "found field missing or not boolean" });
+    }
+    if (envelope.found === true) {
+      const data = envelope.data as Record<string, unknown> | null | undefined;
+      const results = data?.results;
+      if (Array.isArray(results) && results.length > 0) {
+        const first = results[0] as Record<string, unknown>;
+        if (typeof first.url === "string" && first.url.startsWith("http")) {
+          findings.push({ type: "ok", sourceField: "data.results[0].url", note: `url=${first.url}` });
+        } else {
+          findings.push({ type: "mismatch", sourceField: "data.results[0].url", note: `url missing or not a URL: ${first.url}` });
+        }
+        if (typeof first.section === "string" && first.section.length > 0) {
+          findings.push({ type: "ok", sourceField: "data.results[0].section", note: `section=${first.section}` });
+        } else {
+          findings.push({ type: "mismatch", sourceField: "data.results[0].section", note: `section missing: ${first.section}` });
+        }
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.results", note: "data.results missing or empty when found=true" });
+      }
+    } else {
+      findings.push({ type: "ok", sourceField: "data.results", note: "found=false on Illinois Wildflowers — results check skipped" });
+    }
+    const prov = envelope.provenance as Record<string, unknown> | null | undefined;
+    if (prov && prov.source_id) {
+      findings.push({ type: "ok", sourceField: "provenance.source_id", note: `${prov.source_id}` });
+    } else {
+      findings.push({ type: "mismatch", sourceField: "provenance", note: "provenance.source_id missing" });
+    }
+    return findings;
+  }
+
+  const [gobotanyUrlCheck, illinoisUrlCheck, minnesotaUrlCheck, missouriUrlCheck, prairieMoonUrlCheck] = await Promise.all([
+    checkEndpoint(
+      "gobotany",
+      `/api/gobotany/url?species=${encodedSpecies}`,
+      `Go Botany — URL lookup (${TEST_SPECIES_NAME}: envelope contract, found, data.url)`,
+      fernsBase,
+      standardUrlChecks("Go Botany"),
+    ),
+    checkEndpoint(
+      "illinois-wildflowers",
+      `/api/illinois-wildflowers/url?species=${encodedSpecies}`,
+      `Illinois Wildflowers — URL lookup (${TEST_SPECIES_NAME}: envelope contract, found, data.results[].url+section)`,
+      fernsBase,
+      illinoisUrlChecks,
+    ),
+    checkEndpoint(
+      "minnesota-wildflowers",
+      `/api/minnesota-wildflowers/url?species=${encodedSpecies}`,
+      `Minnesota Wildflowers — URL lookup (${TEST_SPECIES_NAME}: envelope contract, found, data.url)`,
+      fernsBase,
+      standardUrlChecks("Minnesota Wildflowers"),
+    ),
+    checkEndpoint(
+      "missouri-plants",
+      `/api/missouri-plants/url?species=${encodedSpecies}`,
+      `Missouri Plants — URL lookup (${TEST_SPECIES_NAME}: envelope contract, found, data.url)`,
+      fernsBase,
+      standardUrlChecks("Missouri Plants"),
+    ),
+    checkEndpoint(
+      "prairie-moon",
+      `/api/prairie-moon/url?species=${encodedSpecies}`,
+      `Prairie Moon — URL lookup (${TEST_SPECIES_NAME}: envelope contract, found, data.url)`,
+      fernsBase,
+      standardUrlChecks("Prairie Moon"),
+    ),
+  ]);
+
+  return [gobotanyUrlCheck, illinoisUrlCheck, minnesotaUrlCheck, missouriUrlCheck, prairieMoonUrlCheck];
+}
+
 // ─── Species-Text Health Checks ───────────────────────────────────────────────
-// Tests the /species-text scraping endpoint for each of the five botanical
-// reference sources that support it. Uses Asclepias tuberosa (butterfly milkweed)
-// — a common, widely documented native wildflower present on all five sites.
-// Verifies envelope contract: found, cache_status, scraped_at, expires_at,
-// and at least one section. Does not assert on section content (site-specific).
+// Tests the /species-information scraping endpoint for each of the five
+// botanical reference sources that support it. Uses Asclepias tuberosa
+// (butterfly milkweed) — a common, widely documented native wildflower present
+// on all five sites. Verifies envelope contract: found, cache_status, sections,
+// full_text. Does not assert on section content (site-specific).
 
 export async function runSpeciesTextChecks(fernsBase: string): Promise<EndpointComparison[]> {
   const TEST_SPECIES_NAME = "Asclepias tuberosa";
@@ -1097,17 +1216,12 @@ export async function runSpeciesTextChecks(fernsBase: string): Promise<EndpointC
       } else {
         findings.push({ type: "mismatch", sourceField: "provenance.cache_status", note: `invalid scraped-text cache_status: ${cacheStatus}` });
       }
-      // data.scraped_at and data.sections only required when found=true
+      // data.sections and data.full_text only required when found=true
       if (envelope.found === true) {
         const data = envelope.data as Record<string, unknown> | null | undefined;
         if (!data) {
           findings.push({ type: "mismatch", sourceField: "data", note: "data missing when found=true" });
           return findings;
-        }
-        if (data.scraped_at) {
-          findings.push({ type: "ok", sourceField: "data.scraped_at", note: `scraped_at=${data.scraped_at}` });
-        } else {
-          findings.push({ type: "mismatch", sourceField: "data.scraped_at", note: "data.scraped_at missing when found=true" });
         }
         // sections is Record<string, string> in envelope data (not an array)
         const sections = data.sections;
@@ -1121,6 +1235,12 @@ export async function runSpeciesTextChecks(fernsBase: string): Promise<EndpointC
         } else {
           findings.push({ type: "mismatch", sourceField: "data.sections", note: "data.sections missing or not an object" });
         }
+        // full_text is the concatenated prose string
+        if (typeof data.full_text === "string" && data.full_text.length > 0) {
+          findings.push({ type: "ok", sourceField: "data.full_text", note: `full_text present (${data.full_text.length} chars)` });
+        } else {
+          findings.push({ type: "mismatch", sourceField: "data.full_text", note: "data.full_text missing or empty when found=true" });
+        }
       } else {
         findings.push({ type: "ok", sourceField: "data.sections", note: `species not found on ${source} — sections check skipped` });
       }
@@ -1131,36 +1251,36 @@ export async function runSpeciesTextChecks(fernsBase: string): Promise<EndpointC
   const [gobotanyCheck, illinoisCheck, minnesotaCheck, missouriCheck, prairieMoonCheck] = await Promise.all([
     checkEndpoint(
       "gobotany",
-      `/api/gobotany/species-text?species=${encodedSpecies}`,
-      `Go Botany — species-text (${TEST_SPECIES_NAME}: envelope contract, cache_status, sections)`,
+      `/api/gobotany/species-information?species=${encodedSpecies}`,
+      `Go Botany — species-information (${TEST_SPECIES_NAME}: envelope contract, cache_status, sections, full_text)`,
       fernsBase,
       speciesTextChecks("Go Botany"),
     ),
     checkEndpoint(
       "illinois-wildflowers",
-      `/api/illinois-wildflowers/species-text?species=${encodedSpecies}`,
-      `Illinois Wildflowers — species-text (${TEST_SPECIES_NAME}: envelope contract, cache_status, sections)`,
+      `/api/illinois-wildflowers/species-information?species=${encodedSpecies}`,
+      `Illinois Wildflowers — species-information (${TEST_SPECIES_NAME}: envelope contract, cache_status, sections, full_text)`,
       fernsBase,
       speciesTextChecks("Illinois Wildflowers"),
     ),
     checkEndpoint(
       "minnesota-wildflowers",
-      `/api/minnesota-wildflowers/species-text?species=${encodedSpecies}`,
-      `Minnesota Wildflowers — species-text (${TEST_SPECIES_NAME}: envelope contract, cache_status, sections)`,
+      `/api/minnesota-wildflowers/species-information?species=${encodedSpecies}`,
+      `Minnesota Wildflowers — species-information (${TEST_SPECIES_NAME}: envelope contract, cache_status, sections, full_text)`,
       fernsBase,
       speciesTextChecks("Minnesota Wildflowers"),
     ),
     checkEndpoint(
       "missouri-plants",
-      `/api/missouri-plants/species-text?species=${encodedSpecies}`,
-      `Missouri Plants — species-text (${TEST_SPECIES_NAME}: envelope contract, cache_status, sections)`,
+      `/api/missouri-plants/species-information?species=${encodedSpecies}`,
+      `Missouri Plants — species-information (${TEST_SPECIES_NAME}: envelope contract, cache_status, sections, full_text)`,
       fernsBase,
       speciesTextChecks("Missouri Plants"),
     ),
     checkEndpoint(
       "prairie-moon",
-      `/api/prairie-moon/species-text?species=${encodedSpecies}`,
-      `Prairie Moon — species-text (${TEST_SPECIES_NAME}: envelope contract, cache_status, sections)`,
+      `/api/prairie-moon/species-information?species=${encodedSpecies}`,
+      `Prairie Moon — species-information (${TEST_SPECIES_NAME}: envelope contract, cache_status, sections, full_text)`,
       fernsBase,
       speciesTextChecks("Prairie Moon"),
     ),
@@ -1188,38 +1308,13 @@ export async function runLbjChecks(fernsBase: string): Promise<EndpointCompariso
     } else {
       findings.push({ type: "mismatch", sourceField: "found", note: "found field missing or not boolean" });
     }
-    // data.status
     const data = envelope.data as Record<string, unknown> | null | undefined;
-    const validStatuses = ["found", "not_found", "unverified"];
-    if (data && typeof data.status === "string" && validStatuses.includes(data.status)) {
-      findings.push({ type: "ok", sourceField: "data.status", note: `status=${data.status}` });
-    } else {
-      findings.push({ type: "mismatch", sourceField: "data.status", note: `status missing or invalid: ${data?.status}` });
-    }
-    // data.usda_symbol
-    if (data && data.usda_symbol === TEST_SYMBOL) {
-      findings.push({ type: "ok", sourceField: "data.usda_symbol", note: `usda_symbol=${data.usda_symbol}` });
-    } else {
-      findings.push({ type: "mismatch", sourceField: "data.usda_symbol", note: `expected ${TEST_SYMBOL}, got ${data?.usda_symbol}` });
-    }
-    // data.cache_hit boolean
-    if (data && typeof data.cache_hit === "boolean") {
-      findings.push({ type: "ok", sourceField: "data.cache_hit", note: `cache_hit=${data.cache_hit}` });
-    } else {
-      findings.push({ type: "mismatch", sourceField: "data.cache_hit", note: "cache_hit field missing or not boolean" });
-    }
     // data.profile_url present when found
     if (envelope.found === true) {
       if (data && typeof data.profile_url === "string" && data.profile_url.includes(TEST_SYMBOL)) {
         findings.push({ type: "ok", sourceField: "data.profile_url", note: `profile_url contains ${TEST_SYMBOL}` });
       } else {
         findings.push({ type: "mismatch", sourceField: "data.profile_url", note: `profile_url missing or malformed: ${data?.profile_url}` });
-      }
-      // verified_at
-      if (data && data.verified_at) {
-        findings.push({ type: "ok", sourceField: "data.verified_at", note: `verified_at=${data.verified_at}` });
-      } else {
-        findings.push({ type: "mismatch", sourceField: "data.verified_at", note: "verified_at missing when found=true" });
       }
     } else {
       findings.push({ type: "ok", sourceField: "data.profile_url", note: `found=false — profile_url check skipped` });
@@ -1242,21 +1337,17 @@ export async function runLbjChecks(fernsBase: string): Promise<EndpointCompariso
     } else {
       findings.push({ type: "mismatch", sourceField: "found", note: "found field missing or not boolean" });
     }
-    // cache_status
+    // cache_status is in provenance per v1 envelope contract
+    const prov = envelope.provenance as Record<string, unknown> | null | undefined;
+    const cacheStatus = prov?.cache_status as string | undefined;
     const validStatuses = ["hit", "miss"];
-    if (typeof envelope.cache_status === "string" && validStatuses.includes(envelope.cache_status)) {
-      findings.push({ type: "ok", sourceField: "cache_status", note: `cache_status=${envelope.cache_status}` });
+    if (typeof cacheStatus === "string" && validStatuses.includes(cacheStatus)) {
+      findings.push({ type: "ok", sourceField: "provenance.cache_status", note: `cache_status=${cacheStatus}` });
     } else {
-      findings.push({ type: "mismatch", sourceField: "cache_status", note: `cache_status missing or invalid: ${envelope.cache_status}` });
+      findings.push({ type: "mismatch", sourceField: "provenance.cache_status", note: `cache_status missing or invalid: ${cacheStatus}` });
     }
     if (envelope.found === true) {
-      // scraped_at
-      if (envelope.scraped_at) {
-        findings.push({ type: "ok", sourceField: "scraped_at", note: `scraped_at=${envelope.scraped_at}` });
-      } else {
-        findings.push({ type: "mismatch", sourceField: "scraped_at", note: "scraped_at missing when found=true" });
-      }
-      // data.sections
+      // data.sections and data.full_text
       const data = envelope.data as Record<string, unknown> | null | undefined;
       if (data && data.sections && typeof data.sections === "object" && !Array.isArray(data.sections)) {
         const sectionKeys = Object.keys(data.sections as object);
@@ -1268,11 +1359,15 @@ export async function runLbjChecks(fernsBase: string): Promise<EndpointCompariso
       } else {
         findings.push({ type: "mismatch", sourceField: "data.sections", note: "data.sections missing or not an object when found=true" });
       }
+      if (data && typeof data.full_text === "string" && data.full_text.length > 0) {
+        findings.push({ type: "ok", sourceField: "data.full_text", note: `full_text present (${data.full_text.length} chars)` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.full_text", note: "data.full_text missing or empty when found=true" });
+      }
     } else {
       findings.push({ type: "ok", sourceField: "data.sections", note: "species not found — sections check skipped" });
     }
     // provenance
-    const prov = envelope.provenance as Record<string, unknown> | null | undefined;
     if (prov && prov.source_id) {
       findings.push({ type: "ok", sourceField: "provenance.source_id", note: `${prov.source_id}` });
     } else {
@@ -1284,15 +1379,15 @@ export async function runLbjChecks(fernsBase: string): Promise<EndpointCompariso
   const [urlCheck, textCheck] = await Promise.all([
     checkEndpoint(
       "lady-bird-johnson",
-      `/api/lady-bird-johnson?usda_symbol=${encodedSymbol}`,
-      `Lady Bird Johnson — URL verify (${TEST_SYMBOL}: envelope, status, profile_url, verified_at, cache_hit)`,
+      `/api/lady-bird-johnson/url?usda_symbol=${encodedSymbol}`,
+      `Lady Bird Johnson — URL verify (${TEST_SYMBOL}: envelope, found, data.profile_url)`,
       fernsBase,
       urlVerifyChecks,
     ),
     checkEndpoint(
       "lady-bird-johnson",
-      `/api/lady-bird-johnson/species-text?usda_symbol=${encodedSymbol}`,
-      `Lady Bird Johnson — species-text (${TEST_SYMBOL}: envelope, cache_status, scraped_at, sections)`,
+      `/api/lady-bird-johnson/species-information?usda_symbol=${encodedSymbol}`,
+      `Lady Bird Johnson — species-information (${TEST_SYMBOL}: envelope, cache_status, sections, full_text)`,
       fernsBase,
       speciesTextChecks,
     ),

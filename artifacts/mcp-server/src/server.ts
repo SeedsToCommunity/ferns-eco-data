@@ -1207,9 +1207,9 @@ const tools: ToolDef[] = [
   // ── gobotany ────────────────────────────────────────────────────────────
   {
     tool: {
-      name: "gobotany__species",
+      name: "gobotany__url",
       description:
-        "Returns the Go Botany species page URL and basic profile for a plant by scientific name. Go Botany covers the vascular flora of New England with detailed identification keys, photos, and habitat information.",
+        "Returns the verified Go Botany species page URL for a plant by scientific name. Go Botany covers the vascular flora of New England with detailed identification keys, photos, and habitat information. Returns data.url when found.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -1220,16 +1220,16 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/gobotany", {
+      apiGet("/gobotany/url", {
         species: String(args["species"]),
         provenance_verbosity: pv(args),
       }),
   },
   {
     tool: {
-      name: "gobotany__species_text",
+      name: "gobotany__species_information",
       description:
-        "Fetches and returns the full scraped text from the Go Botany species page for a plant, organized into named sections (Facts, Habitat, Characteristics). Results are cached after the first fetch; use refresh=true to force a live re-scrape. Scrape status is reported in provenance.cache_status (hit=cached, miss=live scrape). The scraped_at timestamp is in data.scraped_at.",
+        "Fetches and returns the full scraped text from the Go Botany species page for a plant, organized into named sections (Facts, Habitat, Characteristics) in data.sections and concatenated in data.full_text. Results are cached after the first fetch; use refresh=true to force a live re-scrape. Scrape status is reported in provenance.cache_status (hit=cached, miss=live scrape).",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -1241,7 +1241,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/gobotany/species-text", {
+      apiGet("/gobotany/species-information", {
         species: String(args["species"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
         provenance_verbosity: pv(args),
@@ -1273,9 +1273,9 @@ const tools: ToolDef[] = [
   // ── illinois-wildflowers ─────────────────────────────────────────────────
   {
     tool: {
-      name: "illinois_wildflowers__species",
+      name: "illinois_wildflowers__url",
       description:
-        "Returns the Illinois Wildflowers species page URL for a plant, linking to detailed descriptions, photos, and ecological notes focused on the Illinois flora.",
+        "Returns the Illinois Wildflowers species page URL for a plant, linking to detailed descriptions, photos, and ecological notes focused on the Illinois flora. Returns data.results with url and section fields for each matching entry.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -1286,16 +1286,16 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/illinois-wildflowers", {
+      apiGet("/illinois-wildflowers/url", {
         species: String(args["species"]),
         provenance_verbosity: pv(args),
       }),
   },
   {
     tool: {
-      name: "illinois_wildflowers__species_text",
+      name: "illinois_wildflowers__species_information",
       description:
-        "Fetches and returns the full scraped text from the Illinois Wildflowers species page for a plant, organized into named sections (Description, Faunal Associations, Photographic Location, etc.). Results are cached after the first fetch; use refresh=true to force a live re-scrape. Scrape status is reported in provenance.cache_status (hit=cached, miss=live scrape, bypass=species not in imported list). The scraped_at timestamp is in data.scraped_at.",
+        "Fetches and returns the full scraped text from the Illinois Wildflowers species page for a plant, organized into named sections (Description, Faunal Associations, Photographic Location, etc.) in data.sections and concatenated in data.full_text. Results are cached after the first fetch; use refresh=true to force a live re-scrape. Scrape status is reported in provenance.cache_status (hit=cached, miss=live scrape, bypass=species not in imported list).",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -1307,7 +1307,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/illinois-wildflowers/species-text", {
+      apiGet("/illinois-wildflowers/species-information", {
         species: String(args["species"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
         provenance_verbosity: pv(args),
@@ -1317,13 +1317,13 @@ const tools: ToolDef[] = [
   // ── lady-bird-johnson ────────────────────────────────────────────────────
   {
     tool: {
-      name: "lady_bird_johnson__symbol",
+      name: "lady_bird_johnson__url",
       description:
         "Verifies whether a Lady Bird Johnson Wildflower Center species profile exists for a given USDA Plants symbol, and returns the direct verified profile URL when found. " +
         "The center maintains one of the most comprehensive databases of native plants of North America. " +
-        "Input must be a USDA Plants symbol (e.g. TRGI for Trillium grandiflorum) — obtain the symbol via usda_plants__name_match first. " +
+        "Input must be a USDA Plants symbol (e.g. TRGI for Trillium grandiflorum) — obtain the symbol via usda_plants__species first. " +
         "Verification uses HTTP GET with redirect:manual (200=found, 3xx=not_found). Results are cached for 90 days (found) or 30 days (not found). " +
-        "Response follows the FERNS Response Envelope Contract v1; provenance contains cache_status, queried_at, and source_url.",
+        "Returns data.profile_url when found. Response follows the FERNS Response Envelope Contract v1.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -1334,7 +1334,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/lady-bird-johnson", {
+      apiGet("/lady-bird-johnson/url", {
         usda_symbol: String(args["usda_symbol"]),
         provenance_verbosity: pv(args),
       }),
@@ -1342,10 +1342,10 @@ const tools: ToolDef[] = [
 
   {
     tool: {
-      name: "lady_bird_johnson__species_text",
+      name: "lady_bird_johnson__species_information",
       description:
         "Fetches and caches botanical prose text from the Lady Bird Johnson Wildflower Center species profile page identified by a USDA Plants symbol. " +
-        "Sections extracted include all h3-delimited prose blocks (Habit, Bloom Information, Uses, Propagation, etc.); " +
+        "Returns data.sections (named prose blocks: Habit, Bloom Information, Uses, Propagation, etc.) and data.full_text (concatenated). " +
         "\"Find Seeds or Plants\" and \"Mr. Smarty Plants says\" sections are excluded. " +
         "First call fetches live; subsequent calls return cached text (permanent cache). " +
         "Use refresh=true to force a re-scrape. Returns found=false when the symbol is not found on the Wildflower Center site.",
@@ -1360,7 +1360,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/lady-bird-johnson/species-text", {
+      apiGet("/lady-bird-johnson/species-information", {
         usda_symbol: String(args["usda_symbol"]),
         ...(args["refresh"] !== undefined ? { refresh: String(args["refresh"]) } : {}),
         provenance_verbosity: pv(args),
@@ -1370,9 +1370,9 @@ const tools: ToolDef[] = [
   // ── minnesota-wildflowers ────────────────────────────────────────────────
   {
     tool: {
-      name: "minnesota_wildflowers__species",
+      name: "minnesota_wildflowers__url",
       description:
-        "Returns the Minnesota Wildflowers species page URL for a plant, providing photos, bloom times, habitat information, and distribution within Minnesota.",
+        "Returns the Minnesota Wildflowers species page URL for a plant, providing photos, bloom times, habitat information, and distribution within Minnesota. Returns data.url when found.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -1383,16 +1383,16 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/minnesota-wildflowers", {
+      apiGet("/minnesota-wildflowers/url", {
         species: String(args["species"]),
         provenance_verbosity: pv(args),
       }),
   },
   {
     tool: {
-      name: "minnesota_wildflowers__species_text",
+      name: "minnesota_wildflowers__species_information",
       description:
-        "Fetches and returns the full scraped text from the Minnesota Wildflowers species page for a plant, including quick-facts table entries and prose sections. Results are cached after the first fetch; use refresh=true to force a live re-scrape. Scrape status is reported in provenance.cache_status (hit=cached, miss=live scrape, bypass=species not in imported list). The scraped_at timestamp is in data.scraped_at.",
+        "Fetches and returns the full scraped text from the Minnesota Wildflowers species page for a plant, including quick-facts table entries and prose sections, returned in data.sections and concatenated in data.full_text. Results are cached after the first fetch; use refresh=true to force a live re-scrape. Scrape status is reported in provenance.cache_status (hit=cached, miss=live scrape, bypass=species not in imported list).",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -1404,7 +1404,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/minnesota-wildflowers/species-text", {
+      apiGet("/minnesota-wildflowers/species-information", {
         species: String(args["species"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
         provenance_verbosity: pv(args),
@@ -1414,9 +1414,9 @@ const tools: ToolDef[] = [
   // ── missouri-plants ──────────────────────────────────────────────────────
   {
     tool: {
-      name: "missouri_plants__species",
+      name: "missouri_plants__url",
       description:
-        "Returns the Missouri Plants species page URL for a plant, covering the flora of Missouri with photographs, descriptions, and habitat notes.",
+        "Returns the Missouri Plants species page URL for a plant, covering the flora of Missouri with photographs, descriptions, and habitat notes. Returns data.url when found.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -1427,16 +1427,16 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/missouri-plants", {
+      apiGet("/missouri-plants/url", {
         species: String(args["species"]),
         provenance_verbosity: pv(args),
       }),
   },
   {
     tool: {
-      name: "missouri_plants__species_text",
+      name: "missouri_plants__species_information",
       description:
-        "Fetches and returns the full scraped text from the Missouri Plants species page for a plant, including description paragraphs and the stats block (Coefficient of Conservatism, Wetland Indicator, Missouri county occurrence count). Results are cached after the first fetch; use refresh=true to force a live re-scrape. Scrape status is reported in provenance.cache_status (hit=cached, miss=live scrape, bypass=species not in imported list). The scraped_at timestamp is in data.scraped_at.",
+        "Fetches and returns the full scraped text from the Missouri Plants species page for a plant, including description paragraphs and the stats block (Coefficient of Conservatism, Wetland Indicator, Missouri county occurrence count), returned in data.sections and concatenated in data.full_text. Results are cached after the first fetch; use refresh=true to force a live re-scrape. Scrape status is reported in provenance.cache_status (hit=cached, miss=live scrape, bypass=species not in imported list).",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -1448,7 +1448,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/missouri-plants/species-text", {
+      apiGet("/missouri-plants/species-information", {
         species: String(args["species"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
         provenance_verbosity: pv(args),
@@ -1606,9 +1606,9 @@ const tools: ToolDef[] = [
   // ── prairie-moon ─────────────────────────────────────────────────────────
   {
     tool: {
-      name: "prairie_moon__species",
+      name: "prairie_moon__url",
       description:
-        "Returns the Prairie Moon Nursery catalog entry for a species, including availability status and a link to the product page. Prairie Moon is a leading native plant nursery specializing in prairie and woodland species.",
+        "Returns the Prairie Moon Nursery product page URL for a species. Prairie Moon is a leading native plant nursery specializing in prairie and woodland species. Returns data.url when found.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -1619,16 +1619,16 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/prairie-moon", {
+      apiGet("/prairie-moon/url", {
         species: String(args["species"]),
         provenance_verbosity: pv(args),
       }),
   },
   {
     tool: {
-      name: "prairie_moon__species_text",
+      name: "prairie_moon__species_information",
       description:
-        "Fetches and returns the full scraped ecological text from the Prairie Moon Nursery species page for a plant, including the product description and growing attributes (Sun, Soil, Moisture, Bloom Color, Bloom Time, Height, Plant Spacing, etc.). Commerce fields (price, SKU, availability) are filtered out. Results are cached after the first fetch; use refresh=true to force a live re-scrape. Scrape status is reported in provenance.cache_status (hit=cached, miss=live scrape, bypass=species not in imported list). The scraped_at timestamp is in data.scraped_at.",
+        "Fetches and returns the full scraped ecological text from the Prairie Moon Nursery species page for a plant, including the product description and growing attributes (Sun, Soil, Moisture, Bloom Color, Bloom Time, Height, Plant Spacing, etc.), returned in data.sections and concatenated in data.full_text. Commerce fields (price, SKU, availability) are filtered out. Results are cached after the first fetch; use refresh=true to force a live re-scrape. Scrape status is reported in provenance.cache_status (hit=cached, miss=live scrape, bypass=species not in imported list).",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -1640,7 +1640,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/prairie-moon/species-text", {
+      apiGet("/prairie-moon/species-information", {
         species: String(args["species"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
         provenance_verbosity: pv(args),

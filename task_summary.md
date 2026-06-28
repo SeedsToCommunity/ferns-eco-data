@@ -711,3 +711,51 @@ All removed fields are either internal FERNS bookkeeping (`imported_at`, `scrape
 ### What the user should decide or review
 
 - **Illinois multi-section behavior**: Illinois Wildflowers species can appear in multiple habitat sections, each with its own URL. `getIllinoisWildflowersSpeciesInformation` fetches only the first section's URL (ordered by section name). If full multi-section text is needed, the EDP would need to iterate all matching URLs.
+
+---
+
+## Task: MCP Review + Audit Updates + Post-Task Summary (Botanical Reference Sources)
+
+**Date:** 2026-06-28
+
+### What was built
+
+Six botanical reference sources (Go Botany, Illinois Wildflowers, Lady Bird Johnson Wildflower Center, Minnesota Wildflowers, Missouri Plants, and Prairie Moon Nursery) were exposed through the MCP layer with corrected tool names derived mechanically from EDP method names. All 12 MCP tools were renamed to remove ambiguous generic labels (`__species`, `__species_text`, `__symbol`) in favor of intent-clear names (`__url`, `__species_information`). Tool descriptions were cleaned of removed field references (`scraped_at`, `status`, `usda_symbol`, `cache_hit`, `verified_at`). The audit health-check functions were updated to point at the renamed REST endpoints, assert on the correct v1 envelope fields (`data.sections`, `data.full_text`, `data.profile_url`), and stop checking for fields the routes no longer return.
+
+### Derivation summary
+
+N/A — no new source was added. Changes per source:
+
+- **Go Botany**: `gobotany__species` → `gobotany__url`; `gobotany__species_text` → `gobotany__species_information`
+- **Illinois Wildflowers**: `illinois_wildflowers__species` → `illinois_wildflowers__url`; `illinois_wildflowers__species_text` → `illinois_wildflowers__species_information`
+- **Lady Bird Johnson**: `lady_bird_johnson__symbol` → `lady_bird_johnson__url`; `lady_bird_johnson__species_text` → `lady_bird_johnson__species_information`
+- **Minnesota Wildflowers**: `minnesota_wildflowers__species` → `minnesota_wildflowers__url`; `minnesota_wildflowers__species_text` → `minnesota_wildflowers__species_information`
+- **Missouri Plants**: `missouri_plants__species` → `missouri_plants__url`; `missouri_plants__species_text` → `missouri_plants__species_information`
+- **Prairie Moon**: `prairie_moon__species` → `prairie_moon__url`; `prairie_moon__species_text` → `prairie_moon__species_information`
+
+### Scientific/technical description
+
+**URL-lookup routes** (`GET /<source>/url?species=...` or `?usda_symbol=...`) now return only the upstream content: `data.url` (Gobotany, MN, MO, PM), `data.results[{url, section}]` (IL), or `data.profile_url` (LBJ). **Species-information routes** (`GET /<source>/species-information?species=...`) return `data.sections` (a `Record<string, string>` of named page sections extracted by the scraper) and `data.full_text` (the concatenated prose string). All FERNS-internal bookkeeping fields have been removed from `data`: `scraped_at` (= envelope `queried_at`), `species`/`usda_symbol` (caller's own input), `validation_method`, `imported_at`, `fetch_error`, `status`, `http_status`, `cache_hit`, `verified_at`, and the redundant `url` field in text routes (already in `provenance.source_url`).
+
+### Architectural decisions made
+
+- **MCP tool names derive mechanically from EDP method names** (`getGobotanyUrl` → `gobotany__url`, `getGobotanySpeciesInformation` → `gobotany__species_information`). This is the action-name consistency rule.
+- **Species-list URL lookups (IL/MN/MO/PM) have no EDP method** — they are pure DB reads. Their `__url` tool names follow the `getXxxUrl` naming convention established by Go Botany and Lady Bird Johnson for consistency, not mechanical EDP derivation. This is documented as an exception in the task.
+- **MCP handler paths updated to new route paths.** The REST routes were already renamed in a prior task (OpenAPI + codegen). This task's MCP handlers were still pointing at the old paths (`/gobotany`, `/gobotany/species-text`, etc.); they are now corrected to match.
+- **Route paths NOT renamed** — only MCP tool names changed in this task. Backward compatibility of REST routes is preserved.
+- **Shared scraper (`services/botanical-refs/scraper.ts`) NOT moved** into the EDP package. EDPs import parse/extract functions from it. Keeping it in REST avoids cross-package coupling.
+- **Audit `runLbjChecks` fixed**: was checking `envelope.cache_status` (top-level), which is wrong per the v1 envelope contract; corrected to `provenance.cache_status`. Was also checking `envelope.scraped_at` (top-level), `data.status`, `data.usda_symbol`, `data.cache_hit`, `data.verified_at` — all removed.
+- **Audit `runSpeciesTextChecks` fixed**: removed `data.scraped_at` assertion; added `data.full_text` assertion; updated all five endpoint paths from `species-text` to `species-information`.
+
+### What was NOT done
+
+- Live audit run against the dev server — not possible in this task environment. Audit code is correct per route inspection; live verification deferred.
+- Route paths not renamed (intentional — backward compatibility preserved).
+- Shared scraper not moved into the EDP package.
+- DB tables not evaluated for pruning of now-unused columns.
+
+### What the user should decide or review
+
+- **Whether the shared scraper should move into the EDP package.** Currently `services/botanical-refs/scraper.ts` lives in the REST server and is imported by EDPs. Moving it to a shared lib would be cleaner architecturally.
+- **Whether REST route paths should be versioned or aliased.** MCP tool names now follow the `getXxx` naming convention; REST paths use the same new names (`/url`, `/species-information`) but this was done in the prior task, not here. The two layers are now aligned.
+- **MCP client migration.** 12 tool names changed. Existing MCP clients hardcoding old names will silently receive "unknown tool" errors. No aliases or migration notes exist yet.
