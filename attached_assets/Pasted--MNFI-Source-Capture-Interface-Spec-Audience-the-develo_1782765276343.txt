@@ -1,0 +1,185 @@
+# MNFI Source — Capture & Interface Spec
+
+Audience: the development agent building the MNFI source for FERNS.
+
+## What this source is
+
+MNFI's natural-community and rare-species material is **static descriptive content** — a finished reference work published as server-rendered HTML, plus one JSON endpoint for county data. There is no upstream API for the descriptive material and no live data behind it; the page *is* the dataset. The observation/locality database (subscription, login-walled) is explicitly **out of scope** — do not pursue it.
+
+Classify this as a **captured-collection** source, not a live-proxy source. The IDP reads from our own DB. The scraper is a one-time authoring tool, not part of request handling and not part of deploy.
+
+## Capture (one-time authoring step)
+
+Scrape once. The output is committed as seed data (see "Seed discipline"). Re-running the scraper is a deliberate manual act, only when MNFI changes its content.
+
+Sources to capture:
+
+1. **Community list** — `/communities/list`. Server-rendered. Yields all 77 communities: 5-digit `community_id`, slug, name, `class`, `group`, global rank, state rank, and the Class→Group→community hierarchy. IDs are **not** sequential 1–77; take them from this page's links.
+2. **Community pages** — `/communities/description/{id}/{slug}`. Fully server-rendered. Parse: prose sections, characteristic plant list (by life form), rare species lists, similar-community links (keep the linked `community_id`, not just the name), places to visit, relevant literature, photo URL, county-map PNG, ecoregion + county map PDFs, abstract PDF link.
+3. **Rare-species roster** — `/species/plants` and `/species/animals`. The master list of tracked species: scientific name, common name, federal status, state status, global rank, state rank, and each species' own page id (from `/species/description/{id}/...`).
+4. **County data** — the JSON feed (`/resources/countyQuery?county={n}` and `/resources/countyCommunityQuery?county={n}`, county IDs 1–83 alphabetical). Capture the **whole feed as-is** — all species and communities, not just rare ones.
+5. **Abstract PDFs** — index at `/publications/abstracts`. Capture the **URLs only**. Do not download or parse PDF text.
+
+Redundancy to drop: the standalone `/communities/plant-list/{id}/{slug}` page is byte-identical to the description page's Plant Lists section. **Do not scrape it.** Parse the plant list out of the community-page fetch. Remove the separate plant-list scrape path.
+
+## Storage
+
+Tables mirror the entities. `element_id` is the join thread wherever it appears, and is **nullable** (see "Verification task").
+
+- `communities` — flat fields: `community_id`, `slug`, `name`, `community_class`, `community_group`, `global_rank`, `state_rank`, `photo_url`, `county_map_url`, `ecoregion_map_url`, `abstract_pdf_url`, `mnfi_url`.
+- `community_sections` — `(community_id, section_name, text, sort_order)`. **A keyed map, not fixed columns.** Sections vary across communities (e.g. Floodplain Forest has "Rare Aquatic Animals"; Bog does not). Fixed columns would silently drop the ones that vary. Store whatever sections the page presents.
+- `community_plants` — `(community_id, life_form, common_name, scientific_names[], sort_order)`.
+- `community_rare_species` — `(community_id, kind, scientific_name, common_name, status, element_id?, sort_order)`. `kind` ∈ `plant | animal | aquatic_animal`.
+- `rare_species` — the roster: `(element_id?, scientific_name, common_name, kind, category, federal_status, state_status, global_rank, state_rank, species_page_url)`. One unified table; plants and animals together, distinguished by `kind` and `category`. (Decision made; override only with reason.)
+- `county_species` / `county_communities` — occurrence rollups keyed by county + `element_id`, full feed including non-rare entries, with status codes and last-observation year.
+- `abstracts` — `(subject_type, subject_key, name, pdf_url)`. `subject_type` ∈ `community | species | other`. `subject_key` holds the internal id: `community_id` for communities, `element_id` for species. The abstracts index is keyed by **name** (e.g. `Bog.pdf`, `Mertensia_virginica.pdf`), so resolve name → id at capture and store both; keep `name` as the fallback when no id resolves. The `other` bucket (e.g. Vernal Pool, Great Blue Heron Rookery) has no `community_id` — for those, `subject_key` is null and `name` is the handle.
+
+Cross-references are stored **raw, as MNFI presents them** — `community_id`, `element_id`, scientific-name strings. Do **not** resolve names to other sources, normalize taxonomy, or join across sources at capture time. That is the naming layer's job, above this source. Capturing it raw is what preserves provenance.
+
+## Seed discipline
+
+The descriptive data is a finished book. It must not be re-scraped on deploy.
+
+1. Scrape once into the tables.
+2. Commit the captured rows as **seed data / a migration** in the repo — the actual data, version-controlled.
+3. New deployments run migrations and the data is present. **No network calls to MNFI at boot, ever.** If MNFI's site went dark, the service would not notice.
+
+The scraper stays in the repo as a manually-invoked authoring tool, never wired into startup.
+
+## IDP interface (the contract)
+
+This is the authoritative contract. REST and MCP are projections of it. The IDP is **pure**: it reads from our DB, returns the verbatim stored payload, and contains **no caching, no response envelope, no provenance dressing, and no EC-specific imports**. Absence returns `null` or an empty array — HTTP semantics (`found: false`, 200 vs 400, envelopes) are the REST layer's concern, not this layer's.
+
+**Identifiers — internal vs public.** MNFI's numeric ids (`community_id`, `element_id`) are **internal join keys only**. The IDP may traffic in them freely — it is the internal layer. The **REST projection must not expose them**: omit `communityId` and `elementId` from public response bodies, and address resources by their public handles — **slug** for communities, **scientific name** for species. This keeps the public contract decoupled from MNFI's internal numbering (which could be re-keyed) and avoids surfacing their internal keys. For this reason `getCommunity` and the species methods accept either the internal id or the public handle.
+
+```typescript
+// Two DIFFERENT axes — do not conflate, do not join on them:
+//   SpeciesKind: the roster's taxonomic split (/species/plants vs /species/animals).
+//   RareKind:    a community page's section grouping. "aquatic_animal" is a
+//                section label, not a taxon — a fish is SpeciesKind "animal" in the
+//                roster but appears under RareKind "aquatic_animal" in a community.
+// The join from community_rare_species -> rare_species is on element_id (or
+// scientificName as fallback), NEVER on kind.
+type SpeciesKind = "plant" | "animal";
+type RareKind = "plant" | "animal" | "aquatic_animal";
+
+interface CommunityStub {
+  communityId: number;
+  slug: string;
+  name: string;
+  communityClass: string;
+  communityGroup: string;
+  globalRank: string | null;
+  stateRank: string | null;
+}
+
+interface CommunitySection { sectionName: string; text: string; sortOrder: number; }
+interface CharacteristicPlant { lifeForm: string; commonName: string; scientificNames: string[]; sortOrder: number; }
+interface CommunityRareSpecies {
+  kind: RareKind;
+  scientificName: string;
+  commonName: string | null;
+  status: string | null;
+  elementId: number | null;
+}
+interface SimilarCommunity { communityId: number; name: string; }
+
+interface CommunityFull extends CommunityStub {
+  sections: CommunitySection[];
+  characteristicPlants: CharacteristicPlant[];
+  rareSpecies: CommunityRareSpecies[];
+  similarCommunities: SimilarCommunity[];
+  placesToVisit: string[];
+  literature: string[];
+  photoUrl: string | null;
+  countyMapUrl: string | null;
+  ecoregionMapUrl: string | null;
+  abstractPdfUrl: string | null;
+  mnfiUrl: string;
+}
+
+interface SpeciesRecord {
+  elementId: number | null;          // MNFI species-page id
+  scientificName: string;
+  commonName: string | null;
+  kind: SpeciesKind;
+  category: string;                  // taxonomic/life-form category as given by the roster
+  federalStatus: string | null;
+  stateStatus: string | null;
+  globalRank: string | null;
+  stateRank: string | null;
+  speciesPageUrl: string | null;
+}
+
+interface CountySpeciesOccurrence {
+  elementId: number | null;
+  scientificName: string;
+  commonName: string | null;
+  category: string;
+  federalStatus: string | null;
+  stateStatus: string | null;
+  globalRank: string | null;
+  stateRank: string | null;
+  lastObsYear: number | null;
+}
+interface CountyCommunityOccurrence {
+  elementId: number | null;
+  name: string;
+  globalRank: string | null;
+  stateRank: string | null;
+  lastObsYear: number | null;
+}
+interface CountyOccurrences {
+  county: string;
+  species: CountySpeciesOccurrence[];
+  communities: CountyCommunityOccurrence[];
+}
+
+interface CommunityFilter { communityClass?: string; group?: string; rank?: string; nameText?: string; }
+// findSpecies covers a large roster — an unfiltered call must NOT dump everything.
+// limit defaults to a bounded page size (e.g. 50); offset pages through. An
+// unfiltered call returns the first page only, never the full set.
+interface SpeciesFilter {
+  nameText?: string; kind?: SpeciesKind; status?: string; rank?: string; category?: string;
+  limit?: number; offset?: number;
+}
+interface CountyFilter { kind?: SpeciesKind; status?: string; category?: string; }
+
+interface SpeciesPage { items: SpeciesRecord[]; total: number; limit: number; offset: number; }
+
+interface MnfiDataProvider {
+  // Communities
+  findCommunities(filter?: CommunityFilter): Promise<CommunityStub[]>;   // 77 total; unpaginated is fine
+  getCommunity(idOrSlug: number | string): Promise<CommunityFull | null>;
+
+  // Species (rare roster) — paginated; unfiltered returns first page only
+  findSpecies(filter?: SpeciesFilter): Promise<SpeciesPage>;
+  getSpecies(idOrName: number | string): Promise<SpeciesRecord | null>;
+  getCommunitiesForSpecies(idOrName: number | string): Promise<CommunityStub[]>;
+
+  // Counties
+  getCountyOccurrences(county: string, filter?: CountyFilter): Promise<CountyOccurrences>;
+  getCountiesForSpecies(idOrName: number | string): Promise<string[]>;
+}
+```
+
+Seven methods. `getCommunitiesForSpecies`, `getCountiesForSpecies`, and the county lookup are reverse directions of edges already stored — they traverse the same graph, no new data. Public REST addresses communities by **slug** and species by **scientific name**; internal numeric ids never appear in response bodies. Every user question lands on one of these:
+
+- "what belongs in a floodplain forest" → `getCommunity`
+- "what's recorded near me" → `getCountyOccurrences`
+- "is this rare / where does it live" → `getSpecies` + `getCommunitiesForSpecies`
+- "show me all imperiled prairie plants" → `findSpecies` + `findCommunities`
+
+## REST + MCP
+
+REST is a thin projection over the IDP: it calls IDP methods, adds the response envelope, provenance metadata, and caching, and maps absence to the agreed HTTP contract. MCP sits over REST. Do not duplicate IDP logic in either; they only project.
+
+## Verification task (do before trusting the join at scale)
+
+Confirm whether MNFI's county-feed `ELEMENT_ID` equals the species-page URL id. Pick one species present in both — e.g. Pitcher's thistle, roster URL id `13485` — and compare against its `ELEMENT_ID` in the county data. If they match, `element_id` joins community-rare-species, roster, and county tables directly. If not, fall back to scientific name through the naming layer. Either way the schema stands; this only tells you how often the fast join applies. (Expectation: MNFI ids match each other; they will **not** match NatureServe's `elementGlobalId`, which is a separate namespace.)
+
+## Explicitly out of scope
+
+- Observation / locality data (the subscription database). Not pursued.
+- PDF text extraction. Abstracts are captured as links only.
+- Name resolution, taxonomic normalization, cross-source joins. All belong to the naming layer above this source.
