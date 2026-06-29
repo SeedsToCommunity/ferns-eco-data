@@ -1791,3 +1791,135 @@ export async function runGoogleImagesChecks(fernsBase: string): Promise<Endpoint
 
   return [happyCheck, errorCheck, metaCheck];
 }
+
+// ─── Species-Information Smoke Test ───────────────────────────────────────────
+// Smoke-tests the /species-information scraping endpoint for each of the five
+// botanical reference sources that support it, using Asclepias syriaca (common
+// milkweed) — chosen because it is broadly documented on all five sites and
+// is distinct from the Asclepias tuberosa test in runSpeciesTextChecks.
+//
+// Note: the task specification listed these endpoints as
+//   ?genus=Asclepias&species=syriaca
+// but all five routes accept only the combined ?species= parameter
+// (e.g. ?species=Asclepias+syriaca). The correct format is used below.
+//
+// Asserts per endpoint:
+//   - HTTP 200
+//   - found === true
+//   - data.sections is a non-null object with ≥1 key
+//   - data.full_text is a non-empty string
+//   - provenance.source_id matches the expected source ID
+
+export async function runSpeciesInfoSmokeTest(fernsBase: string): Promise<EndpointComparison[]> {
+  const TEST_SPECIES_NAME = "Asclepias syriaca";
+  const encodedSpecies = encodeURIComponent(TEST_SPECIES_NAME);
+
+  function speciesInfoChecks(expectedSourceId: string) {
+    return (envelope: Record<string, unknown>): FieldFinding[] => {
+      const findings: FieldFinding[] = [];
+
+      // found must be true for this species on all five sources
+      if (envelope.found === true) {
+        findings.push({ type: "ok", sourceField: "found", note: `found=true (${expectedSourceId})` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "found", note: `Expected found=true for ${TEST_SPECIES_NAME} on ${expectedSourceId}, got found=${envelope.found}` });
+      }
+
+      // provenance.source_id must match expected
+      const prov = envelope.provenance as Record<string, unknown> | null | undefined;
+      const sourceId = prov?.source_id;
+      if (sourceId === expectedSourceId) {
+        findings.push({ type: "ok", sourceField: "provenance.source_id", note: `source_id="${sourceId}" (expected)` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "provenance.source_id", note: `Expected source_id="${expectedSourceId}", got "${sourceId}"` });
+      }
+
+      if (envelope.found === true) {
+        const data = envelope.data as Record<string, unknown> | null | undefined;
+        if (!data) {
+          findings.push({ type: "mismatch", sourceField: "data", note: "data missing when found=true" });
+          return findings;
+        }
+
+        // data.sections must be a non-null object with at least one key
+        const sections = data.sections;
+        if (sections && typeof sections === "object" && !Array.isArray(sections)) {
+          const keys = Object.keys(sections as object);
+          if (keys.length > 0) {
+            findings.push({ type: "ok", sourceField: "data.sections", note: `${keys.length} section(s): ${keys.slice(0, 3).join(", ")}` });
+          } else {
+            findings.push({ type: "mismatch", sourceField: "data.sections", note: `found=true but data.sections is empty — scraper returned no sections for ${TEST_SPECIES_NAME}` });
+          }
+        } else {
+          findings.push({ type: "mismatch", sourceField: "data.sections", note: "data.sections missing or not an object when found=true" });
+        }
+
+        // data.full_text must be a non-empty string
+        if (typeof data.full_text === "string" && data.full_text.length > 0) {
+          findings.push({ type: "ok", sourceField: "data.full_text", note: `full_text present (${data.full_text.length} chars)` });
+        } else {
+          findings.push({ type: "mismatch", sourceField: "data.full_text", note: `data.full_text missing or empty when found=true` });
+        }
+
+        // sections and full_text consistency: full_text length should be ≥ longest single section
+        if (
+          sections &&
+          typeof sections === "object" &&
+          !Array.isArray(sections) &&
+          typeof data.full_text === "string" &&
+          data.full_text.length > 0
+        ) {
+          const sectionValues = Object.values(sections as Record<string, unknown>).filter((v) => typeof v === "string") as string[];
+          const longestSection = sectionValues.reduce((max, v) => Math.max(max, v.length), 0);
+          if (data.full_text.length >= longestSection) {
+            findings.push({ type: "ok", sourceField: "data.full_text/sections", note: `full_text (${data.full_text.length} chars) ≥ longest section (${longestSection} chars) — consistent` });
+          } else {
+            findings.push({ type: "mismatch", sourceField: "data.full_text/sections", note: `full_text (${data.full_text.length} chars) shorter than longest section (${longestSection} chars) — inconsistency` });
+          }
+        }
+      }
+
+      return findings;
+    };
+  }
+
+  const [gobotanyCheck, illinoisCheck, minnesotaCheck, missouriCheck, prairieMoonCheck] = await Promise.all([
+    checkEndpoint(
+      "gobotany",
+      `/api/gobotany/species-information?species=${encodedSpecies}`,
+      `Go Botany — species-information smoke test (${TEST_SPECIES_NAME}: found=true, sections, full_text, source_id)`,
+      fernsBase,
+      speciesInfoChecks("gobotany"),
+    ),
+    checkEndpoint(
+      "illinois-wildflowers",
+      `/api/illinois-wildflowers/species-information?species=${encodedSpecies}`,
+      `Illinois Wildflowers — species-information smoke test (${TEST_SPECIES_NAME}: found=true, sections, full_text, source_id)`,
+      fernsBase,
+      speciesInfoChecks("illinois-wildflowers"),
+    ),
+    checkEndpoint(
+      "minnesota-wildflowers",
+      `/api/minnesota-wildflowers/species-information?species=${encodedSpecies}`,
+      `Minnesota Wildflowers — species-information smoke test (${TEST_SPECIES_NAME}: found=true, sections, full_text, source_id)`,
+      fernsBase,
+      speciesInfoChecks("minnesota-wildflowers"),
+    ),
+    checkEndpoint(
+      "missouri-plants",
+      `/api/missouri-plants/species-information?species=${encodedSpecies}`,
+      `Missouri Plants — species-information smoke test (${TEST_SPECIES_NAME}: found=true, sections, full_text, source_id)`,
+      fernsBase,
+      speciesInfoChecks("missouri-plants"),
+    ),
+    checkEndpoint(
+      "prairie-moon",
+      `/api/prairie-moon/species-information?species=${encodedSpecies}`,
+      `Prairie Moon — species-information smoke test (${TEST_SPECIES_NAME}: found=true, sections, full_text, source_id)`,
+      fernsBase,
+      speciesInfoChecks("prairie-moon"),
+    ),
+  ]);
+
+  return [gobotanyCheck, illinoisCheck, minnesotaCheck, missouriCheck, prairieMoonCheck];
+}
