@@ -9,5 +9,6 @@ import type { FernsEnvelope } from './fernsEnvelope';
 import type { UsdaPlantsSearchResponseData } from './usdaPlantsSearchResponseData';
 
 export type UsdaPlantsSearchResponse = FernsEnvelope & {
+  /** Verbatim upstream POST /plants-search-results response object */
   data?: UsdaPlantsSearchResponseData;
 };

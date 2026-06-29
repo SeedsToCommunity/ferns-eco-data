@@ -5,10 +5,9 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { UsdaPlantsProfileResponseDataProfile } from './usdaPlantsProfileResponseDataProfile';
 
-export type UsdaPlantsProfileResponseData = {
-  symbol?: string;
-  /** Raw PlantProfile object from the USDA PLANTS API */
-  profile?: UsdaPlantsProfileResponseDataProfile;
-};
+/**
+ * Verbatim upstream PlantProfile object. Top-level keys include Id, Symbol, ScientificName, ScientificNameWithoutAuthor, CommonName, NativeStatuses, WetlandData, Synonyms, Ancestors, Characteristics, and others. No symbol echo or profile nesting — the profile object is data directly.
+
+ */
+export type UsdaPlantsProfileResponseData = { [key: string]: unknown };

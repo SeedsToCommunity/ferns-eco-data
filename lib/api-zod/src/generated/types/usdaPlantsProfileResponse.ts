@@ -9,5 +9,7 @@ import type { FernsEnvelope } from './fernsEnvelope';
 import type { UsdaPlantsProfileResponseData } from './usdaPlantsProfileResponseData';
 
 export type UsdaPlantsProfileResponse = FernsEnvelope & {
+  /** Verbatim upstream PlantProfile object. Top-level keys include Id, Symbol, ScientificName, ScientificNameWithoutAuthor, CommonName, NativeStatuses, WetlandData, Synonyms, Ancestors, Characteristics, and others. No symbol echo or profile nesting — the profile object is data directly.
+ */
   data?: UsdaPlantsProfileResponseData;
 };

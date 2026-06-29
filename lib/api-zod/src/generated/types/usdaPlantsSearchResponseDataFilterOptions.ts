@@ -6,4 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type UsdaPlantsSpeciesDataWetlandDataItem = { [key: string]: unknown };
+/**
+ * Available filter facets from the upstream API
+ */
+export type UsdaPlantsSearchResponseDataFilterOptions = { [key: string]: unknown };

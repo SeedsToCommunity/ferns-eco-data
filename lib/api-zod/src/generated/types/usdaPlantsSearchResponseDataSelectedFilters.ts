@@ -6,4 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type UsdaPlantsSpeciesDataAncestorsItem = { [key: string]: unknown };
+/**
+ * Currently applied filters
+ */
+export type UsdaPlantsSearchResponseDataSelectedFilters = { [key: string]: unknown };

@@ -6,12 +6,12 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetUsdaPlantsParams = {
+export type GetUsdaPlantsPlantSearchParams = {
 /**
- * Scientific name (e.g. Asclepias tuberosa)
+ * Scientific name autocomplete text (e.g. Asclepias tuberosa). Verbatim upstream parameter name.
  * @minLength 1
  */
-species: string;
+searchText: string;
 /**
  * If true, bypasses cache and fetches fresh from USDA PLANTS
  */

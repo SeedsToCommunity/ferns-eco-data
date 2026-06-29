@@ -90,8 +90,6 @@ export const USDA_PLANTS_REGISTRY_ENTRY = {
   license_notes: USDA_PLANTS_LICENSE_NOTES,
   general_summary: USDA_PLANTS_GENERAL_SUMMARY,
   technical_details: USDA_PLANTS_TECHNICAL_DETAILS,
-  // VIOLATION: /api/usda-plants/PlantSearch is a composite route that calls PlantSearch then PlantProfile
-  // sequentially. Known violation deferred to plan 18 (audit triage). Do not add it here without plan 18.
   non_passthrough_endpoints: [{ endpoint: "/api/usda-plants/metadata", kind: "metadata" }],
   permission_granted: true,
   license: USDA_PLANTS_LICENSE,

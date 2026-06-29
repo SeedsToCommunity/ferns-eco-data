@@ -3731,19 +3731,19 @@ export const GetPrairieMoonSpeciesInformationResponse = zod.object({
 
 
 /**
- * Resolves a scientific name to a USDA symbol via the PlantSearch API, then fetches the full PlantProfile. Returns the symbol, canonical name, common name, taxonomic rank, nativity status per US region, wetland indicator data, legal statuses, taxonomy hierarchy (Ancestors), synonyms, fact sheets, and plant guide URLs. Name matches are cached 30 days for hits and 7 days for misses; profiles are cached 30 days. Use ?refresh=true to bypass both caches.
+ * Calls the USDA PLANTS PlantSearch autocomplete API with the given searchText and returns the verbatim upstream array of { Text, Plant } objects. `searchText` is the upstream API's verbatim parameter name. Each Plant object includes Symbol, ScientificName, CommonName, Rank, and other fields. Use the Symbol from a matched result to call /usda-plants/PlantProfile. Results are not cached — each call hits the USDA PLANTS API directly.
 
- * @summary Look up a species in the USDA PLANTS Database by scientific name
+ * @summary USDA PLANTS autocomplete — resolve a scientific name to a PLANTS symbol
  */
 
-export const getUsdaPlantsQueryRefreshDefault = false;
+export const getUsdaPlantsPlantSearchQueryRefreshDefault = false;
 
-export const GetUsdaPlantsQueryParams = zod.object({
-  "species": zod.string().min(1).describe('Scientific name (e.g. Asclepias tuberosa)'),
-  "refresh": zod.coerce.boolean().default(getUsdaPlantsQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from USDA PLANTS')
+export const GetUsdaPlantsPlantSearchQueryParams = zod.object({
+  "searchText": zod.string().min(1).describe('Scientific name autocomplete text (e.g. Asclepias tuberosa). Verbatim upstream parameter name.'),
+  "refresh": zod.coerce.boolean().default(getUsdaPlantsPlantSearchQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from USDA PLANTS')
 })
 
-export const GetUsdaPlantsResponse = zod.object({
+export const GetUsdaPlantsPlantSearchResponse = zod.object({
   "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
   "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
   "pagination": zod.union([zod.object({
@@ -3766,34 +3766,15 @@ export const GetUsdaPlantsResponse = zod.object({
 }).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
   "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
 }).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
-  "data": zod.object({
-  "symbol": zod.string().nullish(),
-  "canonical_name": zod.string().nullish(),
-  "common_name": zod.string().nullish(),
-  "rank": zod.string().nullish(),
-  "usda_id": zod.number().nullish(),
-  "native_statuses": zod.array(zod.object({
-  "Region": zod.string().optional().describe('Region code (L48, AK, HI, PR, VI, CAN, GU, MP, SPM, UM)'),
-  "Status": zod.string().optional().describe('N=Native, I=Introduced'),
-  "Type": zod.string().optional().describe('Native or Introduced')
-}).describe('Nativity status for a US region.')).nullish(),
-  "wetland_data": zod.array(zod.record(zod.string(), zod.unknown())).nullish(),
-  "legal_statuses": zod.array(zod.record(zod.string(), zod.unknown())).nullish(),
-  "durations": zod.array(zod.string()).nullish(),
-  "growth_habits": zod.array(zod.string()).nullish(),
-  "group": zod.string().nullish(),
-  "ancestors": zod.array(zod.record(zod.string(), zod.unknown())).nullish().describe('Taxonomy hierarchy from Kingdom to parent rank'),
-  "synonyms": zod.array(zod.record(zod.string(), zod.unknown())).nullish(),
-  "fact_sheet_urls": zod.array(zod.string()).optional(),
-  "plant_guide_urls": zod.array(zod.string()).optional(),
-  "other_common_names": zod.array(zod.string()).nullish(),
-  "profile_image_filename": zod.string().nullish()
-}).optional()
+  "data": zod.array(zod.object({
+  "Text": zod.string().optional().describe('Display text for the autocomplete result'),
+  "Plant": zod.record(zod.string(), zod.unknown()).optional().describe('Raw Plant object from the upstream PlantSearch API (verbatim)')
+}).describe('A single USDA PLANTS autocomplete result item (verbatim upstream shape).')).optional().describe('Verbatim upstream array of { Text, Plant } autocomplete items')
 }))
 
 
 /**
- * Fetches the PlantProfile for a known USDA symbol (e.g. ASTU for Asclepias tuberosa). Returns the complete raw profile object as returned by the USDA PLANTS API. Profiles are cached 30 days. Use ?refresh=true to bypass the cache. Use the /usda-plants/PlantSearch?species= endpoint to resolve a scientific name to a symbol if the symbol is not already known.
+ * Fetches the PlantProfile for a known USDA symbol (e.g. ASTU for Asclepias tuberosa). Returns the verbatim upstream profile object as returned by the USDA PLANTS API — top-level keys include Id, Symbol, ScientificName, ScientificNameWithoutAuthor, CommonName, NativeStatuses, WetlandData, Synonyms, Ancestors, Characteristics, and others. data is the profile object directly with no symbol echo or profile nesting. Profiles are cached 30 days. Use ?refresh=true to bypass the cache. Use /usda-plants/PlantSearch?searchText= to resolve a scientific name to a symbol if the symbol is not already known.
 
  * @summary Fetch the full USDA PLANTS profile for a known symbol
  */
@@ -3828,28 +3809,24 @@ export const GetUsdaPlantsProfileResponse = zod.object({
 }).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
   "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
 }).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
-  "data": zod.object({
-  "symbol": zod.string().optional(),
-  "profile": zod.record(zod.string(), zod.unknown()).optional().describe('Raw PlantProfile object from the USDA PLANTS API')
-}).optional()
+  "data": zod.record(zod.string(), zod.unknown()).optional().describe('Verbatim upstream PlantProfile object. Top-level keys include Id, Symbol, ScientificName, ScientificNameWithoutAuthor, CommonName, NativeStatuses, WetlandData, Synonyms, Ancestors, Characteristics, and others. No symbol echo or profile nesting — the profile object is data directly.\n')
 }))
 
 
 /**
- * Performs a paginated text search against the USDA PLANTS plants-search-results endpoint. Supports searching by Scientific Name, Common Name, Symbol, or Family. Returns matching records with symbol, common name, family, wetland data, legal status, and image info. Search results are not cached — each call hits the USDA PLANTS API directly.
+ * Paginated USDA PLANTS search. FERNS exposes this as GET; the upstream is POST /plants-search-results with a JSON body. The EDP handles the GET-to-POST translation internally. Parameter names (Text, Field, pageNumber) match the upstream POST body field names. data is the verbatim upstream response object. Search results are not cached — each call hits the USDA PLANTS API directly.
 
  * @summary Search the USDA PLANTS Database with a text query
  */
 
-export const getUsdaPlantsSearchQueryFieldDefault = `Scientific Name`;
-export const getUsdaPlantsSearchQueryPageDefault = 1;
+export const getUsdaPlantsSearchQueryPageNumberDefault = 1;
 
 
 
 export const GetUsdaPlantsSearchQueryParams = zod.object({
-  "q": zod.string().min(1).describe('Search text (e.g. Trillium, butterfly milkweed)'),
-  "field": zod.enum(['Scientific Name', 'Common Name', 'Symbol', 'Family']).default(getUsdaPlantsSearchQueryFieldDefault).describe('Field to search. One of Scientific Name, Common Name, Symbol, Family. Defaults to Scientific Name.\n'),
-  "page": zod.coerce.number().min(1).default(getUsdaPlantsSearchQueryPageDefault).describe('1-based page number (default 1)')
+  "Text": zod.string().min(1).describe('Search text (e.g. Trillium, butterfly milkweed). Upstream POST body field name.'),
+  "Field": zod.enum(['Scientific Name', 'Common Name', 'Symbol', 'Family']).describe('Field to search. One of Scientific Name, Common Name, Symbol, Family. Upstream POST body field name.\n'),
+  "pageNumber": zod.coerce.number().min(1).default(getUsdaPlantsSearchQueryPageNumberDefault).describe('1-based page number (default 1). Upstream POST body field name.')
 })
 
 export const GetUsdaPlantsSearchResponse = zod.object({
@@ -3876,25 +3853,15 @@ export const GetUsdaPlantsSearchResponse = zod.object({
   "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
 }).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
   "data": zod.object({
-  "total": zod.number().optional(),
-  "results": zod.array(zod.object({
-  "id": zod.number().optional(),
-  "symbol": zod.string().optional(),
-  "accepted_symbol": zod.string().nullish(),
-  "is_synonym": zod.boolean().optional(),
-  "scientific_name": zod.string().optional().describe('Scientific name with HTML italic tags'),
-  "scientific_name_without_author": zod.string().nullish(),
-  "common_name": zod.string().nullish(),
-  "family_name": zod.string().nullish(),
-  "rank_id": zod.number().nullish(),
-  "num_images": zod.number().optional(),
-  "profile_image_filename": zod.string().nullish(),
-  "fact_sheet_urls": zod.array(zod.string()).optional(),
-  "plant_guide_urls": zod.array(zod.string()).optional(),
-  "legal_statuses": zod.array(zod.record(zod.string(), zod.unknown())).optional(),
-  "wetland_data": zod.array(zod.record(zod.string(), zod.unknown())).optional()
-})).optional()
-}).optional()
+  "PlantResults": zod.array(zod.record(zod.string(), zod.unknown())).optional().describe('Array of matching plant records'),
+  "TotalResults": zod.number().optional().describe('Total number of matching records across all pages'),
+  "FilterOptions": zod.record(zod.string(), zod.unknown()).optional().describe('Available filter facets from the upstream API'),
+  "SelectedFilters": zod.record(zod.string(), zod.unknown()).optional().describe('Currently applied filters'),
+  "Sources": zod.array(zod.record(zod.string(), zod.unknown())).optional().describe('Source attribution array from upstream'),
+  "TotalImageCount": zod.number().optional().describe('Total image count across all results'),
+  "Offset": zod.number().optional().describe('Current result offset (0-based)'),
+  "ResultId": zod.string().optional().describe('Opaque result set identifier from upstream')
+}).optional().describe('Verbatim upstream POST \/plants-search-results response object')
 }))
 
 

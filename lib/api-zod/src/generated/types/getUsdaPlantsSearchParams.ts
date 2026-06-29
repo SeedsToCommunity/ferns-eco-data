@@ -9,18 +9,18 @@ import type { GetUsdaPlantsSearchField } from './getUsdaPlantsSearchField';
 
 export type GetUsdaPlantsSearchParams = {
 /**
- * Search text (e.g. Trillium, butterfly milkweed)
+ * Search text (e.g. Trillium, butterfly milkweed). Upstream POST body field name.
  * @minLength 1
  */
-q: string;
+Text: string;
 /**
- * Field to search. One of Scientific Name, Common Name, Symbol, Family. Defaults to Scientific Name.
+ * Field to search. One of Scientific Name, Common Name, Symbol, Family. Upstream POST body field name.
 
  */
-field?: GetUsdaPlantsSearchField;
+Field: GetUsdaPlantsSearchField;
 /**
- * 1-based page number (default 1)
+ * 1-based page number (default 1). Upstream POST body field name.
  * @minimum 1
  */
-page?: number;
+pageNumber?: number;
 };

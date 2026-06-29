@@ -51,164 +51,98 @@ export async function runUsdaPlantsComparators(
   const results: EndpointComparison[] = [];
 
   for (const sp of species) {
-    const speciesResult = await compareUsdaPlantsSpecies(fernsBase, sp);
-    results.push(speciesResult);
+    const upstreamSearchResults = await upstreamPlantSearch(sp.name);
+    const upstreamMatch = findExactMatch(sp.name, upstreamSearchResults);
 
-    const fernsData = speciesResult.rawFerns as Record<string, unknown> | undefined;
-    const symbol = fernsData?.symbol as string | null | undefined;
+    results.push(await comparePlantSearchAutocomplete(fernsBase, sp, upstreamSearchResults));
+
+    const symbol = (upstreamMatch?.Plant["Symbol"] as string | null) ?? null;
     if (symbol) {
       results.push(await compareUsdaPlantsProfile(fernsBase, sp.name, symbol));
     }
+
+    results.push(await comparePlantsSearchResults(fernsBase, sp));
   }
 
   return results;
 }
 
-async function compareUsdaPlantsSpecies(
+async function comparePlantSearchAutocomplete(
   fernsBase: string,
   sp: TestSpecies,
+  upstreamSearchResults: UsdaPlantSearchItem[],
 ): Promise<EndpointComparison> {
   const fernsEndpointPath = `/api/usda-plants/PlantSearch`;
-  const endpoint = `${fernsEndpointPath}?species=${encodeURIComponent(sp.name)}&refresh=true`;
+  const endpoint = `${fernsEndpointPath}?searchText=${encodeURIComponent(sp.name)}&refresh=true`;
   const fernsUrl = `${fernsBase}${endpoint}`;
-  const label = `${sp.label} (${sp.name}) — USDA PLANTS species name lookup parity`;
+  const label = `${sp.label} (${sp.name}) — USDA PLANTS /PlantSearch autocomplete parity`;
 
   try {
-    const [fernsRaw, upstreamSearchResults] = await Promise.all([
-      fetchJson(fernsUrl) as Promise<Record<string, unknown>>,
-      upstreamPlantSearch(sp.name),
-    ]);
-
-    const fernsData = (fernsRaw.data ?? {}) as Record<string, unknown>;
+    const fernsRaw = (await fetchJson(fernsUrl)) as Record<string, unknown>;
     const findings: EndpointComparison["findings"] = [];
     const urlsCollected = collectUrls(fernsRaw, `usda-plants:PlantSearch:${sp.name}`);
 
-    const fernsFound = Boolean(fernsRaw.found);
-    const upstreamMatch = findExactMatch(sp.name, upstreamSearchResults);
-    const upstreamFound = upstreamMatch !== null;
-
-    if (fernsFound !== upstreamFound) {
+    if (!Array.isArray(fernsRaw.data)) {
       findings.push({
         type: "mismatch",
-        sourceField: "found",
-        fernsField: "found",
-        sourceValue: upstreamFound,
-        fernsValue: fernsFound,
-        note: `found mismatch: upstream=${upstreamFound} FERNS=${fernsFound}`,
+        sourceField: "data",
+        fernsField: "data",
+        sourceValue: "Array",
+        fernsValue: typeof fernsRaw.data,
+        note: `data must be a verbatim upstream array; got ${typeof fernsRaw.data}`,
       });
-    } else {
-      findings.push({
-        type: "ok",
-        sourceField: "found",
-        note: `found parity: both ${fernsFound ? "found" : "not found"}`,
-      });
+      return { source: SOURCE, endpoint, label, ok: false, rawFerns: fernsRaw, findings, urlsCollected };
     }
 
-    if (!fernsFound && !upstreamFound) {
-      findings.push({
-        type: "ok",
-        sourceField: "(usda-plants)",
-        note: "Both FERNS and upstream agree: species not in USDA PLANTS database",
-      });
-      return { source: SOURCE, endpoint, label, ok: true, rawFerns: fernsData, findings, urlsCollected };
-    }
+    findings.push({
+      type: "ok",
+      sourceField: "data",
+      note: `data is array with ${(fernsRaw.data as unknown[]).length} item(s) — verbatim upstream shape`,
+    });
 
-    if (!upstreamFound) {
-      return { source: SOURCE, endpoint, label, ok: true, rawFerns: fernsData, findings, urlsCollected };
-    }
-
-    const upstreamPlant = upstreamMatch!.Plant;
-    const upstreamSymbol = (upstreamPlant["Symbol"] as string) ?? null;
-    const upstreamSciName = upstreamPlant["ScientificName"]
-      ? stripHtml(upstreamPlant["ScientificName"] as string)
-      : null;
-    const upstreamCommonName = (upstreamPlant["CommonName"] as string) ?? null;
-    const upstreamRank = (upstreamPlant["Rank"] as string) ?? null;
-
-    const fernsSymbol = fernsData.symbol as string | null;
-    const fernsCanonicalName = fernsData.canonical_name as string | null;
-    const fernsCommonName = fernsData.common_name as string | null;
-    const fernsRank = fernsData.rank as string | null;
-
-    if (fernsSymbol !== upstreamSymbol) {
-      findings.push({
-        type: "mismatch",
-        sourceField: "Symbol",
-        fernsField: "symbol",
-        sourceValue: upstreamSymbol,
-        fernsValue: fernsSymbol,
-        note: `symbol mismatch: upstream=${upstreamSymbol} FERNS=${fernsSymbol}`,
-      });
-    } else {
-      findings.push({
-        type: "ok",
-        sourceField: "Symbol",
-        note: `symbol parity: ${fernsSymbol}`,
-      });
-    }
-
-    if (upstreamSciName && fernsCanonicalName) {
-      if (upstreamSciName.toLowerCase() !== fernsCanonicalName.toLowerCase()) {
+    const fernsItems = fernsRaw.data as UsdaPlantSearchItem[];
+    if (fernsItems.length > 0) {
+      const first = fernsItems[0];
+      const hasText = "Text" in first;
+      const hasPlant = "Plant" in first;
+      if (!hasText || !hasPlant) {
         findings.push({
           type: "mismatch",
-          sourceField: "ScientificName (stripped)",
-          fernsField: "canonical_name",
-          sourceValue: upstreamSciName,
-          fernsValue: fernsCanonicalName,
-          note: `canonical_name mismatch: upstream="${upstreamSciName}" FERNS="${fernsCanonicalName}"`,
+          sourceField: "data[0]",
+          fernsField: "data[0]",
+          sourceValue: "{ Text, Plant }",
+          fernsValue: JSON.stringify(Object.keys(first)),
+          note: `first element missing expected keys — hasText=${hasText} hasPlant=${hasPlant}`,
         });
       } else {
         findings.push({
           type: "ok",
-          sourceField: "ScientificName (stripped)",
-          note: `canonical_name parity: "${fernsCanonicalName}"`,
+          sourceField: "data[0]",
+          note: `first element has Text and Plant keys — verbatim upstream shape confirmed`,
         });
       }
     }
 
-    if (upstreamCommonName && fernsCommonName && upstreamCommonName !== fernsCommonName) {
+    const upstreamCount = upstreamSearchResults.length;
+    const fernsCount = fernsItems.length;
+    if (upstreamCount !== fernsCount) {
       findings.push({
         type: "mismatch",
-        sourceField: "CommonName",
-        fernsField: "common_name",
-        sourceValue: upstreamCommonName,
-        fernsValue: fernsCommonName,
-        note: `common_name mismatch: upstream="${upstreamCommonName}" FERNS="${fernsCommonName}"`,
+        sourceField: "data.length",
+        fernsField: "data.length",
+        sourceValue: upstreamCount,
+        fernsValue: fernsCount,
+        note: `result count mismatch: upstream=${upstreamCount} FERNS=${fernsCount}`,
       });
-    } else if (fernsCommonName) {
+    } else {
       findings.push({
         type: "ok",
-        sourceField: "CommonName",
-        note: `common_name: "${fernsCommonName}"`,
+        sourceField: "data.length",
+        note: `result count parity: ${fernsCount}`,
       });
     }
 
-    if (upstreamRank && fernsRank && upstreamRank !== fernsRank) {
-      findings.push({
-        type: "mismatch",
-        sourceField: "Rank",
-        fernsField: "rank",
-        sourceValue: upstreamRank,
-        fernsValue: fernsRank,
-        note: `rank mismatch: upstream="${upstreamRank}" FERNS="${fernsRank}"`,
-      });
-    } else if (fernsRank) {
-      findings.push({
-        type: "ok",
-        sourceField: "Rank",
-        note: `rank: "${fernsRank}"`,
-      });
-    }
-
-    // profile_url removed from data in envelope migration (plan 07). Client constructs
-    // from website_url_patterns. No profile_url check needed.
-    findings.push({
-      type: "ok",
-      sourceField: "profile_url",
-      note: "profile_url removed from data per envelope migration (plan 07); client constructs from website_url_patterns",
-    });
-
-    return { source: SOURCE, endpoint, label, ok: true, rawFerns: fernsData, findings, urlsCollected };
+    return { source: SOURCE, endpoint, label, ok: true, rawFerns: fernsRaw, findings, urlsCollected };
   } catch (err) {
     return {
       source: SOURCE,
@@ -239,7 +173,6 @@ async function compareUsdaPlantsProfile(
     ]);
 
     const fernsData = (fernsRaw.data ?? {}) as Record<string, unknown>;
-    const fernsProfile = (fernsData.profile ?? {}) as Record<string, unknown>;
     const findings: EndpointComparison["findings"] = [];
     const urlsCollected = collectUrls(fernsRaw, `usda-plants:PlantProfile:${symbol}`);
 
@@ -268,12 +201,12 @@ async function compareUsdaPlantsProfile(
     }
 
     const upstreamId = upstreamProfile["Id"] as number | null;
-    const fernsId = fernsProfile["Id"] as number | null;
+    const fernsId = fernsData["Id"] as number | null;
     if (upstreamId !== fernsId) {
       findings.push({
         type: "mismatch",
         sourceField: "Id",
-        fernsField: "profile.Id",
+        fernsField: "data.Id",
         sourceValue: upstreamId,
         fernsValue: fernsId,
         note: `profile Id mismatch: upstream=${upstreamId} FERNS=${fernsId}`,
@@ -287,12 +220,21 @@ async function compareUsdaPlantsProfile(
     }
 
     const upstreamSymbolField = (upstreamProfile["Symbol"] as string) ?? null;
-    const fernsSymbolField = (fernsProfile["Symbol"] as string) ?? null;
-    if (upstreamSymbolField && fernsSymbolField && upstreamSymbolField !== fernsSymbolField) {
+    const fernsSymbolField = (fernsData["Symbol"] as string) ?? null;
+    if (fernsSymbolField !== symbol.toUpperCase()) {
       findings.push({
         type: "mismatch",
         sourceField: "Symbol",
-        fernsField: "profile.Symbol",
+        fernsField: "data.Symbol",
+        sourceValue: symbol.toUpperCase(),
+        fernsValue: fernsSymbolField,
+        note: `data.Symbol must equal symbol.toUpperCase(): expected=${symbol.toUpperCase()} FERNS=${fernsSymbolField}`,
+      });
+    } else if (upstreamSymbolField && fernsSymbolField && upstreamSymbolField !== fernsSymbolField) {
+      findings.push({
+        type: "mismatch",
+        sourceField: "Symbol",
+        fernsField: "data.Symbol",
         sourceValue: upstreamSymbolField,
         fernsValue: fernsSymbolField,
         note: `profile symbol mismatch: upstream=${upstreamSymbolField} FERNS=${fernsSymbolField}`,
@@ -300,19 +242,19 @@ async function compareUsdaPlantsProfile(
     } else {
       findings.push({
         type: "ok",
-        sourceField: "profile.Symbol",
+        sourceField: "data.Symbol",
         note: `profile symbol parity: ${fernsSymbolField ?? symbol}`,
       });
     }
 
     const upstreamNativeStatuses = (upstreamProfile["NativeStatuses"] as Array<{ Region: string; Status: string }>) ?? [];
-    const fernsNativeStatuses = (fernsProfile["NativeStatuses"] as Array<{ Region: string; Status: string }>) ?? [];
+    const fernsNativeStatuses = (fernsData["NativeStatuses"] as Array<{ Region: string; Status: string }>) ?? [];
 
     if (upstreamNativeStatuses.length !== fernsNativeStatuses.length) {
       findings.push({
         type: "mismatch",
         sourceField: "NativeStatuses.length",
-        fernsField: "profile.NativeStatuses.length",
+        fernsField: "data.NativeStatuses.length",
         sourceValue: upstreamNativeStatuses.length,
         fernsValue: fernsNativeStatuses.length,
         note: `NativeStatuses count mismatch: upstream=${upstreamNativeStatuses.length} FERNS=${fernsNativeStatuses.length}`,
@@ -325,7 +267,7 @@ async function compareUsdaPlantsProfile(
           findings.push({
             type: "mismatch",
             sourceField: "NativeStatuses[L48].Status",
-            fernsField: "profile.NativeStatuses[L48].Status",
+            fernsField: "data.NativeStatuses[L48].Status",
             sourceValue: upstreamL48.Status,
             fernsValue: fernsL48.Status,
             note: `L48 nativity mismatch: upstream=${upstreamL48.Status} FERNS=${fernsL48.Status}`,
@@ -341,15 +283,15 @@ async function compareUsdaPlantsProfile(
     }
 
     const upstreamFactSheets = (upstreamProfile["FactSheetUrls"] as string[]) ?? [];
-    const fernsFactSheets = (fernsProfile["FactSheetUrls"] as string[]) ?? [];
+    const fernsFactSheets = (fernsData["FactSheetUrls"] as string[]) ?? [];
     if (upstreamFactSheets.length !== fernsFactSheets.length) {
       findings.push({
         type: "mismatch",
         sourceField: "FactSheetUrls.length",
-        fernsField: "profile.FactSheetUrls.length",
+        fernsField: "data.FactSheetUrls.length",
         sourceValue: upstreamFactSheets.length,
         fernsValue: fernsFactSheets.length,
-        note: `fact_sheet_urls count mismatch: upstream=${upstreamFactSheets.length} FERNS=${fernsFactSheets.length}`,
+        note: `FactSheetUrls count mismatch: upstream=${upstreamFactSheets.length} FERNS=${fernsFactSheets.length}`,
       });
     } else {
       findings.push({
@@ -359,7 +301,6 @@ async function compareUsdaPlantsProfile(
       });
     }
 
-    // cache_status moved to provenance.cache_status in envelope migration (plan 07)
     const provenance = (fernsRaw.provenance ?? {}) as Record<string, unknown>;
     const envelopeCacheStatus = provenance["cache_status"] as string | undefined;
     if (envelopeCacheStatus) {
@@ -371,6 +312,75 @@ async function compareUsdaPlantsProfile(
     }
 
     return { source: SOURCE, endpoint, label, ok: true, rawFerns: fernsData, findings, urlsCollected };
+  } catch (err) {
+    return {
+      source: SOURCE,
+      endpoint,
+      label,
+      ok: false,
+      error: String(err),
+      findings: [],
+      urlsCollected: [],
+    };
+  }
+}
+
+async function comparePlantsSearchResults(
+  fernsBase: string,
+  sp: TestSpecies,
+): Promise<EndpointComparison> {
+  const text = sp.name;
+  const field = "Scientific Name";
+  const fernsEndpointPath = `/api/usda-plants/plants-search-results`;
+  const endpoint = `${fernsEndpointPath}?Text=${encodeURIComponent(text)}&Field=${encodeURIComponent(field)}&pageNumber=1`;
+  const fernsUrl = `${fernsBase}${endpoint}`;
+  const label = `${sp.label} (${sp.name}) — USDA PLANTS /plants-search-results parity`;
+
+  try {
+    const fernsRaw = (await fetchJson(fernsUrl)) as Record<string, unknown>;
+    const fernsData = (fernsRaw.data ?? {}) as Record<string, unknown>;
+    const findings: EndpointComparison["findings"] = [];
+    const urlsCollected = collectUrls(fernsRaw, `usda-plants:plants-search-results:${sp.name}`);
+
+    if (!Array.isArray(fernsData["PlantResults"])) {
+      findings.push({
+        type: "mismatch",
+        sourceField: "PlantResults",
+        fernsField: "data.PlantResults",
+        sourceValue: "Array",
+        fernsValue: typeof fernsData["PlantResults"],
+        note: `data.PlantResults must be a verbatim upstream array; got ${typeof fernsData["PlantResults"]}`,
+      });
+    } else {
+      findings.push({
+        type: "ok",
+        sourceField: "PlantResults",
+        note: `data.PlantResults is array with ${(fernsData["PlantResults"] as unknown[]).length} item(s)`,
+      });
+    }
+
+    if (typeof fernsData["TotalResults"] !== "number") {
+      findings.push({
+        type: "mismatch",
+        sourceField: "TotalResults",
+        fernsField: "data.TotalResults",
+        sourceValue: "number",
+        fernsValue: typeof fernsData["TotalResults"],
+        note: `data.TotalResults must be a number; got ${typeof fernsData["TotalResults"]}`,
+      });
+    } else {
+      findings.push({
+        type: "ok",
+        sourceField: "TotalResults",
+        note: `data.TotalResults = ${fernsData["TotalResults"]}`,
+      });
+    }
+
+    const ok =
+      Array.isArray(fernsData["PlantResults"]) &&
+      typeof fernsData["TotalResults"] === "number";
+
+    return { source: SOURCE, endpoint, label, ok, rawFerns: fernsData, findings, urlsCollected };
   } catch (err) {
     return {
       source: SOURCE,

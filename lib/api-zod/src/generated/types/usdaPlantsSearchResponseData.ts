@@ -5,9 +5,29 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { UsdaPlantsSearchResult } from './usdaPlantsSearchResult';
+import type { UsdaPlantsSearchResponseDataFilterOptions } from './usdaPlantsSearchResponseDataFilterOptions';
+import type { UsdaPlantsSearchResponseDataPlantResultsItem } from './usdaPlantsSearchResponseDataPlantResultsItem';
+import type { UsdaPlantsSearchResponseDataSelectedFilters } from './usdaPlantsSearchResponseDataSelectedFilters';
+import type { UsdaPlantsSearchResponseDataSourcesItem } from './usdaPlantsSearchResponseDataSourcesItem';
 
+/**
+ * Verbatim upstream POST /plants-search-results response object
+ */
 export type UsdaPlantsSearchResponseData = {
-  total?: number;
-  results?: UsdaPlantsSearchResult[];
+  /** Array of matching plant records */
+  PlantResults?: UsdaPlantsSearchResponseDataPlantResultsItem[];
+  /** Total number of matching records across all pages */
+  TotalResults?: number;
+  /** Available filter facets from the upstream API */
+  FilterOptions?: UsdaPlantsSearchResponseDataFilterOptions;
+  /** Currently applied filters */
+  SelectedFilters?: UsdaPlantsSearchResponseDataSelectedFilters;
+  /** Source attribution array from upstream */
+  Sources?: UsdaPlantsSearchResponseDataSourcesItem[];
+  /** Total image count across all results */
+  TotalImageCount?: number;
+  /** Current result offset (0-based) */
+  Offset?: number;
+  /** Opaque result set identifier from upstream */
+  ResultId?: string;
 };

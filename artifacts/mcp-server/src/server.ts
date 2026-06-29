@@ -1667,31 +1667,36 @@ const tools: ToolDef[] = [
   // ── usda-plants ──────────────────────────────────────────────────────────
   {
     tool: {
-      name: "usda_plants__species",
+      name: "usda_plants__PlantSearch",
       description:
-        "Resolves a scientific name to a USDA symbol via the USDA PLANTS API and returns the full plant profile: symbol, canonical name, common name, rank, nativity status per US region (L48, AK, HI, PR, VI, CAN, etc.), taxonomy hierarchy, synonyms, wetland indicator data, legal statuses, and links to fact sheets and plant guides. Results are cached 30 days. Covers the complete vascular flora of the United States and territories.",
+        "USDA PLANTS autocomplete — resolves a scientific name to a PLANTS symbol and returns the verbatim upstream array of { Text, Plant } objects. " +
+        "`searchText` is the upstream's verbatim parameter name. " +
+        "Each Plant object includes Symbol, ScientificName, CommonName, Rank, and other fields. " +
+        "Use the Symbol from a matched result to call usda_plants__PlantProfile. " +
+        "Results are not cached — each call hits the USDA PLANTS API directly.",
       inputSchema: {
         type: "object" as const,
         properties: {
-          species: { type: "string", description: "Scientific name (e.g. Asclepias tuberosa)" },
+          searchText: { type: "string", description: "Scientific name autocomplete text (e.g. Asclepias tuberosa). Verbatim upstream parameter name." },
           refresh: { type: "boolean", description: "Bypass cache and fetch fresh (default false)" },
           ...PV_PROP,
         },
-        required: ["species"],
+        required: ["searchText"],
       },
     },
     handler: async (args) =>
-      apiGet("/usda-plants/PlantSearch", {
-        species: String(args["species"]),
+      apiGet(`/usda-plants/PlantSearch?searchText=${encodeURIComponent(String(args["searchText"]))}`, {
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
         provenance_verbosity: pv(args),
       }),
   },
   {
     tool: {
-      name: "usda_plants__profile",
+      name: "usda_plants__PlantProfile",
       description:
-        "Returns the full USDA PLANTS profile for a known USDA symbol (e.g. ASTU for Asclepias tuberosa). Use this when the symbol is already known; use usda_plants__species to resolve a scientific name to a symbol first. Profiles are cached 30 days.",
+        "Returns the full USDA PLANTS profile for a known USDA symbol (e.g. ASTU for Asclepias tuberosa). " +
+        "data is the verbatim upstream profile object with Id, Symbol, NativeStatuses, WetlandData, Synonyms, Ancestors, Characteristics, etc. as top-level keys — not nested under a profile key. " +
+        "Use usda_plants__PlantSearch to resolve a scientific name to a symbol if the symbol is not already known. Profiles are cached 30 days.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -1711,28 +1716,31 @@ const tools: ToolDef[] = [
   },
   {
     tool: {
-      name: "usda_plants__search",
+      name: "usda_plants__plants_search_results",
       description:
-        "Searches the USDA PLANTS database with a text query. Supports searching by Scientific Name, Common Name, Symbol, or Family. Returns paginated results with symbol, scientific name, common name, family, and wetland/legal data. Search results are not cached.",
+        "Paginated USDA PLANTS search. FERNS exposes this as GET; the upstream is POST /plants-search-results. " +
+        "Parameter names `Text`, `Field`, and `pageNumber` match the upstream POST body field names. " +
+        "data is the verbatim upstream response: PlantResults array, TotalResults integer, FilterOptions object.",
       inputSchema: {
         type: "object" as const,
         properties: {
-          q: { type: "string", description: "Search text (e.g. Trillium, butterfly milkweed)" },
-          field: {
+          Text: { type: "string", description: "Search text (upstream POST body field name)" },
+          Field: {
             type: "string",
-            description: "Field to search: Scientific Name (default), Common Name, Symbol, or Family",
+            enum: ["Scientific Name", "Common Name", "Symbol", "Family"],
+            description: "Field to search (upstream POST body field name)",
           },
-          page: { type: "number", description: "Page number (1-based, default 1)" },
+          pageNumber: { type: "integer", minimum: 1, description: "1-based page number (upstream POST body field name)" },
           ...PV_PROP,
         },
-        required: ["q"],
+        required: ["Text", "Field"],
       },
     },
     handler: async (args) =>
       apiGet("/usda-plants/plants-search-results", {
-        q: String(args["q"]),
-        field: args["field"] !== undefined ? String(args["field"]) : undefined,
-        page: args["page"] !== undefined ? String(args["page"]) : undefined,
+        Text: String(args["Text"]),
+        Field: String(args["Field"]),
+        pageNumber: args["pageNumber"] !== undefined ? String(Number(args["pageNumber"] ?? 1)) : undefined,
         provenance_verbosity: pv(args),
       }),
   },

@@ -107,7 +107,7 @@ import type {
   GetSeedsToCommunityWashtenawSpeciesInformationParams,
   GetSeedsToCommunityWashtenawYears200,
   GetSourceRelationshipsParams,
-  GetUsdaPlantsParams,
+  GetUsdaPlantsPlantSearchParams,
   GetUsdaPlantsProfileParams,
   GetUsdaPlantsSearchParams,
   GetWetlandIndicatorStatusByCodeParams,
@@ -155,9 +155,9 @@ import type {
   UniversalFqaDatabasesResponse,
   UniversalFqaMetadataResponse,
   UsdaPlantsMetadataResponse,
+  UsdaPlantsPlantSearchResponse,
   UsdaPlantsProfileResponse,
   UsdaPlantsSearchResponse,
-  UsdaPlantsSpeciesResponse,
   VocabularyMetadataResponse,
   WetlandIndicatorAllResponse,
   WetlandIndicatorResponse,
@@ -7437,11 +7437,11 @@ export function useGetPrairieMoonSpeciesInformation<TData = Awaited<ReturnType<t
 
 
 /**
- * Resolves a scientific name to a USDA symbol via the PlantSearch API, then fetches the full PlantProfile. Returns the symbol, canonical name, common name, taxonomic rank, nativity status per US region, wetland indicator data, legal statuses, taxonomy hierarchy (Ancestors), synonyms, fact sheets, and plant guide URLs. Name matches are cached 30 days for hits and 7 days for misses; profiles are cached 30 days. Use ?refresh=true to bypass both caches.
+ * Calls the USDA PLANTS PlantSearch autocomplete API with the given searchText and returns the verbatim upstream array of { Text, Plant } objects. `searchText` is the upstream API's verbatim parameter name. Each Plant object includes Symbol, ScientificName, CommonName, Rank, and other fields. Use the Symbol from a matched result to call /usda-plants/PlantProfile. Results are not cached — each call hits the USDA PLANTS API directly.
 
- * @summary Look up a species in the USDA PLANTS Database by scientific name
+ * @summary USDA PLANTS autocomplete — resolve a scientific name to a PLANTS symbol
  */
-export const getGetUsdaPlantsUrl = (params: GetUsdaPlantsParams,) => {
+export const getGetUsdaPlantsPlantSearchUrl = (params: GetUsdaPlantsPlantSearchParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -7456,9 +7456,9 @@ export const getGetUsdaPlantsUrl = (params: GetUsdaPlantsParams,) => {
   return stringifiedParams.length > 0 ? `/api/usda-plants/PlantSearch?${stringifiedParams}` : `/api/usda-plants/PlantSearch`
 }
 
-export const getUsdaPlants = async (params: GetUsdaPlantsParams, options?: RequestInit): Promise<UsdaPlantsSpeciesResponse> => {
+export const getUsdaPlantsPlantSearch = async (params: GetUsdaPlantsPlantSearchParams, options?: RequestInit): Promise<UsdaPlantsPlantSearchResponse> => {
   
-  return customFetch<UsdaPlantsSpeciesResponse>(getGetUsdaPlantsUrl(params),
+  return customFetch<UsdaPlantsPlantSearchResponse>(getGetUsdaPlantsPlantSearchUrl(params),
   {      
     ...options,
     method: 'GET'
@@ -7471,45 +7471,45 @@ export const getUsdaPlants = async (params: GetUsdaPlantsParams, options?: Reque
 
 
 
-export const getGetUsdaPlantsQueryKey = (params?: GetUsdaPlantsParams,) => {
+export const getGetUsdaPlantsPlantSearchQueryKey = (params?: GetUsdaPlantsPlantSearchParams,) => {
     return [
     `/api/usda-plants/PlantSearch`, ...(params ? [params] : [])
     ] as const;
     }
 
     
-export const getGetUsdaPlantsQueryOptions = <TData = Awaited<ReturnType<typeof getUsdaPlants>>, TError = ErrorType<ErrorResponse>>(params: GetUsdaPlantsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getUsdaPlants>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetUsdaPlantsPlantSearchQueryOptions = <TData = Awaited<ReturnType<typeof getUsdaPlantsPlantSearch>>, TError = ErrorType<ErrorResponse>>(params: GetUsdaPlantsPlantSearchParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getUsdaPlantsPlantSearch>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetUsdaPlantsQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getGetUsdaPlantsPlantSearchQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getUsdaPlants>>> = ({ signal }) => getUsdaPlants(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getUsdaPlantsPlantSearch>>> = ({ signal }) => getUsdaPlantsPlantSearch(params, { signal, ...requestOptions });
 
       
 
       
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getUsdaPlants>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getUsdaPlantsPlantSearch>>, TError, TData> & { queryKey: QueryKey }
 }
 
-export type GetUsdaPlantsQueryResult = NonNullable<Awaited<ReturnType<typeof getUsdaPlants>>>
-export type GetUsdaPlantsQueryError = ErrorType<ErrorResponse>
+export type GetUsdaPlantsPlantSearchQueryResult = NonNullable<Awaited<ReturnType<typeof getUsdaPlantsPlantSearch>>>
+export type GetUsdaPlantsPlantSearchQueryError = ErrorType<ErrorResponse>
 
 
 /**
- * @summary Look up a species in the USDA PLANTS Database by scientific name
+ * @summary USDA PLANTS autocomplete — resolve a scientific name to a PLANTS symbol
  */
 
-export function useGetUsdaPlants<TData = Awaited<ReturnType<typeof getUsdaPlants>>, TError = ErrorType<ErrorResponse>>(
- params: GetUsdaPlantsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getUsdaPlants>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export function useGetUsdaPlantsPlantSearch<TData = Awaited<ReturnType<typeof getUsdaPlantsPlantSearch>>, TError = ErrorType<ErrorResponse>>(
+ params: GetUsdaPlantsPlantSearchParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getUsdaPlantsPlantSearch>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetUsdaPlantsQueryOptions(params,options)
+  const queryOptions = getGetUsdaPlantsPlantSearchQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -7521,7 +7521,7 @@ export function useGetUsdaPlants<TData = Awaited<ReturnType<typeof getUsdaPlants
 
 
 /**
- * Fetches the PlantProfile for a known USDA symbol (e.g. ASTU for Asclepias tuberosa). Returns the complete raw profile object as returned by the USDA PLANTS API. Profiles are cached 30 days. Use ?refresh=true to bypass the cache. Use the /usda-plants/PlantSearch?species= endpoint to resolve a scientific name to a symbol if the symbol is not already known.
+ * Fetches the PlantProfile for a known USDA symbol (e.g. ASTU for Asclepias tuberosa). Returns the verbatim upstream profile object as returned by the USDA PLANTS API — top-level keys include Id, Symbol, ScientificName, ScientificNameWithoutAuthor, CommonName, NativeStatuses, WetlandData, Synonyms, Ancestors, Characteristics, and others. data is the profile object directly with no symbol echo or profile nesting. Profiles are cached 30 days. Use ?refresh=true to bypass the cache. Use /usda-plants/PlantSearch?searchText= to resolve a scientific name to a symbol if the symbol is not already known.
 
  * @summary Fetch the full USDA PLANTS profile for a known symbol
  */
@@ -7605,7 +7605,7 @@ export function useGetUsdaPlantsProfile<TData = Awaited<ReturnType<typeof getUsd
 
 
 /**
- * Performs a paginated text search against the USDA PLANTS plants-search-results endpoint. Supports searching by Scientific Name, Common Name, Symbol, or Family. Returns matching records with symbol, common name, family, wetland data, legal status, and image info. Search results are not cached — each call hits the USDA PLANTS API directly.
+ * Paginated USDA PLANTS search. FERNS exposes this as GET; the upstream is POST /plants-search-results with a JSON body. The EDP handles the GET-to-POST translation internally. Parameter names (Text, Field, pageNumber) match the upstream POST body field names. data is the verbatim upstream response object. Search results are not cached — each call hits the USDA PLANTS API directly.
 
  * @summary Search the USDA PLANTS Database with a text query
  */

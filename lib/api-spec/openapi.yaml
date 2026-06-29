@@ -3973,21 +3973,21 @@ paths:
 
   /usda-plants/PlantSearch:
     get:
-      operationId: getUsdaPlants
+      operationId: getUsdaPlantsPlantSearch
       tags: [usda-plants]
-      summary: Look up a species in the USDA PLANTS Database by scientific name
+      summary: USDA PLANTS autocomplete — resolve a scientific name to a PLANTS symbol
       description: >
-        Resolves a scientific name to a USDA symbol via the PlantSearch API, then
-        fetches the full PlantProfile. Returns the symbol, canonical name, common name,
-        taxonomic rank, nativity status per US region, wetland indicator data, legal
-        statuses, taxonomy hierarchy (Ancestors), synonyms, fact sheets, and plant guide
-        URLs. Name matches are cached 30 days for hits and 7 days for misses; profiles
-        are cached 30 days. Use ?refresh=true to bypass both caches.
+        Calls the USDA PLANTS PlantSearch autocomplete API with the given searchText
+        and returns the verbatim upstream array of { Text, Plant } objects.
+        `searchText` is the upstream API's verbatim parameter name.
+        Each Plant object includes Symbol, ScientificName, CommonName, Rank, and other
+        fields. Use the Symbol from a matched result to call /usda-plants/PlantProfile.
+        Results are not cached — each call hits the USDA PLANTS API directly.
       parameters:
-        - name: species
+        - name: searchText
           in: query
           required: true
-          description: Scientific name (e.g. Asclepias tuberosa)
+          description: Scientific name autocomplete text (e.g. Asclepias tuberosa). Verbatim upstream parameter name.
           schema:
             type: string
             minLength: 1
@@ -4000,13 +4000,13 @@ paths:
             default: false
       responses:
         "200":
-          description: USDA PLANTS lookup result (check found field)
+          description: USDA PLANTS autocomplete result — verbatim upstream array wrapped in FernsEnvelope
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UsdaPlantsSpeciesResponse"
+                $ref: "#/components/schemas/UsdaPlantsPlantSearchResponse"
         "400":
-          description: Missing species parameter
+          description: Missing searchText parameter
           content:
             application/json:
               schema:
@@ -4025,10 +4025,13 @@ paths:
       summary: Fetch the full USDA PLANTS profile for a known symbol
       description: >
         Fetches the PlantProfile for a known USDA symbol (e.g. ASTU for Asclepias
-        tuberosa). Returns the complete raw profile object as returned by the USDA
-        PLANTS API. Profiles are cached 30 days. Use ?refresh=true to bypass the cache.
-        Use the /usda-plants/PlantSearch?species= endpoint to resolve a scientific name to a symbol
-        if the symbol is not already known.
+        tuberosa). Returns the verbatim upstream profile object as returned by the USDA
+        PLANTS API — top-level keys include Id, Symbol, ScientificName,
+        ScientificNameWithoutAuthor, CommonName, NativeStatuses, WetlandData, Synonyms,
+        Ancestors, Characteristics, and others. data is the profile object directly with
+        no symbol echo or profile nesting. Profiles are cached 30 days. Use ?refresh=true
+        to bypass the cache. Use /usda-plants/PlantSearch?searchText= to resolve a
+        scientific name to a symbol if the symbol is not already known.
       parameters:
         - name: symbol
           in: query
@@ -4070,46 +4073,46 @@ paths:
       tags: [usda-plants]
       summary: Search the USDA PLANTS Database with a text query
       description: >
-        Performs a paginated text search against the USDA PLANTS plants-search-results
-        endpoint. Supports searching by Scientific Name, Common Name, Symbol, or Family.
-        Returns matching records with symbol, common name, family, wetland data, legal
-        status, and image info. Search results are not cached — each call hits the USDA
+        Paginated USDA PLANTS search. FERNS exposes this as GET; the upstream is
+        POST /plants-search-results with a JSON body. The EDP handles the
+        GET-to-POST translation internally. Parameter names (Text, Field, pageNumber)
+        match the upstream POST body field names. data is the verbatim upstream
+        response object. Search results are not cached — each call hits the USDA
         PLANTS API directly.
       parameters:
-        - name: q
+        - name: Text
           in: query
           required: true
-          description: Search text (e.g. Trillium, butterfly milkweed)
+          description: Search text (e.g. Trillium, butterfly milkweed). Upstream POST body field name.
           schema:
             type: string
             minLength: 1
-        - name: field
+        - name: Field
           in: query
-          required: false
+          required: true
           description: >
             Field to search. One of Scientific Name, Common Name, Symbol, Family.
-            Defaults to Scientific Name.
+            Upstream POST body field name.
           schema:
             type: string
             enum: [Scientific Name, Common Name, Symbol, Family]
-            default: Scientific Name
-        - name: page
+        - name: pageNumber
           in: query
           required: false
-          description: 1-based page number (default 1)
+          description: 1-based page number (default 1). Upstream POST body field name.
           schema:
             type: integer
             minimum: 1
             default: 1
       responses:
         "200":
-          description: Paginated search results from USDA PLANTS
+          description: Verbatim upstream USDA PLANTS search response wrapped in FernsEnvelope
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/UsdaPlantsSearchResponse"
         "400":
-          description: Missing q parameter
+          description: Missing or invalid Text or Field parameter
           content:
             application/json:
               schema:
@@ -7564,105 +7567,28 @@ components:
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
 
-    UsdaPlantsNativeStatus:
+    UsdaPlantsPlantItem:
       type: object
-      description: Nativity status for a US region.
+      description: A single USDA PLANTS autocomplete result item (verbatim upstream shape).
       properties:
-        Region:
+        Text:
           type: string
-          description: "Region code (L48, AK, HI, PR, VI, CAN, GU, MP, SPM, UM)"
-        Status:
-          type: string
-          description: "N=Native, I=Introduced"
-        Type:
-          type: string
-          description: "Native or Introduced"
+          description: Display text for the autocomplete result
+        Plant:
+          type: object
+          description: Raw Plant object from the upstream PlantSearch API (verbatim)
+          additionalProperties: true
 
-    UsdaPlantsSpeciesData:
-      type: object
-      properties:
-        symbol:
-          type: string
-          nullable: true
-        canonical_name:
-          type: string
-          nullable: true
-        common_name:
-          type: string
-          nullable: true
-        rank:
-          type: string
-          nullable: true
-        usda_id:
-          type: integer
-          nullable: true
-        native_statuses:
-          type: array
-          nullable: true
-          items:
-            $ref: "#/components/schemas/UsdaPlantsNativeStatus"
-        wetland_data:
-          type: array
-          nullable: true
-          items:
-            type: object
-            additionalProperties: true
-        legal_statuses:
-          type: array
-          nullable: true
-          items:
-            type: object
-            additionalProperties: true
-        durations:
-          type: array
-          nullable: true
-          items:
-            type: string
-        growth_habits:
-          type: array
-          nullable: true
-          items:
-            type: string
-        group:
-          type: string
-          nullable: true
-        ancestors:
-          type: array
-          nullable: true
-          description: Taxonomy hierarchy from Kingdom to parent rank
-          items:
-            type: object
-            additionalProperties: true
-        synonyms:
-          type: array
-          nullable: true
-          items:
-            type: object
-            additionalProperties: true
-        fact_sheet_urls:
-          type: array
-          items:
-            type: string
-        plant_guide_urls:
-          type: array
-          items:
-            type: string
-        other_common_names:
-          type: array
-          nullable: true
-          items:
-            type: string
-        profile_image_filename:
-          type: string
-          nullable: true
-
-    UsdaPlantsSpeciesResponse:
+    UsdaPlantsPlantSearchResponse:
       allOf:
         - $ref: "#/components/schemas/FernsEnvelope"
         - type: object
           properties:
             data:
-              $ref: "#/components/schemas/UsdaPlantsSpeciesData"
+              type: array
+              description: Verbatim upstream array of { Text, Plant } autocomplete items
+              items:
+                $ref: "#/components/schemas/UsdaPlantsPlantItem"
 
     UsdaPlantsProfileResponse:
       allOf:
@@ -7671,64 +7597,12 @@ components:
           properties:
             data:
               type: object
-              properties:
-                symbol:
-                  type: string
-                profile:
-                  type: object
-                  description: Raw PlantProfile object from the USDA PLANTS API
-                  additionalProperties: true
-
-    UsdaPlantsSearchResult:
-      type: object
-      properties:
-        id:
-          type: integer
-        symbol:
-          type: string
-        accepted_symbol:
-          type: string
-          nullable: true
-        is_synonym:
-          type: boolean
-        scientific_name:
-          type: string
-          description: Scientific name with HTML italic tags
-        scientific_name_without_author:
-          type: string
-          nullable: true
-        common_name:
-          type: string
-          nullable: true
-        family_name:
-          type: string
-          nullable: true
-        rank_id:
-          type: integer
-          nullable: true
-        num_images:
-          type: integer
-        profile_image_filename:
-          type: string
-          nullable: true
-        fact_sheet_urls:
-          type: array
-          items:
-            type: string
-        plant_guide_urls:
-          type: array
-          items:
-            type: string
-        legal_statuses:
-          type: array
-          items:
-            type: object
-            additionalProperties: true
-        wetland_data:
-          type: array
-          items:
-            type: object
-            additionalProperties: true
+              description: >
+                Verbatim upstream PlantProfile object. Top-level keys include Id, Symbol,
+                ScientificName, ScientificNameWithoutAuthor, CommonName, NativeStatuses,
+                WetlandData, Synonyms, Ancestors, Characteristics, and others.
+                No symbol echo or profile nesting — the profile object is data directly.
+              additionalProperties: true
 
     UsdaPlantsSearchResponse:
       allOf:
@@ -7737,13 +7611,40 @@ components:
           properties:
             data:
               type: object
+              description: Verbatim upstream POST /plants-search-results response object
               properties:
-                total:
-                  type: integer
-                results:
+                PlantResults:
                   type: array
+                  description: Array of matching plant records
                   items:
-                    $ref: "#/components/schemas/UsdaPlantsSearchResult"
+                    type: object
+                    additionalProperties: true
+                TotalResults:
+                  type: integer
+                  description: Total number of matching records across all pages
+                FilterOptions:
+                  type: object
+                  description: Available filter facets from the upstream API
+                  additionalProperties: true
+                SelectedFilters:
+                  type: object
+                  description: Currently applied filters
+                  additionalProperties: true
+                Sources:
+                  type: array
+                  description: Source attribution array from upstream
+                  items:
+                    type: object
+                    additionalProperties: true
+                TotalImageCount:
+                  type: integer
+                  description: Total image count across all results
+                Offset:
+                  type: integer
+                  description: Current result offset (0-based)
+                ResultId:
+                  type: string
+                  description: Opaque result set identifier from upstream
 
     UsdaPlantsMetadataResponse:
       allOf:

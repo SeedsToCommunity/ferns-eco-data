@@ -6,4 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type UsdaPlantsSpeciesDataSynonymsItem = { [key: string]: unknown };
+/**
+ * Raw Plant object from the upstream PlantSearch API (verbatim)
+ */
+export type UsdaPlantsPlantItemPlant = { [key: string]: unknown };

@@ -1759,94 +1759,75 @@ export interface BotanicalWebRefMetadataResponse {
 }
 
 /**
- * Nativity status for a US region.
+ * Raw Plant object from the upstream PlantSearch API (verbatim)
  */
-export interface UsdaPlantsNativeStatus {
-  /** Region code (L48, AK, HI, PR, VI, CAN, GU, MP, SPM, UM) */
-  Region?: string;
-  /** N=Native, I=Introduced */
-  Status?: string;
-  /** Native or Introduced */
-  Type?: string;
+export type UsdaPlantsPlantItemPlant = { [key: string]: unknown };
+
+/**
+ * A single USDA PLANTS autocomplete result item (verbatim upstream shape).
+ */
+export interface UsdaPlantsPlantItem {
+  /** Display text for the autocomplete result */
+  Text?: string;
+  /** Raw Plant object from the upstream PlantSearch API (verbatim) */
+  Plant?: UsdaPlantsPlantItemPlant;
 }
 
-export type UsdaPlantsSpeciesDataWetlandDataItem = { [key: string]: unknown };
-
-export type UsdaPlantsSpeciesDataLegalStatusesItem = { [key: string]: unknown };
-
-export type UsdaPlantsSpeciesDataAncestorsItem = { [key: string]: unknown };
-
-export type UsdaPlantsSpeciesDataSynonymsItem = { [key: string]: unknown };
-
-export interface UsdaPlantsSpeciesData {
-  symbol?: string | null;
-  canonical_name?: string | null;
-  common_name?: string | null;
-  rank?: string | null;
-  usda_id?: number | null;
-  native_statuses?: UsdaPlantsNativeStatus[] | null;
-  wetland_data?: UsdaPlantsSpeciesDataWetlandDataItem[] | null;
-  legal_statuses?: UsdaPlantsSpeciesDataLegalStatusesItem[] | null;
-  durations?: string[] | null;
-  growth_habits?: string[] | null;
-  group?: string | null;
-  /** Taxonomy hierarchy from Kingdom to parent rank */
-  ancestors?: UsdaPlantsSpeciesDataAncestorsItem[] | null;
-  synonyms?: UsdaPlantsSpeciesDataSynonymsItem[] | null;
-  fact_sheet_urls?: string[];
-  plant_guide_urls?: string[];
-  other_common_names?: string[] | null;
-  profile_image_filename?: string | null;
-}
-
-export type UsdaPlantsSpeciesResponse = FernsEnvelope & {
-  data?: UsdaPlantsSpeciesData;
+export type UsdaPlantsPlantSearchResponse = FernsEnvelope & {
+  /** Verbatim upstream array of { Text, Plant } autocomplete items */
+  data?: UsdaPlantsPlantItem[];
 };
 
 /**
- * Raw PlantProfile object from the USDA PLANTS API
- */
-export type UsdaPlantsProfileResponseDataProfile = { [key: string]: unknown };
+ * Verbatim upstream PlantProfile object. Top-level keys include Id, Symbol, ScientificName, ScientificNameWithoutAuthor, CommonName, NativeStatuses, WetlandData, Synonyms, Ancestors, Characteristics, and others. No symbol echo or profile nesting — the profile object is data directly.
 
-export type UsdaPlantsProfileResponseData = {
-  symbol?: string;
-  /** Raw PlantProfile object from the USDA PLANTS API */
-  profile?: UsdaPlantsProfileResponseDataProfile;
-};
+ */
+export type UsdaPlantsProfileResponseData = { [key: string]: unknown };
 
 export type UsdaPlantsProfileResponse = FernsEnvelope & {
+  /** Verbatim upstream PlantProfile object. Top-level keys include Id, Symbol, ScientificName, ScientificNameWithoutAuthor, CommonName, NativeStatuses, WetlandData, Synonyms, Ancestors, Characteristics, and others. No symbol echo or profile nesting — the profile object is data directly.
+ */
   data?: UsdaPlantsProfileResponseData;
 };
 
-export type UsdaPlantsSearchResultLegalStatusesItem = { [key: string]: unknown };
+export type UsdaPlantsSearchResponseDataPlantResultsItem = { [key: string]: unknown };
 
-export type UsdaPlantsSearchResultWetlandDataItem = { [key: string]: unknown };
+/**
+ * Available filter facets from the upstream API
+ */
+export type UsdaPlantsSearchResponseDataFilterOptions = { [key: string]: unknown };
 
-export interface UsdaPlantsSearchResult {
-  id?: number;
-  symbol?: string;
-  accepted_symbol?: string | null;
-  is_synonym?: boolean;
-  /** Scientific name with HTML italic tags */
-  scientific_name?: string;
-  scientific_name_without_author?: string | null;
-  common_name?: string | null;
-  family_name?: string | null;
-  rank_id?: number | null;
-  num_images?: number;
-  profile_image_filename?: string | null;
-  fact_sheet_urls?: string[];
-  plant_guide_urls?: string[];
-  legal_statuses?: UsdaPlantsSearchResultLegalStatusesItem[];
-  wetland_data?: UsdaPlantsSearchResultWetlandDataItem[];
-}
+/**
+ * Currently applied filters
+ */
+export type UsdaPlantsSearchResponseDataSelectedFilters = { [key: string]: unknown };
 
+export type UsdaPlantsSearchResponseDataSourcesItem = { [key: string]: unknown };
+
+/**
+ * Verbatim upstream POST /plants-search-results response object
+ */
 export type UsdaPlantsSearchResponseData = {
-  total?: number;
-  results?: UsdaPlantsSearchResult[];
+  /** Array of matching plant records */
+  PlantResults?: UsdaPlantsSearchResponseDataPlantResultsItem[];
+  /** Total number of matching records across all pages */
+  TotalResults?: number;
+  /** Available filter facets from the upstream API */
+  FilterOptions?: UsdaPlantsSearchResponseDataFilterOptions;
+  /** Currently applied filters */
+  SelectedFilters?: UsdaPlantsSearchResponseDataSelectedFilters;
+  /** Source attribution array from upstream */
+  Sources?: UsdaPlantsSearchResponseDataSourcesItem[];
+  /** Total image count across all results */
+  TotalImageCount?: number;
+  /** Current result offset (0-based) */
+  Offset?: number;
+  /** Opaque result set identifier from upstream */
+  ResultId?: string;
 };
 
 export type UsdaPlantsSearchResponse = FernsEnvelope & {
+  /** Verbatim upstream POST /plants-search-results response object */
   data?: UsdaPlantsSearchResponseData;
 };
 
@@ -3547,12 +3528,12 @@ export const GetPrairieMoonSpeciesInformationRefresh = {
   false: 'false',
 } as const;
 
-export type GetUsdaPlantsParams = {
+export type GetUsdaPlantsPlantSearchParams = {
 /**
- * Scientific name (e.g. Asclepias tuberosa)
+ * Scientific name autocomplete text (e.g. Asclepias tuberosa). Verbatim upstream parameter name.
  * @minLength 1
  */
-species: string;
+searchText: string;
 /**
  * If true, bypasses cache and fetches fresh from USDA PLANTS
  */
@@ -3573,20 +3554,20 @@ refresh?: boolean;
 
 export type GetUsdaPlantsSearchParams = {
 /**
- * Search text (e.g. Trillium, butterfly milkweed)
+ * Search text (e.g. Trillium, butterfly milkweed). Upstream POST body field name.
  * @minLength 1
  */
-q: string;
+Text: string;
 /**
- * Field to search. One of Scientific Name, Common Name, Symbol, Family. Defaults to Scientific Name.
+ * Field to search. One of Scientific Name, Common Name, Symbol, Family. Upstream POST body field name.
 
  */
-field?: GetUsdaPlantsSearchField;
+Field: GetUsdaPlantsSearchField;
 /**
- * 1-based page number (default 1)
+ * 1-based page number (default 1). Upstream POST body field name.
  * @minimum 1
  */
-page?: number;
+pageNumber?: number;
 };
 
 export type GetUsdaPlantsSearchField = typeof GetUsdaPlantsSearchField[keyof typeof GetUsdaPlantsSearchField];
