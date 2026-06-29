@@ -838,3 +838,51 @@ The USDA Plants REST adapter was refactored to remove its inline network code an
 
 - **Breaking change confirmation already received.** The `?species=` composite route is removed. Any callers must now use the two-step flow: `PlantSearch?searchText=` → `PlantProfile?symbol=`. No further user action needed unless there are callers the user is aware of that haven't been updated.
 - **`metadata.ts` `USDA_PLANTS_TECHNICAL_DETAILS` text** still mentions the old name-match flow and table name. Task C should update it to reflect the new EDP architecture.
+
+---
+
+## Task: GBIF EDP — Source Interface (June 29, 2026)
+
+### What was changed
+
+GBIF (the Global Biodiversity Information Facility) is one of FERNS's data sources. It provides plant name lookups — whether a name is currently accepted or has been replaced by a synonym — plus common names, and georeferenced sighting records. FERNS was already using GBIF, but the code that talked to GBIF's API was embedded inside the REST server alongside routing and caching logic, with no clean separation.
+
+This task extracted that network communication into its own dedicated file: `lib/external-data-providers/src/gbif/index.ts`. This file is GBIF's "source interface" — the one place in the codebase responsible for making HTTP requests to GBIF and returning exactly what GBIF sent back. It has six functions, one for each type of query GBIF supports: match a name to the GBIF backbone, search species by text, fetch a species record by its GBIF key, fetch synonyms, fetch common names, and search occurrence records. Each function sends the request, waits for the response, and hands it back untouched — no interpretation, no filtering, no renaming. If GBIF is unreachable or returns an error, a `GbifApiError` is thrown with the HTTP status and the URL that was attempted, so the caller always knows precisely what failed.
+
+The package configuration was updated so other parts of the codebase can import this file using `@workspace/external-data-providers/gbif`. TypeScript declarations were compiled and committed.
+
+The task-sizing rule in `replit.md` was also updated. The previous rule listed six observable outcomes as the cap for a task; the new rule replaces that with a clearer principle: any task that creates or changes a source interface must be its own task, separate from the REST adapter, API spec, and MCP work that builds on it. That separation is what this task itself embodies.
+
+The existing code in the REST server (`connector.ts`) that currently handles GBIF network calls was intentionally left in place. The next task will replace those calls with this new file and remove the duplication.
+
+### Derivation summary
+
+Not applicable — no new source was added to the registry. GBIF was already registered. This task only creates its source interface.
+
+### Scientific/technical description
+
+Not applicable — no new `technical_details` or `general_summary` text was written in this task.
+
+### Architectural decisions made
+
+- **No `found` field on result types**: Every other source interface in this codebase (USDA Plants, Michigan Flora) includes a `found: boolean` on its return value, computed from the response shape. The GBIF source interface does not. The reason: GBIF's name-match endpoint always returns HTTP 200, even when nothing was found — it signals no-match by returning `{ matchType: "NONE" }` with no `usageKey`. Deciding whether that counts as "found" requires reading into the response content, which is interpretation — the adapter's job, not the source interface's. Returning `raw` only keeps the source interface genuinely free of interpretation. **Tradeoff**: the adapter has slightly more to check; the source interface is cleaner and consistent with the contract.
+
+- **`upstream_url` (snake_case)**: Chosen to match the envelope contract's `source_url` naming and the existing GBIF connector code this file will replace. Each source interface uses whatever naming fits its own convention; there is no requirement that they all match each other.
+
+- **`GbifApiError` carries the attempted URL as an instance property**: Other error classes in this codebase carry only an HTTP status code. `GbifApiError` also carries `upstream_url` because GBIF queries involve different URL shapes (by name, by key, by key + sub-resource) and a caught error without the URL is not useful for logging or debugging. **Tradeoff**: slightly larger error object; avoids having to reconstruct the URL in catch blocks.
+
+- **20-second timeout**: The existing GBIF connector in the REST server uses 15 seconds. This file uses 20 seconds, as specified. GBIF's occurrence search endpoint can be legitimately slow on large queries. The discrepancy will disappear when the next task removes the connector's own fetch calls. **Tradeoff**: slightly longer wait on true failures; fewer spurious timeouts on slow-but-valid occurrence queries.
+
+- **`getGbifSpeciesSearch` accepts all upstream parameters**: The existing connector has a separate `fetchVernacularSearch` function that hardcodes the query to vernacular names only (`qField=VERNACULAR&rank=SPECIES&kingdom=Plantae&limit=20`). This source interface instead has a single `getGbifSpeciesSearch` that accepts any combination of parameters GBIF supports. Choosing to search only vernacular names is now the adapter's decision, not the source interface's. **Tradeoff**: the source interface no longer silently pre-filters the query, so the adapter must pass the right parameters explicitly — but in exchange it can call the same function for any kind of species search, not just vernacular.
+
+### What was NOT done
+
+- `artifacts/rest-server/src/services/gbif/connector.ts` not modified — GBIF network calls still come from there. Next task replaces them.
+- REST routes not changed — they still call the connector directly.
+- OpenAPI spec not updated — next task.
+- MCP tool definitions not updated — next task.
+- Audit corpus entries not added — next task.
+
+### What the user should decide or review
+
+Nothing requires a decision. The timeout difference and the connector duplication both resolve automatically in the next task.
