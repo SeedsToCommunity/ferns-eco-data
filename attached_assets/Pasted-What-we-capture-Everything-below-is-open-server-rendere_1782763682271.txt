@@ -1,0 +1,18 @@
+What we capture
+Everything below is open, server-rendered, already reachable. Five things, but they collapse into three entities plus a document index.
+Communities (77) — the rich anchor. From the list page: id, slug, name, class, group, global rank, state rank. From each community page: the prose sections (overview, landscape context, soils, natural processes, vegetation, management, variation), the characteristic plant list by life form, the rare species living there (plants / animals / aquatic animals, each with status), similar-community links, places to visit, literature, the photo and map URLs, the abstract PDF link.
+Rare species (the roster) — from /species/plants and /species/animals: every tracked Michigan species with scientific name, common name, federal status, state status, global rank, state rank, and its own species-page id. This is the master list the community-page rare sections are subsets of.
+County occurrences (83) — from the JSON feed you already use: which species and which communities have been recorded in each county, with status codes and last-observation year.
+Abstract documents — the index of PDF links (per species, per community). Captured as URLs, not parsed. Links now, text never-by-default.
+How it's organized
+Tables mirror the entities, and element ID is the connective thread wherever it appears — that's what lets a community know its rare species and a county know both.
+
+communities — one row per community, the flat fields (id, slug, name, class, group, ranks, map/photo/abstract URLs)
+community_sections — keyed map, not fixed columns: (community_id, section_name, text). This is the fix for sections varying across communities (Floodplain has Rare Aquatic Animals; Bog doesn't) — nothing gets silently dropped.
+community_plants — (community_id, life_form, common_name, scientific_names[], sort_order) — the characteristic list
+community_rare_species — (community_id, kind, scientific_name, common_name, status, element_id?, sort_order)
+rare_species — the roster: (element_id, scientific_name, common_name, federal_status, state_status, global_rank, state_rank, species_page_id)
+county_species / county_communities — the occurrence rollups, keyed by county + element_id
+abstracts — (subject_type, subject_key, pdf_url)
+
+Cross-references stay as raw references — community ID, element ID, scientific-name string — exactly as MNFI presents them. No resolving to other sources at capture. That's the naming layer's job, above this, and keeping it out here is what preserves provenance honesty.
