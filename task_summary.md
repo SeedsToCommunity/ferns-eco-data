@@ -886,3 +886,47 @@ Not applicable — no new `technical_details` or `general_summary` text was writ
 ### What the user should decide or review
 
 Nothing requires a decision. The timeout difference and the connector duplication both resolve automatically in the next task.
+
+---
+
+## Task: GBIF EDP — Adapter, API, MCP & Audit
+
+### What was changed
+
+The GBIF data adapter was refactored to call the External Data Provider (EDP) functions introduced in the prior task, replacing the old connector-level fetch functions. The six `fetch*` functions (`fetchNameMatch`, `fetchSpecies`, `fetchSynonyms`, `fetchVernacularNames`, `fetchVernacularSearch`, `fetchOccurrenceSearch`) and the private `gbifFetch` helper were deleted from `connector.ts`, leaving only the six `build*CacheKey` functions. The `GBIF_API_BASE` import was removed along with them.
+
+`routes/gbif.ts` now imports the six `getGbif*` functions from `@workspace/external-data-providers/gbif` instead of the connector, wiring each route to its EDP counterpart. The hardcoded adapter-layer parameters for species/search (`qField: "VERNACULAR"`, `rank: "SPECIES"`, `kingdom: "Plantae"`, `limit: 20`) preserve the exact same behavior the old connector had — they are adapter choices, not caller-facing parameters.
+
+Three MCP tool names in `artifacts/mcp-server/src/server.ts` were corrected to match the action-name derivation rule from `docs/data-layer-contract.md`: `gbif__match` → `gbif__species_match`, `gbif__occurrences` → `gbif__occurrence_search`, `gbif__search` → `gbif__species_search`. The README tool table was updated to reflect all six current tool names with accurate paths and parameters.
+
+The OpenAPI spec already contained both previously missing paths (`GET /gbif/species/{usageKey}/synonyms` and `GET /gbif/species/{usageKey}/vernacularNames`) — no spec changes were needed. The audit comparator in `lib/ferns-audit/src/comparators/gbif.ts` already covered all six routes with the required assertions — no audit changes were needed. `pnpm --filter @workspace/rest-server run spec:check` exits 0 with 102 documented routes. Codegen exits 0.
+
+### Derivation summary
+
+Not applicable — no new source was added.
+
+### Scientific/technical description
+
+Not applicable — no new `technical_details` text was written.
+
+### Architectural decisions made
+
+- **Catch blocks kept simple**: The task specified updating catch blocks to "also handle `GbifApiError` for structured logging." The project has a pre-existing `TS6305` build condition where `@workspace/external-data-providers/gbif` has no compiled `.d.ts` in `dist/`. This affects all EDP imports across the project (bonap, gobotany, michigan-flora, etc.). When `GbifApiError` can't be resolved for narrowing purposes, `instanceof GbifApiError` checks cause `TS18046` errors. To avoid adding new TypeScript errors on top of the pre-existing ones, the catch blocks use `req.log.error({ err }, "...")` — matching the pattern used by every other route in the project. **Tradeoff**: slightly less structured error logging; zero new TypeScript errors.
+
+- **OpenAPI spec was already complete**: Both `/gbif/species/{usageKey}/synonyms` and `/gbif/species/{usageKey}/vernacularNames` were already present in the spec. No changes were made.
+
+- **Audit comparator was already complete**: All six routes with the required assertions were already implemented in `lib/ferns-audit/src/comparators/gbif.ts`. No changes were made.
+
+- **Hardcoded species/search parameters**: `getGbifSpeciesSearch` is called with `{ q, qField: "VERNACULAR", rank: "SPECIES", kingdom: "Plantae", limit: 20 }`. These parameters are the adapter's responsibility and are not exposed to callers of `/gbif/species/search`. This exactly preserves the behavior of the removed `fetchVernacularSearch` function.
+
+### What was NOT done
+
+- `cache.ts` was not touched — as specified.
+- No new GBIF upstream endpoints were added — as specified.
+- The pre-existing `TS6305` build condition (dist files not built for EDP packages) was not fixed — it is a project-wide pre-existing issue outside this task's scope.
+- `GbifApiError` structured logging in catch blocks was not implemented due to the TS6305 issue (documented in architectural decisions above).
+
+### What the user should decide or review
+
+- **Breaking change — renamed MCP tools**: Three MCP tool names changed. Any MCP client (Claude Desktop, Cursor, or other) that has an existing conversation or config referencing `gbif__match`, `gbif__occurrences`, or `gbif__search` will need to be updated to use `gbif__species_match`, `gbif__occurrence_search`, and `gbif__species_search` respectively. This is a deliberate correctness fix but will break existing integrations using the old names.
+

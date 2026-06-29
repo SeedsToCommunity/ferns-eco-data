@@ -126,9 +126,9 @@ const tools: ToolDef[] = [
   },
   {
     tool: {
-      name: "gbif__match",
+      name: "gbif__species_match",
       description:
-        "Matches a scientific name string to the GBIF taxonomic backbone, returning usageKey, rank, confidence, and taxonomic status. When status=SYNONYM, response includes acceptedUsageKey — use gbif__species with that key to resolve the accepted canonical name. Use this first to get a usageKey before calling gbif__occurrences or other taxon-keyed endpoints.",
+        "Upstream: GET /v1/species/match. Matches a scientific name string to the GBIF taxonomic backbone, returning usageKey, rank, confidence, and taxonomic status. When status=SYNONYM, response includes acceptedUsageKey — use gbif__species with that key to resolve the accepted canonical name. Use this first to get a usageKey before calling gbif__occurrence_search or other taxon-keyed endpoints.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -150,9 +150,9 @@ const tools: ToolDef[] = [
   },
   {
     tool: {
-      name: "gbif__occurrences",
+      name: "gbif__occurrence_search",
       description:
-        "Search GBIF occurrence records using GBIF native parameters (passthrough). Returns verbatim GBIF paginated response: count, offset, limit, endOfRecords, results array. Use taxonKey (the usageKey from gbif__match) to filter by taxon. Supports country (ISO 2-letter, single value), continent, hasCoordinate, basisOfRecord, year, and limit/offset pagination. Cached 7 days per parameter combination. NOTE: the old usageKey parameter is gone — use taxonKey instead.",
+        "Upstream: GET /v1/occurrence/search. Search GBIF occurrence records using GBIF native parameters (passthrough). Returns verbatim GBIF paginated response: count, offset, limit, endOfRecords, results array. Use taxonKey (the usageKey from gbif__species_match) to filter by taxon. Supports country (ISO 2-letter, single value), continent, hasCoordinate, basisOfRecord, year, and limit/offset pagination. Cached 7 days per parameter combination. NOTE: the old usageKey parameter is gone — use taxonKey instead.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -186,9 +186,9 @@ const tools: ToolDef[] = [
   },
   {
     tool: {
-      name: "gbif__search",
+      name: "gbif__species_search",
       description:
-        "Searches GBIF species by vernacular (common) name. Returns verbatim GBIF paginated species/search response: count, offset, limit, endOfRecords, results array. Each result includes usageKey, canonicalName, scientificName, rank, status, family, and the matched vernacularName. Results are cached 7 days per query.",
+        "Upstream: GET /v1/species/search. Searches GBIF species by vernacular (common) name. Returns verbatim GBIF paginated species/search response: count, offset, limit, endOfRecords, results array. Each result includes usageKey, canonicalName, scientificName, rank, status, family, and the matched vernacularName. Results are cached 7 days per query.",
       inputSchema: {
         type: "object" as const,
         properties: {

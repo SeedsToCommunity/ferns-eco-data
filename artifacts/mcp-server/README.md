@@ -122,10 +122,12 @@ Tool names follow `{source_id}__{action}` (hyphens → underscores, double-under
 
 | Tool | Path | Required | Optional | Description |
 |---|---|---|---|---|
-| `gbif__match` | GET /gbif/match | name | refresh | Match a scientific name to the GBIF taxonomic backbone; returns usage key, rank, and confidence |
-| `gbif__reconcile` | GET /gbif/reconcile | usageKey | — | Full taxonomic record for a GBIF usage key: vernacular names, synonyms, higher taxonomy |
-| `gbif__occurrences` | GET /gbif/occurrences | usageKey | countries, continent, bbox, refresh | Aggregated occurrence counts for a taxon, filterable by country, continent, or bounding box |
-| `gbif__search` | GET /gbif/search | q | — | Full-text search across the GBIF species index by scientific or common name |
+| `gbif__species_match` | GET /gbif/species/match | name | rank, strict, refresh | Match a scientific name to the GBIF backbone taxonomy; returns usageKey, rank, confidence, and status |
+| `gbif__species_search` | GET /gbif/species/search | q | refresh | Search GBIF species by vernacular (common) name; returns paginated species results |
+| `gbif__species` | GET /gbif/species/{usageKey} | usageKey | refresh | Full GBIF species record for a known usageKey |
+| `gbif__species_synonyms` | GET /gbif/species/{usageKey}/synonyms | usageKey | limit, offset, refresh | All taxonomic synonyms for a GBIF taxon |
+| `gbif__species_vernacular_names` | GET /gbif/species/{usageKey}/vernacularNames | usageKey | limit, offset, refresh | All vernacular (common) names for a GBIF taxon across all languages |
+| `gbif__occurrence_search` | GET /gbif/occurrence/search | — | taxonKey, country, continent, hasCoordinate, hasGeospatialIssue, basisOfRecord, year, limit, offset, refresh | Search GBIF occurrence records using GBIF native parameters (passthrough) |
 
 ### inaturalist — iNaturalist
 

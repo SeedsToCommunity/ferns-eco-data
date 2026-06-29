@@ -11,13 +11,15 @@ import {
   buildVernacularNamesCacheKey,
   buildSpeciesCacheKey,
   buildSpeciesSearchCacheKey,
-  fetchNameMatch,
-  fetchSpecies,
-  fetchOccurrenceSearch,
-  fetchVernacularSearch,
-  fetchSynonyms,
-  fetchVernacularNames,
 } from "../services/gbif/connector.js";
+import {
+  getGbifSpeciesMatch,
+  getGbifSpeciesSearch,
+  getGbifSpecies,
+  getGbifSpeciesSynonyms,
+  getGbifSpeciesVernacularNames,
+  getGbifOccurrenceSearch,
+} from "@workspace/external-data-providers/gbif";
 import {
   lookupNameMatch,
   storeNameMatch,
@@ -83,7 +85,7 @@ router.get("/gbif/species/match", async (req, res) => {
   }
 
   try {
-    const result = await fetchNameMatch(name);
+    const result = await getGbifSpeciesMatch(name, "Plantae");
     const stored = await storeNameMatch(cacheKey, name, result);
     const raw = stored.upstream_response as Record<string, unknown>;
     const matchType = (raw.matchType as string) || "NONE";
@@ -144,7 +146,7 @@ router.get("/gbif/species/search", async (req, res) => {
   }
 
   try {
-    const result = await fetchVernacularSearch(q);
+    const result = await getGbifSpeciesSearch({ q, qField: "VERNACULAR", rank: "SPECIES", kingdom: "Plantae", limit: 20 });
     const stored = await storeSpeciesSearch(cacheKey, result);
     const raw = stored.upstream_response as Record<string, unknown>;
     const results = Array.isArray(raw.results) ? raw.results as unknown[] : [];
@@ -209,7 +211,7 @@ router.get("/gbif/species/:usageKey/synonyms", async (req, res) => {
   }
 
   try {
-    const result = await fetchSynonyms(usageKey, limit, offset);
+    const result = await getGbifSpeciesSynonyms(usageKey, limit, offset);
     const stored = await storeSynonyms(cacheKey, usageKey, result);
     const raw = stored.upstream_response as Record<string, unknown>;
     const count = typeof raw.count === "number" ? raw.count : null;
@@ -276,7 +278,7 @@ router.get("/gbif/species/:usageKey/vernacularNames", async (req, res) => {
   }
 
   try {
-    const result = await fetchVernacularNames(usageKey, limit, offset);
+    const result = await getGbifSpeciesVernacularNames(usageKey, limit, offset);
     const stored = await storeVernacularNames(cacheKey, usageKey, result);
     const raw = stored.upstream_response as Record<string, unknown>;
     const count = typeof raw.count === "number" ? raw.count : null;
@@ -337,7 +339,7 @@ router.get("/gbif/species/:usageKey", async (req, res) => {
   }
 
   try {
-    const result = await fetchSpecies(usageKey);
+    const result = await getGbifSpecies(usageKey);
     const stored = await storeSpecies(cacheKey, result);
     const envelope = await buildEnvelope(
       {
@@ -401,7 +403,7 @@ router.get("/gbif/occurrence/search", async (req, res) => {
   }
 
   try {
-    const result = await fetchOccurrenceSearch(queryParams);
+    const result = await getGbifOccurrenceSearch(queryParams);
     const stored = await storeOccurrences(cacheKey, result);
     const raw = stored.upstream_response as Record<string, unknown>;
     const count = typeof raw.count === "number" ? raw.count : null;
