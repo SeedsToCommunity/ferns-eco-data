@@ -12,12 +12,6 @@
     },
     {
       "path": "../../lib/api-zod"
-    },
-    {
-      "path": "../../lib/internal-data-providers"
-    },
-    {
-      "path": "../../lib/external-data-providers"
     }
   ]
 }
