@@ -145,7 +145,7 @@ These rules formalize "Source Fidelity" for **`passthrough`-kind routes** — ro
 
 1. **Verbatim path after the source prefix.** Everything after `/api/{source-id}/` must match the upstream's own path character-for-character. No renaming, no camelCase↔snake_case conversion, no omitted path segments.
 2. **Single upstream endpoint per route.** Each FERNS route maps to exactly one upstream call. No fan-out, no merging of two upstream responses into one.
-3. **Argument-name parity with the upstream's parameter names.** Query string parameters keep the upstream's exact spelling and case. If the upstream uses `taxon_id`, FERNS uses `taxon_id` — not `taxonId`, not `id`.
+3. **Argument-name parity with the upstream's parameter names.** Query string parameters keep the upstream's exact spelling and case. If the upstream uses `taxon_id`, FERNS uses `taxon_id` — not `taxonId`, not `id`. If the upstream accepts parameters as a POST body rather than query params, FERNS uses the upstream's body field names verbatim as its own query params — the principle is name parity, not transport parity.
 4. **No FERNS-produced fields inside `data`.** Everything FERNS generates goes in the envelope. `data` is the upstream's verbatim payload.
 5. **Absolute URLs in registry/metadata responses.** `source_url` and `metadata_url` are absolute. (This restates the existing "Self-Describing Registry" rule and applies it to envelope `source_url`.)
 6. **Envelope shape conformance.** Every route returns the exact envelope defined in the contract above — no extra top-level keys, no missing required keys.
