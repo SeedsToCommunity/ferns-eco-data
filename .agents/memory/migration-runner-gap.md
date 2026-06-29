@@ -11,8 +11,11 @@ The project uses a **custom** migration runner in `lib/db/src/migrate.ts` rather
 
 **How to apply:**
 - After adding a new migration SQL file, **always** add the corresponding `runSqlMigration(...)` call to `runMigrations()` in `lib/db/src/migrate.ts`.
+- Add the tag to the `WIRED_TAGS` set near the top of `runMigrations()` — the startup guard compares the journal against this set and logs a prominent warning for any unwired entries.
 - Use `const entryN = journal.entries[N]` to pull the timestamp from the journal, guarded with `if (entryN)`.
 - Use `failFast: false` for migrations whose destructive steps have `IF EXISTS` guards (DDL cleanup/alter); use `failFast: true` for schema-creation migrations where partial application should force a retry on next startup.
 - Restart the server after wiring and confirm `[migrate] NNNN (...) complete — X succeeded, 0 skipped.` appears in logs.
 
-**Known still-unwired migrations (as of task #299):** 0011, 0012, 0014, 0017, 0018, 0019, 0020 — see follow-up task #308.
+**Intentionally excluded tags (drizzle-kit-only):** 0002–0006 — these were applied by drizzle-kit's built-in `migrate()` before the custom runner existed. They are listed in `DRIZZLE_KIT_ONLY_TAGS` so the startup guard doesn't warn about them. Do not add more tags to that exclusion set without a clear reason.
+
+**Current state:** All journal entries through 0025 are wired as of the fix in June 2026.
