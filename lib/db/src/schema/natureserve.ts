@@ -23,6 +23,7 @@ export const natureserveSpeciesCacheTable = pgTable("natureserve_species_cache",
   natureserve_url: text("natureserve_url"),
   element_global_id: text("element_global_id"),
   raw_summary: jsonb("raw_summary").default({}),
+  upstream_response: jsonb("upstream_response"),
   expires_at: timestamp("expires_at", { withTimezone: true }),
   source_id: text("source_id").notNull().default("natureserve"),
   fetched_at: timestamp("fetched_at", { withTimezone: true }).notNull(),
@@ -38,6 +39,7 @@ export const natureserveEcosystemsCacheTable = pgTable("natureserve_ecosystems_c
   cache_key: text("cache_key").notNull().unique(),
   results: jsonb("results").notNull().default([]),
   result_count: text("result_count"),
+  upstream_response: jsonb("upstream_response"),
   expires_at: timestamp("expires_at", { withTimezone: true }),
   source_id: text("source_id").notNull().default("natureserve"),
   fetched_at: timestamp("fetched_at", { withTimezone: true }).notNull(),
@@ -45,5 +47,16 @@ export const natureserveEcosystemsCacheTable = pgTable("natureserve_ecosystems_c
   upstream_url: text("upstream_url").notNull(),
   general_summary: text("general_summary").notNull(),
   technical_details: text("technical_details").notNull(),
+  created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const natureserveTaxonCacheTable = pgTable("natureserve_taxon_cache", {
+  id: serial("id").primaryKey(),
+  cache_key: text("cache_key").notNull().unique(),
+  upstream_response: jsonb("upstream_response").notNull(),
+  upstream_url: text("upstream_url").notNull(),
+  fetched_at: timestamp("fetched_at", { withTimezone: true }).notNull(),
+  expires_at: timestamp("expires_at", { withTimezone: true }),
+  source_id: text("source_id").notNull().default("natureserve"),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });

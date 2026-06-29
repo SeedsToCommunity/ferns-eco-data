@@ -1120,3 +1120,48 @@ N/A — no new source was registered in this task.
 
 - **Breaking changes coming in Task B**: When the REST adapter is migrated to use the EDP, the `stateCode` parameter will no longer be wired into the speciesSearch body by the EDP — the adapter will do it. The data shape returned by the species endpoint will change from the normalized `NatureserveSpeciesResult` flat struct to the verbatim upstream JSON envelope. Callers of the current `/api/natureserve/species` route will see a different `data` shape.
 - **speciesSearch no longer chains to taxon at the EDP level**: The existing connector chains speciesSearch → taxon automatically. Task B's adapter design must decide when the taxon fetch is triggered and handle the two-call case explicitly.
+
+---
+
+## Task #304 — NatureServe EDP: Adapter & DB Migration
+
+### 1. What was changed
+
+The NatureServe REST adapter was fully rewired to call the External Data Provider (EDP) functions directly, eliminating the old normalization layer. The `connector.ts` file was stripped down to only the two cache-key builder functions — all normalization code (six functions, three interfaces, the private HTTP helper, and URL constants) was deleted. The DB schema gained three changes: `upstream_response jsonb` (nullable) added to `natureserve_species_cache` and `natureserve_ecosystems_cache`, and a brand-new `natureserve_taxon_cache` table. The `cache.ts` service was rewritten so all three cache operations store and return verbatim upstream JSON (`{ raw, upstream_url, fetched_at }`) instead of extracted flat fields. The routes file was rewritten to call EDP functions (`postNatureserveSpeciesSearch`, `postNatureserveSearch`, `getNatureserveTaxon`), pass verbatim JSON as `data` in the envelope, and expose a new `GET /natureserve/taxon/:uniqueId` route that mirrors the upstream taxon endpoint with cache and `?refresh=true` support. The `?state=` parameter was removed from `/speciesSearch` and the cache-key format was simplified (no longer includes state code). Migration 0024 was authored, wired into `runMigrations()`, and confirmed running at server startup (3 statements, 0 skipped).
+
+### 2. Derivation summary
+
+Not applicable — no new source was added. This task migrated an existing source to the EDP pattern.
+
+### 3. Scientific/technical description
+
+Not applicable — no new source was added. Technical description for NatureServe remains in `metadata.ts`. Note: `NATURESERVE_TECHNICAL_DETAILS` still references state-rank extraction logic and the old normalized DB column names; these are now inaccurate and should be updated in a future task (flagged in section 6 below).
+
+### 4. Architectural decisions made
+
+- **NULL `upstream_response` = cache miss.** Existing rows in `natureserve_species_cache` and `natureserve_ecosystems_cache` have `upstream_response IS NULL` after the migration. The lookup functions treat NULL as a miss, forcing a re-fetch on next access. Old normalized data is left in place (not deleted) and expires naturally within the 30-day TTL. This avoids data loss and keeps the migration non-destructive.
+- **Old normalized columns retained (not dropped).** `scientific_name`, `common_name`, `global_rank`, etc. in `natureserve_species_cache` and `results`/`result_count` in `natureserve_ecosystems_cache` are now redundant but not dropped. Dropping them in the same migration would be destructive and irreversible; they'll be cleaned up in a future task once all rows have cycled to the new schema.
+- **Cache key simplified — state code removed.** `buildSpeciesCacheKey` no longer takes a `stateCode` argument. The old key format was `natureserve:species:{name}:{STATE}`. New format: `natureserve:species:{name}`. Old keys remain in the DB but will never be looked up (the new key won't match them), so they expire naturally within the 30-day TTL.
+- **`?state=` parameter removed with no 400.** Callers passing `?state=MI` now have it silently ignored (not validated). The task description says to remove it; a 400 for an unknown parameter was considered but ruled out because it would immediately break existing callers. The VIOLATION comments were removed alongside the parameter.
+- **Taxon cache TTL = 30 days.** Same as species. Ecosystem TTL remains 7 days.
+- **`found` on speciesSearch derived from `results.length > 0`.** The verbatim upstream JSON always returns `results: []` on no-match; this is the correct signal.
+
+### 5. What was NOT done
+
+- **`metadata.ts` not updated.** `NATURESERVE_GENERAL_SUMMARY` still says "configurable US state (default Michigan)" and `NATURESERVE_TECHNICAL_DETAILS` still describes the old normalization logic and normalized DB columns. Both are now inaccurate and should be updated to describe verbatim pass-through and the new taxon route.
+- **Old normalized columns not dropped.** Intentionally deferred — see decision above.
+- **OpenAPI spec not updated.** Task C (`NatureServe — EDP: OpenAPI + MCP + Audit`) handles this.
+- **MCP tool names not updated.** Task C handles this.
+- **Audit corpus not updated.** Task C handles this.
+- **Pre-existing TypeScript errors in miflora, bonap, universal-fqa, usda-plants cache files** were not fixed — they are pre-existing and out of scope for this task.
+
+### 6. What the user should decide or review
+
+- **`metadata.ts` needs updating.** Both `NATURESERVE_GENERAL_SUMMARY` and `NATURESERVE_TECHNICAL_DETAILS` still describe the old connector behavior. The general summary should no longer mention state-configurable ranks; the technical details should describe verbatim JSON return, the new taxon route, and the updated DB tables. This can be done in Task C alongside the OpenAPI update.
+- **Breaking changes are now live:**
+  1. `/speciesSearch` `data` field is now verbatim upstream `{ resultsSummary, results }` — not the old flat `{ scientific_name, global_rank, ... }` struct
+  2. `/search` `data` field is now verbatim upstream `{ resultsSummary, results }` — not the old `{ ecosystems, total_results }` wrapper
+  3. `?state=` parameter on `/speciesSearch` is silently ignored (no longer does anything)
+  4. `state_status`, `natureserve_url`, `element_global_id` and other FERNS-derived fields are no longer present in `data`
+  5. `/speciesSearch` no longer chains to `/taxon/{id}` — callers must call `GET /natureserve/taxon/{uniqueId}` separately for full detail
+- **New route available:** `GET /natureserve/taxon/:uniqueId` (e.g. `ELEMENT_GLOBAL.2.12345`) — returns verbatim upstream taxon JSON with cache and `?refresh=true` support.

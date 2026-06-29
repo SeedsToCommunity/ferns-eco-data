@@ -1,16 +1,19 @@
-import { db, natureserveSpeciesCacheTable, natureserveEcosystemsCacheTable } from "@workspace/db";
+import { db, natureserveSpeciesCacheTable, natureserveEcosystemsCacheTable, natureserveTaxonCacheTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
-import type { NatureserveSpeciesResult, NatureserveSearchItem } from "./connector.js";
+import type { NatureserveResult } from "@workspace/external-data-providers/natureserve";
 import { NATURESERVE_SOURCE_ID, NATURESERVE_GENERAL_SUMMARY, NATURESERVE_TECHNICAL_DETAILS } from "./metadata.js";
 
 const SPECIES_TTL_DAYS = 30;
 const ECOSYSTEMS_TTL_DAYS = 7;
+const TAXON_TTL_DAYS = 30;
 
 function daysFromNow(days: number): Date {
   return new Date(Date.now() + days * 24 * 60 * 60 * 1000);
 }
 
-export async function lookupSpeciesCache(cacheKey: string): Promise<typeof natureserveSpeciesCacheTable.$inferSelect | null> {
+export async function lookupSpeciesCache(
+  cacheKey: string,
+): Promise<{ raw: unknown; upstream_url: string; fetched_at: Date } | null> {
   const rows = await db
     .select()
     .from(natureserveSpeciesCacheTable)
@@ -22,44 +25,25 @@ export async function lookupSpeciesCache(cacheKey: string): Promise<typeof natur
     await db.delete(natureserveSpeciesCacheTable).where(eq(natureserveSpeciesCacheTable.cache_key, cacheKey));
     return null;
   }
-  return row;
+  if (row.upstream_response === null || row.upstream_response === undefined) {
+    return null;
+  }
+  return { raw: row.upstream_response, upstream_url: row.upstream_url, fetched_at: row.fetched_at };
 }
 
 export async function storeSpeciesCache(
   cacheKey: string,
-  result: NatureserveSpeciesResult,
-  upstreamUrl: string,
-): Promise<typeof natureserveSpeciesCacheTable.$inferSelect> {
+  result: NatureserveResult,
+): Promise<{ raw: unknown; upstream_url: string; fetched_at: Date }> {
   const now = new Date();
   const insert = {
     cache_key: cacheKey,
-    scientific_name: result.scientific_name,
-    common_name: result.common_name,
-    global_rank: result.global_rank,
-    rounded_global_rank: result.rounded_global_rank,
-    national_rank: result.national_rank,
-    rounded_national_rank: result.rounded_national_rank,
-    state_code: result.state_code,
-    state_rank: result.state_rank,
-    rounded_state_rank: result.rounded_state_rank,
-    iucn_category: result.iucn_category,
-    iucn_description: result.iucn_description,
-    federal_status: result.federal_status,
-    federal_status_description: result.federal_status_description,
-    state_status: result.state_status,
-    cites_description: result.cites_description,
-    cosewic_code: result.cosewic_code,
-    cosewic_description: result.cosewic_description,
-    natureserve_url: result.natureserve_url,
-    element_global_id: result.element_global_id,
-    raw_summary: {
-      detail_upstream_url: result.detail_upstream_url,
-    },
+    upstream_response: result.raw as Record<string, unknown>,
     expires_at: daysFromNow(SPECIES_TTL_DAYS),
     source_id: NATURESERVE_SOURCE_ID,
     fetched_at: now,
     method: "api_fetch",
-    upstream_url: upstreamUrl,
+    upstream_url: result.upstream_url,
     general_summary: NATURESERVE_GENERAL_SUMMARY,
     technical_details: NATURESERVE_TECHNICAL_DETAILS,
   };
@@ -70,36 +54,20 @@ export async function storeSpeciesCache(
     .onConflictDoUpdate({
       target: natureserveSpeciesCacheTable.cache_key,
       set: {
-        scientific_name: insert.scientific_name,
-        common_name: insert.common_name,
-        global_rank: insert.global_rank,
-        rounded_global_rank: insert.rounded_global_rank,
-        national_rank: insert.national_rank,
-        rounded_national_rank: insert.rounded_national_rank,
-        state_code: insert.state_code,
-        state_rank: insert.state_rank,
-        rounded_state_rank: insert.rounded_state_rank,
-        iucn_category: insert.iucn_category,
-        iucn_description: insert.iucn_description,
-        federal_status: insert.federal_status,
-        federal_status_description: insert.federal_status_description,
-        state_status: insert.state_status,
-        cites_description: insert.cites_description,
-        cosewic_code: insert.cosewic_code,
-        cosewic_description: insert.cosewic_description,
-        natureserve_url: insert.natureserve_url,
-        element_global_id: insert.element_global_id,
-        raw_summary: insert.raw_summary,
+        upstream_response: insert.upstream_response,
         fetched_at: insert.fetched_at,
         upstream_url: insert.upstream_url,
         expires_at: insert.expires_at,
       },
     })
     .returning();
-  return rows[0];
+  const row = rows[0];
+  return { raw: row.upstream_response, upstream_url: row.upstream_url, fetched_at: row.fetched_at };
 }
 
-export async function lookupEcosystemsCache(cacheKey: string): Promise<typeof natureserveEcosystemsCacheTable.$inferSelect | null> {
+export async function lookupEcosystemsCache(
+  cacheKey: string,
+): Promise<{ raw: unknown; upstream_url: string; fetched_at: Date } | null> {
   const rows = await db
     .select()
     .from(natureserveEcosystemsCacheTable)
@@ -111,25 +79,25 @@ export async function lookupEcosystemsCache(cacheKey: string): Promise<typeof na
     await db.delete(natureserveEcosystemsCacheTable).where(eq(natureserveEcosystemsCacheTable.cache_key, cacheKey));
     return null;
   }
-  return row;
+  if (row.upstream_response === null || row.upstream_response === undefined) {
+    return null;
+  }
+  return { raw: row.upstream_response, upstream_url: row.upstream_url, fetched_at: row.fetched_at };
 }
 
 export async function storeEcosystemsCache(
   cacheKey: string,
-  items: NatureserveSearchItem[],
-  totalResults: number,
-  upstreamUrl: string,
-): Promise<typeof natureserveEcosystemsCacheTable.$inferSelect> {
+  result: NatureserveResult,
+): Promise<{ raw: unknown; upstream_url: string; fetched_at: Date }> {
   const now = new Date();
   const insert = {
     cache_key: cacheKey,
-    results: items as unknown as Record<string, unknown>[],
-    result_count: String(totalResults),
+    upstream_response: result.raw as Record<string, unknown>,
     expires_at: daysFromNow(ECOSYSTEMS_TTL_DAYS),
     source_id: NATURESERVE_SOURCE_ID,
     fetched_at: now,
     method: "api_fetch",
-    upstream_url: upstreamUrl,
+    upstream_url: result.upstream_url,
     general_summary: NATURESERVE_GENERAL_SUMMARY,
     technical_details: NATURESERVE_TECHNICAL_DETAILS,
   };
@@ -140,14 +108,61 @@ export async function storeEcosystemsCache(
     .onConflictDoUpdate({
       target: natureserveEcosystemsCacheTable.cache_key,
       set: {
-        results: insert.results,
-        result_count: insert.result_count,
+        upstream_response: insert.upstream_response,
         fetched_at: insert.fetched_at,
         upstream_url: insert.upstream_url,
         expires_at: insert.expires_at,
       },
     })
     .returning();
-  return rows[0];
+  const row = rows[0];
+  return { raw: row.upstream_response, upstream_url: row.upstream_url, fetched_at: row.fetched_at };
 }
 
+export async function lookupTaxonCache(
+  cacheKey: string,
+): Promise<{ raw: unknown; upstream_url: string; fetched_at: Date } | null> {
+  const rows = await db
+    .select()
+    .from(natureserveTaxonCacheTable)
+    .where(eq(natureserveTaxonCacheTable.cache_key, cacheKey))
+    .limit(1);
+  if (!rows.length) return null;
+  const row = rows[0];
+  if (row.expires_at && row.expires_at < new Date()) {
+    await db.delete(natureserveTaxonCacheTable).where(eq(natureserveTaxonCacheTable.cache_key, cacheKey));
+    return null;
+  }
+  return { raw: row.upstream_response, upstream_url: row.upstream_url, fetched_at: row.fetched_at };
+}
+
+export async function storeTaxonCache(
+  cacheKey: string,
+  result: NatureserveResult,
+): Promise<{ raw: unknown; upstream_url: string; fetched_at: Date }> {
+  const now = new Date();
+  const insert = {
+    cache_key: cacheKey,
+    upstream_response: result.raw as Record<string, unknown>,
+    upstream_url: result.upstream_url,
+    fetched_at: now,
+    expires_at: daysFromNow(TAXON_TTL_DAYS),
+    source_id: NATURESERVE_SOURCE_ID,
+  };
+
+  const rows = await db
+    .insert(natureserveTaxonCacheTable)
+    .values(insert)
+    .onConflictDoUpdate({
+      target: natureserveTaxonCacheTable.cache_key,
+      set: {
+        upstream_response: insert.upstream_response,
+        upstream_url: insert.upstream_url,
+        fetched_at: insert.fetched_at,
+        expires_at: insert.expires_at,
+      },
+    })
+    .returning();
+  const row = rows[0];
+  return { raw: row.upstream_response, upstream_url: row.upstream_url, fetched_at: row.fetched_at };
+}

@@ -247,6 +247,7 @@ export async function runMigrations(): Promise<void> {
   const entry21 = journal.entries[21];
   const entry22 = journal.entries[22];
   const entry23 = journal.entries[23];
+  const entry24 = journal.entries[24];
 
   await applyMigration0000(entry0.when);
   await applyMigration0001(entry1.when);
@@ -328,6 +329,14 @@ export async function runMigrations(): Promise<void> {
   // ADD COLUMN IF NOT EXISTS guards make it safe to re-run.
   if (entry23) {
     await runSqlMigration("0023_universal_fqa_edp_refactor", entry23.when, "0023 (Universal FQA EDP refactor)", false);
+  }
+
+  // Migration 0024: NatureServe EDP refactor.
+  // Adds upstream_response (jsonb, nullable) to natureserve_species_cache and
+  // natureserve_ecosystems_cache. Creates new natureserve_taxon_cache table.
+  // ADD COLUMN IF NOT EXISTS and CREATE TABLE IF NOT EXISTS guards make it safe to re-run.
+  if (entry24) {
+    await runSqlMigration("0024_natureserve_edp_refactor", entry24.when, "0024 (NatureServe EDP refactor)", false);
   }
 
   console.info("[migrate] All migrations complete.");

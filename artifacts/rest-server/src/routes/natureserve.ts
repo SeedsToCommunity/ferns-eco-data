@@ -1,21 +1,26 @@
-// NatureServe routes — envelope-migrated (Task #178).
+// NatureServe routes — EDP-wired (Task #304).
 // Envelope Contract v1: docs/data-layer-contract.md
-// All routes use buildEnvelope(). See VIOLATION comments for plan #148 regressions deferred to plans 16–18.
+// All routes use buildEnvelope(). Data is verbatim upstream JSON in all cache and live paths.
 
 import { Router, type IRouter } from "express";
 import { buildEnvelope } from "@workspace/api-envelope";
 import {
-  searchSpecies,
+  postNatureserveSpeciesSearch,
+  postNatureserveSearch,
+  getNatureserveTaxon,
+  type NatureserveApiError as NatureserveApiErrorType,
+} from "@workspace/external-data-providers/natureserve";
+import {
   buildSpeciesCacheKey,
-  searchByRecordType,
   buildSearchCacheKey,
-  type NatureserveSearchItem,
 } from "../services/natureserve/connector.js";
 import {
   lookupSpeciesCache,
   storeSpeciesCache,
   lookupEcosystemsCache,
   storeEcosystemsCache,
+  lookupTaxonCache,
+  storeTaxonCache,
 } from "../services/natureserve/cache.js";
 import {
   NATURESERVE_SOURCE_ID,
@@ -31,11 +36,6 @@ import { dbRegistryAccessor } from "../lib/registry-accessor.js";
 
 const router: IRouter = Router();
 
-// VIOLATION: plan #148 regression — state scoping not supported by upstream speciesSearch endpoint.
-// DEFAULT_STATE and the state query parameter add a FERNS-invented parameter with no upstream equivalent.
-// Deferred to plans 16–18.
-const DEFAULT_STATE = "MI";
-
 router.get("/natureserve/speciesSearch", async (req, res) => {
   const rawName = req.query.name;
   if (!rawName || typeof rawName !== "string" || rawName.trim() === "") {
@@ -44,16 +44,8 @@ router.get("/natureserve/speciesSearch", async (req, res) => {
   }
 
   const name = rawName.trim();
-  // VIOLATION: plan #148 regression — state scoping not supported by upstream speciesSearch endpoint.
-  // Deferred to plans 16–18.
-  const rawState = typeof req.query.state === "string" ? req.query.state.trim().toUpperCase() : DEFAULT_STATE;
-  if (!/^[A-Z]{2}$/.test(rawState)) {
-    res.status(400).json({ error: "invalid_input", message: "state must be a 2-letter US state code (e.g. MI, WI, OH)" });
-    return;
-  }
-  const state = rawState;
   const refresh = req.query.refresh === "true" || req.query.refresh === "1";
-  const cacheKey = buildSpeciesCacheKey(name, state);
+  const cacheKey = buildSpeciesCacheKey(name);
 
   await ensureNatureserveRegistryEntry();
 
@@ -64,10 +56,8 @@ router.get("/natureserve/speciesSearch", async (req, res) => {
         {
           sourceId: NATURESERVE_SOURCE_ID,
           sourceKind: "single-source-proxy",
-          found: cached.scientific_name !== null,
-          // VIOLATION: plan #148 regression — flat struct rather than verbatim upstream JSON.
-          // Cache stores extracted fields, not raw upstream JSON. Deferred to plans 16–18.
-          data: buildSpeciesData(cached),
+          found: (cached.raw as any)?.results?.length > 0,
+          data: cached.raw,
           method: "cache_hit",
           cacheStatus: "hit",
           sourceUrl: cached.upstream_url,
@@ -81,16 +71,19 @@ router.get("/natureserve/speciesSearch", async (req, res) => {
   }
 
   try {
-    const result = await searchSpecies(name, state);
-    const stored = await storeSpeciesCache(cacheKey, result, result.search_upstream_url);
+    const body = {
+      criteriaType: "species",
+      textCriteria: [{ paramType: "quickSearch", searchToken: name }],
+      pagingOptions: { recordsPerPage: 5, page: 0 },
+    };
+    const result = await postNatureserveSpeciesSearch(body);
+    const stored = await storeSpeciesCache(cacheKey, result);
     const envelope = await buildEnvelope(
       {
         sourceId: NATURESERVE_SOURCE_ID,
         sourceKind: "single-source-proxy",
-        found: stored.scientific_name !== null,
-        // VIOLATION: plan #148 regression — flat struct rather than verbatim upstream JSON.
-        // Cache stores extracted fields, not raw upstream JSON. Deferred to plans 16–18.
-        data: buildSpeciesData(stored),
+        found: (stored.raw as any)?.results?.length > 0,
+        data: stored.raw,
         method: refresh ? "computed" : "api_fetch",
         cacheStatus: refresh ? "bypass" : "miss",
         sourceUrl: stored.upstream_url,
@@ -104,33 +97,6 @@ router.get("/natureserve/speciesSearch", async (req, res) => {
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from NatureServe Explorer API" });
   }
 });
-
-function buildSpeciesData(row: typeof natureserveSpeciesCacheTable.$inferSelect) {
-  // VIOLATION: plan #148 regression — flat struct rather than verbatim upstream JSON.
-  // state_status is derived by mapping S-rank values to labels inside the connector — not verbatim upstream data.
-  // Deferred to plans 16–18.
-  return {
-    scientific_name: row.scientific_name ?? null,
-    common_name: row.common_name ?? null,
-    global_rank: row.global_rank ?? null,
-    rounded_global_rank: row.rounded_global_rank ?? null,
-    national_rank: row.national_rank ?? null,
-    rounded_national_rank: row.rounded_national_rank ?? null,
-    state_code: row.state_code,
-    state_rank: row.state_rank ?? null,
-    rounded_state_rank: row.rounded_state_rank ?? null,
-    iucn_category: row.iucn_category ?? null,
-    iucn_description: row.iucn_description ?? null,
-    federal_status: row.federal_status ?? null,
-    federal_status_description: row.federal_status_description ?? null,
-    state_status: row.state_status ?? null,
-    cites_description: row.cites_description ?? null,
-    cosewic_code: row.cosewic_code ?? null,
-    cosewic_description: row.cosewic_description ?? null,
-    natureserve_url: row.natureserve_url ?? null,
-    element_global_id: row.element_global_id ?? null,
-  };
-}
 
 const VALID_RECORD_TYPES = ["ECOSYSTEM", "SPECIES", "COMMUNITY", "GROUP", "ASSOCIATION"] as const;
 
@@ -161,20 +127,20 @@ router.get("/natureserve/search", async (req, res) => {
   if (!refresh) {
     const cached = await lookupEcosystemsCache(cacheKey);
     if (cached) {
-      const ecosystems = (cached.results as NatureserveSearchItem[]) ?? [];
-      const totalResults = parseInt(cached.result_count ?? "0", 10) || ecosystems.length;
+      const totalResults = (cached.raw as any)?.resultsSummary?.totalResults ?? 0;
+      const results = (cached.raw as any)?.results ?? [];
       const envelope = await buildEnvelope(
         {
           sourceId: NATURESERVE_SOURCE_ID,
           sourceKind: "single-source-proxy",
-          found: ecosystems.length > 0,
-          data: { ecosystems, total_results: totalResults },
+          found: results.length > 0,
+          data: cached.raw,
           method: "cache_hit",
           cacheStatus: "hit",
           sourceUrl: cached.upstream_url,
           queriedAt: cached.fetched_at.toISOString(),
           pagination: {
-            has_more: ecosystems.length < totalResults,
+            has_more: results.length < totalResults,
             next: null,
             total: totalResults,
           },
@@ -187,22 +153,28 @@ router.get("/natureserve/search", async (req, res) => {
   }
 
   try {
-    const result = await searchByRecordType(q, rawRecordType, limit, page);
-    const stored = await storeEcosystemsCache(cacheKey, result.items, result.total_results, result.search_upstream_url);
-    const ecosystems = (stored.results as NatureserveSearchItem[]) ?? [];
-    const totalResults = parseInt(stored.result_count ?? "0", 10) || result.total_results;
+    const body = {
+      criteriaType: "combined",
+      recordTypeCriteria: [{ paramType: "recordType", recordType: rawRecordType }],
+      textCriteria: [{ paramType: "quickSearch", searchToken: q }],
+      pagingOptions: { recordsPerPage: limit, page },
+    };
+    const result = await postNatureserveSearch(body);
+    const stored = await storeEcosystemsCache(cacheKey, result);
+    const totalResults = (stored.raw as any)?.resultsSummary?.totalResults ?? 0;
+    const results = (stored.raw as any)?.results ?? [];
     const envelope = await buildEnvelope(
       {
         sourceId: NATURESERVE_SOURCE_ID,
         sourceKind: "single-source-proxy",
-        found: ecosystems.length > 0,
-        data: { ecosystems, total_results: totalResults },
+        found: results.length > 0,
+        data: stored.raw,
         method: refresh ? "computed" : "api_fetch",
         cacheStatus: refresh ? "bypass" : "miss",
         sourceUrl: stored.upstream_url,
         queriedAt: stored.fetched_at.toISOString(),
         pagination: {
-          has_more: ecosystems.length < totalResults,
+          has_more: results.length < totalResults,
           next: null,
           total: totalResults,
         },
@@ -212,6 +184,67 @@ router.get("/natureserve/search", async (req, res) => {
     res.json(envelope);
   } catch (err) {
     req.log.error({ err }, "NatureServe search failed");
+    res.status(502).json({ error: "upstream_error", message: "Failed to fetch from NatureServe Explorer API" });
+  }
+});
+
+router.get("/natureserve/taxon/:uniqueId", async (req, res) => {
+  const uniqueId = req.params.uniqueId;
+  if (!uniqueId || uniqueId.trim() === "") {
+    res.status(400).json({ error: "invalid_input", message: "uniqueId is required and must be a non-empty string" });
+    return;
+  }
+
+  const refresh = req.query.refresh === "true" || req.query.refresh === "1";
+  const cacheKey = `natureserve:taxon:${uniqueId}`;
+
+  await ensureNatureserveRegistryEntry();
+
+  if (!refresh) {
+    const cached = await lookupTaxonCache(cacheKey);
+    if (cached) {
+      const envelope = await buildEnvelope(
+        {
+          sourceId: NATURESERVE_SOURCE_ID,
+          sourceKind: "single-source-proxy",
+          found: true,
+          data: cached.raw,
+          method: "cache_hit",
+          cacheStatus: "hit",
+          sourceUrl: cached.upstream_url,
+          queriedAt: cached.fetched_at.toISOString(),
+        },
+        { registry: dbRegistryAccessor },
+      );
+      res.json(envelope);
+      return;
+    }
+  }
+
+  try {
+    const result = await getNatureserveTaxon(uniqueId);
+    const stored = await storeTaxonCache(cacheKey, result);
+    const envelope = await buildEnvelope(
+      {
+        sourceId: NATURESERVE_SOURCE_ID,
+        sourceKind: "single-source-proxy",
+        found: true,
+        data: stored.raw,
+        method: refresh ? "computed" : "api_fetch",
+        cacheStatus: refresh ? "bypass" : "miss",
+        sourceUrl: stored.upstream_url,
+        queriedAt: stored.fetched_at.toISOString(),
+      },
+      { registry: dbRegistryAccessor },
+    );
+    res.json(envelope);
+  } catch (err: unknown) {
+    const nsErr = err as { name?: string; statusCode?: number };
+    if (nsErr?.name === "NatureserveApiError" && nsErr?.statusCode === 404) {
+      res.status(404).json({ error: "not_found", message: `NatureServe taxon not found: ${uniqueId}` });
+      return;
+    }
+    req.log.error({ err }, "NatureServe taxon fetch failed");
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from NatureServe Explorer API" });
   }
 });
