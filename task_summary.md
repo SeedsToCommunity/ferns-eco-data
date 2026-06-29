@@ -930,3 +930,40 @@ Not applicable — no new `technical_details` text was written.
 
 - **Breaking change — renamed MCP tools**: Three MCP tool names changed. Any MCP client (Claude Desktop, Cursor, or other) that has an existing conversation or config referencing `gbif__match`, `gbif__occurrences`, or `gbif__search` will need to be updated to use `gbif__species_match`, `gbif__occurrence_search`, and `gbif__species_search` respectively. This is a deliberate correctness fix but will break existing integrations using the old names.
 
+
+---
+
+## Task 300 — Universal FQA — EDP: Source Interface
+
+### What was built
+
+`lib/external-data-providers/src/universal-fqa/index.ts` — the network-only Source Interface for the Universal FQA API at `http://universalfqa.org/get`. Exports:
+
+- `UniversalFqaApiError` — typed error class with `statusCode?: number` and `upstream_url: string`
+- `UniversalFqaResult` — interface `{ raw: unknown; upstream_url: string }`
+- `getUniversalFqaDatabase()` — `GET /get/database/`
+- `getUniversalFqaDatabaseById(id)` — `GET /get/database/{id}`
+- `getUniversalFqaDatabaseInventory(databaseId)` — `GET /get/database/{databaseId}/inventory`
+- `getUniversalFqaInventory(id)` — `GET /get/inventory/{id}`
+
+`lib/external-data-providers/package.json` updated with `"./universal-fqa": "./src/universal-fqa/index.ts"` export. `dist/universal-fqa/` declarations generated and present.
+
+### Architectural decisions
+
+- **Verbatim 2D array passthrough**: The upstream API returns all data as positionally indexed `unknown[][]` rows inside `{ status: "success"|"error", data: unknown[][] }`. FERNS passes this through verbatim as `raw: unknown`. No field extraction, no positional indexing, no type coercion occurs at this layer. Callers of the FERNS REST/MCP API receive the raw 2D array and must handle positional indexing themselves. This is a breaking change from the previous behavior (where `client.ts` returned parsed, structured TypeScript objects).
+- **`fetch()` vs Node.js `http`/`https`**: The existing `client.ts` used Node.js `http`/`https` with manual redirect handling because the base URL is HTTP and the server redirects to HTTPS. The EDP uses `fetch()` instead — `fetch()` follows redirects automatically (including HTTP→HTTPS), eliminating the manual redirect logic entirely.
+- **30 s `AbortSignal.timeout`**: Matches the `TIMEOUT_MS` constant in the existing `client.ts`. Appropriate for a public API that can be slow to respond with large databases or assessment lists.
+- **`upstream_url` is the request URL before server redirect**: The `upstream_url` field in `UniversalFqaResult` holds the `http://universalfqa.org/get/...` URL — i.e., the URL FERNS actually sent — not the HTTPS URL the server redirects to. This matches the contract: `source_url` in the envelope is the URL FERNS contacted, not the server's internal redirect destination.
+- **Verbatim error passthrough for upstream error responses**: When the upstream returns `{ status: "error", message: "..." }` (e.g., for private assessments or invalid database IDs), the EDP returns this verbatim in `raw`. The EDP does not throw; only HTTP-level failures (non-OK status, timeout, network error) cause `UniversalFqaApiError`. Upstream application-level errors are the adapter's responsibility to interpret.
+- **No forbidden imports**: No `@workspace/db`, `drizzle-orm`, or `@workspace/api-envelope` imports anywhere in the file. No parsing helpers (`nullStr`, `nullNum`, `parsePct`) — raw JSON only.
+
+### What was NOT done
+
+- `artifacts/rest-server/src/services/universal-fqa/client.ts` was not modified or deleted — that is Task B (Adapter & DB Migration).
+- No route changes — existing routes continue to call `client.ts` until Task B rewires them.
+- No DB schema migration — existing `universal_fqa_databases` and `universal_fqa_species` tables unchanged.
+- No OpenAPI spec update, no MCP tool registration, no audit corpus entries — those are Task C.
+
+### What the user should review
+
+- **Breaking change to data shape**: The existing `client.ts` returned strongly-typed parsed objects (`UniversalFqaDatabaseDetail`, `UniversalFqaAssessmentDetail`, etc.) with named fields. After Task B wires routes to use the EDP, the FERNS REST API will instead return the raw 2D array from upstream. Any downstream consumer of the FERNS API (MCP clients, Explorer UI, external integrations) that expects the current named-field structure will need to be updated to work with the positional 2D array. This is an approved breaking change per user direction ("It's ok to break existing interfaces to support this truth layering"), but should be confirmed before Task B is merged.
