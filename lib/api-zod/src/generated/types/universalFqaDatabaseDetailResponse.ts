@@ -6,7 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { FernsProvenance } from './fernsProvenance';
-import type { UniversalFqaDatabaseDetail } from './universalFqaDatabaseDetail';
+import type { UniversalFqaUpstreamResponse } from './universalFqaUpstreamResponse';
 
 export interface UniversalFqaDatabaseDetailResponse {
   found: boolean;
@@ -14,5 +14,5 @@ export interface UniversalFqaDatabaseDetailResponse {
   queried_at: Date;
   source_url: string;
   provenance: FernsProvenance;
-  data?: UniversalFqaDatabaseDetail | null;
+  data?: UniversalFqaUpstreamResponse | null;
 }

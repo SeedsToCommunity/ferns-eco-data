@@ -2501,7 +2501,7 @@ export const GetUniversalFqaMetadataResponse = zod.object({
 
 
 /**
- * Returns all regional FQA databases available on universalfqa.org. Each entry contains an id, region name, year, and full citation string. The region and citation fields together describe geographic scope, ecoregion coverage, institutional source, and methodology — read both in full to determine relevance for a given project or location.
+ * Returns the verbatim upstream row-indexed list of all regional FQA databases registered on universalfqa.org. See GET /universal-fqa/metadata (technical_details) for the row-position mapping.
 
  * @summary List all Universal FQA regional databases
  */
@@ -2520,18 +2520,15 @@ export const GetUniversalFqaDatabasesResponse = zod.object({
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
 }).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
   "data": zod.union([zod.object({
-  "databases": zod.array(zod.object({
-  "id": zod.number().describe('Universal FQA database ID'),
-  "region": zod.string().describe('Region name as provided by universalfqa.org'),
-  "year": zod.string().describe('Publication year string as provided by universalfqa.org'),
-  "citation": zod.string().describe('Full citation string as provided by universalfqa.org. Contains institutional author, year, database name, and sometimes methodology notes. Together with region, provides all information needed to select a database.\n')
-}))
+  "status": zod.enum(['success', 'error']),
+  "data": zod.array(zod.array(zod.unknown())),
+  "message": zod.string().optional().describe('Present when status is \"error\"')
 }),zod.null()]).nullish()
 })
 
 
 /**
- * Returns the complete parsed database for the given ID — all species records with named fields, plus the database-level summary metrics (total species, native/non-native counts, mean C values). On the first request for a given database ID, downloads the database from universalfqa.org and persists it to the FERNS PostgreSQL cache. Subsequent requests are served from the cache (cache_status: hit). Consumers may retrieve the full database and build their own in-memory structures without polling FERNS repeatedly.
+ * Returns the verbatim upstream row-indexed response for one FQA database by ID. See GET /universal-fqa/metadata (technical_details) for the row-position mapping.
 
  * @summary Get a full Universal FQA database with all species records
  */
@@ -2554,32 +2551,15 @@ export const GetUniversalFqaDatabaseResponse = zod.object({
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
 }).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
   "data": zod.union([zod.object({
-  "id": zod.number().describe('Universal FQA database ID'),
-  "region": zod.string().describe('Region name as provided by universalfqa.org'),
-  "year": zod.string().describe('Publication year string as provided by universalfqa.org'),
-  "citation": zod.string().describe('Full citation string as provided by universalfqa.org'),
-  "total_species": zod.number().describe('Total number of species in this database'),
-  "native_species": zod.number().describe('Number of native species'),
-  "non_native_species": zod.number().describe('Number of non-native species'),
-  "total_mean_c": zod.number().nullish().describe('Mean C-value across all species (native and non-native)'),
-  "native_mean_c": zod.number().nullish().describe('Mean C-value across native species only'),
-  "species": zod.array(zod.object({
-  "scientific_name": zod.string().describe('Scientific name of the species as listed in this database'),
-  "family": zod.string().describe('Plant family'),
-  "acronym": zod.string().describe('Abbreviated acronym used in this database'),
-  "native": zod.string().describe('Nativity string as provided by the source database. Typically \"native\" or \"non-native\" but exact values depend on the database.\n'),
-  "c": zod.unknown().nullable().describe('Coefficient of Conservatism (C-value) for this species in this database. Integer 0–10 for native species; null for non-native or unassigned species. Some databases use string representations. Always check the source database citation for the methodology used to assign C-values.\n'),
-  "w": zod.unknown().nullable().describe('Coefficient of Wetness (W-value). Numeric, -5 (obligate wetland) to +5 (obligate upland). Null if not assigned.\n'),
-  "physiognomy": zod.string().describe('Plant physiognomic type (e.g. Forb, Shrub, Tree, Grass, Sedge, Rush, Fern, Bryophyte, Vine)'),
-  "duration": zod.string().describe('Life duration (e.g. Annual, Perennial, Biennial)'),
-  "common_name": zod.string().describe('Common name in the source database')
-})).describe('All species records in this database')
+  "status": zod.enum(['success', 'error']),
+  "data": zod.array(zod.array(zod.unknown())),
+  "message": zod.string().optional().describe('Present when status is \"error\"')
 }),zod.null()]).nullish()
 })
 
 
 /**
- * Returns all publicly shared site assessments for the specified database. Each entry contains the assessment id, name, date, site, and practitioner. Assessment county and state are only available in the individual assessment detail endpoint — the list does not include location fields. Michigan 2014 (ID 50) has 4800+ assessments; Michigan 2024 (ID 267) has 400+.
+ * Returns the verbatim upstream row-indexed list of public site assessments for the specified FQA database. See GET /universal-fqa/metadata (technical_details) for the row-position mapping.
 
  * @summary List public site assessments for a Universal FQA database
  */
@@ -2602,20 +2582,15 @@ export const GetUniversalFqaAssessmentsResponse = zod.object({
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
 }).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
   "data": zod.union([zod.object({
-  "database_id": zod.number(),
-  "assessments": zod.array(zod.object({
-  "id": zod.number().describe('Assessment ID'),
-  "name": zod.string().describe('Assessment name as entered by the practitioner'),
-  "date": zod.string().describe('Date of the assessment (string as provided by source)'),
-  "site": zod.string().describe('Site name as entered by the practitioner'),
-  "practitioner": zod.string().describe('Name of the practitioner who conducted the assessment')
-}))
+  "status": zod.enum(['success', 'error']),
+  "data": zod.array(zod.array(zod.unknown())),
+  "message": zod.string().optional().describe('Present when status is \"error\"')
 }),zod.null()]).nullish()
 })
 
 
 /**
- * Returns the full detail for a public site assessment: site name, date, city/county/state/country, practitioner, which FQA database was used, all computed FQI metrics (Total/Native FQI, Adjusted FQI, Mean C, Mean Wetness, species richness, physiognomy breakdown, duration breakdown), and the complete observed species list with all nine per-species source fields. Returns 404 if the assessment does not exist or is not public.
+ * Returns the verbatim upstream row-indexed response for one FQA site assessment by ID. See GET /universal-fqa/metadata (technical_details) for the row-position mapping.
 
  * @summary Get a single Universal FQA site assessment in full detail
  */
@@ -2638,88 +2613,9 @@ export const GetUniversalFqaAssessmentResponse = zod.object({
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
 }).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
   "data": zod.union([zod.object({
-  "id": zod.number(),
-  "site_name": zod.string().nullish(),
-  "date": zod.string().nullish(),
-  "city": zod.string().nullish(),
-  "county": zod.string().nullish(),
-  "state": zod.string().nullish(),
-  "country": zod.string().nullish(),
-  "fqa_db": zod.union([zod.object({
-  "region": zod.string().nullish(),
-  "year": zod.string().nullish(),
-  "citation": zod.string().nullish()
-}),zod.null()]).nullish(),
-  "practitioner": zod.string().nullish(),
-  "latitude": zod.string().nullish(),
-  "longitude": zod.string().nullish(),
-  "weather_notes": zod.string().nullish(),
-  "duration_notes": zod.string().nullish(),
-  "community_type": zod.string().nullish(),
-  "other_notes": zod.string().nullish(),
-  "visibility": zod.string().nullish(),
-  "metrics": zod.object({
-  "total_mean_c": zod.number().nullish(),
-  "native_mean_c": zod.number().nullish(),
-  "total_fqi": zod.number().nullish(),
-  "native_fqi": zod.number().nullish(),
-  "adjusted_fqi": zod.number().nullish(),
-  "pct_c0": zod.number().nullish(),
-  "pct_c1_3": zod.number().nullish(),
-  "pct_c4_6": zod.number().nullish(),
-  "pct_c7_10": zod.number().nullish(),
-  "native_tree_mean_c": zod.number().nullish(),
-  "native_shrub_mean_c": zod.number().nullish(),
-  "native_herbaceous_mean_c": zod.number().nullish(),
-  "total_species": zod.number().nullish(),
-  "native_species": zod.number().nullish(),
-  "native_species_pct": zod.number().nullish(),
-  "non_native_species": zod.number().nullish(),
-  "non_native_species_pct": zod.number().nullish(),
-  "mean_wetness": zod.number().nullish(),
-  "native_mean_wetness": zod.number().nullish(),
-  "tree_count": zod.number().nullish(),
-  "tree_pct": zod.number().nullish(),
-  "shrub_count": zod.number().nullish(),
-  "shrub_pct": zod.number().nullish(),
-  "vine_count": zod.number().nullish(),
-  "vine_pct": zod.number().nullish(),
-  "forb_count": zod.number().nullish(),
-  "forb_pct": zod.number().nullish(),
-  "grass_count": zod.number().nullish(),
-  "grass_pct": zod.number().nullish(),
-  "sedge_count": zod.number().nullish(),
-  "sedge_pct": zod.number().nullish(),
-  "rush_count": zod.number().nullish(),
-  "rush_pct": zod.number().nullish(),
-  "fern_count": zod.number().nullish(),
-  "fern_pct": zod.number().nullish(),
-  "bryophyte_count": zod.number().nullish(),
-  "bryophyte_pct": zod.number().nullish(),
-  "annual_count": zod.number().nullish(),
-  "annual_pct": zod.number().nullish(),
-  "perennial_count": zod.number().nullish(),
-  "perennial_pct": zod.number().nullish(),
-  "biennial_count": zod.number().nullish(),
-  "biennial_pct": zod.number().nullish(),
-  "native_annual_count": zod.number().nullish(),
-  "native_annual_pct": zod.number().nullish(),
-  "native_perennial_count": zod.number().nullish(),
-  "native_perennial_pct": zod.number().nullish(),
-  "native_biennial_count": zod.number().nullish(),
-  "native_biennial_pct": zod.number().nullish()
-}).describe('Computed Floristic Quality Assessment metrics for this site assessment. All numeric values. Null means the source did not provide a value for this assessment.\n'),
-  "species": zod.array(zod.object({
-  "scientific_name": zod.string().describe('Scientific name of the species as listed in this database'),
-  "family": zod.string().describe('Plant family'),
-  "acronym": zod.string().describe('Abbreviated acronym used in this database'),
-  "native": zod.string().describe('Nativity string as provided by the source database. Typically \"native\" or \"non-native\" but exact values depend on the database.\n'),
-  "c": zod.unknown().nullable().describe('Coefficient of Conservatism (C-value) for this species in this database. Integer 0–10 for native species; null for non-native or unassigned species. Some databases use string representations. Always check the source database citation for the methodology used to assign C-values.\n'),
-  "w": zod.unknown().nullable().describe('Coefficient of Wetness (W-value). Numeric, -5 (obligate wetland) to +5 (obligate upland). Null if not assigned.\n'),
-  "physiognomy": zod.string().describe('Plant physiognomic type (e.g. Forb, Shrub, Tree, Grass, Sedge, Rush, Fern, Bryophyte, Vine)'),
-  "duration": zod.string().describe('Life duration (e.g. Annual, Perennial, Biennial)'),
-  "common_name": zod.string().describe('Common name in the source database')
-}))
+  "status": zod.enum(['success', 'error']),
+  "data": zod.array(zod.array(zod.unknown())),
+  "message": zod.string().optional().describe('Present when status is \"error\"')
 }),zod.null()]).nullish()
 })
 

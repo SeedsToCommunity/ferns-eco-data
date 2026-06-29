@@ -201,11 +201,10 @@ Tool names follow `{source_id}__{action}` (hyphens → underscores, double-under
 
 | Tool | Path | Required | Optional | Description |
 |---|---|---|---|---|
-| `universal_fqa__databases` | GET /universal-fqa/databases | — | — | All FQA databases registered in the Universal FQA Tool, each representing a regional C-value list |
-| `universal_fqa__database` | GET /universal-fqa/databases/{id} | id | — | Full details for a specific FQA database by ID: metadata and species count |
-| `universal_fqa__species` | GET /universal-fqa/species | name, database_id | — | C-value and FQA attributes for a species within a specific regional FQA database |
-| `universal_fqa__assessments` | GET /universal-fqa/assessments | database_id | — | All FQA site assessments stored in a given FQA database |
-| `universal_fqa__assessment` | GET /universal-fqa/assessment/{id} | id | — | Full FQA assessment details: species list, FQI score, mean C-value, and site information |
+| `universal_fqa__get_database_list` | GET /universal-fqa/get/database | — | — | All regional FQA databases registered on universalfqa.org; verbatim upstream `{ status, data: unknown[][] }` |
+| `universal_fqa__get_database` | GET /universal-fqa/get/database/{id} | id | — | Verbatim upstream row-indexed response for one FQA database by ID |
+| `universal_fqa__get_database_inventory` | GET /universal-fqa/get/database/{id}/inventory | id | — | Verbatim upstream row-indexed list of public site assessments for a FQA database |
+| `universal_fqa__get_inventory` | GET /universal-fqa/get/inventory/{id} | id | — | Verbatim upstream row-indexed response for one FQA site assessment by ID |
 
 ### gobotany — Go Botany (Native Plant Trust)
 

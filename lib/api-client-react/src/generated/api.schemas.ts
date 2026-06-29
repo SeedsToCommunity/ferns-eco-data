@@ -1150,6 +1150,21 @@ export interface S2CSpeciesInformationData {
   species_comments?: string | null;
 }
 
+export type UniversalFqaUpstreamResponseStatus = typeof UniversalFqaUpstreamResponseStatus[keyof typeof UniversalFqaUpstreamResponseStatus];
+
+
+export const UniversalFqaUpstreamResponseStatus = {
+  success: 'success',
+  error: 'error',
+} as const;
+
+export interface UniversalFqaUpstreamResponse {
+  status: UniversalFqaUpstreamResponseStatus;
+  data: unknown[][];
+  /** Present when status is "error" */
+  message?: string;
+}
+
 export interface UniversalFqaSpeciesRecord {
   /** Scientific name of the species as listed in this database */
   scientific_name: string;
@@ -1205,7 +1220,7 @@ export interface UniversalFqaDatabaseDetailResponse {
   queried_at: string;
   source_url: string;
   provenance: FernsProvenance;
-  data?: UniversalFqaDatabaseDetail | null;
+  data?: UniversalFqaUpstreamResponse | null;
 }
 
 export interface UniversalFqaDatabaseEntry {
@@ -1230,7 +1245,7 @@ export interface UniversalFqaDatabasesResponse {
   queried_at: string;
   source_url: string;
   provenance: FernsProvenance;
-  data?: UniversalFqaDatabasesData | null;
+  data?: UniversalFqaUpstreamResponse | null;
 }
 
 export interface UniversalFqaAssessmentSummary {
@@ -1257,7 +1272,7 @@ export interface UniversalFqaAssessmentsResponse {
   queried_at: string;
   source_url: string;
   provenance: FernsProvenance;
-  data?: UniversalFqaAssessmentsData | null;
+  data?: UniversalFqaUpstreamResponse | null;
 }
 
 export interface UniversalFqaDbInfo {
@@ -1349,7 +1364,7 @@ export interface UniversalFqaAssessmentResponse {
   queried_at: string;
   source_url: string;
   provenance: FernsProvenance;
-  data?: UniversalFqaAssessmentData | null;
+  data?: UniversalFqaUpstreamResponse | null;
 }
 
 export type UniversalFqaMetadataResponseAttribution = { [key: string]: unknown };

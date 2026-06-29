@@ -1044,3 +1044,40 @@ Not applicable — no new source was added in this task.
 - **Breaking data shape change**: Any downstream consumer of the Universal FQA FERNS routes (MCP clients, Explorer UI, external callers) that expected named parsed fields (e.g. `detail.region`, `detail.species[].scientific_name`) will now receive the raw 2D array from universalfqa.org. This is an intentional breaking change per the data-purity contract, but callers that have not been updated will break.
 - **`universal_fqa_species` table**: Confirm whether it is safe to drop in a future task. If no other part of the system reads from it, it can be removed. The migration runner note should be updated once it is dropped.
 - **Existing `universal_fqa_databases` rows**: Old rows have `upstream_response = '{}'`, `upstream_url = ''`, `fetched_at = now()-at-migration-time`. On the next cache hit, these rows will be returned with an empty `{}` as `data`. To avoid serving stale empty data, the cache should be cleared or the `upstream_response` column populated — easiest via `DELETE FROM universal_fqa_databases` to force re-fetch on next request.
+
+---
+
+## Task: Universal FQA — EDP: OpenAPI + MCP + Audit
+
+### What was changed
+
+Four layers of the Universal FQA integration were aligned to reflect the verbatim upstream data shape (`{ status: string, data: unknown[][] }`). The OpenAPI spec now uses a shared `UniversalFqaUpstreamResponse` component for all four data route schemas instead of the old FERNS-parsed object shapes. Path descriptions were trimmed to one-sentence summaries pointing consumers to `GET /universal-fqa/metadata` for row-index details. All four MCP tools were renamed to match the action-name derivation rule in `data-layer-contract.md` (`universal_fqa__databases` → `universal_fqa__get_database_list`, `universal_fqa__database` → `universal_fqa__get_database`, `universal_fqa__assessments` → `universal_fqa__get_database_inventory`, `universal_fqa__assessment` → `universal_fqa__get_inventory`). Tool descriptions were updated to state the verbatim upstream endpoint path and the `{ status, data: unknown[][] }` shape. The MCP README tool table was updated to reflect all four final names and correct FERNS paths. The audit comparator was rewritten to cover all four routes with the required minimum assertions (`data.status === "success"`, `Array.isArray(data.data)`, and `data.data.length > 0` for the database list route), using database ID 50 (Michigan 2014) for database and inventory endpoints and assessment ID 1 for the inventory detail endpoint.
+
+### Derivation summary
+
+N/A — no new source was added.
+
+### Scientific/technical description
+
+N/A — no new `technical_details` field was authored.
+
+### Architectural decisions made
+
+- **Shared `UniversalFqaUpstreamResponse` component**: Added a single `UniversalFqaUpstreamResponse` schema in `components/schemas` and referenced it from all four `*Response` schemas' `data` fields via `oneOf`. This keeps the upstream shape described once and avoids drift across four separate inline definitions. The old parsed-shape schemas (`UniversalFqaDatabasesData`, `UniversalFqaAssessmentsData`, `UniversalFqaDatabaseDetail`, `UniversalFqaAssessmentData`) are retained as dead code rather than deleted — removing them would have required auditing all generated consumers for breakage, which is out of this task's scope.
+- **Path descriptions point to metadata**: Per the task spec, OpenAPI path descriptions no longer duplicate row-position semantics; all four descriptions are one-sentence redirects to `GET /universal-fqa/metadata`. This is a deliberate anti-duplication decision — the `technical_details` field in the metadata response is the canonical row-index reference.
+- **MCP tool rename: `database_id` → `id` for inventory route**: The old `universal_fqa__assessments` tool used `database_id` as its input parameter name. The renamed `universal_fqa__get_database_inventory` uses `id` to match the FERNS path parameter (`{id}`) and maintain parity with the other tools. Any downstream MCP clients using the old parameter name `database_id` will need to update.
+- **Audit uses stable IDs**: Database ID 50 (Michigan 2014, University of Michigan Herbarium) was chosen as the audit fixture — it has 4800+ assessments and is the most-referenced Michigan database. Assessment ID 1 was chosen as a conservative first-record fixture; it should be a publicly accessible record.
+
+### What was NOT done
+
+- Old parsed-shape schemas (`UniversalFqaDatabasesData`, `UniversalFqaAssessmentsData`, `UniversalFqaDatabaseDetail`, `UniversalFqaAssessmentData`, `UniversalFqaSpeciesRecord`, `UniversalFqaMetrics`, `UniversalFqaDbInfo`) were not removed from the OpenAPI spec — they are now unused by the four route schemas but retained to avoid touching generated consumers in this task.
+- The `universal_fqa_species` table drop remains out of scope (per the task spec).
+- No route behavior or data shape changes were made (Task B scope).
+
+### What the user should review
+
+- **Breaking change — MCP tool renames**: All four Universal FQA MCP tool names changed. Any downstream MCP client (Claude Desktop, Cursor, or any automation) using the old names (`universal_fqa__databases`, `universal_fqa__database`, `universal_fqa__assessments`, `universal_fqa__assessment`) will get a "tool not found" error and must be updated to the new names (`universal_fqa__get_database_list`, `universal_fqa__get_database`, `universal_fqa__get_database_inventory`, `universal_fqa__get_inventory`).
+- **Breaking change — inventory tool parameter rename**: The old `universal_fqa__assessments` tool accepted `database_id`; the new `universal_fqa__get_database_inventory` uses `id`. Clients must update both the tool name and the parameter name.
+- **Unused schema components**: The old parsed-shape components can be deleted from the OpenAPI spec in a follow-up cleanup pass once consumers are confirmed to have regenerated types from the updated codegen.
+- **Audit assessment ID 1**: The audit comparator uses assessment ID 1 for the inventory detail route. If ID 1 is private or deleted on universalfqa.org, the comparator will report a failing assertion. A stable known-public assessment ID should be confirmed and substituted if needed.
+

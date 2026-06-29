@@ -1149,9 +1149,9 @@ const tools: ToolDef[] = [
   // ── universal-fqa ───────────────────────────────────────────────────────
   {
     tool: {
-      name: "universal_fqa__databases",
+      name: "universal_fqa__get_database_list",
       description:
-        "Returns all FQA databases registered in the Universal FQA Tool, each representing a regional C-value list.",
+        "Upstream: GET /get/database/. Returns the verbatim upstream response { status, data: unknown[][] } listing all regional FQA databases registered on universalfqa.org. See GET /universal-fqa/metadata (technical_details) for the row-position mapping.",
       inputSchema: {
         type: "object" as const,
         properties: { ...PV_PROP },
@@ -1165,9 +1165,9 @@ const tools: ToolDef[] = [
   },
   {
     tool: {
-      name: "universal_fqa__database",
+      name: "universal_fqa__get_database",
       description:
-        "Returns the full details of a specific FQA database by ID, including metadata and the number of species it contains.",
+        "Upstream: GET /get/database/{id}. Returns the verbatim upstream response { status, data: unknown[][] } for one FQA database by ID. See GET /universal-fqa/metadata (technical_details) for the row-position mapping.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -1184,28 +1184,28 @@ const tools: ToolDef[] = [
   },
   {
     tool: {
-      name: "universal_fqa__assessments",
+      name: "universal_fqa__get_database_inventory",
       description:
-        "Returns all FQA site assessments stored in a given FQA database.",
+        "Upstream: GET /get/database/{id}/inventory. Returns the verbatim upstream response { status, data: unknown[][] } listing all public site assessments for the specified FQA database. See GET /universal-fqa/metadata (technical_details) for the row-position mapping.",
       inputSchema: {
         type: "object" as const,
         properties: {
-          database_id: { type: "number", description: "FQA database ID (integer)" },
+          id: { type: "number", description: "FQA database ID (integer)" },
           ...PV_PROP,
         },
-        required: ["database_id"],
+        required: ["id"],
       },
     },
     handler: async (args) =>
-      apiGet(`/universal-fqa/get/database/${Number(args["database_id"])}/inventory`, {
+      apiGet(`/universal-fqa/get/database/${Number(args["id"])}/inventory`, {
         provenance_verbosity: pv(args),
       }),
   },
   {
     tool: {
-      name: "universal_fqa__assessment",
+      name: "universal_fqa__get_inventory",
       description:
-        "Returns the full details of a specific FQA assessment, including species list, FQI score, mean C-value, and site information.",
+        "Upstream: GET /get/inventory/{id}. Returns the verbatim upstream response { status, data: unknown[][] } for one FQA site assessment by ID. See GET /universal-fqa/metadata (technical_details) for the row-position mapping.",
       inputSchema: {
         type: "object" as const,
         properties: {

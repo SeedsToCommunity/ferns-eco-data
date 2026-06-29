@@ -4938,7 +4938,7 @@ export function useGetUniversalFqaMetadata<TData = Awaited<ReturnType<typeof get
 
 
 /**
- * Returns all regional FQA databases available on universalfqa.org. Each entry contains an id, region name, year, and full citation string. The region and citation fields together describe geographic scope, ecoregion coverage, institutional source, and methodology — read both in full to determine relevance for a given project or location.
+ * Returns the verbatim upstream row-indexed list of all regional FQA databases registered on universalfqa.org. See GET /universal-fqa/metadata (technical_details) for the row-position mapping.
 
  * @summary List all Universal FQA regional databases
  */
@@ -5015,7 +5015,7 @@ export function useGetUniversalFqaDatabases<TData = Awaited<ReturnType<typeof ge
 
 
 /**
- * Returns the complete parsed database for the given ID — all species records with named fields, plus the database-level summary metrics (total species, native/non-native counts, mean C values). On the first request for a given database ID, downloads the database from universalfqa.org and persists it to the FERNS PostgreSQL cache. Subsequent requests are served from the cache (cache_status: hit). Consumers may retrieve the full database and build their own in-memory structures without polling FERNS repeatedly.
+ * Returns the verbatim upstream row-indexed response for one FQA database by ID. See GET /universal-fqa/metadata (technical_details) for the row-position mapping.
 
  * @summary Get a full Universal FQA database with all species records
  */
@@ -5092,7 +5092,7 @@ export function useGetUniversalFqaDatabase<TData = Awaited<ReturnType<typeof get
 
 
 /**
- * Returns all publicly shared site assessments for the specified database. Each entry contains the assessment id, name, date, site, and practitioner. Assessment county and state are only available in the individual assessment detail endpoint — the list does not include location fields. Michigan 2014 (ID 50) has 4800+ assessments; Michigan 2024 (ID 267) has 400+.
+ * Returns the verbatim upstream row-indexed list of public site assessments for the specified FQA database. See GET /universal-fqa/metadata (technical_details) for the row-position mapping.
 
  * @summary List public site assessments for a Universal FQA database
  */
@@ -5169,7 +5169,7 @@ export function useGetUniversalFqaAssessments<TData = Awaited<ReturnType<typeof 
 
 
 /**
- * Returns the full detail for a public site assessment: site name, date, city/county/state/country, practitioner, which FQA database was used, all computed FQI metrics (Total/Native FQI, Adjusted FQI, Mean C, Mean Wetness, species richness, physiognomy breakdown, duration breakdown), and the complete observed species list with all nine per-species source fields. Returns 404 if the assessment does not exist or is not public.
+ * Returns the verbatim upstream row-indexed response for one FQA site assessment by ID. See GET /universal-fqa/metadata (technical_details) for the row-position mapping.
 
  * @summary Get a single Universal FQA site assessment in full detail
  */

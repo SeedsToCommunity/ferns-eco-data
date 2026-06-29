@@ -329,6 +329,8 @@ export * from './universalFqaMetadataResponseAttribution';
 export * from './universalFqaMetadataResponseRegistryEntry';
 export * from './universalFqaMetrics';
 export * from './universalFqaSpeciesRecord';
+export * from './universalFqaUpstreamResponse';
+export * from './universalFqaUpstreamResponseStatus';
 export * from './usdaPlantsMetadataResponse';
 export * from './usdaPlantsMetadataResponseData';
 export * from './usdaPlantsPlantItem';
