@@ -244,6 +244,7 @@ export async function runMigrations(): Promise<void> {
   const entry13 = journal.entries[13];
   const entry16 = journal.entries[16];
   const entry21 = journal.entries[21];
+  const entry22 = journal.entries[22];
 
   await applyMigration0000(entry0.when);
   await applyMigration0001(entry1.when);
@@ -298,6 +299,14 @@ export async function runMigrations(): Promise<void> {
   // IF NOT EXISTS and DROP COLUMN IF EXISTS guards make it safe to re-run.
   if (entry21) {
     await runSqlMigration("0021_miflora_edp_refactor", entry21.when, "0021 (miflora EDP refactor)", false);
+  }
+
+  // Migration 0022: USDA Plants EDP refactor.
+  // Drops usda_plants_name_matches table (orphaned by removal of composite route).
+  // Drops general_summary/technical_details from usda_plants_profiles.
+  // DROP TABLE IF EXISTS and DROP COLUMN IF EXISTS guards make it safe to re-run.
+  if (entry22) {
+    await runSqlMigration("0022_usda_plants_edp_refactor", entry22.when, "0022 (USDA Plants EDP refactor)", false);
   }
 
   console.info("[migrate] All migrations complete.");

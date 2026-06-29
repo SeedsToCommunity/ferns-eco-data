@@ -797,3 +797,44 @@ All six Michigan Flora REST routes were rewritten to call EDP functions directly
 ### What the user should decide or review
 
 - `locs_sp` and `allimage_info` now require an integer `plant_id` via `?id=`; any existing callers using `?name=` will receive 400. This is the intended breaking change per the task spec.
+
+---
+
+## Task: USDA Plants — EDP: REST Adapter refactor
+
+### What was built
+
+The USDA Plants REST adapter was refactored to remove its inline network code and replace it with calls to the External Data Provider (EDP). The old composite route — which made two upstream API calls in sequence (PlantSearch then PlantProfile) and merged them — was deleted entirely. Three clean routes now replace it: a true passthrough `PlantSearch` (autocomplete), a cached `PlantProfile`, and a passthrough `plants-search-results`. Each route calls exactly one upstream endpoint and returns the verbatim upstream data with no shape distortion. The `connector.ts` file was deleted (it is now empty) and `buildProfileCacheKey` remained in `cache.ts` where it already lived. The database schema lost the orphaned `usda_plants_name_matches` table and the `general_summary`/`technical_details` columns from `usda_plants_profiles`.
+
+### Derivation summary
+
+*(No new source added — this is a refactor of an existing source. Section not applicable.)*
+
+### Scientific/technical description
+
+*(No new source added — this is a refactor of an existing source. Section not applicable.)*
+
+### Architectural decisions made
+
+- **connector.ts deleted entirely.** After removing all network functions, `buildProvenance`, and the helper interfaces, `connector.ts` was empty. Rather than keeping an empty file, it was deleted. `buildProfileCacheKey` was already in `cache.ts` and did not need to be moved.
+
+- **Route parameter renames (`q→Text`, `field→Field`, `page→pageNumber`).** The upstream POST body uses `Text`, `Field`, and `pageNumber` as field names. FERNS GET parameters now match exactly. Old parameter names return HTTP 400. This is a breaking change accepted by the user.
+
+- **`PlantProfile` data shape changed from `{symbol, profile}` to verbatim profile object.** The `symbol` wrapper was a FERNS echo of the input — not an upstream field. The upstream profile already contains a `Symbol` field. The new shape is faithful to the upstream.
+
+- **Manual migration 0022.** `drizzle-kit generate` fails in this repo when `trust.ts` is in scope (CJS module resolution cannot find `./registry.js` in the src directory). Migration 0022 was written manually and applied via direct SQL execution. The journal entry was added and `migrate.ts` was updated to track and run the migration at server startup. This is consistent with migrations 0020 and 0021.
+
+- **`PlantSearch` is never cached.** The autocomplete endpoint returns live results; caching would produce stale suggestions. `method: "api_fetch"` and `cacheStatus: "miss"` are always returned.
+
+- **`UsdaPlantsApiError` instanceof check.** The route handlers check `instanceof UsdaPlantsApiError` before accessing `.message` to satisfy TypeScript strict unknown-catch rules while still re-throwing unexpected errors as 500s.
+
+### What was NOT done
+
+- OpenAPI spec, Zod schemas, MCP tool wiring, and `non_passthrough_endpoints` declarations — all deferred to Task C (USDA Plants — EDP: OpenAPI + MCP + audit alignment).
+- Audit corpus entries for the new routes — also deferred to Task C.
+- `metadata.ts` `USDA_PLANTS_TECHNICAL_DETAILS` text still references the old `usda_plants_name_matches` table and the old composite flow — this should be updated in Task C when the technical_details field is reviewed against the new architecture.
+
+### What the user should decide or review
+
+- **Breaking change confirmation already received.** The `?species=` composite route is removed. Any callers must now use the two-step flow: `PlantSearch?searchText=` → `PlantProfile?symbol=`. No further user action needed unless there are callers the user is aware of that haven't been updated.
+- **`metadata.ts` `USDA_PLANTS_TECHNICAL_DETAILS` text** still mentions the old name-match flow and table name. Task C should update it to reflect the new EDP architecture.
