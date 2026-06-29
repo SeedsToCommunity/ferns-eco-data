@@ -9,7 +9,8 @@
     "./minnesota-wildflowers": "./src/minnesota-wildflowers/index.ts",
     "./missouri-plants": "./src/missouri-plants/index.ts",
     "./prairie-moon": "./src/prairie-moon/index.ts",
-    "./lady-bird-johnson": "./src/lady-bird-johnson/index.ts"
+    "./lady-bird-johnson": "./src/lady-bird-johnson/index.ts",
+    "./bonap-napa": "./src/bonap-napa/index.ts"
   },
   "dependencies": {
     "@workspace/db": "workspace:*",
