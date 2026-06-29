@@ -1303,7 +1303,7 @@ export const GetInatMetadataResponse = zod.object({
 export const getMifloraCountiesQueryRefreshDefault = false;
 
 export const GetMifloraCountiesQueryParams = zod.object({
-  "name": zod.string().min(1).describe('Scientific name to look up county records for (e.g. Asclepias tuberosa)'),
+  "id": zod.coerce.number().int().positive().describe('Michigan Flora plant_id integer — obtain from flora_search_sp first'),
   "refresh": zod.coerce.boolean().default(getMifloraCountiesQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from Michigan Flora API')
 })
 
@@ -1334,7 +1334,7 @@ export const GetMifloraCountiesResponse = zod.object({
 export const getMifloraImagesQueryRefreshDefault = false;
 
 export const GetMifloraImagesQueryParams = zod.object({
-  "name": zod.string().min(1).describe('Scientific name to look up (e.g. Asclepias tuberosa)'),
+  "id": zod.coerce.number().int().positive().describe('Michigan Flora plant_id integer — obtain from flora_search_sp first'),
   "refresh": zod.coerce.boolean().default(getMifloraImagesQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from Michigan Flora API')
 })
 
@@ -1372,7 +1372,7 @@ export const GetMifloraImagesResponse = zod.object({
 export const getMifloraFloraSearchQueryRefreshDefault = false;
 
 export const GetMifloraFloraSearchQueryParams = zod.object({
-  "name": zod.string().min(1).describe('Scientific name to look up (e.g. Quercus rubra)'),
+  "scientific_name": zod.string().min(1).describe('Scientific name to look up (e.g. Quercus rubra)'),
   "refresh": zod.coerce.boolean().default(getMifloraFloraSearchQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from Michigan Flora API')
 })
 

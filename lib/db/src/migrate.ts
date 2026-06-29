@@ -243,6 +243,7 @@ export async function runMigrations(): Promise<void> {
   const entry10 = journal.entries[10];
   const entry13 = journal.entries[13];
   const entry16 = journal.entries[16];
+  const entry21 = journal.entries[21];
 
   await applyMigration0000(entry0.when);
   await applyMigration0001(entry1.when);
@@ -288,6 +289,15 @@ export async function runMigrations(): Promise<void> {
   // it safe to re-run.
   if (entry16) {
     await runSqlMigration("0016_natureserve_species_cache_columns", entry16.when, "0016 (natureserve species cache columns)", false);
+  }
+
+  // Migration 0021: Michigan Flora EDP refactor.
+  // Drops general_summary/technical_details from three existing miflora cache tables.
+  // Creates four new tables: miflora_flora_search_cache, miflora_spec_text_cache,
+  // miflora_synonyms_cache, miflora_pimage_cache.
+  // IF NOT EXISTS and DROP COLUMN IF EXISTS guards make it safe to re-run.
+  if (entry21) {
+    await runSqlMigration("0021_miflora_edp_refactor", entry21.when, "0021 (miflora EDP refactor)", false);
   }
 
   console.info("[migrate] All migrations complete.");

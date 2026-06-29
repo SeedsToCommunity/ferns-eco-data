@@ -2,66 +2,68 @@ import {
   db,
   mifloraCountiesCacheTable,
   mifloraImagesCacheTable,
-  mifloraSpeciesCacheTable,
+  mifloraFloraSearchCacheTable,
+  mifloraSpecTextCacheTable,
+  mifloraSynonymsCacheTable,
+  mifloraPImageCacheTable,
   type MifloraCounties,
   type MifloraImages,
-  type MifloraSpecies,
+  type MifloraFloraSearch,
+  type MifloraSpecText,
+  type MifloraSynonyms,
+  type MifloraPImage,
 } from "@workspace/db";
 import { eq } from "drizzle-orm";
+import { MIFLORA_SOURCE_ID } from "./metadata.js";
 import type {
-  MifloraCountiesResult,
-  MifloraImagesResult,
-  MifloraFloraSearchResult,
-  MifloraSpecTextResult,
-  MifloraSynonymsResult,
-  MifloraPImageResult,
-} from "./connector.js";
-import { MIFLORA_SOURCE_ID, MIFLORA_GENERAL_SUMMARY, MIFLORA_TECHNICAL_DETAILS } from "./metadata.js";
+  MichiganFloraLocsSpResult,
+  MichiganFloraAllimageInfoResult,
+  MichiganFloraFloraSearchSpResult,
+  MichiganFloraSpecTextResult,
+  MichiganFloraSynonymsResult,
+  MichiganFloraPimageInfoResult,
+} from "@workspace/external-data-providers/michigan-flora";
 
-export async function lookupCounties(cacheKey: string): Promise<MifloraCounties | null> {
+// ── locs_sp (counties) ────────────────────────────────────────────────────────
+
+export async function lookupLocsSp(cacheKey: string): Promise<MifloraCounties | null> {
   const rows = await db
     .select()
     .from(mifloraCountiesCacheTable)
     .where(eq(mifloraCountiesCacheTable.cache_key, cacheKey))
     .limit(1);
-  if (!rows.length) return null;
-  return rows[0];
+  return rows.length ? rows[0] : null;
 }
 
-export async function storeCounties(
+export async function storeLocsSp(
   cacheKey: string,
-  queriedName: string,
-  result: MifloraCountiesResult,
+  plantId: number,
+  result: MichiganFloraLocsSpResult,
 ): Promise<MifloraCounties> {
   const now = new Date();
-
   const insert = {
     cache_key: cacheKey,
-    queried_name: queriedName,
-    raw_response: result.raw_response as Record<string, unknown>,
+    queried_name: String(plantId),
+    plant_id: plantId,
+    raw_response: { locations: result.locations } as Record<string, unknown>,
     found: result.found,
     expires_at: null,
     source_id: MIFLORA_SOURCE_ID,
     fetched_at: now,
     method: "api_fetch",
-    upstream_url: result.upstream_url,
-    source_url: result.source_url,
-    general_summary: MIFLORA_GENERAL_SUMMARY,
-    technical_details: MIFLORA_TECHNICAL_DETAILS,
+    upstream_url: result.upstreamUrl,
+    source_url: null as string | null,
   };
-
   const rows = await db
     .insert(mifloraCountiesCacheTable)
     .values(insert)
     .onConflictDoUpdate({
       target: mifloraCountiesCacheTable.cache_key,
       set: {
-        queried_name: insert.queried_name,
         raw_response: insert.raw_response,
         found: insert.found,
         fetched_at: insert.fetched_at,
         upstream_url: insert.upstream_url,
-        source_url: insert.source_url,
         expires_at: null,
       },
     })
@@ -69,241 +71,211 @@ export async function storeCounties(
   return rows[0];
 }
 
-export async function lookupFloraSearch(cacheKey: string): Promise<MifloraSpecies | null> {
-  const rows = await db
-    .select()
-    .from(mifloraSpeciesCacheTable)
-    .where(eq(mifloraSpeciesCacheTable.cache_key, cacheKey))
-    .limit(1);
-  return rows.length ? rows[0] : null;
-}
+// ── allimage_info (images) ────────────────────────────────────────────────────
 
-export async function storeFloraSearch(
-  cacheKey: string,
-  name: string,
-  result: MifloraFloraSearchResult,
-): Promise<MifloraSpecies> {
-  const now = new Date();
-  const insert = {
-    cache_key: cacheKey,
-    queried_name: name,
-    plant_id: result.plant_id,
-    raw_response: { records: result.records } as Record<string, unknown>,
-    found: result.found,
-    expires_at: null,
-    source_id: MIFLORA_SOURCE_ID,
-    fetched_at: now,
-    method: "api_fetch",
-    upstream_url: result.upstream_url,
-    source_url: result.source_url,
-    general_summary: MIFLORA_GENERAL_SUMMARY,
-    technical_details: MIFLORA_TECHNICAL_DETAILS,
-  };
-  const rows = await db
-    .insert(mifloraSpeciesCacheTable)
-    .values(insert)
-    .onConflictDoUpdate({
-      target: mifloraSpeciesCacheTable.cache_key,
-      set: {
-        plant_id: insert.plant_id,
-        raw_response: insert.raw_response,
-        found: insert.found,
-        fetched_at: insert.fetched_at,
-        upstream_url: insert.upstream_url,
-        source_url: insert.source_url,
-      },
-    })
-    .returning();
-  return rows[0];
-}
-
-export async function lookupSpecText(cacheKey: string): Promise<MifloraSpecies | null> {
-  const rows = await db
-    .select()
-    .from(mifloraSpeciesCacheTable)
-    .where(eq(mifloraSpeciesCacheTable.cache_key, cacheKey))
-    .limit(1);
-  return rows.length ? rows[0] : null;
-}
-
-export async function storeSpecText(
-  cacheKey: string,
-  plantId: number,
-  result: MifloraSpecTextResult,
-): Promise<MifloraSpecies> {
-  const now = new Date();
-  const insert = {
-    cache_key: cacheKey,
-    queried_name: String(plantId),
-    plant_id: plantId,
-    raw_response: { text: result.text } as Record<string, unknown>,
-    found: result.found,
-    expires_at: null,
-    source_id: MIFLORA_SOURCE_ID,
-    fetched_at: now,
-    method: "api_fetch",
-    upstream_url: result.upstream_url,
-    source_url: result.source_url,
-    general_summary: MIFLORA_GENERAL_SUMMARY,
-    technical_details: MIFLORA_TECHNICAL_DETAILS,
-  };
-  const rows = await db
-    .insert(mifloraSpeciesCacheTable)
-    .values(insert)
-    .onConflictDoUpdate({
-      target: mifloraSpeciesCacheTable.cache_key,
-      set: {
-        raw_response: insert.raw_response,
-        found: insert.found,
-        fetched_at: insert.fetched_at,
-        upstream_url: insert.upstream_url,
-        source_url: insert.source_url,
-      },
-    })
-    .returning();
-  return rows[0];
-}
-
-export async function lookupSynonyms(cacheKey: string): Promise<MifloraSpecies | null> {
-  const rows = await db
-    .select()
-    .from(mifloraSpeciesCacheTable)
-    .where(eq(mifloraSpeciesCacheTable.cache_key, cacheKey))
-    .limit(1);
-  return rows.length ? rows[0] : null;
-}
-
-export async function storeSynonyms(
-  cacheKey: string,
-  plantId: number,
-  result: MifloraSynonymsResult,
-): Promise<MifloraSpecies> {
-  const now = new Date();
-  const insert = {
-    cache_key: cacheKey,
-    queried_name: String(plantId),
-    plant_id: plantId,
-    raw_response: { synonyms: result.synonyms } as Record<string, unknown>,
-    found: result.found,
-    expires_at: null,
-    source_id: MIFLORA_SOURCE_ID,
-    fetched_at: now,
-    method: "api_fetch",
-    upstream_url: result.upstream_url,
-    source_url: result.source_url,
-    general_summary: MIFLORA_GENERAL_SUMMARY,
-    technical_details: MIFLORA_TECHNICAL_DETAILS,
-  };
-  const rows = await db
-    .insert(mifloraSpeciesCacheTable)
-    .values(insert)
-    .onConflictDoUpdate({
-      target: mifloraSpeciesCacheTable.cache_key,
-      set: {
-        raw_response: insert.raw_response,
-        found: insert.found,
-        fetched_at: insert.fetched_at,
-        upstream_url: insert.upstream_url,
-        source_url: insert.source_url,
-      },
-    })
-    .returning();
-  return rows[0];
-}
-
-export async function lookupPImage(cacheKey: string): Promise<MifloraSpecies | null> {
-  const rows = await db
-    .select()
-    .from(mifloraSpeciesCacheTable)
-    .where(eq(mifloraSpeciesCacheTable.cache_key, cacheKey))
-    .limit(1);
-  return rows.length ? rows[0] : null;
-}
-
-export async function storePImage(
-  cacheKey: string,
-  plantId: number,
-  result: MifloraPImageResult,
-): Promise<MifloraSpecies> {
-  const now = new Date();
-  const insert = {
-    cache_key: cacheKey,
-    queried_name: String(plantId),
-    plant_id: plantId,
-    raw_response: { image: result.image } as Record<string, unknown>,
-    found: result.found,
-    expires_at: null,
-    source_id: MIFLORA_SOURCE_ID,
-    fetched_at: now,
-    method: "api_fetch",
-    upstream_url: result.upstream_url,
-    source_url: result.source_url,
-    general_summary: MIFLORA_GENERAL_SUMMARY,
-    technical_details: MIFLORA_TECHNICAL_DETAILS,
-  };
-  const rows = await db
-    .insert(mifloraSpeciesCacheTable)
-    .values(insert)
-    .onConflictDoUpdate({
-      target: mifloraSpeciesCacheTable.cache_key,
-      set: {
-        raw_response: insert.raw_response,
-        found: insert.found,
-        fetched_at: insert.fetched_at,
-        upstream_url: insert.upstream_url,
-        source_url: insert.source_url,
-      },
-    })
-    .returning();
-  return rows[0];
-}
-
-export async function lookupImages(cacheKey: string): Promise<MifloraImages | null> {
+export async function lookupAllimageInfo(cacheKey: string): Promise<MifloraImages | null> {
   const rows = await db
     .select()
     .from(mifloraImagesCacheTable)
     .where(eq(mifloraImagesCacheTable.cache_key, cacheKey))
     .limit(1);
-  if (!rows.length) return null;
-  return rows[0];
+  return rows.length ? rows[0] : null;
 }
 
-export async function storeImages(
+export async function storeAllimageInfo(
   cacheKey: string,
-  queriedName: string,
-  result: MifloraImagesResult,
+  plantId: number,
+  result: MichiganFloraAllimageInfoResult,
 ): Promise<MifloraImages> {
   const now = new Date();
-
   const insert = {
     cache_key: cacheKey,
-    queried_name: queriedName,
-    plant_id: result.plant_id,
+    queried_name: String(plantId),
+    plant_id: plantId,
     raw_response: result.images as unknown as Record<string, unknown>,
     found: result.found,
     expires_at: null,
     source_id: MIFLORA_SOURCE_ID,
     fetched_at: now,
     method: "api_fetch",
-    upstream_url: result.upstream_url,
-    source_url: result.source_url,
-    general_summary: MIFLORA_GENERAL_SUMMARY,
-    technical_details: MIFLORA_TECHNICAL_DETAILS,
+    upstream_url: result.upstreamUrl,
+    source_url: null as string | null,
   };
-
   const rows = await db
     .insert(mifloraImagesCacheTable)
     .values(insert)
     .onConflictDoUpdate({
       target: mifloraImagesCacheTable.cache_key,
       set: {
-        plant_id: insert.plant_id,
         raw_response: insert.raw_response,
         found: insert.found,
         fetched_at: insert.fetched_at,
         upstream_url: insert.upstream_url,
-        source_url: insert.source_url,
         expires_at: null,
+      },
+    })
+    .returning();
+  return rows[0];
+}
+
+// ── flora_search_sp ───────────────────────────────────────────────────────────
+
+export async function lookupFloraSearch(cacheKey: string): Promise<MifloraFloraSearch | null> {
+  const rows = await db
+    .select()
+    .from(mifloraFloraSearchCacheTable)
+    .where(eq(mifloraFloraSearchCacheTable.cache_key, cacheKey))
+    .limit(1);
+  return rows.length ? rows[0] : null;
+}
+
+export async function storeFloraSearch(
+  cacheKey: string,
+  result: MichiganFloraFloraSearchSpResult,
+): Promise<MifloraFloraSearch> {
+  const now = new Date();
+  const insert = {
+    cache_key: cacheKey,
+    raw_response: result.records as unknown as Record<string, unknown>,
+    found: result.found,
+    expires_at: null,
+    source_id: MIFLORA_SOURCE_ID,
+    fetched_at: now,
+    upstream_url: result.upstreamUrl,
+  };
+  const rows = await db
+    .insert(mifloraFloraSearchCacheTable)
+    .values(insert)
+    .onConflictDoUpdate({
+      target: mifloraFloraSearchCacheTable.cache_key,
+      set: {
+        raw_response: insert.raw_response,
+        found: insert.found,
+        fetched_at: insert.fetched_at,
+        upstream_url: insert.upstream_url,
+      },
+    })
+    .returning();
+  return rows[0];
+}
+
+// ── spec_text ─────────────────────────────────────────────────────────────────
+
+export async function lookupSpecText(cacheKey: string): Promise<MifloraSpecText | null> {
+  const rows = await db
+    .select()
+    .from(mifloraSpecTextCacheTable)
+    .where(eq(mifloraSpecTextCacheTable.cache_key, cacheKey))
+    .limit(1);
+  return rows.length ? rows[0] : null;
+}
+
+export async function storeSpecText(
+  cacheKey: string,
+  result: MichiganFloraSpecTextResult,
+): Promise<MifloraSpecText> {
+  const now = new Date();
+  const insert = {
+    cache_key: cacheKey,
+    raw_response: { text: result.text } as Record<string, unknown>,
+    found: result.found,
+    expires_at: null,
+    source_id: MIFLORA_SOURCE_ID,
+    fetched_at: now,
+    upstream_url: result.upstreamUrl,
+  };
+  const rows = await db
+    .insert(mifloraSpecTextCacheTable)
+    .values(insert)
+    .onConflictDoUpdate({
+      target: mifloraSpecTextCacheTable.cache_key,
+      set: {
+        raw_response: insert.raw_response,
+        found: insert.found,
+        fetched_at: insert.fetched_at,
+        upstream_url: insert.upstream_url,
+      },
+    })
+    .returning();
+  return rows[0];
+}
+
+// ── synonyms ──────────────────────────────────────────────────────────────────
+
+export async function lookupSynonyms(cacheKey: string): Promise<MifloraSynonyms | null> {
+  const rows = await db
+    .select()
+    .from(mifloraSynonymsCacheTable)
+    .where(eq(mifloraSynonymsCacheTable.cache_key, cacheKey))
+    .limit(1);
+  return rows.length ? rows[0] : null;
+}
+
+export async function storeSynonyms(
+  cacheKey: string,
+  result: MichiganFloraSynonymsResult,
+): Promise<MifloraSynonyms> {
+  const now = new Date();
+  const insert = {
+    cache_key: cacheKey,
+    raw_response: result.synonyms as unknown as Record<string, unknown>,
+    found: result.found,
+    expires_at: null,
+    source_id: MIFLORA_SOURCE_ID,
+    fetched_at: now,
+    upstream_url: result.upstreamUrl,
+  };
+  const rows = await db
+    .insert(mifloraSynonymsCacheTable)
+    .values(insert)
+    .onConflictDoUpdate({
+      target: mifloraSynonymsCacheTable.cache_key,
+      set: {
+        raw_response: insert.raw_response,
+        found: insert.found,
+        fetched_at: insert.fetched_at,
+        upstream_url: insert.upstream_url,
+      },
+    })
+    .returning();
+  return rows[0];
+}
+
+// ── pimage_info ───────────────────────────────────────────────────────────────
+
+export async function lookupPImage(cacheKey: string): Promise<MifloraPImage | null> {
+  const rows = await db
+    .select()
+    .from(mifloraPImageCacheTable)
+    .where(eq(mifloraPImageCacheTable.cache_key, cacheKey))
+    .limit(1);
+  return rows.length ? rows[0] : null;
+}
+
+export async function storePImage(
+  cacheKey: string,
+  result: MichiganFloraPimageInfoResult,
+): Promise<MifloraPImage> {
+  const now = new Date();
+  const insert = {
+    cache_key: cacheKey,
+    raw_response: (result.image ?? null) as unknown as Record<string, unknown>,
+    found: result.found,
+    expires_at: null,
+    source_id: MIFLORA_SOURCE_ID,
+    fetched_at: now,
+    upstream_url: result.upstreamUrl,
+  };
+  const rows = await db
+    .insert(mifloraPImageCacheTable)
+    .values(insert)
+    .onConflictDoUpdate({
+      target: mifloraPImageCacheTable.cache_key,
+      set: {
+        raw_response: insert.raw_response,
+        found: insert.found,
+        fetched_at: insert.fetched_at,
+        upstream_url: insert.upstream_url,
       },
     })
     .returning();

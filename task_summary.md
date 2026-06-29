@@ -759,3 +759,41 @@ N/A — no new source was added. Changes per source:
 - **Whether the shared scraper should move into the EDP package.** Currently `services/botanical-refs/scraper.ts` lives in the REST server and is imported by EDPs. Moving it to a shared lib would be cleaner architecturally.
 - **Whether REST route paths should be versioned or aliased.** MCP tool names now follow the `getXxx` naming convention; REST paths use the same new names (`/url`, `/species-information`) but this was done in the prior task, not here. The two layers are now aligned.
 - **MCP client migration.** 12 tool names changed. Existing MCP clients hardcoding old names will silently receive "unknown tool" errors. No aliases or migration notes exist yet.
+
+---
+
+## Task #283: Michigan Flora EDP REST Adapter refactor
+
+**Date**: 2026-06-29
+
+### What was built
+
+All six Michigan Flora REST routes were rewritten to call EDP functions directly (via `@workspace/external-data-providers/michigan-flora`) and return the EDP result shape verbatim, eliminating every FERNS-invented data wrapper. Three param changes were made: `locs_sp` and `allimage_info` switched from `?name=` to `?id=` (integer `plant_id`); `flora_search_sp` switched from `?name=` to `?scientific_name=`. Invalid params return 400 `invalid_input`. Four new dedicated cache tables were added (`miflora_flora_search_cache`, `miflora_spec_text_cache`, `miflora_synonyms_cache`, `miflora_pimage_cache`); `general_summary` and `technical_details` columns were dropped from the three existing cache tables. The custom migration runner in `lib/db/src/migrate.ts` was extended to include migration 0021 so future server startups apply it automatically (idempotent via IF NOT EXISTS guards).
+
+### Data shape corrections (per endpoint)
+
+| Endpoint | Before | After |
+|---|---|---|
+| `flora_search_sp` | `{ plant_id, data: [...] }` | `{ data: [...] }` (raw records array) |
+| `locs_sp` | `{ plant_id, data: [...] }` | `{ data: { locations: [...] } }` |
+| `allimage_info` | `{ plant_id, data: [...] }` | `{ data: [...] }` (raw records array) |
+| `spec_text` | `{ plant_id, data: { text, plant_id } }` | `{ data: { text } }` |
+| `synonyms` | `{ data: { synonyms: [...] } }` | `{ data: [...] }` (bare array) |
+| `pimage_info` | `{ data: { image: {...} } }` | `{ data: { image_id, ... } }` (flat) |
+
+### Architectural decisions made
+
+- **connector.ts stripped to cache-key builders only**: Previously the connector held EDP invocation logic. Now it holds only `buildXxxCacheKey()` helpers; all EDP calls live in `routes/miflora.ts` for clarity.
+- **cache.ts rewritten against new table schema**: Each cache function targets its dedicated table; raw_response stores the upstream API payload exactly; cache hit short-circuits before the EDP call.
+- **Migration applied directly + registered in custom runner**: `drizzle-kit migrate` cannot run reliably in this project due to trust.ts module resolution issues. Tables were created directly via `executeSql`; migration 0021 was also registered in `lib/db/src/migrate.ts` so it runs safely (with IF NOT EXISTS guards) on every future server startup, marking itself applied once complete.
+- **Zod schema in lib/api-zod updated**: `LocsSpQuery`, `AllimageInfoQuery`, `FloraSearchSpQuery` schemas updated to match new param names and types.
+
+### What was NOT done
+
+- Pre-existing TypeScript errors in other routes (bonap, lcscg, s2c, wetland-indicator-status, etc.) are out of scope.
+- No OpenAPI spec or MCP changes — those are the downstream task.
+- Upstream 502 errors from the Michigan Flora API (for certain plant IDs) are upstream availability issues, not bugs in the adapter.
+
+### What the user should decide or review
+
+- `locs_sp` and `allimage_info` now require an integer `plant_id` via `?id=`; any existing callers using `?name=` will receive 400. This is the intended breaking change per the task spec.

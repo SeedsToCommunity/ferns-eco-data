@@ -6,20 +6,12 @@ import {
   buildSpecTextCacheKey,
   buildSynonymsCacheKey,
   buildPImageCacheKey,
-  fetchCounties,
-  fetchImages,
-  fetchFloraSearchSp,
-  fetchSpecText,
-  fetchSynonyms,
-  fetchPImageInfo,
-  type MifloraSpeciesRecord,
-  type MifloraSynonymRecord,
 } from "../services/miflora/connector.js";
 import {
-  lookupCounties,
-  storeCounties,
-  lookupImages,
-  storeImages,
+  lookupLocsSp,
+  storeLocsSp,
+  lookupAllimageInfo,
+  storeAllimageInfo,
   lookupFloraSearch,
   storeFloraSearch,
   lookupSpecText,
@@ -41,9 +33,19 @@ import { resolveUrl } from "../lib/resolve-url.js";
 import {
   GetMifloraCountiesQueryParams,
   GetMifloraImagesQueryParams,
+  GetMifloraFloraSearchQueryParams,
 } from "@workspace/api-zod";
 import { buildEnvelope, type Method, type CacheStatus } from "@workspace/api-envelope";
 import { dbRegistryAccessor } from "../lib/registry-accessor.js";
+import {
+  getMichiganFloraFloraSearchSp,
+  getMichiganFloraLocsSp,
+  getMichiganFloraAllimageInfo,
+  getMichiganFloraSpecText,
+  getMichiganFloraSynonyms,
+  getMichiganFloraPimageInfo,
+  MichiganFloraApiError,
+} from "@workspace/external-data-providers/michigan-flora";
 
 const router: IRouter = Router();
 
@@ -64,12 +66,12 @@ router.get("/miflora/locs_sp", async (req, res) => {
     return;
   }
 
-  const name = parsed.data.name;
+  const plantId = parsed.data.id;
   const refresh = parsed.data.refresh ?? false;
-  const cacheKey = buildCountiesCacheKey(name);
+  const cacheKey = buildCountiesCacheKey(plantId);
 
   if (!refresh) {
-    const cached = await lookupCounties(cacheKey);
+    const cached = await lookupLocsSp(cacheKey);
     if (cached) {
       const { method, cacheStatus } = hitPair();
       res.json(await buildEnvelope({
@@ -87,21 +89,25 @@ router.get("/miflora/locs_sp", async (req, res) => {
   }
 
   try {
-    const result = await fetchCounties(name);
-    const stored = await storeCounties(cacheKey, name, result);
+    const result = await getMichiganFloraLocsSp(plantId);
+    const stored = await storeLocsSp(cacheKey, plantId, result);
     const { method, cacheStatus } = missPair();
     res.json(await buildEnvelope({
       sourceId: MIFLORA_SOURCE_ID,
       sourceKind: "single-source-proxy",
       found: stored.found,
-      data: stored.raw_response ?? null,
+      data: { locations: result.locations },
       method,
       cacheStatus,
       sourceUrl: stored.upstream_url,
       queriedAt: stored.fetched_at.toISOString(),
     }, { registry: dbRegistryAccessor }));
   } catch (err) {
-    req.log.error({ err }, "Michigan Flora counties lookup failed");
+    if (err instanceof MichiganFloraApiError) {
+      res.status(502).json({ error: "upstream_error", message: err.message });
+      return;
+    }
+    req.log.error({ err }, "Michigan Flora locs_sp failed");
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from Michigan Flora API" });
   }
 });
@@ -115,19 +121,19 @@ router.get("/miflora/allimage_info", async (req, res) => {
     return;
   }
 
-  const name = parsed.data.name;
+  const plantId = parsed.data.id;
   const refresh = parsed.data.refresh ?? false;
-  const cacheKey = buildImagesCacheKey(name);
+  const cacheKey = buildImagesCacheKey(plantId);
 
   if (!refresh) {
-    const cached = await lookupImages(cacheKey);
+    const cached = await lookupAllimageInfo(cacheKey);
     if (cached) {
       const { method, cacheStatus } = hitPair();
       res.json(await buildEnvelope({
         sourceId: MIFLORA_SOURCE_ID,
         sourceKind: "single-source-proxy",
         found: cached.found,
-        data: cached.found ? (cached.raw_response ?? null) : null,
+        data: Array.isArray(cached.raw_response) ? cached.raw_response : [],
         method,
         cacheStatus,
         sourceUrl: cached.upstream_url,
@@ -138,21 +144,25 @@ router.get("/miflora/allimage_info", async (req, res) => {
   }
 
   try {
-    const result = await fetchImages(name);
-    const stored = await storeImages(cacheKey, name, result);
+    const result = await getMichiganFloraAllimageInfo(plantId);
+    const stored = await storeAllimageInfo(cacheKey, plantId, result);
     const { method, cacheStatus } = missPair();
     res.json(await buildEnvelope({
       sourceId: MIFLORA_SOURCE_ID,
       sourceKind: "single-source-proxy",
       found: stored.found,
-      data: stored.found ? (stored.raw_response ?? null) : null,
+      data: result.images,
       method,
       cacheStatus,
       sourceUrl: stored.upstream_url,
       queriedAt: stored.fetched_at.toISOString(),
     }, { registry: dbRegistryAccessor }));
   } catch (err) {
-    req.log.error({ err }, "Michigan Flora images lookup failed");
+    if (err instanceof MichiganFloraApiError) {
+      res.status(502).json({ error: "upstream_error", message: err.message });
+      return;
+    }
+    req.log.error({ err }, "Michigan Flora allimage_info failed");
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from Michigan Flora API" });
   }
 });
@@ -160,14 +170,15 @@ router.get("/miflora/allimage_info", async (req, res) => {
 router.get("/miflora/flora_search_sp", async (req, res) => {
   await ensureMifloraRegistryEntry();
 
-  const rawName = req.query.name;
-  if (!rawName || typeof rawName !== "string" || rawName.trim() === "") {
-    res.status(400).json({ error: "invalid_input", message: "name is required and must be a non-empty string" });
+  const parsed = GetMifloraFloraSearchQueryParams.safeParse(req.query);
+  if (!parsed.success) {
+    res.status(400).json({ error: "invalid_input", message: parsed.error.errors[0]?.message ?? "Invalid query parameters" });
     return;
   }
-  const name = rawName.trim();
-  const refresh = req.query.refresh === "true" || req.query.refresh === "1";
-  const cacheKey = buildFloraSearchCacheKey(name);
+
+  const scientificName = parsed.data.scientific_name;
+  const refresh = parsed.data.refresh ?? false;
+  const cacheKey = buildFloraSearchCacheKey(scientificName);
 
   if (!refresh) {
     const cached = await lookupFloraSearch(cacheKey);
@@ -177,7 +188,7 @@ router.get("/miflora/flora_search_sp", async (req, res) => {
         sourceId: MIFLORA_SOURCE_ID,
         sourceKind: "single-source-proxy",
         found: cached.found,
-        data: buildFloraSearchData(cached),
+        data: cached.raw_response ?? null,
         method,
         cacheStatus,
         sourceUrl: cached.upstream_url,
@@ -188,44 +199,28 @@ router.get("/miflora/flora_search_sp", async (req, res) => {
   }
 
   try {
-    const result = await fetchFloraSearchSp(name);
-    const stored = await storeFloraSearch(cacheKey, name, result);
+    const result = await getMichiganFloraFloraSearchSp(scientificName);
+    const stored = await storeFloraSearch(cacheKey, result);
     const { method, cacheStatus } = missPair();
     res.json(await buildEnvelope({
       sourceId: MIFLORA_SOURCE_ID,
       sourceKind: "single-source-proxy",
       found: stored.found,
-      data: buildFloraSearchData(stored),
+      data: result.records,
       method,
       cacheStatus,
       sourceUrl: stored.upstream_url,
       queriedAt: stored.fetched_at.toISOString(),
     }, { registry: dbRegistryAccessor }));
   } catch (err) {
+    if (err instanceof MichiganFloraApiError) {
+      res.status(502).json({ error: "upstream_error", message: err.message });
+      return;
+    }
     req.log.error({ err }, "Michigan Flora flora_search_sp failed");
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from Michigan Flora API" });
   }
 });
-
-function buildFloraSearchData(row: {
-  plant_id?: number | null;
-  raw_response: unknown;
-}) {
-  const rawResponse = row.raw_response as { records: MifloraSpeciesRecord[] } | null;
-  const records = rawResponse?.records ?? [];
-  const first = records[0] ?? null;
-  return {
-    plant_id: row.plant_id ?? first?.plant_id ?? null,
-    scientific_name: first?.scientific_name ?? null,
-    family_name: first?.family_name ?? null,
-    na: first?.na ?? null,
-    c: first?.c ?? null,
-    wet: first?.wet ?? null,
-    phys: first?.phys ?? null,
-    common_name: first?.common_name ?? [],
-    records,
-  };
-}
 
 router.get("/miflora/spec_text", async (req, res) => {
   await ensureMifloraRegistryEntry();
@@ -247,7 +242,7 @@ router.get("/miflora/spec_text", async (req, res) => {
         sourceId: MIFLORA_SOURCE_ID,
         sourceKind: "single-source-proxy",
         found: cached.found,
-        data: buildSpecTextData(cached),
+        data: cached.raw_response ?? null,
         method,
         cacheStatus,
         sourceUrl: cached.upstream_url,
@@ -259,14 +254,14 @@ router.get("/miflora/spec_text", async (req, res) => {
   }
 
   try {
-    const result = await fetchSpecText(id);
-    const stored = await storeSpecText(cacheKey, id, result);
+    const result = await getMichiganFloraSpecText(id);
+    const stored = await storeSpecText(cacheKey, result);
     const { method, cacheStatus } = missPair();
     res.json(await buildEnvelope({
       sourceId: MIFLORA_SOURCE_ID,
       sourceKind: "single-source-proxy",
       found: stored.found,
-      data: buildSpecTextData(stored),
+      data: { text: result.text },
       method,
       cacheStatus,
       sourceUrl: stored.upstream_url,
@@ -274,21 +269,14 @@ router.get("/miflora/spec_text", async (req, res) => {
       permissionGranted: false,
     }, { registry: dbRegistryAccessor }));
   } catch (err) {
+    if (err instanceof MichiganFloraApiError) {
+      res.status(502).json({ error: "upstream_error", message: err.message });
+      return;
+    }
     req.log.error({ err }, "Michigan Flora spec_text failed");
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from Michigan Flora API" });
   }
 });
-
-function buildSpecTextData(row: {
-  plant_id?: number | null;
-  raw_response: unknown;
-}) {
-  const rawResponse = row.raw_response as { text: string | null } | null;
-  return {
-    plant_id: row.plant_id ?? null,
-    text: rawResponse?.text ?? null,
-  };
-}
 
 router.get("/miflora/synonyms", async (req, res) => {
   await ensureMifloraRegistryEntry();
@@ -310,7 +298,7 @@ router.get("/miflora/synonyms", async (req, res) => {
         sourceId: MIFLORA_SOURCE_ID,
         sourceKind: "single-source-proxy",
         found: cached.found,
-        data: buildSynonymsData(cached),
+        data: cached.raw_response ?? null,
         method,
         cacheStatus,
         sourceUrl: cached.upstream_url,
@@ -321,35 +309,28 @@ router.get("/miflora/synonyms", async (req, res) => {
   }
 
   try {
-    const result = await fetchSynonyms(id);
-    const stored = await storeSynonyms(cacheKey, id, result);
+    const result = await getMichiganFloraSynonyms(id);
+    const stored = await storeSynonyms(cacheKey, result);
     const { method, cacheStatus } = missPair();
     res.json(await buildEnvelope({
       sourceId: MIFLORA_SOURCE_ID,
       sourceKind: "single-source-proxy",
       found: stored.found,
-      data: buildSynonymsData(stored),
+      data: result.synonyms,
       method,
       cacheStatus,
       sourceUrl: stored.upstream_url,
       queriedAt: stored.fetched_at.toISOString(),
     }, { registry: dbRegistryAccessor }));
   } catch (err) {
+    if (err instanceof MichiganFloraApiError) {
+      res.status(502).json({ error: "upstream_error", message: err.message });
+      return;
+    }
     req.log.error({ err }, "Michigan Flora synonyms failed");
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from Michigan Flora API" });
   }
 });
-
-function buildSynonymsData(row: {
-  plant_id?: number | null;
-  raw_response: unknown;
-}) {
-  const rawResponse = row.raw_response as { synonyms: MifloraSynonymRecord[] } | null;
-  return {
-    plant_id: row.plant_id ?? null,
-    synonyms: rawResponse?.synonyms ?? [],
-  };
-}
 
 router.get("/miflora/pimage_info", async (req, res) => {
   await ensureMifloraRegistryEntry();
@@ -371,7 +352,7 @@ router.get("/miflora/pimage_info", async (req, res) => {
         sourceId: MIFLORA_SOURCE_ID,
         sourceKind: "single-source-proxy",
         found: cached.found,
-        data: buildPImageData(cached),
+        data: cached.raw_response ?? null,
         method,
         cacheStatus,
         sourceUrl: cached.upstream_url,
@@ -382,35 +363,28 @@ router.get("/miflora/pimage_info", async (req, res) => {
   }
 
   try {
-    const result = await fetchPImageInfo(id);
-    const stored = await storePImage(cacheKey, id, result);
+    const result = await getMichiganFloraPimageInfo(id);
+    const stored = await storePImage(cacheKey, result);
     const { method, cacheStatus } = missPair();
     res.json(await buildEnvelope({
       sourceId: MIFLORA_SOURCE_ID,
       sourceKind: "single-source-proxy",
       found: stored.found,
-      data: buildPImageData(stored),
+      data: result.image,
       method,
       cacheStatus,
       sourceUrl: stored.upstream_url,
       queriedAt: stored.fetched_at.toISOString(),
     }, { registry: dbRegistryAccessor }));
   } catch (err) {
+    if (err instanceof MichiganFloraApiError) {
+      res.status(502).json({ error: "upstream_error", message: err.message });
+      return;
+    }
     req.log.error({ err }, "Michigan Flora pimage_info failed");
     res.status(502).json({ error: "upstream_error", message: "Failed to fetch from Michigan Flora API" });
   }
 });
-
-function buildPImageData(row: {
-  plant_id?: number | null;
-  raw_response: unknown;
-}) {
-  const rawResponse = row.raw_response as { image: unknown } | null;
-  return {
-    plant_id: row.plant_id ?? null,
-    image: rawResponse?.image ?? null,
-  };
-}
 
 router.get("/miflora/metadata", async (req, res) => {
   await ensureMifloraRegistryEntry();
