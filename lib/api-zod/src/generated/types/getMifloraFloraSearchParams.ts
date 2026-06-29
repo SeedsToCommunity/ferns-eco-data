@@ -8,10 +8,10 @@
 
 export type GetMifloraFloraSearchParams = {
 /**
- * Scientific name to look up (e.g. Quercus rubra)
+ * Scientific name to search (e.g. Quercus rubra)
  * @minLength 1
  */
-name: string;
+scientific_name: string;
 /**
  * If true, bypasses cache and fetches fresh from Michigan Flora API
  */

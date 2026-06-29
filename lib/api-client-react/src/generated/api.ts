@@ -2537,9 +2537,9 @@ export function useGetInatMetadata<TData = Awaited<ReturnType<typeof getInatMeta
 
 
 /**
- * Returns county-level occurrence records for all 83 Michigan counties for the given species name. Two-step lookup: first calls flora_search_sp?scientific_name={name} to resolve the plant_id, then calls locs_sp?id={plant_id} for county data. Results are the raw passthrough response from the Michigan Flora county API endpoint. Cached permanently (no TTL) — Michigan Flora data does not change; use ?refresh=true to force a re-fetch from upstream.
+ * Returns county-level occurrence records for all 83 Michigan counties for the given plant_id. Mirrors the Michigan Flora locs_sp endpoint verbatim. data.locations is the county list. Use flora_search_sp to resolve a scientific name to a plant_id first. Cached permanently (no TTL) — Michigan Flora data does not change; use ?refresh=true to force a re-fetch from upstream.
 
- * @summary Get county-level occurrence records for a Michigan Flora species by name
+ * @summary Get county-level occurrence records for a Michigan Flora species by plant_id
  */
 export const getGetMifloraCountiesUrl = (params: GetMifloraCountiesParams,) => {
   const normalizedParams = new URLSearchParams();
@@ -2601,7 +2601,7 @@ export type GetMifloraCountiesQueryError = ErrorType<ErrorResponse>
 
 
 /**
- * @summary Get county-level occurrence records for a Michigan Flora species by name
+ * @summary Get county-level occurrence records for a Michigan Flora species by plant_id
  */
 
 export function useGetMifloraCounties<TData = Awaited<ReturnType<typeof getMifloraCounties>>, TError = ErrorType<ErrorResponse>>(
@@ -2621,9 +2621,9 @@ export function useGetMifloraCounties<TData = Awaited<ReturnType<typeof getMiflo
 
 
 /**
- * Returns all images from the Michigan Flora allimage_info endpoint for a given species, each enriched with constructed absolute image_url and thumbnail_url fields. Two-step lookup: flora_search_sp resolves the plant_id, then allimage_info fetches all available photos. Results are cached permanently (no TTL) — Michigan Flora image data does not change. Use ?refresh=true to force a re-fetch. Image URL formula (reverse-engineered from Michigan Flora frontend): Full: https://michiganflora.net/static/species_images/_pid_{plant_id}/{image_id}.jpg Thumbnail: https://michiganflora.net/static/species_images/_pid_{plant_id}/thumb_{image_id}.jpg
+ * Returns all image records from the Michigan Flora allimage_info endpoint for a given plant_id. data is the array of image records, each including image_id, image_name, caption, photographer, image_url, and thumbnail_url. Results are cached permanently (no TTL) — Michigan Flora image data does not change. Use ?refresh=true to force a re-fetch. Use flora_search_sp to resolve a scientific name to a plant_id first.
 
- * @summary Get the full photo gallery for a Michigan Flora species
+ * @summary Get the full photo gallery for a Michigan Flora species by plant_id
  */
 export const getGetMifloraImagesUrl = (params: GetMifloraImagesParams,) => {
   const normalizedParams = new URLSearchParams();
@@ -2685,7 +2685,7 @@ export type GetMifloraImagesQueryError = ErrorType<ErrorResponse>
 
 
 /**
- * @summary Get the full photo gallery for a Michigan Flora species
+ * @summary Get the full photo gallery for a Michigan Flora species by plant_id
  */
 
 export function useGetMifloraImages<TData = Awaited<ReturnType<typeof getMifloraImages>>, TError = ErrorType<ErrorResponse>>(
@@ -2705,9 +2705,9 @@ export function useGetMifloraImages<TData = Awaited<ReturnType<typeof getMiflora
 
 
 /**
- * Mirrors the Michigan Flora flora_search_sp endpoint verbatim. Returns the first matching species record for the given scientific name, including plant_id, family, native status (na: N=native, A=adventive), C-value, wetland indicator code, physiognomy, and common names. The plant_id is required for the spec_text, synonyms, and pimage_info endpoints. Cached permanently (no TTL) — use ?refresh=true to force a re-fetch.
+ * Mirrors the Michigan Flora flora_search_sp endpoint verbatim. Returns an array of matching species records for the given scientific_name. Each record includes plant_id, scientific_name, family_name, native status (na: N=native, A=adventive), C-value, wetland indicator code, physiognomy, and common names. data is the full records array — not a wrapped object. The plant_id from the matching record is required for locs_sp, allimage_info, spec_text, synonyms, and pimage_info endpoints. Cached permanently (no TTL) — use ?refresh=true to force a re-fetch.
 
- * @summary Look up a Michigan Flora species by scientific name
+ * @summary Search Michigan Flora species by scientific name
  */
 export const getGetMifloraFloraSearchUrl = (params: GetMifloraFloraSearchParams,) => {
   const normalizedParams = new URLSearchParams();
@@ -2769,7 +2769,7 @@ export type GetMifloraFloraSearchQueryError = ErrorType<ErrorResponse>
 
 
 /**
- * @summary Look up a Michigan Flora species by scientific name
+ * @summary Search Michigan Flora species by scientific name
  */
 
 export function useGetMifloraFloraSearch<TData = Awaited<ReturnType<typeof getMifloraFloraSearch>>, TError = ErrorType<ErrorResponse>>(

@@ -6,11 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { FernsProvenance } from './fernsProvenance';
+import type { MifloraImageRecord } from './mifloraImageRecord';
 import type { MifloraPImageInfoResponseCacheStatus } from './mifloraPImageInfoResponseCacheStatus';
-import type { MifloraPImageInfoResponseData } from './mifloraPImageInfoResponseData';
 
 /**
- * FERNS envelope for Michigan Flora pimage_info. data.image is the primary image record enriched with image_url and thumbnail_url (null if no image exists). Cached permanently (no TTL).
+ * FERNS envelope for Michigan Flora pimage_info. data is the flat primary image record (image_id, image_name, caption, photographer, image_url, thumbnail_url) or null if no primary image exists — no wrapper object, no plant_id field. Cached permanently (no TTL).
 
  */
 export interface MifloraPImageInfoResponse {
@@ -20,6 +20,8 @@ export interface MifloraPImageInfoResponse {
   found: boolean;
   cache_status: MifloraPImageInfoResponseCacheStatus;
   queried_at: Date;
-  data: MifloraPImageInfoResponseData;
+  /** Flat primary image record from the Michigan Flora pimage_info endpoint. Null when found is false or no image exists.
+ */
+  data: MifloraImageRecord | null;
   provenance: FernsProvenance;
 }

@@ -7,7 +7,6 @@
  */
 
 export type MifloraSpecTextResponseData = {
-  plant_id?: number | null;
   /** Raw HTML botanical description from Michigan Flora */
   text?: string | null;
 } | null;

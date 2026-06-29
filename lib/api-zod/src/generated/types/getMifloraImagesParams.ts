@@ -8,10 +8,10 @@
 
 export type GetMifloraImagesParams = {
 /**
- * Scientific name to look up (e.g. Asclepias tuberosa)
- * @minLength 1
+ * Michigan Flora plant_id (positive integer, from flora_search_sp)
+ * @minimum 1
  */
-name: string;
+id: number;
 /**
  * If true, bypasses cache and fetches fresh from Michigan Flora API
  */

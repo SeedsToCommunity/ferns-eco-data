@@ -751,67 +751,75 @@ const tools: ToolDef[] = [
   // ── michigan-flora ──────────────────────────────────────────────────────
   {
     tool: {
-      name: "michigan_flora__counties",
+      name: "michigan_flora__locs_sp",
       description:
-        "Returns county-level occurrence records for a species within Michigan from the Michigan Flora database.",
+        "Returns county-level occurrence records for a Michigan Flora species by plant_id. " +
+        "data.locations is the county list. Use michigan_flora__flora_search_sp first to resolve a scientific name to a plant_id. " +
+        "Mirrors the Michigan Flora locs_sp?id={plant_id} endpoint verbatim.",
       inputSchema: {
         type: "object" as const,
         properties: {
-          name:    { type: "string", description: "Scientific name (e.g. Trillium grandiflorum)" },
+          id:      { type: "integer", description: "Michigan Flora plant_id (positive integer, from flora_search_sp)" },
           refresh: { type: "boolean", description: "Bypass cache" },
           ...PV_PROP,
         },
-        required: ["name"],
+        required: ["id"],
       },
     },
     handler: async (args) =>
       apiGet("/miflora/locs_sp", {
-        name:    String(args["name"]),
+        id:      Number(args["id"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
         provenance_verbosity: pv(args),
       }),
   },
   {
     tool: {
-      name: "michigan_flora__images",
+      name: "michigan_flora__allimage_info",
       description:
-        "Returns image URLs and metadata for a species from the Michigan Flora image collection.",
+        "Returns all image records for a Michigan Flora species by plant_id. " +
+        "data is the array of image records (image_id, image_name, caption, photographer, image_url, thumbnail_url). " +
+        "Use michigan_flora__flora_search_sp first to resolve a scientific name to a plant_id. " +
+        "Mirrors the Michigan Flora allimage_info?id={plant_id} endpoint verbatim.",
       inputSchema: {
         type: "object" as const,
         properties: {
-          name:    { type: "string", description: "Scientific name (e.g. Trillium grandiflorum)" },
+          id:      { type: "integer", description: "Michigan Flora plant_id (positive integer, from flora_search_sp)" },
           refresh: { type: "boolean", description: "Bypass cache" },
           ...PV_PROP,
         },
-        required: ["name"],
+        required: ["id"],
       },
     },
     handler: async (args) =>
       apiGet("/miflora/allimage_info", {
-        name:    String(args["name"]),
+        id:      Number(args["id"]),
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
         provenance_verbosity: pv(args),
       }),
   },
   {
     tool: {
-      name: "michigan_flora__species_lookup",
+      name: "michigan_flora__flora_search_sp",
       description:
-        "Looks up a Michigan Flora species by scientific name via the flora_search_sp endpoint. Returns plant_id, family, native status (na: N=native, A=adventive), C-value, wetland indicator code (OBL/FACW/FAC/FACU/UPL), physiognomy, and common names. The plant_id is needed by michigan_flora__spec_text, michigan_flora__synonyms, and michigan_flora__pimage_info.",
+        "Searches Michigan Flora for species matching a scientific name. " +
+        "data is an array of species records (not a wrapped object) — each record includes plant_id, scientific_name, family_name, native status (na: N=native, A=adventive), C-value, wetland indicator code (OBL/FACW/FAC/FACU/UPL), physiognomy, and common names. " +
+        "The plant_id from the matching record is required by michigan_flora__spec_text, michigan_flora__synonyms, michigan_flora__allimage_info, michigan_flora__locs_sp, and michigan_flora__pimage_info. " +
+        "Mirrors the Michigan Flora flora_search_sp?scientific_name={name} endpoint verbatim.",
       inputSchema: {
         type: "object" as const,
         properties: {
-          name:    { type: "string", description: "Scientific name (e.g. Quercus rubra)" },
-          refresh: { type: "boolean", description: "Bypass cache" },
+          scientific_name: { type: "string", description: "Scientific name to search (e.g. Quercus rubra)" },
+          refresh:         { type: "boolean", description: "Bypass cache" },
           ...PV_PROP,
         },
-        required: ["name"],
+        required: ["scientific_name"],
       },
     },
     handler: async (args) =>
       apiGet("/miflora/flora_search_sp", {
-        name:    String(args["name"]),
-        refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
+        scientific_name: String(args["scientific_name"]),
+        refresh:         args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
         provenance_verbosity: pv(args),
       }),
   },
@@ -819,11 +827,14 @@ const tools: ToolDef[] = [
     tool: {
       name: "michigan_flora__spec_text",
       description:
-        "Returns the botanical description HTML text for a Michigan Flora species by plant_id. Note: permission_granted is always false for this endpoint — the text is fetched for reference but is not licensed for reproduction. Use michigan_flora__species_lookup first to resolve a scientific name to a plant_id.",
+        "Returns botanical description HTML text for a Michigan Flora species by plant_id. " +
+        "data.text is the description text (or null if unavailable). " +
+        "Note: permission_granted is always false — the text is fetched for reference but is not licensed for reproduction. " +
+        "Use michigan_flora__flora_search_sp first to resolve a scientific name to a plant_id.",
       inputSchema: {
         type: "object" as const,
         properties: {
-          id:      { type: "number", description: "Michigan Flora plant_id (integer, from species_lookup)" },
+          id:      { type: "integer", description: "Michigan Flora plant_id (positive integer, from flora_search_sp)" },
           refresh: { type: "boolean", description: "Bypass cache" },
           ...PV_PROP,
         },
@@ -841,11 +852,13 @@ const tools: ToolDef[] = [
     tool: {
       name: "michigan_flora__synonyms",
       description:
-        "Returns taxonomic synonyms for a Michigan Flora species by plant_id. Returns an empty list if no synonyms exist. Use michigan_flora__species_lookup first to resolve a scientific name to a plant_id.",
+        "Returns taxonomic synonyms for a Michigan Flora species by plant_id. " +
+        "data is the bare array of synonym records ({ synonym: string, author: string | null }) — empty array if none exist. " +
+        "Use michigan_flora__flora_search_sp first to resolve a scientific name to a plant_id.",
       inputSchema: {
         type: "object" as const,
         properties: {
-          id:      { type: "number", description: "Michigan Flora plant_id (integer, from species_lookup)" },
+          id:      { type: "integer", description: "Michigan Flora plant_id (positive integer, from flora_search_sp)" },
           refresh: { type: "boolean", description: "Bypass cache" },
           ...PV_PROP,
         },
@@ -863,11 +876,13 @@ const tools: ToolDef[] = [
     tool: {
       name: "michigan_flora__pimage_info",
       description:
-        "Returns the primary (featured) image for a Michigan Flora species by plant_id. Image data (including constructed absolute image_url and thumbnail_url) is in data.image. Use michigan_flora__species_lookup first to resolve a scientific name to a plant_id.",
+        "Returns the primary (featured) image record for a Michigan Flora species by plant_id. " +
+        "data is the flat image record ({ image_id, image_name, caption, photographer, image_url, thumbnail_url }) or null if no primary image exists. " +
+        "Use michigan_flora__flora_search_sp first to resolve a scientific name to a plant_id.",
       inputSchema: {
         type: "object" as const,
         properties: {
-          id:      { type: "number", description: "Michigan Flora plant_id (integer, from species_lookup)" },
+          id:      { type: "integer", description: "Michigan Flora plant_id (positive integer, from flora_search_sp)" },
           refresh: { type: "boolean", description: "Bypass cache" },
           ...PV_PROP,
         },

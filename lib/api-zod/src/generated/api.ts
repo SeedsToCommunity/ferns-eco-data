@@ -1295,15 +1295,15 @@ export const GetInatMetadataResponse = zod.object({
 
 
 /**
- * Returns county-level occurrence records for all 83 Michigan counties for the given species name. Two-step lookup: first calls flora_search_sp?scientific_name={name} to resolve the plant_id, then calls locs_sp?id={plant_id} for county data. Results are the raw passthrough response from the Michigan Flora county API endpoint. Cached permanently (no TTL) — Michigan Flora data does not change; use ?refresh=true to force a re-fetch from upstream.
+ * Returns county-level occurrence records for all 83 Michigan counties for the given plant_id. Mirrors the Michigan Flora locs_sp endpoint verbatim. data.locations is the county list. Use flora_search_sp to resolve a scientific name to a plant_id first. Cached permanently (no TTL) — Michigan Flora data does not change; use ?refresh=true to force a re-fetch from upstream.
 
- * @summary Get county-level occurrence records for a Michigan Flora species by name
+ * @summary Get county-level occurrence records for a Michigan Flora species by plant_id
  */
 
 export const getMifloraCountiesQueryRefreshDefault = false;
 
 export const GetMifloraCountiesQueryParams = zod.object({
-  "id": zod.coerce.number().int().positive().describe('Michigan Flora plant_id integer — obtain from flora_search_sp first'),
+  "id": zod.coerce.number().min(1).describe('Michigan Flora plant_id (positive integer, from flora_search_sp)'),
   "refresh": zod.coerce.boolean().default(getMifloraCountiesQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from Michigan Flora API')
 })
 
@@ -1326,15 +1326,15 @@ export const GetMifloraCountiesResponse = zod.object({
 
 
 /**
- * Returns all images from the Michigan Flora allimage_info endpoint for a given species, each enriched with constructed absolute image_url and thumbnail_url fields. Two-step lookup: flora_search_sp resolves the plant_id, then allimage_info fetches all available photos. Results are cached permanently (no TTL) — Michigan Flora image data does not change. Use ?refresh=true to force a re-fetch. Image URL formula (reverse-engineered from Michigan Flora frontend): Full: https://michiganflora.net/static/species_images/_pid_{plant_id}/{image_id}.jpg Thumbnail: https://michiganflora.net/static/species_images/_pid_{plant_id}/thumb_{image_id}.jpg
+ * Returns all image records from the Michigan Flora allimage_info endpoint for a given plant_id. data is the array of image records, each including image_id, image_name, caption, photographer, image_url, and thumbnail_url. Results are cached permanently (no TTL) — Michigan Flora image data does not change. Use ?refresh=true to force a re-fetch. Use flora_search_sp to resolve a scientific name to a plant_id first.
 
- * @summary Get the full photo gallery for a Michigan Flora species
+ * @summary Get the full photo gallery for a Michigan Flora species by plant_id
  */
 
 export const getMifloraImagesQueryRefreshDefault = false;
 
 export const GetMifloraImagesQueryParams = zod.object({
-  "id": zod.coerce.number().int().positive().describe('Michigan Flora plant_id integer — obtain from flora_search_sp first'),
+  "id": zod.coerce.number().min(1).describe('Michigan Flora plant_id (positive integer, from flora_search_sp)'),
   "refresh": zod.coerce.boolean().default(getMifloraImagesQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from Michigan Flora API')
 })
 
@@ -1364,33 +1364,24 @@ export const GetMifloraImagesResponse = zod.object({
 
 
 /**
- * Mirrors the Michigan Flora flora_search_sp endpoint verbatim. Returns the first matching species record for the given scientific name, including plant_id, family, native status (na: N=native, A=adventive), C-value, wetland indicator code, physiognomy, and common names. The plant_id is required for the spec_text, synonyms, and pimage_info endpoints. Cached permanently (no TTL) — use ?refresh=true to force a re-fetch.
+ * Mirrors the Michigan Flora flora_search_sp endpoint verbatim. Returns an array of matching species records for the given scientific_name. Each record includes plant_id, scientific_name, family_name, native status (na: N=native, A=adventive), C-value, wetland indicator code, physiognomy, and common names. data is the full records array — not a wrapped object. The plant_id from the matching record is required for locs_sp, allimage_info, spec_text, synonyms, and pimage_info endpoints. Cached permanently (no TTL) — use ?refresh=true to force a re-fetch.
 
- * @summary Look up a Michigan Flora species by scientific name
+ * @summary Search Michigan Flora species by scientific name
  */
 
 export const getMifloraFloraSearchQueryRefreshDefault = false;
 
 export const GetMifloraFloraSearchQueryParams = zod.object({
-  "scientific_name": zod.string().min(1).describe('Scientific name to look up (e.g. Quercus rubra)'),
+  "scientific_name": zod.string().min(1).describe('Scientific name to search (e.g. Quercus rubra)'),
   "refresh": zod.coerce.boolean().default(getMifloraFloraSearchQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from Michigan Flora API')
 })
 
 export const GetMifloraFloraSearchResponse = zod.object({
   "source_url": zod.string().nullable().describe('Michigan Flora species page URL. Null when species not found.'),
-  "found": zod.boolean().describe('Whether a species record was found for this name'),
+  "found": zod.boolean().describe('Whether any species records were found for this name'),
   "cache_status": zod.enum(['hit', 'miss', 'bypassed', 'error']),
   "queried_at": zod.date(),
-  "data": zod.object({
-  "plant_id": zod.number().nullish(),
-  "scientific_name": zod.string().nullish(),
-  "family_name": zod.string().nullish(),
-  "na": zod.string().nullish(),
-  "c": zod.string().nullish(),
-  "wet": zod.string().nullish(),
-  "phys": zod.string().nullish(),
-  "common_name": zod.array(zod.string()).optional(),
-  "records": zod.array(zod.object({
+  "data": zod.array(zod.object({
   "plant_id": zod.number().describe('Michigan Flora internal plant ID'),
   "scientific_name": zod.string().describe('Scientific name of the species'),
   "c": zod.string().nullish().describe('Coefficient of Conservatism (0–10, or null if not assigned)'),
@@ -1403,8 +1394,7 @@ export const GetMifloraFloraSearchResponse = zod.object({
   "author": zod.string().nullish().describe('Taxonomic authority'),
   "acronym": zod.string().nullish().describe('Short species code used in Michigan Flora'),
   "common_name": zod.array(zod.string()).describe('Array of common names for this species')
-}).describe('A single species record from the Michigan Flora flora_search_sp endpoint.')).optional()
-}).nullable().describe('Species data extracted from the first matching record, plus full records array.'),
+}).describe('A single species record from the Michigan Flora flora_search_sp endpoint.')).nullable().describe('Array of matching species records from the Michigan Flora flora_search_sp endpoint. Verbatim upstream array. Null when found is false.\n'),
   "provenance": zod.object({
   "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
@@ -1414,7 +1404,7 @@ export const GetMifloraFloraSearchResponse = zod.object({
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
 }).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
-}).describe('FERNS envelope for Michigan Flora flora_search_sp. data contains the first matching species record plus the full records array. Cached permanently (no TTL).\n')
+}).describe('FERNS envelope for Michigan Flora flora_search_sp. data is the verbatim array of species records from the upstream API — not a wrapped object. Cached permanently (no TTL).\n')
 
 
 /**
@@ -1436,7 +1426,6 @@ export const GetMifloraSpecTextResponse = zod.object({
   "cache_status": zod.enum(['hit', 'miss', 'bypassed', 'error']),
   "queried_at": zod.date(),
   "data": zod.object({
-  "plant_id": zod.number().nullish(),
   "text": zod.string().nullish().describe('Raw HTML botanical description from Michigan Flora')
 }).nullable(),
   "provenance": zod.object({
@@ -1469,13 +1458,10 @@ export const GetMifloraSynonymsResponse = zod.object({
   "found": zod.boolean().describe('Whether any synonyms were found for this plant_id'),
   "cache_status": zod.enum(['hit', 'miss', 'bypassed', 'error']),
   "queried_at": zod.date(),
-  "data": zod.object({
-  "plant_id": zod.number().nullish(),
-  "synonyms": zod.array(zod.object({
+  "data": zod.array(zod.object({
   "synonym": zod.string().describe('The synonym scientific name'),
   "author": zod.string().nullish().describe('Taxonomic authority for the synonym')
-}).describe('A single taxonomic synonym from the Michigan Flora synonyms endpoint.')).optional()
-}).nullable(),
+}).describe('A single taxonomic synonym from the Michigan Flora synonyms endpoint.')).nullable().describe('Bare array of synonym records from the Michigan Flora synonyms endpoint. Empty array if no synonyms exist. Null when found is false.\n'),
   "provenance": zod.object({
   "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
@@ -1485,7 +1471,7 @@ export const GetMifloraSynonymsResponse = zod.object({
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
 }).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
-}).describe('FERNS envelope for Michigan Flora synonyms. data.synonyms is the array of taxonomic synonyms (empty if none exist). Cached permanently (no TTL).\n')
+}).describe('FERNS envelope for Michigan Flora synonyms. data is a bare array of synonym records (empty array if none exist) — no wrapper object, no plant_id field. Cached permanently (no TTL).\n')
 
 
 /**
@@ -1507,16 +1493,13 @@ export const GetMifloraPImageInfoResponse = zod.object({
   "cache_status": zod.enum(['hit', 'miss', 'bypassed', 'error']),
   "queried_at": zod.date(),
   "data": zod.object({
-  "plant_id": zod.number().nullish(),
-  "image": zod.object({
   "image_id": zod.union([zod.number(),zod.string()]).describe('Michigan Flora internal image ID'),
   "image_name": zod.string().nullish().describe('Short descriptive name for the image (e.g. \"flowers\", \"fruit\")'),
   "caption": zod.string().nullish().describe('Caption text from Michigan Flora for this image'),
   "photographer": zod.string().nullish().describe('Photographer credit for this image'),
   "image_url": zod.string().describe('Absolute URL to the full-size image on Michigan Flora\'s server. Constructed as: https:\/\/michiganflora.net\/static\/species_images\/_pid_{plant_id}\/{image_id}.jpg\n'),
   "thumbnail_url": zod.string().describe('Absolute URL to the thumbnail image on Michigan Flora\'s server. Constructed as: https:\/\/michiganflora.net\/static\/species_images\/_pid_{plant_id}\/thumb_{image_id}.jpg\n')
-}).nullish().describe('A single image record from the Michigan Flora allimage_info endpoint, enriched with constructed absolute image_url and thumbnail_url fields.\n')
-}).nullable(),
+}).nullable().describe('Flat primary image record from the Michigan Flora pimage_info endpoint. Null when found is false or no image exists.\n'),
   "provenance": zod.object({
   "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
@@ -1526,7 +1509,7 @@ export const GetMifloraPImageInfoResponse = zod.object({
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
 }).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
-}).describe('FERNS envelope for Michigan Flora pimage_info. data.image is the primary image record enriched with image_url and thumbnail_url (null if no image exists). Cached permanently (no TTL).\n')
+}).describe('FERNS envelope for Michigan Flora pimage_info. data is the flat primary image record (image_id, image_name, caption, photographer, image_url, thumbnail_url) or null if no primary image exists — no wrapper object, no plant_id field. Cached permanently (no TTL).\n')
 
 
 /**

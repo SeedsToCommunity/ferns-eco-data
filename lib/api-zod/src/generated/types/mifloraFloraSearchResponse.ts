@@ -7,20 +7,21 @@
  */
 import type { FernsProvenance } from './fernsProvenance';
 import type { MifloraFloraSearchResponseCacheStatus } from './mifloraFloraSearchResponseCacheStatus';
-import type { MifloraFloraSearchResponseData } from './mifloraFloraSearchResponseData';
+import type { MifloraSpeciesRecord } from './mifloraSpeciesRecord';
 
 /**
- * FERNS envelope for Michigan Flora flora_search_sp. data contains the first matching species record plus the full records array. Cached permanently (no TTL).
+ * FERNS envelope for Michigan Flora flora_search_sp. data is the verbatim array of species records from the upstream API — not a wrapped object. Cached permanently (no TTL).
 
  */
 export interface MifloraFloraSearchResponse {
   /** Michigan Flora species page URL. Null when species not found. */
   source_url: string | null;
-  /** Whether a species record was found for this name */
+  /** Whether any species records were found for this name */
   found: boolean;
   cache_status: MifloraFloraSearchResponseCacheStatus;
   queried_at: Date;
-  /** Species data extracted from the first matching record, plus full records array. */
-  data: MifloraFloraSearchResponseData;
+  /** Array of matching species records from the Michigan Flora flora_search_sp endpoint. Verbatim upstream array. Null when found is false.
+ */
+  data: MifloraSpeciesRecord[] | null;
   provenance: FernsProvenance;
 }

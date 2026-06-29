@@ -706,33 +706,19 @@ export const MifloraFloraSearchResponseCacheStatus = {
 } as const;
 
 /**
- * Species data extracted from the first matching record, plus full records array.
- */
-export type MifloraFloraSearchResponseData = {
-  plant_id?: number | null;
-  scientific_name?: string | null;
-  family_name?: string | null;
-  na?: string | null;
-  c?: string | null;
-  wet?: string | null;
-  phys?: string | null;
-  common_name?: string[];
-  records?: MifloraSpeciesRecord[];
-} | null;
-
-/**
- * FERNS envelope for Michigan Flora flora_search_sp. data contains the first matching species record plus the full records array. Cached permanently (no TTL).
+ * FERNS envelope for Michigan Flora flora_search_sp. data is the verbatim array of species records from the upstream API — not a wrapped object. Cached permanently (no TTL).
 
  */
 export interface MifloraFloraSearchResponse {
   /** Michigan Flora species page URL. Null when species not found. */
   source_url: string | null;
-  /** Whether a species record was found for this name */
+  /** Whether any species records were found for this name */
   found: boolean;
   cache_status: MifloraFloraSearchResponseCacheStatus;
   queried_at: string;
-  /** Species data extracted from the first matching record, plus full records array. */
-  data: MifloraFloraSearchResponseData;
+  /** Array of matching species records from the Michigan Flora flora_search_sp endpoint. Verbatim upstream array. Null when found is false.
+ */
+  data: MifloraSpeciesRecord[] | null;
   provenance: FernsProvenance;
 }
 
@@ -747,7 +733,6 @@ export const MifloraSpecTextResponseCacheStatus = {
 } as const;
 
 export type MifloraSpecTextResponseData = {
-  plant_id?: number | null;
   /** Raw HTML botanical description from Michigan Flora */
   text?: string | null;
 } | null;
@@ -787,13 +772,8 @@ export const MifloraSynonymsResponseCacheStatus = {
   error: 'error',
 } as const;
 
-export type MifloraSynonymsResponseData = {
-  plant_id?: number | null;
-  synonyms?: MifloraSynonymRecord[];
-} | null;
-
 /**
- * FERNS envelope for Michigan Flora synonyms. data.synonyms is the array of taxonomic synonyms (empty if none exist). Cached permanently (no TTL).
+ * FERNS envelope for Michigan Flora synonyms. data is a bare array of synonym records (empty array if none exist) — no wrapper object, no plant_id field. Cached permanently (no TTL).
 
  */
 export interface MifloraSynonymsResponse {
@@ -803,7 +783,9 @@ export interface MifloraSynonymsResponse {
   found: boolean;
   cache_status: MifloraSynonymsResponseCacheStatus;
   queried_at: string;
-  data: MifloraSynonymsResponseData;
+  /** Bare array of synonym records from the Michigan Flora synonyms endpoint. Empty array if no synonyms exist. Null when found is false.
+ */
+  data: MifloraSynonymRecord[] | null;
   provenance: FernsProvenance;
 }
 
@@ -817,13 +799,8 @@ export const MifloraPImageInfoResponseCacheStatus = {
   error: 'error',
 } as const;
 
-export type MifloraPImageInfoResponseData = {
-  plant_id?: number | null;
-  image?: MifloraImageRecord | null;
-} | null;
-
 /**
- * FERNS envelope for Michigan Flora pimage_info. data.image is the primary image record enriched with image_url and thumbnail_url (null if no image exists). Cached permanently (no TTL).
+ * FERNS envelope for Michigan Flora pimage_info. data is the flat primary image record (image_id, image_name, caption, photographer, image_url, thumbnail_url) or null if no primary image exists — no wrapper object, no plant_id field. Cached permanently (no TTL).
 
  */
 export interface MifloraPImageInfoResponse {
@@ -833,7 +810,9 @@ export interface MifloraPImageInfoResponse {
   found: boolean;
   cache_status: MifloraPImageInfoResponseCacheStatus;
   queried_at: string;
-  data: MifloraPImageInfoResponseData;
+  /** Flat primary image record from the Michigan Flora pimage_info endpoint. Null when found is false or no image exists.
+ */
+  data: MifloraImageRecord | null;
   provenance: FernsProvenance;
 }
 
@@ -3070,10 +3049,10 @@ export const GetInatIdentificationsByIdProvenanceVerbosity = {
 
 export type GetMifloraCountiesParams = {
 /**
- * Scientific name to look up county records for (e.g. Asclepias tuberosa)
- * @minLength 1
+ * Michigan Flora plant_id (positive integer, from flora_search_sp)
+ * @minimum 1
  */
-name: string;
+id: number;
 /**
  * If true, bypasses cache and fetches fresh from Michigan Flora API
  */
@@ -3082,10 +3061,10 @@ refresh?: boolean;
 
 export type GetMifloraImagesParams = {
 /**
- * Scientific name to look up (e.g. Asclepias tuberosa)
- * @minLength 1
+ * Michigan Flora plant_id (positive integer, from flora_search_sp)
+ * @minimum 1
  */
-name: string;
+id: number;
 /**
  * If true, bypasses cache and fetches fresh from Michigan Flora API
  */
@@ -3094,10 +3073,10 @@ refresh?: boolean;
 
 export type GetMifloraFloraSearchParams = {
 /**
- * Scientific name to look up (e.g. Quercus rubra)
+ * Scientific name to search (e.g. Quercus rubra)
  * @minLength 1
  */
-name: string;
+scientific_name: string;
 /**
  * If true, bypasses cache and fetches fresh from Michigan Flora API
  */

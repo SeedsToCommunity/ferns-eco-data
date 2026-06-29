@@ -2008,22 +2008,22 @@ paths:
     get:
       operationId: getMifloraCounties
       tags: [miflora]
-      summary: Get county-level occurrence records for a Michigan Flora species by name
+      summary: Get county-level occurrence records for a Michigan Flora species by plant_id
       description: >
         Returns county-level occurrence records for all 83 Michigan counties for
-        the given species name. Two-step lookup: first calls flora_search_sp?scientific_name={name}
-        to resolve the plant_id, then calls locs_sp?id={plant_id} for county data.
-        Results are the raw passthrough response from the Michigan Flora county API endpoint.
+        the given plant_id. Mirrors the Michigan Flora locs_sp endpoint verbatim.
+        data.locations is the county list. Use flora_search_sp to resolve a
+        scientific name to a plant_id first.
         Cached permanently (no TTL) — Michigan Flora data does not change;
         use ?refresh=true to force a re-fetch from upstream.
       parameters:
-        - name: name
+        - name: id
           in: query
           required: true
-          description: Scientific name to look up county records for (e.g. Asclepias tuberosa)
+          description: Michigan Flora plant_id (positive integer, from flora_search_sp)
           schema:
-            type: string
-            minLength: 1
+            type: integer
+            minimum: 1
         - name: refresh
           in: query
           required: false
@@ -2055,24 +2055,22 @@ paths:
     get:
       operationId: getMifloraImages
       tags: [miflora]
-      summary: Get the full photo gallery for a Michigan Flora species
+      summary: Get the full photo gallery for a Michigan Flora species by plant_id
       description: >
-        Returns all images from the Michigan Flora allimage_info endpoint for a given species,
-        each enriched with constructed absolute image_url and thumbnail_url fields.
-        Two-step lookup: flora_search_sp resolves the plant_id, then allimage_info fetches
-        all available photos. Results are cached permanently (no TTL) — Michigan Flora image
-        data does not change. Use ?refresh=true to force a re-fetch.
-        Image URL formula (reverse-engineered from Michigan Flora frontend):
-        Full: https://michiganflora.net/static/species_images/_pid_{plant_id}/{image_id}.jpg
-        Thumbnail: https://michiganflora.net/static/species_images/_pid_{plant_id}/thumb_{image_id}.jpg
+        Returns all image records from the Michigan Flora allimage_info endpoint for a
+        given plant_id. data is the array of image records, each including image_id,
+        image_name, caption, photographer, image_url, and thumbnail_url.
+        Results are cached permanently (no TTL) — Michigan Flora image data does not change.
+        Use ?refresh=true to force a re-fetch.
+        Use flora_search_sp to resolve a scientific name to a plant_id first.
       parameters:
-        - name: name
+        - name: id
           in: query
           required: true
-          description: Scientific name to look up (e.g. Asclepias tuberosa)
+          description: Michigan Flora plant_id (positive integer, from flora_search_sp)
           schema:
-            type: string
-            minLength: 1
+            type: integer
+            minimum: 1
         - name: refresh
           in: query
           required: false
@@ -2104,18 +2102,20 @@ paths:
     get:
       operationId: getMifloraFloraSearch
       tags: [miflora]
-      summary: Look up a Michigan Flora species by scientific name
+      summary: Search Michigan Flora species by scientific name
       description: >
-        Mirrors the Michigan Flora flora_search_sp endpoint verbatim. Returns the first
-        matching species record for the given scientific name, including plant_id, family,
-        native status (na: N=native, A=adventive), C-value, wetland indicator code, physiognomy,
-        and common names. The plant_id is required for the spec_text, synonyms, and pimage_info
-        endpoints. Cached permanently (no TTL) — use ?refresh=true to force a re-fetch.
+        Mirrors the Michigan Flora flora_search_sp endpoint verbatim. Returns an array of
+        matching species records for the given scientific_name. Each record includes plant_id,
+        scientific_name, family_name, native status (na: N=native, A=adventive), C-value,
+        wetland indicator code, physiognomy, and common names. data is the full records array —
+        not a wrapped object. The plant_id from the matching record is required for locs_sp,
+        allimage_info, spec_text, synonyms, and pimage_info endpoints.
+        Cached permanently (no TTL) — use ?refresh=true to force a re-fetch.
       parameters:
-        - name: name
+        - name: scientific_name
           in: query
           required: true
-          description: Scientific name to look up (e.g. Quercus rubra)
+          description: Scientific name to search (e.g. Quercus rubra)
           schema:
             type: string
             minLength: 1
@@ -5689,8 +5689,8 @@ components:
     MifloraFloraSearchResponse:
       type: object
       description: >
-        FERNS envelope for Michigan Flora flora_search_sp. data contains the first matching
-        species record plus the full records array. Cached permanently (no TTL).
+        FERNS envelope for Michigan Flora flora_search_sp. data is the verbatim array of
+        species records from the upstream API — not a wrapped object. Cached permanently (no TTL).
       required:
         - source_url
         - found
@@ -5705,7 +5705,7 @@ components:
           description: Michigan Flora species page URL. Null when species not found.
         found:
           type: boolean
-          description: Whether a species record was found for this name
+          description: Whether any species records were found for this name
         cache_status:
           type: string
           enum: [hit, miss, bypassed, error]
@@ -5714,38 +5714,12 @@ components:
           format: date-time
         data:
           nullable: true
-          description: Species data extracted from the first matching record, plus full records array.
-          type: object
-          properties:
-            plant_id:
-              type: integer
-              nullable: true
-            scientific_name:
-              type: string
-              nullable: true
-            family_name:
-              type: string
-              nullable: true
-            na:
-              type: string
-              nullable: true
-            c:
-              type: string
-              nullable: true
-            wet:
-              type: string
-              nullable: true
-            phys:
-              type: string
-              nullable: true
-            common_name:
-              type: array
-              items:
-                type: string
-            records:
-              type: array
-              items:
-                $ref: "#/components/schemas/MifloraSpeciesRecord"
+          description: >
+            Array of matching species records from the Michigan Flora flora_search_sp
+            endpoint. Verbatim upstream array. Null when found is false.
+          type: array
+          items:
+            $ref: "#/components/schemas/MifloraSpeciesRecord"
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
 
@@ -5779,9 +5753,6 @@ components:
           nullable: true
           type: object
           properties:
-            plant_id:
-              type: integer
-              nullable: true
             text:
               type: string
               nullable: true
@@ -5806,8 +5777,9 @@ components:
     MifloraSynonymsResponse:
       type: object
       description: >
-        FERNS envelope for Michigan Flora synonyms. data.synonyms is the array of
-        taxonomic synonyms (empty if none exist). Cached permanently (no TTL).
+        FERNS envelope for Michigan Flora synonyms. data is a bare array of synonym records
+        (empty array if none exist) — no wrapper object, no plant_id field.
+        Cached permanently (no TTL).
       required:
         - source_url
         - found
@@ -5831,23 +5803,21 @@ components:
           format: date-time
         data:
           nullable: true
-          type: object
-          properties:
-            plant_id:
-              type: integer
-              nullable: true
-            synonyms:
-              type: array
-              items:
-                $ref: "#/components/schemas/MifloraSynonymRecord"
+          description: >
+            Bare array of synonym records from the Michigan Flora synonyms endpoint.
+            Empty array if no synonyms exist. Null when found is false.
+          type: array
+          items:
+            $ref: "#/components/schemas/MifloraSynonymRecord"
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
 
     MifloraPImageInfoResponse:
       type: object
       description: >
-        FERNS envelope for Michigan Flora pimage_info. data.image is the primary image
-        record enriched with image_url and thumbnail_url (null if no image exists).
+        FERNS envelope for Michigan Flora pimage_info. data is the flat primary image
+        record (image_id, image_name, caption, photographer, image_url, thumbnail_url)
+        or null if no primary image exists — no wrapper object, no plant_id field.
         Cached permanently (no TTL).
       required:
         - source_url
@@ -5872,14 +5842,10 @@ components:
           format: date-time
         data:
           nullable: true
-          type: object
-          properties:
-            plant_id:
-              type: integer
-              nullable: true
-            image:
-              nullable: true
-              $ref: "#/components/schemas/MifloraImageRecord"
+          description: >
+            Flat primary image record from the Michigan Flora pimage_info endpoint.
+            Null when found is false or no image exists.
+          $ref: "#/components/schemas/MifloraImageRecord"
         provenance:
           $ref: "#/components/schemas/FernsProvenance"
 

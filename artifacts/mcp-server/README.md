@@ -153,9 +153,9 @@ Tool names follow `{source_id}__{action}` (hyphens → underscores, double-under
 
 | Tool | Path | Required | Optional | Description |
 |---|---|---|---|---|
-| `michigan_flora__species` | GET /miflora/species | name | refresh | Full Michigan Flora species profile: family, nativity, habitat notes, species page link |
-| `michigan_flora__counties` | GET /miflora/counties | name | refresh | County-level occurrence records for a species within Michigan |
-| `michigan_flora__images` | GET /miflora/images | name | refresh | Image URLs and metadata for a species from the Michigan Flora image collection |
+| `michigan_flora__flora_search_sp` | GET /miflora/flora_search_sp | scientific_name | refresh | Search Michigan Flora by scientific name — returns array of matching species records |
+| `michigan_flora__locs_sp` | GET /miflora/locs_sp | id | refresh | County-level occurrence records for a Michigan Flora species by plant_id |
+| `michigan_flora__allimage_info` | GET /miflora/allimage_info | id | refresh | All image records for a Michigan Flora species by plant_id |
 
 ### coefficient-of-conservatism — Coefficient of Conservatism
 

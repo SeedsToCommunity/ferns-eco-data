@@ -6,11 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { FernsProvenance } from './fernsProvenance';
+import type { MifloraSynonymRecord } from './mifloraSynonymRecord';
 import type { MifloraSynonymsResponseCacheStatus } from './mifloraSynonymsResponseCacheStatus';
-import type { MifloraSynonymsResponseData } from './mifloraSynonymsResponseData';
 
 /**
- * FERNS envelope for Michigan Flora synonyms. data.synonyms is the array of taxonomic synonyms (empty if none exist). Cached permanently (no TTL).
+ * FERNS envelope for Michigan Flora synonyms. data is a bare array of synonym records (empty array if none exist) — no wrapper object, no plant_id field. Cached permanently (no TTL).
 
  */
 export interface MifloraSynonymsResponse {
@@ -20,6 +20,8 @@ export interface MifloraSynonymsResponse {
   found: boolean;
   cache_status: MifloraSynonymsResponseCacheStatus;
   queried_at: Date;
-  data: MifloraSynonymsResponseData;
+  /** Bare array of synonym records from the Michigan Flora synonyms endpoint. Empty array if no synonyms exist. Null when found is false.
+ */
+  data: MifloraSynonymRecord[] | null;
   provenance: FernsProvenance;
 }
