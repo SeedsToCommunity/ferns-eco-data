@@ -35,6 +35,27 @@ export const TEST_SPECIES: TestSpecies[] = [
   { name: "Asclepias tuberosa", genus: "Asclepias", species: "tuberosa", label: "Butterfly weed", inatTaxonId: 53897 },
 ];
 
+/**
+ * BONAP-specific test corpus entry. Includes expectedFound to exercise both
+ * found=true (known-present) and found=false (known-absent) assertion paths.
+ */
+export interface BonapTestSpecies {
+  name: string;
+  genus: string;
+  species: string;
+  label: string;
+  expectedFound: boolean;
+}
+
+export const BONAP_TEST_SPECIES: BonapTestSpecies[] = [
+  { name: "Quercus rubra", genus: "Quercus", species: "rubra", label: "Red oak", expectedFound: true },
+  { name: "Trillium grandiflorum", genus: "Trillium", species: "grandiflorum", label: "White trillium", expectedFound: true },
+  { name: "Asclepias tuberosa", genus: "Asclepias", species: "tuberosa", label: "Butterfly weed", expectedFound: true },
+  // Banksia integrifolia is native to southeastern Australia and does not appear in the
+  // BONAP North American Plant Atlas — a reliable known-absent test case.
+  { name: "Banksia integrifolia", genus: "Banksia", species: "integrifolia", label: "Coast banksia (Australian, absent from BONAP)", expectedFound: false },
+];
+
 export const TEST_PLACES: TestPlace[] = [
   { id: 10, name: "Michigan" },
   { id: 2423, name: "Washtenaw County, MI" },

@@ -103,9 +103,10 @@ paths:
           in: query
           required: false
           description: >
-            Species epithet, all lowercase (e.g. tuberosa).
+            Species base epithet, all lowercase, single word (e.g. tuberosa).
             Required when map_type=county_species or map_type=state_species — omitting species returns 400.
-            Subspecies/variety designations are stripped automatically; species_stripped is set true.
+            Must not contain spaces or infraspecific rank markers (subsp., var., f., etc.);
+            BONAP does not publish subspecies-level maps and the API will return 400 for such inputs.
           schema:
             type: string
         - name: map_type
@@ -140,6 +141,14 @@ paths:
                         $ref: "#/components/schemas/BonapMapData"
         "400":
           description: Invalid input (missing genus, missing species, invalid map_type)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: >
+            BONAP could not be reached or returned an inconclusive response.
+            The map existence could not be verified. Result is not cached.
           content:
             application/json:
               schema:
@@ -4745,37 +4754,30 @@ components:
     BonapMapData:
       type: object
       required:
+        - map_url
         - map_type_served
         - genus
-        - species_stripped
-        - status
+        - species
       properties:
         map_url:
           type: string
           nullable: true
           description: >
-            Direct URL to the PNG image on BONAP's server. Present when status is found.
-            Null when not found. Applications display this via an img tag — do not proxy.
+            BONAP PNG map image URL. Null when found is false.
         map_type_served:
           type: string
           enum: [county_species, state_species]
         genus:
           type: string
-          description: Normalized genus name as used in URL construction
+          description: >
+            Normalized genus used to query BONAP (first letter uppercase,
+            remainder lowercase).
         species:
           type: string
-          nullable: true
-          description: Normalized species epithet.
-        species_stripped:
-          type: boolean
-          description: True if the caller provided a subspecific epithet that was stripped
-        status:
-          type: string
-          enum: [found, not_found, unverified]
           description: >
-            found — URL returned a valid image during cache population.
-            not_found — BONAP returned a non-image response for this binomial.
-            unverified — URL was returned from cache without re-verification.
+            Species epithet used to query BONAP. May differ from the requested
+            species if a subspecies qualifier was stripped (BONAP does not
+            publish subspecies-level maps).
 
     BonapMapResponse:
       type: object

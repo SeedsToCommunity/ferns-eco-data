@@ -181,33 +181,17 @@ export const BonapMapDataMapTypeServed = {
   state_species: 'state_species',
 } as const;
 
-/**
- * found — URL returned a valid image during cache population. not_found — BONAP returned a non-image response for this binomial. unverified — URL was returned from cache without re-verification.
-
- */
-export type BonapMapDataStatus = typeof BonapMapDataStatus[keyof typeof BonapMapDataStatus];
-
-
-export const BonapMapDataStatus = {
-  found: 'found',
-  not_found: 'not_found',
-  unverified: 'unverified',
-} as const;
-
 export interface BonapMapData {
-  /** Direct URL to the PNG image on BONAP's server. Present when status is found. Null when not found. Applications display this via an img tag — do not proxy.
+  /** BONAP PNG map image URL. Null when found is false.
  */
-  map_url?: string | null;
+  map_url: string | null;
   map_type_served: BonapMapDataMapTypeServed;
-  /** Normalized genus name as used in URL construction */
-  genus: string;
-  /** Normalized species epithet. */
-  species?: string | null;
-  /** True if the caller provided a subspecific epithet that was stripped */
-  species_stripped: boolean;
-  /** found — URL returned a valid image during cache population. not_found — BONAP returned a non-image response for this binomial. unverified — URL was returned from cache without re-verification.
+  /** Normalized genus used to query BONAP (first letter uppercase, remainder lowercase).
  */
-  status: BonapMapDataStatus;
+  genus: string;
+  /** Species epithet used to query BONAP. May differ from the requested species if a subspecies qualifier was stripped (BONAP does not publish subspecies-level maps).
+ */
+  species: string;
 }
 
 /**
@@ -2155,7 +2139,7 @@ export type GetBonapMapParams = {
  */
 genus: string;
 /**
- * Species epithet, all lowercase (e.g. tuberosa). Required when map_type=county_species or map_type=state_species — omitting species returns 400. Subspecies/variety designations are stripped automatically; species_stripped is set true.
+ * Species base epithet, all lowercase, single word (e.g. tuberosa). Required when map_type=county_species or map_type=state_species — omitting species returns 400. Must not contain spaces or infraspecific rank markers (subsp., var., f., etc.); BONAP does not publish subspecies-level maps and the API will return 400 for such inputs.
 
  */
 species?: string;

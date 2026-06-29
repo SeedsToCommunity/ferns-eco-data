@@ -6,6 +6,7 @@
 
 import {
   TEST_SPECIES,
+  BONAP_TEST_SPECIES,
   TEST_PLACES,
   TEST_PLACE_QUERIES,
   TEST_GBIF_SEARCHES,
@@ -61,7 +62,7 @@ async function main(): Promise<void> {
   const inatComparisons = await runInatComparators(fernsBase, TEST_SPECIES, TEST_PLACES, TEST_PLACE_QUERIES);
 
   process.stderr.write("Running BONAP comparators...\n");
-  const bonapComparisons = await runBonapComparators(fernsBase, TEST_SPECIES);
+  const bonapComparisons = await runBonapComparators(fernsBase, BONAP_TEST_SPECIES);
 
   process.stderr.write("Running Michigan Flora comparators...\n");
   const mifloraComparisons = await runMifloraComparators(fernsBase, TEST_SPECIES);

@@ -15,7 +15,7 @@ export type GetBonapMapParams = {
  */
 genus: string;
 /**
- * Species epithet, all lowercase (e.g. tuberosa). Required when map_type=county_species or map_type=state_species — omitting species returns 400. Subspecies/variety designations are stripped automatically; species_stripped is set true.
+ * Species base epithet, all lowercase, single word (e.g. tuberosa). Required when map_type=county_species or map_type=state_species — omitting species returns 400. Must not contain spaces or infraspecific rank markers (subsp., var., f., etc.); BONAP does not publish subspecies-level maps and the API will return 400 for such inputs.
 
  */
 species?: string;

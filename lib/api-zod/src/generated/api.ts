@@ -53,7 +53,7 @@ export const getBonapMapQueryRefreshDefault = false;
 
 export const GetBonapMapQueryParams = zod.object({
   "genus": zod.string().min(1).describe('Genus name. First letter capitalized, remainder lowercase (e.g. Asclepias). The service normalizes to title case before URL construction.\n'),
-  "species": zod.string().optional().describe('Species epithet, all lowercase (e.g. tuberosa). Required when map_type=county_species or map_type=state_species — omitting species returns 400. Subspecies\/variety designations are stripped automatically; species_stripped is set true.\n'),
+  "species": zod.string().optional().describe('Species base epithet, all lowercase, single word (e.g. tuberosa). Required when map_type=county_species or map_type=state_species — omitting species returns 400. Must not contain spaces or infraspecific rank markers (subsp., var., f., etc.); BONAP does not publish subspecies-level maps and the API will return 400 for such inputs.\n'),
   "map_type": zod.enum(['county_species', 'state_species']).default(getBonapMapQueryMapTypeDefault).describe('Map type to retrieve. county_species (default) returns a county-level distribution map. state_species returns a state\/continental-level distribution map. Both types require a genus+species pair.\n'),
   "refresh": zod.coerce.boolean().default(getBonapMapQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from BONAP.')
 })
@@ -82,12 +82,10 @@ export const GetBonapMapResponse = zod.object({
   "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
 }).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n').and(zod.object({
   "data": zod.object({
-  "map_url": zod.string().nullish().describe('Direct URL to the PNG image on BONAP\'s server. Present when status is found. Null when not found. Applications display this via an img tag — do not proxy.\n'),
+  "map_url": zod.string().nullable().describe('BONAP PNG map image URL. Null when found is false.\n'),
   "map_type_served": zod.enum(['county_species', 'state_species']),
-  "genus": zod.string().describe('Normalized genus name as used in URL construction'),
-  "species": zod.string().nullish().describe('Normalized species epithet.'),
-  "species_stripped": zod.boolean().describe('True if the caller provided a subspecific epithet that was stripped'),
-  "status": zod.enum(['found', 'not_found', 'unverified']).describe('found — URL returned a valid image during cache population. not_found — BONAP returned a non-image response for this binomial. unverified — URL was returned from cache without re-verification.\n')
+  "genus": zod.string().describe('Normalized genus used to query BONAP (first letter uppercase, remainder lowercase).\n'),
+  "species": zod.string().describe('Species epithet used to query BONAP. May differ from the requested species if a subspecies qualifier was stripped (BONAP does not publish subspecies-level maps).\n')
 }).optional()
 }))
 

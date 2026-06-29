@@ -9,7 +9,6 @@
 export * from './bonapAttribution';
 export * from './bonapMapData';
 export * from './bonapMapDataMapTypeServed';
-export * from './bonapMapDataStatus';
 export * from './bonapMapResponse';
 export * from './bonapMetadataData';
 export * from './bonapMetadataDataRegistryEntry';

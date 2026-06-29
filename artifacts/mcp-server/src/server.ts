@@ -33,12 +33,14 @@ const tools: ToolDef[] = [
       name: "bonap_napa__map",
       description:
         "Returns county-level distribution data for a vascular plant from the BONAP North American Plant Atlas, based on nearly four million verified herbarium specimens. Shows native, exotic, absent, and rare status for every county across North America. " +
+        "data.genus and data.species report the actual values used to query BONAP; data.species may differ from the requested species if a subspecies qualifier was stripped (BONAP does not publish subspecies-level maps). " +
+        "A 503 response means BONAP was unreachable; the query was not cached. " +
         "Response follows the FERNS Response Envelope Contract v1; provenance contains cache_status, queried_at, and source_url.",
       inputSchema: {
         type: "object" as const,
         properties: {
           genus:      { type: "string", description: "Genus name (e.g. Trillium)" },
-          species:    { type: "string", description: "Specific epithet (e.g. grandiflorum)" },
+          species:    { type: "string", description: "Species base epithet, single word (e.g. grandiflorum). Do not include subspecies, variety, or other infraspecific qualifiers — BONAP does not publish subspecies-level maps and the API returns 400 for such inputs." },
           map_type:   { type: "string", enum: ["county_species", "state_species"], description: "Map resolution (default: county_species)" },
           refresh:    { type: "boolean", description: "Bypass cache and re-fetch from BONAP" },
           ...PV_PROP,

@@ -22,8 +22,6 @@ import { buildEnvelope } from "@workspace/api-envelope";
 import { dbRegistryAccessor } from "../lib/registry-accessor.js";
 import { resolveUrl } from "../lib/resolve-url.js";
 
-const SUBSPECIES_PATTERN = /\s+(subsp\.|var\.|f\.|ssp\.|cv\.|group|agg\.)\s+/i;
-
 const router: IRouter = Router();
 
 router.get("/bonap/map", async (req, res) => {
@@ -59,18 +57,22 @@ router.get("/bonap/map", async (req, res) => {
     return;
   }
 
-  if (SUBSPECIES_PATTERN.test(species.trim())) {
+  if (/\s/.test(species.trim())) {
     res.status(400).json({
       error: "invalid_input",
       message:
-        "subspecies qualifiers are not supported; BONAP does not publish subspecies-level maps. Provide the species epithet only.",
+        "species must be a single base epithet (e.g. rubrum). BONAP does not publish subspecies-level maps — do not include subspecies, variety, or other infraspecific qualifiers.",
     });
     return;
   }
 
   await ensureBonapRegistryEntry();
 
-  const cacheKey = buildCacheKey(genus.trim(), species.trim(), mapType as MapType);
+  const normalizedGenus = genus.trim().charAt(0).toUpperCase() + genus.trim().slice(1).toLowerCase();
+  const normalizedSpecies = species.trim().toLowerCase();
+  const resolvedMapType = (mapType ?? "county_species") as MapType;
+
+  const cacheKey = buildCacheKey(normalizedGenus, normalizedSpecies, resolvedMapType);
 
   if (!refresh) {
     const cached = await lookupCache(cacheKey);
@@ -84,9 +86,12 @@ router.get("/bonap/map", async (req, res) => {
           cacheStatus: "hit",
           queriedAt: cached.fetched_at.toISOString(),
           found: cached.status === "found",
-          data: cached.status === "found"
-            ? { map_url: cached.map_url, map_type_served: cached.map_type as MapType }
-            : null,
+          data: {
+            map_url: cached.status === "found" ? cached.map_url : null,
+            map_type_served: cached.map_type as MapType,
+            genus: normalizedGenus,
+            species: normalizedSpecies,
+          },
         },
         { registry: dbRegistryAccessor },
       );
@@ -97,7 +102,7 @@ router.get("/bonap/map", async (req, res) => {
 
   let result;
   try {
-    result = await getBonapNapaMapUrl(genus.trim(), species.trim(), mapType as MapType);
+    result = await getBonapNapaMapUrl(normalizedGenus, normalizedSpecies, resolvedMapType);
   } catch (err: unknown) {
     if (err instanceof BonapNapaNetworkError) {
       res.status(503).json({ error: "upstream_unavailable", message: err.message });
@@ -106,7 +111,7 @@ router.get("/bonap/map", async (req, res) => {
     throw err;
   }
 
-  await storeCache(cacheKey, result, { genus: genus.trim(), species: species.trim() });
+  await storeCache(cacheKey, result, { genus: normalizedGenus, species: normalizedSpecies });
 
   const envelope = await buildEnvelope(
     {
@@ -117,9 +122,12 @@ router.get("/bonap/map", async (req, res) => {
       cacheStatus: "miss",
       queriedAt: new Date().toISOString(),
       found: result.found,
-      data: result.found
-        ? { map_url: result.mapUrl, map_type_served: result.mapTypeServed }
-        : null,
+      data: {
+        map_url: result.found ? result.mapUrl : null,
+        map_type_served: result.mapTypeServed,
+        genus: normalizedGenus,
+        species: normalizedSpecies,
+      },
     },
     { registry: dbRegistryAccessor },
   );
