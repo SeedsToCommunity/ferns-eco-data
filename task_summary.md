@@ -1081,3 +1081,42 @@ N/A — no new `technical_details` field was authored.
 - **Unused schema components**: The old parsed-shape components can be deleted from the OpenAPI spec in a follow-up cleanup pass once consumers are confirmed to have regenerated types from the updated codegen.
 - **Audit assessment ID 1**: The audit comparator uses assessment ID 1 for the inventory detail route. If ID 1 is private or deleted on universalfqa.org, the comparator will report a failing assertion. A stable known-public assessment ID should be confirmed and substituted if needed.
 
+
+---
+
+## Task: NatureServe — EDP: Source Interface
+
+**Date**: 2026-06-29
+
+### 1. What was changed
+
+A new NatureServe Source Interface was created at `lib/external-data-providers/src/natureserve/index.ts`. This file exposes three async functions — one per upstream NatureServe Explorer API endpoint — that each make an HTTP call and return the verbatim upstream JSON alongside the URL that was called. No data is extracted, renamed, or normalized. The `lib/external-data-providers/package.json` exports map was updated to register `"./natureserve"` pointing to the new file. TypeScript declarations were rebuilt and `dist/natureserve/index.d.ts` is now present. The existing `connector.ts` in the REST server was not modified.
+
+### 2. Derivation summary
+
+N/A — no new source was registered in this task. This task creates the EDP Source Interface layer only; the adapter, registry entry, and routes come in Task B.
+
+### 3. Scientific/technical description
+
+N/A — no new source was registered in this task.
+
+### 4. Architectural decisions made
+
+- **Three separate EDP functions, one per upstream endpoint**: `postNatureserveSpeciesSearch` (POST /speciesSearch), `postNatureserveSearch` (POST /search), and `getNatureserveTaxon` (GET /taxon/{uniqueId}). The existing `connector.ts` chains speciesSearch → taxon in a single function; the EDP separates them. The adapter (Task B) decides when and whether to chain calls — the EDP does not.
+- **POST body passed verbatim from the adapter**: The EDP accepts fully-formed request bodies (`NatureserveSpeciesSearchBody`, `NatureserveSearchBody`) and forwards them unchanged. No state-scoping, no page-default injection, no token construction happens here.
+- **`upstream_url` is always the POST URL for POST endpoints**: The `upstream_url` in the result for the two POST endpoints is the base POST URL (`/speciesSearch`, `/search`), not a URL encoding of the body. This matches how GBIF EDP handles `upstream_url` for GET endpoints.
+- **20 s AbortSignal.timeout, matching the existing connector**: Timeout behavior is preserved from the current connector.ts. TimeoutError (DOMException name "TimeoutError") throws NatureserveApiError with message "NatureServe request timed out" and no statusCode; other fetch errors throw NatureserveApiError with the error message; non-OK responses throw NatureserveApiError with statusCode.
+- **No normalization helpers**: `extractStateRank`, `extractUsNationalRank`, `deriveStateStatus`, and `buildNsxUrl` are deliberately absent. They remain in connector.ts until Task B removes them.
+
+### 5. What was NOT done
+
+- `connector.ts` was not modified — normalization functions remain there until Task B.
+- REST routes were not changed.
+- Cache schema was not changed.
+- No DB table reads or writes exist in the new file (by design).
+- No OpenAPI, MCP, or audit updates (Task C scope).
+
+### 6. What the user should decide or review
+
+- **Breaking changes coming in Task B**: When the REST adapter is migrated to use the EDP, the `stateCode` parameter will no longer be wired into the speciesSearch body by the EDP — the adapter will do it. The data shape returned by the species endpoint will change from the normalized `NatureserveSpeciesResult` flat struct to the verbatim upstream JSON envelope. Callers of the current `/api/natureserve/species` route will see a different `data` shape.
+- **speciesSearch no longer chains to taxon at the EDP level**: The existing connector chains speciesSearch → taxon automatically. Task B's adapter design must decide when the taxon fetch is triggered and handle the two-call case explicitly.

@@ -14,6 +14,7 @@
     "./michigan-flora": "./src/michigan-flora/index.ts",
     "./usda-plants": "./src/usda-plants/index.ts",
     "./gbif": "./src/gbif/index.ts",
+    "./natureserve": "./src/natureserve/index.ts",
     "./universal-fqa": "./src/universal-fqa/index.ts"
   },
   "dependencies": {
