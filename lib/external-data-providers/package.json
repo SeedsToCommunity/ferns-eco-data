@@ -11,7 +11,8 @@
     "./prairie-moon": "./src/prairie-moon/index.ts",
     "./lady-bird-johnson": "./src/lady-bird-johnson/index.ts",
     "./bonap-napa": "./src/bonap-napa/index.ts",
-    "./michigan-flora": "./src/michigan-flora/index.ts"
+    "./michigan-flora": "./src/michigan-flora/index.ts",
+    "./usda-plants": "./src/usda-plants/index.ts"
   },
   "dependencies": {
     "@workspace/db": "workspace:*",
