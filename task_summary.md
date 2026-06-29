@@ -1002,3 +1002,45 @@ Not applicable — no new source was added in this task.
 - **Remaining unwired migrations** (#308): Migrations 0011, 0012, 0014, 0017–0020 exist in the drizzle folder but are never invoked. Most appear to be cleanup/rename steps, but they should be wired or explicitly documented as intentionally skipped.
 - **CI network dependency**: The integration checks currently require a live connection to `api.gbif.org`. If CI runs in a network-restricted environment, a stub/mock layer will be needed before these checks can run there.
 
+
+---
+
+## Task #301 — Universal FQA EDP: Adapter & DB Migration
+
+### What was changed
+
+The Universal FQA data routes were rewired from a hand-rolled HTTP client (`client.ts`) to the EDP functions already built in `lib/external-data-providers/universal-fqa/`. The old client parsed upstream data into named TypeScript objects — stripping the raw response and constructing FERNS-owned structures. Now all four data routes pass the verbatim upstream JSON (`{ status: "success", data: unknown[][] }`) straight through as `data` in the response envelope, satisfying the data-purity contract.
+
+The database cache was overhauled. The old two-table design (`universal_fqa_databases` header columns + `universal_fqa_species` rows) was replaced with a single JSONB column (`upstream_response`) that stores the raw response verbatim. Two companion columns were added: `upstream_url` (the exact URL fetched) and `fetched_at` (when the fetch occurred). The `universal_fqa_species` table was intentionally kept but is no longer written or read — it is now redundant and can be dropped in a future cleanup task.
+
+`client.ts` was deleted entirely, removing all parsing helpers (`nullStr`, `nullNum`, `parsePct`, `nullStrOrNum`) and all normalized TypeScript interface types that described FERNS-owned shapes (`UniversalFqaDatabaseDetail`, `UniversalFqaAssessmentDetail`, etc.).
+
+The `queried_at` contract is now correctly honored on the database-detail route: on a cache hit, `queried_at` is the `fetched_at` timestamp stored in the DB (when the data was originally fetched), not the current serve time.
+
+### Derivation summary
+
+Not applicable — no new source was added in this task.
+
+### Scientific/technical description
+
+Not applicable — no new source was added in this task.
+
+### Architectural decisions made
+
+- **Verbatim JSONB cache instead of decomposed columns**: The old cache stored parsed fields (region, year, citation, total_species, etc.) in dedicated columns plus species rows in a join table. The new design stores the raw upstream response as a single JSONB blob. This loses queryability of individual fields directly from the DB, but gains correctness: what's cached is exactly what the upstream returned, with no FERNS interpretation baked in. The EDP and any future consumer can interpret the raw data independently.
+- **`universal_fqa_species` table kept, not dropped**: The task spec required keeping the species table in place rather than dropping it, because it may have other uses or may hold data that cannot be recovered without re-fetching. It is now orphaned from the cache write path. A future task should confirm it is safe to drop and remove it — this is explicitly noted below.
+- **Error detection for private/missing assessments changed**: The old `client.ts` threw an error with a message containing "unavailable" or "not found" and the route caught that string. Now the EDP returns `{ status: "error", message: "..." }` verbatim without throwing, and the route checks `result.raw.status === "error"` to detect the 404 case. This is more robust — upstream error semantics are detected from the data, not from exception message strings.
+- **`fetched_at` is set by the application at store time**: `fetched_at` is set to `new Date()` at the moment `storeDatabase()` is called, not by the DB `DEFAULT now()` — this ensures the returned `fetched_at` reflects the actual fetch time the application can trust, not a DB clock that could differ under replication or testing.
+- **Migration 0023 manually authored**: `drizzle-kit generate` fails on this project due to a pre-existing module resolution issue in `trust.ts` (`Cannot find module './registry.js'`). Migration SQL was written manually following the same pattern as 0021 and 0022, and the journal entry was added by hand. This matches the existing approach for several prior migrations.
+
+### What was NOT done
+
+- `universal_fqa_species` table was **not dropped** — it is redundant but kept in place per the task spec. It should be dropped in a future cleanup task once confirmed safe.
+- No OpenAPI spec update, no MCP tool registration, no audit corpus entries — those are Task C (the downstream task already planned).
+- No migration of existing cached rows in `universal_fqa_databases` — the existing header-column rows remain; new requests will upsert the JSONB columns. Old rows missing `upstream_response` will have the default `'{}'` from `DEFAULT '{}'`.
+
+### What the user should decide or review
+
+- **Breaking data shape change**: Any downstream consumer of the Universal FQA FERNS routes (MCP clients, Explorer UI, external callers) that expected named parsed fields (e.g. `detail.region`, `detail.species[].scientific_name`) will now receive the raw 2D array from universalfqa.org. This is an intentional breaking change per the data-purity contract, but callers that have not been updated will break.
+- **`universal_fqa_species` table**: Confirm whether it is safe to drop in a future task. If no other part of the system reads from it, it can be removed. The migration runner note should be updated once it is dropped.
+- **Existing `universal_fqa_databases` rows**: Old rows have `upstream_response = '{}'`, `upstream_url = ''`, `fetched_at = now()-at-migration-time`. On the next cache hit, these rows will be returned with an empty `{}` as `data`. To avoid serving stale empty data, the cache should be cleared or the `upstream_response` column populated — easiest via `DELETE FROM universal_fqa_databases` to force re-fetch on next request.

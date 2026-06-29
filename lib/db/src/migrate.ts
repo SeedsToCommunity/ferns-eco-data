@@ -246,6 +246,7 @@ export async function runMigrations(): Promise<void> {
   const entry16 = journal.entries[16];
   const entry21 = journal.entries[21];
   const entry22 = journal.entries[22];
+  const entry23 = journal.entries[23];
 
   await applyMigration0000(entry0.when);
   await applyMigration0001(entry1.when);
@@ -319,6 +320,14 @@ export async function runMigrations(): Promise<void> {
   // DROP TABLE IF EXISTS and DROP COLUMN IF EXISTS guards make it safe to re-run.
   if (entry22) {
     await runSqlMigration("0022_usda_plants_edp_refactor", entry22.when, "0022 (USDA Plants EDP refactor)", false);
+  }
+
+  // Migration 0023: Universal FQA EDP refactor.
+  // Adds upstream_response (jsonb), upstream_url (text), fetched_at (timestamptz)
+  // to universal_fqa_databases to support verbatim JSON cache storage.
+  // ADD COLUMN IF NOT EXISTS guards make it safe to re-run.
+  if (entry23) {
+    await runSqlMigration("0023_universal_fqa_edp_refactor", entry23.when, "0023 (Universal FQA EDP refactor)", false);
   }
 
   console.info("[migrate] All migrations complete.");

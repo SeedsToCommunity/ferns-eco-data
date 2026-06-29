@@ -11,12 +11,15 @@ import {
   UNIVERSAL_FQA_API_BASE,
 } from "../services/universal-fqa/metadata.js";
 import {
-  fetchDatabaseList,
-  fetchAssessmentList,
-  fetchAssessment,
-} from "../services/universal-fqa/client.js";
+  getUniversalFqaDatabase,
+  getUniversalFqaDatabaseById,
+  getUniversalFqaDatabaseInventory,
+  getUniversalFqaInventory,
+  UniversalFqaApiError,
+} from "@workspace/external-data-providers/universal-fqa";
 import {
-  getOrFetchDatabase,
+  lookupDatabase,
+  storeDatabase,
 } from "../services/universal-fqa/db-cache.js";
 import { ensureUniversalFqaRegistryEntry } from "../services/universal-fqa/seed.js";
 import { resolveUrl } from "../lib/resolve-url.js";
@@ -67,24 +70,28 @@ router.get("/universal-fqa/get/database", async (req, res) => {
   await ensureUniversalFqaRegistryEntry();
 
   try {
-    const databases = await fetchDatabaseList();
+    const result = await getUniversalFqaDatabase();
 
     const envelope = await buildEnvelope(
       {
         sourceId: UNIVERSAL_FQA_SOURCE_ID,
         sourceKind: "single-source-proxy",
         found: true,
-        data: { databases },
+        data: result.raw,
         method: "api_fetch",
         cacheStatus: "miss",
-        sourceUrl: upstreamUrl,
+        sourceUrl: result.upstream_url,
         queriedAt: new Date().toISOString(),
       },
       { registry: dbRegistryAccessor },
     );
     res.json(envelope);
   } catch (err) {
-    logger.error({ err }, "Universal FQA: failed to fetch database list");
+    if (err instanceof UniversalFqaApiError) {
+      logger.error({ err, upstream_url: err.upstream_url }, "Universal FQA: failed to fetch database list");
+    } else {
+      logger.error({ err }, "Universal FQA: failed to fetch database list");
+    }
     res.status(502).json({
       error: "upstream_error",
       message: "Failed to fetch database list from universalfqa.org",
@@ -110,27 +117,28 @@ router.get("/universal-fqa/get/database/:id/inventory", async (req, res) => {
   await ensureUniversalFqaRegistryEntry();
 
   try {
-    const assessments = await fetchAssessmentList(databaseId);
+    const result = await getUniversalFqaDatabaseInventory(databaseId);
 
     const envelope = await buildEnvelope(
       {
         sourceId: UNIVERSAL_FQA_SOURCE_ID,
         sourceKind: "single-source-proxy",
         found: true,
-        data: {
-          database_id: databaseId,
-          assessments,
-        },
+        data: result.raw,
         method: "api_fetch",
         cacheStatus: "miss",
-        sourceUrl: upstreamUrl,
+        sourceUrl: result.upstream_url,
         queriedAt: new Date().toISOString(),
       },
       { registry: dbRegistryAccessor },
     );
     res.json(envelope);
   } catch (err) {
-    logger.error({ err, databaseId }, "Universal FQA: failed to fetch assessment list");
+    if (err instanceof UniversalFqaApiError) {
+      logger.error({ err, databaseId, upstream_url: err.upstream_url }, "Universal FQA: failed to fetch assessment list");
+    } else {
+      logger.error({ err, databaseId }, "Universal FQA: failed to fetch assessment list");
+    }
     res.status(502).json({
       error: "upstream_error",
       message: `Failed to fetch assessment list for database ${databaseId} from universalfqa.org`,
@@ -156,24 +164,48 @@ router.get("/universal-fqa/get/database/:id", async (req, res) => {
   await ensureUniversalFqaRegistryEntry();
 
   try {
-    const { detail, cache_hit } = await getOrFetchDatabase(databaseId);
+    const cached = await lookupDatabase(databaseId);
+    if (cached) {
+      const envelope = await buildEnvelope(
+        {
+          sourceId: UNIVERSAL_FQA_SOURCE_ID,
+          sourceKind: "single-source-proxy",
+          found: true,
+          data: cached.raw,
+          method: "cache_hit",
+          cacheStatus: "hit",
+          sourceUrl: cached.upstream_url,
+          queriedAt: cached.fetched_at.toISOString(),
+        },
+        { registry: dbRegistryAccessor },
+      );
+      res.json(envelope);
+      return;
+    }
+
+    const result = await getUniversalFqaDatabaseById(databaseId);
+    const stored = await storeDatabase(databaseId, result);
 
     const envelope = await buildEnvelope(
       {
         sourceId: UNIVERSAL_FQA_SOURCE_ID,
         sourceKind: "single-source-proxy",
         found: true,
-        data: detail,
-        method: cache_hit ? "cache_hit" : "api_fetch",
-        cacheStatus: cache_hit ? "hit" : "miss",
-        sourceUrl: upstreamUrl,
-        queriedAt: new Date().toISOString(),
+        data: stored.raw,
+        method: "api_fetch",
+        cacheStatus: "miss",
+        sourceUrl: stored.upstream_url,
+        queriedAt: stored.fetched_at.toISOString(),
       },
       { registry: dbRegistryAccessor },
     );
     res.json(envelope);
   } catch (err) {
-    logger.error({ err, databaseId }, "Universal FQA: failed to fetch database");
+    if (err instanceof UniversalFqaApiError) {
+      logger.error({ err, databaseId, upstream_url: err.upstream_url }, "Universal FQA: failed to fetch database");
+    } else {
+      logger.error({ err, databaseId }, "Universal FQA: failed to fetch database");
+    }
     res.status(502).json({
       error: "upstream_error",
       message: `Failed to load database ${databaseId} from universalfqa.org`,
@@ -199,38 +231,42 @@ router.get("/universal-fqa/get/inventory/:id", async (req, res) => {
   await ensureUniversalFqaRegistryEntry();
 
   try {
-    const detail = await fetchAssessment(assessmentId);
+    const result = await getUniversalFqaInventory(assessmentId);
+
+    if ((result.raw as Record<string, unknown>).status === "error") {
+      res.status(404).json({
+        error: "not_found",
+        message: `Assessment ${assessmentId} not found or not public`,
+        upstream_url: upstreamUrl,
+      });
+      return;
+    }
 
     const envelope = await buildEnvelope(
       {
         sourceId: UNIVERSAL_FQA_SOURCE_ID,
         sourceKind: "single-source-proxy",
         found: true,
-        data: detail,
+        data: result.raw,
         method: "api_fetch",
         cacheStatus: "miss",
-        sourceUrl: upstreamUrl,
+        sourceUrl: result.upstream_url,
         queriedAt: new Date().toISOString(),
       },
       { registry: dbRegistryAccessor },
     );
     res.json(envelope);
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : String(err);
-    if (message.includes("unavailable") || message.includes("not found")) {
-      res.status(404).json({
-        error: "not_found",
-        message: `Assessment ${assessmentId} not found or not public`,
-        upstream_url: upstreamUrl,
-      });
+  } catch (err) {
+    if (err instanceof UniversalFqaApiError) {
+      logger.error({ err, assessmentId, upstream_url: err.upstream_url }, "Universal FQA: failed to fetch assessment");
     } else {
       logger.error({ err, assessmentId }, "Universal FQA: failed to fetch assessment");
-      res.status(502).json({
-        error: "upstream_error",
-        message: `Failed to fetch assessment ${assessmentId} from universalfqa.org`,
-        upstream_url: upstreamUrl,
-      });
     }
+    res.status(502).json({
+      error: "upstream_error",
+      message: `Failed to fetch assessment ${assessmentId} from universalfqa.org`,
+      upstream_url: upstreamUrl,
+    });
   }
 });
 

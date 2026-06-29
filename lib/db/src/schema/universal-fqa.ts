@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer, real, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, integer, real, timestamp, jsonb, uniqueIndex } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -13,6 +13,9 @@ export const universalFqaDatabasesTable = pgTable("universal_fqa_databases", {
   total_mean_c: real("total_mean_c"),
   native_mean_c: real("native_mean_c"),
   cached_at: timestamp("cached_at", { withTimezone: true }).notNull(),
+  upstream_response: jsonb("upstream_response").notNull().default({}),
+  upstream_url: text("upstream_url").notNull().default(""),
+  fetched_at: timestamp("fetched_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const universalFqaSpeciesTable = pgTable(
