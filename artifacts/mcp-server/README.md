@@ -108,7 +108,7 @@ This runs the server directly from TypeScript source using `tsx`, without compil
 
 ---
 
-## Tool inventory (59 tools)
+## Tool inventory (60 tools)
 
 Tool names follow `{source_id}__{action}` (hyphens → underscores, double-underscore separator).
 
@@ -259,8 +259,9 @@ Tool names follow `{source_id}__{action}` (hyphens → underscores, double-under
 
 | Tool | Path | Required | Optional | Description |
 |---|---|---|---|---|
-| `natureserve__species` | GET /natureserve/species | name | state, refresh | NatureServe G-rank and S-rank conservation status for a species, optionally filtered by US state |
-| `natureserve__ecosystems` | GET /natureserve/ecosystems | name | refresh | NatureServe ecological system records matching a name: codes, descriptions, species assemblages |
+| `natureserve__species_search` | GET /natureserve/speciesSearch | name | refresh | Verbatim NatureServe speciesSearch response: resultsSummary and results[] with uniqueId, ranks, IUCN, federal status |
+| `natureserve__search` | GET /natureserve/search | q | recordType, limit, page, refresh | Verbatim NatureServe search response for ecosystems, species, communities, or associations |
+| `natureserve__taxon` | GET /natureserve/taxon/{uniqueId} | uniqueId | refresh | Full verbatim NatureServe taxon record by uniqueId — obtain uniqueId from natureserve__species_search results |
 
 ### prairie-moon — Prairie Moon Nursery
 

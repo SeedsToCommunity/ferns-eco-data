@@ -1598,15 +1598,19 @@ const tools: ToolDef[] = [
   },
   {
     tool: {
-      name: "natureserve__species",
+      name: "natureserve__species_search",
       description:
-        "Returns NatureServe global (G-rank) and state (S-rank) conservation status for a species, optionally filtered to a specific US state. Ranks reflect the relative rarity and vulnerability of the species.",
+        "Upstream: POST /api/data/speciesSearch. Returns the verbatim NatureServe Explorer speciesSearch response " +
+        "({ resultsSummary: { totalResults, page, recordsPerPage }, results: [...] }) for a scientific name query. " +
+        "Each result in results[] is a full NatureServe element record including uniqueId (e.g. ELEMENT_GLOBAL.2.12345), " +
+        "scientific name, common name, global rank, national ranks, IUCN category, and federal status. " +
+        "Use the uniqueId from results[] with natureserve__taxon to retrieve the full taxon detail record. " +
+        "See GET /natureserve/metadata (technical_details) for complete field semantics.",
       inputSchema: {
         type: "object" as const,
         properties: {
-          name:    { type: "string", description: "Scientific name (e.g. Trillium grandiflorum)" },
-          state:   { type: "string", description: "Two-letter US state code (e.g. MI, WI, OH). Defaults to MI if omitted — pass your target state code for accurate state-level ranks." },
-          refresh: { type: "boolean", description: "Bypass cache" },
+          name:    { type: "string", description: "Scientific name (e.g. Lobelia cardinalis)" },
+          refresh: { type: "boolean", description: "Bypass cache and re-fetch from NatureServe Explorer" },
           ...PV_PROP,
         },
         required: ["name"],
@@ -1615,9 +1619,32 @@ const tools: ToolDef[] = [
     handler: async (args) =>
       apiGet("/natureserve/speciesSearch", {
         name:    String(args["name"]),
-        state:   args["state"]   !== undefined ? String(args["state"])   : undefined,
         refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
         provenance_verbosity: pv(args),
+      }),
+  },
+  {
+    tool: {
+      name: "natureserve__taxon",
+      description:
+        "Upstream: GET /api/data/taxon/{uniqueId}. Returns the full verbatim NatureServe Explorer taxon record " +
+        "for a known uniqueId (e.g. ELEMENT_GLOBAL.2.12345). The taxon object includes scientificName, commonName, " +
+        "elementGlobalId, globalStatus (grank, roundedGrank), elementNationals (nrank by nation and srank by subnation), " +
+        "iucnStatus, usEsaListingStatus, citesAppendixStatus, cosewicStatus, and full taxonomic classification. " +
+        "Obtain the uniqueId from the results[] array returned by natureserve__species_search. " +
+        "See GET /natureserve/metadata (technical_details) for complete field semantics.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          uniqueId: { type: "string", description: "Full NatureServe uniqueId, e.g. ELEMENT_GLOBAL.2.12345 — obtain from results of natureserve__species_search" },
+          refresh:  { type: "boolean", description: "Bypass cache and re-fetch from NatureServe Explorer" },
+        },
+        required: ["uniqueId"],
+      },
+    },
+    handler: async (args) =>
+      apiGet(`/natureserve/taxon/${String(args["uniqueId"])}`, {
+        refresh: args["refresh"] !== undefined ? String(args["refresh"]) : undefined,
       }),
   },
   // ── prairie-moon ─────────────────────────────────────────────────────────

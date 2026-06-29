@@ -6,8 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { FernsEnvelope } from './fernsEnvelope';
-import type { NatureserveSearchUpstreamData } from './natureserveSearchUpstreamData';
+import type { NatureserveSpeciesSearchData } from './natureserveSpeciesSearchData';
 
-export type NatureserveSearchResponse = FernsEnvelope & {
-  data?: NatureserveSearchUpstreamData;
+export type NatureserveSpeciesSearchResponse = FernsEnvelope & {
+  data?: NatureserveSpeciesSearchData;
 };

@@ -6,17 +6,12 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetNatureserveSpeciesParams = {
+export type GetNatureserveSpeciesSearchParams = {
 /**
  * Scientific name to look up (e.g. Asclepias tuberosa)
  * @minLength 1
  */
 name: string;
-/**
- * Two-letter US state code to scope the state rank (e.g. MI, WI, OH). Defaults to MI (Michigan) when omitted. Must be a valid 2-letter code.
-
- */
-state?: string;
 /**
  * If true, bypasses cache and fetches fresh from NatureServe Explorer
  */

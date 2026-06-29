@@ -97,7 +97,8 @@ import type {
   GetMnfiCommunitiesParams,
   GetMnfiCountyElementsParams,
   GetNatureserveSearchParams,
-  GetNatureserveSpeciesParams,
+  GetNatureserveSpeciesSearchParams,
+  GetNatureserveTaxonParams,
   GetPrairieMoonSpeciesInformationParams,
   GetPrairieMoonUrlParams,
   GetSeedsToCommunityWashtenawMetadata200,
@@ -141,7 +142,8 @@ import type {
   MifloraSynonymsResponse,
   NatureserveMetadataResponse,
   NatureserveSearchResponse,
-  NatureserveSpeciesResponse,
+  NatureserveSpeciesSearchResponse,
+  NatureserveTaxonResponse,
   SourceRelationshipsResponse,
   SourcesIndexResponse,
   SourcesMetadataResponse,
@@ -5883,11 +5885,11 @@ export function useGetNatureserveMetadata<TData = Awaited<ReturnType<typeof getN
 
 
 /**
- * Queries NatureServe Explorer for conservation status data for a given scientific name, optionally scoped to a US state. Returns global rank (G-rank), national rank (N-rank), state rank (S-rank), IUCN category, federal status, state status, and a direct NatureServe Explorer URL for the species. Ranks follow NatureServe standard notation (e.g. G3, N2N3, S1). State rank is derived from NatureServe S-rank and reflects rarity status — it is not a formal statutory state listing. Results cached 30 days per name+state combination.
+ * Proxies NatureServe Explorer POST /api/data/speciesSearch; see GET /natureserve/metadata (technical_details) for field-level semantics.
 
- * @summary Look up species conservation status from NatureServe Explorer
+ * @summary Search NatureServe Explorer species conservation status by scientific name
  */
-export const getGetNatureserveSpeciesUrl = (params: GetNatureserveSpeciesParams,) => {
+export const getGetNatureserveSpeciesSearchUrl = (params: GetNatureserveSpeciesSearchParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -5902,9 +5904,9 @@ export const getGetNatureserveSpeciesUrl = (params: GetNatureserveSpeciesParams,
   return stringifiedParams.length > 0 ? `/api/natureserve/speciesSearch?${stringifiedParams}` : `/api/natureserve/speciesSearch`
 }
 
-export const getNatureserveSpecies = async (params: GetNatureserveSpeciesParams, options?: RequestInit): Promise<NatureserveSpeciesResponse> => {
+export const getNatureserveSpeciesSearch = async (params: GetNatureserveSpeciesSearchParams, options?: RequestInit): Promise<NatureserveSpeciesSearchResponse> => {
   
-  return customFetch<NatureserveSpeciesResponse>(getGetNatureserveSpeciesUrl(params),
+  return customFetch<NatureserveSpeciesSearchResponse>(getGetNatureserveSpeciesSearchUrl(params),
   {      
     ...options,
     method: 'GET'
@@ -5917,45 +5919,45 @@ export const getNatureserveSpecies = async (params: GetNatureserveSpeciesParams,
 
 
 
-export const getGetNatureserveSpeciesQueryKey = (params?: GetNatureserveSpeciesParams,) => {
+export const getGetNatureserveSpeciesSearchQueryKey = (params?: GetNatureserveSpeciesSearchParams,) => {
     return [
     `/api/natureserve/speciesSearch`, ...(params ? [params] : [])
     ] as const;
     }
 
     
-export const getGetNatureserveSpeciesQueryOptions = <TData = Awaited<ReturnType<typeof getNatureserveSpecies>>, TError = ErrorType<ErrorResponse>>(params: GetNatureserveSpeciesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getNatureserveSpecies>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetNatureserveSpeciesSearchQueryOptions = <TData = Awaited<ReturnType<typeof getNatureserveSpeciesSearch>>, TError = ErrorType<ErrorResponse>>(params: GetNatureserveSpeciesSearchParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getNatureserveSpeciesSearch>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetNatureserveSpeciesQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getGetNatureserveSpeciesSearchQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getNatureserveSpecies>>> = ({ signal }) => getNatureserveSpecies(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getNatureserveSpeciesSearch>>> = ({ signal }) => getNatureserveSpeciesSearch(params, { signal, ...requestOptions });
 
       
 
       
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getNatureserveSpecies>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getNatureserveSpeciesSearch>>, TError, TData> & { queryKey: QueryKey }
 }
 
-export type GetNatureserveSpeciesQueryResult = NonNullable<Awaited<ReturnType<typeof getNatureserveSpecies>>>
-export type GetNatureserveSpeciesQueryError = ErrorType<ErrorResponse>
+export type GetNatureserveSpeciesSearchQueryResult = NonNullable<Awaited<ReturnType<typeof getNatureserveSpeciesSearch>>>
+export type GetNatureserveSpeciesSearchQueryError = ErrorType<ErrorResponse>
 
 
 /**
- * @summary Look up species conservation status from NatureServe Explorer
+ * @summary Search NatureServe Explorer species conservation status by scientific name
  */
 
-export function useGetNatureserveSpecies<TData = Awaited<ReturnType<typeof getNatureserveSpecies>>, TError = ErrorType<ErrorResponse>>(
- params: GetNatureserveSpeciesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getNatureserveSpecies>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export function useGetNatureserveSpeciesSearch<TData = Awaited<ReturnType<typeof getNatureserveSpeciesSearch>>, TError = ErrorType<ErrorResponse>>(
+ params: GetNatureserveSpeciesSearchParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getNatureserveSpeciesSearch>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetNatureserveSpeciesQueryOptions(params,options)
+  const queryOptions = getGetNatureserveSpeciesSearchQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -5967,7 +5969,7 @@ export function useGetNatureserveSpecies<TData = Awaited<ReturnType<typeof getNa
 
 
 /**
- * FERNS GET wrapper over the upstream NatureServe Explorer POST /api/data/search endpoint. Accepts a free-text query and a recordType filter; translates them into a POST body (criteriaType: combined, recordTypeCriteria array, textCriteria quickSearch) and caches the result so repeated queries are served without hitting the upstream API. Valid recordType values and what they return: ECOSYSTEM — NatureServe Ecological Systems and community types (global rank, US national rank, concept description, NatureServe Explorer URL); SPECIES — animal and plant species (prefer /natureserve/speciesSearch for richer per-species conservation status detail including state rank and federal listing); COMMUNITY — plant communities; GROUP — element groups; ASSOCIATION — plant associations. Results are returned in data.ecosystems regardless of recordType (field name reflects the primary use case; records for other recordType values are shaped identically). Results are cached 7 days per query+recordType+limit+page combination.
+ * Proxies NatureServe Explorer POST /api/data/search; see GET /natureserve/metadata (technical_details) for field-level semantics.
 
  * @summary Search NatureServe by record type (ecosystems, species, communities)
  */
@@ -6040,6 +6042,95 @@ export function useGetNatureserveSearch<TData = Awaited<ReturnType<typeof getNat
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetNatureserveSearchQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * Proxies NatureServe Explorer GET /api/data/taxon/{uniqueId}; see GET /natureserve/metadata (technical_details) for field-level semantics.
+
+ * @summary Get full NatureServe taxon record by uniqueId
+ */
+export const getGetNatureserveTaxonUrl = (uniqueId: string,
+    params?: GetNatureserveTaxonParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/natureserve/taxon/${uniqueId}?${stringifiedParams}` : `/api/natureserve/taxon/${uniqueId}`
+}
+
+export const getNatureserveTaxon = async (uniqueId: string,
+    params?: GetNatureserveTaxonParams, options?: RequestInit): Promise<NatureserveTaxonResponse> => {
+  
+  return customFetch<NatureserveTaxonResponse>(getGetNatureserveTaxonUrl(uniqueId,params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+  
+
+
+
+
+export const getGetNatureserveTaxonQueryKey = (uniqueId: string,
+    params?: GetNatureserveTaxonParams,) => {
+    return [
+    `/api/natureserve/taxon/${uniqueId}`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getGetNatureserveTaxonQueryOptions = <TData = Awaited<ReturnType<typeof getNatureserveTaxon>>, TError = ErrorType<ErrorResponse>>(uniqueId: string,
+    params?: GetNatureserveTaxonParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getNatureserveTaxon>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetNatureserveTaxonQueryKey(uniqueId,params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getNatureserveTaxon>>> = ({ signal }) => getNatureserveTaxon(uniqueId,params, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(uniqueId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getNatureserveTaxon>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetNatureserveTaxonQueryResult = NonNullable<Awaited<ReturnType<typeof getNatureserveTaxon>>>
+export type GetNatureserveTaxonQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get full NatureServe taxon record by uniqueId
+ */
+
+export function useGetNatureserveTaxon<TData = Awaited<ReturnType<typeof getNatureserveTaxon>>, TError = ErrorType<ErrorResponse>>(
+ uniqueId: string,
+    params?: GetNatureserveTaxonParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getNatureserveTaxon>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+  
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetNatureserveTaxonQueryOptions(uniqueId,params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

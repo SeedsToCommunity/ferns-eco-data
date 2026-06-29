@@ -248,6 +248,7 @@ export async function runMigrations(): Promise<void> {
   const entry22 = journal.entries[22];
   const entry23 = journal.entries[23];
   const entry24 = journal.entries[24];
+  const entry25 = journal.entries[25];
 
   await applyMigration0000(entry0.when);
   await applyMigration0001(entry1.when);
@@ -337,6 +338,20 @@ export async function runMigrations(): Promise<void> {
   // ADD COLUMN IF NOT EXISTS and CREATE TABLE IF NOT EXISTS guards make it safe to re-run.
   if (entry24) {
     await runSqlMigration("0024_natureserve_edp_refactor", entry24.when, "0024 (NatureServe EDP refactor)", false);
+  }
+
+  // Migration 0025: Drop stale flat-struct columns from NatureServe cache tables.
+  // natureserve_species_cache: drops 20 columns added in 0016 (scientific_name,
+  // common_name, global_rank, rounded_global_rank, national_rank,
+  // rounded_national_rank, state_code, state_rank, rounded_state_rank,
+  // iucn_category, iucn_description, federal_status, federal_status_description,
+  // state_status, cites_description, cosewic_code, cosewic_description,
+  // natureserve_url, element_global_id, raw_summary). These were never written
+  // after Task B switched the route handlers to verbatim upstream_response storage.
+  // natureserve_ecosystems_cache: drops results and result_count (same reason).
+  // DROP COLUMN IF EXISTS guards make every statement idempotent.
+  if (entry25) {
+    await runSqlMigration("0025_natureserve_drop_stale_columns", entry25.when, "0025 (NatureServe drop stale columns)", false);
   }
 
   console.info("[migrate] All migrations complete.");

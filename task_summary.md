@@ -1165,3 +1165,57 @@ Not applicable — no new source was added. Technical description for NatureServ
   4. `state_status`, `natureserve_url`, `element_global_id` and other FERNS-derived fields are no longer present in `data`
   5. `/speciesSearch` no longer chains to `/taxon/{id}` — callers must call `GET /natureserve/taxon/{uniqueId}` separately for full detail
 - **New route available:** `GET /natureserve/taxon/:uniqueId` (e.g. `ELEMENT_GLOBAL.2.12345`) — returns verbatim upstream taxon JSON with cache and `?refresh=true` support.
+
+---
+
+## Task: NatureServe — EDP: OpenAPI + MCP + Audit
+
+**Date**: 2026-06-29
+
+### What was changed
+
+Three layers were updated to align the NatureServe source with the verbatim upstream data shapes from Task B.
+
+**OpenAPI spec** (`lib/api-spec/openapi.yaml`): The `/natureserve/speciesSearch` path was updated to remove the `state` query parameter (no longer exists in the route) and replace its verbose description with one concise sentence pointing to the metadata endpoint. The response schema `NatureserveSpeciesData` (a legacy FERNS flat struct) was replaced with a new `NatureserveSpeciesSearchData` schema reflecting the verbatim upstream shape: `{ resultsSummary: object, results: array }`. The `/natureserve/search` description was similarly shortened, and its response schema `NatureserveSearchData` (which had `ecosystems`/`total_results` wrapper fields) was replaced with `NatureserveSearchUpstreamData` carrying verbatim `{ resultsSummary, results }`. A new path `/natureserve/taxon/{uniqueId}` was added with a `uniqueId` path parameter, an optional `refresh` query parameter, and a `NatureserveTaxonData` schema (type: object, additionalProperties: true, pointing to metadata). Codegen ran clean with no TypeScript errors in `lib/api-zod` or `lib/api-client-react`.
+
+**MCP server** (`artifacts/mcp-server/src/server.ts`): The tool `natureserve__species` was renamed to `natureserve__species_search` per the action-name derivation rule (GET /natureserve/speciesSearch → action `speciesSearch` → tool `natureserve__species_search`). The `state` parameter was removed from its inputSchema. The description was updated to state the upstream endpoint path (POST /api/data/speciesSearch), the response shape (`{ resultsSummary, results }` with uniqueId guidance), and directs callers to metadata for field semantics. A new `natureserve__taxon` tool was added with `uniqueId` (required) and `refresh` (optional) parameters; its description states the upstream path (GET /api/data/taxon/{uniqueId}), the taxon object shape, how to obtain uniqueId from speciesSearch results, and a pointer to metadata. `natureserve__search` was left unchanged (name was already correct). TypeScript check passes clean.
+
+**MCP README** (`artifacts/mcp-server/README.md`): The natureserve tool table was updated to show all three tools with correct paths, required/optional parameters, and descriptions. Tool inventory count updated from 59 to 60.
+
+**Audit comparator** (`lib/ferns-audit/src/comparators/natureserve.ts`): A new comparator module was created covering all three data routes. It is wired into `lib/ferns-audit/src/index.ts` as `runNatureserveComparators`. The speciesSearch comparator hits `GET /api/natureserve/speciesSearch?name=Lobelia+cardinalis` and asserts `Array.isArray(fernsRaw.data.results)`. The search comparator hits `GET /api/natureserve/search?q=wetland&recordType=ECOSYSTEM` and asserts `Array.isArray(fernsRaw.data.results)`. The taxon comparator extracts a `uniqueId` from the speciesSearch results array at runtime (either `results[0].uniqueId` or `results[0].elementGlobalId`) and hits that taxon endpoint, asserting `fernsRaw.data` is a non-null object and `typeof fernsRaw.data.scientificName === "string"`. If speciesSearch returns no results, the taxon test is explicitly flagged as skipped (not silently omitted).
+
+### Derivation summary (general_summary verbatim)
+
+N/A — no new source was added; this task updated the API surface of an existing source.
+
+### Scientific/technical description (technical_details verbatim)
+
+N/A — no new source was added; no `technical_details` field was modified.
+
+### Architectural decisions made
+
+1. **Schema approach for verbatim upstream data**: Both speciesSearch and search schemas use `{ resultsSummary: {type: object, additionalProperties: true}, results: [{type: object, additionalProperties: true}] }`. This is intentionally loose — the NatureServe upstream fields are numerous, change occasionally, and are fully documented in the metadata endpoint's `technical_details`. Hardcoding field names in OpenAPI would create drift risk. The taxon schema uses `additionalProperties: true` at the top level for the same reason. Consumers are directed to `/natureserve/metadata` for field semantics.
+
+2. **Taxon uniqueId obtained at runtime**: The audit comparator resolves the taxon uniqueId dynamically from speciesSearch results rather than hardcoding a stable ID. This makes the test self-healing if NatureServe changes element global IDs, and means the test exercises the full chain (speciesSearch → taxon) as a real caller would.
+
+3. **MCP tool rename is a breaking change**: `natureserve__species` no longer exists; it is now `natureserve__species_search`. Any downstream MCP client that has this tool name hardcoded (e.g. Claude Desktop config, Cursor, custom scripts) will need to update the name. The `state` parameter is also gone from the inputSchema — any call that passed `state` will need to drop it (the route handler never used it after Task B).
+
+4. **operationId updated**: The operationId for `/natureserve/speciesSearch` was changed from `getNatureserveSpecies` to `getNatureserveSpeciesSearch` to match the action name consistently. This regenerates the corresponding generated hook and zod schema names in `lib/api-client-react` and `lib/api-zod`.
+
+5. **NatureserveSearchResponseItem schema removed**: The old FERNS-normalized item shape (system_name, global_rank, us_national_rank, etc.) was part of the flat-struct regression documented in the spec. It was replaced by the verbatim upstream schema. This is consistent with the task's mandate to remove FERNS-constructed fields from the data schema.
+
+### What was NOT done
+
+- No changes to route handlers (confirmed correct from Task B — explicitly out of scope)
+- No changes to DB schema or cache tables (out of scope)
+- No changes to the `NATURESERVE_GENERAL_SUMMARY` or `NATURESERVE_TECHNICAL_DETAILS` metadata text
+- The old static-sources `runNatureserveChecks` was not removed — it continues to run alongside the new comparator. The existing checks use the flat-struct field names (scientific_name, global_rank, etc.) which are now stale relative to the verbatim upstream shape. Those checks will report mismatches during audit runs, but removing or updating them is deferred to a follow-up (the audit report is human-reviewed, not auto-corrected).
+
+### What the user should decide or review
+
+1. **Breaking change: `natureserve__species` → `natureserve__species_search`** — any MCP client configuration that references the old tool name by string will silently stop matching. Users with Claude Desktop or Cursor configs should update the tool name. The `state` parameter is also removed from the inputSchema.
+
+2. **Old static-source NatureServe checks now check stale fields**: `runNatureserveChecks` in `lib/ferns-audit/src/checks/static-sources.ts` still checks for `data.scientific_name`, `data.global_rank`, etc. (the old flat-struct fields). These will now fail against the verbatim upstream shape. The user should review whether to update or remove those checks — they were checking the FERNS-normalized fields that no longer exist in `data`.
+
+3. **operationId change** (`getNatureserveSpecies` → `getNatureserveSpeciesSearch`) generates different hook/schema names in the client packages. Any application code that used the generated `useGetNatureserveSpecies` hook or its Zod schema will need renaming.
+

@@ -3276,18 +3276,12 @@ paths:
 
   /natureserve/speciesSearch:
     get:
-      operationId: getNatureserveSpecies
+      operationId: getNatureserveSpeciesSearch
       tags: [natureserve]
-      summary: Look up species conservation status from NatureServe Explorer
+      summary: Search NatureServe Explorer species conservation status by scientific name
       description: >
-        Queries NatureServe Explorer for conservation status data for a given
-        scientific name, optionally scoped to a US state. Returns global rank
-        (G-rank), national rank (N-rank), state rank (S-rank), IUCN category,
-        federal status, state status, and a direct NatureServe Explorer URL for
-        the species. Ranks follow NatureServe standard notation (e.g. G3, N2N3,
-        S1). State rank is derived from NatureServe S-rank and reflects rarity
-        status — it is not a formal statutory state listing. Results cached 30
-        days per name+state combination.
+        Proxies NatureServe Explorer POST /api/data/speciesSearch; see GET /natureserve/metadata
+        (technical_details) for field-level semantics.
       parameters:
         - name: name
           in: query
@@ -3296,15 +3290,6 @@ paths:
           schema:
             type: string
             minLength: 1
-        - name: state
-          in: query
-          required: false
-          description: >
-            Two-letter US state code to scope the state rank (e.g. MI, WI, OH).
-            Defaults to MI (Michigan) when omitted. Must be a valid 2-letter code.
-          schema:
-            type: string
-            default: MI
         - name: refresh
           in: query
           required: false
@@ -3314,13 +3299,13 @@ paths:
             default: false
       responses:
         "200":
-          description: Conservation status result (found or not-found — check the found field)
+          description: Conservation status result wrapped in FernsEnvelope (found=false when no results)
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/NatureserveSpeciesResponse"
+                $ref: "#/components/schemas/NatureserveSpeciesSearchResponse"
         "400":
-          description: Missing or invalid name or state parameter
+          description: Missing or invalid name parameter
           content:
             application/json:
               schema:
@@ -3338,19 +3323,8 @@ paths:
       tags: [natureserve]
       summary: Search NatureServe by record type (ecosystems, species, communities)
       description: >
-        FERNS GET wrapper over the upstream NatureServe Explorer POST /api/data/search endpoint.
-        Accepts a free-text query and a recordType filter; translates them into a POST body
-        (criteriaType: combined, recordTypeCriteria array, textCriteria quickSearch) and caches
-        the result so repeated queries are served without hitting the upstream API.
-        Valid recordType values and what they return:
-        ECOSYSTEM — NatureServe Ecological Systems and community types (global rank, US national rank, concept description, NatureServe Explorer URL);
-        SPECIES — animal and plant species (prefer /natureserve/speciesSearch for richer per-species conservation status detail including state rank and federal listing);
-        COMMUNITY — plant communities;
-        GROUP — element groups;
-        ASSOCIATION — plant associations.
-        Results are returned in data.ecosystems regardless of recordType (field name reflects the
-        primary use case; records for other recordType values are shaped identically).
-        Results are cached 7 days per query+recordType+limit+page combination.
+        Proxies NatureServe Explorer POST /api/data/search; see GET /natureserve/metadata
+        (technical_details) for field-level semantics.
       parameters:
         - name: q
           in: query
@@ -3416,6 +3390,48 @@ paths:
                 $ref: "#/components/schemas/NatureserveSearchResponse"
         "400":
           description: Missing or invalid q or recordType parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: NatureServe Explorer API error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /natureserve/taxon/{uniqueId}:
+    get:
+      operationId: getNatureserveTaxon
+      tags: [natureserve]
+      summary: Get full NatureServe taxon record by uniqueId
+      description: >
+        Proxies NatureServe Explorer GET /api/data/taxon/{uniqueId}; see GET /natureserve/metadata
+        (technical_details) for field-level semantics.
+      parameters:
+        - name: uniqueId
+          in: path
+          required: true
+          description: Full NatureServe uniqueId (e.g. ELEMENT_GLOBAL.2.12345) — obtain from results of /natureserve/speciesSearch
+          schema:
+            type: string
+        - name: refresh
+          in: query
+          required: false
+          description: If true, bypasses cache and fetches fresh from NatureServe Explorer
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Full NatureServe taxon record wrapped in FernsEnvelope
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NatureserveTaxonResponse"
+        "404":
+          description: Taxon not found for the given uniqueId
           content:
             application/json:
               schema:
@@ -7242,97 +7258,47 @@ components:
             data:
               $ref: "#/components/schemas/NatureserveMetadataData"
 
-    NatureserveSpeciesData:
+    NatureserveSpeciesSearchData:
       type: object
       description: >
-        Extracted NatureServe species conservation status fields.
-        NOTE: This is a flat struct rather than verbatim upstream JSON — a plan #148 regression
-        deferred to plans 16–18.
+        Verbatim NatureServe Explorer speciesSearch response. See GET /natureserve/metadata
+        (technical_details) for field-level semantics.
       properties:
-        scientific_name:
-          type: string
-          nullable: true
-        common_name:
-          type: string
-          nullable: true
-        global_rank:
-          type: string
-          nullable: true
-          description: NatureServe G-rank (e.g. G4, G3G4)
-        rounded_global_rank:
-          type: string
-          nullable: true
-        national_rank:
-          type: string
-          nullable: true
-          description: NatureServe N-rank for the US (e.g. N3, N4)
-        rounded_national_rank:
-          type: string
-          nullable: true
-        state_code:
-          type: string
-          description: Two-letter US state code this rank is scoped to
-        state_rank:
-          type: string
-          nullable: true
-          description: NatureServe S-rank for the queried state (e.g. S1, S2)
-        rounded_state_rank:
-          type: string
-          nullable: true
-        iucn_category:
-          type: string
-          nullable: true
-        iucn_description:
-          type: string
-          nullable: true
-        federal_status:
-          type: string
-          nullable: true
-        federal_status_description:
-          type: string
-          nullable: true
-        state_status:
-          type: string
-          nullable: true
-          description: >
-            Derived by mapping NatureServe S-rank values to labels — not verbatim upstream data.
-            Plan #148 regression; deferred to plans 16–18.
-        cites_description:
-          type: string
-          nullable: true
-        cosewic_code:
-          type: string
-          nullable: true
-        cosewic_description:
-          type: string
-          nullable: true
-        natureserve_url:
-          type: string
-          nullable: true
-        element_global_id:
-          type: string
-          nullable: true
+        resultsSummary:
+          type: object
+          additionalProperties: true
+          description: Upstream resultsSummary object (totalResults, page, recordsPerPage, etc.)
+        results:
+          type: array
+          description: Array of matching NatureServe species records (verbatim upstream)
+          items:
+            type: object
+            additionalProperties: true
 
-    NatureserveSpeciesResponse:
+    NatureserveSpeciesSearchResponse:
       allOf:
         - $ref: "#/components/schemas/FernsEnvelope"
         - type: object
           properties:
             data:
-              $ref: "#/components/schemas/NatureserveSpeciesData"
+              $ref: "#/components/schemas/NatureserveSpeciesSearchData"
 
-    NatureserveSearchData:
+    NatureserveSearchUpstreamData:
       type: object
-      description: NatureServe search results for ecological systems, species, or communities.
+      description: >
+        Verbatim NatureServe Explorer search response. See GET /natureserve/metadata
+        (technical_details) for field-level semantics.
       properties:
-        ecosystems:
+        resultsSummary:
+          type: object
+          additionalProperties: true
+          description: Upstream resultsSummary object (totalResults, page, recordsPerPage, etc.)
+        results:
           type: array
-          description: Array of matching records (ecosystems, species, communities, etc. depending on recordType)
+          description: Array of matching NatureServe records (ecosystems, species, communities, etc. — verbatim upstream)
           items:
-            $ref: "#/components/schemas/NatureserveSearchResponseItem"
-        total_results:
-          type: integer
-          description: Total matching records across all pages (from upstream resultsSummary.totalResults)
+            type: object
+            additionalProperties: true
 
     NatureserveSearchResponse:
       allOf:
@@ -7340,62 +7306,22 @@ components:
         - type: object
           properties:
             data:
-              $ref: "#/components/schemas/NatureserveSearchData"
+              $ref: "#/components/schemas/NatureserveSearchUpstreamData"
 
-    NatureserveSearchResponseItem:
+    NatureserveTaxonData:
       type: object
-      properties:
-        system_name:
-          type: string
-          description: Scientific name of the ecological system, species, or community
-        global_rank:
-          type: string
-          nullable: true
-          description: NatureServe G-rank (e.g. G3, G4G5)
-        rounded_global_rank:
-          type: string
-          nullable: true
-        us_national_rank:
-          type: string
-          nullable: true
-          description: NatureServe N-rank for the US (e.g. N3, N4)
-        rounded_us_national_rank:
-          type: string
-          nullable: true
-        description_excerpt:
-          type: string
-          nullable: true
-          description: Concept sentence from ecosystemGlobal.conceptSentence (ecosystem records only)
-        national_distribution:
-          type: string
-          nullable: true
-        characteristic_species:
-          type: array
-          description: Characteristic plant species (not populated from search endpoint; empty array)
-          items:
-            type: object
-            properties:
-              scientific_name:
-                type: string
-              stratum:
-                type: string
-                nullable: true
-              constancy_percent:
-                type: number
-                nullable: true
-              cover_class_percent:
-                type: number
-                nullable: true
-        natureserve_url:
-          type: string
-          nullable: true
-          description: Direct link to this record on NatureServe Explorer
-        element_global_id:
-          type: string
-          description: NatureServe element global identifier (e.g. ELEMENT_GLOBAL.2.12345)
-        record_type:
-          type: string
-          description: Record type as returned by NatureServe (e.g. ECOSYSTEM, SPECIES)
+      additionalProperties: true
+      description: >
+        Verbatim NatureServe Explorer taxon record. See GET /natureserve/metadata
+        (technical_details) for field-level semantics.
+
+    NatureserveTaxonResponse:
+      allOf:
+        - $ref: "#/components/schemas/FernsEnvelope"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/NatureserveTaxonData"
 
     SpeciesTextResponse:
       type: object

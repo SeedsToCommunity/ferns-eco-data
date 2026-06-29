@@ -936,8 +936,11 @@ export async function runNatureserveChecks(fernsBase: string): Promise<EndpointC
         findings.push({ type: "mismatch", sourceField: "attribution", note: "attribution block missing" });
       }
       const cs = ec.cache_stats as Record<string, unknown> | null | undefined;
-      if (cs && typeof cs.ttl_days === "number") {
-        findings.push({ type: "ok", sourceField: "cache_stats.ttl_days", note: `ttl_days=${cs.ttl_days}` });
+      if (cs && typeof cs.ttl_days === "object" && cs.ttl_days !== null) {
+        const ttl = cs.ttl_days as Record<string, unknown>;
+        findings.push({ type: "ok", sourceField: "cache_stats.ttl_days", note: `ttl_days.species=${ttl.species}, ttl_days.ecosystems=${ttl.ecosystems}` });
+      } else if (cs) {
+        findings.push({ type: "gap", sourceField: "cache_stats.ttl_days", note: `ttl_days missing or wrong type (expected object {species, ecosystems})` });
       } else {
         findings.push({ type: "gap", sourceField: "cache_stats", note: "cache_stats block missing or malformed" });
       }
@@ -945,61 +948,50 @@ export async function runNatureserveChecks(fernsBase: string): Promise<EndpointC
     },
   );
 
+  // Verbatim upstream shape: { resultsSummary: object, results: array }
+  // Per task #305: data no longer contains flat-struct fields (scientific_name, global_rank, etc.)
   const speciesCheck = await checkEndpoint(
     "natureserve",
     "/api/natureserve/speciesSearch?name=Platanthera+leucophaea",
-    "NatureServe — species search (Platanthera leucophaea: G2G3, S1, USESA Threatened)",
+    "NatureServe — speciesSearch (Platanthera leucophaea): verbatim upstream shape",
     fernsBase,
     (envelope) => {
       const findings: FieldFinding[] = [];
       const data = envelope.data as Record<string, unknown> | null | undefined;
-      if (!data) {
-        findings.push({ type: "mismatch", sourceField: "data", note: "No data in response" });
+      if (!data || typeof data !== "object") {
+        findings.push({ type: "mismatch", sourceField: "data", note: `data must be a non-null object; got ${data === null ? "null" : typeof data}` });
         return findings;
       }
-      if (data.scientific_name === "Platanthera leucophaea") {
-        findings.push({ type: "ok", sourceField: "data.scientific_name", note: "Platanthera leucophaea (exact match)" });
+      if (!Array.isArray(data.results)) {
+        findings.push({ type: "mismatch", sourceField: "data.results", note: `data.results must be an array (verbatim upstream); got ${typeof data.results}` });
       } else {
-        findings.push({ type: "mismatch", sourceField: "data.scientific_name", note: `Expected Platanthera leucophaea, got ${data.scientific_name}` });
+        findings.push({ type: "ok", sourceField: "data.results", note: `data.results is array with ${(data.results as unknown[]).length} item(s)` });
       }
-      if (data.global_rank) {
-        findings.push({ type: "ok", sourceField: "data.global_rank", note: `global_rank=${data.global_rank}` });
+      if (data.resultsSummary && typeof data.resultsSummary === "object") {
+        const summary = data.resultsSummary as Record<string, unknown>;
+        findings.push({ type: "ok", sourceField: "data.resultsSummary", note: `data.resultsSummary present (totalResults=${summary.totalResults ?? "n/a"})` });
       } else {
-        findings.push({ type: "mismatch", sourceField: "data.global_rank", note: "global_rank missing" });
+        findings.push({ type: "gap", sourceField: "data.resultsSummary", note: "data.resultsSummary missing or wrong type" });
       }
-      if (data.state_rank) {
-        findings.push({ type: "ok", sourceField: "data.state_rank", note: `state_rank=${data.state_rank} (MI)` });
-      } else {
-        findings.push({ type: "gap", sourceField: "data.state_rank", note: "state_rank not available for MI" });
-      }
-      if (data.federal_status === "T") {
-        findings.push({ type: "ok", sourceField: "data.federal_status", note: "federal_status=T (Threatened, ESA)" });
-      } else {
-        findings.push({ type: "mismatch", sourceField: "data.federal_status", note: `Expected T (Threatened), got ${data.federal_status}` });
-      }
-      if (data.iucn_category) {
-        findings.push({ type: "ok", sourceField: "data.iucn_category", note: `iucn_category=${data.iucn_category}` });
-      } else {
-        findings.push({ type: "mismatch", sourceField: "data.iucn_category", note: "iucn_category missing" });
-      }
-      if (data.state_status !== undefined) {
-        findings.push({ type: "ok", sourceField: "data.state_status", note: `state_status=${data.state_status ?? "null (S-rank not low enough)"}` });
-      } else {
-        findings.push({ type: "mismatch", sourceField: "data.state_status", note: "state_status field missing from response" });
-      }
-      if (data.natureserve_url) {
-        findings.push({ type: "ok", sourceField: "data.natureserve_url", note: "natureserve_url present" });
-      } else {
-        findings.push({ type: "mismatch", sourceField: "data.natureserve_url", note: "natureserve_url missing" });
+      if (Array.isArray(data.results) && (data.results as unknown[]).length > 0) {
+        const first = (data.results as Record<string, unknown>[])[0];
+        const uid = first.uniqueId ?? first.elementGlobalId;
+        if (uid) {
+          findings.push({ type: "ok", sourceField: "data.results[0].uniqueId", note: `uniqueId=${String(uid)}` });
+        } else {
+          findings.push({ type: "gap", sourceField: "data.results[0].uniqueId", note: "uniqueId/elementGlobalId absent from first result" });
+        }
       }
       return findings;
     },
   );
 
+  // Verbatim upstream shape: { resultsSummary: object, results: array }
+  // Per task #305: data.ecosystems, data.result_count, and data.cache_status are removed (were FERNS wrappers)
   const ecosystemSearchCheck = await checkEndpoint(
     "natureserve",
     "/api/natureserve/search?q=oak+savanna&recordType=ECOSYSTEM&limit=5",
-    "NatureServe — ecosystem search (oak savanna: found field, data.ecosystems array, item fields)",
+    "NatureServe — search (oak savanna, ECOSYSTEM): verbatim upstream shape",
     fernsBase,
     (envelope) => {
       const findings: FieldFinding[] = [];
@@ -1011,54 +1003,31 @@ export async function runNatureserveChecks(fernsBase: string): Promise<EndpointC
         return findings;
       }
       const data = ec.data as Record<string, unknown> | null | undefined;
-      if (!data) {
-        findings.push({ type: "mismatch", sourceField: "data", note: "No data block in response" });
+      if (!data || typeof data !== "object") {
+        findings.push({ type: "mismatch", sourceField: "data", note: `data must be a non-null object; got ${data === null ? "null" : typeof data}` });
         return findings;
       }
-      if (Array.isArray(data.ecosystems)) {
-        findings.push({ type: "ok", sourceField: "data.ecosystems", note: `ecosystems array present (${(data.ecosystems as unknown[]).length} items)` });
+      if (!Array.isArray(data.results)) {
+        findings.push({ type: "mismatch", sourceField: "data.results", note: `data.results must be an array (verbatim upstream); got ${typeof data.results}` });
       } else {
-        findings.push({ type: "mismatch", sourceField: "data.ecosystems", note: "data.ecosystems is not an array" });
-        return findings;
+        findings.push({ type: "ok", sourceField: "data.results", note: `data.results is array with ${(data.results as unknown[]).length} item(s)` });
       }
-      if (typeof data.result_count === "number") {
-        findings.push({ type: "ok", sourceField: "data.result_count", note: `result_count=${data.result_count}` });
+      if (data.resultsSummary && typeof data.resultsSummary === "object") {
+        const summary = data.resultsSummary as Record<string, unknown>;
+        findings.push({ type: "ok", sourceField: "data.resultsSummary", note: `data.resultsSummary present (totalResults=${summary.totalResults ?? "n/a"})` });
       } else {
-        findings.push({ type: "gap", sourceField: "data.result_count", note: "result_count missing or wrong type" });
+        findings.push({ type: "gap", sourceField: "data.resultsSummary", note: "data.resultsSummary missing or wrong type" });
       }
-      const cacheStatus = data.cache_status;
-      if (cacheStatus === "hit" || cacheStatus === "miss" || cacheStatus === "bypassed") {
-        findings.push({ type: "ok", sourceField: "data.cache_status", note: `cache_status=${cacheStatus}` });
-      } else {
-        findings.push({ type: "gap", sourceField: "data.cache_status", note: `cache_status=${cacheStatus}` });
-      }
-      const items = data.ecosystems as Record<string, unknown>[];
-      if (items.length > 0) {
-        const first = items[0];
-        if (first.system_name) {
-          findings.push({ type: "ok", sourceField: "data.ecosystems[0].system_name", note: `${first.system_name}` });
+      if (Array.isArray(data.results) && (data.results as unknown[]).length > 0) {
+        const first = (data.results as Record<string, unknown>[])[0];
+        const uid = first.uniqueId ?? first.elementGlobalId;
+        if (uid) {
+          findings.push({ type: "ok", sourceField: "data.results[0].uniqueId", note: `uniqueId=${String(uid)}` });
         } else {
-          findings.push({ type: "gap", sourceField: "data.ecosystems[0].system_name", note: "system_name missing on first result" });
+          findings.push({ type: "gap", sourceField: "data.results[0].uniqueId", note: "uniqueId/elementGlobalId absent from first result" });
         }
-        if (first.element_global_id) {
-          findings.push({ type: "ok", sourceField: "data.ecosystems[0].element_global_id", note: `${first.element_global_id}` });
-        } else {
-          findings.push({ type: "gap", sourceField: "data.ecosystems[0].element_global_id", note: "element_global_id missing" });
-        }
-        if (first.record_type) {
-          findings.push({ type: "ok", sourceField: "data.ecosystems[0].record_type", note: `record_type=${first.record_type}` });
-        } else {
-          findings.push({ type: "gap", sourceField: "data.ecosystems[0].record_type", note: "record_type missing" });
-        }
-        // us_national_rank: the search endpoint surfaces roundedNRank from the US nations record.
-        // It may be "NNR" (Not Ranked) for many ecosystem types — the key check is the field exists.
-        if (first.us_national_rank !== undefined) {
-          findings.push({ type: "ok", sourceField: "data.ecosystems[0].us_national_rank", note: `us_national_rank=${first.us_national_rank}` });
-        } else {
-          findings.push({ type: "gap", sourceField: "data.ecosystems[0].us_national_rank", note: "us_national_rank field missing from result" });
-        }
-      } else {
-        findings.push({ type: "gap", sourceField: "data.ecosystems", note: "No results for 'oak savanna' — may be upstream API change" });
+      } else if (Array.isArray(data.results)) {
+        findings.push({ type: "gap", sourceField: "data.results[0]", note: "No results for 'oak savanna' — may be upstream API change" });
       }
       return findings;
     },

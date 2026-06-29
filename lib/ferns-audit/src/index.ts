@@ -23,6 +23,7 @@ import { runBonapComparators } from "./comparators/bonap.js";
 import { runMifloraComparators } from "./comparators/miflora.js";
 import { runUniversalFqaComparators } from "./comparators/universal-fqa.js";
 import { runUsdaPlantsComparators } from "./comparators/usda-plants.js";
+import { runNatureserveComparators } from "./comparators/natureserve.js";
 import { runCoefficientChecks, runWetlandIndicatorChecks, runWucolsChecks, runS2CChecks, runLcscgChecks, runMnfiChecks, runNatureserveChecks, runBotanicalUrlChecks, runSpeciesTextChecks, runSpeciesInfoSmokeTest, runSpeciesInfoAbsentTest, runLbjChecks, runNpnChecks, runGoogleImagesChecks } from "./checks/static-sources.js";
 import { runGbifIntegrationChecks } from "./checks/gbif.js";
 import { checkApiDocs, checkRegistry } from "./checks/docs.js";
@@ -77,6 +78,9 @@ async function main(): Promise<void> {
   process.stderr.write("Running USDA PLANTS comparators (species lookup via api_fetch)...\n");
   const usdaPlantsComparisons = await runUsdaPlantsComparators(fernsBase, TEST_SPECIES);
 
+  process.stderr.write("Running NatureServe comparators (speciesSearch, search, taxon)...\n");
+  const natureserveComparisons = await runNatureserveComparators(fernsBase);
+
   process.stderr.write("Running static source health checks (Coefficient, Wetland Indicator, WUCOLS, S2C, LCSCG, MNFI, NatureServe, BotanicalUrls, SpeciesText, SpeciesInfoSmoke, SpeciesInfoAbsent, LBJ, NPN, Google Images)...\n");
   const [coeffChecks, wetlandChecks, wucolsChecks, s2cChecks, lcscgChecks, mnfiChecks, natureserveChecks, botanicalUrlChecks, speciesTextChecks, speciesInfoSmokeChecks, speciesInfoAbsentChecks, lbjChecks, npnChecks, googleImagesChecks] = await Promise.all([
     runCoefficientChecks(fernsBase, TEST_COEFFICIENT_VALUES),
@@ -103,6 +107,7 @@ async function main(): Promise<void> {
     ...mifloraComparisons,
     ...ufqaComparisons,
     ...usdaPlantsComparisons,
+    ...natureserveComparisons,
     ...coeffChecks,
     ...wetlandChecks,
     ...wucolsChecks,

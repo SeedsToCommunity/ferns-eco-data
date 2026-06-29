@@ -1557,82 +1557,57 @@ export type NatureserveMetadataResponse = FernsEnvelope & {
 };
 
 /**
- * Extracted NatureServe species conservation status fields. NOTE: This is a flat struct rather than verbatim upstream JSON — a plan #148 regression deferred to plans 16–18.
-
+ * Upstream resultsSummary object (totalResults, page, recordsPerPage, etc.)
  */
-export interface NatureserveSpeciesData {
-  scientific_name?: string | null;
-  common_name?: string | null;
-  /** NatureServe G-rank (e.g. G4, G3G4) */
-  global_rank?: string | null;
-  rounded_global_rank?: string | null;
-  /** NatureServe N-rank for the US (e.g. N3, N4) */
-  national_rank?: string | null;
-  rounded_national_rank?: string | null;
-  /** Two-letter US state code this rank is scoped to */
-  state_code?: string;
-  /** NatureServe S-rank for the queried state (e.g. S1, S2) */
-  state_rank?: string | null;
-  rounded_state_rank?: string | null;
-  iucn_category?: string | null;
-  iucn_description?: string | null;
-  federal_status?: string | null;
-  federal_status_description?: string | null;
-  /** Derived by mapping NatureServe S-rank values to labels — not verbatim upstream data. Plan #148 regression; deferred to plans 16–18.
- */
-  state_status?: string | null;
-  cites_description?: string | null;
-  cosewic_code?: string | null;
-  cosewic_description?: string | null;
-  natureserve_url?: string | null;
-  element_global_id?: string | null;
-}
+export type NatureserveSpeciesSearchDataResultsSummary = { [key: string]: unknown };
 
-export type NatureserveSpeciesResponse = FernsEnvelope & {
-  data?: NatureserveSpeciesData;
-};
-
-export type NatureserveSearchResponseItemCharacteristicSpeciesItem = {
-  scientific_name?: string;
-  stratum?: string | null;
-  constancy_percent?: number | null;
-  cover_class_percent?: number | null;
-};
-
-export interface NatureserveSearchResponseItem {
-  /** Scientific name of the ecological system, species, or community */
-  system_name?: string;
-  /** NatureServe G-rank (e.g. G3, G4G5) */
-  global_rank?: string | null;
-  rounded_global_rank?: string | null;
-  /** NatureServe N-rank for the US (e.g. N3, N4) */
-  us_national_rank?: string | null;
-  rounded_us_national_rank?: string | null;
-  /** Concept sentence from ecosystemGlobal.conceptSentence (ecosystem records only) */
-  description_excerpt?: string | null;
-  national_distribution?: string | null;
-  /** Characteristic plant species (not populated from search endpoint; empty array) */
-  characteristic_species?: NatureserveSearchResponseItemCharacteristicSpeciesItem[];
-  /** Direct link to this record on NatureServe Explorer */
-  natureserve_url?: string | null;
-  /** NatureServe element global identifier (e.g. ELEMENT_GLOBAL.2.12345) */
-  element_global_id?: string;
-  /** Record type as returned by NatureServe (e.g. ECOSYSTEM, SPECIES) */
-  record_type?: string;
-}
+export type NatureserveSpeciesSearchDataResultsItem = { [key: string]: unknown };
 
 /**
- * NatureServe search results for ecological systems, species, or communities.
+ * Verbatim NatureServe Explorer speciesSearch response. See GET /natureserve/metadata (technical_details) for field-level semantics.
+
  */
-export interface NatureserveSearchData {
-  /** Array of matching records (ecosystems, species, communities, etc. depending on recordType) */
-  ecosystems?: NatureserveSearchResponseItem[];
-  /** Total matching records across all pages (from upstream resultsSummary.totalResults) */
-  total_results?: number;
+export interface NatureserveSpeciesSearchData {
+  /** Upstream resultsSummary object (totalResults, page, recordsPerPage, etc.) */
+  resultsSummary?: NatureserveSpeciesSearchDataResultsSummary;
+  /** Array of matching NatureServe species records (verbatim upstream) */
+  results?: NatureserveSpeciesSearchDataResultsItem[];
+}
+
+export type NatureserveSpeciesSearchResponse = FernsEnvelope & {
+  data?: NatureserveSpeciesSearchData;
+};
+
+/**
+ * Upstream resultsSummary object (totalResults, page, recordsPerPage, etc.)
+ */
+export type NatureserveSearchUpstreamDataResultsSummary = { [key: string]: unknown };
+
+export type NatureserveSearchUpstreamDataResultsItem = { [key: string]: unknown };
+
+/**
+ * Verbatim NatureServe Explorer search response. See GET /natureserve/metadata (technical_details) for field-level semantics.
+
+ */
+export interface NatureserveSearchUpstreamData {
+  /** Upstream resultsSummary object (totalResults, page, recordsPerPage, etc.) */
+  resultsSummary?: NatureserveSearchUpstreamDataResultsSummary;
+  /** Array of matching NatureServe records (ecosystems, species, communities, etc. — verbatim upstream) */
+  results?: NatureserveSearchUpstreamDataResultsItem[];
 }
 
 export type NatureserveSearchResponse = FernsEnvelope & {
-  data?: NatureserveSearchData;
+  data?: NatureserveSearchUpstreamData;
+};
+
+/**
+ * Verbatim NatureServe Explorer taxon record. See GET /natureserve/metadata (technical_details) for field-level semantics.
+
+ */
+export interface NatureserveTaxonData { [key: string]: unknown }
+
+export type NatureserveTaxonResponse = FernsEnvelope & {
+  data?: NatureserveTaxonData;
 };
 
 /**
@@ -3296,17 +3271,12 @@ export const GetMnfiCountyElementsType = {
   community: 'community',
 } as const;
 
-export type GetNatureserveSpeciesParams = {
+export type GetNatureserveSpeciesSearchParams = {
 /**
  * Scientific name to look up (e.g. Asclepias tuberosa)
  * @minLength 1
  */
 name: string;
-/**
- * Two-letter US state code to scope the state rank (e.g. MI, WI, OH). Defaults to MI (Michigan) when omitted. Must be a valid 2-letter code.
-
- */
-state?: string;
 /**
  * If true, bypasses cache and fetches fresh from NatureServe Explorer
  */
@@ -3365,6 +3335,13 @@ export const GetNatureserveSearchProvenanceVerbosity = {
   summary: 'summary',
   none: 'none',
 } as const;
+
+export type GetNatureserveTaxonParams = {
+/**
+ * If true, bypasses cache and fetches fresh from NatureServe Explorer
+ */
+refresh?: boolean;
+};
 
 export type GetGobotanyUrlParams = {
 /**
