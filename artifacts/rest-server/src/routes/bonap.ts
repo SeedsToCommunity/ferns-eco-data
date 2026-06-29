@@ -1,6 +1,10 @@
 import { Router, type IRouter } from "express";
 import { GetBonapMapQueryParams } from "@workspace/api-zod";
-import { normalizeInput, verifyMapExists, buildCacheKey, buildProvenance } from "../services/bonap/connector.js";
+import {
+  getBonapNapaMapUrl,
+  BonapNapaNetworkError,
+} from "@workspace/external-data-providers/bonap-napa";
+import { buildCacheKey, type MapType } from "../services/bonap/connector.js";
 import { lookupCache, storeCache } from "../services/bonap/cache.js";
 import {
   BONAP_ATTRIBUTION,
@@ -17,6 +21,8 @@ import { ensureBonapRegistryEntry } from "../services/bonap/seed.js";
 import { buildEnvelope } from "@workspace/api-envelope";
 import { dbRegistryAccessor } from "../lib/registry-accessor.js";
 import { resolveUrl } from "../lib/resolve-url.js";
+
+const SUBSPECIES_PATTERN = /\s+(subsp\.|var\.|f\.|ssp\.|cv\.|group|agg\.)\s+/i;
 
 const router: IRouter = Router();
 
@@ -46,17 +52,25 @@ router.get("/bonap/map", async (req, res) => {
     return;
   }
 
-  const { genus, species, map_type, refresh } = parsed.data;
+  const { genus, species, map_type: mapType, refresh } = parsed.data;
 
   if (!species || species.trim() === "") {
     res.status(400).json({ error: "invalid_input", message: "species is required for all map types" });
     return;
   }
 
+  if (SUBSPECIES_PATTERN.test(species.trim())) {
+    res.status(400).json({
+      error: "invalid_input",
+      message:
+        "subspecies qualifiers are not supported; BONAP does not publish subspecies-level maps. Provide the species epithet only.",
+    });
+    return;
+  }
+
   await ensureBonapRegistryEntry();
 
-  const normalized = normalizeInput(genus, species, map_type);
-  const cacheKey = buildCacheKey(normalized);
+  const cacheKey = buildCacheKey(genus.trim(), species.trim(), mapType as MapType);
 
   if (!refresh) {
     const cached = await lookupCache(cacheKey);
@@ -70,14 +84,9 @@ router.get("/bonap/map", async (req, res) => {
           cacheStatus: "hit",
           queriedAt: cached.fetched_at.toISOString(),
           found: cached.status === "found",
-          data: {
-            map_url: cached.map_url ?? null,
-            map_type_served: cached.map_type as "county_species" | "state_species",
-            genus: cached.genus,
-            species: cached.species ?? null,
-            species_stripped: cached.species_stripped,
-            status: cached.status as "found" | "not_found" | "unverified",
-          },
+          data: cached.status === "found"
+            ? { map_url: cached.map_url, map_type_served: cached.map_type as MapType }
+            : null,
         },
         { registry: dbRegistryAccessor },
       );
@@ -86,27 +95,31 @@ router.get("/bonap/map", async (req, res) => {
     }
   }
 
-  const result = await verifyMapExists(normalized);
-  const provenance = buildProvenance(result);
-  const stored = await storeCache(cacheKey, result, provenance);
+  let result;
+  try {
+    result = await getBonapNapaMapUrl(genus.trim(), species.trim(), mapType as MapType);
+  } catch (err: unknown) {
+    if (err instanceof BonapNapaNetworkError) {
+      res.status(503).json({ error: "upstream_unavailable", message: err.message });
+      return;
+    }
+    throw err;
+  }
+
+  await storeCache(cacheKey, result, { genus: genus.trim(), species: species.trim() });
 
   const envelope = await buildEnvelope(
     {
       sourceId: BONAP_SOURCE_ID,
       sourceKind: "single-source-proxy",
-      sourceUrl: stored.upstream_url,
+      sourceUrl: result.upstreamUrl,
       method: "api_fetch",
       cacheStatus: "miss",
-      queriedAt: stored.fetched_at.toISOString(),
-      found: stored.status === "found",
-      data: {
-        map_url: stored.map_url ?? null,
-        map_type_served: stored.map_type as "county_species" | "state_species",
-        genus: stored.genus,
-        species: stored.species ?? null,
-        species_stripped: stored.species_stripped,
-        status: stored.status as "found" | "not_found" | "unverified",
-      },
+      queriedAt: new Date().toISOString(),
+      found: result.found,
+      data: result.found
+        ? { map_url: result.mapUrl, map_type_served: result.mapTypeServed }
+        : null,
     },
     { registry: dbRegistryAccessor },
   );

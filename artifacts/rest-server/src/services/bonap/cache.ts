@@ -1,7 +1,8 @@
 import { db, bonapMapsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
-import type { VerificationResult } from "./connector.js";
-import type { InsertBonapMap, BonapMap } from "@workspace/db";
+import type { BonapNapaMapUrlResult } from "@workspace/external-data-providers/bonap-napa";
+import type { BonapMap, InsertBonapMap } from "@workspace/db";
+import { BONAP_SOURCE_ID } from "./metadata.js";
 
 const NEGATIVE_TTL_DAYS = 30;
 
@@ -25,33 +26,26 @@ export async function lookupCache(cacheKey: string): Promise<BonapMap | null> {
 
 export async function storeCache(
   cacheKey: string,
-  result: VerificationResult,
-  provenance: {
-    source_id: string;
-    fetched_at: Date;
-    method: string;
-    upstream_url: string;
-  },
+  result: BonapNapaMapUrlResult,
+  input: { genus: string; species: string },
 ): Promise<BonapMap> {
-  const expiresAt =
-    result.status === "found"
-      ? null
-      : new Date(Date.now() + NEGATIVE_TTL_DAYS * 24 * 60 * 60 * 1000);
+  const expiresAt = result.found
+    ? null
+    : new Date(Date.now() + NEGATIVE_TTL_DAYS * 24 * 60 * 60 * 1000);
 
   const insert: InsertBonapMap = {
     cache_key: cacheKey,
-    genus: result.normalized.genus,
-    species: result.normalized.species,
-    map_type: result.normalized.map_type,
-    species_stripped: result.normalized.species_stripped,
-    map_url: result.map_url,
-    source_url: result.source_url,
-    status: result.status,
+    genus: input.genus,
+    species: input.species,
+    map_type: result.mapTypeServed,
+    species_stripped: false,
+    map_url: result.mapUrl,
+    upstream_url: result.upstreamUrl,
+    status: result.found ? "found" : "not_found",
     expires_at: expiresAt,
-    source_id: provenance.source_id,
-    fetched_at: provenance.fetched_at,
-    method: provenance.method,
-    upstream_url: provenance.upstream_url,
+    source_id: BONAP_SOURCE_ID,
+    fetched_at: new Date(),
+    method: "api_fetch",
   };
 
   const rows = await db
@@ -61,7 +55,6 @@ export async function storeCache(
       target: bonapMapsTable.cache_key,
       set: {
         map_url: insert.map_url,
-        source_url: insert.source_url,
         status: insert.status,
         fetched_at: insert.fetched_at,
         upstream_url: insert.upstream_url,
