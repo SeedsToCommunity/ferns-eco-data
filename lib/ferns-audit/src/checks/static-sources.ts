@@ -1923,3 +1923,103 @@ export async function runSpeciesInfoSmokeTest(fernsBase: string): Promise<Endpoi
 
   return [gobotanyCheck, illinoisCheck, minnesotaCheck, missouriCheck, prairieMoonCheck];
 }
+
+// ─── Species-Information Absent-Species Test ───────────────────────────────────
+// Confirms that each of the five botanical species-information scrapers returns
+// found=false (with data=null and no fetch error) when queried for a species
+// that is confirmed absent from all five sites.
+//
+// Species chosen: Protea cynaroides (King Protea) — a Southern Hemisphere shrub
+// endemic to South Africa.  None of the five North American regional botanical
+// reference sites (Go Botany, Illinois Wildflowers, Minnesota Wildflowers,
+// Missouri Plants, Prairie Moon) carry a page for this species, making it a
+// reliable absent-species sentinel.
+//
+// Asserts per endpoint:
+//   - HTTP 200 (scraper did not throw)
+//   - found === false
+//   - data === null
+//   - envelope contract fields present (found, permission_granted, provenance)
+
+export async function runSpeciesInfoAbsentTest(fernsBase: string): Promise<EndpointComparison[]> {
+  const ABSENT_SPECIES_NAME = "Protea cynaroides";
+  const encodedSpecies = encodeURIComponent(ABSENT_SPECIES_NAME);
+
+  function absentSpeciesChecks(expectedSourceId: string) {
+    return (envelope: Record<string, unknown>): FieldFinding[] => {
+      const findings: FieldFinding[] = [];
+
+      // found must be false — the species has no page on this source
+      if (envelope.found === false) {
+        findings.push({ type: "ok", sourceField: "found", note: `found=false for absent species on ${expectedSourceId} (expected)` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "found", note: `Expected found=false for ${ABSENT_SPECIES_NAME} on ${expectedSourceId}, got found=${envelope.found}` });
+      }
+
+      // data must be strictly null when the species is not found — undefined is
+      // a contract violation (the field must be present and explicitly null)
+      if (envelope.data === null) {
+        findings.push({ type: "ok", sourceField: "data", note: `data=null when found=false (expected)` });
+      } else {
+        findings.push({
+          type: "mismatch",
+          sourceField: "data",
+          note: envelope.data === undefined
+            ? `data field absent when found=false on ${expectedSourceId} — must be explicitly null per envelope contract`
+            : `Expected data=null when found=false on ${expectedSourceId}, got non-null data`,
+        });
+      }
+
+      // provenance.source_id must still match expected — even for absent species
+      const prov = envelope.provenance as Record<string, unknown> | null | undefined;
+      const sourceId = prov?.source_id;
+      if (sourceId === expectedSourceId) {
+        findings.push({ type: "ok", sourceField: "provenance.source_id", note: `source_id="${sourceId}" (expected)` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "provenance.source_id", note: `Expected source_id="${expectedSourceId}", got "${sourceId}"` });
+      }
+
+      return findings;
+    };
+  }
+
+  const [gobotanyCheck, illinoisCheck, minnesotaCheck, missouriCheck, prairieMoonCheck] = await Promise.all([
+    checkEndpoint(
+      "gobotany",
+      `/api/gobotany/species-information?species=${encodedSpecies}`,
+      `Go Botany — species-information absent-species test (${ABSENT_SPECIES_NAME}: found=false, data=null)`,
+      fernsBase,
+      absentSpeciesChecks("gobotany"),
+    ),
+    checkEndpoint(
+      "illinois-wildflowers",
+      `/api/illinois-wildflowers/species-information?species=${encodedSpecies}`,
+      `Illinois Wildflowers — species-information absent-species test (${ABSENT_SPECIES_NAME}: found=false, data=null)`,
+      fernsBase,
+      absentSpeciesChecks("illinois-wildflowers"),
+    ),
+    checkEndpoint(
+      "minnesota-wildflowers",
+      `/api/minnesota-wildflowers/species-information?species=${encodedSpecies}`,
+      `Minnesota Wildflowers — species-information absent-species test (${ABSENT_SPECIES_NAME}: found=false, data=null)`,
+      fernsBase,
+      absentSpeciesChecks("minnesota-wildflowers"),
+    ),
+    checkEndpoint(
+      "missouri-plants",
+      `/api/missouri-plants/species-information?species=${encodedSpecies}`,
+      `Missouri Plants — species-information absent-species test (${ABSENT_SPECIES_NAME}: found=false, data=null)`,
+      fernsBase,
+      absentSpeciesChecks("missouri-plants"),
+    ),
+    checkEndpoint(
+      "prairie-moon",
+      `/api/prairie-moon/species-information?species=${encodedSpecies}`,
+      `Prairie Moon — species-information absent-species test (${ABSENT_SPECIES_NAME}: found=false, data=null)`,
+      fernsBase,
+      absentSpeciesChecks("prairie-moon"),
+    ),
+  ]);
+
+  return [gobotanyCheck, illinoisCheck, minnesotaCheck, missouriCheck, prairieMoonCheck];
+}
