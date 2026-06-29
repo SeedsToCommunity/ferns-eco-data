@@ -1,2 +1,3 @@
 - [Read replit.md first](read-replit-md.md) — must read at session start; contains required workflow, guidance doc triggers, and post-task summary obligation.
 - [Envelope contract must-reads](envelope-contract-mustreads.md) — queried_at, source_url, and data purity rules that are easy to get wrong.
+- [Migration runner gap risk](migration-runner-gap.md) — newly authored migrations in lib/db/drizzle/ are silently skipped unless explicitly wired into runMigrations() in lib/db/src/migrate.ts.

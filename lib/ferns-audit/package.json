@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "audit": "tsx src/index.ts"
+    "audit": "tsx src/index.ts",
+    "gbif-check": "tsx src/gbif-check.ts"
   },
   "devDependencies": {
     "@types/node": "catalog:",

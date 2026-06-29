@@ -24,6 +24,7 @@ import { runMifloraComparators } from "./comparators/miflora.js";
 import { runUniversalFqaComparators } from "./comparators/universal-fqa.js";
 import { runUsdaPlantsComparators } from "./comparators/usda-plants.js";
 import { runCoefficientChecks, runWetlandIndicatorChecks, runWucolsChecks, runS2CChecks, runLcscgChecks, runMnfiChecks, runNatureserveChecks, runBotanicalUrlChecks, runSpeciesTextChecks, runSpeciesInfoSmokeTest, runSpeciesInfoAbsentTest, runLbjChecks, runNpnChecks, runGoogleImagesChecks } from "./checks/static-sources.js";
+import { runGbifIntegrationChecks } from "./checks/gbif.js";
 import { checkApiDocs, checkRegistry } from "./checks/docs.js";
 import { checkUrls } from "./checks/urls.js";
 import { printReport, printReportJson } from "./report.js";
@@ -57,6 +58,9 @@ async function main(): Promise<void> {
 
   process.stderr.write("Running GBIF comparators (match, reconcile, occurrences, search)...\n");
   const gbifComparisons = await runGbifComparators(fernsBase, TEST_SPECIES, TEST_GBIF_SEARCHES);
+
+  process.stderr.write("Running GBIF integration checks (cache round-trip, error paths)...\n");
+  const gbifIntegrationChecks = await runGbifIntegrationChecks(fernsBase);
 
   process.stderr.write("Running iNaturalist comparators (place, species, histogram, field-values, observations)...\n");
   const inatComparisons = await runInatComparators(fernsBase, TEST_SPECIES, TEST_PLACES, TEST_PLACE_QUERIES);
@@ -93,6 +97,7 @@ async function main(): Promise<void> {
 
   const allComparisons = [
     ...gbifComparisons,
+    ...gbifIntegrationChecks,
     ...inatComparisons,
     ...bonapComparisons,
     ...mifloraComparisons,

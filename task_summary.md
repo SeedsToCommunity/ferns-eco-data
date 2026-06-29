@@ -967,3 +967,38 @@ Not applicable — no new `technical_details` text was written.
 ### What the user should review
 
 - **Breaking change to data shape**: The existing `client.ts` returned strongly-typed parsed objects (`UniversalFqaDatabaseDetail`, `UniversalFqaAssessmentDetail`, etc.) with named fields. After Task B wires routes to use the EDP, the FERNS REST API will instead return the raw 2D array from upstream. Any downstream consumer of the FERNS API (MCP clients, Explorer UI, external integrations) that expects the current named-field structure will need to be updated to work with the positional 2D array. This is an approved breaking change per user direction ("It's ok to break existing interfaces to support this truth layering"), but should be confirmed before Task B is merged.
+
+---
+
+## Task #299 — GBIF Integration Tests & EDP Rewire Verification
+
+### What was changed
+
+Six new integration checks were added to the ferns-audit library covering every GBIF route the server exposes. During testing, a dormant bug was uncovered: migration `0015_gbif_cache_rearch` — which restructures the GBIF cache tables to use the new `upstream_response` column layout — had been authored and committed to the migration folder but was never wired into the custom migration runner (`lib/db/src/migrate.ts`). This meant every GBIF API call was hitting a schema mismatch, and every GBIF route was returning 500/502 errors. The migration was wired in (one new `runSqlMigration` call between entries 13 and 16), the server was restarted, 0015 applied cleanly (29 statements, 0 skipped), and all six routes now return correct envelopes. A standalone `gbif-check` script was also added so the checks can be run in isolation or from CI.
+
+### Derivation summary
+
+Not applicable — no new source was added in this task.
+
+### Scientific/technical description
+
+Not applicable — no new source was added in this task.
+
+### Architectural decisions made
+
+- **`failFast: false` for migration 0015**: Migration 0015 uses `DROP COLUMN IF EXISTS` guards on the destructive steps, making it safe to re-run. The `ADD COLUMN upstream_response jsonb NOT NULL` does not have an `IF NOT EXISTS` guard, but because the column was confirmed absent before applying, this was acceptable. `failFast: false` matches the pattern used for other schema-expansion migrations (0016, 0022). If the migration had been called with `failFast: true` and a partial failure occurred, the column might not be added; `failFast: false` means the migration is marked applied even if individual statements skip — an acceptable tradeoff given the IF EXISTS guards on all destructive steps.
+- **Integration checks hit the live GBIF API on cache-miss**: The round-trip checks use `refresh=true` to force a cache miss and confirm the actual upstream fetch works. This means the checks are network-dependent. The alternative (mocking the upstream) would not verify the EDP wiring is correct, which was the stated goal. 502-path tests use a known-nonexistent usageKey (`99999999`) to trigger real GBIF 404s without mocking.
+- **Separate `gbif-check.ts` runner**: Rather than extending the main audit entrypoint alone, a standalone runner was added so GBIF checks can be triggered independently. This keeps the validation command focused and avoids running the full audit suite when only GBIF verification is needed.
+
+### What was NOT done
+
+- Migrations 0011, 0012, 0014, 0017, 0018, 0019, and 0020 were reviewed but **not wired** into `runMigrations()` — that is follow-up task #308. Only 0015 was strictly in scope for this task.
+- No changes to OpenAPI spec, MCP tools, or the audit's corpus comparison checks.
+- No mock layer was added for CI offline use — the checks require live network access to `api.gbif.org`.
+
+### What the user should decide or review
+
+- **Other EDP-backed sources**: The same "migration authored but not wired" gap could affect iNat, NatureServe, USDA Plants, or Miflora. Follow-up task #309 proposes a similar audit check suite for those sources.
+- **Remaining unwired migrations** (#308): Migrations 0011, 0012, 0014, 0017–0020 exist in the drizzle folder but are never invoked. Most appear to be cleanup/rename steps, but they should be wired or explicitly documented as intentionally skipped.
+- **CI network dependency**: The integration checks currently require a live connection to `api.gbif.org`. If CI runs in a network-restricted environment, a stub/mock layer will be needed before these checks can run there.
+

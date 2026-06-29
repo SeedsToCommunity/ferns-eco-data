@@ -26,6 +26,10 @@ author = "agent"
 task = "workflow.run"
 args = "artifacts/mcp-server: MCP Server"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "gbif-integration-check"
+
 [[workflows.workflow]]
 name = "artifacts/mcp-server: MCP Server"
 author = "agent"
@@ -36,6 +40,17 @@ outputType = "console"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "pnpm --filter @workspace/mcp-server run dev"
+
+[[workflows.workflow]]
+name = "gbif-integration-check"
+author = "agent"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "FERNS_API_BASE_URL=http://localhost:8080 pnpm --filter @workspace/ferns-audit run gbif-check"
 
 [agent]
 stack = "PNPM_WORKSPACE"

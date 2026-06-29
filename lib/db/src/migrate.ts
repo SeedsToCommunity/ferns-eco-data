@@ -242,6 +242,7 @@ export async function runMigrations(): Promise<void> {
   const entry9 = journal.entries[9];
   const entry10 = journal.entries[10];
   const entry13 = journal.entries[13];
+  const entry15 = journal.entries[15];
   const entry16 = journal.entries[16];
   const entry21 = journal.entries[21];
   const entry22 = journal.entries[22];
@@ -282,6 +283,17 @@ export async function runMigrations(): Promise<void> {
   // ADD COLUMN IF NOT EXISTS guards make it safe to re-run.
   if (entry13) {
     await runSqlMigration("0013_envelope_v1_columns", entry13.when, "0013 (envelope v1 columns)", false);
+  }
+
+  // Migration 0015: GBIF cache re-architecture (EDP rewire).
+  // TRUNCATEs all four legacy GBIF cache tables (rows cannot migrate to the new
+  // upstream_response schema), drops old decomposed columns, adds upstream_response
+  // (jsonb NOT NULL) to gbif_name_matches/synonyms/vernacular_names/occurrences,
+  // and creates two new tables: gbif_species and gbif_species_searches.
+  // DROP COLUMN IF EXISTS guards make it safe to re-run; the TRUNCATE and ADD COLUMN
+  // are idempotent once the migration has been applied.
+  if (entry15) {
+    await runSqlMigration("0015_gbif_cache_rearch", entry15.when, "0015 (gbif cache rearch)", false);
   }
 
   // Migration 0016: Add individual data columns to natureserve_species_cache.
