@@ -1505,3 +1505,81 @@ N/A — no new source added.
 
 - On next server startup, migration 0027 will execute and drop all six iNat cache tables. Any data in those tables will be permanently lost. This is the intended outcome; confirm the tables are safe to drop in production before deploying.
 - The `services/inat/metadata.ts` and `services/inat/seed.ts` files remain. They will be reviewed/cleaned up in the subsequent OpenAPI and audit task — confirm that scope is correct.
+
+---
+
+## Task: iNat — OpenAPI redirection, types, and audit cleanup
+
+### 1. What was changed
+
+The 17 iNaturalist passthrough routes in the EC OpenAPI specification were repointed from their EC-hosted addresses (`/api/inat/...`) to iNaturalist's own server. In practice this means each path entry in the spec now carries a path-level `servers` override pointing at `https://api.inaturalist.org/v1`, and the path keys were rewritten to match iNat's native URL structure (e.g., `/taxa/autocomplete` instead of `/inat/taxa/autocomplete`). The `inat` tag description was updated to explain that iNaturalist is an acknowledged external source that EC describes and vouches for but does not host. All parameter and response-schema documentation was preserved — the spec still fully describes the iNat interface so the MCP tools can validate responses using the generated Zod types. One EC-native path, `/inat/metadata` (which returns EC's own registry entry for iNat), was intentionally left under the EC server since it has no iNat API counterpart.
+
+The Zod types were regenerated (`pnpm --filter @workspace/api-spec run codegen`) — all 53 iNat response schema types are intact and the MCP server's imports compile cleanly.
+
+The iNat audit comparator (`lib/ferns-audit/src/comparators/inat.ts`) was replaced with a documented stub that returns an empty result set. The function signature is preserved so the audit runner compiles without change. The stub contains an explicit audit coverage gap statement explaining what was removed and what a future MCP-layer audit approach would look like. The audit runner's progress message was updated to reflect the skip and reference the documentation.
+
+### 2. Derivation summary
+
+N/A — no new source added.
+
+### 3. Scientific/technical description
+
+N/A — no new source added.
+
+### 4. Architectural decisions made with tradeoffs
+
+**Path-level `servers` override per path entry (not operation-level or a separate spec file)**
+The OpenAPI 3.x specification allows `servers` overrides at path item level. Applying them per-path-item (rather than once at info level) lets the single spec continue to document all sources — EC's hosted routes alongside the acknowledged-source iNat routes — without splitting into two separate specs. Tradeoff: the single spec is slightly more complex to read; any tool that doesn't understand path-level server overrides will misroute iNat calls to the EC global server (`/api`). All standards-compliant OpenAPI tooling (including the Orval codegen used here) handles this correctly.
+
+**Keep all EC-specific parameters (refresh, provenance_verbosity) in the spec**
+The task explicitly requires retaining all parameter documentation. These parameters don't exist on iNat's native API, so a consumer using the spec to call iNat directly will see parameters iNat doesn't accept. The alternative (stripping them) would break the Zod codegen used by the MCP tools, which validate EC-wrapped responses. Retaining them is the correct tradeoff since the spec serves both documentation and type-generation purposes.
+
+**Audit comparator: stub rather than delete**
+The comparator was replaced with a documented stub rather than deleted entirely. Deleting it would break the audit runner's import. The stub approach keeps the module boundary intact and places the gap documentation at the site where a future implementer would look. Tradeoff: the inat.ts file still exists and could be mistaken for active code; the comment block at the top explicitly calls out its removed state.
+
+**`/inat/metadata` kept as EC-hosted path**
+This route returns EC's own registry metadata for the iNat source — it's not a passthrough to iNat's API. Moving it would be wrong; it stays at `/inat/metadata` under the EC global server. The path name was not changed.
+
+### 5. What was NOT done
+
+**Audit coverage for iNat data flows is now absent.** The 17 EC-hosted iNat passthrough routes that the comparator exercised no longer exist at EC REST addresses. The comparator called each of those routes and diffed the FERNS envelope response against a direct iNat API call. That coverage is fully removed. No replacement was created because the task scope explicitly excludes "adding new MCP-level audit infrastructure beyond what can be cleanly done within the existing audit framework." A future audit approach would require a harness that invokes MCP tool handlers directly (without a running REST server) and validates their outputs against the Zod schemas generated from the spec.
+
+The existing project task "Add live smoke tests for all 18 iNat envelope routes" predates this change and was written under the assumption that EC hosts those 18 routes. That task is now stale — the routes no longer exist at EC. The user should decide whether to close or retarget that task.
+
+No changes were made to the rest-server, MCP tools, registry, or any iNat cache tables. The react-query client hooks generated from the spec (in `lib/api-client-react`) now produce incorrect EC-relative URL paths for iNat operations (e.g., `/api/places/autocomplete` instead of `/api/inat/places/autocomplete`), but no application code was found to use those hooks, so there is no runtime breakage.
+
+### 6. What the user should decide or review
+
+- **The existing task "Add live smoke tests for all 18 iNat envelope routes" is now stale.** EC no longer hosts those 18 routes — they are documented as living on iNat's own server. This task should either be closed or rephrased as a future MCP-layer audit exercise. Decide whether to retire or retarget it.
+- **The react-query client for iNat is now broken in isolation.** The generated hooks in `lib/api-client-react` call `/api/places/autocomplete` etc. (without the `/inat/` prefix). No current application code uses those hooks, so there is no user-visible breakage. If the Explorer ever uses those hooks, they would silently 404. Consider whether to remove the iNat hooks from the react-query client or add a path prefix override for them.
+- **audit coverage gap**: iNat data flow has no automated verification. Review the documented gap in `lib/ferns-audit/src/comparators/inat.ts` and decide when/whether to invest in an MCP-layer audit harness.
+
+## Task: iNat — OpenAPI spec accuracy pass (iNat spec comparison)
+
+### What was done
+A systematic comparison was run between the EC OpenAPI spec's 17 iNat paths and iNaturalist's own published Swagger spec (https://api.inaturalist.org/v1/swagger.json). All 17 EC paths were confirmed present in iNat's spec. Three categories of discrepancy were found and resolved:
+
+**1. Required mismatch — `taxon_id` on histogram and popular_field_values**
+Both endpoints had `taxon_id` marked `required: true`. iNat's own spec has it optional. Fixed to `required: false`.
+
+**2. Stale cache descriptions on histogram and popular_field_values**
+Both descriptions mentioned "Cached 7 days keyed by taxon_id..." — language left over from when EC had a server-side cache for these endpoints (deleted in a prior task). Updated to say "Live passthrough... No EC-side cache."
+
+**3. Ghost parameters on `/identifications/species_counts` and `/identifications`**
+Both endpoints contained observation-style geo and seasonal filter params (`lat`, `lng`, `radius`, `nelat`, `nelng`, `swlat`, `swlng`, `month`, `native`, `introduced`, `iconic_taxa`) that iNat does not support on its identifications endpoints. These appear to have been copy-pasted from the observations endpoints during original authoring. `/identifications` also had `locale`, `term_id`, `term_value_id`, and `verifiable` which similarly don't exist on iNat's identifications surface. All removed.
+
+**Intentionally not changed:**
+- Type mismatches where iNat's Swagger 2.0 spec uses `type: array` for repeatable query params (e.g. `taxon_id`, `place_id`, `quality_grade`). Our single-value scalar types (`integer`, `string`) are a deliberate narrowing that matches how EC tools use these params.
+- `per_page`/`page` typed as `integer` in EC vs. `string` in iNat's spec — our integer is semantically more accurate.
+- `radius` typed as `number` (EC) vs. `string` (iNat) on `/observations` — iNat accepts a plain numeric km value; `number` is more correct.
+- Missing params: ~90+ optional iNat params not documented in EC spec. EC documents only what its MCP tools use; the inat tag description directs users to iNat's own API docs for the full surface.
+
+**10 paths had zero discrepancies:** `/places/autocomplete`, `/controlled_terms`, `/controlled_terms/for_taxon`, `/taxa/autocomplete`, `/taxa/{id}`, `/places/{id}`, `/places/nearby`, `/observations/{id}/taxon_summary`, `/identifications/similar_species`, `/observations/species_counts`.
+
+Codegen re-run; MCP server and api-zod build cleanly.
+
+## Task: iNat — upstream spec snapshot
+
+Saved a baseline snapshot of iNaturalist's published Swagger spec (v1.3.0, 86 paths, 170KB) to `lib/api-spec/upstream-snapshots/inat-swagger.json`. Added a `.meta.json` sidecar recording the fetch date, the reason, which 17 EC-covered paths were validated, and a summary of findings. Added a `README.md` with a self-contained drift-detection script (fetch current spec, diff params on the 17 EC paths, report additions/removals). Not used at runtime — documentation and audit artifact only.
+
+Also fixed three stale "DB-cached permanently" descriptions on `/controlled_terms/for_taxon`, `/taxa/{id}`, and `/places/{id}` — all changed to "No EC-side cache" now that the iNat cache layer was deleted in a prior task.

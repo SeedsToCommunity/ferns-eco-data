@@ -15,7 +15,13 @@ tags:
   - name: gbif
     description: GBIF Taxonomic Backbone, Name Reconciliation, and Occurrence Records
   - name: inat
-    description: iNaturalist — Observations, Phenology, and Species Appearance
+    description: >
+      iNaturalist — Observations, Phenology, and Species Appearance.
+      iNaturalist is an acknowledged external source: EC holds and describes its
+      interface contract but does not host the API. Every path in this tag carries
+      a path-level servers override pointing at https://api.inaturalist.org/v1 —
+      consumers who call iNat directly should use that server. EC's MCP tools call
+      iNat via these paths and validate responses against the schemas defined here.
   - name: miflora
     description: Michigan Flora — Vascular Plants of Michigan
   - name: coefficient
@@ -546,7 +552,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/GbifMetadataResponse"
 
-  /inat/places/autocomplete:
+  /places/autocomplete:
+    servers:
+      - url: https://api.inaturalist.org/v1
+        description: iNaturalist API v1
     get:
       operationId: getInatPlacesAutocomplete
       tags: [inat]
@@ -599,20 +608,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/observations/histogram:
+  /observations/histogram:
+    servers:
+      - url: https://api.inaturalist.org/v1
+        description: iNaturalist API v1
     get:
       operationId: getInatObservationsHistogram
       tags: [inat]
       summary: Passthrough for iNaturalist observations/histogram
       description: >
-        Passthrough for iNaturalist's GET /observations/histogram endpoint.
+        Live passthrough for iNaturalist's GET /observations/histogram endpoint.
         Returns the raw iNaturalist response containing observation counts by
-        calendar month (month_of_year key in results). Cached 7 days keyed by
-        taxon_id and sorted set of place_ids.
+        calendar month (month_of_year key in results). No EC-side cache.
       parameters:
         - name: taxon_id
           in: query
-          required: true
+          required: false
           description: iNaturalist numeric taxon ID (from the species endpoint)
           schema:
             type: integer
@@ -676,22 +687,24 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/observations/popular_field_values:
+  /observations/popular_field_values:
+    servers:
+      - url: https://api.inaturalist.org/v1
+        description: iNaturalist API v1
     get:
       operationId: getInatObservationsPopularFieldValues
       tags: [inat]
       summary: Passthrough for iNaturalist observations/popular_field_values
       description: >
-        Passthrough for iNaturalist's GET /observations/popular_field_values endpoint.
+        Live passthrough for iNaturalist's GET /observations/popular_field_values endpoint.
         Returns the raw iNaturalist response containing controlled annotation field
         values with per-month counts. Stage labels include Flowers, Flower Buds,
         Fruits or Seeds, No Flowers or Fruits, Green Leaves, Colored Leaves, No Live
-        Leaves, Breaking Leaf Buds. Cached 7 days keyed by taxon_id, sorted place_ids,
-        and verifiable flag.
+        Leaves, Breaking Leaf Buds. No EC-side cache.
       parameters:
         - name: taxon_id
           in: query
-          required: true
+          required: false
           description: iNaturalist numeric taxon ID (from the species endpoint)
           schema:
             type: integer
@@ -746,7 +759,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/observations:
+  /observations:
+    servers:
+      - url: https://api.inaturalist.org/v1
+        description: iNaturalist API v1
     get:
       operationId: getInatObservations
       tags: [inat]
@@ -877,7 +893,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/observations/species_counts:
+  /observations/species_counts:
+    servers:
+      - url: https://api.inaturalist.org/v1
+        description: iNaturalist API v1
     get:
       operationId: getInatObservationsSpeciesCounts
       tags: [inat]
@@ -1037,7 +1056,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/controlled_terms:
+  /controlled_terms:
+    servers:
+      - url: https://api.inaturalist.org/v1
+        description: iNaturalist API v1
     get:
       operationId: getInatControlledTerms
       tags: [inat]
@@ -1077,7 +1099,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/controlled_terms/for_taxon:
+  /controlled_terms/for_taxon:
+    servers:
+      - url: https://api.inaturalist.org/v1
+        description: iNaturalist API v1
     get:
       operationId: getInatControlledTermsForTaxon
       tags: [inat]
@@ -1085,8 +1110,7 @@ paths:
       description: >
         Returns the controlled annotation terms that are applicable to a specific
         taxon (e.g. Flowers and Fruits applies to plants but not birds).
-        Cached permanently in the DB keyed by taxon_id; use refresh=true to
-        force a re-fetch. Results are wrapped in the standard FERNS provenance envelope.
+        No EC-side cache. Results are wrapped in the standard FERNS provenance envelope.
       parameters:
         - name: taxon_id
           in: query
@@ -1127,7 +1151,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/taxa/autocomplete:
+  /taxa/autocomplete:
+    servers:
+      - url: https://api.inaturalist.org/v1
+        description: iNaturalist API v1
     get:
       operationId: getInatTaxaAutocomplete
       tags: [inat]
@@ -1209,7 +1236,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/taxa/{id}:
+  /taxa/{id}:
+    servers:
+      - url: https://api.inaturalist.org/v1
+        description: iNaturalist API v1
     get:
       operationId: getInatTaxaById
       tags: [inat]
@@ -1218,8 +1248,7 @@ paths:
         Returns the full iNaturalist taxon record for a known taxon ID, including
         Wikipedia summary, listed_taxa (nativity per place — up to 41 entries for
         common species), children, conservation_status, and default_photo.
-        DB-cached for 30 days keyed by taxon ID; use refresh=true to force a re-fetch.
-        Results are wrapped in the standard FERNS provenance envelope.
+        No EC-side cache. Results are wrapped in the standard FERNS provenance envelope.
       parameters:
         - name: id
           in: path
@@ -1260,7 +1289,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/places/{id}:
+  /places/{id}:
+    servers:
+      - url: https://api.inaturalist.org/v1
+        description: iNaturalist API v1
     get:
       operationId: getInatPlacesById
       tags: [inat]
@@ -1268,8 +1300,7 @@ paths:
       description: >
         Returns the full iNaturalist place record for a known place ID, including
         centroid, bounding box, admin hierarchy, display name, and place type.
-        DB-cached permanently (place IDs are stable); use refresh=true to force a
-        re-fetch. Results are wrapped in the standard FERNS provenance envelope.
+        No EC-side cache. Results are wrapped in the standard FERNS provenance envelope.
       parameters:
         - name: id
           in: path
@@ -1316,7 +1347,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/places/nearby:
+  /places/nearby:
+    servers:
+      - url: https://api.inaturalist.org/v1
+        description: iNaturalist API v1
     get:
       operationId: getInatPlacesNearby
       tags: [inat]
@@ -1391,7 +1425,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/observations/{id}/taxon_summary:
+  /observations/{id}/taxon_summary:
+    servers:
+      - url: https://api.inaturalist.org/v1
+        description: iNaturalist API v1
     get:
       operationId: getInatObservationsTaxonSummary
       tags: [inat]
@@ -1436,7 +1473,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/identifications/similar_species:
+  /identifications/similar_species:
+    servers:
+      - url: https://api.inaturalist.org/v1
+        description: iNaturalist API v1
     get:
       operationId: getInatIdentificationsSimilarSpecies
       tags: [inat]
@@ -1526,7 +1566,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/identifications/species_counts:
+  /identifications/species_counts:
+    servers:
+      - url: https://api.inaturalist.org/v1
+        description: iNaturalist API v1
     get:
       operationId: getInatIdentificationsSpeciesCounts
       tags: [inat]
@@ -1578,57 +1621,6 @@ paths:
           description: End date filter (YYYY-MM-DD)
           schema:
             type: string
-        - name: month
-          in: query
-          required: false
-          description: Comma-separated month numbers (e.g. 4,5,6)
-          schema:
-            type: string
-        - name: native
-          in: query
-          required: false
-          schema:
-            type: boolean
-        - name: introduced
-          in: query
-          required: false
-          schema:
-            type: boolean
-        - name: lat
-          in: query
-          required: false
-          schema:
-            type: number
-        - name: lng
-          in: query
-          required: false
-          schema:
-            type: number
-        - name: radius
-          in: query
-          required: false
-          schema:
-            type: number
-        - name: nelat
-          in: query
-          required: false
-          schema:
-            type: number
-        - name: nelng
-          in: query
-          required: false
-          schema:
-            type: number
-        - name: swlat
-          in: query
-          required: false
-          schema:
-            type: number
-        - name: swlng
-          in: query
-          required: false
-          schema:
-            type: number
         - name: order
           in: query
           required: false
@@ -1649,12 +1641,6 @@ paths:
           schema:
             type: string
             enum: [identification, community]
-        - name: iconic_taxa
-          in: query
-          required: false
-          description: Comma-separated iconic taxon names (e.g. Plantae,Fungi)
-          schema:
-            type: string
         - name: provenance_verbosity
           in: query
           required: false
@@ -1682,7 +1668,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/identifications/recent_taxa:
+  /identifications/recent_taxa:
+    servers:
+      - url: https://api.inaturalist.org/v1
+        description: iNaturalist API v1
     get:
       operationId: getInatIdentificationsRecentTaxa
       tags: [inat]
@@ -1760,7 +1749,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/identifications:
+  /identifications:
+    servers:
+      - url: https://api.inaturalist.org/v1
+        description: iNaturalist API v1
     get:
       operationId: getInatIdentifications
       tags: [inat]
@@ -1814,63 +1806,6 @@ paths:
           description: End date filter (YYYY-MM-DD)
           schema:
             type: string
-        - name: month
-          in: query
-          required: false
-          description: Comma-separated month numbers (e.g. 4,5,6)
-          schema:
-            type: string
-        - name: native
-          in: query
-          required: false
-          schema:
-            type: boolean
-        - name: introduced
-          in: query
-          required: false
-          schema:
-            type: boolean
-        - name: lat
-          in: query
-          required: false
-          schema:
-            type: number
-        - name: lng
-          in: query
-          required: false
-          schema:
-            type: number
-        - name: radius
-          in: query
-          required: false
-          schema:
-            type: number
-        - name: nelat
-          in: query
-          required: false
-          schema:
-            type: number
-        - name: nelng
-          in: query
-          required: false
-          schema:
-            type: number
-        - name: swlat
-          in: query
-          required: false
-          schema:
-            type: number
-        - name: swlng
-          in: query
-          required: false
-          schema:
-            type: number
-        - name: locale
-          in: query
-          required: false
-          description: Locale for common names (e.g. en, es)
-          schema:
-            type: string
         - name: user_id
           in: query
           required: false
@@ -1883,27 +1818,6 @@ paths:
           description: Filter by identifier user login
           schema:
             type: string
-        - name: iconic_taxa
-          in: query
-          required: false
-          description: Comma-separated iconic taxon names (e.g. Plantae,Fungi)
-          schema:
-            type: string
-        - name: term_id
-          in: query
-          required: false
-          schema:
-            type: integer
-        - name: term_value_id
-          in: query
-          required: false
-          schema:
-            type: integer
-        - name: verifiable
-          in: query
-          required: false
-          schema:
-            type: boolean
         - name: order
           in: query
           required: false
@@ -1944,7 +1858,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /inat/identifications/{id}:
+  /identifications/{id}:
+    servers:
+      - url: https://api.inaturalist.org/v1
+        description: iNaturalist API v1
     get:
       operationId: getInatIdentificationsById
       tags: [inat]

@@ -34,23 +34,6 @@ d1?: string;
  */
 d2?: string;
 /**
- * Comma-separated month numbers (e.g. 4,5,6)
- */
-month?: string;
-native?: boolean;
-introduced?: boolean;
-lat?: number;
-lng?: number;
-radius?: number;
-nelat?: number;
-nelng?: number;
-swlat?: number;
-swlng?: number;
-/**
- * Locale for common names (e.g. en, es)
- */
-locale?: string;
-/**
  * Filter by identifier user ID
  */
 user_id?: number;
@@ -58,13 +41,6 @@ user_id?: number;
  * Filter by identifier user login
  */
 user_login?: string;
-/**
- * Comma-separated iconic taxon names (e.g. Plantae,Fungi)
- */
-iconic_taxa?: string;
-term_id?: number;
-term_value_id?: number;
-verifiable?: boolean;
 /**
  * Sort order: desc (default) or asc
  */

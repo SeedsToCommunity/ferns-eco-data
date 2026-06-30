@@ -1,0 +1,28 @@
+{
+  "source": "https://api.inaturalist.org/v1/swagger.json",
+  "fetched_at": "2026-06-30",
+  "fetched_reason": "Baseline snapshot taken after validating EC iNat path coverage against iNat's published spec. Used to verify parameter types, required flags, and detect ghost params on identifications endpoints.",
+  "upstream_title": "iNaturalist API",
+  "upstream_version": "1.3.0",
+  "upstream_path_count": 86,
+  "ec_covered_paths": [
+    "/places/autocomplete",
+    "/observations/histogram",
+    "/observations/popular_field_values",
+    "/observations",
+    "/observations/species_counts",
+    "/controlled_terms",
+    "/controlled_terms/for_taxon",
+    "/taxa/autocomplete",
+    "/taxa/{id}",
+    "/places/{id}",
+    "/places/nearby",
+    "/observations/{id}/taxon_summary",
+    "/identifications/similar_species",
+    "/identifications/species_counts",
+    "/identifications/recent_taxa",
+    "/identifications",
+    "/identifications/{id}"
+  ],
+  "findings": "All 17 EC-covered paths confirmed present in iNat spec. Fixed: taxon_id required=true on histogram and popular_field_values (iNat has optional). Removed ghost geo/seasonal params from /identifications and /identifications/species_counts (copied from observations, not supported on ident endpoints). Type mismatches where iNat uses array for repeatable params left as deliberate scalar narrowing."
+}

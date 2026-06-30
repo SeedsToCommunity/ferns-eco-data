@@ -2278,7 +2278,7 @@ export type GetInatObservationsHistogramParams = {
 /**
  * iNaturalist numeric taxon ID (from the species endpoint)
  */
-taxon_id: number;
+taxon_id?: number;
 /**
  * One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). Place IDs from the place lookup endpoint. Sorted ascending when building cache key. When omitted, returns global (worldwide) data.
 
@@ -2317,7 +2317,7 @@ export type GetInatObservationsPopularFieldValuesParams = {
 /**
  * iNaturalist numeric taxon ID (from the species endpoint)
  */
-taxon_id: number;
+taxon_id?: number;
 /**
  * One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). When omitted, returns global data.
 
@@ -2791,19 +2791,6 @@ d1?: string;
  */
 d2?: string;
 /**
- * Comma-separated month numbers (e.g. 4,5,6)
- */
-month?: string;
-native?: boolean;
-introduced?: boolean;
-lat?: number;
-lng?: number;
-radius?: number;
-nelat?: number;
-nelng?: number;
-swlat?: number;
-swlng?: number;
-/**
  * Sort order: desc (default) or asc
  */
 order?: GetInatIdentificationsSpeciesCountsOrder;
@@ -2815,10 +2802,6 @@ order_by?: string;
  * Which taxon to count: identification (default) or community
  */
 taxon_of?: GetInatIdentificationsSpeciesCountsTaxonOf;
-/**
- * Comma-separated iconic taxon names (e.g. Plantae,Fungi)
- */
-iconic_taxa?: string;
 /**
  * Controls provenance text: full (default), summary, or none
  */
@@ -2931,23 +2914,6 @@ d1?: string;
  */
 d2?: string;
 /**
- * Comma-separated month numbers (e.g. 4,5,6)
- */
-month?: string;
-native?: boolean;
-introduced?: boolean;
-lat?: number;
-lng?: number;
-radius?: number;
-nelat?: number;
-nelng?: number;
-swlat?: number;
-swlng?: number;
-/**
- * Locale for common names (e.g. en, es)
- */
-locale?: string;
-/**
  * Filter by identifier user ID
  */
 user_id?: number;
@@ -2955,13 +2921,6 @@ user_id?: number;
  * Filter by identifier user login
  */
 user_login?: string;
-/**
- * Comma-separated iconic taxon names (e.g. Plantae,Fungi)
- */
-iconic_taxa?: string;
-term_id?: number;
-term_value_id?: number;
-verifiable?: boolean;
 /**
  * Sort order: desc (default) or asc
  */

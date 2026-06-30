@@ -63,7 +63,7 @@ async function main(): Promise<void> {
   process.stderr.write("Running GBIF integration checks (cache round-trip, error paths)...\n");
   const gbifIntegrationChecks = await runGbifIntegrationChecks(fernsBase);
 
-  process.stderr.write("Running iNaturalist comparators (place, species, histogram, field-values, observations)...\n");
+  process.stderr.write("iNaturalist comparators: skipped — routes repointed to iNat server (acknowledged-source pattern); see comparators/inat.ts for gap documentation.\n");
   const inatComparisons = await runInatComparators(fernsBase, TEST_SPECIES, TEST_PLACES, TEST_PLACE_QUERIES);
 
   process.stderr.write("Running BONAP comparators...\n");

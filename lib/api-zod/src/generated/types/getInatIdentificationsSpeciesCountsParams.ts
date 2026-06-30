@@ -34,19 +34,6 @@ d1?: string;
  */
 d2?: string;
 /**
- * Comma-separated month numbers (e.g. 4,5,6)
- */
-month?: string;
-native?: boolean;
-introduced?: boolean;
-lat?: number;
-lng?: number;
-radius?: number;
-nelat?: number;
-nelng?: number;
-swlat?: number;
-swlng?: number;
-/**
  * Sort order: desc (default) or asc
  */
 order?: GetInatIdentificationsSpeciesCountsOrder;
@@ -58,10 +45,6 @@ order_by?: string;
  * Which taxon to count: identification (default) or community
  */
 taxon_of?: GetInatIdentificationsSpeciesCountsTaxonOf;
-/**
- * Comma-separated iconic taxon names (e.g. Plantae,Fungi)
- */
-iconic_taxa?: string;
 /**
  * Controls provenance text: full (default), summary, or none
  */

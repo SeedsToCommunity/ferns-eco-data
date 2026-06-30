@@ -11,7 +11,7 @@ export type GetInatObservationsHistogramParams = {
 /**
  * iNaturalist numeric taxon ID (from the species endpoint)
  */
-taxon_id: number;
+taxon_id?: number;
 /**
  * One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). Place IDs from the place lookup endpoint. Sorted ascending when building cache key. When omitted, returns global (worldwide) data.
 

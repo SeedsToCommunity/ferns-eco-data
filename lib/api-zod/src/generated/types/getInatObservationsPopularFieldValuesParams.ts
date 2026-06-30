@@ -11,7 +11,7 @@ export type GetInatObservationsPopularFieldValuesParams = {
 /**
  * iNaturalist numeric taxon ID (from the species endpoint)
  */
-taxon_id: number;
+taxon_id?: number;
 /**
  * One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). When omitted, returns global data.
 

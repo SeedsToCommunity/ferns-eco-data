@@ -541,14 +541,14 @@ export const GetInatPlacesAutocompleteResponse = zod.object({
 
 
 /**
- * Passthrough for iNaturalist's GET /observations/histogram endpoint. Returns the raw iNaturalist response containing observation counts by calendar month (month_of_year key in results). Cached 7 days keyed by taxon_id and sorted set of place_ids.
+ * Live passthrough for iNaturalist's GET /observations/histogram endpoint. Returns the raw iNaturalist response containing observation counts by calendar month (month_of_year key in results). No EC-side cache.
 
  * @summary Passthrough for iNaturalist observations/histogram
  */
 export const getInatObservationsHistogramQueryRefreshDefault = false;
 
 export const GetInatObservationsHistogramQueryParams = zod.object({
-  "taxon_id": zod.coerce.number().describe('iNaturalist numeric taxon ID (from the species endpoint)'),
+  "taxon_id": zod.coerce.number().optional().describe('iNaturalist numeric taxon ID (from the species endpoint)'),
   "place_id": zod.string().optional().describe('One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). Place IDs from the place lookup endpoint. Sorted ascending when building cache key. When omitted, returns global (worldwide) data.\n'),
   "term_id": zod.coerce.number().optional().describe('Controlled annotation term ID to filter by (e.g. 12 for Flowers and Fruits, 36 for Leaves). When provided, only observations annotated with this term are counted. Cache key incorporates this value.\n'),
   "term_value_id": zod.coerce.number().optional().describe('Controlled annotation value ID to filter by. Requires term_id. Cache key incorporates this value.\n'),
@@ -582,7 +582,7 @@ export const GetInatObservationsHistogramResponse = zod.object({
 
 
 /**
- * Passthrough for iNaturalist's GET /observations/popular_field_values endpoint. Returns the raw iNaturalist response containing controlled annotation field values with per-month counts. Stage labels include Flowers, Flower Buds, Fruits or Seeds, No Flowers or Fruits, Green Leaves, Colored Leaves, No Live Leaves, Breaking Leaf Buds. Cached 7 days keyed by taxon_id, sorted place_ids, and verifiable flag.
+ * Live passthrough for iNaturalist's GET /observations/popular_field_values endpoint. Returns the raw iNaturalist response containing controlled annotation field values with per-month counts. Stage labels include Flowers, Flower Buds, Fruits or Seeds, No Flowers or Fruits, Green Leaves, Colored Leaves, No Live Leaves, Breaking Leaf Buds. No EC-side cache.
 
  * @summary Passthrough for iNaturalist observations/popular_field_values
  */
@@ -590,7 +590,7 @@ export const getInatObservationsPopularFieldValuesQueryVerifiableDefault = true;
 export const getInatObservationsPopularFieldValuesQueryRefreshDefault = false;
 
 export const GetInatObservationsPopularFieldValuesQueryParams = zod.object({
-  "taxon_id": zod.coerce.number().describe('iNaturalist numeric taxon ID (from the species endpoint)'),
+  "taxon_id": zod.coerce.number().optional().describe('iNaturalist numeric taxon ID (from the species endpoint)'),
   "place_id": zod.string().optional().describe('One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). When omitted, returns global data.\n'),
   "verifiable": zod.coerce.boolean().default(getInatObservationsPopularFieldValuesQueryVerifiableDefault).describe('If true (default), restricts to verifiable observations. Pass false to include all quality grades.\n'),
   "refresh": zod.coerce.boolean().default(getInatObservationsPopularFieldValuesQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from iNaturalist'),
@@ -1074,20 +1074,9 @@ export const GetInatIdentificationsSpeciesCountsQueryParams = zod.object({
   "page": zod.coerce.number().min(1).optional(),
   "d1": zod.string().optional().describe('Start date filter (YYYY-MM-DD)'),
   "d2": zod.string().optional().describe('End date filter (YYYY-MM-DD)'),
-  "month": zod.string().optional().describe('Comma-separated month numbers (e.g. 4,5,6)'),
-  "native": zod.coerce.boolean().optional(),
-  "introduced": zod.coerce.boolean().optional(),
-  "lat": zod.coerce.number().optional(),
-  "lng": zod.coerce.number().optional(),
-  "radius": zod.coerce.number().optional(),
-  "nelat": zod.coerce.number().optional(),
-  "nelng": zod.coerce.number().optional(),
-  "swlat": zod.coerce.number().optional(),
-  "swlng": zod.coerce.number().optional(),
   "order": zod.enum(['asc', 'desc']).optional().describe('Sort order: desc (default) or asc'),
   "order_by": zod.string().optional().describe('Sort field: count (default) or id'),
   "taxon_of": zod.enum(['identification', 'community']).optional().describe('Which taxon to count: identification (default) or community'),
-  "iconic_taxa": zod.string().optional().describe('Comma-separated iconic taxon names (e.g. Plantae,Fungi)'),
   "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
 })
 
@@ -1179,23 +1168,8 @@ export const GetInatIdentificationsQueryParams = zod.object({
   "page": zod.coerce.number().min(1).optional(),
   "d1": zod.string().optional().describe('Start date filter (YYYY-MM-DD)'),
   "d2": zod.string().optional().describe('End date filter (YYYY-MM-DD)'),
-  "month": zod.string().optional().describe('Comma-separated month numbers (e.g. 4,5,6)'),
-  "native": zod.coerce.boolean().optional(),
-  "introduced": zod.coerce.boolean().optional(),
-  "lat": zod.coerce.number().optional(),
-  "lng": zod.coerce.number().optional(),
-  "radius": zod.coerce.number().optional(),
-  "nelat": zod.coerce.number().optional(),
-  "nelng": zod.coerce.number().optional(),
-  "swlat": zod.coerce.number().optional(),
-  "swlng": zod.coerce.number().optional(),
-  "locale": zod.string().optional().describe('Locale for common names (e.g. en, es)'),
   "user_id": zod.coerce.number().optional().describe('Filter by identifier user ID'),
   "user_login": zod.string().optional().describe('Filter by identifier user login'),
-  "iconic_taxa": zod.string().optional().describe('Comma-separated iconic taxon names (e.g. Plantae,Fungi)'),
-  "term_id": zod.coerce.number().optional(),
-  "term_value_id": zod.coerce.number().optional(),
-  "verifiable": zod.coerce.boolean().optional(),
   "order": zod.enum(['asc', 'desc']).optional().describe('Sort order: desc (default) or asc'),
   "order_by": zod.string().optional().describe('Sort field: created_at (default) or id'),
   "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')

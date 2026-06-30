@@ -1031,7 +1031,7 @@ export const getGetInatPlacesAutocompleteUrl = (params: GetInatPlacesAutocomplet
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/inat/places/autocomplete?${stringifiedParams}` : `/api/inat/places/autocomplete`
+  return stringifiedParams.length > 0 ? `/api/places/autocomplete?${stringifiedParams}` : `/api/places/autocomplete`
 }
 
 export const getInatPlacesAutocomplete = async (params: GetInatPlacesAutocompleteParams, options?: RequestInit): Promise<InatPlaceResponse> => {
@@ -1051,7 +1051,7 @@ export const getInatPlacesAutocomplete = async (params: GetInatPlacesAutocomplet
 
 export const getGetInatPlacesAutocompleteQueryKey = (params?: GetInatPlacesAutocompleteParams,) => {
     return [
-    `/api/inat/places/autocomplete`, ...(params ? [params] : [])
+    `/api/places/autocomplete`, ...(params ? [params] : [])
     ] as const;
     }
 
@@ -1099,11 +1099,11 @@ export function useGetInatPlacesAutocomplete<TData = Awaited<ReturnType<typeof g
 
 
 /**
- * Passthrough for iNaturalist's GET /observations/histogram endpoint. Returns the raw iNaturalist response containing observation counts by calendar month (month_of_year key in results). Cached 7 days keyed by taxon_id and sorted set of place_ids.
+ * Live passthrough for iNaturalist's GET /observations/histogram endpoint. Returns the raw iNaturalist response containing observation counts by calendar month (month_of_year key in results). No EC-side cache.
 
  * @summary Passthrough for iNaturalist observations/histogram
  */
-export const getGetInatObservationsHistogramUrl = (params: GetInatObservationsHistogramParams,) => {
+export const getGetInatObservationsHistogramUrl = (params?: GetInatObservationsHistogramParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -1115,10 +1115,10 @@ export const getGetInatObservationsHistogramUrl = (params: GetInatObservationsHi
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/inat/observations/histogram?${stringifiedParams}` : `/api/inat/observations/histogram`
+  return stringifiedParams.length > 0 ? `/api/observations/histogram?${stringifiedParams}` : `/api/observations/histogram`
 }
 
-export const getInatObservationsHistogram = async (params: GetInatObservationsHistogramParams, options?: RequestInit): Promise<InatHistogramResponse> => {
+export const getInatObservationsHistogram = async (params?: GetInatObservationsHistogramParams, options?: RequestInit): Promise<InatHistogramResponse> => {
   
   return customFetch<InatHistogramResponse>(getGetInatObservationsHistogramUrl(params),
   {      
@@ -1135,12 +1135,12 @@ export const getInatObservationsHistogram = async (params: GetInatObservationsHi
 
 export const getGetInatObservationsHistogramQueryKey = (params?: GetInatObservationsHistogramParams,) => {
     return [
-    `/api/inat/observations/histogram`, ...(params ? [params] : [])
+    `/api/observations/histogram`, ...(params ? [params] : [])
     ] as const;
     }
 
     
-export const getGetInatObservationsHistogramQueryOptions = <TData = Awaited<ReturnType<typeof getInatObservationsHistogram>>, TError = ErrorType<ErrorResponse>>(params: GetInatObservationsHistogramParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getInatObservationsHistogram>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetInatObservationsHistogramQueryOptions = <TData = Awaited<ReturnType<typeof getInatObservationsHistogram>>, TError = ErrorType<ErrorResponse>>(params?: GetInatObservationsHistogramParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getInatObservationsHistogram>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -1167,7 +1167,7 @@ export type GetInatObservationsHistogramQueryError = ErrorType<ErrorResponse>
  */
 
 export function useGetInatObservationsHistogram<TData = Awaited<ReturnType<typeof getInatObservationsHistogram>>, TError = ErrorType<ErrorResponse>>(
- params: GetInatObservationsHistogramParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getInatObservationsHistogram>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+ params?: GetInatObservationsHistogramParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getInatObservationsHistogram>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
@@ -1183,11 +1183,11 @@ export function useGetInatObservationsHistogram<TData = Awaited<ReturnType<typeo
 
 
 /**
- * Passthrough for iNaturalist's GET /observations/popular_field_values endpoint. Returns the raw iNaturalist response containing controlled annotation field values with per-month counts. Stage labels include Flowers, Flower Buds, Fruits or Seeds, No Flowers or Fruits, Green Leaves, Colored Leaves, No Live Leaves, Breaking Leaf Buds. Cached 7 days keyed by taxon_id, sorted place_ids, and verifiable flag.
+ * Live passthrough for iNaturalist's GET /observations/popular_field_values endpoint. Returns the raw iNaturalist response containing controlled annotation field values with per-month counts. Stage labels include Flowers, Flower Buds, Fruits or Seeds, No Flowers or Fruits, Green Leaves, Colored Leaves, No Live Leaves, Breaking Leaf Buds. No EC-side cache.
 
  * @summary Passthrough for iNaturalist observations/popular_field_values
  */
-export const getGetInatObservationsPopularFieldValuesUrl = (params: GetInatObservationsPopularFieldValuesParams,) => {
+export const getGetInatObservationsPopularFieldValuesUrl = (params?: GetInatObservationsPopularFieldValuesParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -1199,10 +1199,10 @@ export const getGetInatObservationsPopularFieldValuesUrl = (params: GetInatObser
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/inat/observations/popular_field_values?${stringifiedParams}` : `/api/inat/observations/popular_field_values`
+  return stringifiedParams.length > 0 ? `/api/observations/popular_field_values?${stringifiedParams}` : `/api/observations/popular_field_values`
 }
 
-export const getInatObservationsPopularFieldValues = async (params: GetInatObservationsPopularFieldValuesParams, options?: RequestInit): Promise<InatFieldValuesResponse> => {
+export const getInatObservationsPopularFieldValues = async (params?: GetInatObservationsPopularFieldValuesParams, options?: RequestInit): Promise<InatFieldValuesResponse> => {
   
   return customFetch<InatFieldValuesResponse>(getGetInatObservationsPopularFieldValuesUrl(params),
   {      
@@ -1219,12 +1219,12 @@ export const getInatObservationsPopularFieldValues = async (params: GetInatObser
 
 export const getGetInatObservationsPopularFieldValuesQueryKey = (params?: GetInatObservationsPopularFieldValuesParams,) => {
     return [
-    `/api/inat/observations/popular_field_values`, ...(params ? [params] : [])
+    `/api/observations/popular_field_values`, ...(params ? [params] : [])
     ] as const;
     }
 
     
-export const getGetInatObservationsPopularFieldValuesQueryOptions = <TData = Awaited<ReturnType<typeof getInatObservationsPopularFieldValues>>, TError = ErrorType<ErrorResponse>>(params: GetInatObservationsPopularFieldValuesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getInatObservationsPopularFieldValues>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetInatObservationsPopularFieldValuesQueryOptions = <TData = Awaited<ReturnType<typeof getInatObservationsPopularFieldValues>>, TError = ErrorType<ErrorResponse>>(params?: GetInatObservationsPopularFieldValuesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getInatObservationsPopularFieldValues>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -1251,7 +1251,7 @@ export type GetInatObservationsPopularFieldValuesQueryError = ErrorType<ErrorRes
  */
 
 export function useGetInatObservationsPopularFieldValues<TData = Awaited<ReturnType<typeof getInatObservationsPopularFieldValues>>, TError = ErrorType<ErrorResponse>>(
- params: GetInatObservationsPopularFieldValuesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getInatObservationsPopularFieldValues>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+ params?: GetInatObservationsPopularFieldValuesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getInatObservationsPopularFieldValues>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
@@ -1283,7 +1283,7 @@ export const getGetInatObservationsUrl = (params?: GetInatObservationsParams,) =
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/inat/observations?${stringifiedParams}` : `/api/inat/observations`
+  return stringifiedParams.length > 0 ? `/api/observations?${stringifiedParams}` : `/api/observations`
 }
 
 export const getInatObservations = async (params?: GetInatObservationsParams, options?: RequestInit): Promise<InatObservationSummaryResponse> => {
@@ -1303,7 +1303,7 @@ export const getInatObservations = async (params?: GetInatObservationsParams, op
 
 export const getGetInatObservationsQueryKey = (params?: GetInatObservationsParams,) => {
     return [
-    `/api/inat/observations`, ...(params ? [params] : [])
+    `/api/observations`, ...(params ? [params] : [])
     ] as const;
     }
 
@@ -1367,7 +1367,7 @@ export const getGetInatObservationsSpeciesCountsUrl = (params?: GetInatObservati
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/inat/observations/species_counts?${stringifiedParams}` : `/api/inat/observations/species_counts`
+  return stringifiedParams.length > 0 ? `/api/observations/species_counts?${stringifiedParams}` : `/api/observations/species_counts`
 }
 
 export const getInatObservationsSpeciesCounts = async (params?: GetInatObservationsSpeciesCountsParams, options?: RequestInit): Promise<InatSpeciesCountsResponse> => {
@@ -1387,7 +1387,7 @@ export const getInatObservationsSpeciesCounts = async (params?: GetInatObservati
 
 export const getGetInatObservationsSpeciesCountsQueryKey = (params?: GetInatObservationsSpeciesCountsParams,) => {
     return [
-    `/api/inat/observations/species_counts`, ...(params ? [params] : [])
+    `/api/observations/species_counts`, ...(params ? [params] : [])
     ] as const;
     }
 
@@ -1451,7 +1451,7 @@ export const getGetInatControlledTermsUrl = (params?: GetInatControlledTermsPara
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/inat/controlled_terms?${stringifiedParams}` : `/api/inat/controlled_terms`
+  return stringifiedParams.length > 0 ? `/api/controlled_terms?${stringifiedParams}` : `/api/controlled_terms`
 }
 
 export const getInatControlledTerms = async (params?: GetInatControlledTermsParams, options?: RequestInit): Promise<InatControlledTermsResponse> => {
@@ -1471,7 +1471,7 @@ export const getInatControlledTerms = async (params?: GetInatControlledTermsPara
 
 export const getGetInatControlledTermsQueryKey = (params?: GetInatControlledTermsParams,) => {
     return [
-    `/api/inat/controlled_terms`, ...(params ? [params] : [])
+    `/api/controlled_terms`, ...(params ? [params] : [])
     ] as const;
     }
 
@@ -1535,7 +1535,7 @@ export const getGetInatControlledTermsForTaxonUrl = (params: GetInatControlledTe
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/inat/controlled_terms/for_taxon?${stringifiedParams}` : `/api/inat/controlled_terms/for_taxon`
+  return stringifiedParams.length > 0 ? `/api/controlled_terms/for_taxon?${stringifiedParams}` : `/api/controlled_terms/for_taxon`
 }
 
 export const getInatControlledTermsForTaxon = async (params: GetInatControlledTermsForTaxonParams, options?: RequestInit): Promise<InatControlledTermsForTaxonResponse> => {
@@ -1555,7 +1555,7 @@ export const getInatControlledTermsForTaxon = async (params: GetInatControlledTe
 
 export const getGetInatControlledTermsForTaxonQueryKey = (params?: GetInatControlledTermsForTaxonParams,) => {
     return [
-    `/api/inat/controlled_terms/for_taxon`, ...(params ? [params] : [])
+    `/api/controlled_terms/for_taxon`, ...(params ? [params] : [])
     ] as const;
     }
 
@@ -1619,7 +1619,7 @@ export const getGetInatTaxaAutocompleteUrl = (params: GetInatTaxaAutocompletePar
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/inat/taxa/autocomplete?${stringifiedParams}` : `/api/inat/taxa/autocomplete`
+  return stringifiedParams.length > 0 ? `/api/taxa/autocomplete?${stringifiedParams}` : `/api/taxa/autocomplete`
 }
 
 export const getInatTaxaAutocomplete = async (params: GetInatTaxaAutocompleteParams, options?: RequestInit): Promise<InatTaxaAutocompleteResponse> => {
@@ -1639,7 +1639,7 @@ export const getInatTaxaAutocomplete = async (params: GetInatTaxaAutocompletePar
 
 export const getGetInatTaxaAutocompleteQueryKey = (params?: GetInatTaxaAutocompleteParams,) => {
     return [
-    `/api/inat/taxa/autocomplete`, ...(params ? [params] : [])
+    `/api/taxa/autocomplete`, ...(params ? [params] : [])
     ] as const;
     }
 
@@ -1704,7 +1704,7 @@ export const getGetInatTaxaByIdUrl = (id: number,
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/inat/taxa/${id}?${stringifiedParams}` : `/api/inat/taxa/${id}`
+  return stringifiedParams.length > 0 ? `/api/taxa/${id}?${stringifiedParams}` : `/api/taxa/${id}`
 }
 
 export const getInatTaxaById = async (id: number,
@@ -1726,7 +1726,7 @@ export const getInatTaxaById = async (id: number,
 export const getGetInatTaxaByIdQueryKey = (id: number,
     params?: GetInatTaxaByIdParams,) => {
     return [
-    `/api/inat/taxa/${id}`, ...(params ? [params] : [])
+    `/api/taxa/${id}`, ...(params ? [params] : [])
     ] as const;
     }
 
@@ -1793,7 +1793,7 @@ export const getGetInatPlacesByIdUrl = (id: number,
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/inat/places/${id}?${stringifiedParams}` : `/api/inat/places/${id}`
+  return stringifiedParams.length > 0 ? `/api/places/${id}?${stringifiedParams}` : `/api/places/${id}`
 }
 
 export const getInatPlacesById = async (id: number,
@@ -1815,7 +1815,7 @@ export const getInatPlacesById = async (id: number,
 export const getGetInatPlacesByIdQueryKey = (id: number,
     params?: GetInatPlacesByIdParams,) => {
     return [
-    `/api/inat/places/${id}`, ...(params ? [params] : [])
+    `/api/places/${id}`, ...(params ? [params] : [])
     ] as const;
     }
 
@@ -1881,7 +1881,7 @@ export const getGetInatPlacesNearbyUrl = (params: GetInatPlacesNearbyParams,) =>
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/inat/places/nearby?${stringifiedParams}` : `/api/inat/places/nearby`
+  return stringifiedParams.length > 0 ? `/api/places/nearby?${stringifiedParams}` : `/api/places/nearby`
 }
 
 export const getInatPlacesNearby = async (params: GetInatPlacesNearbyParams, options?: RequestInit): Promise<InatPlacesNearbyResponse> => {
@@ -1901,7 +1901,7 @@ export const getInatPlacesNearby = async (params: GetInatPlacesNearbyParams, opt
 
 export const getGetInatPlacesNearbyQueryKey = (params?: GetInatPlacesNearbyParams,) => {
     return [
-    `/api/inat/places/nearby`, ...(params ? [params] : [])
+    `/api/places/nearby`, ...(params ? [params] : [])
     ] as const;
     }
 
@@ -1966,7 +1966,7 @@ export const getGetInatObservationsTaxonSummaryUrl = (id: number,
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/inat/observations/${id}/taxon_summary?${stringifiedParams}` : `/api/inat/observations/${id}/taxon_summary`
+  return stringifiedParams.length > 0 ? `/api/observations/${id}/taxon_summary?${stringifiedParams}` : `/api/observations/${id}/taxon_summary`
 }
 
 export const getInatObservationsTaxonSummary = async (id: number,
@@ -1988,7 +1988,7 @@ export const getInatObservationsTaxonSummary = async (id: number,
 export const getGetInatObservationsTaxonSummaryQueryKey = (id: number,
     params?: GetInatObservationsTaxonSummaryParams,) => {
     return [
-    `/api/inat/observations/${id}/taxon_summary`, ...(params ? [params] : [])
+    `/api/observations/${id}/taxon_summary`, ...(params ? [params] : [])
     ] as const;
     }
 
@@ -2054,7 +2054,7 @@ export const getGetInatIdentificationsSimilarSpeciesUrl = (params: GetInatIdenti
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/inat/identifications/similar_species?${stringifiedParams}` : `/api/inat/identifications/similar_species`
+  return stringifiedParams.length > 0 ? `/api/identifications/similar_species?${stringifiedParams}` : `/api/identifications/similar_species`
 }
 
 export const getInatIdentificationsSimilarSpecies = async (params: GetInatIdentificationsSimilarSpeciesParams, options?: RequestInit): Promise<InatSimilarSpeciesResponse> => {
@@ -2074,7 +2074,7 @@ export const getInatIdentificationsSimilarSpecies = async (params: GetInatIdenti
 
 export const getGetInatIdentificationsSimilarSpeciesQueryKey = (params?: GetInatIdentificationsSimilarSpeciesParams,) => {
     return [
-    `/api/inat/identifications/similar_species`, ...(params ? [params] : [])
+    `/api/identifications/similar_species`, ...(params ? [params] : [])
     ] as const;
     }
 
@@ -2138,7 +2138,7 @@ export const getGetInatIdentificationsSpeciesCountsUrl = (params?: GetInatIdenti
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/inat/identifications/species_counts?${stringifiedParams}` : `/api/inat/identifications/species_counts`
+  return stringifiedParams.length > 0 ? `/api/identifications/species_counts?${stringifiedParams}` : `/api/identifications/species_counts`
 }
 
 export const getInatIdentificationsSpeciesCounts = async (params?: GetInatIdentificationsSpeciesCountsParams, options?: RequestInit): Promise<InatIdentSpeciesCountsResponse> => {
@@ -2158,7 +2158,7 @@ export const getInatIdentificationsSpeciesCounts = async (params?: GetInatIdenti
 
 export const getGetInatIdentificationsSpeciesCountsQueryKey = (params?: GetInatIdentificationsSpeciesCountsParams,) => {
     return [
-    `/api/inat/identifications/species_counts`, ...(params ? [params] : [])
+    `/api/identifications/species_counts`, ...(params ? [params] : [])
     ] as const;
     }
 
@@ -2222,7 +2222,7 @@ export const getGetInatIdentificationsRecentTaxaUrl = (params?: GetInatIdentific
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/inat/identifications/recent_taxa?${stringifiedParams}` : `/api/inat/identifications/recent_taxa`
+  return stringifiedParams.length > 0 ? `/api/identifications/recent_taxa?${stringifiedParams}` : `/api/identifications/recent_taxa`
 }
 
 export const getInatIdentificationsRecentTaxa = async (params?: GetInatIdentificationsRecentTaxaParams, options?: RequestInit): Promise<InatRecentTaxaResponse> => {
@@ -2242,7 +2242,7 @@ export const getInatIdentificationsRecentTaxa = async (params?: GetInatIdentific
 
 export const getGetInatIdentificationsRecentTaxaQueryKey = (params?: GetInatIdentificationsRecentTaxaParams,) => {
     return [
-    `/api/inat/identifications/recent_taxa`, ...(params ? [params] : [])
+    `/api/identifications/recent_taxa`, ...(params ? [params] : [])
     ] as const;
     }
 
@@ -2306,7 +2306,7 @@ export const getGetInatIdentificationsUrl = (params?: GetInatIdentificationsPara
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/inat/identifications?${stringifiedParams}` : `/api/inat/identifications`
+  return stringifiedParams.length > 0 ? `/api/identifications?${stringifiedParams}` : `/api/identifications`
 }
 
 export const getInatIdentifications = async (params?: GetInatIdentificationsParams, options?: RequestInit): Promise<InatIdentificationsResponse> => {
@@ -2326,7 +2326,7 @@ export const getInatIdentifications = async (params?: GetInatIdentificationsPara
 
 export const getGetInatIdentificationsQueryKey = (params?: GetInatIdentificationsParams,) => {
     return [
-    `/api/inat/identifications`, ...(params ? [params] : [])
+    `/api/identifications`, ...(params ? [params] : [])
     ] as const;
     }
 
@@ -2391,7 +2391,7 @@ export const getGetInatIdentificationsByIdUrl = (id: number,
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/inat/identifications/${id}?${stringifiedParams}` : `/api/inat/identifications/${id}`
+  return stringifiedParams.length > 0 ? `/api/identifications/${id}?${stringifiedParams}` : `/api/identifications/${id}`
 }
 
 export const getInatIdentificationsById = async (id: number,
@@ -2413,7 +2413,7 @@ export const getInatIdentificationsById = async (id: number,
 export const getGetInatIdentificationsByIdQueryKey = (id: number,
     params?: GetInatIdentificationsByIdParams,) => {
     return [
-    `/api/inat/identifications/${id}`, ...(params ? [params] : [])
+    `/api/identifications/${id}`, ...(params ? [params] : [])
     ] as const;
     }
 
