@@ -3244,31 +3244,78 @@ class?: string;
  */
 group?: string;
 /**
+ * Filter by global or state rank (exact match, e.g. G2, S3)
+ */
+rank?: string;
+/**
  * Filter by community name (substring match, e.g. oak savanna)
  */
 name?: string;
 };
 
-export type GetMnfiCountyElementsParams = {
+export type GetMnfiSpeciesListParams = {
 /**
- * Michigan county name (e.g. Washtenaw, Leelanau). Case-insensitive. All 83 Michigan county names are accepted.
-
- * @minLength 1
+ * Filter by scientific or common name (substring match)
  */
-county: string;
+name?: string;
 /**
- * Filter by element type. Must be 'species' or 'community' when provided. When omitted, both types are returned.
-
+ * Filter by kind — plant or animal
  */
-type?: GetMnfiCountyElementsType;
+kind?: GetMnfiSpeciesListKind;
+/**
+ * Filter by federal or state status code (exact match, e.g. LE, E, T, SC)
+ */
+status?: string;
+/**
+ * Filter by global or state rank (exact match, e.g. G1, S2)
+ */
+rank?: string;
+/**
+ * Filter by species category (substring match, e.g. Flowering Plants)
+ */
+category?: string;
+/**
+ * Page size (default 50, max 200)
+ * @minimum 0
+ * @maximum 200
+ */
+limit?: number;
+/**
+ * Page offset (default 0)
+ * @minimum 0
+ */
+offset?: number;
 };
 
-export type GetMnfiCountyElementsType = typeof GetMnfiCountyElementsType[keyof typeof GetMnfiCountyElementsType];
+export type GetMnfiSpeciesListKind = typeof GetMnfiSpeciesListKind[keyof typeof GetMnfiSpeciesListKind];
 
 
-export const GetMnfiCountyElementsType = {
-  species: 'species',
-  community: 'community',
+export const GetMnfiSpeciesListKind = {
+  plant: 'plant',
+  animal: 'animal',
+} as const;
+
+export type GetMnfiCountyParams = {
+/**
+ * Filter species by kind — plant or animal
+ */
+kind?: GetMnfiCountyKind;
+/**
+ * Filter by conservation status code (exact match, e.g. LE, E, T)
+ */
+status?: string;
+/**
+ * Filter by species category (substring match, e.g. Flowering Plants)
+ */
+category?: string;
+};
+
+export type GetMnfiCountyKind = typeof GetMnfiCountyKind[keyof typeof GetMnfiCountyKind];
+
+
+export const GetMnfiCountyKind = {
+  plant: 'plant',
+  animal: 'animal',
 } as const;
 
 export type GetNatureserveSpeciesSearchParams = {

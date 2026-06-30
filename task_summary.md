@@ -1361,3 +1361,37 @@ The MNFI REST routes were completely rewritten to use the IDP (Internal Data Pro
 
 - The `description`, `general_summary`, and `technical_details` text above should be reviewed for accuracy — particularly the species count (approximately 798) and the characterization of what MNFI sections are present.
 - The `update_frequency` field now says "Re-capture requires a new scraping run against the MNFI website" — any planned re-capture workflow should document the exact procedure.
+
+---
+
+## Task: MNFI — OpenAPI, MCP, Audit (Task D)
+
+### What was changed
+
+The MNFI data layer's API surface is now complete. The OpenAPI spec already contained all 9 MNFI routes from Task C — spec:check confirmed no drift (107 routes, all matching). Codegen was run and produced clean output in api-zod and api-client-react. The MCP server's four old MNFI tools (`mnfi__communities`, `mnfi__community`, `mnfi__community_plants`, `mnfi__county_elements`) were retired and replaced with eight new tools that exactly match the new route structure: `mnfi__communities_list`, `mnfi__communities`, `mnfi__species_list`, `mnfi__species`, `mnfi__species_communities`, `mnfi__species_counties`, `mnfi__counties_list`, and `mnfi__counties`. The README tool table was updated to reflect the 8 new tools. The audit's `runMnfiChecks` function was fully rewritten: the old checks against retired routes (`/mnfi/county-elements`, `/mnfi/communities/{id}/plants`) were replaced with 9 checks covering all 8 data routes plus metadata. The chosen test species is *Cirsium pitcheri* (Pitcher's thistle, federally threatened), confirmed present in both community rare-species lists and county-species data in the scraped dataset.
+
+### Derivation summary
+
+Not applicable — no new source was added.
+
+### Scientific/technical description
+
+Not applicable — no new source was added.
+
+### Architectural decisions made
+
+- **MCP tool naming follows the action-name derivation rule**: bulk endpoints (`/communities`, `/species`, `/counties`) get the `_list` suffix per the contract's "Bulk vs. single disambiguation" rule; single-record endpoints (`/communities/{slug}`, `/species/{name}`, `/counties/{county}`) carry no suffix. Sub-resource endpoints (`/species/{name}/communities`, `/species/{name}/counties`) map to `{source}__{action}_{sub}` (`mnfi__species_communities`, `mnfi__species_counties`).
+- **Old tool names retired completely**: `mnfi__communities` (old — pointed to list endpoint), `mnfi__community` (single by numeric ID), `mnfi__community_plants` (no corresponding route in new API), `mnfi__county_elements` (old endpoint `/mnfi/county-elements` replaced by `/mnfi/counties/{county}`). All four removed.
+- **Audit metadata check corrected**: The previous metadata check accessed `envelope.community_count` (wrong — at top level) instead of `envelope.data.community_count` (correct — inside data). Updated to use the correct path.
+- **Audit community-detail assertions use camelCase**: The IDP types use camelCase (`slug`, `sections`, `characteristicPlants`) — the audit now checks `data.slug`, `data.sections`, `data.characteristicPlants` with the correct field names.
+- **Test species: *Cirsium pitcheri***: Confirmed in both `rare-species.ts` and `county-species.ts`. Has `elementId` non-null and appears in community rare-species lists.
+
+### What was NOT done
+
+- Route behavior or data shape changes (Task C scope — confirmed correct, not re-examined)
+- Re-running the scraper or updating seed data
+
+### What the user should decide or review
+
+- The old MNFI tools (`mnfi__community`, `mnfi__community_plants`, `mnfi__county_elements`) are retired — any existing Claude Desktop or Cursor configs that used those tool names will need updating. The new tool names are documented in the updated README.
+- The README tool inventory header was updated from "60 tools" to "64 tools" — the "60" count was stale before this task (several sources had been added since it was written). If precision matters, a full recount of the README table rows should be done as housekeeping.

@@ -108,7 +108,7 @@ This runs the server directly from TypeScript source using `tsx`, without compil
 
 ---
 
-## Tool inventory (60 tools)
+## Tool inventory (64 tools)
 
 Tool names follow `{source_id}__{action}` (hyphens → underscores, double-underscore separator).
 
@@ -250,10 +250,14 @@ Tool names follow `{source_id}__{action}` (hyphens → underscores, double-under
 
 | Tool | Path | Required | Optional | Description |
 |---|---|---|---|---|
-| `mnfi__communities` | GET /mnfi/communities | — | class, group, name | Michigan natural community types from MNFI, optionally filtered by class, group, or name |
-| `mnfi__community` | GET /mnfi/communities/{id} | id | — | Full MNFI natural community profile by ID: description, associated species, disturbance regime |
-| `mnfi__community_plants` | GET /mnfi/communities/{id}/plants | id | — | Plant species associated with a specific MNFI natural community |
-| `mnfi__county_elements` | GET /mnfi/county-elements | — | county, type | Rare species and natural community occurrences tracked by MNFI for a Michigan county |
+| `mnfi__communities_list` | GET /mnfi/communities | — | class, group, rank, name | All 77 MNFI natural community types, optionally filtered by ecological class, group, rank, or name |
+| `mnfi__communities` | GET /mnfi/communities/{slug} | slug | — | Full MNFI natural community profile by URL slug: sections, characteristic plants, rare species, similar communities, map links |
+| `mnfi__species_list` | GET /mnfi/species | — | name, kind, status, rank, category, limit, offset | Paginated list of MNFI tracked rare species with optional filters |
+| `mnfi__species` | GET /mnfi/species/{name} | name | — | Single MNFI rare species record by URL-encoded scientific name |
+| `mnfi__species_communities` | GET /mnfi/species/{name}/communities | name | — | MNFI natural community stubs for all communities whose rare-species list includes the given species |
+| `mnfi__species_counties` | GET /mnfi/species/{name}/counties | name | — | Michigan county names where the given rare species has been recorded in MNFI county data |
+| `mnfi__counties_list` | GET /mnfi/counties | — | — | Canonical authoritative list of all 83 Michigan counties |
+| `mnfi__counties` | GET /mnfi/counties/{county} | county | kind, status, category | All tracked rare species and natural community occurrences for a Michigan county |
 
 ### natureserve — NatureServe
 

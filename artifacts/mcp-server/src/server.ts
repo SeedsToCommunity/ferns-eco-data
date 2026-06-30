@@ -1475,16 +1475,16 @@ const tools: ToolDef[] = [
   // ── mnfi ─────────────────────────────────────────────────────────────────
   {
     tool: {
-      name: "mnfi__communities",
+      name: "mnfi__communities_list",
       description:
-        "Returns Michigan natural community types from the MNFI classification system, optionally filtered by ecological class, group, or name. Use this to discover natural community IDs for the other mnfi tools.",
+        "Returns all 77 Michigan Natural Features Inventory (MNFI) natural community types, optionally filtered by ecological class, group, rank, or name. See GET /api/mnfi/metadata for field semantics.",
       inputSchema: {
         type: "object" as const,
         properties: {
-          class: { type: "string", description: "Ecological class filter (e.g. Upland)" },
-          group: { type: "string", description: "Ecological group filter (e.g. Oak Openings)" },
-          name:  { type: "string", description: "Community name filter (partial match)" },
-          ...PV_PROP,
+          class: { type: "string", description: "Filter by community class (substring match, e.g. Terrestrial, Palustrine)" },
+          group: { type: "string", description: "Filter by community group (substring match, e.g. Forest, Fen)" },
+          rank:  { type: "string", description: "Filter by global or state rank (exact match, e.g. G2, S3)" },
+          name:  { type: "string", description: "Filter by community name (substring match, e.g. oak savanna)" },
         },
         required: [],
       },
@@ -1493,68 +1493,139 @@ const tools: ToolDef[] = [
       apiGet("/mnfi/communities", {
         class: args["class"] !== undefined ? String(args["class"]) : undefined,
         group: args["group"] !== undefined ? String(args["group"]) : undefined,
+        rank:  args["rank"]  !== undefined ? String(args["rank"])  : undefined,
         name:  args["name"]  !== undefined ? String(args["name"])  : undefined,
-        provenance_verbosity: pv(args),
       }),
   },
   {
     tool: {
-      name: "mnfi__community",
+      name: "mnfi__communities",
       description:
-        "Returns the full MNFI natural community profile for a specific community by ID or slug, including ecological description, characteristic plants grouped by life form, conservation ranks, and a link to the county distribution map.",
+        "Returns the full MNFI natural community profile for a single community identified by its URL slug (e.g. prairie-fen). Includes ecological sections, characteristic plants, rare species, similar communities, and map links. See GET /api/mnfi/metadata for field semantics.",
       inputSchema: {
         type: "object" as const,
         properties: {
-          id: { type: "string", description: "MNFI community ID (e.g. A1)" },
-          ...PV_PROP,
+          slug: { type: "string", description: "URL slug of the MNFI community (e.g. prairie-fen, oak-openings)" },
         },
-        required: ["id"],
+        required: ["slug"],
       },
     },
     handler: async (args) =>
-      apiGet(`/mnfi/communities/${encodeURIComponent(String(args["id"]))}`, {
-        provenance_verbosity: pv(args),
-      }),
+      apiGet(`/mnfi/communities/${encodeURIComponent(String(args["slug"]))}`, {}),
   },
   {
     tool: {
-      name: "mnfi__community_plants",
+      name: "mnfi__species_list",
       description:
-        "Returns the list of plant species associated with a specific MNFI natural community, useful for understanding community composition.",
+        "Returns a paginated list of MNFI tracked rare species, optionally filtered by name, kind, status, rank, or category. See GET /api/mnfi/metadata for field semantics.",
       inputSchema: {
         type: "object" as const,
         properties: {
-          id: { type: "string", description: "MNFI community ID (e.g. A1)" },
-          ...PV_PROP,
-        },
-        required: ["id"],
-      },
-    },
-    handler: async (args) =>
-      apiGet(`/mnfi/communities/${encodeURIComponent(String(args["id"]))}/plants`, {
-        provenance_verbosity: pv(args),
-      }),
-  },
-  {
-    tool: {
-      name: "mnfi__county_elements",
-      description:
-        "Returns rare species and natural community element occurrences tracked by MNFI for a Michigan county, optionally filtered by element type.",
-      inputSchema: {
-        type: "object" as const,
-        properties: {
-          county: { type: "string", description: "Michigan county name (e.g. Washtenaw)" },
-          type:   { type: "string", description: "Element type filter: 'species' or 'community'. When omitted, both types are returned." },
-          ...PV_PROP,
+          name:     { type: "string", description: "Filter by scientific or common name (substring match)" },
+          kind:     { type: "string", enum: ["plant", "animal"], description: "Filter by kind: plant or animal" },
+          status:   { type: "string", description: "Filter by federal or state status code (exact match, e.g. LE, E, T)" },
+          rank:     { type: "string", description: "Filter by global or state rank (exact match, e.g. G1, S2)" },
+          category: { type: "string", description: "Filter by species category (substring match, e.g. Flowering Plants)" },
+          limit:    { type: "number", description: "Page size (default 50, max 200)" },
+          offset:   { type: "number", description: "Page offset (default 0)" },
         },
         required: [],
       },
     },
     handler: async (args) =>
-      apiGet("/mnfi/county-elements", {
-        county: args["county"] !== undefined ? String(args["county"]) : undefined,
-        type:   args["type"]   !== undefined ? String(args["type"])   : undefined,
-        provenance_verbosity: pv(args),
+      apiGet("/mnfi/species", {
+        name:     args["name"]     !== undefined ? String(args["name"])     : undefined,
+        kind:     args["kind"]     !== undefined ? String(args["kind"])     : undefined,
+        status:   args["status"]   !== undefined ? String(args["status"])   : undefined,
+        rank:     args["rank"]     !== undefined ? String(args["rank"])     : undefined,
+        category: args["category"] !== undefined ? String(args["category"]) : undefined,
+        limit:    args["limit"]    !== undefined ? Number(args["limit"])    : undefined,
+        offset:   args["offset"]   !== undefined ? Number(args["offset"])   : undefined,
+      }),
+  },
+  {
+    tool: {
+      name: "mnfi__species",
+      description:
+        "Returns the rare species record for a single species by URL-encoded scientific name from the Michigan Natural Features Inventory. See GET /api/mnfi/metadata for field semantics.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          name: { type: "string", description: "Scientific name of the rare species (e.g. Cirsium pitcheri)" },
+        },
+        required: ["name"],
+      },
+    },
+    handler: async (args) =>
+      apiGet(`/mnfi/species/${encodeURIComponent(String(args["name"]))}`, {}),
+  },
+  {
+    tool: {
+      name: "mnfi__species_communities",
+      description:
+        "Returns the MNFI natural community stubs for all communities whose rare-species list includes the given species (by scientific name). See GET /api/mnfi/metadata for field semantics.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          name: { type: "string", description: "Scientific name of the rare species (e.g. Cirsium pitcheri)" },
+        },
+        required: ["name"],
+      },
+    },
+    handler: async (args) =>
+      apiGet(`/mnfi/species/${encodeURIComponent(String(args["name"]))}/communities`, {}),
+  },
+  {
+    tool: {
+      name: "mnfi__species_counties",
+      description:
+        "Returns the Michigan county names where the given rare species has been recorded in the MNFI county element data. See GET /api/mnfi/metadata for field semantics.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          name: { type: "string", description: "Scientific name of the rare species (e.g. Cirsium pitcheri)" },
+        },
+        required: ["name"],
+      },
+    },
+    handler: async (args) =>
+      apiGet(`/mnfi/species/${encodeURIComponent(String(args["name"]))}/counties`, {}),
+  },
+  {
+    tool: {
+      name: "mnfi__counties_list",
+      description:
+        "Returns the canonical authoritative list of all 83 Michigan counties from the Michigan Natural Features Inventory. See GET /api/mnfi/metadata for field semantics.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {},
+        required: [],
+      },
+    },
+    handler: async (_args) =>
+      apiGet("/mnfi/counties", {}),
+  },
+  {
+    tool: {
+      name: "mnfi__counties",
+      description:
+        "Returns all tracked rare species and natural community occurrences for a given Michigan county from the Michigan Natural Features Inventory, optionally filtered by kind, status, or category. See GET /api/mnfi/metadata for field semantics.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          county:   { type: "string", description: "Michigan county name (e.g. Washtenaw). Case-insensitive." },
+          kind:     { type: "string", enum: ["plant", "animal"], description: "Filter species by kind: plant or animal" },
+          status:   { type: "string", description: "Filter by conservation status code (exact match, e.g. LE, E, T)" },
+          category: { type: "string", description: "Filter by species category (substring match, e.g. Flowering Plants)" },
+        },
+        required: ["county"],
+      },
+    },
+    handler: async (args) =>
+      apiGet(`/mnfi/counties/${encodeURIComponent(String(args["county"]))}`, {
+        kind:     args["kind"]     !== undefined ? String(args["kind"])     : undefined,
+        status:   args["status"]   !== undefined ? String(args["status"])   : undefined,
+        category: args["category"] !== undefined ? String(args["category"]) : undefined,
       }),
   },
 

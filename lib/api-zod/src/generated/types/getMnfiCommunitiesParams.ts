@@ -16,6 +16,10 @@ class?: string;
  */
 group?: string;
 /**
+ * Filter by global or state rank (exact match, e.g. G2, S3)
+ */
+rank?: string;
+/**
  * Filter by community name (substring match, e.g. oak savanna)
  */
 name?: string;

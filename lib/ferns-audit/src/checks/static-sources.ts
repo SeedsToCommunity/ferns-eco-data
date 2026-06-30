@@ -655,262 +655,297 @@ export async function runS2CChecks(
 }
 
 export async function runMnfiChecks(fernsBase: string): Promise<EndpointComparison[]> {
-  // 1. Metadata: assert community_count=77, descriptions_fetched=77, plant_record_count>0
+  // Known test species: Cirsium pitcheri (Pitcher's thistle, federally threatened).
+  // Confirmed present in both community rare-species lists and county-species data.
+  const KNOWN_SPECIES = "Cirsium pitcheri";
+
+  // 1. Metadata: assert community_count=77, county_count=83, community_classes present
   const metadataCheck = await checkEndpoint(
     "mnfi",
     "/api/mnfi/metadata",
-    "MNFI — service metadata (community_count=77, descriptions_fetched=77, plant_record_count>0)",
+    "MNFI — service metadata (community_count=77, county_count=83, community_classes present)",
     fernsBase,
     (envelope) => {
       const findings: FieldFinding[] = [];
-      const ec = envelope as Record<string, unknown>;
-      const communityCount = typeof ec.community_count === "number" ? ec.community_count : -1;
+      const data = envelope.data as Record<string, unknown> | null | undefined;
+      const communityCount = typeof data?.community_count === "number" ? data.community_count : -1;
       if (communityCount === 77) {
-        findings.push({ type: "ok", sourceField: "community_count", note: `community_count = 77 (expected)` });
+        findings.push({ type: "ok", sourceField: "data.community_count", note: `community_count = 77 (expected)` });
       } else {
         findings.push({
           type: "mismatch",
-          sourceField: "community_count",
+          sourceField: "data.community_count",
           note: `Expected community_count=77, got ${communityCount}`,
         });
       }
-      const descFetched = typeof ec.descriptions_fetched === "number" ? ec.descriptions_fetched : -1;
-      if (descFetched === 77) {
-        findings.push({ type: "ok", sourceField: "descriptions_fetched", note: `descriptions_fetched = 77 (all scraped)` });
+      const countyCount = typeof data?.county_count === "number" ? data.county_count : -1;
+      if (countyCount === 83) {
+        findings.push({ type: "ok", sourceField: "data.county_count", note: `county_count = 83 (expected)` });
       } else {
         findings.push({
           type: "mismatch",
-          sourceField: "descriptions_fetched",
-          note: `Expected descriptions_fetched=77, got ${descFetched} — run POST /api/mnfi/import-descriptions`,
+          sourceField: "data.county_count",
+          note: `Expected county_count=83, got ${countyCount}`,
         });
       }
-      const plantCount = typeof ec.plant_record_count === "number" ? ec.plant_record_count : -1;
-      if (plantCount > 0) {
-        findings.push({ type: "ok", sourceField: "plant_record_count", note: `plant_record_count = ${plantCount} (>0)` });
+      const classes = data?.community_classes;
+      if (Array.isArray(classes) && classes.length > 0) {
+        findings.push({ type: "ok", sourceField: "data.community_classes", note: `${classes.length} ecological class entries present` });
       } else {
         findings.push({
           type: "mismatch",
-          sourceField: "plant_record_count",
-          note: `plant_record_count = ${plantCount}; run POST /api/mnfi/import-plant-lists`,
-        });
-      }
-      const classes = ec.community_classes;
-      if (Array.isArray(classes) && classes.length === 5) {
-        findings.push({ type: "ok", sourceField: "community_classes", note: `5 ecological classes present` });
-      } else {
-        findings.push({
-          type: "mismatch",
-          sourceField: "community_classes",
-          note: `Expected 5 community classes, got ${Array.isArray(classes) ? classes.length : "non-array"}`,
-        });
-      }
-      const countyElementCount = typeof ec.county_element_count === "number" ? ec.county_element_count : -1;
-      if (countyElementCount > 7000) {
-        findings.push({ type: "ok", sourceField: "county_element_count", note: `county_element_count=${countyElementCount} (all 83 counties imported)` });
-      } else {
-        findings.push({
-          type: "mismatch",
-          sourceField: "county_element_count",
-          note: `Expected county_element_count>7000, got ${countyElementCount} — run POST /api/mnfi/import-county-elements`,
+          sourceField: "data.community_classes",
+          note: `Expected community_classes array, got ${Array.isArray(classes) ? "empty array" : "non-array"}`,
         });
       }
       return findings;
     },
   );
 
-  // 2. Communities list: 77 communities, all 5 classes represented
+  // 2. Communities list: Array.isArray(data.communities); length === 77
   const communitiesCheck = await checkEndpoint(
     "mnfi",
     "/api/mnfi/communities",
-    "MNFI — communities list (77 total, all 5 ecological classes)",
+    "MNFI — communities list (Array.isArray(data.communities); length === 77)",
     fernsBase,
     (envelope) => {
       const findings: FieldFinding[] = [];
       const data = envelope.data as Record<string, unknown> | null | undefined;
-      const communities = Array.isArray(data?.communities) ? (data.communities as Array<Record<string, unknown>>) : [];
+      if (!Array.isArray(data?.communities)) {
+        findings.push({ type: "mismatch", sourceField: "data.communities", note: `data.communities is not an array` });
+        return findings;
+      }
+      const communities = data.communities as Array<Record<string, unknown>>;
       if (communities.length === 77) {
-        findings.push({ type: "ok", sourceField: "data.community_count", note: `77 communities returned (expected)` });
+        findings.push({ type: "ok", sourceField: "data.communities.length", note: `77 communities returned (expected)` });
       } else {
         findings.push({
           type: "mismatch",
-          sourceField: "data.community_count",
+          sourceField: "data.communities.length",
           note: `Expected 77 communities, got ${communities.length}`,
         });
       }
-      const classes = new Set(communities.map((c) => c["community_class"] as string));
+      const classes = new Set(communities.map((c) => c["communityClass"] as string));
       const expectedClasses = ["Palustrine", "Palustrine/Terrestrial", "Primary", "Subterranean/Sink", "Terrestrial"];
       for (const cls of expectedClasses) {
         if (classes.has(cls)) {
-          findings.push({ type: "ok", sourceField: `community_class[${cls}]`, note: `Class "${cls}" is present` });
+          findings.push({ type: "ok", sourceField: `communityClass[${cls}]`, note: `Class "${cls}" is present` });
         } else {
-          findings.push({ type: "gap", sourceField: `community_class[${cls}]`, note: `Class "${cls}" not found in communities list` });
+          findings.push({ type: "gap", sourceField: `communityClass[${cls}]`, note: `Class "${cls}" not found in communities list` });
         }
       }
       return findings;
     },
   );
 
-  // 3. Community by slug: prairie-fen — full profile including inline characteristic plants
+  // 3. Community by slug: prairie-fen — found=true; data.slug is string; data.sections is array; data.characteristicPlants is array
   const prairieFeCheck = await checkEndpoint(
     "mnfi",
     "/api/mnfi/communities/prairie-fen",
-    "MNFI — community detail 'prairie-fen' (id=10667, G3/S3, inline characteristic_plants)",
+    "MNFI — community detail 'prairie-fen' (found=true; slug string; sections array; characteristicPlants array)",
     fernsBase,
     (envelope) => {
       const findings: FieldFinding[] = [];
+      if (envelope.found !== true) {
+        findings.push({ type: "mismatch", sourceField: "found", note: `Expected found=true for prairie-fen, got ${envelope.found}` });
+        return findings;
+      }
+      findings.push({ type: "ok", sourceField: "found", note: `found=true` });
       const data = envelope.data as Record<string, unknown> | null | undefined;
       if (!data) {
         findings.push({ type: "mismatch", sourceField: "data", note: `No data returned for slug 'prairie-fen'` });
         return findings;
       }
-      const checks: Array<[string, unknown, unknown]> = [
-        ["community_id", data.community_id, 10667],
-        ["name", data.name, "Prairie Fen"],
-        ["community_class", data.community_class, "Palustrine"],
-        ["community_group", data.community_group, "Fen Group"],
-        ["global_rank", data.global_rank, "G3"],
-        ["state_rank", data.state_rank, "S3"],
-      ];
-      for (const [field, actual, expected] of checks) {
-        if (actual === expected) {
-          findings.push({ type: "ok", sourceField: `data.${field}`, note: `${field} = ${JSON.stringify(expected)}` });
-        } else {
-          findings.push({
-            type: "mismatch",
-            sourceField: `data.${field}`,
-            note: `Expected ${field}=${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`,
-          });
-        }
-      }
-      if (typeof data.mnfi_url === "string" && data.mnfi_url.includes("mnfi.anr.msu.edu")) {
-        findings.push({ type: "ok", sourceField: "data.mnfi_url", note: `mnfi_url present and points to mnfi.anr.msu.edu` });
+      if (typeof data["slug"] === "string") {
+        findings.push({ type: "ok", sourceField: "data.slug", note: `slug="${data["slug"]}"` });
       } else {
-        findings.push({ type: "mismatch", sourceField: "data.mnfi_url", note: `mnfi_url missing or unexpected: ${data.mnfi_url}` });
+        findings.push({ type: "mismatch", sourceField: "data.slug", note: `data.slug is not a string: ${JSON.stringify(data["slug"])}` });
       }
-      // Inline characteristic plants must be present in the community detail response
-      const charPlants = data.characteristic_plants as Record<string, unknown> | null | undefined;
-      if (charPlants && typeof charPlants === "object") {
-        const totalEntries = typeof charPlants.total_entries === "number" ? charPlants.total_entries : 0;
-        if (totalEntries > 0) {
-          findings.push({ type: "ok", sourceField: "data.characteristic_plants.total_entries", note: `${totalEntries} plant entries inline in community detail` });
-        } else {
-          findings.push({
-            type: "mismatch",
-            sourceField: "data.characteristic_plants.total_entries",
-            note: `characteristic_plants.total_entries=0 — plants not loaded`,
-          });
-        }
-        const byLifeForm = charPlants.by_life_form as Record<string, unknown> | null | undefined;
-        for (const form of ["Graminoids", "Forbs"]) {
-          if (byLifeForm && Array.isArray(byLifeForm[form]) && (byLifeForm[form] as unknown[]).length > 0) {
-            findings.push({ type: "ok", sourceField: `data.characteristic_plants.by_life_form.${form}`, note: `${form} life form present inline` });
-          } else {
-            findings.push({ type: "gap", sourceField: `data.characteristic_plants.by_life_form.${form}`, note: `${form} life form missing from inline plants` });
-          }
-        }
+      if (Array.isArray(data["sections"])) {
+        findings.push({ type: "ok", sourceField: "data.sections", note: `sections is array (${(data["sections"] as unknown[]).length} entries)` });
       } else {
-        findings.push({
-          type: "mismatch",
-          sourceField: "data.characteristic_plants",
-          note: `characteristic_plants object missing from community detail — plants should be inline`,
-        });
+        findings.push({ type: "mismatch", sourceField: "data.sections", note: `data.sections is not an array` });
+      }
+      if (Array.isArray(data["characteristicPlants"])) {
+        findings.push({ type: "ok", sourceField: "data.characteristicPlants", note: `characteristicPlants is array (${(data["characteristicPlants"] as unknown[]).length} entries)` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.characteristicPlants", note: `data.characteristicPlants is not an array` });
       }
       return findings;
     },
   );
 
-  // 4. County elements: Washtenaw must return real species + community records
-  const countyCheck = await checkEndpoint(
+  // 4. Species list: Array.isArray(data.species); data.species.length <= 10; pagination.total > 0
+  const speciesListCheck = await checkEndpoint(
     "mnfi",
-    "/api/mnfi/county-elements?county=Washtenaw",
-    "MNFI — county elements for Washtenaw (real species+community records imported for all 83 counties)",
+    "/api/mnfi/species?kind=plant&limit=10",
+    "MNFI — species list kind=plant&limit=10 (Array.isArray; length<=10; pagination.total>0)",
     fernsBase,
     (envelope) => {
       const findings: FieldFinding[] = [];
       const data = envelope.data as Record<string, unknown> | null | undefined;
-      if (!data) {
-        findings.push({ type: "mismatch", sourceField: "data", note: `No data returned for county=Washtenaw` });
-        return findings;
-      }
-      if (typeof data.county === "string") {
-        findings.push({ type: "ok", sourceField: "data.county", note: `county="${data.county}"` });
+      if (!Array.isArray(data?.species)) {
+        findings.push({ type: "mismatch", sourceField: "data.species", note: `data.species is not an array` });
       } else {
-        findings.push({ type: "mismatch", sourceField: "data.county", note: `data.county field missing` });
+        const species = data.species as unknown[];
+        findings.push({ type: "ok", sourceField: "data.species", note: `data.species is array` });
+        if (species.length <= 10) {
+          findings.push({ type: "ok", sourceField: "data.species.length", note: `length=${species.length} (<=10, limit respected)` });
+        } else {
+          findings.push({ type: "mismatch", sourceField: "data.species.length", note: `Expected <=10, got ${species.length}` });
+        }
       }
-      const resultCount = typeof data.result_count === "number" ? data.result_count : 0;
-      if (resultCount > 0) {
-        findings.push({ type: "ok", sourceField: "data.result_count", note: `result_count=${resultCount} elements for Washtenaw` });
+      const pagination = envelope.pagination as Record<string, unknown> | null | undefined;
+      const total = typeof pagination?.total === "number" ? pagination.total : 0;
+      if (total > 0) {
+        findings.push({ type: "ok", sourceField: "pagination.total", note: `pagination.total=${total} (>0)` });
       } else {
-        findings.push({
-          type: "mismatch",
-          sourceField: "data.result_count",
-          note: `result_count=0 — county element data not imported. Run POST /api/mnfi/import-county-elements`,
-        });
-      }
-      const totalImported = typeof data.total_imported_across_all_counties === "number" ? data.total_imported_across_all_counties : 0;
-      if (totalImported > 7000) {
-        findings.push({ type: "ok", sourceField: "data.total_imported_across_all_counties", note: `${totalImported} records across all 83 counties` });
-      } else {
-        findings.push({
-          type: "mismatch",
-          sourceField: "data.total_imported_across_all_counties",
-          note: `Expected >7000 records across all counties, got ${totalImported}`,
-        });
-      }
-      // Verify Prairie Fen is in Washtenaw's community data
-      const elements = Array.isArray(data.elements) ? (data.elements as Array<Record<string, unknown>>) : [];
-      const prairiefen = elements.find((e) => e["element_name"] === "Prairie Fen" && e["element_type"] === "community");
-      if (prairiefen) {
-        const count = prairiefen["occurrences_in_county"];
-        findings.push({ type: "ok", sourceField: "data.elements[Prairie Fen]", note: `Prairie Fen in Washtenaw with ${count} occurrence(s)` });
-      } else {
-        findings.push({ type: "gap", sourceField: "data.elements[Prairie Fen]", note: `Prairie Fen not found in Washtenaw county elements (type filter active)` });
+        findings.push({ type: "mismatch", sourceField: "pagination.total", note: `Expected pagination.total>0, got ${total}` });
       }
       return findings;
     },
   );
 
-  // 5. Plant list for prairie-fen: 86 entries, Graminoids/Forbs/Shrubs present
-  const plantListCheck = await checkEndpoint(
+  // 5. Species single: Cirsium pitcheri — found=true; data.scientificName present; data.kind === "plant"|"animal"
+  const speciesSingleCheck = await checkEndpoint(
     "mnfi",
-    "/api/mnfi/communities/10667/plants",
-    "MNFI — prairie-fen plant list (plants_imported=true, graminoids+forbs+shrubs present)",
+    `/api/mnfi/species/${encodeURIComponent(KNOWN_SPECIES)}`,
+    `MNFI — species single '${KNOWN_SPECIES}' (found=true; scientificName present; kind plant|animal)`,
+    fernsBase,
+    (envelope) => {
+      const findings: FieldFinding[] = [];
+      if (envelope.found !== true) {
+        findings.push({ type: "mismatch", sourceField: "found", note: `Expected found=true for ${KNOWN_SPECIES}, got ${envelope.found}` });
+        return findings;
+      }
+      findings.push({ type: "ok", sourceField: "found", note: `found=true` });
+      const data = envelope.data as Record<string, unknown> | null | undefined;
+      if (!data) {
+        findings.push({ type: "mismatch", sourceField: "data", note: `No data returned` });
+        return findings;
+      }
+      if (typeof data["scientificName"] === "string" && data["scientificName"].length > 0) {
+        findings.push({ type: "ok", sourceField: "data.scientificName", note: `scientificName="${data["scientificName"]}"` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.scientificName", note: `data.scientificName missing or empty` });
+      }
+      if (data["kind"] === "plant" || data["kind"] === "animal") {
+        findings.push({ type: "ok", sourceField: "data.kind", note: `kind="${data["kind"]}"` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.kind", note: `Expected kind "plant" or "animal", got ${JSON.stringify(data["kind"])}` });
+      }
+      return findings;
+    },
+  );
+
+  // 6. Species communities: Array.isArray(data.communities)
+  const speciesCommunitiesCheck = await checkEndpoint(
+    "mnfi",
+    `/api/mnfi/species/${encodeURIComponent(KNOWN_SPECIES)}/communities`,
+    `MNFI — species communities for '${KNOWN_SPECIES}' (Array.isArray(data.communities))`,
     fernsBase,
     (envelope) => {
       const findings: FieldFinding[] = [];
       const data = envelope.data as Record<string, unknown> | null | undefined;
-      if (!data) {
-        findings.push({ type: "mismatch", sourceField: "data", note: "No data returned for prairie-fen plants" });
-        return findings;
-      }
-      if (data.plants_imported === true) {
-        findings.push({ type: "ok", sourceField: "data.plants_imported", note: `plants_imported=true` });
+      if (Array.isArray(data?.communities)) {
+        findings.push({ type: "ok", sourceField: "data.communities", note: `data.communities is array (${(data.communities as unknown[]).length} entries)` });
       } else {
-        findings.push({
-          type: "mismatch",
-          sourceField: "data.plants_imported",
-          note: `plants_imported=${data.plants_imported}; run POST /api/mnfi/import-plant-lists`,
-        });
-      }
-      const totalEntries = typeof data.total_entries === "number" ? data.total_entries : 0;
-      if (totalEntries > 0) {
-        findings.push({ type: "ok", sourceField: "data.total_entries", note: `${totalEntries} plant entries for prairie fen` });
-      } else {
-        findings.push({ type: "mismatch", sourceField: "data.total_entries", note: `total_entries=${totalEntries}; no plants loaded` });
-      }
-      const byLifeForm = data.by_life_form as Record<string, unknown> | null | undefined;
-      for (const form of ["Graminoids", "Forbs", "Shrubs"]) {
-        if (byLifeForm && Array.isArray(byLifeForm[form]) && (byLifeForm[form] as unknown[]).length > 0) {
-          findings.push({ type: "ok", sourceField: `data.by_life_form.${form}`, note: `${form} list present (${(byLifeForm[form] as unknown[]).length} entries)` });
-        } else {
-          findings.push({ type: "gap", sourceField: `data.by_life_form.${form}`, note: `${form} life form missing from prairie-fen plant list` });
-        }
+        findings.push({ type: "mismatch", sourceField: "data.communities", note: `data.communities is not an array` });
       }
       return findings;
     },
   );
 
-  return [metadataCheck, communitiesCheck, prairieFeCheck, countyCheck, plantListCheck];
+  // 7. Species counties: Array.isArray(data.counties)
+  const speciesCountiesCheck = await checkEndpoint(
+    "mnfi",
+    `/api/mnfi/species/${encodeURIComponent(KNOWN_SPECIES)}/counties`,
+    `MNFI — species counties for '${KNOWN_SPECIES}' (Array.isArray(data.counties))`,
+    fernsBase,
+    (envelope) => {
+      const findings: FieldFinding[] = [];
+      const data = envelope.data as Record<string, unknown> | null | undefined;
+      if (Array.isArray(data?.counties)) {
+        findings.push({ type: "ok", sourceField: "data.counties", note: `data.counties is array (${(data.counties as unknown[]).length} entries)` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.counties", note: `data.counties is not an array` });
+      }
+      return findings;
+    },
+  );
+
+  // 8. Counties list: Array.isArray(data.counties); length === 83
+  const countiesListCheck = await checkEndpoint(
+    "mnfi",
+    "/api/mnfi/counties",
+    "MNFI — counties list (Array.isArray(data.counties); length === 83)",
+    fernsBase,
+    (envelope) => {
+      const findings: FieldFinding[] = [];
+      const data = envelope.data as Record<string, unknown> | null | undefined;
+      if (!Array.isArray(data?.counties)) {
+        findings.push({ type: "mismatch", sourceField: "data.counties", note: `data.counties is not an array` });
+        return findings;
+      }
+      const counties = data.counties as unknown[];
+      findings.push({ type: "ok", sourceField: "data.counties", note: `data.counties is array` });
+      if (counties.length === 83) {
+        findings.push({ type: "ok", sourceField: "data.counties.length", note: `83 counties returned (expected)` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.counties.length", note: `Expected 83 counties, got ${counties.length}` });
+      }
+      return findings;
+    },
+  );
+
+  // 9. County Washtenaw: found=true; Array.isArray(data.species); data.species.length > 0; Array.isArray(data.communities)
+  const countyWashtenawCheck = await checkEndpoint(
+    "mnfi",
+    "/api/mnfi/counties/Washtenaw",
+    "MNFI — county Washtenaw (found=true; species array non-empty; communities array)",
+    fernsBase,
+    (envelope) => {
+      const findings: FieldFinding[] = [];
+      if (envelope.found !== true) {
+        findings.push({ type: "mismatch", sourceField: "found", note: `Expected found=true for Washtenaw, got ${envelope.found}` });
+        return findings;
+      }
+      findings.push({ type: "ok", sourceField: "found", note: `found=true` });
+      const data = envelope.data as Record<string, unknown> | null | undefined;
+      if (!data) {
+        findings.push({ type: "mismatch", sourceField: "data", note: `No data returned for Washtenaw` });
+        return findings;
+      }
+      if (Array.isArray(data["species"])) {
+        const speciesArr = data["species"] as unknown[];
+        if (speciesArr.length > 0) {
+          findings.push({ type: "ok", sourceField: "data.species", note: `data.species is array with ${speciesArr.length} entries (>0)` });
+        } else {
+          findings.push({ type: "mismatch", sourceField: "data.species", note: `data.species is empty — expected records for Washtenaw` });
+        }
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.species", note: `data.species is not an array` });
+      }
+      if (Array.isArray(data["communities"])) {
+        findings.push({ type: "ok", sourceField: "data.communities", note: `data.communities is array (${(data["communities"] as unknown[]).length} entries)` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.communities", note: `data.communities is not an array` });
+      }
+      return findings;
+    },
+  );
+
+  return [
+    metadataCheck,
+    communitiesCheck,
+    prairieFeCheck,
+    speciesListCheck,
+    speciesSingleCheck,
+    speciesCommunitiesCheck,
+    speciesCountiesCheck,
+    countiesListCheck,
+    countyWashtenawCheck,
+  ];
 }
 
 export async function runNatureserveChecks(fernsBase: string): Promise<EndpointComparison[]> {

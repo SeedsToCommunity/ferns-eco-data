@@ -95,7 +95,8 @@ import type {
   GetMissouriPlantsSpeciesInformationParams,
   GetMissouriPlantsUrlParams,
   GetMnfiCommunitiesParams,
-  GetMnfiCountyElementsParams,
+  GetMnfiCountyParams,
+  GetMnfiSpeciesListParams,
   GetNatureserveSearchParams,
   GetNatureserveSpeciesSearchParams,
   GetNatureserveTaxonParams,
@@ -5409,7 +5410,7 @@ export function useGetSourceRelationships<TData = Awaited<ReturnType<typeof getS
 
 
 /**
- * Returns service identity, attribution, licenses and license notes, community class counts, county coverage, and cache statistics for the Michigan Natural Features Inventory (MNFI) service. Also seeds the MNFI entry in the FERNS source registry. Use this to populate 'About this data' panels in any application displaying MNFI community or county element data. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+ * Returns service identity, attribution, licenses, community class counts, county coverage, and the full registry entry for the Michigan Natural Features Inventory (MNFI). Use this to populate 'About this data' panels in any application displaying MNFI community, species, or county data. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
  * @summary MNFI service metadata
  */
@@ -5486,7 +5487,7 @@ export function useGetMnfiMetadata<TData = Awaited<ReturnType<typeof getMnfiMeta
 
 
 /**
- * Returns all Michigan Natural Features Inventory (MNFI) natural community types. Optionally filter by community class, group, or name substring (case-insensitive ILIKE match). All data is served from FERNS's local database seeded from the MNFI website — no upstream API call is made at query time. Returns community records sorted by class and name. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+ * Returns all 77 Michigan Natural Features Inventory (MNFI) natural community types. Optionally filter by community class, group, rank, or name substring (case-insensitive match). Data is served from FERNS's in-memory store — no upstream API call is made at query time. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
  * @summary List MNFI natural community types
  */
@@ -5570,21 +5571,21 @@ export function useGetMnfiCommunities<TData = Awaited<ReturnType<typeof getMnfiC
 
 
 /**
- * Returns the full profile for a single MNFI natural community type, including description, acreage estimates, and all characteristic plants grouped by life form. The {id} path parameter accepts either the numeric community_id (e.g. 1234) or the URL slug (e.g. southern-dry-chestnut-oak-forest). Plant lists are included inline — characteristic_plants.by_life_form groups species by life form (tree, shrub, herb, etc.). Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+ * Returns the full profile for a single MNFI natural community type by its URL slug (e.g. prairie-fen, southern-dry-chestnut-oak-forest). Includes ecological description sections, characteristic plant list, rare species, similar communities, and links. Returns found=false with data=null when no community matches the slug. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
- * @summary Get a single MNFI community by ID or slug
+ * @summary Get a single MNFI community by slug
  */
-export const getGetMnfiCommunityUrl = (id: string,) => {
+export const getGetMnfiCommunityUrl = (slug: string,) => {
 
 
   
 
-  return `/api/mnfi/communities/${id}`
+  return `/api/mnfi/communities/${slug}`
 }
 
-export const getMnfiCommunity = async (id: string, options?: RequestInit): Promise<FernsEnvelope> => {
+export const getMnfiCommunity = async (slug: string, options?: RequestInit): Promise<FernsEnvelope> => {
   
-  return customFetch<FernsEnvelope>(getGetMnfiCommunityUrl(id),
+  return customFetch<FernsEnvelope>(getGetMnfiCommunityUrl(slug),
   {      
     ...options,
     method: 'GET'
@@ -5597,45 +5598,45 @@ export const getMnfiCommunity = async (id: string, options?: RequestInit): Promi
 
 
 
-export const getGetMnfiCommunityQueryKey = (id: string,) => {
+export const getGetMnfiCommunityQueryKey = (slug: string,) => {
     return [
-    `/api/mnfi/communities/${id}`
+    `/api/mnfi/communities/${slug}`
     ] as const;
     }
 
     
-export const getGetMnfiCommunityQueryOptions = <TData = Awaited<ReturnType<typeof getMnfiCommunity>>, TError = ErrorType<ErrorResponse>>(id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMnfiCommunity>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetMnfiCommunityQueryOptions = <TData = Awaited<ReturnType<typeof getMnfiCommunity>>, TError = ErrorType<unknown>>(slug: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMnfiCommunity>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetMnfiCommunityQueryKey(id);
+  const queryKey =  queryOptions?.queryKey ?? getGetMnfiCommunityQueryKey(slug);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMnfiCommunity>>> = ({ signal }) => getMnfiCommunity(id, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMnfiCommunity>>> = ({ signal }) => getMnfiCommunity(slug, { signal, ...requestOptions });
 
       
 
       
 
-   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMnfiCommunity>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, enabled: !!(slug), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMnfiCommunity>>, TError, TData> & { queryKey: QueryKey }
 }
 
 export type GetMnfiCommunityQueryResult = NonNullable<Awaited<ReturnType<typeof getMnfiCommunity>>>
-export type GetMnfiCommunityQueryError = ErrorType<ErrorResponse>
+export type GetMnfiCommunityQueryError = ErrorType<unknown>
 
 
 /**
- * @summary Get a single MNFI community by ID or slug
+ * @summary Get a single MNFI community by slug
  */
 
-export function useGetMnfiCommunity<TData = Awaited<ReturnType<typeof getMnfiCommunity>>, TError = ErrorType<ErrorResponse>>(
- id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMnfiCommunity>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export function useGetMnfiCommunity<TData = Awaited<ReturnType<typeof getMnfiCommunity>>, TError = ErrorType<unknown>>(
+ slug: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMnfiCommunity>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetMnfiCommunityQueryOptions(id,options)
+  const queryOptions = getGetMnfiCommunityQueryOptions(slug,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -5647,88 +5648,11 @@ export function useGetMnfiCommunity<TData = Awaited<ReturnType<typeof getMnfiCom
 
 
 /**
- * Returns the characteristic plant list for an MNFI natural community, grouped by life form (tree, shrub, herb, graminoid, vine, etc.). The {id} path parameter accepts either the numeric community_id or the URL slug. This is the same plant data included inline in the community detail endpoint, exposed as a dedicated endpoint for applications that only need plant lists. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+ * Returns a paginated list of MNFI tracked rare species. Optionally filter by name (scientific or common, substring match), kind (plant or animal), conservation status, global/state rank, or species category. Default page size is 50; maximum is 200. Returns a pagination envelope field. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
- * @summary Get characteristic plants for an MNFI community
+ * @summary List MNFI tracked rare species
  */
-export const getGetMnfiCommunityPlantsUrl = (id: string,) => {
-
-
-  
-
-  return `/api/mnfi/communities/${id}/plants`
-}
-
-export const getMnfiCommunityPlants = async (id: string, options?: RequestInit): Promise<FernsEnvelope> => {
-  
-  return customFetch<FernsEnvelope>(getGetMnfiCommunityPlantsUrl(id),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-  
-
-
-
-
-export const getGetMnfiCommunityPlantsQueryKey = (id: string,) => {
-    return [
-    `/api/mnfi/communities/${id}/plants`
-    ] as const;
-    }
-
-    
-export const getGetMnfiCommunityPlantsQueryOptions = <TData = Awaited<ReturnType<typeof getMnfiCommunityPlants>>, TError = ErrorType<ErrorResponse>>(id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMnfiCommunityPlants>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
-) => {
-
-const {query: queryOptions, request: requestOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetMnfiCommunityPlantsQueryKey(id);
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMnfiCommunityPlants>>> = ({ signal }) => getMnfiCommunityPlants(id, { signal, ...requestOptions });
-
-      
-
-      
-
-   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMnfiCommunityPlants>>, TError, TData> & { queryKey: QueryKey }
-}
-
-export type GetMnfiCommunityPlantsQueryResult = NonNullable<Awaited<ReturnType<typeof getMnfiCommunityPlants>>>
-export type GetMnfiCommunityPlantsQueryError = ErrorType<ErrorResponse>
-
-
-/**
- * @summary Get characteristic plants for an MNFI community
- */
-
-export function useGetMnfiCommunityPlants<TData = Awaited<ReturnType<typeof getMnfiCommunityPlants>>, TError = ErrorType<ErrorResponse>>(
- id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMnfiCommunityPlants>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
-  
- ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-
-  const queryOptions = getGetMnfiCommunityPlantsQueryOptions(id,options)
-
-  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-
-
-
-
-/**
- * Returns MNFI Element Occurrence records for a given Michigan county. These records document where significant natural features (rare species, natural communities) have been observed. The county parameter is required; all 83 Michigan county names are accepted (case-insensitive). Optionally filter to only species or community element types with the type parameter. Data is served from FERNS's local database seeded from the MNFI county element download — no upstream API call at query time. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
-
- * @summary Get MNFI significant natural features for a Michigan county
- */
-export const getGetMnfiCountyElementsUrl = (params: GetMnfiCountyElementsParams,) => {
+export const getGetMnfiSpeciesListUrl = (params?: GetMnfiSpeciesListParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -5740,12 +5664,12 @@ export const getGetMnfiCountyElementsUrl = (params: GetMnfiCountyElementsParams,
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/mnfi/county-elements?${stringifiedParams}` : `/api/mnfi/county-elements`
+  return stringifiedParams.length > 0 ? `/api/mnfi/species?${stringifiedParams}` : `/api/mnfi/species`
 }
 
-export const getMnfiCountyElements = async (params: GetMnfiCountyElementsParams, options?: RequestInit): Promise<FernsEnvelope> => {
+export const getMnfiSpeciesList = async (params?: GetMnfiSpeciesListParams, options?: RequestInit): Promise<FernsEnvelope> => {
   
-  return customFetch<FernsEnvelope>(getGetMnfiCountyElementsUrl(params),
+  return customFetch<FernsEnvelope>(getGetMnfiSpeciesListUrl(params),
   {      
     ...options,
     method: 'GET'
@@ -5758,45 +5682,442 @@ export const getMnfiCountyElements = async (params: GetMnfiCountyElementsParams,
 
 
 
-export const getGetMnfiCountyElementsQueryKey = (params?: GetMnfiCountyElementsParams,) => {
+export const getGetMnfiSpeciesListQueryKey = (params?: GetMnfiSpeciesListParams,) => {
     return [
-    `/api/mnfi/county-elements`, ...(params ? [params] : [])
+    `/api/mnfi/species`, ...(params ? [params] : [])
     ] as const;
     }
 
     
-export const getGetMnfiCountyElementsQueryOptions = <TData = Awaited<ReturnType<typeof getMnfiCountyElements>>, TError = ErrorType<ErrorResponse>>(params: GetMnfiCountyElementsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMnfiCountyElements>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetMnfiSpeciesListQueryOptions = <TData = Awaited<ReturnType<typeof getMnfiSpeciesList>>, TError = ErrorType<ErrorResponse>>(params?: GetMnfiSpeciesListParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMnfiSpeciesList>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetMnfiCountyElementsQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getGetMnfiSpeciesListQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMnfiCountyElements>>> = ({ signal }) => getMnfiCountyElements(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMnfiSpeciesList>>> = ({ signal }) => getMnfiSpeciesList(params, { signal, ...requestOptions });
 
       
 
       
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMnfiCountyElements>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMnfiSpeciesList>>, TError, TData> & { queryKey: QueryKey }
 }
 
-export type GetMnfiCountyElementsQueryResult = NonNullable<Awaited<ReturnType<typeof getMnfiCountyElements>>>
-export type GetMnfiCountyElementsQueryError = ErrorType<ErrorResponse>
+export type GetMnfiSpeciesListQueryResult = NonNullable<Awaited<ReturnType<typeof getMnfiSpeciesList>>>
+export type GetMnfiSpeciesListQueryError = ErrorType<ErrorResponse>
 
 
 /**
- * @summary Get MNFI significant natural features for a Michigan county
+ * @summary List MNFI tracked rare species
  */
 
-export function useGetMnfiCountyElements<TData = Awaited<ReturnType<typeof getMnfiCountyElements>>, TError = ErrorType<ErrorResponse>>(
- params: GetMnfiCountyElementsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMnfiCountyElements>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export function useGetMnfiSpeciesList<TData = Awaited<ReturnType<typeof getMnfiSpeciesList>>, TError = ErrorType<ErrorResponse>>(
+ params?: GetMnfiSpeciesListParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMnfiSpeciesList>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetMnfiCountyElementsQueryOptions(params,options)
+  const queryOptions = getGetMnfiSpeciesListQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * Returns the rare species record for a single species identified by its scientific name (URL-encoded, case-insensitive, e.g. Cirsium+pitcheri). Returns found=false with data=null when no species matches. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+
+ * @summary Get a single MNFI rare species by scientific name
+ */
+export const getGetMnfiSpeciesUrl = (name: string,) => {
+
+
+  
+
+  return `/api/mnfi/species/${name}`
+}
+
+export const getMnfiSpecies = async (name: string, options?: RequestInit): Promise<FernsEnvelope> => {
+  
+  return customFetch<FernsEnvelope>(getGetMnfiSpeciesUrl(name),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+  
+
+
+
+
+export const getGetMnfiSpeciesQueryKey = (name: string,) => {
+    return [
+    `/api/mnfi/species/${name}`
+    ] as const;
+    }
+
+    
+export const getGetMnfiSpeciesQueryOptions = <TData = Awaited<ReturnType<typeof getMnfiSpecies>>, TError = ErrorType<unknown>>(name: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMnfiSpecies>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMnfiSpeciesQueryKey(name);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMnfiSpecies>>> = ({ signal }) => getMnfiSpecies(name, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(name), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMnfiSpecies>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMnfiSpeciesQueryResult = NonNullable<Awaited<ReturnType<typeof getMnfiSpecies>>>
+export type GetMnfiSpeciesQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get a single MNFI rare species by scientific name
+ */
+
+export function useGetMnfiSpecies<TData = Awaited<ReturnType<typeof getMnfiSpecies>>, TError = ErrorType<unknown>>(
+ name: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMnfiSpecies>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+  
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMnfiSpeciesQueryOptions(name,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * Returns the natural community stubs for all MNFI communities whose rare-species list includes the given species (by scientific name). The join is on element_id (primary) or scientific name (fallback). Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+
+ * @summary Get MNFI communities that list a rare species
+ */
+export const getGetMnfiSpeciesCommunitiesUrl = (name: string,) => {
+
+
+  
+
+  return `/api/mnfi/species/${name}/communities`
+}
+
+export const getMnfiSpeciesCommunities = async (name: string, options?: RequestInit): Promise<FernsEnvelope> => {
+  
+  return customFetch<FernsEnvelope>(getGetMnfiSpeciesCommunitiesUrl(name),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+  
+
+
+
+
+export const getGetMnfiSpeciesCommunitiesQueryKey = (name: string,) => {
+    return [
+    `/api/mnfi/species/${name}/communities`
+    ] as const;
+    }
+
+    
+export const getGetMnfiSpeciesCommunitiesQueryOptions = <TData = Awaited<ReturnType<typeof getMnfiSpeciesCommunities>>, TError = ErrorType<unknown>>(name: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMnfiSpeciesCommunities>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMnfiSpeciesCommunitiesQueryKey(name);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMnfiSpeciesCommunities>>> = ({ signal }) => getMnfiSpeciesCommunities(name, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(name), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMnfiSpeciesCommunities>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMnfiSpeciesCommunitiesQueryResult = NonNullable<Awaited<ReturnType<typeof getMnfiSpeciesCommunities>>>
+export type GetMnfiSpeciesCommunitiesQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get MNFI communities that list a rare species
+ */
+
+export function useGetMnfiSpeciesCommunities<TData = Awaited<ReturnType<typeof getMnfiSpeciesCommunities>>, TError = ErrorType<unknown>>(
+ name: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMnfiSpeciesCommunities>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+  
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMnfiSpeciesCommunitiesQueryOptions(name,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * Returns the list of Michigan county names where the given rare species has been recorded in the MNFI county element data. The join is on element_id (primary) or scientific name (fallback). Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+
+ * @summary Get Michigan counties where a rare species has been recorded
+ */
+export const getGetMnfiSpeciesCountiesUrl = (name: string,) => {
+
+
+  
+
+  return `/api/mnfi/species/${name}/counties`
+}
+
+export const getMnfiSpeciesCounties = async (name: string, options?: RequestInit): Promise<FernsEnvelope> => {
+  
+  return customFetch<FernsEnvelope>(getGetMnfiSpeciesCountiesUrl(name),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+  
+
+
+
+
+export const getGetMnfiSpeciesCountiesQueryKey = (name: string,) => {
+    return [
+    `/api/mnfi/species/${name}/counties`
+    ] as const;
+    }
+
+    
+export const getGetMnfiSpeciesCountiesQueryOptions = <TData = Awaited<ReturnType<typeof getMnfiSpeciesCounties>>, TError = ErrorType<unknown>>(name: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMnfiSpeciesCounties>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMnfiSpeciesCountiesQueryKey(name);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMnfiSpeciesCounties>>> = ({ signal }) => getMnfiSpeciesCounties(name, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(name), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMnfiSpeciesCounties>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMnfiSpeciesCountiesQueryResult = NonNullable<Awaited<ReturnType<typeof getMnfiSpeciesCounties>>>
+export type GetMnfiSpeciesCountiesQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get Michigan counties where a rare species has been recorded
+ */
+
+export function useGetMnfiSpeciesCounties<TData = Awaited<ReturnType<typeof getMnfiSpeciesCounties>>, TError = ErrorType<unknown>>(
+ name: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMnfiSpeciesCounties>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+  
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMnfiSpeciesCountiesQueryOptions(name,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * Returns the canonical authoritative list of all 83 Michigan counties. This list is static and does not depend on county element data coverage. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+
+ * @summary List all 83 Michigan counties
+ */
+export const getGetMnfiCountiesUrl = () => {
+
+
+  
+
+  return `/api/mnfi/counties`
+}
+
+export const getMnfiCounties = async ( options?: RequestInit): Promise<FernsEnvelope> => {
+  
+  return customFetch<FernsEnvelope>(getGetMnfiCountiesUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+  
+
+
+
+
+export const getGetMnfiCountiesQueryKey = () => {
+    return [
+    `/api/mnfi/counties`
+    ] as const;
+    }
+
+    
+export const getGetMnfiCountiesQueryOptions = <TData = Awaited<ReturnType<typeof getMnfiCounties>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMnfiCounties>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMnfiCountiesQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMnfiCounties>>> = ({ signal }) => getMnfiCounties({ signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMnfiCounties>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMnfiCountiesQueryResult = NonNullable<Awaited<ReturnType<typeof getMnfiCounties>>>
+export type GetMnfiCountiesQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List all 83 Michigan counties
+ */
+
+export function useGetMnfiCounties<TData = Awaited<ReturnType<typeof getMnfiCounties>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMnfiCounties>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+  
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMnfiCountiesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * Returns all tracked rare species and natural community occurrences for a given Michigan county (case-insensitive match). Optionally filter by kind (plant or animal), conservation status, or species category. Returns found=false when the county has no occurrence records. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+
+ * @summary Get MNFI tracked rare elements for a Michigan county
+ */
+export const getGetMnfiCountyUrl = (county: string,
+    params?: GetMnfiCountyParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/mnfi/counties/${county}?${stringifiedParams}` : `/api/mnfi/counties/${county}`
+}
+
+export const getMnfiCounty = async (county: string,
+    params?: GetMnfiCountyParams, options?: RequestInit): Promise<FernsEnvelope> => {
+  
+  return customFetch<FernsEnvelope>(getGetMnfiCountyUrl(county,params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+  
+
+
+
+
+export const getGetMnfiCountyQueryKey = (county: string,
+    params?: GetMnfiCountyParams,) => {
+    return [
+    `/api/mnfi/counties/${county}`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getGetMnfiCountyQueryOptions = <TData = Awaited<ReturnType<typeof getMnfiCounty>>, TError = ErrorType<ErrorResponse>>(county: string,
+    params?: GetMnfiCountyParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMnfiCounty>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMnfiCountyQueryKey(county,params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMnfiCounty>>> = ({ signal }) => getMnfiCounty(county,params, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(county), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMnfiCounty>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMnfiCountyQueryResult = NonNullable<Awaited<ReturnType<typeof getMnfiCounty>>>
+export type GetMnfiCountyQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get MNFI tracked rare elements for a Michigan county
+ */
+
+export function useGetMnfiCounty<TData = Awaited<ReturnType<typeof getMnfiCounty>>, TError = ErrorType<ErrorResponse>>(
+ county: string,
+    params?: GetMnfiCountyParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMnfiCounty>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+  
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMnfiCountyQueryOptions(county,params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

@@ -2698,7 +2698,7 @@ export const GetSourceRelationshipsResponse = zod.object({
 
 
 /**
- * Returns service identity, attribution, licenses and license notes, community class counts, county coverage, and cache statistics for the Michigan Natural Features Inventory (MNFI) service. Also seeds the MNFI entry in the FERNS source registry. Use this to populate 'About this data' panels in any application displaying MNFI community or county element data. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+ * Returns service identity, attribution, licenses, community class counts, county coverage, and the full registry entry for the Michigan Natural Features Inventory (MNFI). Use this to populate 'About this data' panels in any application displaying MNFI community, species, or county data. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
  * @summary MNFI service metadata
  */
@@ -2728,13 +2728,14 @@ export const GetMnfiMetadataResponse = zod.object({
 
 
 /**
- * Returns all Michigan Natural Features Inventory (MNFI) natural community types. Optionally filter by community class, group, or name substring (case-insensitive ILIKE match). All data is served from FERNS's local database seeded from the MNFI website — no upstream API call is made at query time. Returns community records sorted by class and name. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+ * Returns all 77 Michigan Natural Features Inventory (MNFI) natural community types. Optionally filter by community class, group, rank, or name substring (case-insensitive match). Data is served from FERNS's in-memory store — no upstream API call is made at query time. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
  * @summary List MNFI natural community types
  */
 export const GetMnfiCommunitiesQueryParams = zod.object({
   "class": zod.string().optional().describe('Filter by community class (substring match, e.g. Terrestrial)'),
   "group": zod.string().optional().describe('Filter by community group (substring match, e.g. Forest)'),
+  "rank": zod.string().optional().describe('Filter by global or state rank (exact match, e.g. G2, S3)'),
   "name": zod.string().optional().describe('Filter by community name (substring match, e.g. oak savanna)')
 })
 
@@ -2764,15 +2765,15 @@ export const GetMnfiCommunitiesResponse = zod.object({
 
 
 /**
- * Returns the full profile for a single MNFI natural community type, including description, acreage estimates, and all characteristic plants grouped by life form. The {id} path parameter accepts either the numeric community_id (e.g. 1234) or the URL slug (e.g. southern-dry-chestnut-oak-forest). Plant lists are included inline — characteristic_plants.by_life_form groups species by life form (tree, shrub, herb, etc.). Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+ * Returns the full profile for a single MNFI natural community type by its URL slug (e.g. prairie-fen, southern-dry-chestnut-oak-forest). Includes ecological description sections, characteristic plant list, rare species, similar communities, and links. Returns found=false with data=null when no community matches the slug. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
- * @summary Get a single MNFI community by ID or slug
+ * @summary Get a single MNFI community by slug
  */
 
 
 
 export const GetMnfiCommunityParams = zod.object({
-  "id": zod.string().min(1).describe('Numeric community_id or URL slug for the community')
+  "slug": zod.string().min(1).describe('URL slug for the MNFI community (e.g. prairie-fen)')
 })
 
 export const GetMnfiCommunityResponse = zod.object({
@@ -2801,18 +2802,28 @@ export const GetMnfiCommunityResponse = zod.object({
 
 
 /**
- * Returns the characteristic plant list for an MNFI natural community, grouped by life form (tree, shrub, herb, graminoid, vine, etc.). The {id} path parameter accepts either the numeric community_id or the URL slug. This is the same plant data included inline in the community detail endpoint, exposed as a dedicated endpoint for applications that only need plant lists. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+ * Returns a paginated list of MNFI tracked rare species. Optionally filter by name (scientific or common, substring match), kind (plant or animal), conservation status, global/state rank, or species category. Default page size is 50; maximum is 200. Returns a pagination envelope field. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
- * @summary Get characteristic plants for an MNFI community
+ * @summary List MNFI tracked rare species
  */
+export const getMnfiSpeciesListQueryLimitMin = 0;
+export const getMnfiSpeciesListQueryLimitMax = 200;
+
+export const getMnfiSpeciesListQueryOffsetMin = 0;
 
 
 
-export const GetMnfiCommunityPlantsParams = zod.object({
-  "id": zod.string().min(1).describe('Numeric community_id or URL slug for the community')
+export const GetMnfiSpeciesListQueryParams = zod.object({
+  "name": zod.string().optional().describe('Filter by scientific or common name (substring match)'),
+  "kind": zod.enum(['plant', 'animal']).optional().describe('Filter by kind — plant or animal'),
+  "status": zod.string().optional().describe('Filter by federal or state status code (exact match, e.g. LE, E, T, SC)'),
+  "rank": zod.string().optional().describe('Filter by global or state rank (exact match, e.g. G1, S2)'),
+  "category": zod.string().optional().describe('Filter by species category (substring match, e.g. Flowering Plants)'),
+  "limit": zod.coerce.number().min(getMnfiSpeciesListQueryLimitMin).max(getMnfiSpeciesListQueryLimitMax).optional().describe('Page size (default 50, max 200)'),
+  "offset": zod.coerce.number().min(getMnfiSpeciesListQueryOffsetMin).optional().describe('Page offset (default 0)')
 })
 
-export const GetMnfiCommunityPlantsResponse = zod.object({
+export const GetMnfiSpeciesListResponse = zod.object({
   "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
   "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
   "pagination": zod.union([zod.object({
@@ -2838,19 +2849,165 @@ export const GetMnfiCommunityPlantsResponse = zod.object({
 
 
 /**
- * Returns MNFI Element Occurrence records for a given Michigan county. These records document where significant natural features (rare species, natural communities) have been observed. The county parameter is required; all 83 Michigan county names are accepted (case-insensitive). Optionally filter to only species or community element types with the type parameter. Data is served from FERNS's local database seeded from the MNFI county element download — no upstream API call at query time. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+ * Returns the rare species record for a single species identified by its scientific name (URL-encoded, case-insensitive, e.g. Cirsium+pitcheri). Returns found=false with data=null when no species matches. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
- * @summary Get MNFI significant natural features for a Michigan county
+ * @summary Get a single MNFI rare species by scientific name
  */
 
 
 
-export const GetMnfiCountyElementsQueryParams = zod.object({
-  "county": zod.string().min(1).describe('Michigan county name (e.g. Washtenaw, Leelanau). Case-insensitive. All 83 Michigan county names are accepted.\n'),
-  "type": zod.enum(['species', 'community']).optional().describe('Filter by element type. Must be \'species\' or \'community\' when provided. When omitted, both types are returned.\n')
+export const GetMnfiSpeciesParams = zod.object({
+  "name": zod.string().min(1).describe('URL-encoded scientific name (e.g. Cirsium+pitcheri or Cirsium%20pitcheri)')
 })
 
-export const GetMnfiCountyElementsResponse = zod.object({
+export const GetMnfiSpeciesResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
+
+/**
+ * Returns the natural community stubs for all MNFI communities whose rare-species list includes the given species (by scientific name). The join is on element_id (primary) or scientific name (fallback). Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+
+ * @summary Get MNFI communities that list a rare species
+ */
+
+
+
+export const GetMnfiSpeciesCommunitiesParams = zod.object({
+  "name": zod.string().min(1).describe('URL-encoded scientific name of the rare species')
+})
+
+export const GetMnfiSpeciesCommunitiesResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
+
+/**
+ * Returns the list of Michigan county names where the given rare species has been recorded in the MNFI county element data. The join is on element_id (primary) or scientific name (fallback). Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+
+ * @summary Get Michigan counties where a rare species has been recorded
+ */
+
+
+
+export const GetMnfiSpeciesCountiesParams = zod.object({
+  "name": zod.string().min(1).describe('URL-encoded scientific name of the rare species')
+})
+
+export const GetMnfiSpeciesCountiesResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
+
+/**
+ * Returns the canonical authoritative list of all 83 Michigan counties. This list is static and does not depend on county element data coverage. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+
+ * @summary List all 83 Michigan counties
+ */
+export const GetMnfiCountiesResponse = zod.object({
+  "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
+  "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
+  "pagination": zod.union([zod.object({
+  "has_more": zod.boolean().describe('True if more pages exist beyond this one.'),
+  "next": zod.string().nullable().describe('Opaque cursor or token for fetching the next page; null if no next page.'),
+  "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
+}).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
+  "provenance": zod.object({
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
+  "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
+  "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
+  "queried_at": zod.date().describe('When FERNS performed this lookup (UTC ISO-8601).'),
+  "derived_from": zod.array(zod.object({
+  "source_id": zod.string(),
+  "queried_at": zod.date()
+})).nullable().describe('List of contributing sources for multi-source-algorithm responses. Null for all other source kinds.\n'),
+  "license": zod.string().describe('License URI for the source data, or the literal string \"unknown\".'),
+  "rights": zod.string().describe('Rights statement \/ attribution for the source.')
+}).describe('Per-response provenance — what FERNS did to obtain this payload. Holds only FERNS-produced facts about the act of fetching. Source-produced content lives in the envelope\'s data field. See replit.md \"FERNS Response Envelope Contract v1 — Provenance field definitions\".\n'),
+  "data": zod.unknown().describe('Verbatim payload from the source. Shape varies per endpoint.')
+}).describe('The FERNS Response Envelope Contract v1 — every endpoint must produce this shape. The envelope holds only what is true of FERNS\'s act of obtaining the data; the data field holds only what the source produced. Authoritative contract: replit.md \"FERNS Response Envelope Contract v1\". Note: OpenAPI cannot express the full method\/cache_status coupling table nor the source-kind-specific source_url\/derived_from rules — those are enforced at runtime by the @workspace\/api-envelope builder and by the forthcoming structural audit.\n')
+
+
+/**
+ * Returns all tracked rare species and natural community occurrences for a given Michigan county (case-insensitive match). Optionally filter by kind (plant or animal), conservation status, or species category. Returns found=false when the county has no occurrence records. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+
+ * @summary Get MNFI tracked rare elements for a Michigan county
+ */
+
+
+
+export const GetMnfiCountyParams = zod.object({
+  "county": zod.string().min(1).describe('Michigan county name (e.g. Washtenaw). Case-insensitive.')
+})
+
+export const GetMnfiCountyQueryParams = zod.object({
+  "kind": zod.enum(['plant', 'animal']).optional().describe('Filter species by kind — plant or animal'),
+  "status": zod.string().optional().describe('Filter by conservation status code (exact match, e.g. LE, E, T)'),
+  "category": zod.string().optional().describe('Filter by species category (substring match, e.g. Flowering Plants)')
+})
+
+export const GetMnfiCountyResponse = zod.object({
   "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
   "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
   "pagination": zod.union([zod.object({
