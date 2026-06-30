@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "@workspace/api-zod": "workspace:*",
     "zod": "catalog:"
   },
   "devDependencies": {

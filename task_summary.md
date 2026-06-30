@@ -1431,3 +1431,42 @@ iNaturalist was reclassified from an EC-hosted source (`knowledge_type: "source_
 
 - The `description` field for the old `source_wrapper` version mentioned "paged observation summary records (live, no cache) with curated fields" as a distinct EC capability. The new description drops "live, no cache" framing since there are no longer EC REST routes — but it retains the mention of paged observation records as data iNat provides. If the observation list capability is being removed entirely (not just the EC REST route), the description should drop that clause too. Review the description and confirm whether observation records should still be listed.
 - The two-step species appearance approach (search then full record) is retained in technical_details as a description of how MCP tools will work. If the MCP restructure changes this pattern, technical_details will need a follow-up update.
+
+---
+
+## Task: iNat — MCP restructure as acknowledged source
+
+### What was changed
+
+All 17 iNaturalist MCP tools were moved out of the main `server.ts` tool list and into a new `artifacts/mcp-server/src/acknowledged/` subdirectory. This directory is designed to hold tools for acknowledged sources — sources where EC curates the metadata and provides MCP tooling, but does not own or proxy the upstream REST interface. Two new files were created: `envelope.ts` provides a shared `buildAcknowledgedEnvelope()` utility that any future acknowledged-source tools can reuse, and `inaturalist.ts` contains all 17 iNat tool definitions. Each tool now calls `https://api.inaturalist.org/v1` directly via fetch rather than routing through the EC REST client. The tools parse the raw iNat response with Zod (a `.passthrough()` shape that validates the top-level structure while allowing unknown fields through), then build the EC envelope directly before returning. `server.ts` now imports `inatToolDefs` from the new location and spreads it into the tools array; the 17 old inline iNat definitions are gone. The old EC REST routes are untouched — removal is the next task.
+
+### Derivation summary
+
+N/A — no new source added; existing source restructured.
+
+### Scientific/technical description
+
+N/A — no new source added; restructure only.
+
+### Architectural decisions made
+
+- **`acknowledged/` subdirectory name**: Named for the source category (`acknowledged_source`) so the pattern is immediately recognizable from the directory name. Future acknowledged sources (if any) would add files alongside `inaturalist.ts`.
+- **`buildAcknowledgedEnvelope()` utility**: Extracted into `envelope.ts` so it is reusable. It hardcodes `method: "api_fetch"`, `cache_status: "none"`, `permission_granted: true`, and `derived_from: null` — all invariants for acknowledged sources. `queried_at` is always `new Date().toISOString()` (moment of the live call).
+- **`cache_status: "none"`**: The task spec explicitly requires `"none"` for acknowledged sources. This is outside the data-layer-contract's enumerated set (`hit`, `miss`, `stale`, `bypass`), but the MCP tools own envelope construction for acknowledged sources and are not validated by the REST layer's Zod schemas. This is the acknowledged-source convention as specified.
+- **Zod response validation**: The iNat response is parsed with `InatRawResponse = zod.object({ total_results, results }).passthrough()`. This validates the top-level shape while passing through all unknown upstream fields — a pragmatic Zod usage that satisfies the task requirement without discarding any source data.
+- **Observations tool curates response**: The `inaturalist__observations` tool continues to return a curated subset of fields (id, uri, observed_on, quality_grade, etc.) to maintain behavioral parity with the existing MCP tool contract. The curation logic mirrors what was in the EC REST connector.
+- **Source URL**: Each tool sets `source_url` to the appropriate human-readable iNaturalist website URL (not the API URL), following the pattern established in the existing REST connector.
+
+### What was NOT done
+
+- The old EC REST routes for iNat are not removed (next task).
+- The `client.ts` `apiGet` function is not used by any iNat tool; it remains imported only by non-iNat tools.
+- No new iNat endpoints added.
+- No EC-side caching added (acknowledged sources have none by design).
+- No `@workspace/api-zod` dependency added to mcp-server — Zod is used directly since the package already depends on it, avoiding workspace dependency complexity.
+
+### What the user should decide or review
+
+- The `cache_status: "none"` value is outside the data-layer-contract's defined enum. If the contract is updated to formally define acknowledged-source envelope pairs (e.g. `api_fetch` + `none`), the envelope.ts file should be updated to match.
+- The `InatRawResponse` Zod schema in `inaturalist.ts` is a loose passthrough — it does not enforce the full iNat API response shape. If stricter validation is desired for specific endpoints, per-endpoint schemas could be defined.
+
