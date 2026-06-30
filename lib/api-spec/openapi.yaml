@@ -3081,11 +3081,10 @@ paths:
       tags: [mnfi]
       summary: MNFI service metadata
       description: >
-        Returns service identity, attribution, licenses and license notes, community class
-        counts, county coverage, and cache statistics for the Michigan Natural
-        Features Inventory (MNFI) service. Also seeds the MNFI entry in the FERNS
-        source registry. Use this to populate 'About this data' panels in any
-        application displaying MNFI community or county element data.
+        Returns service identity, attribution, licenses, community class counts,
+        county coverage, and the full registry entry for the Michigan Natural
+        Features Inventory (MNFI). Use this to populate 'About this data' panels
+        in any application displaying MNFI community, species, or county data.
         Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
       responses:
         "200":
@@ -3102,11 +3101,10 @@ paths:
       tags: [mnfi]
       summary: List MNFI natural community types
       description: >
-        Returns all Michigan Natural Features Inventory (MNFI) natural community
-        types. Optionally filter by community class, group, or name substring
-        (case-insensitive ILIKE match). All data is served from FERNS's local
-        database seeded from the MNFI website — no upstream API call is made at
-        query time. Returns community records sorted by class and name.
+        Returns all 77 Michigan Natural Features Inventory (MNFI) natural community
+        types. Optionally filter by community class, group, rank, or name substring
+        (case-insensitive match). Data is served from FERNS's in-memory store —
+        no upstream API call is made at query time.
         Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
       parameters:
         - name: class
@@ -3121,6 +3119,12 @@ paths:
           description: Filter by community group (substring match, e.g. Forest)
           schema:
             type: string
+        - name: rank
+          in: query
+          required: false
+          description: Filter by global or state rank (exact match, e.g. G2, S3)
+          schema:
+            type: string
         - name: name
           in: query
           required: false
@@ -3129,127 +3133,262 @@ paths:
             type: string
       responses:
         "200":
-          description: List of MNFI natural community types wrapped in FernsEnvelope (found=false when no matches)
+          description: List of MNFI natural community stubs wrapped in FernsEnvelope (found=false when no matches)
           content:
             application/json:
               schema:
                 allOf:
                   - $ref: "#/components/schemas/FernsEnvelope"
 
-  /mnfi/communities/{id}:
+  /mnfi/communities/{slug}:
     get:
       operationId: getMnfiCommunity
       tags: [mnfi]
-      summary: Get a single MNFI community by ID or slug
+      summary: Get a single MNFI community by slug
       description: >
-        Returns the full profile for a single MNFI natural community type,
-        including description, acreage estimates, and all characteristic plants
-        grouped by life form. The {id} path parameter accepts either the numeric
-        community_id (e.g. 1234) or the URL slug (e.g. southern-dry-chestnut-oak-forest).
-        Plant lists are included inline — characteristic_plants.by_life_form groups
-        species by life form (tree, shrub, herb, etc.).
+        Returns the full profile for a single MNFI natural community type by its
+        URL slug (e.g. prairie-fen, southern-dry-chestnut-oak-forest). Includes
+        ecological description sections, characteristic plant list, rare species,
+        similar communities, and links.
+        Returns found=false with data=null when no community matches the slug.
         Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
       parameters:
-        - name: id
+        - name: slug
           in: path
           required: true
-          description: Numeric community_id or URL slug for the community
+          description: URL slug for the MNFI community (e.g. prairie-fen)
           schema:
             type: string
             minLength: 1
       responses:
         "200":
-          description: Community profile wrapped in FernsEnvelope (found=false when no community matches the id or slug)
+          description: Community full record wrapped in FernsEnvelope (found=false when no community matches the slug)
           content:
             application/json:
               schema:
                 allOf:
                   - $ref: "#/components/schemas/FernsEnvelope"
-        "404":
-          description: No community found with the given id or slug
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
 
-  /mnfi/communities/{id}/plants:
+  /mnfi/species:
     get:
-      operationId: getMnfiCommunityPlants
+      operationId: getMnfiSpeciesList
       tags: [mnfi]
-      summary: Get characteristic plants for an MNFI community
+      summary: List MNFI tracked rare species
       description: >
-        Returns the characteristic plant list for an MNFI natural community,
-        grouped by life form (tree, shrub, herb, graminoid, vine, etc.). The
-        {id} path parameter accepts either the numeric community_id or the URL slug.
-        This is the same plant data included inline in the community detail endpoint,
-        exposed as a dedicated endpoint for applications that only need plant lists.
+        Returns a paginated list of MNFI tracked rare species. Optionally filter by
+        name (scientific or common, substring match), kind (plant or animal),
+        conservation status, global/state rank, or species category.
+        Default page size is 50; maximum is 200. Returns a pagination envelope field.
         Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
       parameters:
-        - name: id
-          in: path
-          required: true
-          description: Numeric community_id or URL slug for the community
-          schema:
-            type: string
-            minLength: 1
-      responses:
-        "200":
-          description: Plant list grouped by life form wrapped in FernsEnvelope (found=false when no community matches)
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/FernsEnvelope"
-        "404":
-          description: No community found with the given id or slug
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
-  /mnfi/county-elements:
-    get:
-      operationId: getMnfiCountyElements
-      tags: [mnfi]
-      summary: Get MNFI significant natural features for a Michigan county
-      description: >
-        Returns MNFI Element Occurrence records for a given Michigan county.
-        These records document where significant natural features (rare species,
-        natural communities) have been observed. The county parameter is required;
-        all 83 Michigan county names are accepted (case-insensitive). Optionally
-        filter to only species or community element types with the type parameter.
-        Data is served from FERNS's local database seeded from the MNFI county
-        element download — no upstream API call at query time.
-        Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
-      parameters:
-        - name: county
-          in: query
-          required: true
-          description: >
-            Michigan county name (e.g. Washtenaw, Leelanau). Case-insensitive.
-            All 83 Michigan county names are accepted.
-          schema:
-            type: string
-            minLength: 1
-        - name: type
+        - name: name
           in: query
           required: false
-          description: >
-            Filter by element type. Must be 'species' or 'community' when provided.
-            When omitted, both types are returned.
+          description: Filter by scientific or common name (substring match)
           schema:
             type: string
-            enum: [species, community]
+        - name: kind
+          in: query
+          required: false
+          description: Filter by kind — plant or animal
+          schema:
+            type: string
+            enum: [plant, animal]
+        - name: status
+          in: query
+          required: false
+          description: Filter by federal or state status code (exact match, e.g. LE, E, T, SC)
+          schema:
+            type: string
+        - name: rank
+          in: query
+          required: false
+          description: Filter by global or state rank (exact match, e.g. G1, S2)
+          schema:
+            type: string
+        - name: category
+          in: query
+          required: false
+          description: Filter by species category (substring match, e.g. Flowering Plants)
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: Page size (default 50, max 200)
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 200
+        - name: offset
+          in: query
+          required: false
+          description: Page offset (default 0)
+          schema:
+            type: integer
+            minimum: 0
       responses:
         "200":
-          description: County element occurrences wrapped in FernsEnvelope (found=false when county has no element data)
+          description: Paginated list of rare species wrapped in FernsEnvelope
           content:
             application/json:
               schema:
                 allOf:
                   - $ref: "#/components/schemas/FernsEnvelope"
         "400":
-          description: Missing county parameter
+          description: Invalid limit or offset parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /mnfi/species/{name}:
+    get:
+      operationId: getMnfiSpecies
+      tags: [mnfi]
+      summary: Get a single MNFI rare species by scientific name
+      description: >
+        Returns the rare species record for a single species identified by its
+        scientific name (URL-encoded, case-insensitive, e.g. Cirsium+pitcheri).
+        Returns found=false with data=null when no species matches.
+        Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+      parameters:
+        - name: name
+          in: path
+          required: true
+          description: URL-encoded scientific name (e.g. Cirsium+pitcheri or Cirsium%20pitcheri)
+          schema:
+            type: string
+            minLength: 1
+      responses:
+        "200":
+          description: Rare species record wrapped in FernsEnvelope (found=false when no species matches)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
+
+  /mnfi/species/{name}/communities:
+    get:
+      operationId: getMnfiSpeciesCommunities
+      tags: [mnfi]
+      summary: Get MNFI communities that list a rare species
+      description: >
+        Returns the natural community stubs for all MNFI communities whose rare-species
+        list includes the given species (by scientific name). The join is on element_id
+        (primary) or scientific name (fallback).
+        Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+      parameters:
+        - name: name
+          in: path
+          required: true
+          description: URL-encoded scientific name of the rare species
+          schema:
+            type: string
+            minLength: 1
+      responses:
+        "200":
+          description: Community stubs wrapped in FernsEnvelope (found=false when no communities list this species)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
+
+  /mnfi/species/{name}/counties:
+    get:
+      operationId: getMnfiSpeciesCounties
+      tags: [mnfi]
+      summary: Get Michigan counties where a rare species has been recorded
+      description: >
+        Returns the list of Michigan county names where the given rare species has
+        been recorded in the MNFI county element data. The join is on element_id
+        (primary) or scientific name (fallback).
+        Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+      parameters:
+        - name: name
+          in: path
+          required: true
+          description: URL-encoded scientific name of the rare species
+          schema:
+            type: string
+            minLength: 1
+      responses:
+        "200":
+          description: County list wrapped in FernsEnvelope (found=false when no counties recorded for this species)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
+
+  /mnfi/counties:
+    get:
+      operationId: getMnfiCounties
+      tags: [mnfi]
+      summary: List all 83 Michigan counties
+      description: >
+        Returns the canonical authoritative list of all 83 Michigan counties. This
+        list is static and does not depend on county element data coverage.
+        Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+      responses:
+        "200":
+          description: Canonical county list wrapped in FernsEnvelope (always found=true)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
+
+  /mnfi/counties/{county}:
+    get:
+      operationId: getMnfiCounty
+      tags: [mnfi]
+      summary: Get MNFI tracked rare elements for a Michigan county
+      description: >
+        Returns all tracked rare species and natural community occurrences for a
+        given Michigan county (case-insensitive match). Optionally filter by kind
+        (plant or animal), conservation status, or species category.
+        Returns found=false when the county has no occurrence records.
+        Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+      parameters:
+        - name: county
+          in: path
+          required: true
+          description: Michigan county name (e.g. Washtenaw). Case-insensitive.
+          schema:
+            type: string
+            minLength: 1
+        - name: kind
+          in: query
+          required: false
+          description: Filter species by kind — plant or animal
+          schema:
+            type: string
+            enum: [plant, animal]
+        - name: status
+          in: query
+          required: false
+          description: Filter by conservation status code (exact match, e.g. LE, E, T)
+          schema:
+            type: string
+        - name: category
+          in: query
+          required: false
+          description: Filter by species category (substring match, e.g. Flowering Plants)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: County occurrence data wrapped in FernsEnvelope (found=false when county has no element records)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
+        "400":
+          description: Blank county path parameter
           content:
             application/json:
               schema:

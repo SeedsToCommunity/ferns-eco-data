@@ -1,12 +1,17 @@
-import { Router, type IRouter, type Request, type Response } from "express";
+import { Router, type IRouter } from "express";
 import {
   getMnfiCommunityList,
   getMnfiCommunity,
+  getMnfiSpeciesList,
+  getMnfiSpecies,
+  getMnfiSpeciesCommunities,
+  getMnfiSpeciesCounties,
   getMnfiCountyList,
   getMnfiCounty,
   MNFI_SCRAPED_AT,
-  MICHIGAN_COUNTIES,
   type CommunityFilter,
+  type SpeciesFilter,
+  type CountyFilter,
 } from "@workspace/internal-data-providers/mnfi";
 import {
   MNFI_SOURCE_ID,
@@ -23,47 +28,16 @@ import { dbRegistryAccessor } from "../lib/registry-accessor.js";
 
 const router: IRouter = Router();
 
-function groupPlantsByLifeForm(
-  plants: Array<{ lifeForm: string; commonName: string; scientificNames: string[] }>,
-) {
-  const byLifeForm: Record<string, Array<{ common_name: string; scientific_names: string[] }>> = {};
-  for (const p of plants) {
-    if (!byLifeForm[p.lifeForm]) byLifeForm[p.lifeForm] = [];
-    byLifeForm[p.lifeForm].push({ common_name: p.commonName, scientific_names: p.scientificNames });
-  }
-  return byLifeForm;
-}
-
-function resolveCommunityParam(param: string) {
-  const numericId = parseInt(param, 10);
-  const isNumeric = !isNaN(numericId) && String(numericId) === param;
-  if (isNumeric) {
-    const stub = getMnfiCommunityList().find((c) => c.communityId === numericId);
-    if (!stub) return null;
-    return getMnfiCommunity(stub.slug);
-  }
-  return getMnfiCommunity(param);
-}
-
-async function notFoundEnvelope() {
-  return buildEnvelope(
-    {
-      sourceId: MNFI_SOURCE_ID,
-      sourceKind: "single-source-proxy",
-      found: false,
-      data: null,
-      method: "cache_hit",
-      cacheStatus: "hit",
-      sourceUrl: "https://mnfi.anr.msu.edu/communities/list",
-      queriedAt: new Date().toISOString(),
-    },
-    { registry: dbRegistryAccessor },
-  );
-}
+const IN_MEMORY_PROVENANCE = {
+  sourceKind: "in-memory" as const,
+  method: "cache_hit" as const,
+  cacheStatus: "hit" as const,
+  sourceUrl: null,
+  queriedAt: MNFI_SCRAPED_AT,
+};
 
 router.get("/mnfi/metadata", async (req, res) => {
   await ensureMnfiRegistryEntry();
-  const queriedAt = new Date().toISOString();
 
   const communities = getMnfiCommunityList();
   const counties = getMnfiCountyList();
@@ -80,7 +54,6 @@ router.get("/mnfi/metadata", async (req, res) => {
     await buildEnvelope(
       {
         sourceId: MNFI_SOURCE_ID,
-        sourceKind: "single-source-proxy",
         found: true,
         data: {
           service_id: MNFI_SOURCE_ID,
@@ -98,10 +71,7 @@ router.get("/mnfi/metadata", async (req, res) => {
           general_summary: MNFI_GENERAL_SUMMARY,
           technical_details: MNFI_TECHNICAL_DETAILS,
         },
-        method: "cache_hit",
-        cacheStatus: "hit",
-        sourceUrl: "https://mnfi.anr.msu.edu/communities/classification",
-        queriedAt,
+        ...IN_MEMORY_PROVENANCE,
       },
       { registry: dbRegistryAccessor },
     ),
@@ -113,11 +83,13 @@ router.get("/mnfi/communities", async (req, res) => {
 
   const classFilter = typeof req.query["class"] === "string" ? req.query["class"] : undefined;
   const groupFilter = typeof req.query["group"] === "string" ? req.query["group"] : undefined;
+  const rankFilter = typeof req.query["rank"] === "string" ? req.query["rank"] : undefined;
   const nameFilter = typeof req.query["name"] === "string" ? req.query["name"] : undefined;
 
   const filter: CommunityFilter = {};
   if (classFilter) filter.communityClass = classFilter;
   if (groupFilter) filter.group = groupFilter;
+  if (rankFilter) filter.rank = rankFilter;
   if (nameFilter) filter.nameText = nameFilter;
 
   const communities = getMnfiCommunityList(filter);
@@ -126,176 +98,197 @@ router.get("/mnfi/communities", async (req, res) => {
     await buildEnvelope(
       {
         sourceId: MNFI_SOURCE_ID,
-        sourceKind: "single-source-proxy",
         found: communities.length > 0,
-        data: {
-          community_count: communities.length,
-          filters: { class: classFilter ?? null, group: groupFilter ?? null, name: nameFilter ?? null },
-          communities,
-        },
-        method: "cache_hit",
-        cacheStatus: "hit",
-        sourceUrl: "https://mnfi.anr.msu.edu/communities/list",
-        queriedAt: new Date().toISOString(),
+        data: { communities },
+        ...IN_MEMORY_PROVENANCE,
       },
       { registry: dbRegistryAccessor },
     ),
   );
 });
 
-router.get("/mnfi/communities/:id", async (req, res) => {
+router.get("/mnfi/communities/:slug", async (req, res) => {
   await ensureMnfiRegistryEntry();
 
-  const param = req.params["id"] ?? "";
-  const community = resolveCommunityParam(param);
-
-  if (!community) {
-    res.status(404).json(await notFoundEnvelope());
-    return;
-  }
+  const slug = decodeURIComponent(req.params["slug"] ?? "");
+  const community = getMnfiCommunity(slug);
 
   res.json(
     await buildEnvelope(
       {
         sourceId: MNFI_SOURCE_ID,
-        sourceKind: "single-source-proxy",
+        found: community !== null,
+        data: community,
+        ...IN_MEMORY_PROVENANCE,
+      },
+      { registry: dbRegistryAccessor },
+    ),
+  );
+});
+
+router.get("/mnfi/species", async (req, res) => {
+  await ensureMnfiRegistryEntry();
+
+  const rawLimit = req.query["limit"];
+  const rawOffset = req.query["offset"];
+
+  if (rawLimit !== undefined && (typeof rawLimit !== "string" || isNaN(Number(rawLimit)))) {
+    res.status(400).json({ error: "invalid_input", message: "limit must be a non-negative integer" });
+    return;
+  }
+  if (rawOffset !== undefined && (typeof rawOffset !== "string" || isNaN(Number(rawOffset)))) {
+    res.status(400).json({ error: "invalid_input", message: "offset must be a non-negative integer" });
+    return;
+  }
+
+  const limit = rawLimit !== undefined ? Math.min(Number(rawLimit), 200) : 50;
+  const offset = rawOffset !== undefined ? Number(rawOffset) : 0;
+
+  if (!Number.isInteger(limit) || limit < 0) {
+    res.status(400).json({ error: "invalid_input", message: "limit must be a non-negative integer" });
+    return;
+  }
+  if (!Number.isInteger(offset) || offset < 0) {
+    res.status(400).json({ error: "invalid_input", message: "offset must be a non-negative integer" });
+    return;
+  }
+
+  const nameFilter = typeof req.query["name"] === "string" ? req.query["name"] : undefined;
+  const kindParam = typeof req.query["kind"] === "string" ? req.query["kind"] : undefined;
+  const statusFilter = typeof req.query["status"] === "string" ? req.query["status"] : undefined;
+  const rankFilter = typeof req.query["rank"] === "string" ? req.query["rank"] : undefined;
+  const categoryFilter = typeof req.query["category"] === "string" ? req.query["category"] : undefined;
+
+  const filter: SpeciesFilter = { limit, offset };
+  if (nameFilter) filter.nameText = nameFilter;
+  if (kindParam === "plant" || kindParam === "animal") filter.kind = kindParam;
+  if (statusFilter) filter.status = statusFilter;
+  if (rankFilter) filter.rank = rankFilter;
+  if (categoryFilter) filter.category = categoryFilter;
+
+  const page = getMnfiSpeciesList(filter);
+
+  res.json(
+    await buildEnvelope(
+      {
+        sourceId: MNFI_SOURCE_ID,
+        found: page.items.length > 0,
+        data: { species: page.items },
+        pagination: {
+          has_more: page.offset + page.limit < page.total,
+          next: null,
+          total: page.total,
+        },
+        ...IN_MEMORY_PROVENANCE,
+      },
+      { registry: dbRegistryAccessor },
+    ),
+  );
+});
+
+router.get("/mnfi/species/:name", async (req, res) => {
+  await ensureMnfiRegistryEntry();
+
+  const name = decodeURIComponent(req.params["name"] ?? "");
+  const result = getMnfiSpecies(name);
+
+  res.json(
+    await buildEnvelope(
+      {
+        sourceId: MNFI_SOURCE_ID,
+        found: result !== null,
+        data: result,
+        ...IN_MEMORY_PROVENANCE,
+      },
+      { registry: dbRegistryAccessor },
+    ),
+  );
+});
+
+router.get("/mnfi/species/:name/communities", async (req, res) => {
+  await ensureMnfiRegistryEntry();
+
+  const name = decodeURIComponent(req.params["name"] ?? "");
+  const communities = getMnfiSpeciesCommunities(name);
+
+  res.json(
+    await buildEnvelope(
+      {
+        sourceId: MNFI_SOURCE_ID,
+        found: communities.length > 0,
+        data: { communities },
+        ...IN_MEMORY_PROVENANCE,
+      },
+      { registry: dbRegistryAccessor },
+    ),
+  );
+});
+
+router.get("/mnfi/species/:name/counties", async (req, res) => {
+  await ensureMnfiRegistryEntry();
+
+  const name = decodeURIComponent(req.params["name"] ?? "");
+  const counties = getMnfiSpeciesCounties(name);
+
+  res.json(
+    await buildEnvelope(
+      {
+        sourceId: MNFI_SOURCE_ID,
+        found: counties.length > 0,
+        data: { counties },
+        ...IN_MEMORY_PROVENANCE,
+      },
+      { registry: dbRegistryAccessor },
+    ),
+  );
+});
+
+router.get("/mnfi/counties", async (req, res) => {
+  await ensureMnfiRegistryEntry();
+
+  const counties = getMnfiCountyList();
+
+  res.json(
+    await buildEnvelope(
+      {
+        sourceId: MNFI_SOURCE_ID,
         found: true,
-        data: {
-          ...community,
-          characteristic_plants: {
-            total_entries: community.characteristicPlants.length,
-            plant_list_url: `https://mnfi.anr.msu.edu/communities/plant-list/${community.communityId}/${community.slug}`,
-            by_life_form: groupPlantsByLifeForm(community.characteristicPlants),
-          },
-        },
-        method: "cache_hit",
-        cacheStatus: "hit",
-        sourceUrl: `https://mnfi.anr.msu.edu/communities/${community.communityId}/${community.slug}`,
-        queriedAt: new Date().toISOString(),
+        data: { counties },
+        ...IN_MEMORY_PROVENANCE,
       },
       { registry: dbRegistryAccessor },
     ),
   );
 });
 
-router.get("/mnfi/communities/:id/plants", async (req, res) => {
+router.get("/mnfi/counties/:county", async (req, res) => {
   await ensureMnfiRegistryEntry();
 
-  const param = req.params["id"] ?? "";
-  const community = resolveCommunityParam(param);
+  const county = req.params["county"] ?? "";
 
-  if (!community) {
-    res.status(404).json(await notFoundEnvelope());
+  if (!county.trim()) {
+    res.status(400).json({ error: "invalid_input", message: "county path parameter must not be blank" });
     return;
   }
 
-  const plants = community.characteristicPlants;
+  const kindParam = typeof req.query["kind"] === "string" ? req.query["kind"] : undefined;
+  const statusFilter = typeof req.query["status"] === "string" ? req.query["status"] : undefined;
+  const categoryFilter = typeof req.query["category"] === "string" ? req.query["category"] : undefined;
+
+  const filter: CountyFilter = {};
+  if (kindParam === "plant" || kindParam === "animal") filter.kind = kindParam;
+  if (statusFilter) filter.status = statusFilter;
+  if (categoryFilter) filter.category = categoryFilter;
+
+  const result = getMnfiCounty(county, filter);
 
   res.json(
     await buildEnvelope(
       {
         sourceId: MNFI_SOURCE_ID,
-        sourceKind: "single-source-proxy",
-        found: plants.length > 0,
-        data: {
-          community_id: community.communityId,
-          community_name: community.name,
-          slug: community.slug,
-          plant_list_url: `https://mnfi.anr.msu.edu/communities/plant-list/${community.communityId}/${community.slug}`,
-          total_entries: plants.length,
-          by_life_form: groupPlantsByLifeForm(plants),
-        },
-        method: "cache_hit",
-        cacheStatus: "hit",
-        sourceUrl: `https://mnfi.anr.msu.edu/communities/plant-list/${community.communityId}/${community.slug}`,
-        queriedAt: new Date().toISOString(),
-      },
-      { registry: dbRegistryAccessor },
-    ),
-  );
-});
-
-router.get("/mnfi/county-elements", async (req, res) => {
-  await ensureMnfiRegistryEntry();
-
-  const countyParam = typeof req.query["county"] === "string" ? req.query["county"].trim() : null;
-  const elementType = typeof req.query["type"] === "string" ? req.query["type"].trim() : null;
-
-  if (!countyParam) {
-    res.status(400).json(
-      await buildEnvelope(
-        {
-          sourceId: MNFI_SOURCE_ID,
-          sourceKind: "single-source-proxy",
-          found: false,
-          data: {
-            error: "invalid_input",
-            message:
-              "county query parameter is required (e.g. ?county=Washtenaw). All 83 Michigan county names accepted.",
-          },
-          method: "computed",
-          cacheStatus: "bypass",
-          sourceUrl: null,
-          queriedAt: new Date().toISOString(),
-        },
-        { registry: dbRegistryAccessor },
-      ),
-    );
-    return;
-  }
-
-  const canonicalCounty = MICHIGAN_COUNTIES.find(
-    (c) => c.toLowerCase() === countyParam.toLowerCase(),
-  );
-
-  if (!canonicalCounty) {
-    res.status(404).json(
-      await buildEnvelope(
-        {
-          sourceId: MNFI_SOURCE_ID,
-          sourceKind: "single-source-proxy",
-          found: false,
-          data: {
-            error: "not_found",
-            message: `County "${countyParam}" not found. Must be one of the 83 Michigan county names.`,
-            valid_counties: getMnfiCountyList(),
-          },
-          method: "computed",
-          cacheStatus: "bypass",
-          sourceUrl: null,
-          queriedAt: new Date().toISOString(),
-        },
-        { registry: dbRegistryAccessor },
-      ),
-    );
-    return;
-  }
-
-  const occurrences = getMnfiCounty(canonicalCounty);
-  const isSpeciesFilter = elementType === "animal" || elementType === "plant";
-  const speciesResults = elementType === "community" ? [] : occurrences.species;
-  const communityResults = isSpeciesFilter ? [] : occurrences.communities;
-  const totalElements = speciesResults.length + communityResults.length;
-
-  res.json(
-    await buildEnvelope(
-      {
-        sourceId: MNFI_SOURCE_ID,
-        sourceKind: "single-source-proxy",
-        found: totalElements > 0,
-        data: {
-          county: canonicalCounty,
-          element_type_filter: elementType ?? null,
-          species_count: speciesResults.length,
-          community_count: communityResults.length,
-          result_count: totalElements,
-          species: elementType === "community" ? undefined : speciesResults,
-          communities: isSpeciesFilter ? undefined : communityResults,
-        },
-        method: "cache_hit",
-        cacheStatus: "hit",
-        sourceUrl: "https://mnfi.anr.msu.edu/resources/county-element-data",
-        queriedAt: new Date().toISOString(),
+        found: result.species.length > 0 || result.communities.length > 0,
+        data: result,
+        ...IN_MEMORY_PROVENANCE,
       },
       { registry: dbRegistryAccessor },
     ),
