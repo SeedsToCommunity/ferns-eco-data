@@ -1470,3 +1470,38 @@ N/A — no new source added; restructure only.
 - The `cache_status: "none"` value is outside the data-layer-contract's defined enum. If the contract is updated to formally define acknowledged-source envelope pairs (e.g. `api_fetch` + `none`), the envelope.ts file should be updated to match.
 - The `InatRawResponse` Zod schema in `inaturalist.ts` is a loose passthrough — it does not enforce the full iNat API response shape. If stricter validation is desired for specific endpoints, per-endpoint schemas could be defined.
 
+
+---
+
+## Task: iNat — Remove EC REST routes and services
+
+### What was changed
+
+The iNaturalist REST layer inside EC FERNS has been removed entirely. Previously, the REST server had a set of routes (18 endpoints) that proxied requests to the iNaturalist API and cached results in the database. Since the MCP tools now call iNaturalist directly, these routes were dead code. This task deleted the route file, the connector (which made HTTP calls to the iNat API), and the cache module (which read/wrote to six PostgreSQL tables). The route registration was removed from the server's index. The iNat database schema file was deleted and de-exported from the shared `@workspace/db` package. A new migration (0027) was written that drops all six iNat cache tables (`inat_places`, `inat_species`, `inat_histogram`, `inat_field_values`, `inat_controlled_terms`, `inat_taxon_by_id`) from the database, and the migration was wired into the custom migration runner so it executes on next startup. The `source-relationships/metadata.ts` file was reviewed and required no changes — its entries describe relationships between named data sources (not EC REST route paths), and those relationships remain valid.
+
+### Derivation summary
+
+N/A — no new source added.
+
+### Scientific/technical description
+
+N/A — no new source added.
+
+### Architectural decisions made
+
+- **Deleted `connector.ts` in full, not just the EC REST-specific parts.** The connector file contained both cache-key builders (cache infrastructure) and fetch functions (HTTP calls to iNat). Since the entire cache layer is gone and the MCP tools call iNat directly, there was nothing to salvage — deleting the whole file was cleaner than partial removal.
+- **Kept `metadata.ts` and `seed.ts`** in `services/inat/`. These hold the registry entry seed and source metadata constants, which are used independently of the cache/connector and are not in scope for this task. The task explicitly excludes the registry entry.
+- **Included `inat_species` in the migration.** The task named five tables; the schema file had a sixth (`inat_species`) that was not named explicitly. Since the schema file was deleted entirely, dropping all six in the migration is the correct matching action.
+- **Used `DROP TABLE IF EXISTS` on all statements** and set `failFast = false` on the migration runner call. This is consistent with all other cleanup/drop migrations in this codebase — the migration is idempotent and will not fail startup if the tables were already dropped or never existed.
+- **`source-relationships/metadata.ts` left unchanged.** All entries reference source IDs (`"inaturalist"`, `"gbif"`, etc.) to describe data-source-to-data-source relationships. None reference EC REST URL paths or connector internals. The relationships described (overlap in occurrence counts, taxonomy conflicts, conservation rank conflicts, geographic coverage complementarity) remain factually valid regardless of whether the REST proxy exists.
+
+### What was NOT done
+
+- OpenAPI spec, generated types, and the audit corpus for iNat — deferred to the next task ("iNat — OpenAPI redirection, types, and audit cleanup") as explicitly stated in scope.
+- The registry entry (`ferns_sources` row for iNaturalist) and MCP tools — explicitly out of scope per task definition.
+- `metadata.ts` and `seed.ts` in `services/inat/` — not deleted; they remain because the registry entry and seed logic are needed and are not in scope.
+
+### What the user should decide or review
+
+- On next server startup, migration 0027 will execute and drop all six iNat cache tables. Any data in those tables will be permanently lost. This is the intended outcome; confirm the tables are safe to drop in production before deploying.
+- The `services/inat/metadata.ts` and `services/inat/seed.ts` files remain. They will be reviewed/cleaned up in the subsequent OpenAPI and audit task — confirm that scope is correct.

@@ -190,6 +190,13 @@
       "when": 1782950400000,
       "tag": "0026_mnfi_drop_import_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1751328000000,
+      "tag": "0027_drop-inat-cache-tables",
+      "breakpoints": true
     }
   ]
 }

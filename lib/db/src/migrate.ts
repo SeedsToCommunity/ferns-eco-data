@@ -267,6 +267,7 @@ const WIRED_TAGS = new Set([
   "0024_natureserve_edp_refactor",
   "0025_natureserve_drop_stale_columns",
   "0026_mnfi_drop_import_tables",
+  "0027_drop-inat-cache-tables",
 ]);
 
 /** Tags intentionally excluded from the runner (applied by the drizzle-kit
@@ -454,6 +455,15 @@ export async function runMigrations(): Promise<void> {
   // to re-run on databases that never had these tables.
   if (byIdx(26)) {
     await runSqlMigration("0026_mnfi_drop_import_tables", byIdx(26).when, "0026 (mnfi drop import tables)", false);
+  }
+
+  // Migration 0027: Drop all iNat cache tables.
+  // iNat is now called directly by MCP tools; the EC REST layer (routes, connector,
+  // cache) has been removed. All six iNat cache tables are dead storage.
+  // DROP TABLE IF EXISTS guards make every statement safe to re-run on databases
+  // where these tables were never created or were already dropped manually.
+  if (byIdx(27)) {
+    await runSqlMigration("0027_drop-inat-cache-tables", byIdx(27).when, "0027 (drop inat cache tables)", false);
   }
 
   console.info("[migrate] All migrations complete.");
