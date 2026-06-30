@@ -112,6 +112,32 @@ A Source is **opaque** to the rest of the system behind its Source Interface. Wh
 >
 > Note: External Data Providers are physically separated from their Adapters by the network. Internal Data Providers are separated from their Adapters by the Source Interface as a code boundary — they live in their own part of the code, distinct from the Adapter that wraps them. The physical segregation of Internal Data Providers in the codebase is the target architecture; not every existing internal source meets it today. Bringing the existing internal sources into alignment is tracked as separate implementation work, sequenced behind pristine examples of the pattern.
 
+### Source Categories
+
+Every registered FERNS source belongs to exactly one of two categories. The category is the machine-readable signal — carried in the `knowledge_type` field of the registry entry — that tells all consumers (registry API, Trust Layer, MCP clients) what kind of interface the source has and what EC owns.
+
+#### EC-hosted (`knowledge_type: "source_wrapper"`)
+
+EC owns the full data pipeline for this source: a connector that fetches data from the upstream API, an EC-side database cache, and EC REST routes exposed on the EC Data Interface. Consumers reach this source through EC's own REST or MCP surface. The Data Adapter wraps upstream responses in the EC envelope and applies caching. The `non_passthrough_endpoints` registry field declares every EC route that is not a verbatim passthrough of a single upstream endpoint.
+
+Invariants:
+- One or more EC REST routes exist at `/api/{source-id}/...`
+- An EC-side cache absorbs repeat requests
+- The onboarding checklist in the Source Onboarding Playbook (all 12 steps) applies
+
+#### Acknowledged (`knowledge_type: "acknowledged_source"`)
+
+EC curates the source — maintaining its registry entry, writing its description fields, and providing MCP tooling — but does not own or proxy the upstream REST interface. There are no EC REST routes for this source. Consumers reach the source's native API directly, with MCP tools acting as the integration layer. MCP tools for an acknowledged source call the upstream API and build the response envelope themselves.
+
+Invariants:
+- No EC REST routes exist for this source (the `non_passthrough_endpoints` field is empty)
+- No EC-side cache exists for this source
+- The `metadata_url` in the registry entry points at the upstream source's own API documentation or base URL, not at an EC route
+- MCP tools are the sole EC integration surface; they own envelope construction
+- The acknowledged-source onboarding path in the Source Onboarding Playbook applies
+
+**Why the distinction matters**: the `knowledge_type` value is the first signal any consumer should read when deciding how to interact with a source. `source_wrapper` means "ask EC"; `acknowledged_source` means "EC provides MCP tooling and metadata, but the upstream API is the live interface". Trust Layer implementations and MCP clients use this field to route correctly.
+
 ### `method` and `cache_status` are coupled
 
 Only the following pairs are valid. Any other pair is a defective response.
@@ -185,7 +211,7 @@ The field is a JSON array. Each element is an object with exactly two keys:
 - `endpoint` — the full FERNS path (e.g. `"/api/gbif/metadata"`, `"/api/s2c/years"`). Must be an exact string match for the route path; no wildcards.
 - `kind` — one of the six non-`passthrough` kinds: `metadata`, `in_memory`, `url_lookup`, `scraped_text`, `url_resolver`, `admin`. `passthrough` is the default and is never declared here.
 
-Every source's `/metadata` endpoint must appear in this field with kind `metadata`.
+Every EC-hosted source's `/metadata` endpoint must appear in this field with kind `metadata`. Acknowledged sources (`knowledge_type: "acknowledged_source"`) have no EC REST routes and therefore have no `/metadata` endpoint to declare; their `non_passthrough_endpoints` field is an empty array.
 
 ## What Carries the Envelope
 

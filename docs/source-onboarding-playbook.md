@@ -6,9 +6,13 @@ Adding a Source means building its **Data Adapter** — the code that calls the 
 
 A new Source may be an **External Data Provider** (reached over the network — iNat, GBIF) or an **Internal Data Provider** (held in-process inside EC FERNS — S2C, Coefficient of Conservatism, the name graph). The checklist below applies to both; differences specific to the kind of Provider are noted at the relevant steps.
 
-### Onboarding Checklist (Mandatory — do not skip steps)
+**Source category determines which onboarding path applies.** Before starting any steps, determine the source category (see "Source Categories" in `docs/data-layer-contract.md`):
+- **EC-hosted** (`knowledge_type: "source_wrapper"`): use the EC-Hosted Onboarding Checklist below (Steps 1–12).
+- **Acknowledged** (`knowledge_type: "acknowledged_source"`): use the Acknowledged-Source Onboarding Checklist below (Steps A1–A6).
 
-Every step must be completed before a source is considered done. If a step is genuinely not applicable, state that explicitly with a reason. Do not silently omit steps.
+### EC-Hosted Onboarding Checklist (Mandatory — do not skip steps)
+
+Every step must be completed before an EC-hosted source is considered done. If a step is genuinely not applicable, state that explicitly with a reason. Do not silently omit steps.
 
 **Step 1: Research (before any code)**
 Independently read the source's website, documentation, and terms of service from primary sources. Identify: institution, coverage (geographic, taxonomic, data type), access method (API / scrape / static), permission status (check robots.txt and ToS), data freshness, known limitations, and overlap with any existing FERNS source. Do not rely on secondary descriptions or assumptions. Done when you can answer every field in the Source Research Proposal template.
@@ -45,6 +49,34 @@ Write all mandatory post-task summaries as expected by replit.md. Include the ve
 
 **Step 12: MCP Tool Wiring**
 Add a new tool (or tools) to `artifacts/mcp-server/src/index.ts` for each new source endpoint. Follow the `{source_id}__{action}` naming convention (hyphens → underscores, double-underscore separator). One REST endpoint = one MCP tool; no aggregation. Define `inputSchema` covering all required and optional query parameters, matching the route handler in `artifacts/rest-server/src/routes/{source-id}.ts`. For path-parameter endpoints, build the URL in the handler directly (e.g., `` fernsGet(`/lcscg/guide/${Number(args["guideId"])}`) ``). Update the tool table in `artifacts/mcp-server/README.md`. Done when `tools/list` on the MCP server includes the new tool(s) and the README table is up to date.
+
+---
+
+### Acknowledged-Source Onboarding Checklist (Mandatory — do not skip steps)
+
+An acknowledged source is one where EC curates the source and provides MCP tooling but does not own or proxy the upstream REST interface. There are no EC REST routes and no EC-side cache. MCP tools call the upstream API directly and build the response envelope themselves. See "Source Categories" in `docs/data-layer-contract.md` for the full invariants.
+
+Every step must be completed before an acknowledged source is considered done. If a step is genuinely not applicable, state that explicitly with a reason.
+
+**Step A1: Research (before any code)**
+Same as EC-Hosted Step 1. Read the source's website, documentation, and terms of service from primary sources. Identify: institution, coverage, access method, permission status, data freshness, known limitations, and overlap with any existing FERNS source. Done when you can answer every field in the Source Research Proposal template.
+
+**Step A2: Source Research Proposal (must be approved before any code is written)**
+Same as EC-Hosted Step 2. Write and present the proposal; wait for explicit written approval before proceeding. Note in the proposal that this source is being registered as `acknowledged_source` and state why. Done when the user has replied with explicit approval.
+
+**Step A3: Source Metadata and Registry Seed (DO NOT SKIP description quality)**
+Create `artifacts/rest-server/src/services/{source-id}/metadata.ts` with the source constants (SOURCE_ID, GENERAL_SUMMARY, TECHNICAL_DETAILS, REGISTRY_ENTRY). Set `knowledge_type: "acknowledged_source"` in the registry entry. Set `non_passthrough_endpoints: []` — no EC REST routes exist. Set `metadata_url` to the upstream source's own API documentation or base URL (not an EC path). The three description fields (`description`, `general_summary`, `technical_details`) must note that this is an acknowledged source and that the upstream API is the live interface. They must still meet all standards in the Description Field Standards section. Create `artifacts/rest-server/src/services/{source-id}/seed.ts` that upserts into `fernsSourcesTable`. Done when `GET /api/v1/sources` includes the new source with a `knowledge_type` of `acknowledged_source` and description fields that meet the defined standards.
+
+Note: No DB schema step, no connector step, no route handler step, and no OpenAPI spec step — acknowledged sources have none of these in EC.
+
+**Step A4: MCP Tool Wiring**
+Add a new tool (or tools) to the MCP server for each meaningful operation the upstream source supports. Follow the same `{source_id}__{action}` naming convention as EC-Hosted Step 12. For acknowledged sources, MCP tools call the upstream API directly using `fetch` (not `fernsGet`) and build the response envelope themselves — they must set all required envelope fields (`found`, `permission_granted`, `provenance`, `data`) according to the FERNS Response Envelope Contract v1. The `provenance.method` is `api_fetch`, `provenance.cache_status` is `miss`, and `provenance.source_url` is the exact upstream URL called. Update the tool table in `artifacts/mcp-server/README.md`. Done when `tools/list` includes the new tool(s), each tool produces a valid envelope, and the README table is up to date.
+
+**Step A5: Post-Task Summary**
+Same as EC-Hosted Step 11. Write all mandatory post-task summaries. Include the verbatim text of `description`, `general_summary`, and `technical_details`. Done when the summary is complete and presented.
+
+**Step A6: Audit Coverage Note**
+Acknowledged sources have no EC REST routes to audit against the spec. Document this explicitly in the post-task summary: state what audit coverage exists (e.g., a manual smoke test of each MCP tool), what is absent and why, and what a future audit approach would look like. A silent omission is a task failure.
 
 ---
 

@@ -1395,3 +1395,39 @@ Not applicable — no new source was added.
 
 - The old MNFI tools (`mnfi__community`, `mnfi__community_plants`, `mnfi__county_elements`) are retired — any existing Claude Desktop or Cursor configs that used those tool names will need updating. The new tool names are documented in the updated README.
 - The README tool inventory header was updated from "60 tools" to "64 tools" — the "60" count was stale before this task (several sources had been added since it was written). If precision matters, a full recount of the README table rows should be done as housekeeping.
+
+---
+
+## Task: iNat — Registry update and acknowledged-source category
+
+### What was changed
+
+iNaturalist was reclassified from an EC-hosted source (`knowledge_type: "source_wrapper"`) to an acknowledged source (`knowledge_type: "acknowledged_source"`) in its registry metadata. This is a pure metadata and documentation change — no routes, connectors, caches, or DB schemas were touched. Three things changed: (1) the iNat `metadata.ts` file was updated so the registry entry accurately describes iNat's own REST API as the interface, removes all references to EC REST routes and an EC-side cache, and sets `non_passthrough_endpoints` to an empty array; (2) `docs/data-layer-contract.md` received a new "Source Categories" section that formally defines both categories and their invariants; and (3) `docs/source-onboarding-playbook.md` was extended with an Acknowledged-Source Onboarding Checklist (Steps A1–A6) as a parallel path alongside the existing EC-Hosted checklist.
+
+### Derivation summary
+
+> Observation and species data from iNaturalist (inaturalist.org), a citizen science platform operated jointly by the California Academy of Sciences and the National Geographic Society, with over 200 million observations contributed by millions of users worldwide. iNaturalist provides three categories of data relevant to ecological work: place ID lookup for geographic filtering; species appearance data (representative photos, Wikipedia summaries, common names, conservation status, and native/introduced status); and month-by-month phenology derived from community-added annotations showing what stage a species is typically in (flowering, budding, or fruiting). Geographic scope: global; taxonomic scope: all organisms (used in EC for vascular plants). iNaturalist maintains its own taxonomic backbone — name divergence across external sources is expected. Data is accessed directly from the iNaturalist v1 REST API at api.inaturalist.org; there is no EC-side cache. A species query returns photos, Wikipedia description, common names, conservation status, native status, global observation count, and month-by-month phenological stage breakdowns. Phenological annotation coverage is uneven — many species have sparse or no stage annotations.
+
+### Scientific/technical description
+
+> Source: iNaturalist REST API v1 (https://api.inaturalist.org/v1). No authentication required for read operations. Rate limiting applies; see iNaturalist API documentation. Place lookup: GET /places/autocomplete — returns iNaturalist place IDs from US Census TIGER and similar administrative boundaries. Species appearance: two-step fetch via GET /taxa?q={name}&rank=species to resolve the taxon ID, then GET /taxa/{id} for the full record including photos, Wikipedia summary, common names, conservation status, and native/introduced status. iNaturalist maintains its own taxonomic backbone. Name divergence across external sources is expected and should not be treated as error. Phenology: GET /observations/histogram (interval=month_of_year) for total counts by month, and GET /observations/popular_field_values (verifiable=true) for stage-stratified counts. Stage labels from popular_field_values: Flowers, Flower Buds, Fruits or Seeds, No Flowers or Fruits (for plants); Green Leaves, Colored Leaves, No Live Leaves, Breaking Leaf Buds (leaf phenology). Phenological annotations added voluntarily — coverage is uneven, often sparse or absent. This is an acknowledged source: EC curates the source metadata and provides MCP tooling but does not own or proxy the iNaturalist REST interface. There is no EC-side REST route and no EC-side cache. MCP tools call the iNaturalist API directly and build the response envelope themselves. Deliberate scope exclusions: user/account endpoints, social/community features, project management endpoints, and observation creation/edit endpoints are out of scope — EC covers read-only ecological data only.
+
+### Architectural decisions made
+
+- **`knowledge_type: "acknowledged_source"`** — chosen as the new free-text value per the task spec. It is now also the defined enumeration value in the data-layer-contract for this category. No DB migration needed; the field is free text.
+- **`metadata_url` set to `INAT_API_BASE` (`https://api.inaturalist.org/v1`)** — the old value pointed at `/api/inat/metadata`, an EC route that will not exist for an acknowledged source. Pointing at the upstream API root is the most accurate "where do you find metadata for this source" answer when no EC metadata endpoint exists.
+- **`non_passthrough_endpoints: []`** — empty because acknowledged sources have no EC REST routes at all. The old single entry (`/api/inat/metadata`) is removed.
+- **`INAT_TECHNICAL_DETAILS` retains the upstream API endpoint descriptions** — these describe iNat's own REST API, which is exactly what the technical details field should document for an acknowledged source. The removed content was exclusively EC-internal (DB table schema, EC cache method, EC cache TTL language).
+- **Acknowledged-source checklist as a parallel path (A1–A6)** — structured to mirror the EC-hosted checklist's discipline (research, proposal, approval gate, metadata, MCP wiring, post-task summary) while clearly omitting the steps that don't apply (DB schema, connector, route handler, OpenAPI spec, spec drift check, codegen). Each omitted step is explained rather than silently absent.
+
+### What was NOT done
+
+- No routes, connectors, caches, or DB schemas were changed — explicitly out of scope.
+- The existing iNat MCP tools were not updated or restructured — that is the next downstream task ("iNat — MCP restructure as acknowledged source").
+- No OpenAPI spec changes — iNat's EC REST routes still exist in the spec for now; removing them is downstream work.
+- `seed.ts` was not changed — it correctly upserts from `INAT_REGISTRY_ENTRY` and will pick up all changes on next server start automatically.
+
+### What the user should decide or review
+
+- The `description` field for the old `source_wrapper` version mentioned "paged observation summary records (live, no cache) with curated fields" as a distinct EC capability. The new description drops "live, no cache" framing since there are no longer EC REST routes — but it retains the mention of paged observation records as data iNat provides. If the observation list capability is being removed entirely (not just the EC REST route), the description should drop that clause too. Review the description and confirm whether observation records should still be listed.
+- The two-step species appearance approach (search then full record) is retained in technical_details as a description of how MCP tools will work. If the MCP restructure changes this pattern, technical_details will need a follow-up update.

@@ -23,20 +23,21 @@ export const INAT_GENERAL_SUMMARY =
   "Observation and species data from iNaturalist (inaturalist.org), a citizen science platform " +
   "operated jointly by the California Academy of Sciences and the National Geographic Society, " +
   "with over 200 million observations contributed by millions of users worldwide. " +
-  "FERNS exposes three data types from iNaturalist: place ID lookup for geographic filtering; " +
+  "iNaturalist provides three categories of data relevant to ecological work: place ID lookup for geographic filtering; " +
   "species appearance data (representative photos, Wikipedia summaries, common names, conservation status, and native/introduced status); " +
   "and month-by-month phenology derived from community-added annotations showing what stage a species is typically in (flowering, budding, or fruiting). " +
-  "Geographic scope: global; taxonomic scope: all organisms (FERNS uses it for vascular plants). " +
+  "Geographic scope: global; taxonomic scope: all organisms (used in EC for vascular plants). " +
   "iNaturalist maintains its own taxonomic backbone — name divergence across external sources is expected. " +
-  "All data accessed through the iNaturalist v1 REST API and cached between requests. " +
+  "Data is accessed directly from the iNaturalist v1 REST API at api.inaturalist.org; there is no EC-side cache. " +
   "A species query returns photos, Wikipedia description, common names, conservation status, native status, " +
   "global observation count, and month-by-month phenological stage breakdowns. " +
   "Phenological annotation coverage is uneven — many species have sparse or no stage annotations.";
 
 export const INAT_TECHNICAL_DETAILS =
-  "Source: iNaturalist (https://api.inaturalist.org/v1). " +
-  "Place lookup: GET /places/autocomplete — returns iNaturalist place IDs from US Census TIGER and similar boundaries. " +
-  "Species appearance: two-step fetch via GET /taxa?q={name}&rank=species then GET /taxa/{id}. " +
+  "Source: iNaturalist REST API v1 (https://api.inaturalist.org/v1). " +
+  "No authentication required for read operations. Rate limiting applies; see iNaturalist API documentation. " +
+  "Place lookup: GET /places/autocomplete — returns iNaturalist place IDs from US Census TIGER and similar administrative boundaries. " +
+  "Species appearance: two-step fetch via GET /taxa?q={name}&rank=species to resolve the taxon ID, then GET /taxa/{id} for the full record including photos, Wikipedia summary, common names, conservation status, and native/introduced status. " +
   "iNaturalist maintains its own taxonomic backbone. " +
   "Name divergence across external sources is expected and should not be treated as error. " +
   "Phenology: GET /observations/histogram (interval=month_of_year) for total counts by month, " +
@@ -44,21 +45,19 @@ export const INAT_TECHNICAL_DETAILS =
   "Stage labels from popular_field_values: Flowers, Flower Buds, Fruits or Seeds, No Flowers or Fruits " +
   "(for plants); Green Leaves, Colored Leaves, No Live Leaves, Breaking Leaf Buds (leaf phenology). " +
   "Phenological annotations added voluntarily — coverage is uneven, often sparse or absent. " +
-  "Method: api_fetch. Results are cached between requests. " +
-  "DB tables: inat_places (columns: cache_key unique, query, results jsonb, found, expires_at, fetched_at, method, upstream_url); " +
-  "inat_species (columns: cache_key unique, inat_taxon_id, inat_name, match_type, preferred_common_name, common_names jsonb, wikipedia_summary, wikipedia_url, default_photo_url, conservation_status jsonb, native_status jsonb, observations_count, source_url, raw_response jsonb, found, expires_at); " +
-  "inat_histogram (columns: cache_key unique, taxon_id, place_ids integer[], raw_response jsonb, expires_at); " +
-  "inat_field_values (columns: cache_key unique, taxon_id, place_ids integer[], verifiable, raw_response jsonb, expires_at).";
+  "This is an acknowledged source: EC curates the source metadata and provides MCP tooling but does not own or proxy the iNaturalist REST interface. " +
+  "There is no EC-side REST route and no EC-side cache. MCP tools call the iNaturalist API directly and build the response envelope themselves. " +
+  "Deliberate scope exclusions: user/account endpoints, social/community features, project management endpoints, and observation creation/edit endpoints are out of scope — EC covers read-only ecological data only.";
 
 export const INAT_REGISTRY_ENTRY = {
   source_id: INAT_SOURCE_ID,
   name: "iNaturalist — Observations, Phenology, and Species Appearance",
-  knowledge_type: "source_wrapper",
+  knowledge_type: "acknowledged_source",
   status: "live",
   description:
     "Species photos, Wikipedia summaries, common names, native or introduced status, conservation status, " +
     "monthly sighting counts, and phenological stage annotations (flowering, budding, fruiting) for any searchable species worldwide; " +
-    "also returns paged observation summary records (live, no cache) with curated fields: date, taxon, observer, location, quality grade, and first photo. " +
+    "and paged observation summary records with date, taxon, observer, location, quality grade, and first photo. " +
     "From iNaturalist, a global citizen science platform operated by the California Academy of Sciences and National Geographic Society " +
     "with over 200 million user observations.",
   input_summary:
@@ -76,12 +75,12 @@ export const INAT_REGISTRY_ENTRY = {
     "iNaturalist maintains its own taxonomic backbone; names may differ from GBIF, BONAP, or Michigan Flora. " +
     "Research Grade iNaturalist observations appear in GBIF — do not double-count when using both FERNS services. " +
     "Observation timing data reflects observer effort and seasonal accessibility as much as actual species biology.",
-  metadata_url: "/api/inat/metadata",
+  metadata_url: INAT_API_BASE,
   licenses: INAT_LICENSES,
   license_notes: INAT_LICENSE_NOTES,
   general_summary: INAT_GENERAL_SUMMARY,
   technical_details: INAT_TECHNICAL_DETAILS,
-  non_passthrough_endpoints: [{ endpoint: "/api/inat/metadata", kind: "metadata" }],
+  non_passthrough_endpoints: [] as { endpoint: string; kind: string }[],
   permission_granted: true,
   license: "https://creativecommons.org/licenses/by-nc/4.0/",
   rights:
