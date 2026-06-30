@@ -10,6 +10,7 @@
     "./ann-arbor-npn": "./src/ann-arbor-npn/index.ts",
     "./seeds-to-community-washtenaw": "./src/seeds-to-community-washtenaw/index.ts",
     "./google-images": "./src/google-images/index.ts",
-    "./lcscg": "./src/lcscg/index.ts"
+    "./lcscg": "./src/lcscg/index.ts",
+    "./mnfi": "./src/mnfi/index.ts"
   }
 }

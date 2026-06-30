@@ -1219,3 +1219,106 @@ N/A — no new source was added; no `technical_details` field was modified.
 
 3. **operationId change** (`getNatureserveSpecies` → `getNatureserveSpeciesSearch`) generates different hook/schema names in the client packages. Any application code that used the generated `useGetNatureserveSpecies` hook or its Zod schema will need renaming.
 
+
+---
+
+## Task: MNFI — DB Cleanup, Scraper, Seed Data, IDP (Task B)
+
+**Date**: 2026-06-29
+
+### 1. What was changed
+
+Three old MNFI database tables (`mnfi_communities`, `mnfi_community_plants`, `mnfi_county_elements`) were dropped via a new migration (0026). Under the new architecture, all MNFI data lives in TypeScript files committed to the repo rather than in a database. A new scraper was written and run against the live MNFI website, producing 10 data files with 77 communities, 748 prose sections, 4,105 characteristic plant entries, 2,071 community rare-species entries, 797 rare-species roster records, 6,363 county-species occurrences, 930 county-community occurrences, and 362 abstracts — with zero fetch errors. An Internal Data Provider (IDP) was then written in `lib/internal-data-providers/src/mnfi/index.ts` exposing 8 synchronous query functions for REST adapter use. All data is now served from in-memory TypeScript arrays loaded at startup.
+
+### 2. Derivation summary
+
+No new FERNS source was added (MNFI was already registered). This task built the data layer behind the existing source registration.
+
+### 3. Scientific/technical description
+
+**Migration 0026** (`lib/db/drizzle/0026_mnfi_drop_import_tables.sql`): drops `mnfi_community_plants`, `mnfi_county_elements`, `mnfi_communities` in FK-dependency order using `DROP TABLE IF EXISTS` guards. Wired into `lib/db/src/migrate.ts` at index 26 (non-fatal, `failFast=false`). Journal updated. Drizzle schema file emptied; export removed from `schema/index.ts`.
+
+**Scraper** (`lib/internal-data-providers/src/mnfi/scraper/index.ts`): fetches five MNFI sources.
+- Source 1 (`/communities/list`): parses `<tr>` rows to extract communityId (5-digit integer from href), slug, name, class, group, globalRank, stateRank.
+- Source 2 (one page per community, 400ms rate limit): dynamic `<h2>` section discovery (not a fixed list), plant list parsed from the same page HTML (not the separate plant-list URL), rare species in three section kinds (`rare plants/animals/aquatic_animals`) with elementId extracted from href, similar communities with communityId from href, places to visit, literature, photo URL, county map URL, ecoregion map URL, abstract PDF URL.
+- Source 3 (`/species/plants` and `/species/animals`): parses species rows with elementId from href, category headers from `<th>` rows, fields mapped to speciesPageUrl/status/rank columns.
+- Source 4 (83 counties × 2 endpoints, 250ms rate limit): `countyQuery` and `countyCommunityQuery` JSON feeds. `lastObsYear` parsed as `number | null` via `parseInt` (was `string` in old code). `county_id`, `g_rank_description`, `s_rank_description`, `occurrences_in_county` dropped.
+- Source 5 (`/publications/abstracts`): PDF link extraction with subject resolution via communityId/elementId URL pattern matching.
+
+Scraper is excluded from main `tsconfig.json` via `"exclude": ["src/mnfi/scraper"]` (uses Node.js builtins not available in the package's `"lib": ["es2022"]` config). It has a companion `tsconfig.json` with `"types": ["node"]` for use when running directly.
+
+**IDP** (`lib/internal-data-providers/src/mnfi/index.ts`): all 8 functions are synchronous. All nine index Maps are built eagerly at module load as `const ReadonlyMap` constants — no mutable module state. `getMnfiCounty` with `filter.kind` joins via elementId to the species roster to resolve taxon kind (county feed has no kind field). `getMnfiSpeciesCommunities` and `getMnfiSpeciesCounties` use elementId as the primary join key (confirmed reliable by Task A verification), falling back to case-insensitive scientificName when elementId is null.
+
+**Package export** added: `"./mnfi": "./src/mnfi/index.ts"` in `lib/internal-data-providers/package.json`.
+
+### 4. Architectural decisions made
+
+- **Scraper excluded from main tsconfig**: The scraper uses Node.js builtins (`fs`, `path`, `url`, `process`, `console`) that the package's `"lib": ["es2022"]` config does not expose. Rather than adding node types to the entire package (which would widen the surface of a package intended to be side-effect-free), the scraper directory is excluded from the main tsconfig and given its own companion tsconfig with `"types": ["node"]`. tsx runs it directly without needing compilation.
+- **Dynamic section discovery**: The old scraper hardcoded six section names; the new one discovers all `<h2>` headings on the page. This captured all 748 sections (typically 9–10 per community) including irregular ones like "Rare Aquatic Animals" on Floodplain Forest.
+- **Plant list from description page only**: The task spec required parsing plants from the community description page rather than the separate `/communities/plant-list/{id}/{slug}` URL. This saves 77 extra HTTP fetches.
+- **elementId as primary join key**: Confirmed by Task A verification (Cirsium pitcheri elementId 13485 matches county feed ELEMENT_ID 13485). The IDP joins community_rare_species → rare_species on elementId with scientificName as fallback.
+- **Scraper writes a skip set for prose sections**: The prose sections index skips section headings that map to structured data (plant lists, rare species lists, similar communities, places to visit, literature) to avoid double-storing text content.
+- **Eager index construction**: All 9 index Maps are built at module load as `const ReadonlyMap` constants initialized from the TypeScript data files. This satisfies the IDP purity rule ("no caching, no side effects") — there is no mutable module state. Startup cost is paid once when the server imports the package; subsequent calls are pure synchronous lookups.
+- **getMnfiSpeciesList default limit 50**: Per spec — unfiltered call returns page 1 only, never dumps all 797 records.
+- **getMnfiCounty filter.kind**: The county feed does not include a kind column. Filtering by kind requires joining each row to the roster by elementId. This is O(n) on first call but correct.
+
+### 5. What was NOT done
+
+- REST routes: rewritten as part of the same session (see addendum below), not as a separate Task C — the broken server required it immediately
+- OpenAPI spec, MCP tools, audit corpus (Task D)
+- The scraper does not re-import the old `communities-data.ts` file content — it is entirely replaced by the scraped data files
+- The abstracts subject resolution only matches by URL pattern (communityId/elementId in URL); no fuzzy name matching against the community list is attempted
+
+### 6. What the user should decide or review
+
+- **Abstracts subjectType resolution**: 362 abstracts were found. Most will be classified as "other" since the PDF URLs on the abstracts page don't embed community IDs or elementIds directly. The user should verify whether the abstract-to-community linkage via the PDF URL pattern is sufficient, or whether a name-matching fallback is needed.
+- **County feed lastObsYear for communities**: `LAST_OBS_DATE` was parsed via `parseInt` — if MNFI ever returns a full date string (e.g. "2019-07-15"), parseInt correctly extracts the year. If the field is empty or null, `null` is stored. This is correct but worth noting.
+- **Scrape counts summary**: 77 communities (expected), 797 rare species roster entries (note: MNFI's website pagination structure affects how many rows are parsed per table), 6,363 county species entries, 930 county community entries. The rare species roster row count (797) is lower than the 902+ href links noted in the Task A verification document — the difference is because that verification counted all href anchors on the page (including header/footer navigation), while the scraper only counts rows that have a species link AND valid cell data (category headers and duplicate hrefs are excluded).
+
+---
+
+## Addendum: MNFI REST Routes Rewrite (same session as Task B)
+
+**Date**: 2026-06-29
+
+### 1. What was changed
+
+The migration that dropped the old MNFI DB tables left the REST server failing to build (four `No matching export` esbuild errors). Rather than wait for a separate Task C slot, the REST routes were rewritten immediately so the server could start. The three affected files in `artifacts/rest-server` were updated: the route file was completely rewritten to use the IDP, the seed service was stripped down to registry-only, and the startup auto-import call was removed.
+
+### 2. Derivation summary
+
+No new source. Changes are to the Adapter layer only.
+
+### 3. Scientific/technical description
+
+**`artifacts/rest-server/src/routes/mnfi.ts`** — full rewrite. All drizzle-orm and `@workspace/db` table imports removed. Five GET routes now call IDP functions:
+- `GET /mnfi/metadata`: calls `getMnfiCommunityList()` and `getMnfiCountyList()`, aggregates community class breakdown, returns `scraped_at` from `MNFI_SCRAPED_AT`.
+- `GET /mnfi/communities`: calls `getMnfiCommunityList(CommunityFilter)` with `communityClass`/`group`/`nameText` from query params.
+- `GET /mnfi/communities/:id`: `resolveCommunityParam()` handles both numeric `community_id` and slug by searching `getMnfiCommunityList()` for the numeric case, then calling `getMnfiCommunity(slug)`. Returns `CommunityFull` with `characteristic_plants.by_life_form` grouping.
+- `GET /mnfi/communities/:id/plants`: same resolution; returns `characteristicPlants` grouped by `lifeForm`.
+- `GET /mnfi/county-elements`: validates county against `MICHIGAN_COUNTIES` (case-insensitive), calls `getMnfiCounty(canonicalCounty)`, supports `?type=species|community` filter.
+
+Four POST import endpoints removed entirely (no DB to write to).
+
+**`artifacts/rest-server/src/services/mnfi/seed.ts`** — `autoImportMnfiIfEmpty` and `ensureMnfiCommunities` removed. Only `ensureMnfiRegistryEntry` remains (upserts MNFI record into `fernsSourcesTable`, which was not dropped).
+
+**`artifacts/rest-server/src/index.ts`** — `autoImportMnfiIfEmpty` import and startup call removed.
+
+### 4. Architectural decisions made
+
+- **County name validated against static `MICHIGAN_COUNTIES`**: The old route used `ilike` against the DB. The new route validates the county param against the 83-county canonical list and returns a 404 with the valid county list if the name isn't recognized. This is stricter and more informative than a DB miss returning an empty result set.
+- **Numeric community_id handled via list scan**: The IDP's `getMnfiCommunity` takes a slug string. Numeric IDs are handled in the route by scanning `getMnfiCommunityList()` for `communityId === numericId`. This is O(77) — acceptable given the fixed set size.
+- **Import endpoints removed, not stubbed**: The four POST endpoints (`import-communities`, `import-descriptions`, `import-plant-lists`, `import-county-elements`) were removed outright rather than returning 410. They no longer make sense; the data lives in TypeScript files. If a re-scrape is ever needed, the endpoints can be re-added with the new scraper.
+- **`MNFI_REGISTRY_ENTRY.non_passthrough_endpoints`** still lists the old import endpoints in `metadata.ts`. This is documentation drift that can be cleaned up in Task D when the registry entry is reviewed.
+
+### 5. What was NOT done
+
+- `metadata.ts` `non_passthrough_endpoints` not updated (still lists the four removed import endpoints)
+- OpenAPI spec, MCP tools, audit corpus (Task D)
+- No species-level routes added (e.g. `GET /mnfi/species`, `GET /mnfi/species/:id`) — these were not in the original route file
+
+### 6. What the user should decide or review
+
+- **`non_passthrough_endpoints` in `MNFI_REGISTRY_ENTRY`**: still lists the four removed import endpoints. Should be updated to reflect the current five GET routes only (or replaced with the IDP-based equivalent).
+- **Species routes**: the IDP exports `getMnfiSpeciesList`, `getMnfiSpecies`, `getMnfiSpeciesCommunities`, `getMnfiSpeciesCounties` — no REST routes exist for these yet. Task D or a follow-up should decide whether to expose them.
+

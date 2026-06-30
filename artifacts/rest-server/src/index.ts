@@ -2,7 +2,6 @@ import app from "./app";
 import { logger } from "./lib/logger";
 import { runMigrations } from "@workspace/db/migrate";
 import { ensureBonapRegistryEntry } from "./services/bonap/seed.js";
-import { autoImportMnfiIfEmpty } from "./services/mnfi/seed.js";
 import { ensureGbifRegistryEntry } from "./services/gbif/seed.js";
 import { ensureInatRegistryEntry } from "./services/inat/seed.js";
 import { ensureMifloraRegistryEntry } from "./services/miflora/seed.js";
@@ -53,10 +52,6 @@ async function main() {
     }
 
     logger.info({ port }, "Server listening");
-
-    autoImportMnfiIfEmpty(port).catch((err) => {
-      logger.error({ err }, "MNFI auto-import check failed at startup");
-    });
 
     autoImportMissouriPlantsIfEmpty().catch((err) => {
       logger.error({ err }, "Missouri Plants auto-import check failed at startup");

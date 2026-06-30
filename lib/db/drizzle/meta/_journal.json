@@ -183,6 +183,13 @@
       "when": 1782864000000,
       "tag": "0025_natureserve_drop_stale_columns",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1782950400000,
+      "tag": "0026_mnfi_drop_import_tables",
+      "breakpoints": true
     }
   ]
 }

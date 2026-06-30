@@ -266,6 +266,7 @@ const WIRED_TAGS = new Set([
   "0023_universal_fqa_edp_refactor",
   "0024_natureserve_edp_refactor",
   "0025_natureserve_drop_stale_columns",
+  "0026_mnfi_drop_import_tables",
 ]);
 
 /** Tags intentionally excluded from the runner (applied by the drizzle-kit
@@ -444,6 +445,15 @@ export async function runMigrations(): Promise<void> {
   // DROP COLUMN IF EXISTS guards make every statement idempotent.
   if (byIdx(25)) {
     await runSqlMigration("0025_natureserve_drop_stale_columns", byIdx(25).when, "0025 (NatureServe drop stale columns)", false);
+  }
+
+  // Migration 0026: Drop MNFI import-loop tables.
+  // Under the new architecture, MNFI data lives in TypeScript data files committed
+  // to the repo; no DB tables are needed for MNFI content. The registry entry
+  // (ferns_sources table) is unaffected. DROP TABLE IF EXISTS guards make it safe
+  // to re-run on databases that never had these tables.
+  if (byIdx(26)) {
+    await runSqlMigration("0026_mnfi_drop_import_tables", byIdx(26).when, "0026 (mnfi drop import tables)", false);
   }
 
   console.info("[migrate] All migrations complete.");
