@@ -46,10 +46,13 @@ async function main() {
   await runMigrations();
   logger.info("Database migrations complete.");
 
-  // Explicitly bind to 0.0.0.0 so the Replit sidecar health check can reach
-  // the server via 127.0.0.1 (IPv4). Without an explicit host, Node.js may
-  // default to :: (IPv6) in dual-stack containers, causing connection-refused.
-  const server = app.listen(port, "0.0.0.0", () => {
+  // Use Node's default host binding: it listens on the dual-stack IPv6
+  // wildcard (::) when IPv6 is available (accepting both IPv6 and IPv4),
+  // and falls back to 0.0.0.0 otherwise. The production application router
+  // reaches the backend over the IPv6 loopback (::1), so an explicit
+  // IPv4-only "0.0.0.0" bind makes the app unreachable and fails the health
+  // check. This matches the last known-good production configuration.
+  const server = app.listen(port, () => {
     const addr = server.address();
     logger.info({ port, addr }, "Server listening");
 

@@ -3,35 +3,34 @@ name: .replit [[artifacts]] manifest & rename gap
 description: Why renaming an artifact dir breaks production deploys, and how to fix the stale .replit manifest when no callback does.
 ---
 
-# `.replit` `[[artifacts]]` manifest is the deploy router source of truth
+# `.replit` `[[artifacts]]` manifest must map to real artifact dirs
 
-With `[deployment] router = "application"`, the production app router builds its
-routing + health-check table from the `[[artifacts]]` entries in `.replit` (keyed
-by **directory path**, e.g. `id = "artifacts/rest-server"`, NOT the artifact.toml
-internal id). Process startup is a *separate* subsystem: runnable artifacts are
-auto-detected from committed `artifact.toml` files, so the process can start and
-open its port even while routing is broken.
+`[[artifacts]]` in `.replit` lists which artifact directories are included in the
+deployment, keyed by **directory path** (e.g. `id = "artifacts/rest-server"`, NOT
+the artifact.toml internal id). Each entry must map to an existing
+`artifacts/<dir>/`. Process startup is a separate subsystem: runnable artifacts
+are auto-detected from committed `artifact.toml` files, so the process can start
+and open its port even if a manifest entry is stale.
 
 ## The rename gap (root cause of a real incident)
 Renaming an artifact dir via `git mv` (e.g. `api-server` → `rest-server`) does
 **not** update `[[artifacts]]`. The manifest is only written by `createArtifact`.
 `verifyAndReplaceArtifactToml` does **not** sync it (confirmed: returns success,
-manifest unchanged). A stale entry pointing at a now-nonexistent dir means the
-router has no backend for that path.
+manifest unchanged).
 
-**Symptom:** every production deploy fails the promote step with
-`healthcheck / returned status 500`; ZERO request logs (e.g. pino-http) ever appear
-because requests die at the router before reaching the app. Build phase succeeds.
-Deploy log tell: `forwarding local port 0 to external port 80` (port 0 = route
-lookup failed). Running the exact prod build locally works fine — the app is not
-the problem.
+**Impact (be precise):** in this incident the stale manifest and an IPv4-only
+`app.listen` host (see `production-host-binding.md`) were BOTH present in failing
+deploys, and each independently blocked it: default-bind + stale manifest FAILED,
+and `"0.0.0.0"` + corrected manifest also FAILED, whereas the known-good state had
+default bind + correct manifest. Note the app still auto-starts from its committed
+`artifact.toml` even with a stale entry, so a running process does NOT prove the
+manifest is correct. Always correct an entry pointing at a nonexistent dir.
 
-**Why:** routing comes from the manifest; the manifest lost the artifact on rename.
-
-**How to apply:** when a monorepo artifact deploy fails health check on `/` right
-after an artifact rename/removal, first `grep -A1 '\[\[artifacts\]\]' .replit` and
-confirm every entry maps to an existing `artifacts/<dir>/`. Compare against a past
-successful build's `.replit` (`git show '<sha>':.replit`).
+**How to apply:** when auditing a failed monorepo artifact deploy, `grep -A1
+'\[\[artifacts\]\]' .replit` and confirm every entry maps to an existing
+`artifacts/<dir>/`; compare against a past successful build's `.replit`
+(`git show '<sha>':.replit`). Do not assume a stale entry is the blocker — also
+check the app's host binding (`production-host-binding.md`) and the runtime logs.
 
 ## Fixing `.replit` when no callback owns the change
 Both the `edit`/`write` tool AND the `bash` tool refuse to write `.replit`

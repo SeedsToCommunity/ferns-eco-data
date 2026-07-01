@@ -1,5 +1,5 @@
 - [Read replit.md first](read-replit-md.md) — must read at session start; contains required workflow, guidance doc triggers, and post-task summary obligation.
 - [Envelope contract must-reads](envelope-contract-mustreads.md) — queried_at, source_url, and data purity rules that are easy to get wrong.
 - [Migration runner gap risk](migration-runner-gap.md) — newly authored migrations in lib/db/drizzle/ are silently skipped unless explicitly wired into runMigrations() in lib/db/src/migrate.ts.
-- [.replit [[artifacts]] manifest & rename gap](replit-artifacts-manifest.md) — git mv of an artifact dir leaves a stale manifest entry → prod health check 500s; fix via code_execution fs write (tools block .replit, notebook doesn't).
-- [Production IPv4 bind requirement](production-ipv4-bind.md) — Cloud Run defaults to IPv6; use app.listen(port, "0.0.0.0", cb) or health checks fail with zero pino-http logs.
+- [Production host binding](production-host-binding.md) — deployed servers need default app.listen(port,cb) (dual-stack), NOT "0.0.0.0"; prod router uses IPv6 loopback so IPv4-only bind = healthcheck 500 w/ zero logs.
+- [.replit artifacts manifest](replit-artifacts-manifest.md) — [[artifacts]] entries must map to real artifacts/<dir>/; git mv leaves them stale; edit via code_execution fs write (tools block .replit).
