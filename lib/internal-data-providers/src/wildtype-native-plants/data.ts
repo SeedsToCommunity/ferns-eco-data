@@ -3658,7 +3658,7 @@ export const WILDTYPE_NATIVE_PLANTS_DATA: WildTypeNativePlantsPlantRecord[] = [
     moisture_average: true,
     moisture_wet: true,
     moisture_summary: "average/wet",
-    notes: [{ code: "S (clonal)", description: "spreads by underground suckers (clonal)" }],
+    notes: [{ code: "S", description: "spreads by underground suckers (clonal)" }],
   },
   {
     scientific_name: "Prunus americana",

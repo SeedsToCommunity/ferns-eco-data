@@ -23,7 +23,6 @@ export const WILDTYPE_NATIVE_PLANTS_NOTE_CODES: WildTypeNativePlantsNoteCodeEntr
   { code: "PP", description: "these plants attract pollinators and/or predatory (beneficial) insects." },
   { code: "RR", description: "readily re-seeds" },
   { code: "S", description: "spreads by underground suckers" },
-  { code: "S (clonal)", description: "spreads by underground suckers (clonal)" },
   { code: "SA", description: "spring availability only" },
   { code: "TH", description: "thorny" },
   { code: "V", description: "vine" },
