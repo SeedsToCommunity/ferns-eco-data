@@ -108,7 +108,7 @@ This runs the server directly from TypeScript source using `tsx`, without compil
 
 ---
 
-## Tool inventory (64 tools)
+## Tool inventory (67 tools)
 
 Tool names follow `{source_id}__{action}` (hyphens → underscores, double-underscore separator).
 
@@ -292,6 +292,14 @@ Tool names follow `{source_id}__{action}` (hyphens → underscores, double-under
 | `ann_arbor_npn__species_source_url` | GET /ann-arbor-npn/species/{key}/source-url | key | provenance_verbosity | Per-species nativeplant.com URL for a given key (any name flavor). Returns 404 when not found. |
 | `ann_arbor_npn__alias_index` | GET /ann-arbor-npn/alias-index | — | provenance_verbosity | All 130 NPN species as name groups with common_names[] and all_accepted_keys — designed for cross-source reconciliation against GBIF, USDA PLANTS, or iNaturalist. |
 | `ann_arbor_npn__documentation` | GET /ann-arbor-npn/documentation | — | provenance_verbosity | Full source documentation as Markdown: Greg Vaclavek's background, field descriptions, Michigan range vocabulary, alias index construction, Cloudinary storage, and migration history. |
+
+### wildtype-native-plants — WildType Native Plants
+
+| Tool | Path | Required | Optional | Description |
+|---|---|---|---|---|
+| `wildtype_native_plants__plant_guide_list` | GET /wildtype-native-plants/plant-guide | — | category | Full WildType cultural guide (249 Michigan native plant species) with optional category filter; each record includes bloom data, sun/moisture preferences, height, and ecological notes |
+| `wildtype_native_plants__plant_guide` | GET /wildtype-native-plants/plant-guide/:scientific_name | scientific_name | — | Single WildType species record by scientific name (case-insensitive exact match); returns found=false if not in guide |
+| `wildtype_native_plants__note_codes` | GET /wildtype-native-plants/note-codes | — | — | Full ecological note-code legend: all 23 codes with descriptions (LH, EW, GC, N, PP, O, and others) |
 
 ### registry — Ecological Commons Registry (meta)
 

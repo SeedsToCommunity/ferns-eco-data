@@ -1489,6 +1489,83 @@ const tools: ToolDef[] = [
         provenance_verbosity: pv(args),
       }),
   },
+
+  // ── wildtype-native-plants ───────────────────────────────────────────────
+  {
+    tool: {
+      name: "wildtype_native_plants__plant_guide_list",
+      description:
+        "Returns the full WildType Native Plants cultural guide (249 Michigan native plant species) with optional " +
+        "category filter. Each record includes scientific name, common name, category, flower color, bloom time, " +
+        "sun and moisture preferences, height, and structured ecological notes (code + description pairs). " +
+        "Static in-memory data from the WildType Native Plants cultural guide (Mason, MI). " +
+        "Response follows the FERNS Response Envelope Contract v1.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          category: {
+            type: "string",
+            enum: ["wildflowers", "grasses, sedges, rushes", "ferns", "trees, shrubs & vines"],
+            description: "Optional category filter. Omit to return all 249 species.",
+          },
+          ...PV_PROP,
+        },
+        required: [],
+      },
+    },
+    handler: async (args) =>
+      apiGet("/wildtype-native-plants/plant-guide", {
+        category: args["category"] !== undefined ? String(args["category"]) : undefined,
+        provenance_verbosity: pv(args),
+      }),
+  },
+  {
+    tool: {
+      name: "wildtype_native_plants__plant_guide",
+      description:
+        "Returns a single WildType Native Plants species record by scientific name (case-insensitive exact match). " +
+        "Returns found=false when the name is not in the WildType cultural guide — no synonym resolution. " +
+        "Fields: scientific_name, common_name, category, flower_color, bloom_time, sun and moisture preferences, " +
+        "height, and structured ecological notes (code + description pairs). " +
+        "Response follows the FERNS Response Envelope Contract v1.",
+      inputSchema: {
+        type: "object" as const,
+        properties: {
+          scientific_name: {
+            type: "string",
+            description: "Scientific name to look up (e.g. Achillea millefolium). Case-insensitive exact match.",
+          },
+          ...PV_PROP,
+        },
+        required: ["scientific_name"],
+      },
+    },
+    handler: async (args) =>
+      apiGet(`/wildtype-native-plants/plant-guide/${encodeURIComponent(String(args["scientific_name"]))}`, {
+        provenance_verbosity: pv(args),
+      }),
+  },
+  {
+    tool: {
+      name: "wildtype_native_plants__note_codes",
+      description:
+        "Returns the full WildType Native Plants ecological note-code legend: all 23 codes with their descriptions. " +
+        "Codes appear in the notes[] array of individual plant records and include: " +
+        "LH (larval host for butterflies), EW (emergent wetland plant), GC (groundcover), " +
+        "N (nectar source), PP (attracts pollinators/predatory insects), O (opportunistic native), " +
+        "and others. Use this to decode the notes on any plant record. " +
+        "Response follows the FERNS Response Envelope Contract v1.",
+      inputSchema: {
+        type: "object" as const,
+        properties: { ...PV_PROP },
+        required: [],
+      },
+    },
+    handler: async (args) =>
+      apiGet("/wildtype-native-plants/note-codes", {
+        provenance_verbosity: pv(args),
+      }),
+  },
 ];
 
   const toolMap = new Map<string, ToolHandler>(tools.map((t) => [t.tool.name, t.handler]));

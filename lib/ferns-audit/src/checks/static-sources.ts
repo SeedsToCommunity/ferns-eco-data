@@ -2027,3 +2027,155 @@ export async function runSpeciesInfoAbsentTest(fernsBase: string): Promise<Endpo
 
   return [gobotanyCheck, illinoisCheck, minnesotaCheck, missouriCheck, prairieMoonCheck];
 }
+
+// ─── WildType Native Plants Health Checks ─────────────────────────────────────
+// Tests all three WildType endpoints: plant-guide (list), plant-guide/:scientific_name
+// (single-species lookup), and note-codes (code legend).
+//
+// Test corpus:
+//   Achillea millefolium (Yarrow) — first entry; known-values spot-check
+//   Expected total plant count: 249
+//   Expected note-code count: 23
+//   Known note codes verified: LH, EW, GC
+
+export async function runWildTypeChecks(fernsBase: string): Promise<EndpointComparison[]> {
+  const TEST_SPECIES_NAME = "Achillea millefolium";
+  const encodedSpecies = encodeURIComponent(TEST_SPECIES_NAME);
+  const EXPECTED_TOTAL = 249;
+  const EXPECTED_NOTE_CODE_COUNT = 23;
+
+  // 1. Plant guide list — total=249, plants array non-empty, Achillea millefolium present
+  const listCheck = await checkEndpoint(
+    "wildtype-native-plants",
+    "/api/wildtype-native-plants/plant-guide",
+    `WildType Native Plants — plant guide list (total=${EXPECTED_TOTAL}, Achillea millefolium present)`,
+    fernsBase,
+    (envelope) => {
+      const findings: FieldFinding[] = [];
+      const data = envelope.data as Record<string, unknown> | null | undefined;
+      if (!data) {
+        findings.push({ type: "mismatch", sourceField: "data", note: "data missing from plant-guide list response" });
+        return findings;
+      }
+      const total = typeof data.total === "number" ? data.total : -1;
+      if (total === EXPECTED_TOTAL) {
+        findings.push({ type: "ok", sourceField: "data.total", note: `total = ${total} (expected)` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.total", note: `Expected total=${EXPECTED_TOTAL}, got ${total}` });
+      }
+      const plants = Array.isArray(data.plants) ? (data.plants as Array<Record<string, unknown>>) : [];
+      if (plants.length > 0) {
+        findings.push({ type: "ok", sourceField: "data.plants", note: `plants array has ${plants.length} entries` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.plants", note: "data.plants missing or empty" });
+        return findings;
+      }
+      const achillea = plants.find((p) => p["scientific_name"] === TEST_SPECIES_NAME);
+      if (achillea) {
+        findings.push({ type: "ok", sourceField: "data.plants[].scientific_name", note: `"${TEST_SPECIES_NAME}" present in plant list` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.plants[].scientific_name", note: `"${TEST_SPECIES_NAME}" not found in plant list` });
+      }
+      return findings;
+    },
+  );
+
+  // 2. Plant guide single-species lookup — Achillea millefolium known values
+  const speciesCheck = await checkEndpoint(
+    "wildtype-native-plants",
+    `/api/wildtype-native-plants/plant-guide/${encodedSpecies}`,
+    `WildType Native Plants — plant guide single-species (${TEST_SPECIES_NAME}: found=true, Yarrow, wildflowers, White, Jul-Aug)`,
+    fernsBase,
+    (envelope) => {
+      const findings: FieldFinding[] = [];
+      if (envelope.found !== true) {
+        findings.push({ type: "mismatch", sourceField: "found", note: `Expected found=true for ${TEST_SPECIES_NAME}, got found=${envelope.found}` });
+        return findings;
+      }
+      findings.push({ type: "ok", sourceField: "found", note: "found=true (expected)" });
+      const data = envelope.data as Record<string, unknown> | null | undefined;
+      if (!data) {
+        findings.push({ type: "mismatch", sourceField: "data", note: "data missing when found=true" });
+        return findings;
+      }
+      const knownValues: Array<[string, unknown]> = [
+        ["scientific_name", TEST_SPECIES_NAME],
+        ["common_name", "Yarrow"],
+        ["category", "wildflowers"],
+        ["flower_color", "White"],
+        ["bloom_time", "Jul-Aug"],
+        ["sun_full", true],
+        ["sun_part", false],
+        ["sun_shade", false],
+        ["sun_summary", "full"],
+        ["height", "2'-3'"],
+        ["moisture_dry", true],
+        ["moisture_average", true],
+        ["moisture_wet", false],
+        ["moisture_summary", "dry/average"],
+      ];
+      for (const [field, expected] of knownValues) {
+        const actual = data[field];
+        if (actual === expected) {
+          findings.push({ type: "ok", sourceField: `data.${field}`, note: `${field} = ${JSON.stringify(actual)} (expected)` });
+        } else {
+          findings.push({ type: "mismatch", sourceField: `data.${field}`, note: `Expected ${field}=${JSON.stringify(expected)}, got ${JSON.stringify(actual)}` });
+        }
+      }
+      if (Array.isArray(data.notes)) {
+        findings.push({ type: "ok", sourceField: "data.notes", note: `notes array present (${(data.notes as unknown[]).length} entries)` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.notes", note: "data.notes missing or not an array" });
+      }
+      return findings;
+    },
+  );
+
+  // 3. Note codes — total=23, LH/EW/GC present with correct descriptions
+  const noteCodesCheck = await checkEndpoint(
+    "wildtype-native-plants",
+    "/api/wildtype-native-plants/note-codes",
+    `WildType Native Plants — note codes (total=${EXPECTED_NOTE_CODE_COUNT}, LH/EW/GC verified)`,
+    fernsBase,
+    (envelope) => {
+      const findings: FieldFinding[] = [];
+      const data = envelope.data as Record<string, unknown> | null | undefined;
+      if (!data) {
+        findings.push({ type: "mismatch", sourceField: "data", note: "data missing from note-codes response" });
+        return findings;
+      }
+      const total = typeof data.total === "number" ? data.total : -1;
+      if (total === EXPECTED_NOTE_CODE_COUNT) {
+        findings.push({ type: "ok", sourceField: "data.total", note: `total = ${total} (expected)` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.total", note: `Expected total=${EXPECTED_NOTE_CODE_COUNT}, got ${total}` });
+      }
+      const noteCodes = Array.isArray(data.note_codes) ? (data.note_codes as Array<Record<string, unknown>>) : [];
+      if (noteCodes.length > 0) {
+        findings.push({ type: "ok", sourceField: "data.note_codes", note: `note_codes array has ${noteCodes.length} entries` });
+      } else {
+        findings.push({ type: "mismatch", sourceField: "data.note_codes", note: "data.note_codes missing or empty" });
+        return findings;
+      }
+      const codeMap = new Map(noteCodes.map((c) => [c["code"] as string, c["description"] as string]));
+      const knownCodes: Array<[string, string]> = [
+        ["LH", "larval host for butterflies"],
+        ["EW", "emergent wetland plant"],
+        ["GC", "groundcover"],
+      ];
+      for (const [code, expectedDesc] of knownCodes) {
+        const actualDesc = codeMap.get(code);
+        if (actualDesc === expectedDesc) {
+          findings.push({ type: "ok", sourceField: `data.note_codes[${code}].description`, note: `code "${code}" = "${actualDesc}" (expected)` });
+        } else if (actualDesc !== undefined) {
+          findings.push({ type: "mismatch", sourceField: `data.note_codes[${code}].description`, note: `code "${code}": expected "${expectedDesc}", got "${actualDesc}"` });
+        } else {
+          findings.push({ type: "mismatch", sourceField: `data.note_codes[${code}]`, note: `code "${code}" not found in note_codes array` });
+        }
+      }
+      return findings;
+    },
+  );
+
+  return [listCheck, speciesCheck, noteCodesCheck];
+}

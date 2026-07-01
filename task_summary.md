@@ -1690,3 +1690,53 @@ N/A — no new source was added.
 - **`spec:check` exit code**: The check exits 1 due to pre-existing iNat route drift, not WildType. If CI gates on this command, the iNat documentation-only paths need a way to be excluded from the check (e.g. an allowlist in the script).
 
 **Update**: The task summary above noted spec:check was non-zero. This was resolved by adding a `SPEC_ONLY_PATHS` allowlist to `artifacts/rest-server/src/scripts/spec-check.ts`. The 18 iNat passthrough paths (documented in the spec with a `servers` override pointing to the iNat API but not wired as Express routes) are now formally allowlisted. `spec:check` exits 0 with 93 documented GET routes matching the spec.
+
+---
+
+## Task Summary: WildType Native Plants — Audit and MCP (Task #332)
+
+### 1. What was changed — plain language
+
+Three deliverables were completed to finish the WildType Native Plants source onboarding (Step 10 and Step 12 of the EC-Hosted Onboarding Checklist):
+
+- **Audit health check** (Step 10): Added `runWildTypeChecks()` to `lib/ferns-audit/src/checks/static-sources.ts`. The function runs three checks against the live API: (a) the plant guide list endpoint, asserting total=249 and that Achillea millefolium is present; (b) the single-species lookup for Achillea millefolium, asserting 14 known field values (scientific_name, common_name, category, flower_color, bloom_time, all six sun/moisture booleans, sun_summary, height, moisture_summary, notes array); (c) the note-codes endpoint, asserting total=23 and spot-checking LH, EW, and GC codes with their exact descriptions. Wired into `lib/ferns-audit/src/index.ts` alongside the existing static source checks.
+
+- **MCP tools** (Step 12): Added three tools to `artifacts/mcp-server/src/server.ts`:
+  - `wildtype_native_plants__plant_guide_list` — list with optional category filter
+  - `wildtype_native_plants__plant_guide` — single-species lookup by scientific name (path parameter, URL-encoded)
+  - `wildtype_native_plants__note_codes` — full code legend, no parameters
+
+- **MCP README**: Added a `wildtype-native-plants` section to the tool table in `artifacts/mcp-server/README.md` and updated the tool inventory count from 64 to 67.
+
+### 2. Derivation summary — N/A
+
+No data derivation. This task adds observability and tooling over an existing in-memory data source.
+
+### 3. Scientific/technical description — N/A
+
+No scientific methodology involved. The WildType source is a nursery cultural guide; see the source's `technical_details` for the authoritative description.
+
+### 4. Architectural decisions made with tradeoffs
+
+- **Health check placed in `static-sources.ts` (not a new file)**: Consistent with how all other in-memory source checks (S2C, LCSCG, Coefficient, Wetland, WUCOLS) are organized. Creating a separate file for WildType alone would be inconsistent. Tradeoff: the file continues to grow; a future split by source family might be warranted.
+
+- **Single-species lookup uses `encodeURIComponent` in the MCP handler**: The route is a path parameter (`/plant-guide/:scientific_name`), so the scientific name must be URL-encoded in the handler. This matches the existing pattern for `ann_arbor_npn__species`, `gbif__species`, and `lcscg__guide`.
+
+- **Known-value assertions use exact field values from the data file**: Rather than asserting "non-null", the health check asserts exact values sourced directly from `lib/internal-data-providers/src/wildtype-native-plants/data.ts` (Achillea millefolium is the first record, values verified). This makes the check a true regression guard — any inadvertent change to the data or serialization will surface as a mismatch.
+
+- **Note-code count asserted at 23**: Derived from counting `WILDTYPE_NATIVE_PLANTS_NOTE_CODES` in the data file. If a new code is added to the source, the health check will flag it (intentional — the count is a signal of completeness).
+
+### 5. What was NOT done
+
+Nothing was omitted. Both required steps were fully implemented:
+
+- **Step 10 (audit health check)**: Fully implemented — `runWildTypeChecks` covers all three WildType endpoints with known-value assertions (plant guide list, single-species lookup, note-codes). No coverage was omitted.
+- **Step 12 (MCP tools)**: Fully implemented — all three tools are wired, named per convention, and the README table is updated.
+
+No comparator was written (correct — the task specification explicitly states this is a health check only, as there is no external upstream API to diff against).
+
+### 6. What the user should decide or review
+
+- **The note-code total (23) is hardcoded in the health check.** If WildType publishes a revised cultural guide with additional codes, the health check will flag it as a mismatch. That is intentional, but the user should decide whether to treat this as "flag for human review" (current behavior) or "auto-update from source" (not possible — the source is static).
+- **The MCP tool descriptions** describe each tool's behavior and note the no-synonym-resolution constraint. The user may want to review the phrasing in tool descriptions before any public announcement of the MCP server update.
+
