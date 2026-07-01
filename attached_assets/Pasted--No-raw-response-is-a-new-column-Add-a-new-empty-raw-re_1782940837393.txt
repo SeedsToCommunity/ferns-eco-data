@@ -1,0 +1,63 @@
+
+No, raw_response is a new column
+Add a new empty raw_response column. The existing scientific_name, common_name, global_rank, rounded_global_rank, national_rank, rounded_national_rank, state_code, state_rank, rounded_state_rank, iucn_description, federal_status_description, natureserve_url, element_global_id, raw_summary, iucn_category, federal_status, state_status, cites_description, cosewic_code and cosewic_description columns may still be reused as a rename for another new column in this migration; otherwise they will be dropped.
+
+Yes, rename scientific_name
+Using the existing data from scientific_name for raw_response.
+
+Yes, rename common_name
+Using the existing data from common_name for raw_response.
+
+Yes, rename global_rank
+Using the existing data from global_rank for raw_response.
+
+Yes, rename rounded_global_rank
+Using the existing data from rounded_global_rank for raw_response.
+
+Yes, rename national_rank
+Using the existing data from national_rank for raw_response.
+
+Yes, rename rounded_national_rank
+Using the existing data from rounded_national_rank for raw_response.
+
+Yes, rename state_code
+Using the existing data from state_code for raw_response.
+
+Yes, rename state_rank
+Using the existing data from state_rank for raw_response.
+
+Yes, rename rounded_state_rank
+Using the existing data from rounded_state_rank for raw_response.
+
+Yes, rename iucn_description
+Using the existing data from iucn_description for raw_response.
+
+Yes, rename federal_status_description
+Using the existing data from federal_status_description for raw_response.
+
+Yes, rename natureserve_url
+Using the existing data from natureserve_url for raw_response.
+
+Yes, rename element_global_id
+Using the existing data from element_global_id for raw_response.
+
+Yes, rename raw_summary
+Using the existing data from raw_summary for raw_response.
+
+Yes, rename iucn_category
+Using the existing data from iucn_category for raw_response.
+
+Yes, rename federal_status
+Using the existing data from federal_status for raw_response.
+
+Yes, rename state_status
+Using the existing data from state_status for raw_response.
+
+Yes, rename cites_description
+Using the existing data from cites_description for raw_response.
+
+Yes, rename cosewic_code
+Using the existing data from cosewic_code for raw_response.
+
+Yes, rename cosewic_description
+Using the existing data from cosewic_description for raw_response.
