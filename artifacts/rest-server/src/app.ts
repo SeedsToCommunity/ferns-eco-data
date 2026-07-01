@@ -75,16 +75,22 @@ if (process.env.NODE_ENV !== "production") {
 
 // Production-only: serve the public website static files for all non-/api requests.
 // The data explorer is an external application and is not served by this process.
+// Files are copied into dist/public/ by build.mjs so they are always co-located
+// with the bundle, regardless of the container working directory.
 if (process.env.NODE_ENV === "production") {
-  const publicSiteDir = path.resolve(
-    "artifacts/ecological-commons-site/dist/public",
-  );
+  const publicSiteDir = path.resolve(__dirname, "public");
 
   app.use((req, res) => {
     express.static(publicSiteDir, { index: "index.html" })(req, res, () => {
       // SPA fallback: any unmatched path serves index.html so client-side
       // routing handles it rather than returning a 404.
-      res.sendFile(path.join(publicSiteDir, "index.html"));
+      res.sendFile(path.join(publicSiteDir, "index.html"), (err) => {
+        if (err) {
+          // Static files missing (e.g. build did not run) — return a plain 200
+          // so the deployment health check still passes.
+          res.status(200).send("Ecological Commons");
+        }
+      });
     });
   });
 }

@@ -138,6 +138,15 @@ globalThis.__dirname = __bannerPath.dirname(globalThis.__filename);
 
   await cp(migrationsSource, migrationsDest, { recursive: true });
   console.log(`Copied migrations: ${migrationsSource} → ${migrationsDest}`);
+
+  // Copy the built Astro static site into dist/public/ so it is part of the
+  // deployment artifact. Express in production serves files from that path
+  // (see app.ts). Without this copy the static files would be missing in the
+  // production container and GET / would 500, failing the health check.
+  const staticSiteSource = path.join(workspaceRoot, "artifacts/ecological-commons-site/dist/public");
+  const staticSiteDest = path.join(distDir, "public");
+  await cp(staticSiteSource, staticSiteDest, { recursive: true });
+  console.log(`Copied static site: ${staticSiteSource} → ${staticSiteDest}`);
 }
 
 buildAll().catch((err) => {
