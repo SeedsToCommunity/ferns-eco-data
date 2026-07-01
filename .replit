@@ -1,7 +1,7 @@
 modules = ["nodejs-24", "python-3.11", "postgresql-16"]
 
 [[artifacts]]
-id = "artifacts/api-server"
+id = "artifacts/rest-server"
 
 [[artifacts]]
 id = "artifacts/mockup-sandbox"
