@@ -67,8 +67,7 @@ export const WILDTYPE_NATIVE_PLANTS_REGISTRY_ENTRY = {
     "No distribution data, conservation rankings, or Coefficient of Conservatism values. " +
     "Taxonomy follows WildType's nursery usage and is not reconciled to BONAP, GBIF, or Michigan Flora. " +
     "Some entries are flagged \"not a MI genotype\" or \"nearly native\" — verbatim source flags, not FERNS classifications. " +
-    "Bloom time and height are preserved as string ranges (e.g. \"Jul-Aug\", \"2'-3'\"), not structured numeric values. " +
-    "One record (Populus tremuloides) uses code S with description \"spreads by underground suckers (clonal)\" to reflect the species' clonal growth habit; the canonical note-codes table lists S as \"spreads by underground suckers\" per the PDF key.",
+    "Bloom time and height are preserved as string ranges (e.g. \"Jul-Aug\", \"2'-3'\"), not structured numeric values.",
   metadata_url: "/api/wildtype-native-plants/metadata",
   licenses: WILDTYPE_NATIVE_PLANTS_LICENSES,
   license_notes: WILDTYPE_NATIVE_PLANTS_LICENSE_NOTES,
