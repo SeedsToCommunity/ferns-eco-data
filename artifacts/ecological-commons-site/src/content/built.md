@@ -30,11 +30,12 @@ Applications that demonstrate that kinds of things that can be built.
 
 ## What's Coming
 
-- Integrating additional sources that have been identified.
+- Integrating additional sources.
 - Developing more demonstration applications.
 - Inviting community members to understand and collaborate.
 - Requesting data owners to discuss and share their valuable products.
-- Discussing our shared approach to technical and governance topics.
+- Discussing a shared approach to technical and governance topics.
+- Implementation of taxonomical data sources and the name translation functionality.
 
 ## Old, but still interesting
 
