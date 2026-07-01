@@ -30,6 +30,25 @@ function printResult(c: EndpointComparison): void {
   }
 }
 
+async function waitForServer(url: string, maxWaitMs = 60_000): Promise<void> {
+  const healthUrl = `${url}/api/healthz`;
+  const deadline = Date.now() + maxWaitMs;
+  let attempt = 0;
+  while (Date.now() < deadline) {
+    try {
+      const res = await fetch(healthUrl);
+      if (res.ok) return;
+    } catch {
+      // server not ready yet
+    }
+    attempt++;
+    const delay = Math.min(2000, 500 * attempt);
+    process.stdout.write(`  Waiting for server (attempt ${attempt})...\n`);
+    await new Promise((r) => setTimeout(r, delay));
+  }
+  throw new Error(`Server at ${url} did not become ready within ${maxWaitMs}ms`);
+}
+
 async function main(): Promise<void> {
   const fernsBase = (
     process.env["FERNS_API_BASE_URL"] ??
@@ -39,6 +58,15 @@ async function main(): Promise<void> {
 
   process.stdout.write(`\nGBIF Integration Check\n`);
   process.stdout.write(`Target: ${fernsBase}\n\n`);
+
+  process.stdout.write(`Waiting for server to be ready...\n`);
+  try {
+    await waitForServer(fernsBase);
+  } catch (err) {
+    process.stdout.write(`FATAL: ${String(err)}\n`);
+    process.exit(1);
+  }
+  process.stdout.write(`Server ready.\n\n`);
 
   let checks: EndpointComparison[];
   try {
