@@ -21,3 +21,5 @@ REST
 MCP
 
  - /artifacts/mcp-server/src/server.ts
+
+REST https://hoppscotch.io/ Interface Testing
