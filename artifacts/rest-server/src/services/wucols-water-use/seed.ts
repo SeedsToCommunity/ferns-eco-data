@@ -27,6 +27,7 @@ export async function ensureWucolsWaterUseRegistryEntry(): Promise<void> {
           general_summary: WUCOLS_WATER_USE_REGISTRY_ENTRY.general_summary ?? null,
           technical_details: WUCOLS_WATER_USE_REGISTRY_ENTRY.technical_details ?? null,
           permission_granted: WUCOLS_WATER_USE_REGISTRY_ENTRY.permission_granted,
+          knowledge_type: WUCOLS_WATER_USE_REGISTRY_ENTRY.knowledge_type,
           license: WUCOLS_WATER_USE_REGISTRY_ENTRY.license,
           rights: WUCOLS_WATER_USE_REGISTRY_ENTRY.rights,
           website_url_patterns: WUCOLS_WATER_USE_REGISTRY_ENTRY.website_url_patterns ?? {},

@@ -27,6 +27,7 @@ export async function ensureCoefficientOfConservatismRegistryEntry(): Promise<vo
           general_summary: COEFFICIENT_OF_CONSERVATISM_REGISTRY_ENTRY.general_summary ?? null,
           technical_details: COEFFICIENT_OF_CONSERVATISM_REGISTRY_ENTRY.technical_details ?? null,
           permission_granted: COEFFICIENT_OF_CONSERVATISM_REGISTRY_ENTRY.permission_granted,
+          knowledge_type: COEFFICIENT_OF_CONSERVATISM_REGISTRY_ENTRY.knowledge_type,
           license: COEFFICIENT_OF_CONSERVATISM_REGISTRY_ENTRY.license,
           rights: COEFFICIENT_OF_CONSERVATISM_REGISTRY_ENTRY.rights,
           website_url_patterns: COEFFICIENT_OF_CONSERVATISM_REGISTRY_ENTRY.website_url_patterns ?? {},

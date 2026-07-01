@@ -29,6 +29,7 @@ export async function ensureGobotanyRegistryEntry(): Promise<void> {
           general_summary: GOBOTANY_REGISTRY_ENTRY.general_summary ?? null,
           technical_details: GOBOTANY_REGISTRY_ENTRY.technical_details ?? null,
           permission_granted: GOBOTANY_REGISTRY_ENTRY.permission_granted,
+          knowledge_type: GOBOTANY_REGISTRY_ENTRY.knowledge_type,
           non_passthrough_endpoints: GOBOTANY_REGISTRY_ENTRY.non_passthrough_endpoints ?? [],
           updated_at: new Date(),
         },

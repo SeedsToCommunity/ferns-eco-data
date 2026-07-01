@@ -26,6 +26,7 @@ export async function ensureLadyBirdJohnsonRegistryEntry(): Promise<void> {
           general_summary: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.general_summary ?? null,
           technical_details: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.technical_details ?? null,
           permission_granted: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.permission_granted,
+          knowledge_type: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.knowledge_type,
           non_passthrough_endpoints: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.non_passthrough_endpoints ?? [],
           license: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.license,
           rights: LADY_BIRD_JOHNSON_REGISTRY_ENTRY.rights,

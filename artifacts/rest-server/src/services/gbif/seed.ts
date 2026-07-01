@@ -30,6 +30,7 @@ export async function ensureGbifRegistryEntry(): Promise<void> {
           general_summary: GBIF_REGISTRY_ENTRY.general_summary ?? null,
           technical_details: GBIF_REGISTRY_ENTRY.technical_details ?? null,
           permission_granted: GBIF_REGISTRY_ENTRY.permission_granted,
+          knowledge_type: GBIF_REGISTRY_ENTRY.knowledge_type,
           non_passthrough_endpoints: GBIF_REGISTRY_ENTRY.non_passthrough_endpoints ?? [],
           updated_at: new Date(),
         },

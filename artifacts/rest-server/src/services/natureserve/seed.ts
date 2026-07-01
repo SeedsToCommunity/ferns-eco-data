@@ -30,6 +30,7 @@ export async function ensureNatureserveRegistryEntry(): Promise<void> {
           general_summary: NATURESERVE_REGISTRY_ENTRY.general_summary ?? null,
           technical_details: NATURESERVE_REGISTRY_ENTRY.technical_details ?? null,
           permission_granted: NATURESERVE_REGISTRY_ENTRY.permission_granted,
+          knowledge_type: NATURESERVE_REGISTRY_ENTRY.knowledge_type,
           non_passthrough_endpoints: NATURESERVE_REGISTRY_ENTRY.non_passthrough_endpoints ?? [],
           updated_at: new Date(),
         },

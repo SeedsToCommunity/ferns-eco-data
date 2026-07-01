@@ -27,6 +27,7 @@ export async function ensureWetlandIndicatorStatusRegistryEntry(): Promise<void>
           general_summary: WETLAND_INDICATOR_STATUS_REGISTRY_ENTRY.general_summary ?? null,
           technical_details: WETLAND_INDICATOR_STATUS_REGISTRY_ENTRY.technical_details ?? null,
           permission_granted: WETLAND_INDICATOR_STATUS_REGISTRY_ENTRY.permission_granted,
+          knowledge_type: WETLAND_INDICATOR_STATUS_REGISTRY_ENTRY.knowledge_type,
           license: WETLAND_INDICATOR_STATUS_REGISTRY_ENTRY.license,
           rights: WETLAND_INDICATOR_STATUS_REGISTRY_ENTRY.rights,
           website_url_patterns: WETLAND_INDICATOR_STATUS_REGISTRY_ENTRY.website_url_patterns ?? {},

@@ -27,6 +27,7 @@ export async function ensureUniversalFqaRegistryEntry(): Promise<void> {
           general_summary: UNIVERSAL_FQA_REGISTRY_ENTRY.general_summary ?? null,
           technical_details: UNIVERSAL_FQA_REGISTRY_ENTRY.technical_details ?? null,
           permission_granted: UNIVERSAL_FQA_REGISTRY_ENTRY.permission_granted,
+          knowledge_type: UNIVERSAL_FQA_REGISTRY_ENTRY.knowledge_type,
           license: UNIVERSAL_FQA_REGISTRY_ENTRY.license,
           rights: UNIVERSAL_FQA_REGISTRY_ENTRY.rights,
           website_url_patterns: UNIVERSAL_FQA_REGISTRY_ENTRY.website_url_patterns ?? {},

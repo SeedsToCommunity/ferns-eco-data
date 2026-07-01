@@ -26,6 +26,7 @@ export async function ensureGoogleImagesRegistryEntry(): Promise<void> {
           general_summary: GOOGLE_IMAGES_REGISTRY_ENTRY.general_summary ?? null,
           technical_details: GOOGLE_IMAGES_REGISTRY_ENTRY.technical_details ?? null,
           permission_granted: GOOGLE_IMAGES_REGISTRY_ENTRY.permission_granted,
+          knowledge_type: GOOGLE_IMAGES_REGISTRY_ENTRY.knowledge_type,
           non_passthrough_endpoints: GOOGLE_IMAGES_REGISTRY_ENTRY.non_passthrough_endpoints ?? [],
           website_url_patterns: GOOGLE_IMAGES_REGISTRY_ENTRY.website_url_patterns ?? {},
           updated_at: new Date(),

@@ -27,6 +27,7 @@ export async function ensureWildTypeNativePlantsRegistryEntry(): Promise<void> {
           general_summary: WILDTYPE_NATIVE_PLANTS_REGISTRY_ENTRY.general_summary ?? null,
           technical_details: WILDTYPE_NATIVE_PLANTS_REGISTRY_ENTRY.technical_details ?? null,
           permission_granted: WILDTYPE_NATIVE_PLANTS_REGISTRY_ENTRY.permission_granted,
+          knowledge_type: WILDTYPE_NATIVE_PLANTS_REGISTRY_ENTRY.knowledge_type,
           non_passthrough_endpoints: WILDTYPE_NATIVE_PLANTS_REGISTRY_ENTRY.non_passthrough_endpoints ?? [],
           updated_at: new Date(),
         },

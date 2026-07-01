@@ -70,6 +70,7 @@ export async function ensureRegistryEntry(): Promise<void> {
           general_summary: REGISTRY_ENTRY.general_summary,
           technical_details: REGISTRY_ENTRY.technical_details,
           permission_granted: REGISTRY_ENTRY.permission_granted,
+          knowledge_type: REGISTRY_ENTRY.knowledge_type,
           updated_at: new Date(),
         },
       });
