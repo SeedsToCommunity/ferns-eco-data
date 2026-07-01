@@ -1,3 +1,4 @@
+import http from "node:http";
 import app from "./app";
 import { logger } from "./lib/logger";
 import { runMigrations } from "@workspace/db/migrate";
@@ -46,13 +47,25 @@ async function main() {
   await runMigrations();
   logger.info("Database migrations complete.");
 
-  // Explicitly bind to 0.0.0.0 (IPv4 all-interfaces) so the Replit
-  // deployment sidecar's IPv4 health-check can reach the server.
-  // Without this, Node.js may default to IPv6-only (::) in some containers,
-  // causing connection-refused on 127.0.0.1 and a perpetual 500 health check.
+  // Explicitly bind to 0.0.0.0 so the Replit sidecar health check can reach
+  // the server via 127.0.0.1 (IPv4). Without an explicit host, Node.js may
+  // default to :: (IPv6) in dual-stack containers, causing connection-refused.
   const server = app.listen(port, "0.0.0.0", () => {
     const addr = server.address();
-    logger.info({ port, addr }, "Server listening");
+    logger.info({ port, addr }, "Server listening v3");
+
+    // Self-test: verify 127.0.0.1 reaches the health endpoint.
+    http
+      .get({ hostname: "127.0.0.1", port, path: "/api/healthz" }, (res) => {
+        let body = "";
+        res.on("data", (chunk: Buffer) => { body += chunk.toString(); });
+        res.on("end", () => {
+          logger.info({ statusCode: res.statusCode, body: body.slice(0, 200) }, "Self-test healthz");
+        });
+      })
+      .on("error", (err) => {
+        logger.error({ err: err.message }, "Self-test healthz FAILED");
+      });
 
     autoImportMissouriPlantsIfEmpty().catch((err) => {
       logger.error({ err }, "Missouri Plants auto-import check failed at startup");
@@ -109,6 +122,11 @@ async function main() {
       .catch((err) => {
         logger.error({ err }, "Failed to seed source relationships at startup");
       });
+  });
+
+  server.on("error", (err) => {
+    logger.error({ err }, "Server bind error");
+    process.exit(1);
   });
 }
 
