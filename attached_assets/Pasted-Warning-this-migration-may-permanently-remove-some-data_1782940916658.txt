@@ -1,0 +1,243 @@
+Warning, this migration may permanently remove some data from your production database, learn more:
+You're about to delete mnfi_county_elements table with 7289 items
+You're about to delete inat_places table with 25 items
+You're about to delete mnfi_community_plants table with 5777 items
+You're about to delete mnfi_communities table with 77 items
+You're about to delete inat_field_values table with 34 items
+You're about to delete inat_histogram table with 70 items
+You're about to delete inat_species table with 20 items
+You're about to delete usda_plants_name_matches table with 11 items
+You're about to delete inat_taxon_by_id table with 13 items
+You're about to delete npn_name_aliases table with 417 items
+You're about to delete npn_species table with 127 items
+You're about to add not-null upstream_response column without default value, which contains 5 items
+You're about to add not-null permission_granted column without default value, which contains 23 items
+You're about to add not-null upstream_response column without default value, which contains 3 items
+You're about to add not-null upstream_response column without default value, which contains 6 items
+You're about to add not-null upstream_response column without default value, which contains 17 items
+You're about to delete synonyms column in gbif_synonyms table with 5 items
+You're about to delete synonym_count column in gbif_synonyms table with 5 items
+You're about to delete general_summary column in gbif_synonyms table with 5 items
+You're about to delete technical_details column in gbif_synonyms table with 5 items
+You're about to delete explorer_url column in ferns_sources table with 23 items
+You're about to delete vernacular_names column in gbif_vernacular_names table with 3 items
+You're about to delete vernacular_name_primary column in gbif_vernacular_names table with 3 items
+You're about to delete vernacular_name_count column in gbif_vernacular_names table with 3 items
+You're about to delete general_summary column in gbif_vernacular_names table with 3 items
+You're about to delete technical_details column in gbif_vernacular_names table with 3 items
+You're about to delete general_summary column in miflora_images_cache table with 4 items
+You're about to delete technical_details column in miflora_images_cache table with 4 items
+You're about to delete general_summary column in miflora_counties_cache table with 7 items
+You're about to delete technical_details column in miflora_counties_cache table with 7 items
+You're about to delete general_summary column in miflora_species_cache table with 58 items
+You're about to delete technical_details column in miflora_species_cache table with 58 items
+You're about to delete results column in natureserve_ecosystems_cache table with 1 items
+You're about to delete result_count column in natureserve_ecosystems_cache table with 1 items
+You're about to delete general_summary column in bonap_maps table with 22 items
+You're about to delete technical_details column in bonap_maps table with 22 items
+You're about to delete scientific_name column in natureserve_species_cache table with 6 items
+You're about to delete common_name column in natureserve_species_cache table with 6 items
+You're about to delete global_rank column in natureserve_species_cache table with 6 items
+You're about to delete rounded_global_rank column in natureserve_species_cache table with 6 items
+You're about to delete national_rank column in natureserve_species_cache table with 6 items
+You're about to delete rounded_national_rank column in natureserve_species_cache table with 6 items
+You're about to delete state_code column in natureserve_species_cache table with 6 items
+You're about to delete state_rank column in natureserve_species_cache table with 6 items
+You're about to delete rounded_state_rank column in natureserve_species_cache table with 6 items
+You're about to delete iucn_description column in natureserve_species_cache table with 6 items
+You're about to delete federal_status_description column in natureserve_species_cache table with 6 items
+You're about to delete natureserve_url column in natureserve_species_cache table with 6 items
+You're about to delete element_global_id column in natureserve_species_cache table with 6 items
+You're about to delete raw_summary column in natureserve_species_cache table with 6 items
+You're about to delete iucn_category column in natureserve_species_cache table with 6 items
+You're about to delete federal_status column in natureserve_species_cache table with 6 items
+You're about to delete state_status column in natureserve_species_cache table with 6 items
+You're about to delete cites_description column in natureserve_species_cache table with 6 items
+You're about to delete cosewic_code column in natureserve_species_cache table with 6 items
+You're about to delete cosewic_description column in natureserve_species_cache table with 6 items
+You're about to delete usage_key column in gbif_occurrences table with 6 items
+You're about to delete geography_mode column in gbif_occurrences table with 6 items
+You're about to delete geography_params column in gbif_occurrences table with 6 items
+You're about to delete occurrence_count column in gbif_occurrences table with 6 items
+You're about to delete occurrence_count_us column in gbif_occurrences table with 6 items
+You're about to delete recent_occurrences column in gbif_occurrences table with 6 items
+You're about to delete source_url column in gbif_occurrences table with 6 items
+You're about to delete occurrence_last_fetched column in gbif_occurrences table with 6 items
+You're about to delete general_summary column in gbif_occurrences table with 6 items
+You're about to delete technical_details column in gbif_occurrences table with 6 items
+You're about to delete general_summary column in usda_plants_profiles table with 9 items
+You're about to delete technical_details column in usda_plants_profiles table with 9 items
+You're about to delete source_url column in gbif_name_matches table with 17 items
+You're about to delete general_summary column in gbif_name_matches table with 17 items
+You're about to delete technical_details column in gbif_name_matches table with 17 items
+CREATE TABLE "miflora_synonyms_cache" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"cache_key" text NOT NULL,
+	"raw_response" jsonb,
+	"found" boolean DEFAULT false NOT NULL,
+	"upstream_url" text NOT NULL,
+	"source_id" text DEFAULT 'michigan-flora' NOT NULL,
+	"fetched_at" timestamp with time zone NOT NULL,
+	"expires_at" timestamp with time zone,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "miflora_synonyms_cache_cache_key_unique" UNIQUE("cache_key")
+);
+CREATE TABLE "miflora_spec_text_cache" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"cache_key" text NOT NULL,
+	"raw_response" jsonb,
+	"found" boolean DEFAULT false NOT NULL,
+	"upstream_url" text NOT NULL,
+	"source_id" text DEFAULT 'michigan-flora' NOT NULL,
+	"fetched_at" timestamp with time zone NOT NULL,
+	"expires_at" timestamp with time zone,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "miflora_spec_text_cache_cache_key_unique" UNIQUE("cache_key")
+);
+CREATE TABLE "gbif_species_searches" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"cache_key" text NOT NULL,
+	"upstream_response" jsonb NOT NULL,
+	"upstream_url" text NOT NULL,
+	"fetched_at" timestamp with time zone NOT NULL,
+	"expires_at" timestamp with time zone,
+	"source_id" text DEFAULT 'gbif' NOT NULL,
+	"method" text DEFAULT 'api_fetch' NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "gbif_species_searches_cache_key_key" UNIQUE("cache_key")
+);
+CREATE TABLE "miflora_pimage_cache" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"cache_key" text NOT NULL,
+	"raw_response" jsonb,
+	"found" boolean DEFAULT false NOT NULL,
+	"upstream_url" text NOT NULL,
+	"source_id" text DEFAULT 'michigan-flora' NOT NULL,
+	"fetched_at" timestamp with time zone NOT NULL,
+	"expires_at" timestamp with time zone,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "miflora_pimage_cache_cache_key_unique" UNIQUE("cache_key")
+);
+CREATE TABLE "miflora_flora_search_cache" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"cache_key" text NOT NULL,
+	"raw_response" jsonb,
+	"found" boolean DEFAULT false NOT NULL,
+	"upstream_url" text NOT NULL,
+	"source_id" text DEFAULT 'michigan-flora' NOT NULL,
+	"fetched_at" timestamp with time zone NOT NULL,
+	"expires_at" timestamp with time zone,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "miflora_flora_search_cache_cache_key_unique" UNIQUE("cache_key")
+);
+CREATE TABLE "gbif_species" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"cache_key" text NOT NULL,
+	"upstream_response" jsonb NOT NULL,
+	"upstream_url" text NOT NULL,
+	"fetched_at" timestamp with time zone NOT NULL,
+	"expires_at" timestamp with time zone,
+	"source_id" text DEFAULT 'gbif' NOT NULL,
+	"method" text DEFAULT 'api_fetch' NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "gbif_species_cache_key_key" UNIQUE("cache_key")
+);
+CREATE TABLE "natureserve_taxon_cache" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"cache_key" text NOT NULL,
+	"upstream_response" jsonb NOT NULL,
+	"upstream_url" text NOT NULL,
+	"fetched_at" timestamp with time zone NOT NULL,
+	"expires_at" timestamp with time zone,
+	"source_id" text DEFAULT 'natureserve' NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "natureserve_taxon_cache_cache_key_unique" UNIQUE("cache_key")
+);
+DROP TABLE "mnfi_county_elements" CASCADE;
+DROP TABLE "inat_places" CASCADE;
+DROP TABLE "mnfi_community_plants" CASCADE;
+DROP TABLE "mnfi_communities" CASCADE;
+DROP TABLE "inat_field_values" CASCADE;
+DROP TABLE "inat_histogram" CASCADE;
+DROP TABLE "inat_species" CASCADE;
+DROP TABLE "usda_plants_name_matches" CASCADE;
+DROP TABLE "inat_taxon_by_id" CASCADE;
+DROP TABLE "npn_name_aliases" CASCADE;
+DROP TABLE "npn_species" CASCADE;
+DROP TABLE "inat_controlled_terms" CASCADE;
+ALTER TABLE "universal_fqa_databases" ADD COLUMN "upstream_response" jsonb DEFAULT '{}'::jsonb NOT NULL;
+ALTER TABLE "universal_fqa_databases" ADD COLUMN "upstream_url" text DEFAULT '' NOT NULL;
+ALTER TABLE "universal_fqa_databases" ADD COLUMN "fetched_at" timestamp with time zone DEFAULT now() NOT NULL;
+truncate table "gbif_synonyms" cascade;
+ALTER TABLE "gbif_synonyms" ADD COLUMN "upstream_response" jsonb NOT NULL;
+ALTER TABLE "ferns_sources" ADD COLUMN "license" text DEFAULT 'unknown' NOT NULL;
+ALTER TABLE "ferns_sources" ADD COLUMN "rights" text DEFAULT '' NOT NULL;
+ALTER TABLE "ferns_sources" ADD COLUMN "website_url_patterns" jsonb DEFAULT '{}'::jsonb NOT NULL;
+ALTER TABLE "ferns_sources" ADD COLUMN "non_passthrough_endpoints" jsonb DEFAULT '[]'::jsonb NOT NULL;
+truncate table "ferns_sources" cascade;
+ALTER TABLE "ferns_sources" ADD COLUMN "permission_granted" boolean NOT NULL;
+truncate table "gbif_vernacular_names" cascade;
+ALTER TABLE "gbif_vernacular_names" ADD COLUMN "upstream_response" jsonb NOT NULL;
+ALTER TABLE "natureserve_ecosystems_cache" ADD COLUMN "upstream_response" jsonb;
+ALTER TABLE "natureserve_species_cache" ADD COLUMN "raw_response" jsonb DEFAULT '{}'::jsonb NOT NULL;
+ALTER TABLE "natureserve_species_cache" ADD COLUMN "upstream_response" jsonb;
+truncate table "gbif_occurrences" cascade;
+ALTER TABLE "gbif_occurrences" ADD COLUMN "upstream_response" jsonb NOT NULL;
+ALTER TABLE "gbif_name_matches" ADD COLUMN "raw_response" jsonb;
+truncate table "gbif_name_matches" cascade;
+ALTER TABLE "gbif_name_matches" ADD COLUMN "upstream_response" jsonb NOT NULL;
+ALTER TABLE "gbif_synonyms" DROP COLUMN "synonyms";
+ALTER TABLE "gbif_synonyms" DROP COLUMN "synonym_count";
+ALTER TABLE "gbif_synonyms" DROP COLUMN "general_summary";
+ALTER TABLE "gbif_synonyms" DROP COLUMN "technical_details";
+ALTER TABLE "ferns_sources" DROP COLUMN "explorer_url";
+ALTER TABLE "gbif_vernacular_names" DROP COLUMN "vernacular_names";
+ALTER TABLE "gbif_vernacular_names" DROP COLUMN "vernacular_name_primary";
+ALTER TABLE "gbif_vernacular_names" DROP COLUMN "vernacular_name_count";
+ALTER TABLE "gbif_vernacular_names" DROP COLUMN "general_summary";
+ALTER TABLE "gbif_vernacular_names" DROP COLUMN "technical_details";
+ALTER TABLE "miflora_images_cache" DROP COLUMN "general_summary";
+ALTER TABLE "miflora_images_cache" DROP COLUMN "technical_details";
+ALTER TABLE "miflora_counties_cache" DROP COLUMN "general_summary";
+ALTER TABLE "miflora_counties_cache" DROP COLUMN "technical_details";
+ALTER TABLE "miflora_species_cache" DROP COLUMN "general_summary";
+ALTER TABLE "miflora_species_cache" DROP COLUMN "technical_details";
+ALTER TABLE "natureserve_ecosystems_cache" DROP COLUMN "results";
+ALTER TABLE "natureserve_ecosystems_cache" DROP COLUMN "result_count";
+ALTER TABLE "bonap_maps" DROP COLUMN "general_summary";
+ALTER TABLE "bonap_maps" DROP COLUMN "technical_details";
+ALTER TABLE "natureserve_species_cache" DROP COLUMN "scientific_name";
+ALTER TABLE "natureserve_species_cache" DROP COLUMN "common_name";
+ALTER TABLE "natureserve_species_cache" DROP COLUMN "global_rank";
+ALTER TABLE "natureserve_species_cache" DROP COLUMN "rounded_global_rank";
+ALTER TABLE "natureserve_species_cache" DROP COLUMN "national_rank";
+ALTER TABLE "natureserve_species_cache" DROP COLUMN "rounded_national_rank";
+ALTER TABLE "natureserve_species_cache" DROP COLUMN "state_code";
+ALTER TABLE "natureserve_species_cache" DROP COLUMN "state_rank";
+ALTER TABLE "natureserve_species_cache" DROP COLUMN "rounded_state_rank";
+ALTER TABLE "natureserve_species_cache" DROP COLUMN "iucn_description";
+ALTER TABLE "natureserve_species_cache" DROP COLUMN "federal_status_description";
+ALTER TABLE "natureserve_species_cache" DROP COLUMN "natureserve_url";
+ALTER TABLE "natureserve_species_cache" DROP COLUMN "element_global_id";
+ALTER TABLE "natureserve_species_cache" DROP COLUMN "raw_summary";
+ALTER TABLE "natureserve_species_cache" DROP COLUMN "iucn_category";
+ALTER TABLE "natureserve_species_cache" DROP COLUMN "federal_status";
+ALTER TABLE "natureserve_species_cache" DROP COLUMN "state_status";
+ALTER TABLE "natureserve_species_cache" DROP COLUMN "cites_description";
+ALTER TABLE "natureserve_species_cache" DROP COLUMN "cosewic_code";
+ALTER TABLE "natureserve_species_cache" DROP COLUMN "cosewic_description";
+ALTER TABLE "gbif_occurrences" DROP COLUMN "usage_key";
+ALTER TABLE "gbif_occurrences" DROP COLUMN "geography_mode";
+ALTER TABLE "gbif_occurrences" DROP COLUMN "geography_params";
+ALTER TABLE "gbif_occurrences" DROP COLUMN "occurrence_count";
+ALTER TABLE "gbif_occurrences" DROP COLUMN "occurrence_count_us";
+ALTER TABLE "gbif_occurrences" DROP COLUMN "recent_occurrences";
+ALTER TABLE "gbif_occurrences" DROP COLUMN "source_url";
+ALTER TABLE "gbif_occurrences" DROP COLUMN "occurrence_last_fetched";
+ALTER TABLE "gbif_occurrences" DROP COLUMN "general_summary";
+ALTER TABLE "gbif_occurrences" DROP COLUMN "technical_details";
+ALTER TABLE "usda_plants_profiles" DROP COLUMN "general_summary";
+ALTER TABLE "usda_plants_profiles" DROP COLUMN "technical_details";
+ALTER TABLE "gbif_name_matches" DROP COLUMN "source_url";
+ALTER TABLE "gbif_name_matches" DROP COLUMN "general_summary";
+ALTER TABLE "gbif_name_matches" DROP COLUMN "technical_details";
