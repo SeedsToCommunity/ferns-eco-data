@@ -2077,6 +2077,90 @@ export type NpnMetadataResponse = FernsEnvelope & {
   data?: NpnMetadataData;
 };
 
+/**
+ * A single ecological note attached to a WildType plant record (code + description pair).
+ */
+export interface WildTypeNativePlantsNote {
+  /** Short code abbreviation (e.g. LH, N, O). Some codes are multi-word phrases such as "nearly native" or "not a MI genotype" — these are verbatim source codes.
+ */
+  code: string;
+  /** Full description of the ecological note code. */
+  description: string;
+}
+
+/**
+ * Plant category. One of: wildflowers, grasses, sedges, rushes, ferns, trees, shrubs & vines.
+
+ */
+export type WildTypeNativePlantsPlantRecordCategory = typeof WildTypeNativePlantsPlantRecordCategory[keyof typeof WildTypeNativePlantsPlantRecordCategory];
+
+
+export const WildTypeNativePlantsPlantRecordCategory = {
+  wildflowers: 'wildflowers',
+  'grasses,_sedges,_rushes': 'grasses, sedges, rushes',
+  ferns: 'ferns',
+  'trees,_shrubs_&_vines': 'trees, shrubs & vines',
+} as const;
+
+/**
+ * A single plant record from the WildType Native Plants cultural guide.
+ */
+export interface WildTypeNativePlantsPlantRecord {
+  /** Scientific (Latin) name of the species. */
+  scientific_name: string;
+  /** Common name as used by WildType. */
+  common_name: string;
+  /** Plant category. One of: wildflowers, grasses, sedges, rushes, ferns, trees, shrubs & vines.
+ */
+  category: WildTypeNativePlantsPlantRecordCategory;
+  /** Flower color as a string (e.g. White, Pink, Red/Yellow). May be empty for non-flowering plants. */
+  flower_color: string;
+  /** Bloom time as a string range (e.g. Jul-Aug, May-Jun). Preserved verbatim from the source. */
+  bloom_time: string;
+  /** Tolerates full sun. */
+  sun_full: boolean;
+  /** Tolerates part sun / part shade. */
+  sun_part: boolean;
+  /** Tolerates full shade. */
+  sun_shade: boolean;
+  /** Human-readable sun preference summary (e.g. full, part/shade, full/part/shade). */
+  sun_summary: string;
+  /** Height as a string range (e.g. 2'-3', 1'). Preserved verbatim from the source. */
+  height: string;
+  /** Tolerates dry soil conditions. */
+  moisture_dry: boolean;
+  /** Tolerates average soil moisture. */
+  moisture_average: boolean;
+  /** Tolerates wet soil conditions. */
+  moisture_wet: boolean;
+  /** Human-readable moisture preference summary (e.g. dry/average, average/wet, wet). */
+  moisture_summary: string;
+  /** Ecological notes for this species. Empty array when no notes apply. */
+  notes: WildTypeNativePlantsNote[];
+}
+
+/**
+ * Data payload for the /wildtype-native-plants/plant-guide endpoint (FernsEnvelope data field).
+ */
+export interface WildTypeNativePlantsPlantGuideData {
+  /** Number of plant records returned (after any category filter is applied). */
+  total: number;
+  /** The category filter applied, or null if no filter was specified. */
+  category: string | null;
+  /** Plant records matching the request. */
+  plants: WildTypeNativePlantsPlantRecord[];
+}
+
+/**
+ * Data payload for the /wildtype-native-plants/note-codes endpoint (FernsEnvelope data field).
+ */
+export interface WildTypeNativePlantsNoteCodesData {
+  /** Total number of note codes in the legend. */
+  total: number;
+  /** Full legend of ecological note codes used in the WildType cultural guide. */
+  note_codes: WildTypeNativePlantsNote[];
+}
+
 export type HealthCheck200 = FernsEnvelope & {
   data?: HealthStatus;
 };
@@ -3725,5 +3809,39 @@ export type GetAnnArborNpnDocumentation200Data = {
 
 export type GetAnnArborNpnDocumentation200 = FernsEnvelope & {
   data?: GetAnnArborNpnDocumentation200Data;
+};
+
+export type GetWildTypeNativePlantsPlantGuideParams = {
+/**
+ * Filter results to a single plant category. Case-insensitive. Valid values: wildflowers, grasses/sedges/rushes, ferns, trees/shrubs/vines. Omit to return all 249 plant records across all categories.
+
+ */
+category?: GetWildTypeNativePlantsPlantGuideCategory;
+};
+
+export type GetWildTypeNativePlantsPlantGuideCategory = typeof GetWildTypeNativePlantsPlantGuideCategory[keyof typeof GetWildTypeNativePlantsPlantGuideCategory];
+
+
+export const GetWildTypeNativePlantsPlantGuideCategory = {
+  wildflowers: 'wildflowers',
+  'grasses,_sedges,_rushes': 'grasses, sedges, rushes',
+  ferns: 'ferns',
+  'trees,_shrubs_&_vines': 'trees, shrubs & vines',
+} as const;
+
+export type GetWildTypeNativePlantsPlantGuide200 = FernsEnvelope & {
+  data?: WildTypeNativePlantsPlantGuideData;
+};
+
+export type GetWildTypeNativePlantsPlantGuideByScientificName200 = FernsEnvelope & ({
+  data?: WildTypeNativePlantsPlantRecord | null;
+});
+
+export type GetWildTypeNativePlantsNoteCodes200 = FernsEnvelope & {
+  data?: WildTypeNativePlantsNoteCodesData;
+};
+
+export type GetWildTypeNativePlantsMetadata200 = FernsEnvelope & {
+  data?: SourceMetadataData;
 };
 

@@ -58,6 +58,8 @@ tags:
     description: Lady Bird Johnson Wildflower Center — Native Plant Information
   - name: ann-arbor-npn
     description: Ann Arbor Native Plant Nursery — Michigan Native Plant Species Database (nativeplant.com)
+  - name: wildtype-native-plants
+    description: WildType Native Plants — Michigan Native Plant Cultural Guide
   - name: registry
     description: FERNS Service Registry
   - name: trust-groups
@@ -4547,6 +4549,139 @@ paths:
                           markdown:
                             type: string
 
+  /wildtype-native-plants/plant-guide:
+    get:
+      operationId: getWildTypeNativePlantsPlantGuide
+      tags: [wildtype-native-plants]
+      summary: Get WildType Native Plants cultural guide entries
+      description: >
+        Returns all plant records from the WildType Native Plants cultural guide
+        (249 Michigan native plant species), optionally filtered by category.
+        Each record includes scientific name, common name, category, flower color,
+        bloom time, sun and moisture preferences (boolean flags and summary strings),
+        height, and an array of ecological notes (code + description pairs).
+        Data is served from the in-memory IDP — no upstream network call.
+        Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+      parameters:
+        - name: category
+          in: query
+          required: false
+          description: >
+            Filter results to a single plant category. Case-insensitive.
+            Valid values: wildflowers, grasses/sedges/rushes, ferns, trees/shrubs/vines.
+            Omit to return all 249 plant records across all categories.
+          schema:
+            type: string
+            enum:
+              - wildflowers
+              - "grasses, sedges, rushes"
+              - ferns
+              - "trees, shrubs & vines"
+      responses:
+        "200":
+          description: Plant guide records (all or filtered by category), wrapped in FernsEnvelope
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/WildTypeNativePlantsPlantGuideData"
+        "400":
+          description: Invalid category value
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /wildtype-native-plants/plant-guide/{scientific_name}:
+    get:
+      operationId: getWildTypeNativePlantsPlantGuideByScientificName
+      tags: [wildtype-native-plants]
+      summary: Get a single WildType Native Plants record by scientific name
+      description: >
+        Returns the cultural guide record for a single species identified by scientific name.
+        Lookup is case-insensitive exact match — no fuzzy matching or synonym resolution.
+        Returns found=false with data=null when the name is not present in the guide.
+        Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+      parameters:
+        - name: scientific_name
+          in: path
+          required: true
+          description: Scientific (Latin) name of the species, e.g. Asclepias tuberosa
+          schema:
+            type: string
+            minLength: 1
+      responses:
+        "200":
+          description: Single plant record wrapped in FernsEnvelope (found=false with data=null when not in guide)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        oneOf:
+                          - $ref: "#/components/schemas/WildTypeNativePlantsPlantRecord"
+                          - type: "null"
+        "400":
+          description: Empty scientific_name path parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /wildtype-native-plants/note-codes:
+    get:
+      operationId: getWildTypeNativePlantsNoteCodes
+      tags: [wildtype-native-plants]
+      summary: Get the full WildType Native Plants ecological note-codes legend
+      description: >
+        Returns all 24 ecological note codes used in the WildType cultural guide,
+        each with its code abbreviation and full description. Use this to decode
+        the notes array on any plant record returned by /plant-guide.
+        Data is served from the in-memory IDP — no upstream network call.
+        Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+      responses:
+        "200":
+          description: Full note-codes legend wrapped in FernsEnvelope
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/WildTypeNativePlantsNoteCodesData"
+
+  /wildtype-native-plants/metadata:
+    get:
+      operationId: getWildTypeNativePlantsMetadata
+      tags: [wildtype-native-plants]
+      summary: WildType Native Plants source metadata
+      description: >
+        Returns the registry entry for the WildType Native Plants source,
+        wrapped in the FERNS Response Envelope. The data payload contains the
+        source's descriptive fields (description, general_summary, technical_details,
+        licenses, etc.). Also seeds the registry entry on first call.
+      responses:
+        "200":
+          description: Source metadata wrapped in FernsEnvelope
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/FernsEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/SourceMetadataData"
+
 components:
   schemas:
     HealthStatus:
@@ -8064,3 +8199,123 @@ components:
           properties:
             data:
               $ref: "#/components/schemas/NpnMetadataData"
+
+    WildTypeNativePlantsNote:
+      type: object
+      description: A single ecological note attached to a WildType plant record (code + description pair).
+      required: [code, description]
+      properties:
+        code:
+          type: string
+          description: >
+            Short code abbreviation (e.g. LH, N, O). Some codes are multi-word phrases
+            such as "nearly native" or "not a MI genotype" — these are verbatim source codes.
+        description:
+          type: string
+          description: Full description of the ecological note code.
+
+    WildTypeNativePlantsPlantRecord:
+      type: object
+      description: A single plant record from the WildType Native Plants cultural guide.
+      required:
+        - scientific_name
+        - common_name
+        - category
+        - flower_color
+        - bloom_time
+        - sun_full
+        - sun_part
+        - sun_shade
+        - sun_summary
+        - height
+        - moisture_dry
+        - moisture_average
+        - moisture_wet
+        - moisture_summary
+        - notes
+      properties:
+        scientific_name:
+          type: string
+          description: Scientific (Latin) name of the species.
+        common_name:
+          type: string
+          description: Common name as used by WildType.
+        category:
+          type: string
+          description: >
+            Plant category. One of: wildflowers, grasses, sedges, rushes, ferns, trees, shrubs & vines.
+          enum:
+            - wildflowers
+            - "grasses, sedges, rushes"
+            - ferns
+            - "trees, shrubs & vines"
+        flower_color:
+          type: string
+          description: Flower color as a string (e.g. White, Pink, Red/Yellow). May be empty for non-flowering plants.
+        bloom_time:
+          type: string
+          description: Bloom time as a string range (e.g. Jul-Aug, May-Jun). Preserved verbatim from the source.
+        sun_full:
+          type: boolean
+          description: Tolerates full sun.
+        sun_part:
+          type: boolean
+          description: Tolerates part sun / part shade.
+        sun_shade:
+          type: boolean
+          description: Tolerates full shade.
+        sun_summary:
+          type: string
+          description: Human-readable sun preference summary (e.g. full, part/shade, full/part/shade).
+        height:
+          type: string
+          description: Height as a string range (e.g. 2'-3', 1'). Preserved verbatim from the source.
+        moisture_dry:
+          type: boolean
+          description: Tolerates dry soil conditions.
+        moisture_average:
+          type: boolean
+          description: Tolerates average soil moisture.
+        moisture_wet:
+          type: boolean
+          description: Tolerates wet soil conditions.
+        moisture_summary:
+          type: string
+          description: Human-readable moisture preference summary (e.g. dry/average, average/wet, wet).
+        notes:
+          type: array
+          description: Ecological notes for this species. Empty array when no notes apply.
+          items:
+            $ref: "#/components/schemas/WildTypeNativePlantsNote"
+
+    WildTypeNativePlantsPlantGuideData:
+      type: object
+      description: Data payload for the /wildtype-native-plants/plant-guide endpoint (FernsEnvelope data field).
+      required: [total, category, plants]
+      properties:
+        total:
+          type: integer
+          description: Number of plant records returned (after any category filter is applied).
+        category:
+          type: string
+          nullable: true
+          description: The category filter applied, or null if no filter was specified.
+        plants:
+          type: array
+          description: Plant records matching the request.
+          items:
+            $ref: "#/components/schemas/WildTypeNativePlantsPlantRecord"
+
+    WildTypeNativePlantsNoteCodesData:
+      type: object
+      description: Data payload for the /wildtype-native-plants/note-codes endpoint (FernsEnvelope data field).
+      required: [total, note_codes]
+      properties:
+        total:
+          type: integer
+          description: Total number of note codes in the legend.
+        note_codes:
+          type: array
+          description: Full legend of ecological note codes used in the WildType cultural guide.
+          items:
+            $ref: "#/components/schemas/WildTypeNativePlantsNote"

@@ -114,6 +114,11 @@ import type {
   GetUsdaPlantsSearchParams,
   GetWetlandIndicatorStatusByCodeParams,
   GetWetlandIndicatorStatusByWParams,
+  GetWildTypeNativePlantsMetadata200,
+  GetWildTypeNativePlantsNoteCodes200,
+  GetWildTypeNativePlantsPlantGuide200,
+  GetWildTypeNativePlantsPlantGuideByScientificName200,
+  GetWildTypeNativePlantsPlantGuideParams,
   GetWucolsWaterUseByCodeParams,
   HealthCheck200,
   InatControlledTermsForTaxonResponse,
@@ -1519,7 +1524,7 @@ export function useGetInatControlledTerms<TData = Awaited<ReturnType<typeof getI
 
 
 /**
- * Returns the controlled annotation terms that are applicable to a specific taxon (e.g. Flowers and Fruits applies to plants but not birds). Cached permanently in the DB keyed by taxon_id; use refresh=true to force a re-fetch. Results are wrapped in the standard FERNS provenance envelope.
+ * Returns the controlled annotation terms that are applicable to a specific taxon (e.g. Flowers and Fruits applies to plants but not birds). No EC-side cache. Results are wrapped in the standard FERNS provenance envelope.
 
  * @summary iNaturalist controlled terms applicable to a specific taxon
  */
@@ -1687,7 +1692,7 @@ export function useGetInatTaxaAutocomplete<TData = Awaited<ReturnType<typeof get
 
 
 /**
- * Returns the full iNaturalist taxon record for a known taxon ID, including Wikipedia summary, listed_taxa (nativity per place — up to 41 entries for common species), children, conservation_status, and default_photo. DB-cached for 30 days keyed by taxon ID; use refresh=true to force a re-fetch. Results are wrapped in the standard FERNS provenance envelope.
+ * Returns the full iNaturalist taxon record for a known taxon ID, including Wikipedia summary, listed_taxa (nativity per place — up to 41 entries for common species), children, conservation_status, and default_photo. No EC-side cache. Results are wrapped in the standard FERNS provenance envelope.
 
  * @summary Full iNaturalist taxon record by numeric ID
  */
@@ -1776,7 +1781,7 @@ export function useGetInatTaxaById<TData = Awaited<ReturnType<typeof getInatTaxa
 
 
 /**
- * Returns the full iNaturalist place record for a known place ID, including centroid, bounding box, admin hierarchy, display name, and place type. DB-cached permanently (place IDs are stable); use refresh=true to force a re-fetch. Results are wrapped in the standard FERNS provenance envelope.
+ * Returns the full iNaturalist place record for a known place ID, including centroid, bounding box, admin hierarchy, display name, and place type. No EC-side cache. Results are wrapped in the standard FERNS provenance envelope.
 
  * @summary iNaturalist place record by numeric ID
  */
@@ -8919,6 +8924,321 @@ export function useGetAnnArborNpnDocumentation<TData = Awaited<ReturnType<typeof
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetAnnArborNpnDocumentationQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * Returns all plant records from the WildType Native Plants cultural guide (249 Michigan native plant species), optionally filtered by category. Each record includes scientific name, common name, category, flower color, bloom time, sun and moisture preferences (boolean flags and summary strings), height, and an array of ecological notes (code + description pairs). Data is served from the in-memory IDP — no upstream network call. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+
+ * @summary Get WildType Native Plants cultural guide entries
+ */
+export const getGetWildTypeNativePlantsPlantGuideUrl = (params?: GetWildTypeNativePlantsPlantGuideParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/wildtype-native-plants/plant-guide?${stringifiedParams}` : `/api/wildtype-native-plants/plant-guide`
+}
+
+export const getWildTypeNativePlantsPlantGuide = async (params?: GetWildTypeNativePlantsPlantGuideParams, options?: RequestInit): Promise<GetWildTypeNativePlantsPlantGuide200> => {
+  
+  return customFetch<GetWildTypeNativePlantsPlantGuide200>(getGetWildTypeNativePlantsPlantGuideUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+  
+
+
+
+
+export const getGetWildTypeNativePlantsPlantGuideQueryKey = (params?: GetWildTypeNativePlantsPlantGuideParams,) => {
+    return [
+    `/api/wildtype-native-plants/plant-guide`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getGetWildTypeNativePlantsPlantGuideQueryOptions = <TData = Awaited<ReturnType<typeof getWildTypeNativePlantsPlantGuide>>, TError = ErrorType<ErrorResponse>>(params?: GetWildTypeNativePlantsPlantGuideParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getWildTypeNativePlantsPlantGuide>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetWildTypeNativePlantsPlantGuideQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getWildTypeNativePlantsPlantGuide>>> = ({ signal }) => getWildTypeNativePlantsPlantGuide(params, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getWildTypeNativePlantsPlantGuide>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetWildTypeNativePlantsPlantGuideQueryResult = NonNullable<Awaited<ReturnType<typeof getWildTypeNativePlantsPlantGuide>>>
+export type GetWildTypeNativePlantsPlantGuideQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get WildType Native Plants cultural guide entries
+ */
+
+export function useGetWildTypeNativePlantsPlantGuide<TData = Awaited<ReturnType<typeof getWildTypeNativePlantsPlantGuide>>, TError = ErrorType<ErrorResponse>>(
+ params?: GetWildTypeNativePlantsPlantGuideParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getWildTypeNativePlantsPlantGuide>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+  
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetWildTypeNativePlantsPlantGuideQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * Returns the cultural guide record for a single species identified by scientific name. Lookup is case-insensitive exact match — no fuzzy matching or synonym resolution. Returns found=false with data=null when the name is not present in the guide. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+
+ * @summary Get a single WildType Native Plants record by scientific name
+ */
+export const getGetWildTypeNativePlantsPlantGuideByScientificNameUrl = (scientificName: string,) => {
+
+
+  
+
+  return `/api/wildtype-native-plants/plant-guide/${scientificName}`
+}
+
+export const getWildTypeNativePlantsPlantGuideByScientificName = async (scientificName: string, options?: RequestInit): Promise<GetWildTypeNativePlantsPlantGuideByScientificName200> => {
+  
+  return customFetch<GetWildTypeNativePlantsPlantGuideByScientificName200>(getGetWildTypeNativePlantsPlantGuideByScientificNameUrl(scientificName),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+  
+
+
+
+
+export const getGetWildTypeNativePlantsPlantGuideByScientificNameQueryKey = (scientificName: string,) => {
+    return [
+    `/api/wildtype-native-plants/plant-guide/${scientificName}`
+    ] as const;
+    }
+
+    
+export const getGetWildTypeNativePlantsPlantGuideByScientificNameQueryOptions = <TData = Awaited<ReturnType<typeof getWildTypeNativePlantsPlantGuideByScientificName>>, TError = ErrorType<ErrorResponse>>(scientificName: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getWildTypeNativePlantsPlantGuideByScientificName>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetWildTypeNativePlantsPlantGuideByScientificNameQueryKey(scientificName);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getWildTypeNativePlantsPlantGuideByScientificName>>> = ({ signal }) => getWildTypeNativePlantsPlantGuideByScientificName(scientificName, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(scientificName), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getWildTypeNativePlantsPlantGuideByScientificName>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetWildTypeNativePlantsPlantGuideByScientificNameQueryResult = NonNullable<Awaited<ReturnType<typeof getWildTypeNativePlantsPlantGuideByScientificName>>>
+export type GetWildTypeNativePlantsPlantGuideByScientificNameQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get a single WildType Native Plants record by scientific name
+ */
+
+export function useGetWildTypeNativePlantsPlantGuideByScientificName<TData = Awaited<ReturnType<typeof getWildTypeNativePlantsPlantGuideByScientificName>>, TError = ErrorType<ErrorResponse>>(
+ scientificName: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getWildTypeNativePlantsPlantGuideByScientificName>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+  
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetWildTypeNativePlantsPlantGuideByScientificNameQueryOptions(scientificName,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * Returns all 24 ecological note codes used in the WildType cultural guide, each with its code abbreviation and full description. Use this to decode the notes array on any plant record returned by /plant-guide. Data is served from the in-memory IDP — no upstream network call. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+
+ * @summary Get the full WildType Native Plants ecological note-codes legend
+ */
+export const getGetWildTypeNativePlantsNoteCodesUrl = () => {
+
+
+  
+
+  return `/api/wildtype-native-plants/note-codes`
+}
+
+export const getWildTypeNativePlantsNoteCodes = async ( options?: RequestInit): Promise<GetWildTypeNativePlantsNoteCodes200> => {
+  
+  return customFetch<GetWildTypeNativePlantsNoteCodes200>(getGetWildTypeNativePlantsNoteCodesUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+  
+
+
+
+
+export const getGetWildTypeNativePlantsNoteCodesQueryKey = () => {
+    return [
+    `/api/wildtype-native-plants/note-codes`
+    ] as const;
+    }
+
+    
+export const getGetWildTypeNativePlantsNoteCodesQueryOptions = <TData = Awaited<ReturnType<typeof getWildTypeNativePlantsNoteCodes>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getWildTypeNativePlantsNoteCodes>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetWildTypeNativePlantsNoteCodesQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getWildTypeNativePlantsNoteCodes>>> = ({ signal }) => getWildTypeNativePlantsNoteCodes({ signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getWildTypeNativePlantsNoteCodes>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetWildTypeNativePlantsNoteCodesQueryResult = NonNullable<Awaited<ReturnType<typeof getWildTypeNativePlantsNoteCodes>>>
+export type GetWildTypeNativePlantsNoteCodesQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get the full WildType Native Plants ecological note-codes legend
+ */
+
+export function useGetWildTypeNativePlantsNoteCodes<TData = Awaited<ReturnType<typeof getWildTypeNativePlantsNoteCodes>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getWildTypeNativePlantsNoteCodes>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+  
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetWildTypeNativePlantsNoteCodesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * Returns the registry entry for the WildType Native Plants source, wrapped in the FERNS Response Envelope. The data payload contains the source's descriptive fields (description, general_summary, technical_details, licenses, etc.). Also seeds the registry entry on first call.
+
+ * @summary WildType Native Plants source metadata
+ */
+export const getGetWildTypeNativePlantsMetadataUrl = () => {
+
+
+  
+
+  return `/api/wildtype-native-plants/metadata`
+}
+
+export const getWildTypeNativePlantsMetadata = async ( options?: RequestInit): Promise<GetWildTypeNativePlantsMetadata200> => {
+  
+  return customFetch<GetWildTypeNativePlantsMetadata200>(getGetWildTypeNativePlantsMetadataUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+  
+
+
+
+
+export const getGetWildTypeNativePlantsMetadataQueryKey = () => {
+    return [
+    `/api/wildtype-native-plants/metadata`
+    ] as const;
+    }
+
+    
+export const getGetWildTypeNativePlantsMetadataQueryOptions = <TData = Awaited<ReturnType<typeof getWildTypeNativePlantsMetadata>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getWildTypeNativePlantsMetadata>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetWildTypeNativePlantsMetadataQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getWildTypeNativePlantsMetadata>>> = ({ signal }) => getWildTypeNativePlantsMetadata({ signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getWildTypeNativePlantsMetadata>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetWildTypeNativePlantsMetadataQueryResult = NonNullable<Awaited<ReturnType<typeof getWildTypeNativePlantsMetadata>>>
+export type GetWildTypeNativePlantsMetadataQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary WildType Native Plants source metadata
+ */
+
+export function useGetWildTypeNativePlantsMetadata<TData = Awaited<ReturnType<typeof getWildTypeNativePlantsMetadata>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getWildTypeNativePlantsMetadata>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+  
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetWildTypeNativePlantsMetadataQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

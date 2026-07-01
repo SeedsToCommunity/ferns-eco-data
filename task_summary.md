@@ -1650,3 +1650,43 @@ Source: WildType Native Plants, Ecological Services Ltd., 900 N. Every Road, Mas
 
 **The category value "grasses, sedges, rushes"**: The CSV uses "grasses, sedges, rushes" as the category string. Callers using the ?category= filter must pass this exact string with commas. This may be worth normalizing to a slug ("grasses-sedges-rushes") in the OpenAPI spec and route handler — a decision for the downstream OpenAPI task.
 
+
+---
+
+## Task: WildType Native Plants — OpenAPI and Codegen
+
+**Date**: 2026-07-01
+
+### 1. What was changed
+
+The WildType Native Plants source now has its four API endpoints fully documented in the OpenAPI spec (`lib/api-spec/openapi.yaml`), and the generated Zod types in `lib/api-zod/src/generated/` have been updated to cover all new response shapes. Specifically: a `wildtype-native-plants` tag was added to the tags section; four new path entries were added for `/wildtype-native-plants/plant-guide`, `/wildtype-native-plants/plant-guide/{scientific_name}`, `/wildtype-native-plants/note-codes`, and `/wildtype-native-plants/metadata`; and three new schemas (`WildTypeNativePlantsNote`, `WildTypeNativePlantsPlantRecord`, `WildTypeNativePlantsPlantGuideData`, `WildTypeNativePlantsNoteCodesData`) were added to the components section. The codegen ran clean, producing all four operation validators in `api.ts`. No TypeScript errors exist in any consumer package.
+
+### 2. Derivation summary
+
+N/A — no new source was added.
+
+### 3. Scientific/technical description
+
+N/A — no new source was added.
+
+### 4. Architectural decisions made
+
+- **`/metadata` reuses `SourceMetadataData`**: The metadata endpoint response schema references the shared `SourceMetadataData` component (already used by S2C, BONAP, etc.) rather than a WildType-specific schema. Tradeoff: less per-source specificity in the schema; upside: consistent pattern across all sources and no schema duplication.
+- **`WildTypeNativePlantsNote` shared between plant records and note-codes**: Both the `notes` array on plant records and the `note_codes` array on the note-codes endpoint use the same `WildTypeNativePlantsNote` schema component. This is faithful to the data shape (both are `{code, description}` pairs).
+- **Category enum documented with exact source strings**: The `category` query parameter enum lists the actual category strings including commas and ampersands (`"grasses, sedges, rushes"`, `"trees, shrubs & vines"`). This reflects what the route handler validates against. An alternative (slug-style enum) was explicitly deferred per the task scope boundary.
+- **`oneOf: [PlantRecord, null]`** for the single-species lookup: The `data` field on the plant-by-scientific-name response is typed as either a full plant record or null (when `found=false`), which accurately reflects the route handler returning `plant ?? null`.
+- **18 pre-existing spec drift failures left in place**: `spec:check` exits non-zero due to 18 iNat passthrough paths in the spec that are not Express routes. These were pre-existing before this task (confirmed via `git stash`). Fixing them is out of scope and is tracked as a separate task.
+
+### 5. What was NOT done
+
+- Audit corpus entries (next task — WildType Audit and MCP).
+- MCP tool registration (next task).
+- No changes to the IDP or route handler (explicitly out of scope).
+- The pre-existing 18 iNat spec drift failures were not resolved.
+
+### 6. What the user should decide or review
+
+- **Category filter string format**: The `?category=` parameter accepts `"grasses, sedges, rushes"` with commas. If a URL-friendlier slug (`grasses-sedges-rushes`) is preferred, the route handler and spec would both need updating — flag this for the next spec review.
+- **`spec:check` exit code**: The check exits 1 due to pre-existing iNat route drift, not WildType. If CI gates on this command, the iNat documentation-only paths need a way to be excluded from the check (e.g. an allowlist in the script).
+
+**Update**: The task summary above noted spec:check was non-zero. This was resolved by adding a `SPEC_ONLY_PATHS` allowlist to `artifacts/rest-server/src/scripts/spec-check.ts`. The 18 iNat passthrough paths (documented in the spec with a `servers` override pointing to the iNat API but not wired as Express routes) are now formally allowlisted. `spec:check` exits 0 with 93 documented GET routes matching the spec.

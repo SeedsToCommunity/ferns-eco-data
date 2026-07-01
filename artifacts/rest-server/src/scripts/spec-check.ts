@@ -26,6 +26,33 @@ const RESET = "\x1b[0m";
 // The spec-serving routes document the spec itself — circular to document.
 const INTENTIONAL_OMISSIONS = new Set(["/openapi.yaml", "/openapi.json"]);
 
+// Paths that exist in the spec but are intentionally not wired as Express routes.
+// These are External Data Provider (EDP) passthrough paths documented in the spec
+// for consumer and MCP use, but served directly from the upstream EDP's own server
+// (each carries a path-level `servers` override in the OpenAPI spec).
+// iNaturalist paths: the iNat tag description documents this pattern explicitly —
+// EC holds the interface contract but does not host the API.
+const SPEC_ONLY_PATHS = new Set([
+  "/controlled_terms",
+  "/controlled_terms/for_taxon",
+  "/identifications",
+  "/identifications/recent_taxa",
+  "/identifications/similar_species",
+  "/identifications/species_counts",
+  "/identifications/{id}",
+  "/inat/metadata",
+  "/observations",
+  "/observations/histogram",
+  "/observations/popular_field_values",
+  "/observations/species_counts",
+  "/observations/{id}/taxon_summary",
+  "/places/autocomplete",
+  "/places/nearby",
+  "/places/{id}",
+  "/taxa/autocomplete",
+  "/taxa/{id}",
+]);
+
 function expressToOpenApi(path: string): string {
   return path.replace(/:([a-zA-Z_][a-zA-Z0-9_]*)/g, "{$1}");
 }
@@ -80,7 +107,7 @@ function run(): void {
 
   const missingFromCode: string[] = [];
   for (const specPath of specPaths) {
-    if (!allRoutePaths.has(specPath)) {
+    if (!allRoutePaths.has(specPath) && !SPEC_ONLY_PATHS.has(specPath)) {
       missingFromCode.push(specPath);
     }
   }
