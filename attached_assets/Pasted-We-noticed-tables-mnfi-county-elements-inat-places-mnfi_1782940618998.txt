@@ -1,0 +1,40 @@
+We noticed tables mnfi_county_elements, inat_places, mnfi_community_plants, mnfi_communities, inat_field_values, inat_histogram, inat_species, usda_plants_name_matches, inat_taxon_by_id, npn_name_aliases, npn_species and inat_controlled_terms were removed and miflora_spec_text_cache was added. Should one of the removed tables be renamed to miflora_spec_text_cache?
+
+No, miflora_spec_text_cache is a new table
+Add a new miflora_spec_text_cache table. The existing mnfi_county_elements, inat_places, mnfi_community_plants, mnfi_communities, inat_field_values, inat_histogram, inat_species, usda_plants_name_matches, inat_taxon_by_id, npn_name_aliases, npn_species and inat_controlled_terms tables may still be reused as a rename for another new table in this migration; otherwise they will be dropped.
+
+Yes, rename mnfi_county_elements
+Reusing the existing table mnfi_county_elements as miflora_spec_text_cache.
+
+Yes, rename inat_places
+Reusing the existing table inat_places as miflora_spec_text_cache.
+
+Yes, rename mnfi_community_plants
+Reusing the existing table mnfi_community_plants as miflora_spec_text_cache.
+
+Yes, rename mnfi_communities
+Reusing the existing table mnfi_communities as miflora_spec_text_cache.
+
+Yes, rename inat_field_values
+Reusing the existing table inat_field_values as miflora_spec_text_cache.
+
+Yes, rename inat_histogram
+Reusing the existing table inat_histogram as miflora_spec_text_cache.
+
+Yes, rename inat_species
+Reusing the existing table inat_species as miflora_spec_text_cache.
+
+Yes, rename usda_plants_name_matches
+Reusing the existing table usda_plants_name_matches as miflora_spec_text_cache.
+
+Yes, rename inat_taxon_by_id
+Reusing the existing table inat_taxon_by_id as miflora_spec_text_cache.
+
+Yes, rename npn_name_aliases
+Reusing the existing table npn_name_aliases as miflora_spec_text_cache.
+
+Yes, rename npn_species
+Reusing the existing table npn_species as miflora_spec_text_cache.
+
+Yes, rename inat_controlled_terms
+Reusing the existing table inat_controlled_terms as miflora_spec_text_cache.
