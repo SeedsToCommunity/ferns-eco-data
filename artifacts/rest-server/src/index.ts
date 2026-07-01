@@ -25,6 +25,7 @@ import { autoImportIllinoisWildflowersIfEmpty } from "./services/botanical-refs/
 import { autoImportPrairieMoonIfEmpty } from "./services/botanical-refs/importers/prairie-moon.js";
 import { ensureSourceRelationships, ensureSourceRelationshipsRegistryEntry } from "./services/source-relationships/seed.js";
 import { ensureAnnArborNpnRegistryEntry } from "./services/ann-arbor-npn/seed.js";
+import { ensureWildTypeNativePlantsRegistryEntry } from "./services/wildtype-native-plants/seed.js";
 
 const rawPort = process.env["PORT"];
 
@@ -89,6 +90,7 @@ async function main() {
       ["USDA PLANTS", ensureUsdaPlantsRegistryEntry()],
       ["Lady Bird Johnson", ensureLadyBirdJohnsonRegistryEntry()],
       ["Ann Arbor NPN", ensureAnnArborNpnRegistryEntry()],
+      ["WildType Native Plants", ensureWildTypeNativePlantsRegistryEntry()],
       ["Source Relationships", ensureSourceRelationshipsRegistryEntry()],
     ] as const;
 

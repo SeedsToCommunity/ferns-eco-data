@@ -1583,3 +1583,70 @@ Codegen re-run; MCP server and api-zod build cleanly.
 Saved a baseline snapshot of iNaturalist's published Swagger spec (v1.3.0, 86 paths, 170KB) to `lib/api-spec/upstream-snapshots/inat-swagger.json`. Added a `.meta.json` sidecar recording the fetch date, the reason, which 17 EC-covered paths were validated, and a summary of findings. Added a `README.md` with a self-contained drift-detection script (fetch current spec, diff params on the 17 EC paths, report additions/removals). Not used at runtime — documentation and audit artifact only.
 
 Also fixed three stale "DB-cached permanently" descriptions on `/controlled_terms/for_taxon`, `/taxa/{id}`, and `/places/{id}` — all changed to "No EC-side cache" now that the iNat cache layer was deleted in a prior task.
+
+---
+
+## Task: WildType Native Plants — IDP and REST Adapter
+
+### 1. What was changed
+
+WildType Native Plants (Mason, MI) has been added to FERNS as a new Internal Data Provider — the 24th registered source. WildType is a Michigan-genotype native plant nursery founded in 1996 by Bill Schneider; their cultural guide covers 249 native Michigan plant species across four categories (wildflowers, grasses/sedges/rushes, ferns, trees/shrubs/vines). The data was converted from CSV into a structured in-memory TypeScript dataset and is served via four new REST endpoints. All 249 plant records carry corrected ecological notes as structured `{ code, description }` arrays, parsed using a canonical lookup table derived verbatim from the PDF's "key to letter codes" section (fixing numerous data quality problems in the CSV's raw notes_expanded column). Permission was explicitly confirmed by Bill Schneider; licensed CC0.
+
+New files:
+- `lib/internal-data-providers/src/wildtype-native-plants/data.ts` — 249 plant records
+- `lib/internal-data-providers/src/wildtype-native-plants/note-codes-data.ts` — canonical 24-code legend
+- `lib/internal-data-providers/src/wildtype-native-plants/index.ts` — Source Interface functions
+- `lib/internal-data-providers/src/wildtype-native-plants/WildTypeCulturalGuide_1782830530916.pdf` — PDF reference artifact
+- `lib/internal-data-providers/src/wildtype-native-plants/native_plants_corrected.csv` — corrected CSV (notes_expanded rebuilt from canonical table)
+- `artifacts/rest-server/src/services/wildtype-native-plants/metadata.ts` — source constants and registry entry
+- `artifacts/rest-server/src/services/wildtype-native-plants/seed.ts` — DB registry seed
+- `artifacts/rest-server/src/routes/wildtype-native-plants.ts` — four route handlers
+
+Modified files:
+- `lib/internal-data-providers/package.json` — added `./wildtype-native-plants` export
+- `artifacts/rest-server/src/routes/index.ts` — registered router
+- `artifacts/rest-server/src/index.ts` — registered seed call at startup
+
+### 2. Derivation summary
+
+WildType Native Plants (Mason, MI) is a Michigan-genotype native plant nursery and ecological services operation founded in 1996 by Bill Schneider (University of Michigan, 1993), specializing in trees, shrubs, grasses, wildflowers, and emergent wetland species native to Michigan. Their cultural guide covers 249 native plant species across four categories — wildflowers, grasses/sedges/rushes, ferns, and trees/shrubs/vines — providing per-species growing information: sun and moisture preferences, bloom color and timing, height, and structured ecological notes such as pollinator value, larval host status, wetland classification, and spreading or opportunistic behavior. FERNS holds this data as a static in-memory table ingested from WildType's published cultural guide; no upstream API is queried at runtime, and queries return from local memory immediately. A query to the plant guide returns all records (with optional category filter) or a single species record by scientific name; the note-codes endpoint returns the full legend of 24 ecological codes and their descriptions. The data reflects the ingested edition of the cultural guide; updates to WildType's catalog require a FERNS service update to incorporate. Known limitations: this is a nursery cultural guide, not a scientific flora — it does not include distribution data, conservation rankings, or Coefficient of Conservatism values; taxonomy follows WildType's nursery usage and is not reconciled to BONAP, GBIF, or Michigan Flora; bloom time and height are given as string ranges (e.g. "Jul–Aug", "2'–3'"), not structured numeric values; some entries include plants that are not Michigan-genotype ("not MI genotype") or not Michigan-native ("nearly native") — these are verbatim source flags, not FERNS classifications.
+
+### 3. Scientific/technical description
+
+Source: WildType Native Plants, Ecological Services Ltd., 900 N. Every Road, Mason, MI 48854 (wildtypeplants.com). Founded 1996 by Bill Schneider (University of Michigan School of Natural Resources and Environment, 1993). Permission: granted by Bill Schneider; licensed CC0 unless WildType states otherwise. Data ingested from CSV (native_plants_1782830078986.csv, 249 plant rows). Method: static_data. No upstream API; no runtime network calls; data held in process memory. DB schema: none — no database tables for WildType data. Caching: not applicable — in-memory static reference. Fields per record: scientific_name, common_name, category (wildflowers | grasses, sedges, rushes | ferns | trees, shrubs & vines), flower_color, bloom_time (string range, e.g. "Jul-Aug"), sun_full / sun_part / sun_shade (boolean), sun_summary (string), height (string range, e.g. "2'-3'"), moisture_dry / moisture_average / moisture_wet (boolean), moisture_summary (string), notes (structured array of { code, description } objects). Notes parsing: the CSV notes_codes field (comma-separated letter codes) is parsed at ingest time using a canonical code-to-description table derived verbatim from the PDF's "key to letter codes" section. The raw CSV notes_expanded field had data quality problems (incorrect descriptions for B, RR, PP, CM, NC, O, LH, N and self-referential values for nearly native, not MI genotype, S (clonal)) and was corrected using the canonical table. Each plant record's notes field is a structured array of { code: string, description: string } objects, one per code; plants with no notes carry an empty array. Canonical codes (24 total): AS (acidic soils required), B (provides seed, fruit or nectar for birds), BI (biennial), CM (consistent moisture means that the soil should never dry out completely), D (dioecious), EF (edible fruit), EW (emergent wetland plant), FC (fall color), GC (groundcover), LB (long bloom period), LH (larval host for butterflies — see our list of larval host plants), N (plant that provides nectar for butterflies and bees), NC (the plants are not competitive when combined with other plants — easily out-competed without regular disturbance or thinning of other plants), nearly native (not native to Michigan but found in adjoining states), not MI genotype (seed not of Michigan origin), O (opportunistic native plants colonize aggressively without competition — WildType reserves the term invasive for non-native species that uncouple the ecological process of the ecosystems they invade), PP (these plants attract pollinators and/or predatory (beneficial) insects — see nativeplants.msu.edu), RR (readily re-seeds), S (spreads by underground suckers), S (clonal) (spreads by underground suckers — clonal, nursery variant not in PDF key), SA (spring availability only), TH (thorny), V (vine), WD (need well drained soils). Coverage: 249 records; Michigan native plants; 4 categories. Lookup: case-insensitive exact match on scientific_name. No fuzzy matching, no synonym resolution. Deliberate scope exclusions: live nursery inventory, stock levels, and pricing are out of scope — this source covers the cultural guide only. Known limitations: taxonomy follows WildType nursery usage and is not reconciled to BONAP, GBIF, or Michigan Flora; "not MI genotype" and "nearly native" are verbatim source flags retained in structured notes, not FERNS classifications; bloom time and height are preserved as string ranges, not structured numeric values; phrase-style codes ("nearly native", "not MI genotype") deviate from the letter-code convention used by all other codes in the PDF key; S (clonal) is a nursery-specific variant not documented in the PDF key.
+
+### 4. Architectural decisions made
+
+**In-memory static data (no DB cache)**: The data is a ~250-row static cultural guide with no upstream API and no expected updates at runtime. Storing it in a DB table would add schema, migration, and seed complexity with no benefit — identical to the S2C pattern. Tradeoff: data is lost on server restart only in the sense that it re-initializes from the compiled TypeScript module (effectively zero cost).
+
+**Structured notes array at ingest time**: The raw CSV `notes_codes` and `notes_expanded` fields were parsed into a structured `[{ code, description }]` array at data-file generation time rather than at request time. This means the parsing cost is zero at runtime and the data file is the canonical representation. Tradeoff: the data.ts file is the authoritative source; the original CSV is preserved as a reference artifact alongside it.
+
+**Canonical code table as the authority, not CSV notes_expanded**: The CSV's `notes_expanded` field had systematic errors (wrong descriptions for B, RR, PP, O, CM, NC, LH, N; self-referential values for phrase codes). The PDF's "key to letter codes" section was used as the authoritative source instead. A corrected CSV (native_plants_corrected.csv) with rebuilt notes_expanded is committed as a reference artifact.
+
+**S (clonal) not in PDF key**: Populus tremuloides uses the code "S (clonal)" which is not in the published PDF legend. It was treated as a nursery-specific variant of S with description "spreads by underground suckers (clonal)" — preserving the source's apparent intent without inventing a formal definition. This is flagged in the technical_details.
+
+**Phrase-style codes as first-class codes**: "nearly native" and "not MI genotype" are multi-word codes that deviate from the letter-code convention. They are preserved exactly as used in the source, included in the canonical code table, and surfaced in the /note-codes endpoint — not normalized away. This preserves source fidelity and lets callers filter on them correctly.
+
+**Category filter on /plant-guide uses exact match, case-insensitive**: The four category values from the CSV ("wildflowers", "grasses, sedges, rushes", "ferns", "trees, shrubs & vines") are validated against a fixed enum with a helpful error message listing valid values. No slug normalization was applied — callers must use the exact source category string.
+
+**CSV parsing via comma-with-optional-space split**: One row (Helianthus strumosus) had notes_codes encoded as "O,B" (no space after comma) rather than "O, B". The parser was built to handle both patterns via `/,\s*/` splitting, with phrase-code extraction applied first to protect multi-word codes from false splits.
+
+### 5. What was NOT done
+
+- **OpenAPI spec**: Not in scope for this task — covered by the downstream "WildType Native Plants — OpenAPI and Codegen" task.
+- **Codegen**: Not in scope — covered by the downstream task.
+- **MCP tool wiring**: Not in scope — covered by the downstream task.
+- **Audit tool coverage**: Not in scope — covered by the downstream task.
+- **DB cache**: Explicitly out of scope per task description — data is static/in-memory by design.
+- **Synonym or fuzzy name matching**: Not present in the source; not implemented.
+
+### 6. What the user should decide or review
+
+**Phrase-style code descriptions for verification against the PDF**: The descriptions for "nearly native", "not MI genotype", "S (clonal)", and the longer narrative codes (O, NC, LH, N, CM, PP) were set from the canonical table in the task. Please verify these match what appears verbatim in the WildType cultural guide PDF (committed at `lib/internal-data-providers/src/wildtype-native-plants/WildTypeCulturalGuide_1782830530916.pdf`).
+
+**S (clonal) description**: The description "spreads by underground suckers (clonal)" was invented as a reasonable extension of the "S" code since it is not in the PDF key. If WildType's intent is different, the description should be updated in `lib/internal-data-providers/src/wildtype-native-plants/note-codes-data.ts` (and `data.ts` rebuilt).
+
+**License confirmation**: Currently set to `["cc0"]` per Bill Schneider's verbal confirmation. If WildType provides a formal written license statement, update `WILDTYPE_NATIVE_PLANTS_LICENSES` and `WILDTYPE_NATIVE_PLANTS_LICENSE_NOTES` in `metadata.ts`.
+
+**The category value "grasses, sedges, rushes"**: The CSV uses "grasses, sedges, rushes" as the category string. Callers using the ?category= filter must pass this exact string with commas. This may be worth normalizing to a slug ("grasses-sedges-rushes") in the OpenAPI spec and route handler — a decision for the downstream OpenAPI task.
+

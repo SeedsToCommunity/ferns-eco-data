@@ -24,6 +24,7 @@ import ladyBirdJohnsonRouter from "./lady-bird-johnson.js";
 import sourceRelationshipsRouter from "./source-relationships.js";
 import trustGroupsRouter from "./trust-groups.js";
 import annArborNpnRouter from "./ann-arbor-npn.js";
+import wildTypeNativePlantsRouter from "./wildtype-native-plants.js";
 
 const router: IRouter = Router();
 
@@ -50,6 +51,7 @@ router.use(ladyBirdJohnsonRouter);
 router.use(sourceRelationshipsRouter);
 router.use(trustGroupsRouter);
 router.use(annArborNpnRouter);
+router.use(wildTypeNativePlantsRouter);
 router.use(registryRouter);
 router.use(specRouter);
 

@@ -11,6 +11,7 @@
     "./seeds-to-community-washtenaw": "./src/seeds-to-community-washtenaw/index.ts",
     "./google-images": "./src/google-images/index.ts",
     "./lcscg": "./src/lcscg/index.ts",
-    "./mnfi": "./src/mnfi/index.ts"
+    "./mnfi": "./src/mnfi/index.ts",
+    "./wildtype-native-plants": "./src/wildtype-native-plants/index.ts"
   }
 }
