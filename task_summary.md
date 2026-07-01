@@ -2,6 +2,39 @@
 
 ---
 
+## Task: Deploy rest-server to production — IPv4 bind fix (2026-07-01)
+
+### 1. What was changed
+
+The new `artifacts/rest-server` had been built and two publish attempts made, but both failed the Replit health check with "healthcheck / returned status 500" and zero HTTP request logs reaching Express. Investigation confirmed the build phase succeeded on the second attempt (Replit reused a cached image). The failure was at the promote/health-check phase — the sidecar's startup probe could not connect to the server.
+
+Root cause: `app.listen(port, callback)` in `src/index.ts` was called without an explicit host address. In the Replit Cloud Run production container, Node.js defaults to binding on `::` (IPv6 wildcard) rather than `0.0.0.0` (IPv4 wildcard). The sidecar health checker connects via IPv4 (`127.0.0.1`), so the TCP connection was refused before reaching Express — explaining why pino-http logged zero requests despite the server appearing to start normally. The fix was to change the listen call to `app.listen(port, "0.0.0.0", callback)`, forcing IPv4 binding. The startup log now confirms `"address": "0.0.0.0", "family": "IPv4", "port": 8080`. The code is rebuilt locally and the publish button has been re-presented to the user.
+
+### 2. Derivation summary
+
+N/A — no new source added.
+
+### 3. Scientific/technical description
+
+N/A — no new source added.
+
+### 4. Architectural decisions made
+
+- **Explicit IPv4 bind (`"0.0.0.0"`) rather than leaving Node.js to choose**: In dual-stack Linux containers (Cloud Run), `app.listen(port)` without a host argument defaults to `::` (IPv6). If the kernel has `IPV6_V6ONLY` set (common in restricted container environments), IPv4 traffic to `127.0.0.1` is not forwarded to the IPv6 socket. Forcing `"0.0.0.0"` is the conventional production fix and is explicitly listed in the Replit deployment failure reference under "Port/binding issues."
+- **`server.address()` logged at startup**: The `const server = app.listen(...)` return value is now captured so `server.address()` (which includes `{ address, family, port }`) can be logged. This gives unambiguous evidence of the actual bound interface in production logs, preventing future ambiguity.
+
+### 5. What was NOT done
+
+- The actual successful deployment to ecologicalcommons.org has not yet occurred — the user must click Publish to trigger it.
+- No changes were made to DNS, the url-architecture, or the static-file serving logic; those were already fixed in the previous session.
+
+### 6. What the user should decide or review
+
+- **Click Publish** in the Replit deployment panel to trigger the third publish attempt with the `0.0.0.0` fix in place. The build will run fresh (the cached standby build does not contain this change), so it will take a few minutes. Watch for the `"address": "0.0.0.0", "family": "IPv4", "port": 8080` log line in production logs to confirm the fix is live.
+- After a successful deploy, verify that `https://ecologicalcommons.org/` returns the full Astro page and `https://ecologicalcommons.org/api/healthz` returns the FERNS envelope with `status: "ok"`.
+
+---
+
 ## Task: Coefficient of Conservatism — Internal Data Provider exemplar
 
 **Date**: 2026-05-28

@@ -46,13 +46,13 @@ async function main() {
   await runMigrations();
   logger.info("Database migrations complete.");
 
-  app.listen(port, (err) => {
-    if (err) {
-      logger.error({ err }, "Error listening on port");
-      process.exit(1);
-    }
-
-    logger.info({ port }, "Server listening");
+  // Explicitly bind to 0.0.0.0 (IPv4 all-interfaces) so the Replit
+  // deployment sidecar's IPv4 health-check can reach the server.
+  // Without this, Node.js may default to IPv6-only (::) in some containers,
+  // causing connection-refused on 127.0.0.1 and a perpetual 500 health check.
+  const server = app.listen(port, "0.0.0.0", () => {
+    const addr = server.address();
+    logger.info({ port, addr }, "Server listening");
 
     autoImportMissouriPlantsIfEmpty().catch((err) => {
       logger.error({ err }, "Missouri Plants auto-import check failed at startup");
