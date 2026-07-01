@@ -1,5 +1,6 @@
 - [Read replit.md first](read-replit-md.md) — must read at session start; contains required workflow, guidance doc triggers, and post-task summary obligation.
 - [Envelope contract must-reads](envelope-contract-mustreads.md) — queried_at, source_url, and data purity rules that are easy to get wrong.
 - [Migration runner gap risk](migration-runner-gap.md) — newly authored migrations in lib/db/drizzle/ are silently skipped unless explicitly wired into runMigrations() in lib/db/src/migrate.ts.
+- [Artifact rename breaks deploy routing](artifact-rename-deploy-routing.md) — git mv of a deployed artifact dir strands the router (local port 0, health 500, zero app logs); artifact id is immutable, so re-register isn't possible from the toml.
 - [Production host binding](production-host-binding.md) — deployed servers need default app.listen(port,cb) (dual-stack), NOT "0.0.0.0"; prod router uses IPv6 loopback so IPv4-only bind = healthcheck 500 w/ zero logs.
 - [.replit artifacts manifest](replit-artifacts-manifest.md) — [[artifacts]] entries must map to real artifacts/<dir>/; git mv leaves them stale; edit via code_execution fs write (tools block .replit).
