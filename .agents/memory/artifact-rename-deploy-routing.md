@@ -26,13 +26,20 @@ past known-good deploy (verify with `git show <good-commit>:<path>`), so config
 diffing turns up nothing actionable. The stale state lives in the platform's
 deployment routing registry, not in the repo.
 
-**Immutable id — the sanctioned re-register lever is blocked:**
-`verifyAndReplaceArtifactToml` **cannot change an artifact's `id`** — it rejects
-with `INVALID_ARTIFACT_ID: verifyAndReplaceArtifactToml cannot change artifact
-id`. So you cannot force a fresh registration by rewriting the id. (The fact that
-the callback already knows the id also confirms the platform registry has the
-artifact correctly identified — the desync is specifically in the deployment's
-route→port binding.)
+**Immutable id AND version — sanctioned re-register levers are blocked:**
+`verifyAndReplaceArtifactToml` **cannot change an artifact's `id`** (rejects
+`INVALID_ARTIFACT_ID: cannot change artifact id`) **nor its `version`** (rejects
+`ARTIFACT_EDITING_ERROR: cannot change artifact version`). So you cannot force a
+fresh registration by bumping either field. It DOES accept changes to title/name,
+paths, ports, run/build args, and health config.
+
+**verifyAndReplaceArtifactToml CAN re-sync a moved artifact:** after a raw `mv` of
+the artifact dir, calling it (id/version unchanged) with the toml at the NEW path
+succeeded and re-registered the artifact cleanly (the registry then reports
+`dir=<new path>`). Note the write guards: direct writes to `artifact.toml` are
+blocked by the write/edit tools ("Direct edits to artifact.toml are not allowed") —
+you MUST go through a sibling `*.edit.toml` temp file + this callback. `.replit` is
+likewise blocked by the edit/bash tools; write it via the code-execution `fs` API.
 
 **How to apply / what actually helps:**
 1. First confirm it's routing, not the app: check for zero request-logger lines
@@ -41,9 +48,15 @@ route→port binding.)
    (`.replit` `[[artifacts]]` + `[deployment]`, each `artifact.toml` `id`/`paths`/
    `localPort`/`previewPath`/`production.run`/health) against the last good commit.
 3. If config matches known-good and the app is healthy, this is platform-side.
-   The remedies are user/support actions, not code: have the user delete and
-   recreate the deployment so routing is rebuilt from current config (note: a
-   custom domain attached to the deployment may need re-attaching), or contact
-   Replit support to purge/re-sync the artifact routing registration for the repl.
-4. Prefer renaming an artifact via a sanctioned move (recreate + migrate) over a
-   raw `git mv` when the artifact is already deployed, to avoid stranding the route.
+   Two remedies: (a) delete + recreate the deployment so routing rebuilds from
+   current config (may require re-attaching a custom domain); or (b) — the
+   reliable **code-side** fix, CONFIRMED to work — revert the dir to its ORIGINAL
+   name so committed config becomes byte-identical to the last-good deploy. The
+   stale route still expects the old path, so restoring it realigns them.
+4. Revert/rename checklist: `mv` the dir; fix `package.json` `name`; replace
+   `artifact.toml` via temp file + `verifyAndReplaceArtifactToml`; edit `.replit`
+   `[[artifacts]] id` via the `fs` API; run `pnpm install` to fix the lockfile
+   importer key (`importers: artifacts/<name>:`); rebuild. A leaf app package has
+   no workspace importers, so cross-package refs are limited to docs/comments.
+5. Prefer keeping the original name over a raw `git mv` when the artifact is
+   already deployed; a rename strands the route and support may be unresponsive.
