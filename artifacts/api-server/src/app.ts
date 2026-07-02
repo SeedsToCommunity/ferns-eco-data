@@ -80,18 +80,13 @@ if (process.env.NODE_ENV !== "production") {
 if (process.env.NODE_ENV === "production") {
   const publicSiteDir = path.resolve(__dirname, "public");
 
-  app.use((req, res) => {
-    express.static(publicSiteDir, { index: "index.html" })(req, res, () => {
-      // SPA fallback: any unmatched path serves index.html so client-side
-      // routing handles it rather than returning a 404.
-      res.sendFile(path.join(publicSiteDir, "index.html"), (err) => {
-        if (err) {
-          // Static files missing (e.g. build did not run) — return a plain 200
-          // so the deployment health check still passes.
-          res.status(200).send("Ecological Commons");
-        }
-      });
-    });
+  // Serve static assets and index.html for "/".
+  app.use(express.static(publicSiteDir, { index: "index.html" }));
+
+  // Any path that did not match a real file returns 404.
+  // No SPA fallback — this site has no client-side routing.
+  app.use((_req, res) => {
+    res.status(404).json({ error: "Not found" });
   });
 }
 
