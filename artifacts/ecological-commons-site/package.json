@@ -10,6 +10,8 @@
     "typecheck": "astro check"
   },
   "dependencies": {
+    "@tanstack/react-query": "catalog:",
+    "lucide-react": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:"
   },

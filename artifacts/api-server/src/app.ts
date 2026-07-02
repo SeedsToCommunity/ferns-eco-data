@@ -49,6 +49,21 @@ app.use("/api", (_req, res) => {
   res.status(404).json({ error: "Not found" });
 });
 
+// The trust-groups admin UI is served from a single static "detail" shell
+// page rather than one page per slug (the site has no SSR adapter, so
+// per-slug pages can't be generated at request time). Any request for
+// /trust-groups/<slug> is rewritten internally to /trust-groups/detail; the
+// address bar keeps the pretty URL and the React island reads the slug back
+// out of window.location on the client. /trust-groups (list) and
+// /trust-groups/detail itself pass through unchanged.
+function rewriteTrustGroupDetailPath(url: string): string {
+  const match = /^\/trust-groups\/([^/?]+)((?:\/|\?).*)?$/.exec(url);
+  if (match && match[1] !== "detail") {
+    return `/trust-groups/detail${match[2] ?? ""}`;
+  }
+  return url;
+}
+
 // Development-only: proxy non-API requests to the Astro dev server so the
 // Replit preview (which routes all traffic through this server) can serve
 // the public site. In production the block below handles static files.
@@ -58,7 +73,7 @@ if (process.env.NODE_ENV !== "production") {
     const options = {
       hostname: "localhost",
       port: SITE_PORT,
-      path: req.url,
+      path: rewriteTrustGroupDetailPath(req.url),
       method: req.method,
       headers: { ...req.headers, host: `localhost:${SITE_PORT}` },
     };
@@ -83,8 +98,21 @@ if (process.env.NODE_ENV === "production") {
   // Serve static assets and index.html for "/".
   app.use(express.static(publicSiteDir, { index: "index.html" }));
 
+  // See rewriteTrustGroupDetailPath() above — /trust-groups/<slug> has no
+  // corresponding static file, so serve the shared detail shell for it.
+  app.get(/^\/trust-groups\/[^/]+$/, (req, res, next) => {
+    if (req.path === "/trust-groups/detail") {
+      next();
+      return;
+    }
+    res.sendFile(path.join(publicSiteDir, "trust-groups", "detail", "index.html"), (err) => {
+      if (err) next(err);
+    });
+  });
+
   // Any path that did not match a real file returns 404.
-  // No SPA fallback — this site has no client-side routing.
+  // No SPA fallback — this site has no client-side routing (except the
+  // trust-groups detail shell handled above).
   app.use((_req, res) => {
     res.status(404).json({ error: "Not found" });
   });

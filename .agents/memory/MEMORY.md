@@ -4,3 +4,4 @@
 - [Artifact rename breaks deploy routing](artifact-rename-deploy-routing.md) — git mv of a deployed artifact strands the router (port 0, 500s, no app logs); id/version immutable; fix = revert dir to original name.
 - [Production host binding](production-host-binding.md) — deployed servers need default app.listen(port,cb) (dual-stack), NOT "0.0.0.0"; prod router uses IPv6 loopback so IPv4-only bind = healthcheck 500 w/ zero logs.
 - [.replit artifacts manifest](replit-artifacts-manifest.md) — [[artifacts]] entries must map to real artifacts/<dir>/; git mv leaves them stale; edit via code_execution fs write (tools block .replit).
+- [Static Astro site + dynamic detail route](astro-static-site-dynamic-detail-route.md) — no SSR adapter means one shared shell + server path-rewrite (both dev proxy and prod static serving) is needed for `/thing/:slug`-style pages.
