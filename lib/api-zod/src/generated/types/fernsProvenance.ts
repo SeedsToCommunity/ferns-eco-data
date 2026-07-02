@@ -7,7 +7,7 @@
  */
 
 /**
- * Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).
+ * Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.
 
  */
 export interface FernsProvenance {

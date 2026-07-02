@@ -5,7 +5,6 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetInatObservationsHistogramProvenanceVerbosity } from './getInatObservationsHistogramProvenanceVerbosity';
 
 export type GetInatObservationsHistogramParams = {
 /**
@@ -31,8 +30,4 @@ term_value_id?: number;
  * If true, bypasses cache and fetches fresh from iNaturalist
  */
 refresh?: boolean;
-/**
- * Controls provenance text: full (default), summary, or none
- */
-provenance_verbosity?: GetInatObservationsHistogramProvenanceVerbosity;
 };

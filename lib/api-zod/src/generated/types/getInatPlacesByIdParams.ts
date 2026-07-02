@@ -5,7 +5,6 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetInatPlacesByIdProvenanceVerbosity } from './getInatPlacesByIdProvenanceVerbosity';
 
 export type GetInatPlacesByIdParams = {
 /**
@@ -16,8 +15,4 @@ admin_level?: number;
  * Bypass cache and re-fetch from iNaturalist
  */
 refresh?: boolean;
-/**
- * Controls provenance text: full (default), summary, or none
- */
-provenance_verbosity?: GetInatPlacesByIdProvenanceVerbosity;
 };

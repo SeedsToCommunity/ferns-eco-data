@@ -5,7 +5,6 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetInatIdentificationsSimilarSpeciesProvenanceVerbosity } from './getInatIdentificationsSimilarSpeciesProvenanceVerbosity';
 import type { GetInatIdentificationsSimilarSpeciesQualityGrade } from './getInatIdentificationsSimilarSpeciesQualityGrade';
 
 export type GetInatIdentificationsSimilarSpeciesParams = {
@@ -25,8 +24,4 @@ nelat?: number;
 nelng?: number;
 swlat?: number;
 swlng?: number;
-/**
- * Controls provenance text: full (default), summary, or none
- */
-provenance_verbosity?: GetInatIdentificationsSimilarSpeciesProvenanceVerbosity;
 };

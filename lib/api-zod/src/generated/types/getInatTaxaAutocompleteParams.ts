@@ -5,7 +5,6 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetInatTaxaAutocompleteProvenanceVerbosity } from './getInatTaxaAutocompleteProvenanceVerbosity';
 
 export type GetInatTaxaAutocompleteParams = {
 /**
@@ -38,8 +37,4 @@ all_names?: boolean;
  * iNaturalist place ID to prioritize common names for that place
  */
 preferred_place_id?: number;
-/**
- * Controls provenance text: full (default), summary, or none
- */
-provenance_verbosity?: GetInatTaxaAutocompleteProvenanceVerbosity;
 };

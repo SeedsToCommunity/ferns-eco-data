@@ -5,7 +5,6 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetInatIdentificationsRecentTaxaProvenanceVerbosity } from './getInatIdentificationsRecentTaxaProvenanceVerbosity';
 import type { GetInatIdentificationsRecentTaxaQualityGrade } from './getInatIdentificationsRecentTaxaQualityGrade';
 
 export type GetInatIdentificationsRecentTaxaParams = {
@@ -31,8 +30,4 @@ d1?: string;
  * End date filter (YYYY-MM-DD)
  */
 d2?: string;
-/**
- * Controls provenance text: full (default), summary, or none
- */
-provenance_verbosity?: GetInatIdentificationsRecentTaxaProvenanceVerbosity;
 };

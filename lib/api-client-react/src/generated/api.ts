@@ -30,16 +30,11 @@ import type {
   GbifSynonymsResponse,
   GbifVernacularNamesResponse,
   GetAnnArborNpnDocumentation200,
-  GetAnnArborNpnDocumentationParams,
   GetAnnArborNpnMetadata200,
   GetAnnArborNpnNameGroups200,
-  GetAnnArborNpnNameGroupsParams,
   GetAnnArborNpnSpeciesByKey200,
-  GetAnnArborNpnSpeciesByKeyParams,
   GetAnnArborNpnSpeciesList200,
-  GetAnnArborNpnSpeciesListParams,
   GetAnnArborNpnSpeciesSourceUrl200,
-  GetAnnArborNpnSpeciesSourceUrlParams,
   GetBonapMap200,
   GetBonapMapParams,
   GetBonapMetadata200,
@@ -60,7 +55,6 @@ import type {
   GetIllinoisWildflowersUrlParams,
   GetInatControlledTermsForTaxonParams,
   GetInatControlledTermsParams,
-  GetInatIdentificationsByIdParams,
   GetInatIdentificationsParams,
   GetInatIdentificationsRecentTaxaParams,
   GetInatIdentificationsSimilarSpeciesParams,
@@ -69,7 +63,6 @@ import type {
   GetInatObservationsParams,
   GetInatObservationsPopularFieldValuesParams,
   GetInatObservationsSpeciesCountsParams,
-  GetInatObservationsTaxonSummaryParams,
   GetInatPlacesAutocompleteParams,
   GetInatPlacesByIdParams,
   GetInatPlacesNearbyParams,
@@ -1958,26 +1951,17 @@ export function useGetInatPlacesNearby<TData = Awaited<ReturnType<typeof getInat
 
  * @summary Wikipedia summary + nativity + conservation status for a taxon at an observation location
  */
-export const getGetInatObservationsTaxonSummaryUrl = (id: number,
-    params?: GetInatObservationsTaxonSummaryParams,) => {
-  const normalizedParams = new URLSearchParams();
+export const getGetInatObservationsTaxonSummaryUrl = (id: number,) => {
 
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
 
-  const stringifiedParams = normalizedParams.toString();
+  
 
-  return stringifiedParams.length > 0 ? `/api/observations/${id}/taxon_summary?${stringifiedParams}` : `/api/observations/${id}/taxon_summary`
+  return `/api/observations/${id}/taxon_summary`
 }
 
-export const getInatObservationsTaxonSummary = async (id: number,
-    params?: GetInatObservationsTaxonSummaryParams, options?: RequestInit): Promise<InatTaxonSummaryResponse> => {
+export const getInatObservationsTaxonSummary = async (id: number, options?: RequestInit): Promise<InatTaxonSummaryResponse> => {
   
-  return customFetch<InatTaxonSummaryResponse>(getGetInatObservationsTaxonSummaryUrl(id,params),
+  return customFetch<InatTaxonSummaryResponse>(getGetInatObservationsTaxonSummaryUrl(id),
   {      
     ...options,
     method: 'GET'
@@ -1990,25 +1974,23 @@ export const getInatObservationsTaxonSummary = async (id: number,
 
 
 
-export const getGetInatObservationsTaxonSummaryQueryKey = (id: number,
-    params?: GetInatObservationsTaxonSummaryParams,) => {
+export const getGetInatObservationsTaxonSummaryQueryKey = (id: number,) => {
     return [
-    `/api/observations/${id}/taxon_summary`, ...(params ? [params] : [])
+    `/api/observations/${id}/taxon_summary`
     ] as const;
     }
 
     
-export const getGetInatObservationsTaxonSummaryQueryOptions = <TData = Awaited<ReturnType<typeof getInatObservationsTaxonSummary>>, TError = ErrorType<ErrorResponse>>(id: number,
-    params?: GetInatObservationsTaxonSummaryParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getInatObservationsTaxonSummary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetInatObservationsTaxonSummaryQueryOptions = <TData = Awaited<ReturnType<typeof getInatObservationsTaxonSummary>>, TError = ErrorType<ErrorResponse>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getInatObservationsTaxonSummary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetInatObservationsTaxonSummaryQueryKey(id,params);
+  const queryKey =  queryOptions?.queryKey ?? getGetInatObservationsTaxonSummaryQueryKey(id);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getInatObservationsTaxonSummary>>> = ({ signal }) => getInatObservationsTaxonSummary(id,params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getInatObservationsTaxonSummary>>> = ({ signal }) => getInatObservationsTaxonSummary(id, { signal, ...requestOptions });
 
       
 
@@ -2026,12 +2008,11 @@ export type GetInatObservationsTaxonSummaryQueryError = ErrorType<ErrorResponse>
  */
 
 export function useGetInatObservationsTaxonSummary<TData = Awaited<ReturnType<typeof getInatObservationsTaxonSummary>>, TError = ErrorType<ErrorResponse>>(
- id: number,
-    params?: GetInatObservationsTaxonSummaryParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getInatObservationsTaxonSummary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getInatObservationsTaxonSummary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetInatObservationsTaxonSummaryQueryOptions(id,params,options)
+  const queryOptions = getGetInatObservationsTaxonSummaryQueryOptions(id,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -2383,26 +2364,17 @@ export function useGetInatIdentifications<TData = Awaited<ReturnType<typeof getI
 
  * @summary Single iNaturalist identification record by ID
  */
-export const getGetInatIdentificationsByIdUrl = (id: number,
-    params?: GetInatIdentificationsByIdParams,) => {
-  const normalizedParams = new URLSearchParams();
+export const getGetInatIdentificationsByIdUrl = (id: number,) => {
 
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
 
-  const stringifiedParams = normalizedParams.toString();
+  
 
-  return stringifiedParams.length > 0 ? `/api/identifications/${id}?${stringifiedParams}` : `/api/identifications/${id}`
+  return `/api/identifications/${id}`
 }
 
-export const getInatIdentificationsById = async (id: number,
-    params?: GetInatIdentificationsByIdParams, options?: RequestInit): Promise<InatIdentificationResponse> => {
+export const getInatIdentificationsById = async (id: number, options?: RequestInit): Promise<InatIdentificationResponse> => {
   
-  return customFetch<InatIdentificationResponse>(getGetInatIdentificationsByIdUrl(id,params),
+  return customFetch<InatIdentificationResponse>(getGetInatIdentificationsByIdUrl(id),
   {      
     ...options,
     method: 'GET'
@@ -2415,25 +2387,23 @@ export const getInatIdentificationsById = async (id: number,
 
 
 
-export const getGetInatIdentificationsByIdQueryKey = (id: number,
-    params?: GetInatIdentificationsByIdParams,) => {
+export const getGetInatIdentificationsByIdQueryKey = (id: number,) => {
     return [
-    `/api/identifications/${id}`, ...(params ? [params] : [])
+    `/api/identifications/${id}`
     ] as const;
     }
 
     
-export const getGetInatIdentificationsByIdQueryOptions = <TData = Awaited<ReturnType<typeof getInatIdentificationsById>>, TError = ErrorType<ErrorResponse>>(id: number,
-    params?: GetInatIdentificationsByIdParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getInatIdentificationsById>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetInatIdentificationsByIdQueryOptions = <TData = Awaited<ReturnType<typeof getInatIdentificationsById>>, TError = ErrorType<ErrorResponse>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getInatIdentificationsById>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetInatIdentificationsByIdQueryKey(id,params);
+  const queryKey =  queryOptions?.queryKey ?? getGetInatIdentificationsByIdQueryKey(id);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getInatIdentificationsById>>> = ({ signal }) => getInatIdentificationsById(id,params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getInatIdentificationsById>>> = ({ signal }) => getInatIdentificationsById(id, { signal, ...requestOptions });
 
       
 
@@ -2451,12 +2421,11 @@ export type GetInatIdentificationsByIdQueryError = ErrorType<ErrorResponse>
  */
 
 export function useGetInatIdentificationsById<TData = Awaited<ReturnType<typeof getInatIdentificationsById>>, TError = ErrorType<ErrorResponse>>(
- id: number,
-    params?: GetInatIdentificationsByIdParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getInatIdentificationsById>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getInatIdentificationsById>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetInatIdentificationsByIdQueryOptions(id,params,options)
+  const queryOptions = getGetInatIdentificationsByIdQueryOptions(id,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -8509,24 +8478,17 @@ export function useGetAnnArborNpnMetadata<TData = Awaited<ReturnType<typeof getA
 
  * @summary All Ann Arbor Native Plant Nursery species (bulk)
  */
-export const getGetAnnArborNpnSpeciesListUrl = (params?: GetAnnArborNpnSpeciesListParams,) => {
-  const normalizedParams = new URLSearchParams();
+export const getGetAnnArborNpnSpeciesListUrl = () => {
 
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
 
-  const stringifiedParams = normalizedParams.toString();
+  
 
-  return stringifiedParams.length > 0 ? `/api/ann-arbor-npn/species-list?${stringifiedParams}` : `/api/ann-arbor-npn/species-list`
+  return `/api/ann-arbor-npn/species-list`
 }
 
-export const getAnnArborNpnSpeciesList = async (params?: GetAnnArborNpnSpeciesListParams, options?: RequestInit): Promise<GetAnnArborNpnSpeciesList200> => {
+export const getAnnArborNpnSpeciesList = async ( options?: RequestInit): Promise<GetAnnArborNpnSpeciesList200> => {
   
-  return customFetch<GetAnnArborNpnSpeciesList200>(getGetAnnArborNpnSpeciesListUrl(params),
+  return customFetch<GetAnnArborNpnSpeciesList200>(getGetAnnArborNpnSpeciesListUrl(),
   {      
     ...options,
     method: 'GET'
@@ -8539,23 +8501,23 @@ export const getAnnArborNpnSpeciesList = async (params?: GetAnnArborNpnSpeciesLi
 
 
 
-export const getGetAnnArborNpnSpeciesListQueryKey = (params?: GetAnnArborNpnSpeciesListParams,) => {
+export const getGetAnnArborNpnSpeciesListQueryKey = () => {
     return [
-    `/api/ann-arbor-npn/species-list`, ...(params ? [params] : [])
+    `/api/ann-arbor-npn/species-list`
     ] as const;
     }
 
     
-export const getGetAnnArborNpnSpeciesListQueryOptions = <TData = Awaited<ReturnType<typeof getAnnArborNpnSpeciesList>>, TError = ErrorType<unknown>>(params?: GetAnnArborNpnSpeciesListParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAnnArborNpnSpeciesList>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetAnnArborNpnSpeciesListQueryOptions = <TData = Awaited<ReturnType<typeof getAnnArborNpnSpeciesList>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAnnArborNpnSpeciesList>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetAnnArborNpnSpeciesListQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getGetAnnArborNpnSpeciesListQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAnnArborNpnSpeciesList>>> = ({ signal }) => getAnnArborNpnSpeciesList(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAnnArborNpnSpeciesList>>> = ({ signal }) => getAnnArborNpnSpeciesList({ signal, ...requestOptions });
 
       
 
@@ -8573,11 +8535,11 @@ export type GetAnnArborNpnSpeciesListQueryError = ErrorType<unknown>
  */
 
 export function useGetAnnArborNpnSpeciesList<TData = Awaited<ReturnType<typeof getAnnArborNpnSpeciesList>>, TError = ErrorType<unknown>>(
- params?: GetAnnArborNpnSpeciesListParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAnnArborNpnSpeciesList>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAnnArborNpnSpeciesList>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetAnnArborNpnSpeciesListQueryOptions(params,options)
+  const queryOptions = getGetAnnArborNpnSpeciesListQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -8593,26 +8555,17 @@ export function useGetAnnArborNpnSpeciesList<TData = Awaited<ReturnType<typeof g
 
  * @summary Single NPN species by acronym, Latin name, synonym, or common name
  */
-export const getGetAnnArborNpnSpeciesByKeyUrl = (key: string,
-    params?: GetAnnArborNpnSpeciesByKeyParams,) => {
-  const normalizedParams = new URLSearchParams();
+export const getGetAnnArborNpnSpeciesByKeyUrl = (key: string,) => {
 
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
 
-  const stringifiedParams = normalizedParams.toString();
+  
 
-  return stringifiedParams.length > 0 ? `/api/ann-arbor-npn/species/${key}?${stringifiedParams}` : `/api/ann-arbor-npn/species/${key}`
+  return `/api/ann-arbor-npn/species/${key}`
 }
 
-export const getAnnArborNpnSpeciesByKey = async (key: string,
-    params?: GetAnnArborNpnSpeciesByKeyParams, options?: RequestInit): Promise<GetAnnArborNpnSpeciesByKey200> => {
+export const getAnnArborNpnSpeciesByKey = async (key: string, options?: RequestInit): Promise<GetAnnArborNpnSpeciesByKey200> => {
   
-  return customFetch<GetAnnArborNpnSpeciesByKey200>(getGetAnnArborNpnSpeciesByKeyUrl(key,params),
+  return customFetch<GetAnnArborNpnSpeciesByKey200>(getGetAnnArborNpnSpeciesByKeyUrl(key),
   {      
     ...options,
     method: 'GET'
@@ -8625,25 +8578,23 @@ export const getAnnArborNpnSpeciesByKey = async (key: string,
 
 
 
-export const getGetAnnArborNpnSpeciesByKeyQueryKey = (key: string,
-    params?: GetAnnArborNpnSpeciesByKeyParams,) => {
+export const getGetAnnArborNpnSpeciesByKeyQueryKey = (key: string,) => {
     return [
-    `/api/ann-arbor-npn/species/${key}`, ...(params ? [params] : [])
+    `/api/ann-arbor-npn/species/${key}`
     ] as const;
     }
 
     
-export const getGetAnnArborNpnSpeciesByKeyQueryOptions = <TData = Awaited<ReturnType<typeof getAnnArborNpnSpeciesByKey>>, TError = ErrorType<ErrorResponse | FernsEnvelope>>(key: string,
-    params?: GetAnnArborNpnSpeciesByKeyParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAnnArborNpnSpeciesByKey>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetAnnArborNpnSpeciesByKeyQueryOptions = <TData = Awaited<ReturnType<typeof getAnnArborNpnSpeciesByKey>>, TError = ErrorType<ErrorResponse | FernsEnvelope>>(key: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAnnArborNpnSpeciesByKey>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetAnnArborNpnSpeciesByKeyQueryKey(key,params);
+  const queryKey =  queryOptions?.queryKey ?? getGetAnnArborNpnSpeciesByKeyQueryKey(key);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAnnArborNpnSpeciesByKey>>> = ({ signal }) => getAnnArborNpnSpeciesByKey(key,params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAnnArborNpnSpeciesByKey>>> = ({ signal }) => getAnnArborNpnSpeciesByKey(key, { signal, ...requestOptions });
 
       
 
@@ -8661,12 +8612,11 @@ export type GetAnnArborNpnSpeciesByKeyQueryError = ErrorType<ErrorResponse | Fer
  */
 
 export function useGetAnnArborNpnSpeciesByKey<TData = Awaited<ReturnType<typeof getAnnArborNpnSpeciesByKey>>, TError = ErrorType<ErrorResponse | FernsEnvelope>>(
- key: string,
-    params?: GetAnnArborNpnSpeciesByKeyParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAnnArborNpnSpeciesByKey>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+ key: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAnnArborNpnSpeciesByKey>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetAnnArborNpnSpeciesByKeyQueryOptions(key,params,options)
+  const queryOptions = getGetAnnArborNpnSpeciesByKeyQueryOptions(key,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -8682,24 +8632,17 @@ export function useGetAnnArborNpnSpeciesByKey<TData = Awaited<ReturnType<typeof 
 
  * @summary NPN name groups — all species with every accepted lookup key
  */
-export const getGetAnnArborNpnNameGroupsUrl = (params?: GetAnnArborNpnNameGroupsParams,) => {
-  const normalizedParams = new URLSearchParams();
+export const getGetAnnArborNpnNameGroupsUrl = () => {
 
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
 
-  const stringifiedParams = normalizedParams.toString();
+  
 
-  return stringifiedParams.length > 0 ? `/api/ann-arbor-npn/name-groups?${stringifiedParams}` : `/api/ann-arbor-npn/name-groups`
+  return `/api/ann-arbor-npn/name-groups`
 }
 
-export const getAnnArborNpnNameGroups = async (params?: GetAnnArborNpnNameGroupsParams, options?: RequestInit): Promise<GetAnnArborNpnNameGroups200> => {
+export const getAnnArborNpnNameGroups = async ( options?: RequestInit): Promise<GetAnnArborNpnNameGroups200> => {
   
-  return customFetch<GetAnnArborNpnNameGroups200>(getGetAnnArborNpnNameGroupsUrl(params),
+  return customFetch<GetAnnArborNpnNameGroups200>(getGetAnnArborNpnNameGroupsUrl(),
   {      
     ...options,
     method: 'GET'
@@ -8712,23 +8655,23 @@ export const getAnnArborNpnNameGroups = async (params?: GetAnnArborNpnNameGroups
 
 
 
-export const getGetAnnArborNpnNameGroupsQueryKey = (params?: GetAnnArborNpnNameGroupsParams,) => {
+export const getGetAnnArborNpnNameGroupsQueryKey = () => {
     return [
-    `/api/ann-arbor-npn/name-groups`, ...(params ? [params] : [])
+    `/api/ann-arbor-npn/name-groups`
     ] as const;
     }
 
     
-export const getGetAnnArborNpnNameGroupsQueryOptions = <TData = Awaited<ReturnType<typeof getAnnArborNpnNameGroups>>, TError = ErrorType<unknown>>(params?: GetAnnArborNpnNameGroupsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAnnArborNpnNameGroups>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetAnnArborNpnNameGroupsQueryOptions = <TData = Awaited<ReturnType<typeof getAnnArborNpnNameGroups>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAnnArborNpnNameGroups>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetAnnArborNpnNameGroupsQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getGetAnnArborNpnNameGroupsQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAnnArborNpnNameGroups>>> = ({ signal }) => getAnnArborNpnNameGroups(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAnnArborNpnNameGroups>>> = ({ signal }) => getAnnArborNpnNameGroups({ signal, ...requestOptions });
 
       
 
@@ -8746,11 +8689,11 @@ export type GetAnnArborNpnNameGroupsQueryError = ErrorType<unknown>
  */
 
 export function useGetAnnArborNpnNameGroups<TData = Awaited<ReturnType<typeof getAnnArborNpnNameGroups>>, TError = ErrorType<unknown>>(
- params?: GetAnnArborNpnNameGroupsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAnnArborNpnNameGroups>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAnnArborNpnNameGroups>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetAnnArborNpnNameGroupsQueryOptions(params,options)
+  const queryOptions = getGetAnnArborNpnNameGroupsQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -8766,26 +8709,17 @@ export function useGetAnnArborNpnNameGroups<TData = Awaited<ReturnType<typeof ge
 
  * @summary Per-species nativeplant.com URL for a given key
  */
-export const getGetAnnArborNpnSpeciesSourceUrlUrl = (key: string,
-    params?: GetAnnArborNpnSpeciesSourceUrlParams,) => {
-  const normalizedParams = new URLSearchParams();
+export const getGetAnnArborNpnSpeciesSourceUrlUrl = (key: string,) => {
 
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
 
-  const stringifiedParams = normalizedParams.toString();
+  
 
-  return stringifiedParams.length > 0 ? `/api/ann-arbor-npn/species/${key}/source-url?${stringifiedParams}` : `/api/ann-arbor-npn/species/${key}/source-url`
+  return `/api/ann-arbor-npn/species/${key}/source-url`
 }
 
-export const getAnnArborNpnSpeciesSourceUrl = async (key: string,
-    params?: GetAnnArborNpnSpeciesSourceUrlParams, options?: RequestInit): Promise<GetAnnArborNpnSpeciesSourceUrl200> => {
+export const getAnnArborNpnSpeciesSourceUrl = async (key: string, options?: RequestInit): Promise<GetAnnArborNpnSpeciesSourceUrl200> => {
   
-  return customFetch<GetAnnArborNpnSpeciesSourceUrl200>(getGetAnnArborNpnSpeciesSourceUrlUrl(key,params),
+  return customFetch<GetAnnArborNpnSpeciesSourceUrl200>(getGetAnnArborNpnSpeciesSourceUrlUrl(key),
   {      
     ...options,
     method: 'GET'
@@ -8798,25 +8732,23 @@ export const getAnnArborNpnSpeciesSourceUrl = async (key: string,
 
 
 
-export const getGetAnnArborNpnSpeciesSourceUrlQueryKey = (key: string,
-    params?: GetAnnArborNpnSpeciesSourceUrlParams,) => {
+export const getGetAnnArborNpnSpeciesSourceUrlQueryKey = (key: string,) => {
     return [
-    `/api/ann-arbor-npn/species/${key}/source-url`, ...(params ? [params] : [])
+    `/api/ann-arbor-npn/species/${key}/source-url`
     ] as const;
     }
 
     
-export const getGetAnnArborNpnSpeciesSourceUrlQueryOptions = <TData = Awaited<ReturnType<typeof getAnnArborNpnSpeciesSourceUrl>>, TError = ErrorType<ErrorResponse | FernsEnvelope>>(key: string,
-    params?: GetAnnArborNpnSpeciesSourceUrlParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAnnArborNpnSpeciesSourceUrl>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetAnnArborNpnSpeciesSourceUrlQueryOptions = <TData = Awaited<ReturnType<typeof getAnnArborNpnSpeciesSourceUrl>>, TError = ErrorType<ErrorResponse | FernsEnvelope>>(key: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAnnArborNpnSpeciesSourceUrl>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetAnnArborNpnSpeciesSourceUrlQueryKey(key,params);
+  const queryKey =  queryOptions?.queryKey ?? getGetAnnArborNpnSpeciesSourceUrlQueryKey(key);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAnnArborNpnSpeciesSourceUrl>>> = ({ signal }) => getAnnArborNpnSpeciesSourceUrl(key,params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAnnArborNpnSpeciesSourceUrl>>> = ({ signal }) => getAnnArborNpnSpeciesSourceUrl(key, { signal, ...requestOptions });
 
       
 
@@ -8834,12 +8766,11 @@ export type GetAnnArborNpnSpeciesSourceUrlQueryError = ErrorType<ErrorResponse |
  */
 
 export function useGetAnnArborNpnSpeciesSourceUrl<TData = Awaited<ReturnType<typeof getAnnArborNpnSpeciesSourceUrl>>, TError = ErrorType<ErrorResponse | FernsEnvelope>>(
- key: string,
-    params?: GetAnnArborNpnSpeciesSourceUrlParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAnnArborNpnSpeciesSourceUrl>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+ key: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAnnArborNpnSpeciesSourceUrl>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetAnnArborNpnSpeciesSourceUrlQueryOptions(key,params,options)
+  const queryOptions = getGetAnnArborNpnSpeciesSourceUrlQueryOptions(key,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -8855,24 +8786,17 @@ export function useGetAnnArborNpnSpeciesSourceUrl<TData = Awaited<ReturnType<typ
 
  * @summary Source documentation for the Ann Arbor Native Plant Nursery dataset
  */
-export const getGetAnnArborNpnDocumentationUrl = (params?: GetAnnArborNpnDocumentationParams,) => {
-  const normalizedParams = new URLSearchParams();
+export const getGetAnnArborNpnDocumentationUrl = () => {
 
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
 
-  const stringifiedParams = normalizedParams.toString();
+  
 
-  return stringifiedParams.length > 0 ? `/api/ann-arbor-npn/documentation?${stringifiedParams}` : `/api/ann-arbor-npn/documentation`
+  return `/api/ann-arbor-npn/documentation`
 }
 
-export const getAnnArborNpnDocumentation = async (params?: GetAnnArborNpnDocumentationParams, options?: RequestInit): Promise<GetAnnArborNpnDocumentation200> => {
+export const getAnnArborNpnDocumentation = async ( options?: RequestInit): Promise<GetAnnArborNpnDocumentation200> => {
   
-  return customFetch<GetAnnArborNpnDocumentation200>(getGetAnnArborNpnDocumentationUrl(params),
+  return customFetch<GetAnnArborNpnDocumentation200>(getGetAnnArborNpnDocumentationUrl(),
   {      
     ...options,
     method: 'GET'
@@ -8885,23 +8809,23 @@ export const getAnnArborNpnDocumentation = async (params?: GetAnnArborNpnDocumen
 
 
 
-export const getGetAnnArborNpnDocumentationQueryKey = (params?: GetAnnArborNpnDocumentationParams,) => {
+export const getGetAnnArborNpnDocumentationQueryKey = () => {
     return [
-    `/api/ann-arbor-npn/documentation`, ...(params ? [params] : [])
+    `/api/ann-arbor-npn/documentation`
     ] as const;
     }
 
     
-export const getGetAnnArborNpnDocumentationQueryOptions = <TData = Awaited<ReturnType<typeof getAnnArborNpnDocumentation>>, TError = ErrorType<unknown>>(params?: GetAnnArborNpnDocumentationParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAnnArborNpnDocumentation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetAnnArborNpnDocumentationQueryOptions = <TData = Awaited<ReturnType<typeof getAnnArborNpnDocumentation>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAnnArborNpnDocumentation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetAnnArborNpnDocumentationQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getGetAnnArborNpnDocumentationQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAnnArborNpnDocumentation>>> = ({ signal }) => getAnnArborNpnDocumentation(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAnnArborNpnDocumentation>>> = ({ signal }) => getAnnArborNpnDocumentation({ signal, ...requestOptions });
 
       
 
@@ -8919,11 +8843,11 @@ export type GetAnnArborNpnDocumentationQueryError = ErrorType<unknown>
  */
 
 export function useGetAnnArborNpnDocumentation<TData = Awaited<ReturnType<typeof getAnnArborNpnDocumentation>>, TError = ErrorType<unknown>>(
- params?: GetAnnArborNpnDocumentationParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAnnArborNpnDocumentation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAnnArborNpnDocumentation>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetAnnArborNpnDocumentationQueryOptions(params,options)
+  const queryOptions = getGetAnnArborNpnDocumentationQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

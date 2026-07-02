@@ -2,6 +2,37 @@
 
 ---
 
+## Task: Remove provenance_verbosity from all layers (2026-07-02)
+
+### 1. What was changed
+
+The `provenance_verbosity` query parameter — which was designed to filter `general_summary` and `technical_details` out of provenance envelopes — was removed from every layer of the system. The fields it was filtering (`general_summary`, `technical_details`) no longer appear in per-response envelopes at all (they live only in registry/metadata endpoints and MCP/OpenAPI descriptions), making the parameter dead weight. The cleanup touched four layers: (1) the OpenAPI spec had 24 parameter declarations removed across all endpoints, plus the `FernsProvenance` schema description was updated to remove the `(full|summary|none)` language; (2) the generated Zod schemas and React client were regenerated from the updated spec; (3) the API server's `provenance.ts` file (containing the now-unnecessary `filterProvenance()` function) was deleted entirely, and the `source-relationships` route was updated to return the full provenance object directly; (4) the MCP server's `server.ts` and `acknowledged/inaturalist.ts` had their `PV_PROP` constant, `pv()` helper function, and all `...PV_PROP` schema spreads and `provenance_verbosity: pv(args)` handler calls removed. Both servers build without TypeScript errors.
+
+### 2. Derivation summary
+
+N/A — no new source added.
+
+### 3. Scientific/technical description
+
+N/A — no new source added.
+
+### 4. Architectural decisions made
+
+- **Deleted `provenance.ts` entirely rather than leaving it empty**: The file's only function (`filterProvenance`) was only called from `source-relationships.ts`. With both the caller and the purpose gone, the file served no future purpose. Deleting it is cleaner than an empty module.
+- **Three empty `parameters:` keys removed from the OpenAPI spec**: Three NPN endpoints (`/ann-arbor-npn/species-list`, `/ann-arbor-npn/name-groups`, `/ann-arbor-npn/documentation`) had `parameters:` sections whose only entry was `provenance_verbosity`. After removal, the `parameters:` key itself was empty and the orval validator rejected the spec ("type must be array"). The empty `parameters:` lines were removed so the spec is valid — endpoints with no parameters simply omit the key.
+- **FernsProvenance schema description updated**: The description referenced the `(full|summary|none)` language and said text fields are "conditionally present based on the provenance_verbosity query parameter." That sentence was removed since the parameter no longer exists.
+
+### 5. What was NOT done
+
+- No changes to the envelope contract itself — provenance fields (`general_summary`, `technical_details`) were already absent from per-response envelopes before this task; this task only cleaned up the dead plumbing.
+- No changes to registry/metadata endpoints — those legitimately still carry `general_summary` and `technical_details` in their response shapes.
+
+### 6. What the user should decide or review
+
+Nothing — this was a pure cleanup of dead code with clear mechanical scope. Both servers build cleanly, codegen succeeds, and the grep verification confirms zero remaining occurrences outside of `.md` files.
+
+---
+
 ## Task: Deploy rest-server to production — IPv4 bind fix (2026-07-01)
 
 ### 1. What was changed

@@ -5,7 +5,6 @@
  * FERNS — Federated Ecological Resource Network System API
  * OpenAPI spec version: 0.1.0
  */
-import type { GetNatureserveSearchProvenanceVerbosity } from './getNatureserveSearchProvenanceVerbosity';
 import type { GetNatureserveSearchRecordType } from './getNatureserveSearchRecordType';
 
 export type GetNatureserveSearchParams = {
@@ -34,9 +33,4 @@ page?: number;
  * If true, bypasses cache and fetches fresh from NatureServe Explorer
  */
 refresh?: boolean;
-/**
- * Controls how much provenance text is returned. full (default) returns both general_summary and technical_details; summary returns general_summary only; none omits both.
-
- */
-provenance_verbosity?: GetNatureserveSearchProvenanceVerbosity;
 };

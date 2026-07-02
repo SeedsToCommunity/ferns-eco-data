@@ -583,13 +583,6 @@ paths:
           schema:
             type: boolean
             default: false
-        - name: provenance_verbosity
-          in: query
-          required: false
-          description: "Controls provenance text: full (default), summary, or none"
-          schema:
-            type: string
-            enum: [full, summary, none]
       responses:
         "200":
           description: Place lookup complete (found or not found — check the found field)
@@ -662,13 +655,6 @@ paths:
           schema:
             type: boolean
             default: false
-        - name: provenance_verbosity
-          in: query
-          required: false
-          description: "Controls provenance text: full (default), summary, or none"
-          schema:
-            type: string
-            enum: [full, summary, none]
       responses:
         "200":
           description: Raw iNaturalist histogram response in FERNS envelope
@@ -734,13 +720,6 @@ paths:
           schema:
             type: boolean
             default: false
-        - name: provenance_verbosity
-          in: query
-          required: false
-          description: "Controls provenance text: full (default), summary, or none"
-          schema:
-            type: string
-            enum: [full, summary, none]
       responses:
         "200":
           description: Raw iNaturalist popular_field_values response in FERNS envelope
@@ -868,13 +847,6 @@ paths:
           description: Southwest corner longitude for bounding box filter.
           schema:
             type: number
-        - name: provenance_verbosity
-          in: query
-          required: false
-          description: "Controls provenance text: full (default), summary, or none"
-          schema:
-            type: string
-            enum: [full, summary, none]
       responses:
         "200":
           description: Paged slim observation records
@@ -1031,13 +1003,6 @@ paths:
           description: Southwest corner longitude for bounding box filter.
           schema:
             type: number
-        - name: provenance_verbosity
-          in: query
-          required: false
-          description: "Controls provenance text: full (default), summary, or none"
-          schema:
-            type: string
-            enum: [full, summary, none]
       responses:
         "200":
           description: Raw iNaturalist species_counts response in FERNS envelope
@@ -1080,13 +1045,6 @@ paths:
           description: Bypass cache and re-fetch from iNaturalist
           schema:
             type: boolean
-        - name: provenance_verbosity
-          in: query
-          required: false
-          description: "Controls provenance text: full (default), summary, or none"
-          schema:
-            type: string
-            enum: [full, summary, none]
       responses:
         "200":
           description: Raw iNaturalist controlled_terms response in FERNS envelope
@@ -1126,13 +1084,6 @@ paths:
           description: Bypass cache and re-fetch from iNaturalist
           schema:
             type: boolean
-        - name: provenance_verbosity
-          in: query
-          required: false
-          description: "Controls provenance text: full (default), summary, or none"
-          schema:
-            type: string
-            enum: [full, summary, none]
       responses:
         "200":
           description: Raw iNaturalist controlled_terms/for_taxon response in FERNS envelope
@@ -1211,13 +1162,6 @@ paths:
           description: iNaturalist place ID to prioritize common names for that place
           schema:
             type: integer
-        - name: provenance_verbosity
-          in: query
-          required: false
-          description: "Controls provenance text: full (default), summary, or none"
-          schema:
-            type: string
-            enum: [full, summary, none]
       responses:
         "200":
           description: Raw iNaturalist taxa/autocomplete response in FERNS envelope
@@ -1264,13 +1208,6 @@ paths:
           description: Bypass cache and re-fetch from iNaturalist
           schema:
             type: boolean
-        - name: provenance_verbosity
-          in: query
-          required: false
-          description: "Controls provenance text: full (default), summary, or none"
-          schema:
-            type: string
-            enum: [full, summary, none]
       responses:
         "200":
           description: Full iNaturalist taxon record in FERNS envelope
@@ -1322,13 +1259,6 @@ paths:
           description: Bypass cache and re-fetch from iNaturalist
           schema:
             type: boolean
-        - name: provenance_verbosity
-          in: query
-          required: false
-          description: "Controls provenance text: full (default), summary, or none"
-          schema:
-            type: string
-            enum: [full, summary, none]
       responses:
         "200":
           description: Full iNaturalist place record in FERNS envelope
@@ -1400,13 +1330,6 @@ paths:
           schema:
             type: integer
             minimum: 1
-        - name: provenance_verbosity
-          in: query
-          required: false
-          description: "Controls provenance text: full (default), summary, or none"
-          schema:
-            type: string
-            enum: [full, summary, none]
       responses:
         "200":
           description: Raw iNaturalist places/nearby response in FERNS envelope
@@ -1448,13 +1371,6 @@ paths:
           description: iNaturalist observation ID (integer)
           schema:
             type: integer
-        - name: provenance_verbosity
-          in: query
-          required: false
-          description: "Controls provenance text: full (default), summary, or none"
-          schema:
-            type: string
-            enum: [full, summary, none]
       responses:
         "200":
           description: Taxon summary in FERNS envelope
@@ -1541,13 +1457,6 @@ paths:
           required: false
           schema:
             type: number
-        - name: provenance_verbosity
-          in: query
-          required: false
-          description: "Controls provenance text: full (default), summary, or none"
-          schema:
-            type: string
-            enum: [full, summary, none]
       responses:
         "200":
           description: Similar species list in FERNS envelope
@@ -1643,13 +1552,6 @@ paths:
           schema:
             type: string
             enum: [identification, community]
-        - name: provenance_verbosity
-          in: query
-          required: false
-          description: "Controls provenance text: full (default), summary, or none"
-          schema:
-            type: string
-            enum: [full, summary, none]
       responses:
         "200":
           description: Identification-based species counts in FERNS envelope
@@ -1724,13 +1626,6 @@ paths:
           description: End date filter (YYYY-MM-DD)
           schema:
             type: string
-        - name: provenance_verbosity
-          in: query
-          required: false
-          description: "Controls provenance text: full (default), summary, or none"
-          schema:
-            type: string
-            enum: [full, summary, none]
       responses:
         "200":
           description: Recently identified taxa in FERNS envelope
@@ -1833,13 +1728,6 @@ paths:
           description: "Sort field: created_at (default) or id"
           schema:
             type: string
-        - name: provenance_verbosity
-          in: query
-          required: false
-          description: "Controls provenance text: full (default), summary, or none"
-          schema:
-            type: string
-            enum: [full, summary, none]
       responses:
         "200":
           description: Paged identification records in FERNS envelope
@@ -1878,13 +1766,6 @@ paths:
           description: iNaturalist identification ID (integer)
           schema:
             type: integer
-        - name: provenance_verbosity
-          in: query
-          required: false
-          description: "Controls provenance text: full (default), summary, or none"
-          schema:
-            type: string
-            enum: [full, summary, none]
       responses:
         "200":
           description: Single identification record in FERNS envelope
@@ -3429,16 +3310,6 @@ paths:
           schema:
             type: boolean
             default: false
-        - name: provenance_verbosity
-          in: query
-          required: false
-          description: >
-            Controls how much provenance text is returned. full (default) returns both
-            general_summary and technical_details; summary returns general_summary only;
-            none omits both.
-          schema:
-            type: string
-            enum: [full, summary, none]
       responses:
         "200":
           description: Search results (found=false when no matching records returned)
@@ -4341,14 +4212,6 @@ paths:
         time, habitat, range within Michigan), nursery pricing, and Cloudinary image URLs
         with captions and kind (photograph / drawing). Returns an empty list if the import
         has not yet been run.
-      parameters:
-        - name: provenance_verbosity
-          in: query
-          required: false
-          description: Controls provenance verbosity in the response ("full", "summary", or "none")
-          schema:
-            type: string
-            enum: [full, summary, none]
       responses:
         "200":
           description: NPN bulk species list wrapped in FernsEnvelope (found=false with empty array before import)
@@ -4388,12 +4251,6 @@ paths:
           schema:
             type: string
             minLength: 1
-        - name: provenance_verbosity
-          in: query
-          required: false
-          schema:
-            type: string
-            enum: [full, summary, none]
       responses:
         "200":
           description: NPN species record wrapped in FernsEnvelope (found=true)
@@ -4432,13 +4289,6 @@ paths:
         and all_accepted_keys (flat array of every lowercase alias that resolves to this species).
         Designed for cross-source name reconciliation against GBIF, USDA PLANTS, or iNaturalist.
         Replaces the former /ann-arbor-npn/alias-index endpoint.
-      parameters:
-        - name: provenance_verbosity
-          in: query
-          required: false
-          schema:
-            type: string
-            enum: [full, summary, none]
       responses:
         "200":
           description: NPN alias index wrapped in FernsEnvelope
@@ -4476,12 +4326,6 @@ paths:
           schema:
             type: string
             minLength: 1
-        - name: provenance_verbosity
-          in: query
-          required: false
-          schema:
-            type: string
-            enum: [full, summary, none]
       responses:
         "200":
           description: Source URL wrapped in FernsEnvelope (found=true)
@@ -4525,13 +4369,6 @@ paths:
         Michigan range vocabulary (SE/SW/NL/UP), alias index construction, Cloudinary image storage,
         and the migration from DB-backed scrape to static in-memory snapshot.
         Always returns 200 with found=true — the documentation file is static and always present.
-      parameters:
-        - name: provenance_verbosity
-          in: query
-          required: false
-          schema:
-            type: string
-            enum: [full, summary, none]
       responses:
         "200":
           description: Documentation markdown wrapped in FernsEnvelope
@@ -4708,8 +4545,6 @@ components:
       description: >
         Provenance block present on every FERNS API response.
         Identity fields (source_id, fetched_at, method, upstream_url) are always present.
-        Text fields (general_summary, technical_details) are conditionally present
-        based on the provenance_verbosity query parameter (full|summary|none).
       required:
         - source_id
         - fetched_at

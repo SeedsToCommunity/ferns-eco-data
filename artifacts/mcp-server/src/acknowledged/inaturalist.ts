@@ -163,15 +163,6 @@ const InatIdentificationsByIdRaw = _passthroughRaw() satisfies zod.ZodType<zod.i
 // places/nearby — GetInatPlacesNearbyResponse (data: unknown)
 const InatPlacesNearbyRaw = _passthroughRaw() satisfies zod.ZodType<zod.infer<typeof GetInatPlacesNearbyResponse>["data"]>;
 
-const PV_PROP = {
-  provenance_verbosity: {
-    type: "string",
-    enum: ["full", "summary", "none"],
-    description:
-      "Controls how much provenance text is returned. full (default) returns both general_summary and technical_details; summary returns general_summary only; none omits both.",
-  },
-} as const;
-
 export const inatToolDefs: ToolDef[] = [
   {
     tool: {
@@ -182,7 +173,6 @@ export const inatToolDefs: ToolDef[] = [
         type: "object" as const,
         properties: {
           q: { type: "string", description: "Place name to search (e.g. Washtenaw County)" },
-          ...PV_PROP,
         },
         required: ["q"],
       },
@@ -232,7 +222,6 @@ export const inatToolDefs: ToolDef[] = [
           place_id: { type: "string", description: "Comma-separated iNaturalist place IDs to filter by" },
           term_id: { type: "number", description: "Controlled annotation term ID (e.g. 12 for Flowers and Fruits, 36 for Leaves)" },
           term_value_id: { type: "number", description: "Controlled annotation value ID. Requires term_id." },
-          ...PV_PROP,
         },
         required: ["taxon_id"],
       },
@@ -280,7 +269,6 @@ export const inatToolDefs: ToolDef[] = [
           taxon_id: { type: "number", description: "iNaturalist taxon ID (integer)" },
           place_id: { type: "string", description: "Comma-separated iNaturalist place IDs to filter by" },
           verifiable: { type: "boolean", description: "Only include verifiable observations (default: true)" },
-          ...PV_PROP,
         },
         required: ["taxon_id"],
       },
@@ -329,7 +317,6 @@ export const inatToolDefs: ToolDef[] = [
           d2: { type: "string", description: "Latest date (YYYY-MM-DD). Filters by observed_on." },
           per_page: { type: "number", description: "Results per page (default 30, max 200)" },
           page: { type: "number", description: "Page number, 1-indexed (default 1)" },
-          ...PV_PROP,
         },
         required: [],
       },
@@ -433,7 +420,6 @@ export const inatToolDefs: ToolDef[] = [
           nelng: { type: "number", description: "Bounding box NE longitude" },
           swlat: { type: "number", description: "Bounding box SW latitude" },
           swlng: { type: "number", description: "Bounding box SW longitude" },
-          ...PV_PROP,
         },
         required: [],
       },
@@ -491,7 +477,6 @@ export const inatToolDefs: ToolDef[] = [
       inputSchema: {
         type: "object" as const,
         properties: {
-          ...PV_PROP,
         },
         required: [],
       },

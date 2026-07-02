@@ -6,7 +6,6 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { GetInatIdentificationsOrder } from './getInatIdentificationsOrder';
-import type { GetInatIdentificationsProvenanceVerbosity } from './getInatIdentificationsProvenanceVerbosity';
 import type { GetInatIdentificationsQualityGrade } from './getInatIdentificationsQualityGrade';
 
 export type GetInatIdentificationsParams = {
@@ -49,8 +48,4 @@ order?: GetInatIdentificationsOrder;
  * Sort field: created_at (default) or id
  */
 order_by?: string;
-/**
- * Controls provenance text: full (default), summary, or none
- */
-provenance_verbosity?: GetInatIdentificationsProvenanceVerbosity;
 };

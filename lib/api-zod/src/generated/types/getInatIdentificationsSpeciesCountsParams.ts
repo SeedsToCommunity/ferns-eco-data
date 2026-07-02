@@ -6,7 +6,6 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { GetInatIdentificationsSpeciesCountsOrder } from './getInatIdentificationsSpeciesCountsOrder';
-import type { GetInatIdentificationsSpeciesCountsProvenanceVerbosity } from './getInatIdentificationsSpeciesCountsProvenanceVerbosity';
 import type { GetInatIdentificationsSpeciesCountsQualityGrade } from './getInatIdentificationsSpeciesCountsQualityGrade';
 import type { GetInatIdentificationsSpeciesCountsTaxonOf } from './getInatIdentificationsSpeciesCountsTaxonOf';
 
@@ -45,8 +44,4 @@ order_by?: string;
  * Which taxon to count: identification (default) or community
  */
 taxon_of?: GetInatIdentificationsSpeciesCountsTaxonOf;
-/**
- * Controls provenance text: full (default), summary, or none
- */
-provenance_verbosity?: GetInatIdentificationsSpeciesCountsProvenanceVerbosity;
 };

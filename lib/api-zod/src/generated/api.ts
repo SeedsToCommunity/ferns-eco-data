@@ -502,8 +502,7 @@ export const getInatPlacesAutocompleteQueryRefreshDefault = false;
 
 export const GetInatPlacesAutocompleteQueryParams = zod.object({
   "q": zod.string().min(1).describe('Place name to search (e.g. Washtenaw County, Michigan, Sleeping Bear Dunes)'),
-  "refresh": zod.coerce.boolean().default(getInatPlacesAutocompleteQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from iNaturalist'),
-  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+  "refresh": zod.coerce.boolean().default(getInatPlacesAutocompleteQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from iNaturalist')
 })
 
 export const GetInatPlacesAutocompleteResponse = zod.object({
@@ -552,8 +551,7 @@ export const GetInatObservationsHistogramQueryParams = zod.object({
   "place_id": zod.string().optional().describe('One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). Place IDs from the place lookup endpoint. Sorted ascending when building cache key. When omitted, returns global (worldwide) data.\n'),
   "term_id": zod.coerce.number().optional().describe('Controlled annotation term ID to filter by (e.g. 12 for Flowers and Fruits, 36 for Leaves). When provided, only observations annotated with this term are counted. Cache key incorporates this value.\n'),
   "term_value_id": zod.coerce.number().optional().describe('Controlled annotation value ID to filter by. Requires term_id. Cache key incorporates this value.\n'),
-  "refresh": zod.coerce.boolean().default(getInatObservationsHistogramQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from iNaturalist'),
-  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+  "refresh": zod.coerce.boolean().default(getInatObservationsHistogramQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from iNaturalist')
 })
 
 export const GetInatObservationsHistogramResponse = zod.object({
@@ -593,8 +591,7 @@ export const GetInatObservationsPopularFieldValuesQueryParams = zod.object({
   "taxon_id": zod.coerce.number().optional().describe('iNaturalist numeric taxon ID (from the species endpoint)'),
   "place_id": zod.string().optional().describe('One or more iNaturalist place IDs, comma-separated (e.g. 2649 or 2649,986). When omitted, returns global data.\n'),
   "verifiable": zod.coerce.boolean().default(getInatObservationsPopularFieldValuesQueryVerifiableDefault).describe('If true (default), restricts to verifiable observations. Pass false to include all quality grades.\n'),
-  "refresh": zod.coerce.boolean().default(getInatObservationsPopularFieldValuesQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from iNaturalist'),
-  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+  "refresh": zod.coerce.boolean().default(getInatObservationsPopularFieldValuesQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from iNaturalist')
 })
 
 export const GetInatObservationsPopularFieldValuesResponse = zod.object({
@@ -648,8 +645,7 @@ export const GetInatObservationsQueryParams = zod.object({
   "nelat": zod.coerce.number().optional().describe('Northeast corner latitude for bounding box filter.'),
   "nelng": zod.coerce.number().optional().describe('Northeast corner longitude for bounding box filter.'),
   "swlat": zod.coerce.number().optional().describe('Southwest corner latitude for bounding box filter.'),
-  "swlng": zod.coerce.number().optional().describe('Southwest corner longitude for bounding box filter.'),
-  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+  "swlng": zod.coerce.number().optional().describe('Southwest corner longitude for bounding box filter.')
 })
 
 export const GetInatObservationsResponse = zod.object({
@@ -708,8 +704,7 @@ export const GetInatObservationsSpeciesCountsQueryParams = zod.object({
   "nelat": zod.coerce.number().optional().describe('Northeast corner latitude for bounding box filter.'),
   "nelng": zod.coerce.number().optional().describe('Northeast corner longitude for bounding box filter.'),
   "swlat": zod.coerce.number().optional().describe('Southwest corner latitude for bounding box filter.'),
-  "swlng": zod.coerce.number().optional().describe('Southwest corner longitude for bounding box filter.'),
-  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+  "swlng": zod.coerce.number().optional().describe('Southwest corner longitude for bounding box filter.')
 })
 
 export const GetInatObservationsSpeciesCountsResponse = zod.object({
@@ -743,8 +738,7 @@ export const GetInatObservationsSpeciesCountsResponse = zod.object({
  * @summary All iNaturalist controlled annotation terms
  */
 export const GetInatControlledTermsQueryParams = zod.object({
-  "refresh": zod.coerce.boolean().optional().describe('Bypass cache and re-fetch from iNaturalist'),
-  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+  "refresh": zod.coerce.boolean().optional().describe('Bypass cache and re-fetch from iNaturalist')
 })
 
 export const GetInatControlledTermsResponse = zod.object({
@@ -779,8 +773,7 @@ export const GetInatControlledTermsResponse = zod.object({
  */
 export const GetInatControlledTermsForTaxonQueryParams = zod.object({
   "taxon_id": zod.coerce.number().describe('iNaturalist taxon ID'),
-  "refresh": zod.coerce.boolean().optional().describe('Bypass cache and re-fetch from iNaturalist'),
-  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+  "refresh": zod.coerce.boolean().optional().describe('Bypass cache and re-fetch from iNaturalist')
 })
 
 export const GetInatControlledTermsForTaxonResponse = zod.object({
@@ -824,8 +817,7 @@ export const GetInatTaxaAutocompleteQueryParams = zod.object({
   "rank": zod.string().optional().describe('Taxonomic rank filter (e.g. species, genus, family)'),
   "locale": zod.string().optional().describe('Locale code for common names (e.g. en, es, de)'),
   "all_names": zod.coerce.boolean().optional().describe('Include all name variants in search (not just preferred)'),
-  "preferred_place_id": zod.coerce.number().optional().describe('iNaturalist place ID to prioritize common names for that place'),
-  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+  "preferred_place_id": zod.coerce.number().optional().describe('iNaturalist place ID to prioritize common names for that place')
 })
 
 export const GetInatTaxaAutocompleteResponse = zod.object({
@@ -863,8 +855,7 @@ export const GetInatTaxaByIdParams = zod.object({
 })
 
 export const GetInatTaxaByIdQueryParams = zod.object({
-  "refresh": zod.coerce.boolean().optional().describe('Bypass cache and re-fetch from iNaturalist'),
-  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+  "refresh": zod.coerce.boolean().optional().describe('Bypass cache and re-fetch from iNaturalist')
 })
 
 export const GetInatTaxaByIdResponse = zod.object({
@@ -903,8 +894,7 @@ export const GetInatPlacesByIdParams = zod.object({
 
 export const GetInatPlacesByIdQueryParams = zod.object({
   "admin_level": zod.coerce.number().optional().describe('Admin level filter (e.g. 0=country, 1=state, 2=county)'),
-  "refresh": zod.coerce.boolean().optional().describe('Bypass cache and re-fetch from iNaturalist'),
-  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+  "refresh": zod.coerce.boolean().optional().describe('Bypass cache and re-fetch from iNaturalist')
 })
 
 export const GetInatPlacesByIdResponse = zod.object({
@@ -946,8 +936,7 @@ export const GetInatPlacesNearbyQueryParams = zod.object({
   "swlat": zod.coerce.number().describe('Southwest corner latitude of the bounding box'),
   "swlng": zod.coerce.number().describe('Southwest corner longitude of the bounding box'),
   "name": zod.string().optional().describe('Optional name filter to narrow results'),
-  "per_page": zod.coerce.number().min(1).optional().describe('Results per page'),
-  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+  "per_page": zod.coerce.number().min(1).optional().describe('Results per page')
 })
 
 export const GetInatPlacesNearbyResponse = zod.object({
@@ -982,10 +971,6 @@ export const GetInatPlacesNearbyResponse = zod.object({
  */
 export const GetInatObservationsTaxonSummaryParams = zod.object({
   "id": zod.coerce.number().describe('iNaturalist observation ID (integer)')
-})
-
-export const GetInatObservationsTaxonSummaryQueryParams = zod.object({
-  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
 })
 
 export const GetInatObservationsTaxonSummaryResponse = zod.object({
@@ -1028,8 +1013,7 @@ export const GetInatIdentificationsSimilarSpeciesQueryParams = zod.object({
   "nelat": zod.coerce.number().optional(),
   "nelng": zod.coerce.number().optional(),
   "swlat": zod.coerce.number().optional(),
-  "swlng": zod.coerce.number().optional(),
-  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+  "swlng": zod.coerce.number().optional()
 })
 
 export const GetInatIdentificationsSimilarSpeciesResponse = zod.object({
@@ -1076,8 +1060,7 @@ export const GetInatIdentificationsSpeciesCountsQueryParams = zod.object({
   "d2": zod.string().optional().describe('End date filter (YYYY-MM-DD)'),
   "order": zod.enum(['asc', 'desc']).optional().describe('Sort order: desc (default) or asc'),
   "order_by": zod.string().optional().describe('Sort field: count (default) or id'),
-  "taxon_of": zod.enum(['identification', 'community']).optional().describe('Which taxon to count: identification (default) or community'),
-  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+  "taxon_of": zod.enum(['identification', 'community']).optional().describe('Which taxon to count: identification (default) or community')
 })
 
 export const GetInatIdentificationsSpeciesCountsResponse = zod.object({
@@ -1121,8 +1104,7 @@ export const GetInatIdentificationsRecentTaxaQueryParams = zod.object({
   "per_page": zod.coerce.number().min(1).optional(),
   "page": zod.coerce.number().min(1).optional(),
   "d1": zod.string().optional().describe('Start date filter (YYYY-MM-DD)'),
-  "d2": zod.string().optional().describe('End date filter (YYYY-MM-DD)'),
-  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+  "d2": zod.string().optional().describe('End date filter (YYYY-MM-DD)')
 })
 
 export const GetInatIdentificationsRecentTaxaResponse = zod.object({
@@ -1171,8 +1153,7 @@ export const GetInatIdentificationsQueryParams = zod.object({
   "user_id": zod.coerce.number().optional().describe('Filter by identifier user ID'),
   "user_login": zod.string().optional().describe('Filter by identifier user login'),
   "order": zod.enum(['asc', 'desc']).optional().describe('Sort order: desc (default) or asc'),
-  "order_by": zod.string().optional().describe('Sort field: created_at (default) or id'),
-  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
+  "order_by": zod.string().optional().describe('Sort field: created_at (default) or id')
 })
 
 export const GetInatIdentificationsResponse = zod.object({
@@ -1207,10 +1188,6 @@ export const GetInatIdentificationsResponse = zod.object({
  */
 export const GetInatIdentificationsByIdParams = zod.object({
   "id": zod.coerce.number().describe('iNaturalist identification ID (integer)')
-})
-
-export const GetInatIdentificationsByIdQueryParams = zod.object({
-  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance text: full (default), summary, or none')
 })
 
 export const GetInatIdentificationsByIdResponse = zod.object({
@@ -1295,7 +1272,7 @@ export const GetMifloraCountiesResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n')
 }).describe('FERNS envelope for Michigan Flora county occurrence data. data is the raw passthrough response from the Michigan Flora county endpoint.\n')
 
 
@@ -1333,7 +1310,7 @@ export const GetMifloraImagesResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n')
 }).describe('FERNS envelope for Michigan Flora image gallery. data is the array of image records from allimage_info, each enriched with constructed absolute image_url and thumbnail_url. Cached permanently (no TTL).\n')
 
 
@@ -1377,7 +1354,7 @@ export const GetMifloraFloraSearchResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n')
 }).describe('FERNS envelope for Michigan Flora flora_search_sp. data is the verbatim array of species records from the upstream API — not a wrapped object. Cached permanently (no TTL).\n')
 
 
@@ -1410,7 +1387,7 @@ export const GetMifloraSpecTextResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n')
 }).describe('FERNS envelope for Michigan Flora spec_text. data.text is the raw HTML botanical description from Michigan Flora. Cached permanently (no TTL).\n')
 
 
@@ -1444,7 +1421,7 @@ export const GetMifloraSynonymsResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n')
 }).describe('FERNS envelope for Michigan Flora synonyms. data is a bare array of synonym records (empty array if none exist) — no wrapper object, no plant_id field. Cached permanently (no TTL).\n')
 
 
@@ -1482,7 +1459,7 @@ export const GetMifloraPImageInfoResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n')
 }).describe('FERNS envelope for Michigan Flora pimage_info. data is the flat primary image record (image_id, image_name, caption, photographer, image_url, thumbnail_url) or null if no primary image exists — no wrapper object, no plant_id field. Cached permanently (no TTL).\n')
 
 
@@ -1525,7 +1502,7 @@ export const GetMifloraMetadataResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n')
 })
 
 
@@ -1554,7 +1531,7 @@ export const GetCoefficientByValueResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n'),
   "data": zod.object({
   "value": zod.string().describe('C-value: \'0\'–\'10\' for native species, or \'\*\' for non-native\/adventive'),
   "short_label": zod.string().describe('Short human-readable label for this C-value level'),
@@ -1583,7 +1560,7 @@ export const GetCoefficientOfConservatismListResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n'),
   "data": zod.array(zod.object({
   "value": zod.string().describe('C-value: \'0\'–\'10\' for native species, or \'\*\' for non-native\/adventive'),
   "short_label": zod.string().describe('Short human-readable label for this C-value level'),
@@ -1626,7 +1603,7 @@ export const GetCoefficientMetadataResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n')
 })
 
 
@@ -1652,7 +1629,7 @@ export const GetWetlandIndicatorStatusByCodeResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n'),
   "data": zod.object({
   "code": zod.enum(['OBL', 'FACW', 'FAC', 'FACU', 'UPL']).describe('WIS code: OBL, FACW, FAC, FACU, or UPL'),
   "w_value": zod.number().describe('Coefficient of Wetness (W): -5, -3, 0, 3, or 5'),
@@ -1686,7 +1663,7 @@ export const GetWetlandIndicatorStatusByWResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n'),
   "data": zod.object({
   "code": zod.enum(['OBL', 'FACW', 'FAC', 'FACU', 'UPL']).describe('WIS code: OBL, FACW, FAC, FACU, or UPL'),
   "w_value": zod.number().describe('Coefficient of Wetness (W): -5, -3, 0, 3, or 5'),
@@ -1716,7 +1693,7 @@ export const GetWetlandIndicatorStatusListResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n'),
   "data": zod.array(zod.object({
   "code": zod.enum(['OBL', 'FACW', 'FAC', 'FACU', 'UPL']).describe('WIS code: OBL, FACW, FAC, FACU, or UPL'),
   "w_value": zod.number().describe('Coefficient of Wetness (W): -5, -3, 0, 3, or 5'),
@@ -1760,7 +1737,7 @@ export const GetWetlandIndicatorMetadataResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n')
 })
 
 
@@ -1786,7 +1763,7 @@ export const GetWucolsWaterUseByCodeResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n'),
   "data": zod.object({
   "code": zod.enum(['VL', 'L', 'M', 'H']).describe('WUCOLS code: VL, L, M, or H'),
   "full_name": zod.string().describe('Full name of the WUCOLS category'),
@@ -1817,7 +1794,7 @@ export const GetWucolsWaterUseListResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n'),
   "data": zod.array(zod.object({
   "code": zod.enum(['VL', 'L', 'M', 'H']).describe('WUCOLS code: VL, L, M, or H'),
   "full_name": zod.string().describe('Full name of the WUCOLS category'),
@@ -1862,7 +1839,7 @@ export const GetWucolsWaterUseMetadataResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n')
 })
 
 
@@ -2314,7 +2291,7 @@ export const GetSourcesIndexResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n')
 })
 
 
@@ -2347,7 +2324,7 @@ export const GetTrustGroupsResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n')
 })
 
 
@@ -2391,7 +2368,7 @@ export const GetTrustGroupResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n')
 })
 
 
@@ -2445,7 +2422,7 @@ export const GetTrustGroupSourcesResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n')
 })
 
 
@@ -2470,7 +2447,7 @@ export const GetUniversalFqaMetadataResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n')
 })
 
 
@@ -2492,7 +2469,7 @@ export const GetUniversalFqaDatabasesResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n'),
   "data": zod.union([zod.object({
   "status": zod.enum(['success', 'error']),
   "data": zod.array(zod.array(zod.unknown())),
@@ -2523,7 +2500,7 @@ export const GetUniversalFqaDatabaseResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n'),
   "data": zod.union([zod.object({
   "status": zod.enum(['success', 'error']),
   "data": zod.array(zod.array(zod.unknown())),
@@ -2554,7 +2531,7 @@ export const GetUniversalFqaAssessmentsResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n'),
   "data": zod.union([zod.object({
   "status": zod.enum(['success', 'error']),
   "data": zod.array(zod.array(zod.unknown())),
@@ -2585,7 +2562,7 @@ export const GetUniversalFqaAssessmentResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n'),
   "data": zod.union([zod.object({
   "status": zod.enum(['success', 'error']),
   "data": zod.array(zod.array(zod.unknown())),
@@ -2627,7 +2604,7 @@ export const GetSourcesMetadataResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n')
 })
 
 
@@ -2667,7 +2644,7 @@ export const GetSourceRelationshipsResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n')
 })
 
 
@@ -3114,8 +3091,7 @@ export const GetNatureserveSearchQueryParams = zod.object({
   "recordType": zod.enum(['ECOSYSTEM', 'SPECIES', 'COMMUNITY', 'GROUP', 'ASSOCIATION']).default(getNatureserveSearchQueryRecordTypeDefault).describe('Type of records to return (default: ECOSYSTEM). ECOSYSTEM — ecological systems and community types; SPECIES — animal and plant species; COMMUNITY — plant communities; GROUP — element groups; ASSOCIATION — plant associations.\n'),
   "limit": zod.coerce.number().min(1).max(getNatureserveSearchQueryLimitMax).default(getNatureserveSearchQueryLimitDefault).describe('Number of results per page (1–50, default 10)'),
   "page": zod.coerce.number().min(getNatureserveSearchQueryPageMin).default(getNatureserveSearchQueryPageDefault).describe('Zero-indexed page number (default 0)'),
-  "refresh": zod.coerce.boolean().default(getNatureserveSearchQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from NatureServe Explorer'),
-  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls how much provenance text is returned. full (default) returns both general_summary and technical_details; summary returns general_summary only; none omits both.\n')
+  "refresh": zod.coerce.boolean().default(getNatureserveSearchQueryRefreshDefault).describe('If true, bypasses cache and fetches fresh from NatureServe Explorer')
 })
 
 export const GetNatureserveSearchResponse = zod.object({
@@ -3214,7 +3190,7 @@ export const GetGobotanyUrlResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n'),
   "data": zod.object({
   "url": zod.string().nullish().describe('Direct species page URL. Null when not found.')
 }).nullish().describe('Present when found=true. Null when not found.')
@@ -3245,7 +3221,7 @@ export const GetGobotanyMetadataResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n')
 }).describe('Service metadata response for botanical web reference sources.')
 
 
@@ -3276,7 +3252,7 @@ export const GetGobotanySpeciesInformationResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n'),
   "data": zod.object({
   "sections": zod.record(zod.string(), zod.string()).nullish().describe('Labeled prose sections extracted from the page (e.g. Description, Cultivation, Facts, Habitat). Keys are section names, values are plain text content.\n'),
   "full_text": zod.string().nullish().describe('All sections concatenated as Label-colon-text blocks, separated by double newlines.\n')
@@ -3442,7 +3418,7 @@ export const GetIllinoisWildflowersMetadataResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n')
 }).describe('Service metadata response for botanical web reference sources.')
 
 
@@ -3473,7 +3449,7 @@ export const GetIllinoisWildflowersSpeciesInformationResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n'),
   "data": zod.object({
   "sections": zod.record(zod.string(), zod.string()).nullish().describe('Labeled prose sections extracted from the page (e.g. Description, Cultivation, Facts, Habitat). Keys are section names, values are plain text content.\n'),
   "full_text": zod.string().nullish().describe('All sections concatenated as Label-colon-text blocks, separated by double newlines.\n')
@@ -3505,7 +3481,7 @@ export const GetMinnesotaWildflowersUrlResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n'),
   "data": zod.object({
   "url": zod.string().nullish().describe('Direct species page URL. Null when not found.')
 }).nullish().describe('Present when found=true. Null when not found.')
@@ -3536,7 +3512,7 @@ export const GetMinnesotaWildflowersMetadataResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n')
 }).describe('Service metadata response for botanical web reference sources.')
 
 
@@ -3567,7 +3543,7 @@ export const GetMinnesotaWildflowersSpeciesInformationResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n'),
   "data": zod.object({
   "sections": zod.record(zod.string(), zod.string()).nullish().describe('Labeled prose sections extracted from the page (e.g. Description, Cultivation, Facts, Habitat). Keys are section names, values are plain text content.\n'),
   "full_text": zod.string().nullish().describe('All sections concatenated as Label-colon-text blocks, separated by double newlines.\n')
@@ -3599,7 +3575,7 @@ export const GetMissouriPlantsUrlResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n'),
   "data": zod.object({
   "url": zod.string().nullish().describe('Direct species page URL. Null when not found.')
 }).nullish().describe('Present when found=true. Null when not found.')
@@ -3630,7 +3606,7 @@ export const GetMissouriPlantsMetadataResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n')
 }).describe('Service metadata response for botanical web reference sources.')
 
 
@@ -3661,7 +3637,7 @@ export const GetMissouriPlantsSpeciesInformationResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n'),
   "data": zod.object({
   "sections": zod.record(zod.string(), zod.string()).nullish().describe('Labeled prose sections extracted from the page (e.g. Description, Cultivation, Facts, Habitat). Keys are section names, values are plain text content.\n'),
   "full_text": zod.string().nullish().describe('All sections concatenated as Label-colon-text blocks, separated by double newlines.\n')
@@ -3693,7 +3669,7 @@ export const GetPrairieMoonUrlResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n'),
   "data": zod.object({
   "url": zod.string().nullish().describe('Direct species page URL. Null when not found.')
 }).nullish().describe('Present when found=true. Null when not found.')
@@ -3724,7 +3700,7 @@ export const GetPrairieMoonMetadataResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n')
 }).describe('Service metadata response for botanical web reference sources.')
 
 
@@ -3755,7 +3731,7 @@ export const GetPrairieMoonSpeciesInformationResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n'),
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n'),
   "data": zod.object({
   "sections": zod.record(zod.string(), zod.string()).nullish().describe('Labeled prose sections extracted from the page (e.g. Description, Cultivation, Facts, Habitat). Keys are section names, values are plain text content.\n'),
   "full_text": zod.string().nullish().describe('All sections concatenated as Label-colon-text blocks, separated by double newlines.\n')
@@ -4061,7 +4037,7 @@ export const GetLadyBirdJohnsonMetadataResponse = zod.object({
   "general_summary": zod.string().optional().describe('Plain language description readable by a homeowner or community member'),
   "technical_details": zod.string().optional().describe('Research-grade description: methods, measurement protocols, algorithms, citations, and transformations — sufficient for a scientist to evaluate and reproduce\n'),
   "matched_input": zod.string().optional().describe('The normalized input that was actually used for this lookup (e.g., the name as queried). Present on endpoints that accept a name parameter.\n')
-}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).\n')
+}).optional().describe('Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.\n')
 }).optional().describe('Service metadata response for botanical web reference sources.')
 }))
 
@@ -4109,10 +4085,6 @@ export const GetAnnArborNpnMetadataResponse = zod.object({
 
  * @summary All Ann Arbor Native Plant Nursery species (bulk)
  */
-export const GetAnnArborNpnSpeciesListQueryParams = zod.object({
-  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional().describe('Controls provenance verbosity in the response (\"full\", \"summary\", or \"none\")')
-})
-
 export const GetAnnArborNpnSpeciesListResponse = zod.object({
   "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
   "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
@@ -4175,10 +4147,6 @@ export const GetAnnArborNpnSpeciesByKeyParams = zod.object({
   "key": zod.string().min(1).describe('Acronym, Latin name, synonym, or common name (any capitalisation)')
 })
 
-export const GetAnnArborNpnSpeciesByKeyQueryParams = zod.object({
-  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional()
-})
-
 export const GetAnnArborNpnSpeciesByKeyResponse = zod.object({
   "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
   "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
@@ -4232,10 +4200,6 @@ export const GetAnnArborNpnSpeciesByKeyResponse = zod.object({
 
  * @summary NPN name groups — all species with every accepted lookup key
  */
-export const GetAnnArborNpnNameGroupsQueryParams = zod.object({
-  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional()
-})
-
 export const GetAnnArborNpnNameGroupsResponse = zod.object({
   "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
   "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
@@ -4283,10 +4247,6 @@ export const GetAnnArborNpnSpeciesSourceUrlParams = zod.object({
   "key": zod.string().min(1).describe('Acronym, Latin name, synonym, or common name (any capitalisation)')
 })
 
-export const GetAnnArborNpnSpeciesSourceUrlQueryParams = zod.object({
-  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional()
-})
-
 export const GetAnnArborNpnSpeciesSourceUrlResponse = zod.object({
   "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
   "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
@@ -4322,10 +4282,6 @@ export const GetAnnArborNpnSpeciesSourceUrlResponse = zod.object({
 
  * @summary Source documentation for the Ann Arbor Native Plant Nursery dataset
  */
-export const GetAnnArborNpnDocumentationQueryParams = zod.object({
-  "provenance_verbosity": zod.enum(['full', 'summary', 'none']).optional()
-})
-
 export const GetAnnArborNpnDocumentationResponse = zod.object({
   "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
   "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),

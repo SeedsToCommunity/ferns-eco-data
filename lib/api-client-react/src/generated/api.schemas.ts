@@ -15,7 +15,7 @@ export interface ErrorResponse {
 }
 
 /**
- * Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present. Text fields (general_summary, technical_details) are conditionally present based on the provenance_verbosity query parameter (full|summary|none).
+ * Provenance block present on every FERNS API response. Identity fields (source_id, fetched_at, method, upstream_url) are always present.
 
  */
 export interface FernsProvenance {
@@ -2343,20 +2343,7 @@ q: string;
  * If true, bypasses cache and fetches fresh from iNaturalist
  */
 refresh?: boolean;
-/**
- * Controls provenance text: full (default), summary, or none
- */
-provenance_verbosity?: GetInatPlacesAutocompleteProvenanceVerbosity;
 };
-
-export type GetInatPlacesAutocompleteProvenanceVerbosity = typeof GetInatPlacesAutocompleteProvenanceVerbosity[keyof typeof GetInatPlacesAutocompleteProvenanceVerbosity];
-
-
-export const GetInatPlacesAutocompleteProvenanceVerbosity = {
-  full: 'full',
-  summary: 'summary',
-  none: 'none',
-} as const;
 
 export type GetInatObservationsHistogramParams = {
 /**
@@ -2382,20 +2369,7 @@ term_value_id?: number;
  * If true, bypasses cache and fetches fresh from iNaturalist
  */
 refresh?: boolean;
-/**
- * Controls provenance text: full (default), summary, or none
- */
-provenance_verbosity?: GetInatObservationsHistogramProvenanceVerbosity;
 };
-
-export type GetInatObservationsHistogramProvenanceVerbosity = typeof GetInatObservationsHistogramProvenanceVerbosity[keyof typeof GetInatObservationsHistogramProvenanceVerbosity];
-
-
-export const GetInatObservationsHistogramProvenanceVerbosity = {
-  full: 'full',
-  summary: 'summary',
-  none: 'none',
-} as const;
 
 export type GetInatObservationsPopularFieldValuesParams = {
 /**
@@ -2416,20 +2390,7 @@ verifiable?: boolean;
  * If true, bypasses cache and fetches fresh from iNaturalist
  */
 refresh?: boolean;
-/**
- * Controls provenance text: full (default), summary, or none
- */
-provenance_verbosity?: GetInatObservationsPopularFieldValuesProvenanceVerbosity;
 };
-
-export type GetInatObservationsPopularFieldValuesProvenanceVerbosity = typeof GetInatObservationsPopularFieldValuesProvenanceVerbosity[keyof typeof GetInatObservationsPopularFieldValuesProvenanceVerbosity];
-
-
-export const GetInatObservationsPopularFieldValuesProvenanceVerbosity = {
-  full: 'full',
-  summary: 'summary',
-  none: 'none',
-} as const;
 
 export type GetInatObservationsParams = {
 /**
@@ -2491,10 +2452,6 @@ swlat?: number;
  * Southwest corner longitude for bounding box filter.
  */
 swlng?: number;
-/**
- * Controls provenance text: full (default), summary, or none
- */
-provenance_verbosity?: GetInatObservationsProvenanceVerbosity;
 };
 
 export type GetInatObservationsQualityGrade = typeof GetInatObservationsQualityGrade[keyof typeof GetInatObservationsQualityGrade];
@@ -2504,15 +2461,6 @@ export const GetInatObservationsQualityGrade = {
   research: 'research',
   needs_id: 'needs_id',
   casual: 'casual',
-} as const;
-
-export type GetInatObservationsProvenanceVerbosity = typeof GetInatObservationsProvenanceVerbosity[keyof typeof GetInatObservationsProvenanceVerbosity];
-
-
-export const GetInatObservationsProvenanceVerbosity = {
-  full: 'full',
-  summary: 'summary',
-  none: 'none',
 } as const;
 
 export type GetInatObservationsSpeciesCountsParams = {
@@ -2595,10 +2543,6 @@ swlat?: number;
  * Southwest corner longitude for bounding box filter.
  */
 swlng?: number;
-/**
- * Controls provenance text: full (default), summary, or none
- */
-provenance_verbosity?: GetInatObservationsSpeciesCountsProvenanceVerbosity;
 };
 
 export type GetInatObservationsSpeciesCountsQualityGrade = typeof GetInatObservationsSpeciesCountsQualityGrade[keyof typeof GetInatObservationsSpeciesCountsQualityGrade];
@@ -2610,34 +2554,12 @@ export const GetInatObservationsSpeciesCountsQualityGrade = {
   casual: 'casual',
 } as const;
 
-export type GetInatObservationsSpeciesCountsProvenanceVerbosity = typeof GetInatObservationsSpeciesCountsProvenanceVerbosity[keyof typeof GetInatObservationsSpeciesCountsProvenanceVerbosity];
-
-
-export const GetInatObservationsSpeciesCountsProvenanceVerbosity = {
-  full: 'full',
-  summary: 'summary',
-  none: 'none',
-} as const;
-
 export type GetInatControlledTermsParams = {
 /**
  * Bypass cache and re-fetch from iNaturalist
  */
 refresh?: boolean;
-/**
- * Controls provenance text: full (default), summary, or none
- */
-provenance_verbosity?: GetInatControlledTermsProvenanceVerbosity;
 };
-
-export type GetInatControlledTermsProvenanceVerbosity = typeof GetInatControlledTermsProvenanceVerbosity[keyof typeof GetInatControlledTermsProvenanceVerbosity];
-
-
-export const GetInatControlledTermsProvenanceVerbosity = {
-  full: 'full',
-  summary: 'summary',
-  none: 'none',
-} as const;
 
 export type GetInatControlledTermsForTaxonParams = {
 /**
@@ -2648,20 +2570,7 @@ taxon_id: number;
  * Bypass cache and re-fetch from iNaturalist
  */
 refresh?: boolean;
-/**
- * Controls provenance text: full (default), summary, or none
- */
-provenance_verbosity?: GetInatControlledTermsForTaxonProvenanceVerbosity;
 };
-
-export type GetInatControlledTermsForTaxonProvenanceVerbosity = typeof GetInatControlledTermsForTaxonProvenanceVerbosity[keyof typeof GetInatControlledTermsForTaxonProvenanceVerbosity];
-
-
-export const GetInatControlledTermsForTaxonProvenanceVerbosity = {
-  full: 'full',
-  summary: 'summary',
-  none: 'none',
-} as const;
 
 export type GetInatTaxaAutocompleteParams = {
 /**
@@ -2694,40 +2603,14 @@ all_names?: boolean;
  * iNaturalist place ID to prioritize common names for that place
  */
 preferred_place_id?: number;
-/**
- * Controls provenance text: full (default), summary, or none
- */
-provenance_verbosity?: GetInatTaxaAutocompleteProvenanceVerbosity;
 };
-
-export type GetInatTaxaAutocompleteProvenanceVerbosity = typeof GetInatTaxaAutocompleteProvenanceVerbosity[keyof typeof GetInatTaxaAutocompleteProvenanceVerbosity];
-
-
-export const GetInatTaxaAutocompleteProvenanceVerbosity = {
-  full: 'full',
-  summary: 'summary',
-  none: 'none',
-} as const;
 
 export type GetInatTaxaByIdParams = {
 /**
  * Bypass cache and re-fetch from iNaturalist
  */
 refresh?: boolean;
-/**
- * Controls provenance text: full (default), summary, or none
- */
-provenance_verbosity?: GetInatTaxaByIdProvenanceVerbosity;
 };
-
-export type GetInatTaxaByIdProvenanceVerbosity = typeof GetInatTaxaByIdProvenanceVerbosity[keyof typeof GetInatTaxaByIdProvenanceVerbosity];
-
-
-export const GetInatTaxaByIdProvenanceVerbosity = {
-  full: 'full',
-  summary: 'summary',
-  none: 'none',
-} as const;
 
 export type GetInatPlacesByIdParams = {
 /**
@@ -2738,20 +2621,7 @@ admin_level?: number;
  * Bypass cache and re-fetch from iNaturalist
  */
 refresh?: boolean;
-/**
- * Controls provenance text: full (default), summary, or none
- */
-provenance_verbosity?: GetInatPlacesByIdProvenanceVerbosity;
 };
-
-export type GetInatPlacesByIdProvenanceVerbosity = typeof GetInatPlacesByIdProvenanceVerbosity[keyof typeof GetInatPlacesByIdProvenanceVerbosity];
-
-
-export const GetInatPlacesByIdProvenanceVerbosity = {
-  full: 'full',
-  summary: 'summary',
-  none: 'none',
-} as const;
 
 export type GetInatPlacesNearbyParams = {
 /**
@@ -2779,36 +2649,7 @@ name?: string;
  * @minimum 1
  */
 per_page?: number;
-/**
- * Controls provenance text: full (default), summary, or none
- */
-provenance_verbosity?: GetInatPlacesNearbyProvenanceVerbosity;
 };
-
-export type GetInatPlacesNearbyProvenanceVerbosity = typeof GetInatPlacesNearbyProvenanceVerbosity[keyof typeof GetInatPlacesNearbyProvenanceVerbosity];
-
-
-export const GetInatPlacesNearbyProvenanceVerbosity = {
-  full: 'full',
-  summary: 'summary',
-  none: 'none',
-} as const;
-
-export type GetInatObservationsTaxonSummaryParams = {
-/**
- * Controls provenance text: full (default), summary, or none
- */
-provenance_verbosity?: GetInatObservationsTaxonSummaryProvenanceVerbosity;
-};
-
-export type GetInatObservationsTaxonSummaryProvenanceVerbosity = typeof GetInatObservationsTaxonSummaryProvenanceVerbosity[keyof typeof GetInatObservationsTaxonSummaryProvenanceVerbosity];
-
-
-export const GetInatObservationsTaxonSummaryProvenanceVerbosity = {
-  full: 'full',
-  summary: 'summary',
-  none: 'none',
-} as const;
 
 export type GetInatIdentificationsSimilarSpeciesParams = {
 /**
@@ -2827,10 +2668,6 @@ nelat?: number;
 nelng?: number;
 swlat?: number;
 swlng?: number;
-/**
- * Controls provenance text: full (default), summary, or none
- */
-provenance_verbosity?: GetInatIdentificationsSimilarSpeciesProvenanceVerbosity;
 };
 
 export type GetInatIdentificationsSimilarSpeciesQualityGrade = typeof GetInatIdentificationsSimilarSpeciesQualityGrade[keyof typeof GetInatIdentificationsSimilarSpeciesQualityGrade];
@@ -2840,15 +2677,6 @@ export const GetInatIdentificationsSimilarSpeciesQualityGrade = {
   research: 'research',
   needs_id: 'needs_id',
   casual: 'casual',
-} as const;
-
-export type GetInatIdentificationsSimilarSpeciesProvenanceVerbosity = typeof GetInatIdentificationsSimilarSpeciesProvenanceVerbosity[keyof typeof GetInatIdentificationsSimilarSpeciesProvenanceVerbosity];
-
-
-export const GetInatIdentificationsSimilarSpeciesProvenanceVerbosity = {
-  full: 'full',
-  summary: 'summary',
-  none: 'none',
 } as const;
 
 export type GetInatIdentificationsSpeciesCountsParams = {
@@ -2886,10 +2714,6 @@ order_by?: string;
  * Which taxon to count: identification (default) or community
  */
 taxon_of?: GetInatIdentificationsSpeciesCountsTaxonOf;
-/**
- * Controls provenance text: full (default), summary, or none
- */
-provenance_verbosity?: GetInatIdentificationsSpeciesCountsProvenanceVerbosity;
 };
 
 export type GetInatIdentificationsSpeciesCountsQualityGrade = typeof GetInatIdentificationsSpeciesCountsQualityGrade[keyof typeof GetInatIdentificationsSpeciesCountsQualityGrade];
@@ -2917,15 +2741,6 @@ export const GetInatIdentificationsSpeciesCountsTaxonOf = {
   community: 'community',
 } as const;
 
-export type GetInatIdentificationsSpeciesCountsProvenanceVerbosity = typeof GetInatIdentificationsSpeciesCountsProvenanceVerbosity[keyof typeof GetInatIdentificationsSpeciesCountsProvenanceVerbosity];
-
-
-export const GetInatIdentificationsSpeciesCountsProvenanceVerbosity = {
-  full: 'full',
-  summary: 'summary',
-  none: 'none',
-} as const;
-
 export type GetInatIdentificationsRecentTaxaParams = {
 /**
  * Comma-separated iNaturalist place IDs (e.g. 2649 or 2649,986)
@@ -2949,10 +2764,6 @@ d1?: string;
  * End date filter (YYYY-MM-DD)
  */
 d2?: string;
-/**
- * Controls provenance text: full (default), summary, or none
- */
-provenance_verbosity?: GetInatIdentificationsRecentTaxaProvenanceVerbosity;
 };
 
 export type GetInatIdentificationsRecentTaxaQualityGrade = typeof GetInatIdentificationsRecentTaxaQualityGrade[keyof typeof GetInatIdentificationsRecentTaxaQualityGrade];
@@ -2962,15 +2773,6 @@ export const GetInatIdentificationsRecentTaxaQualityGrade = {
   research: 'research',
   needs_id: 'needs_id',
   casual: 'casual',
-} as const;
-
-export type GetInatIdentificationsRecentTaxaProvenanceVerbosity = typeof GetInatIdentificationsRecentTaxaProvenanceVerbosity[keyof typeof GetInatIdentificationsRecentTaxaProvenanceVerbosity];
-
-
-export const GetInatIdentificationsRecentTaxaProvenanceVerbosity = {
-  full: 'full',
-  summary: 'summary',
-  none: 'none',
 } as const;
 
 export type GetInatIdentificationsParams = {
@@ -3013,10 +2815,6 @@ order?: GetInatIdentificationsOrder;
  * Sort field: created_at (default) or id
  */
 order_by?: string;
-/**
- * Controls provenance text: full (default), summary, or none
- */
-provenance_verbosity?: GetInatIdentificationsProvenanceVerbosity;
 };
 
 export type GetInatIdentificationsQualityGrade = typeof GetInatIdentificationsQualityGrade[keyof typeof GetInatIdentificationsQualityGrade];
@@ -3034,31 +2832,6 @@ export type GetInatIdentificationsOrder = typeof GetInatIdentificationsOrder[key
 export const GetInatIdentificationsOrder = {
   asc: 'asc',
   desc: 'desc',
-} as const;
-
-export type GetInatIdentificationsProvenanceVerbosity = typeof GetInatIdentificationsProvenanceVerbosity[keyof typeof GetInatIdentificationsProvenanceVerbosity];
-
-
-export const GetInatIdentificationsProvenanceVerbosity = {
-  full: 'full',
-  summary: 'summary',
-  none: 'none',
-} as const;
-
-export type GetInatIdentificationsByIdParams = {
-/**
- * Controls provenance text: full (default), summary, or none
- */
-provenance_verbosity?: GetInatIdentificationsByIdProvenanceVerbosity;
-};
-
-export type GetInatIdentificationsByIdProvenanceVerbosity = typeof GetInatIdentificationsByIdProvenanceVerbosity[keyof typeof GetInatIdentificationsByIdProvenanceVerbosity];
-
-
-export const GetInatIdentificationsByIdProvenanceVerbosity = {
-  full: 'full',
-  summary: 'summary',
-  none: 'none',
 } as const;
 
 export type GetMifloraCountiesParams = {
@@ -3399,11 +3172,6 @@ page?: number;
  * If true, bypasses cache and fetches fresh from NatureServe Explorer
  */
 refresh?: boolean;
-/**
- * Controls how much provenance text is returned. full (default) returns both general_summary and technical_details; summary returns general_summary only; none omits both.
-
- */
-provenance_verbosity?: GetNatureserveSearchProvenanceVerbosity;
 };
 
 export type GetNatureserveSearchRecordType = typeof GetNatureserveSearchRecordType[keyof typeof GetNatureserveSearchRecordType];
@@ -3415,15 +3183,6 @@ export const GetNatureserveSearchRecordType = {
   COMMUNITY: 'COMMUNITY',
   GROUP: 'GROUP',
   ASSOCIATION: 'ASSOCIATION',
-} as const;
-
-export type GetNatureserveSearchProvenanceVerbosity = typeof GetNatureserveSearchProvenanceVerbosity[keyof typeof GetNatureserveSearchProvenanceVerbosity];
-
-
-export const GetNatureserveSearchProvenanceVerbosity = {
-  full: 'full',
-  summary: 'summary',
-  none: 'none',
 } as const;
 
 export type GetNatureserveTaxonParams = {
@@ -3706,22 +3465,6 @@ export type GetAnnArborNpnMetadata200 = FernsEnvelope & {
   data?: NpnMetadataData;
 };
 
-export type GetAnnArborNpnSpeciesListParams = {
-/**
- * Controls provenance verbosity in the response ("full", "summary", or "none")
- */
-provenance_verbosity?: GetAnnArborNpnSpeciesListProvenanceVerbosity;
-};
-
-export type GetAnnArborNpnSpeciesListProvenanceVerbosity = typeof GetAnnArborNpnSpeciesListProvenanceVerbosity[keyof typeof GetAnnArborNpnSpeciesListProvenanceVerbosity];
-
-
-export const GetAnnArborNpnSpeciesListProvenanceVerbosity = {
-  full: 'full',
-  summary: 'summary',
-  none: 'none',
-} as const;
-
 export type GetAnnArborNpnSpeciesList200Data = {
   species: NpnSpeciesRecord[];
 };
@@ -3730,35 +3473,9 @@ export type GetAnnArborNpnSpeciesList200 = FernsEnvelope & {
   data?: GetAnnArborNpnSpeciesList200Data;
 };
 
-export type GetAnnArborNpnSpeciesByKeyParams = {
-provenance_verbosity?: GetAnnArborNpnSpeciesByKeyProvenanceVerbosity;
-};
-
-export type GetAnnArborNpnSpeciesByKeyProvenanceVerbosity = typeof GetAnnArborNpnSpeciesByKeyProvenanceVerbosity[keyof typeof GetAnnArborNpnSpeciesByKeyProvenanceVerbosity];
-
-
-export const GetAnnArborNpnSpeciesByKeyProvenanceVerbosity = {
-  full: 'full',
-  summary: 'summary',
-  none: 'none',
-} as const;
-
 export type GetAnnArborNpnSpeciesByKey200 = FernsEnvelope & {
   data?: NpnSpeciesRecord;
 };
-
-export type GetAnnArborNpnNameGroupsParams = {
-provenance_verbosity?: GetAnnArborNpnNameGroupsProvenanceVerbosity;
-};
-
-export type GetAnnArborNpnNameGroupsProvenanceVerbosity = typeof GetAnnArborNpnNameGroupsProvenanceVerbosity[keyof typeof GetAnnArborNpnNameGroupsProvenanceVerbosity];
-
-
-export const GetAnnArborNpnNameGroupsProvenanceVerbosity = {
-  full: 'full',
-  summary: 'summary',
-  none: 'none',
-} as const;
 
 export type GetAnnArborNpnNameGroups200Data = {
   name_groups: NpnNameGroup[];
@@ -3768,19 +3485,6 @@ export type GetAnnArborNpnNameGroups200 = FernsEnvelope & {
   data?: GetAnnArborNpnNameGroups200Data;
 };
 
-export type GetAnnArborNpnSpeciesSourceUrlParams = {
-provenance_verbosity?: GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity;
-};
-
-export type GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity = typeof GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity[keyof typeof GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity];
-
-
-export const GetAnnArborNpnSpeciesSourceUrlProvenanceVerbosity = {
-  full: 'full',
-  summary: 'summary',
-  none: 'none',
-} as const;
-
 export type GetAnnArborNpnSpeciesSourceUrl200Data = {
   acronym: string;
   source_url: string;
@@ -3789,19 +3493,6 @@ export type GetAnnArborNpnSpeciesSourceUrl200Data = {
 export type GetAnnArborNpnSpeciesSourceUrl200 = FernsEnvelope & {
   data?: GetAnnArborNpnSpeciesSourceUrl200Data;
 };
-
-export type GetAnnArborNpnDocumentationParams = {
-provenance_verbosity?: GetAnnArborNpnDocumentationProvenanceVerbosity;
-};
-
-export type GetAnnArborNpnDocumentationProvenanceVerbosity = typeof GetAnnArborNpnDocumentationProvenanceVerbosity[keyof typeof GetAnnArborNpnDocumentationProvenanceVerbosity];
-
-
-export const GetAnnArborNpnDocumentationProvenanceVerbosity = {
-  full: 'full',
-  summary: 'summary',
-  none: 'none',
-} as const;
 
 export type GetAnnArborNpnDocumentation200Data = {
   markdown: string;
