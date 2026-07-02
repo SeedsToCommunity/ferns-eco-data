@@ -10,10 +10,10 @@ The data layer is also browsable through an external data explorer application: 
 
 Above the data layer, a trust layer exists, with named and author linked domains capture human or expert judgement about which data sources are applicable for different objectives (regions, knowledge areas, or activity).
 
-- [OpenAPI JSON](https://data.ecologicalcommons.org/api/openapi.json)
-- [OpenAPI YAML](https://data.ecologicalcommons.org/api/openapi.yaml)
-- [Source registry](https://data.ecologicalcommons.org/api/v1/sources)
-- [MCP endpoint](https://data.ecologicalcommons.org/mcp)
+- [OpenAPI JSON](/api/openapi.json)
+- [OpenAPI YAML](/api/openapi.yaml)
+- [Source registry](/api/v1/sources)
+- [MCP endpoint](/mcp)
 
 ## Demo Apps
 

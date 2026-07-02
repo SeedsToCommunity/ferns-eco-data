@@ -51,7 +51,7 @@ The lesson: do not split into per-product subdomains. Add capabilities as versio
 
 In production the rest-server `artifact.toml` registers `paths = ["/"]`, so ALL requests are routed to the Express process. Express serves:
 1. `/api/*` → API route handlers
-2. All other paths → `artifacts/ecological-commons-site/dist/public` with SPA fallback
+2. All other paths → `artifacts/ecological-commons-site/dist/public` (unrecognised paths return a 404)
 
 The rest-server's production build (`build.mjs`) builds the public website first (with `BASE_PATH=/`) before bundling Express, so its `dist/public` directory is present when Express starts.
 
