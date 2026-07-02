@@ -1,0 +1,19 @@
+No, not entirely. Here's what I observe:
+
+**What's clear:**
+- Tool names and one-line summaries help identify the general domain (e.g., "GBIF occurrence records," "iNaturalist observations")
+- Parameter descriptions specify what input is required and what it filters
+- Return value descriptions tell me what shape of data comes back
+
+**What's often ambiguous:**
+1. **Overlapping scope** — Multiple tools cover similar territory. For example, both `gbif__occurrence_search` and `inaturalist__observations` return location-based species records, but it's not immediately obvious when to prefer one over the other without knowing their underlying data quality, completeness, or geographic bias.
+
+2. **Implicit data freshness and coverage** — A tool description says "cached 7 days" or "static snapshot captured 2026-06-01," but doesn't explain whether that freshness matters for the question at hand, or what the actual coverage gaps are.
+
+3. **Identifier dependencies** — Many tools require IDs from *other* tools (e.g., `gbif__occurrence_search` needs a `taxonKey` from `gbif__species_match`). The descriptions state this, but they don't indicate the "conversion cost" or whether a simpler single-tool path exists.
+
+4. **Name format expectations** — Tool descriptions do specify what name format they accept (scientific name, common name, taxon ID), but they don't always explain *why* they have that constraint or what happens if you pass the wrong format.
+
+5. **Authority and reconciliation** — When multiple tools can answer the same question, there's no guidance on whether their answers will agree, or which source is more authoritative for specific use cases.
+
+**Bottom line:** The descriptions are functional and I can *usually* select a tool correctly, but I often have to make educated guesses or try multiple sources sequentially to find the best match. A decision tree or source relationship map would help — and I notice `registry__source_relationships` exists for exactly this purpose, though I haven't needed it yet.
