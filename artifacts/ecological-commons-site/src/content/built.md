@@ -28,6 +28,9 @@ Applications that demonstrate that kinds of things that can be built.
 **[Native Plant Right-Now Almanac](https://almanacrightnow.replit.app/)**
 > Discover what native plants are doing right now in Washtenaw County and surrounding region. Pick a place, see which species are actively flowering, fruiting, or leafing out based on iNaturalist phenology records from the same two-week window across all years. Select a species for a full detail page: a continental range map, and a Claude-composed field note on what makes this plant interesting at this moment in the season.
 
+**[iNaturalist Seedy Tagger](https://inatseedytagger.replit.app/)**
+> The Seedy Tagger is a tool for iNaturalist users to quickly annotate plant observations with phenology data — flowering, fruiting, budding, or no evidence of flowering. It runs entirely in your browser with no backend, connecting to your iNaturalist account via a personal access token that never leaves your device. It quickly allows you to mark observations with great data for community applications.
+
 ## What's Coming
 
 - Integrating additional sources.
