@@ -13,7 +13,7 @@ export const bonapMapsTable = pgTable("bonap_maps", {
   source_url: text("source_url"),
   status: text("status").notNull(),
   expires_at: timestamp("expires_at", { withTimezone: true }),
-  source_id: text("source_id").notNull().default("bonap-napa"),
+  source_id: text("source_id").notNull().default("bonap"),
   fetched_at: timestamp("fetched_at", { withTimezone: true }).notNull(),
   method: text("method").notNull().default("api_fetch"),
   upstream_url: text("upstream_url").notNull(),

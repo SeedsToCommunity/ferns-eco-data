@@ -617,7 +617,7 @@ export async function runS2CChecks(
 
   const speciesInfoCheck = await checkEndpoint(
     "s2c",
-    "/api/seeds-to-community-washtenaw/species-information?species=Aquilegia+canadensis",
+    "/api/s2c-mi-wash/species-information?species=Aquilegia+canadensis",
     "Seeds to Community — species information (Aquilegia canadensis)",
     fernsBase,
     (envelope) => {
@@ -637,10 +637,10 @@ export async function runS2CChecks(
         findings.push({ type: "mismatch", sourceField: "data.botanical_name", note: `data.botanical_name missing or empty` });
       }
       const prov = envelope.provenance as Record<string, unknown> | null | undefined;
-      if (prov?.source_id === "seeds-to-community-washtenaw") {
-        findings.push({ type: "ok", sourceField: "provenance.source_id", note: `source_id = "seeds-to-community-washtenaw" (expected)` });
+      if (prov?.source_id === "s2c-mi-wash") {
+        findings.push({ type: "ok", sourceField: "provenance.source_id", note: `source_id = "s2c-mi-wash" (expected)` });
       } else {
-        findings.push({ type: "mismatch", sourceField: "provenance.source_id", note: `Expected "seeds-to-community-washtenaw", got "${prov?.source_id}"` });
+        findings.push({ type: "mismatch", sourceField: "provenance.source_id", note: `Expected "s2c-mi-wash", got "${prov?.source_id}"` });
       }
       if (prov?.method === "cache_hit") {
         findings.push({ type: "ok", sourceField: "provenance.method", note: `method = "cache_hit" (expected for in-memory source)` });

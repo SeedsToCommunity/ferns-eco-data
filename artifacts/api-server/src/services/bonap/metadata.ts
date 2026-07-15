@@ -1,4 +1,4 @@
-export const BONAP_SOURCE_ID = "bonap-napa";
+export const BONAP_SOURCE_ID = "bonap";
 
 export const BONAP_DATA_VINTAGE =
   "NAPA maps: December 15, 2014. Color key documentation: February 8, 2024.";

@@ -1,4 +1,4 @@
-export const INAT_SOURCE_ID = "inaturalist";
+export const INAT_SOURCE_ID = "inat";
 
 export const INAT_API_BASE = "https://api.inaturalist.org/v1";
 

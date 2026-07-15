@@ -6,7 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetSeedsToCommunityWashtenawSpeciesInformationParams = {
+export type GetS2cMiWashSpeciesInformationParams = {
 /**
  * Botanical name of the species, e.g. Aquilegia canadensis.
  */

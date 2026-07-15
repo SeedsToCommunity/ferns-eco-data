@@ -61,10 +61,10 @@ function assertEnvelopeShape(fernsRaw: Record<string, unknown>, endpointLabel: s
     return findings;
   }
 
-  if (provenance.source_id !== "michigan-flora") {
-    findings.push({ type: "mismatch", sourceField: "provenance.source_id", sourceValue: "michigan-flora", fernsValue: String(provenance.source_id ?? ""), note: `${endpointLabel}: unexpected source_id` });
+  if (provenance.source_id !== "miflora") {
+    findings.push({ type: "mismatch", sourceField: "provenance.source_id", sourceValue: "miflora", fernsValue: String(provenance.source_id ?? ""), note: `${endpointLabel}: unexpected source_id` });
   } else {
-    findings.push({ type: "ok", sourceField: "provenance.source_id", note: `${endpointLabel}: provenance.source_id=michigan-flora` });
+    findings.push({ type: "ok", sourceField: "provenance.source_id", note: `${endpointLabel}: provenance.source_id=miflora` });
   }
 
   const validMethods = ["api_fetch", "cache_hit", "computed"];

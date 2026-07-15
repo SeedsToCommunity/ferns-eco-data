@@ -112,11 +112,11 @@ This runs the server directly from TypeScript source using `tsx`, without compil
 
 Tool names follow `{source_id}__{action}` (hyphens → underscores, double-underscore separator).
 
-### bonap-napa — BONAP North American Plant Atlas
+### bonap — BONAP North American Plant Atlas
 
 | Tool | Path | Required | Optional | Description |
 |---|---|---|---|---|
-| `bonap_napa__map` | GET /bonap/map | genus, species | map_type, refresh | County-level distribution map URL for a species from the BONAP North American Plant Atlas |
+| `bonap__map` | GET /bonap/map | genus, species | map_type, refresh | County-level distribution map URL for a species from the BONAP North American Plant Atlas |
 
 ### gbif — Global Biodiversity Information Facility
 
@@ -129,35 +129,35 @@ Tool names follow `{source_id}__{action}` (hyphens → underscores, double-under
 | `gbif__species_vernacular_names` | GET /gbif/species/{usageKey}/vernacularNames | usageKey | limit, offset, refresh | All vernacular (common) names for a GBIF taxon across all languages |
 | `gbif__occurrence_search` | GET /gbif/occurrence/search | — | taxonKey, country, continent, hasCoordinate, hasGeospatialIssue, basisOfRecord, year, limit, offset, refresh | Search GBIF occurrence records using GBIF native parameters (passthrough) |
 
-### inaturalist — iNaturalist
+### inat — iNaturalist
 
 | Tool | Path | Required | Optional | Description |
 |---|---|---|---|---|
-| `inaturalist__places_autocomplete` | GET /inat/places/autocomplete | q | refresh | Search iNaturalist places by name and return place IDs for use in other iNaturalist tools |
-| `inaturalist__observations_histogram` | GET /inat/observations/histogram | taxon_id | place_id, term_id, term_value_id, refresh | Monthly phenology histogram of observation counts for a taxon, optionally filtered by place |
-| `inaturalist__observations_popular_field_values` | GET /inat/observations/popular_field_values | taxon_id | place_id, verifiable, refresh | Observer-submitted field values (habitat, height, etc.) for a taxon from iNaturalist |
-| `inaturalist__observations` | GET /inat/observations | — | taxon_id, place_id, quality_grade, per_page, page | Paged slim observation records from iNaturalist |
-| `inaturalist__observations_species_counts` | GET /inat/observations/species_counts | — | place_id, quality_grade, iconic_taxon_name, native, introduced | Species ranked by observation count from iNaturalist |
-| `inaturalist__controlled_terms` | GET /inat/controlled_terms | — | refresh | Full list of iNaturalist controlled annotation terms and values |
-| `inaturalist__controlled_terms_for_taxon` | GET /inat/controlled_terms/for_taxon | taxon_id | refresh | Controlled annotation terms applicable to a specific taxon |
-| `inaturalist__taxa_autocomplete` | GET /inat/taxa/autocomplete | q | per_page, rank, locale | Fast partial-name taxon search for finding taxon IDs |
-| `inaturalist__taxa_by_id` | GET /inat/taxa/{id} | id | refresh | Full iNaturalist taxon record by numeric ID |
-| `inaturalist__places_by_id` | GET /inat/places/{id} | id | refresh | Full iNaturalist place record by numeric ID |
-| `inaturalist__places_nearby` | GET /inat/places/nearby | nelat, nelng, swlat, swlng | — | iNaturalist places within a bounding box |
-| `inaturalist__observations_taxon_summary` | GET /inat/observations/{id}/taxon_summary | observation_id | — | Wikipedia summary, nativity, and conservation status for a taxon at an observation location |
-| `inaturalist__identifications_similar_species` | GET /inat/identifications/similar_species | taxon_id | place_id, quality_grade | Species commonly confused with a given taxon |
-| `inaturalist__identifications_species_counts` | GET /inat/identifications/species_counts | — | taxon_id, place_id, taxon_of | Species ranked by identification activity |
-| `inaturalist__identifications_recent_taxa` | GET /inat/identifications/recent_taxa | — | place_id, taxon_id, quality_grade | Taxa recently identified in a place |
-| `inaturalist__identifications` | GET /inat/identifications | — | taxon_id, place_id, per_page, page | Paged list of individual iNaturalist identification records |
-| `inaturalist__identifications_by_id` | GET /inat/identifications/{id} | id | — | Single iNaturalist identification record by ID |
+| `inat__places_autocomplete` | GET /inat/places/autocomplete | q | refresh | Search iNaturalist places by name and return place IDs for use in other iNaturalist tools |
+| `inat__observations_histogram` | GET /inat/observations/histogram | taxon_id | place_id, term_id, term_value_id, refresh | Monthly phenology histogram of observation counts for a taxon, optionally filtered by place |
+| `inat__observations_popular_field_values` | GET /inat/observations/popular_field_values | taxon_id | place_id, verifiable, refresh | Observer-submitted field values (habitat, height, etc.) for a taxon from iNaturalist |
+| `inat__observations` | GET /inat/observations | — | taxon_id, place_id, quality_grade, per_page, page | Paged slim observation records from iNaturalist |
+| `inat__observations_species_counts` | GET /inat/observations/species_counts | — | place_id, quality_grade, iconic_taxon_name, native, introduced | Species ranked by observation count from iNaturalist |
+| `inat__controlled_terms` | GET /inat/controlled_terms | — | refresh | Full list of iNaturalist controlled annotation terms and values |
+| `inat__controlled_terms_for_taxon` | GET /inat/controlled_terms/for_taxon | taxon_id | refresh | Controlled annotation terms applicable to a specific taxon |
+| `inat__taxa_autocomplete` | GET /inat/taxa/autocomplete | q | per_page, rank, locale | Fast partial-name taxon search for finding taxon IDs |
+| `inat__taxa_by_id` | GET /inat/taxa/{id} | id | refresh | Full iNaturalist taxon record by numeric ID |
+| `inat__places_by_id` | GET /inat/places/{id} | id | refresh | Full iNaturalist place record by numeric ID |
+| `inat__places_nearby` | GET /inat/places/nearby | nelat, nelng, swlat, swlng | — | iNaturalist places within a bounding box |
+| `inat__observations_taxon_summary` | GET /inat/observations/{id}/taxon_summary | observation_id | — | Wikipedia summary, nativity, and conservation status for a taxon at an observation location |
+| `inat__identifications_similar_species` | GET /inat/identifications/similar_species | taxon_id | place_id, quality_grade | Species commonly confused with a given taxon |
+| `inat__identifications_species_counts` | GET /inat/identifications/species_counts | — | taxon_id, place_id, taxon_of | Species ranked by identification activity |
+| `inat__identifications_recent_taxa` | GET /inat/identifications/recent_taxa | — | place_id, taxon_id, quality_grade | Taxa recently identified in a place |
+| `inat__identifications` | GET /inat/identifications | — | taxon_id, place_id, per_page, page | Paged list of individual iNaturalist identification records |
+| `inat__identifications_by_id` | GET /inat/identifications/{id} | id | — | Single iNaturalist identification record by ID |
 
-### michigan-flora — Michigan Flora
+### miflora — Michigan Flora
 
 | Tool | Path | Required | Optional | Description |
 |---|---|---|---|---|
-| `michigan_flora__flora_search_sp` | GET /miflora/flora_search_sp | scientific_name | refresh | Search Michigan Flora by scientific name — returns array of matching species records |
-| `michigan_flora__locs_sp` | GET /miflora/locs_sp | id | refresh | County-level occurrence records for a Michigan Flora species by plant_id |
-| `michigan_flora__allimage_info` | GET /miflora/allimage_info | id | refresh | All image records for a Michigan Flora species by plant_id |
+| `miflora__flora_search_sp` | GET /miflora/flora_search_sp | scientific_name | refresh | Search Michigan Flora by scientific name — returns array of matching species records |
+| `miflora__locs_sp` | GET /miflora/locs_sp | id | refresh | County-level occurrence records for a Michigan Flora species by plant_id |
+| `miflora__allimage_info` | GET /miflora/allimage_info | id | refresh | All image records for a Michigan Flora species by plant_id |
 
 ### coefficient-of-conservatism — Coefficient of Conservatism
 
@@ -181,13 +181,13 @@ Tool names follow `{source_id}__{action}` (hyphens → underscores, double-under
 | `wucols_water_use__lookup` | GET /wucols | code | — | WUCOLS water-use classification for a code (H, M, L, VL): label and irrigation need description |
 | `wucols_water_use__list` | GET /wucols/list | — | — | All WUCOLS water-use codes with descriptions covering High, Medium, Low, and Very Low categories |
 
-### seeds-to-community-washtenaw — Seeds to Community Washtenaw
+### s2c-mi-wash — Seeds to Community Washtenaw
 
 | Tool | Path | Required | Optional | Description |
 |---|---|---|---|---|
-| `seeds_to_community_washtenaw__seed_availability` | GET /seeds-to-community-washtenaw/seed-availability | year | — | Species available in the Seeds to Community Washtenaw seed catalog for a given year |
-| `seeds_to_community_washtenaw__years` | GET /s2c/years | — | — | Years for which Seeds to Community Washtenaw seed availability data exists |
-| `seeds_to_community_washtenaw__species_information` | GET /seeds-to-community-washtenaw/species-information | species | provenance_verbosity | Detailed species record for a single plant in the S2C dataset, looked up by botanical name; includes availability across catalog years and seed collection notes |
+| `s2c_mi_wash__seed_availability` | GET /s2c-mi-wash/seed-availability | year | — | Species available in the Seeds to Community Washtenaw seed catalog for a given year |
+| `s2c_mi_wash__years` | GET /s2c-mi-wash/years | — | — | Years for which Seeds to Community Washtenaw seed availability data exists |
+| `s2c_mi_wash__species_information` | GET /s2c-mi-wash/species-information | species | provenance_verbosity | Detailed species record for a single plant in the S2C dataset, looked up by botanical name; includes availability across catalog years and seed collection notes |
 
 ### lcscg — Lake County Seed Collection Guides
 

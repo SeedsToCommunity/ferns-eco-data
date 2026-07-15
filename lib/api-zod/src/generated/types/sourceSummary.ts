@@ -7,7 +7,7 @@
  */
 
 export interface SourceSummary {
-  /** Stable identifier for this service (e.g. bonap-napa, gbif) */
+  /** Stable identifier for this service (e.g. bonap, gbif) */
   source_id: string;
   /** Human-readable service name */
   name: string;

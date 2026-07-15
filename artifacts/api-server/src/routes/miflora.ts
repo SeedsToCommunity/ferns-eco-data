@@ -38,14 +38,14 @@ import {
 import { buildEnvelope, type Method, type CacheStatus } from "@workspace/api-envelope";
 import { dbRegistryAccessor } from "../lib/registry-accessor.js";
 import {
-  getMichiganFloraFloraSearchSp,
-  getMichiganFloraLocsSp,
-  getMichiganFloraAllimageInfo,
-  getMichiganFloraSpecText,
-  getMichiganFloraSynonyms,
-  getMichiganFloraPimageInfo,
-  MichiganFloraApiError,
-} from "@workspace/external-data-providers/michigan-flora";
+  getMifloraFloraSearchSp,
+  getMifloraLocsSp,
+  getMifloraAllimageInfo,
+  getMifloraSpecText,
+  getMifloraSynonyms,
+  getMifloraPimageInfo,
+  MifloraApiError,
+} from "@workspace/external-data-providers/miflora";
 
 const router: IRouter = Router();
 
@@ -89,7 +89,7 @@ router.get("/miflora/locs_sp", async (req, res) => {
   }
 
   try {
-    const result = await getMichiganFloraLocsSp(plantId);
+    const result = await getMifloraLocsSp(plantId);
     const stored = await storeLocsSp(cacheKey, plantId, result);
     const { method, cacheStatus } = missPair();
     res.json(await buildEnvelope({
@@ -103,7 +103,7 @@ router.get("/miflora/locs_sp", async (req, res) => {
       queriedAt: stored.fetched_at.toISOString(),
     }, { registry: dbRegistryAccessor }));
   } catch (err) {
-    if (err instanceof MichiganFloraApiError) {
+    if (err instanceof MifloraApiError) {
       res.status(502).json({ error: "upstream_error", message: err.message });
       return;
     }
@@ -144,7 +144,7 @@ router.get("/miflora/allimage_info", async (req, res) => {
   }
 
   try {
-    const result = await getMichiganFloraAllimageInfo(plantId);
+    const result = await getMifloraAllimageInfo(plantId);
     const stored = await storeAllimageInfo(cacheKey, plantId, result);
     const { method, cacheStatus } = missPair();
     res.json(await buildEnvelope({
@@ -158,7 +158,7 @@ router.get("/miflora/allimage_info", async (req, res) => {
       queriedAt: stored.fetched_at.toISOString(),
     }, { registry: dbRegistryAccessor }));
   } catch (err) {
-    if (err instanceof MichiganFloraApiError) {
+    if (err instanceof MifloraApiError) {
       res.status(502).json({ error: "upstream_error", message: err.message });
       return;
     }
@@ -199,7 +199,7 @@ router.get("/miflora/flora_search_sp", async (req, res) => {
   }
 
   try {
-    const result = await getMichiganFloraFloraSearchSp(scientificName);
+    const result = await getMifloraFloraSearchSp(scientificName);
     const stored = await storeFloraSearch(cacheKey, result);
     const { method, cacheStatus } = missPair();
     res.json(await buildEnvelope({
@@ -213,7 +213,7 @@ router.get("/miflora/flora_search_sp", async (req, res) => {
       queriedAt: stored.fetched_at.toISOString(),
     }, { registry: dbRegistryAccessor }));
   } catch (err) {
-    if (err instanceof MichiganFloraApiError) {
+    if (err instanceof MifloraApiError) {
       res.status(502).json({ error: "upstream_error", message: err.message });
       return;
     }
@@ -254,7 +254,7 @@ router.get("/miflora/spec_text", async (req, res) => {
   }
 
   try {
-    const result = await getMichiganFloraSpecText(id);
+    const result = await getMifloraSpecText(id);
     const stored = await storeSpecText(cacheKey, result);
     const { method, cacheStatus } = missPair();
     res.json(await buildEnvelope({
@@ -269,7 +269,7 @@ router.get("/miflora/spec_text", async (req, res) => {
       permissionGranted: false,
     }, { registry: dbRegistryAccessor }));
   } catch (err) {
-    if (err instanceof MichiganFloraApiError) {
+    if (err instanceof MifloraApiError) {
       res.status(502).json({ error: "upstream_error", message: err.message });
       return;
     }
@@ -309,7 +309,7 @@ router.get("/miflora/synonyms", async (req, res) => {
   }
 
   try {
-    const result = await getMichiganFloraSynonyms(id);
+    const result = await getMifloraSynonyms(id);
     const stored = await storeSynonyms(cacheKey, result);
     const { method, cacheStatus } = missPair();
     res.json(await buildEnvelope({
@@ -323,7 +323,7 @@ router.get("/miflora/synonyms", async (req, res) => {
       queriedAt: stored.fetched_at.toISOString(),
     }, { registry: dbRegistryAccessor }));
   } catch (err) {
-    if (err instanceof MichiganFloraApiError) {
+    if (err instanceof MifloraApiError) {
       res.status(502).json({ error: "upstream_error", message: err.message });
       return;
     }
@@ -363,7 +363,7 @@ router.get("/miflora/pimage_info", async (req, res) => {
   }
 
   try {
-    const result = await getMichiganFloraPimageInfo(id);
+    const result = await getMifloraPimageInfo(id);
     const stored = await storePImage(cacheKey, result);
     const { method, cacheStatus } = missPair();
     res.json(await buildEnvelope({
@@ -377,7 +377,7 @@ router.get("/miflora/pimage_info", async (req, res) => {
       queriedAt: stored.fetched_at.toISOString(),
     }, { registry: dbRegistryAccessor }));
   } catch (err) {
-    if (err instanceof MichiganFloraApiError) {
+    if (err instanceof MifloraApiError) {
       res.status(502).json({ error: "upstream_error", message: err.message });
       return;
     }

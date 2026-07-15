@@ -5,7 +5,7 @@ import {
   type Tool,
 } from "@modelcontextprotocol/sdk/types.js";
 import { apiGet } from "./client.js";
-import { inatToolDefs } from "./acknowledged/inaturalist.js";
+import { inatToolDefs } from "./acknowledged/inat.js";
 
 type ToolHandler = (args: Record<string, unknown>) => Promise<unknown>;
 
@@ -16,10 +16,10 @@ interface ToolDef {
 
 const tools: ToolDef[] = [
 
-  // ── bonap-napa ──────────────────────────────────────────────────────────
+  // ── bonap ──────────────────────────────────────────────────────────
   {
     tool: {
-      name: "bonap_napa__map",
+      name: "bonap__map",
       description:
         "Returns county-level distribution data for a vascular plant from the BONAP North American Plant Atlas, based on nearly four million verified herbarium specimens. Shows native, exotic, absent, and rare status for every county across North America. " +
         "data.genus and data.species report the actual values used to query BONAP; data.species may differ from the requested species if a subspecies qualifier was stripped (BONAP does not publish subspecies-level maps). " +
@@ -192,16 +192,16 @@ const tools: ToolDef[] = [
       }),
   },
 
-  // ── inaturalist (acknowledged source — direct iNat API calls) ────────────
+  // ── inat (acknowledged source — direct iNat API calls) ────────────
   ...inatToolDefs,
 
-  // ── michigan-flora ──────────────────────────────────────────────────────
+  // ── miflora ──────────────────────────────────────────────────────
   {
     tool: {
-      name: "michigan_flora__locs_sp",
+      name: "miflora__locs_sp",
       description:
         "Returns county-level occurrence records for a Michigan Flora species by plant_id. " +
-        "data.locations is the county list. Use michigan_flora__flora_search_sp first to resolve a scientific name to a plant_id. " +
+        "data.locations is the county list. Use miflora__flora_search_sp first to resolve a scientific name to a plant_id. " +
         "Mirrors the Michigan Flora locs_sp?id={plant_id} endpoint verbatim.",
       inputSchema: {
         type: "object" as const,
@@ -220,11 +220,11 @@ const tools: ToolDef[] = [
   },
   {
     tool: {
-      name: "michigan_flora__allimage_info",
+      name: "miflora__allimage_info",
       description:
         "Returns all image records for a Michigan Flora species by plant_id. " +
         "data is the array of image records (image_id, image_name, caption, photographer, image_url, thumbnail_url). " +
-        "Use michigan_flora__flora_search_sp first to resolve a scientific name to a plant_id. " +
+        "Use miflora__flora_search_sp first to resolve a scientific name to a plant_id. " +
         "Mirrors the Michigan Flora allimage_info?id={plant_id} endpoint verbatim.",
       inputSchema: {
         type: "object" as const,
@@ -243,11 +243,11 @@ const tools: ToolDef[] = [
   },
   {
     tool: {
-      name: "michigan_flora__flora_search_sp",
+      name: "miflora__flora_search_sp",
       description:
         "Searches Michigan Flora for species matching a scientific name. " +
         "data is an array of species records (not a wrapped object) — each record includes plant_id, scientific_name, family_name, native status (na: N=native, A=adventive), C-value, wetland indicator code (OBL/FACW/FAC/FACU/UPL), physiognomy, and common names. " +
-        "The plant_id from the matching record is required by michigan_flora__spec_text, michigan_flora__synonyms, michigan_flora__allimage_info, michigan_flora__locs_sp, and michigan_flora__pimage_info. " +
+        "The plant_id from the matching record is required by miflora__spec_text, miflora__synonyms, miflora__allimage_info, miflora__locs_sp, and miflora__pimage_info. " +
         "Mirrors the Michigan Flora flora_search_sp?scientific_name={name} endpoint verbatim.",
       inputSchema: {
         type: "object" as const,
@@ -266,12 +266,12 @@ const tools: ToolDef[] = [
   },
   {
     tool: {
-      name: "michigan_flora__spec_text",
+      name: "miflora__spec_text",
       description:
         "Returns botanical description HTML text for a Michigan Flora species by plant_id. " +
         "data.text is the description text (or null if unavailable). " +
         "Note: permission_granted is always false — the text is fetched for reference but is not licensed for reproduction. " +
-        "Use michigan_flora__flora_search_sp first to resolve a scientific name to a plant_id.",
+        "Use miflora__flora_search_sp first to resolve a scientific name to a plant_id.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -289,11 +289,11 @@ const tools: ToolDef[] = [
   },
   {
     tool: {
-      name: "michigan_flora__synonyms",
+      name: "miflora__synonyms",
       description:
         "Returns taxonomic synonyms for a Michigan Flora species by plant_id. " +
         "data is the bare array of synonym records ({ synonym: string, author: string | null }) — empty array if none exist. " +
-        "Use michigan_flora__flora_search_sp first to resolve a scientific name to a plant_id.",
+        "Use miflora__flora_search_sp first to resolve a scientific name to a plant_id.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -311,11 +311,11 @@ const tools: ToolDef[] = [
   },
   {
     tool: {
-      name: "michigan_flora__pimage_info",
+      name: "miflora__pimage_info",
       description:
         "Returns the primary (featured) image record for a Michigan Flora species by plant_id. " +
         "data is the flat image record ({ image_id, image_name, caption, photographer, image_url, thumbnail_url }) or null if no primary image exists. " +
-        "Use michigan_flora__flora_search_sp first to resolve a scientific name to a plant_id.",
+        "Use miflora__flora_search_sp first to resolve a scientific name to a plant_id.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -452,12 +452,12 @@ const tools: ToolDef[] = [
       }),
   },
 
-  // ── seeds-to-community-washtenaw ────────────────────────────────────────
+  // ── s2c-mi-wash ────────────────────────────────────────
   {
     tool: {
-      name: "seeds_to_community_washtenaw__seed_availability",
+      name: "s2c_mi_wash__seed_availability",
       description:
-        "Returns the list of plant species available in the Seeds to Community Washtenaw seed catalog for a given year. Call seeds_to_community_washtenaw__years first to get valid year values.",
+        "Returns the list of plant species available in the Seeds to Community Washtenaw seed catalog for a given year. Call s2c_mi_wash__years first to get valid year values.",
       inputSchema: {
         type: "object" as const,
         properties: {
@@ -467,13 +467,13 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/seeds-to-community-washtenaw/seed-availability", {
+      apiGet("/s2c-mi-wash/seed-availability", {
         year: Number(args["year"]),
       }),
   },
   {
     tool: {
-      name: "seeds_to_community_washtenaw__years",
+      name: "s2c_mi_wash__years",
       description:
         "Returns the list of years for which Seeds to Community Washtenaw seed availability data is available.",
       inputSchema: {
@@ -482,12 +482,12 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/seeds-to-community-washtenaw/years", {
+      apiGet("/s2c-mi-wash/years", {
       }),
   },
   {
     tool: {
-      name: "seeds_to_community_washtenaw__species_information",
+      name: "s2c_mi_wash__species_information",
       description:
         "Returns detailed species information for a single plant in the Seeds to Community Washtenaw dataset, looked up by botanical name. Includes availability across catalog years, seed collection notes, and any associated ecological data recorded by Seeds to Community Washtenaw.",
       inputSchema: {
@@ -499,7 +499,7 @@ const tools: ToolDef[] = [
       },
     },
     handler: async (args) =>
-      apiGet("/seeds-to-community-washtenaw/species-information", {
+      apiGet("/s2c-mi-wash/species-information", {
         species: String(args["species"]),
       }),
   },

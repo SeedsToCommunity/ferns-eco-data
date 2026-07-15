@@ -1,4 +1,4 @@
-export const MIFLORA_SOURCE_ID = "michigan-flora";
+export const MIFLORA_SOURCE_ID = "miflora";
 
 export const MIFLORA_API_BASE = "https://michiganflora.net/api/v1.0";
 

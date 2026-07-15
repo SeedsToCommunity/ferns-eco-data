@@ -1,16 +1,16 @@
-export interface SeedsToCommunityWashtenawSpeciesEntry {
+export interface S2cMiWashSpeciesEntry {
   botanical_name: string;
   neat_and_tidy?: boolean;
   sweet_and_simple?: boolean;
 }
 
-export interface SeedsToCommunityWashtenawYearData {
+export interface S2cMiWashYearData {
   year: number;
-  species: SeedsToCommunityWashtenawSpeciesEntry[];
+  species: S2cMiWashSpeciesEntry[];
   source_note: string;
 }
 
-export const SEEDS_TO_COMMUNITY_WASHTENAW_DATA: SeedsToCommunityWashtenawYearData[] = [
+export const S2C_MI_WASH_DATA: S2cMiWashYearData[] = [
   {
     year: 2023,
     source_note: "Sourced from plant-sheet PDF distributed at 2023 growing workshops. Neat & Tidy flag not tracked this year.",
@@ -474,8 +474,8 @@ export const SEEDS_TO_COMMUNITY_WASHTENAW_DATA: SeedsToCommunityWashtenawYearDat
   },
 ];
 
-export const SEEDS_TO_COMMUNITY_WASHTENAW_AVAILABLE_YEARS: number[] = SEEDS_TO_COMMUNITY_WASHTENAW_DATA.map((y) => y.year);
+export const S2C_MI_WASH_AVAILABLE_YEARS: number[] = S2C_MI_WASH_DATA.map((y) => y.year);
 
-export function lookupByYear(year: number): SeedsToCommunityWashtenawYearData | undefined {
-  return SEEDS_TO_COMMUNITY_WASHTENAW_DATA.find((y) => y.year === year);
+export function lookupByYear(year: number): S2cMiWashYearData | undefined {
+  return S2C_MI_WASH_DATA.find((y) => y.year === year);
 }

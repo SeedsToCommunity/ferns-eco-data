@@ -2,6 +2,38 @@
 
 ---
 
+## Task: Source identifier consistency fix — bonap, miflora, inat, s2c-mi-wash (2026-07-15)
+
+### 1. What was changed
+
+Four registered sources had a mismatch between their official `source_id` (the name recorded in the registry and used in some parts of the code) and the name actually used elsewhere — in URLs, in AI agent tool names, or in internal folder names. Per user direction, each of the four was resolved to a single short, agreed-upon name, applied consistently everywhere that source appears in the codebase: `bonap` (was split between `bonap-napa` and `bonap`), `miflora` (was split between `michigan-flora` and `miflora`), `inat` (was split between `inaturalist` and `inat`), and `s2c-mi-wash` — a new name chosen to leave room for other regional "Seeds to Community" programs in the future (was split three ways between `seeds-to-community-washtenaw`, `s2c`, and no consistent form at all). The fix touched every layer each source appears in: the registry entry, the inner data-fetching code, the public URL routes, the AI agent (MCP) tool names, the database cache tables, the API documentation (OpenAPI spec), the generated client code, cross-source relationship notes, and the audit tool. Both `api-server` and `mcp-server` compile with zero TypeScript errors after the change.
+
+### 2. Derivation summary
+
+N/A — no new source added; this was a naming-consistency fix to four existing sources.
+
+### 3. Scientific/technical description
+
+N/A — no new source added.
+
+### 4. Architectural decisions made
+
+- **Chosen names**: `bonap`, `miflora`, `inat`, `s2c-mi-wash` — decided directly with the user rather than defaulting to the longer registry names, after showing that the public-facing surface (URL and/or agent tool name) for each source was already inconsistent between the short and long forms, so neither was a clear existing "winner."
+- **`s2c-mi-wash` bakes in geographic scope on purpose**: the user's stated intent is to expand this project beyond southeast Michigan over time, so a plain `s2c` identifier would collide with a future "Seeds to Community" program in another region. The `-mi-wash` suffix (Michigan, Washtenaw County) disambiguates now, before any second instance exists.
+- **No database migration file was generated in this session.** `drizzle-kit generate` fails in this sandbox for a reason unrelated to this change (a pre-existing module-resolution error loading `trust.ts`, reproducible on the unmodified codebase). Two database changes are still needed and were NOT made: (a) a schema migration changing the `source_id` column default on `bonap_maps` and all seven `miflora_*_cache` tables from the old name to the new one, and (b) a one-time data fix renaming the existing `source_id` value on already-seeded rows in `ferns_sources` (all four sources) and in the `bonap_maps`/`miflora_*_cache` tables — without this data fix, the next server startup's registry seed will insert a *new* row under the new name rather than renaming the existing row in place, leaving an orphaned duplicate. The exact SQL for both was worked out and handed to the user directly in chat (not committed as a file, since fabricating drizzle's migration journal/snapshot by hand without the generator tool was judged too risky to get right blind).
+- **`dist/` build output was not committed.** Despite a note in `docs/operational-notes.md` implying `dist/` is tracked in git for composite packages, verification in this session found `dist` is globally gitignored and no package's `dist/` is actually tracked. TypeScript project references rebuild it automatically; nothing to commit. (Worth a doc correction at some point, out of scope for this task.)
+
+### 5. What was NOT done
+
+- The database migration described above (schema default change + data rename) was not applied or committed — see Architectural decisions.
+- Two related but separately-scoped items were intentionally left out of this task: the stale `artifacts/rest-server` path references in `docs/Human Review Levels/`, and the empty `3-EnvelopeContents.md` file in that same folder.
+
+### 6. What the user should decide or review
+
+Before merging: run `pnpm --filter @workspace/db run generate` in an environment where it works (this sandbox's drizzle-kit CLI has the unrelated pre-existing bug described above), commit the resulting migration file, and apply the one-time data-rename SQL provided in chat to any already-seeded database (dev and production) so existing registry rows are renamed in place rather than duplicated.
+
+---
+
 ## Task: Remove provenance_verbosity from all layers (2026-07-02)
 
 ### 1. What was changed

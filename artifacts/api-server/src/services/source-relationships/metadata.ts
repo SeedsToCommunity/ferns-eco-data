@@ -28,7 +28,7 @@ function pair(a: string, b: string): { source_id_a: string; source_id_b: string 
 
 export const SOURCE_RELATIONSHIPS: SourceRelationshipSeed[] = [
   {
-    ...pair("gbif", "inaturalist"),
+    ...pair("gbif", "inat"),
     relationship_type: "overlap",
     scope: "occurrence_counts",
     severity: "blocking",
@@ -38,7 +38,7 @@ export const SOURCE_RELATIONSHIPS: SourceRelationshipSeed[] = [
       "iNaturalist records published to GBIF carry basisOfRecord=HUMAN_OBSERVATION. Filtering GBIF occurrences by basisOfRecord can partially isolate non-iNaturalist records, but the overlap is not perfectly separable without record-level deduplication by occurrenceID.",
   },
   {
-    ...pair("bonap-napa", "gbif"),
+    ...pair("bonap", "gbif"),
     relationship_type: "overlap",
     scope: "taxonomy",
     severity: "cautionary",
@@ -48,7 +48,7 @@ export const SOURCE_RELATIONSHIPS: SourceRelationshipSeed[] = [
       "BONAP follows the Kartesz BONAP 2015 checklist; GBIF uses its own Backbone Taxonomy assembled from 105 source checklists including the Catalogue of Life. Both lean on WCVP for vascular plants but may differ on accepted names for contested taxa.",
   },
   {
-    ...pair("gbif", "inaturalist"),
+    ...pair("gbif", "inat"),
     relationship_type: "conflict",
     scope: "taxonomy",
     severity: "cautionary",
@@ -58,7 +58,7 @@ export const SOURCE_RELATIONSHIPS: SourceRelationshipSeed[] = [
       "iNaturalist's taxonomy is community-curated and may accept or synonymize names differently than the GBIF Backbone. When the same species query returns different accepted names across the two sources, consult a third authority (USDA PLANTS or BONAP) to assess which treatment to follow.",
   },
   {
-    ...pair("michigan-flora", "universal-fqa"),
+    ...pair("miflora", "universal-fqa"),
     relationship_type: "overlap",
     scope: "c_values",
     severity: "cautionary",
@@ -78,7 +78,7 @@ export const SOURCE_RELATIONSHIPS: SourceRelationshipSeed[] = [
       "GBIF IUCN categories reflect global threat status assessed by IUCN. NatureServe G/N/S ranks reflect rarity and vulnerability assessed element-by-element for the Americas. A species may be Least Concern (IUCN) but S1 (critically imperiled) in a specific state.",
   },
   {
-    ...pair("inaturalist", "natureserve"),
+    ...pair("inat", "natureserve"),
     relationship_type: "conflict",
     scope: "conservation_ranks",
     severity: "cautionary",
@@ -98,7 +98,7 @@ export const SOURCE_RELATIONSHIPS: SourceRelationshipSeed[] = [
       "MNFI community type codes map onto NatureServe Ecological System codes. Combining both sources gives the fullest picture: NatureServe for national/continental classification context, MNFI for Michigan field-level community descriptions and element occurrence records.",
   },
   {
-    ...pair("bonap-napa", "michigan-flora"),
+    ...pair("bonap", "miflora"),
     relationship_type: "complements",
     scope: "geographic_coverage",
     severity: "informational",
@@ -108,7 +108,7 @@ export const SOURCE_RELATIONSHIPS: SourceRelationshipSeed[] = [
       "BONAP does not include botanical descriptions or nativity classifications for Michigan. Michigan Flora does not cover species outside Michigan. For a Michigan species, Michigan Flora is preferred for local detail; BONAP is the only option for out-of-state distribution context.",
   },
   {
-    ...pair("inaturalist", "michigan-flora"),
+    ...pair("inat", "miflora"),
     relationship_type: "complements",
     scope: "geographic_coverage",
     severity: "informational",
@@ -118,7 +118,7 @@ export const SOURCE_RELATIONSHIPS: SourceRelationshipSeed[] = [
       "Michigan Flora data reflects Voss & Reznicek 2012 and is not updated. iNaturalist data is live but unvetted at the individual record level (research-grade requires community ID agreement). Neither supersedes the other.",
   },
   {
-    ...pair("bonap-napa", "inaturalist"),
+    ...pair("bonap", "inat"),
     relationship_type: "complements",
     scope: "occurrence",
     severity: "informational",
@@ -138,7 +138,7 @@ export const SOURCE_RELATIONSHIPS: SourceRelationshipSeed[] = [
       "The Flora of the Chicago Region uses a conservative taxonomic treatment that accepts some names GBIF synonymizes, and vice versa. Always verify LCSCG names against GBIF before assuming taxonomic concordance.",
   },
   {
-    ...pair("bonap-napa", "michigan-flora"),
+    ...pair("bonap", "miflora"),
     relationship_type: "conflict",
     scope: "terminology",
     severity: "cautionary",
@@ -148,7 +148,7 @@ export const SOURCE_RELATIONSHIPS: SourceRelationshipSeed[] = [
       "In BONAP, an adventive species in Michigan is North American native but non-native to Michigan (e.g., a Great Plains species spreading eastward). In Michigan Flora, \"adventive\" means introduced from outside North America (i.e., a European or Asian import). Never conflate the two without source-level disambiguation.",
   },
   {
-    ...pair("bonap-napa", "mnfi"),
+    ...pair("bonap", "mnfi"),
     relationship_type: "conflict",
     scope: "terminology",
     severity: "cautionary",
@@ -158,7 +158,7 @@ export const SOURCE_RELATIONSHIPS: SourceRelationshipSeed[] = [
       "MNFI's nativity classifications align with Michigan Flora, not BONAP. See also the BONAP ↔ Michigan Flora terminology conflict. Any workflow combining BONAP and MNFI nativity data must translate between the two definitions.",
   },
   {
-    ...pair("lcscg", "seeds-to-community-washtenaw"),
+    ...pair("lcscg", "s2c-mi-wash"),
     relationship_type: "complements",
     scope: "seed_harvest",
     severity: "informational",
@@ -178,7 +178,7 @@ export const SOURCE_RELATIONSHIPS: SourceRelationshipSeed[] = [
       "USDA PLANTS follows NRCS taxonomy, which is based on ITIS. GBIF's backbone is assembled from multiple checklists. Both reference overlapping but not identical source checklists, so agreement is partially circular.",
   },
   {
-    ...pair("michigan-flora", "mnfi"),
+    ...pair("miflora", "mnfi"),
     relationship_type: "complements",
     scope: "geographic_coverage",
     severity: "informational",

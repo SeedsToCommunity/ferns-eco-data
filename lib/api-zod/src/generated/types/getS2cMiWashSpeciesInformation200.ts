@@ -6,8 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { FernsEnvelope } from './fernsEnvelope';
-import type { S2CYearsData } from './s2CYearsData';
+import type { S2CSpeciesInformationData } from './s2CSpeciesInformationData';
 
-export type GetSeedsToCommunityWashtenawYears200 = FernsEnvelope & {
-  data?: S2CYearsData;
+export type GetS2cMiWashSpeciesInformation200 = FernsEnvelope & {
+  data?: S2CSpeciesInformationData;
 };
