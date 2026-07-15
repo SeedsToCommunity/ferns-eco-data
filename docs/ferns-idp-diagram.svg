@@ -1,0 +1,67 @@
+<svg width="680" height="616" viewBox="0 0 680 616" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>FERNS reference diagram, all nine internal data providers, with corrected client access paths</title>
+<desc>Client references MCP for agent tool calls or references REST directly as any HTTP client, MCP also references REST, and REST references a contained IDP layer holding all nine internal data providers: MNFI, LCSCG, Ann Arbor NPN, Coefficient of Conservatism, Wetland Indicator Status, WUCOLS, Seeds to Community Washtenaw, Wildtype Natives, and Google Images.</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5F5E5A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+</defs>
+<style>
+text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+.ts { font-size: 12px; fill: #5F5E5A; }
+.th { font-size: 14px; font-weight: 500; }
+.arr { stroke: #5F5E5A; fill: none; }
+.gray-fill { fill: #F1EFE8; stroke: #5F5E5A; }
+.gray-text { fill: #444441; }
+.coral-fill { fill: #FAECE7; stroke: #993C1D; }
+.coral-text { fill: #712B13; }
+.purple-fill { fill: #EEEDFE; stroke: #534AB7; }
+.purple-text { fill: #3C3489; }
+.teal-fill { fill: #E1F5EE; stroke: #0F6E56; }
+.teal-text { fill: #085041; }
+.dashed { fill: none; stroke: #888780; stroke-dasharray: 4 3; }
+</style>
+
+<rect class="gray-fill" x="230" y="30" width="220" height="56" rx="8" stroke-width="0.5"/>
+<text class="th gray-text" x="340" y="50" text-anchor="middle" dominant-baseline="central">Client / agent</text>
+<text class="ts gray-text" x="340" y="68" text-anchor="middle" dominant-baseline="central">Web app, LLM, or API caller</text>
+
+<path d="M340 86 L340 110 L170 110 L170 170" fill="none" class="arr" marker-end="url(#arrow)"/>
+<text class="ts" x="180" y="100" text-anchor="start">references MCP (agent tools)</text>
+<line x1="340" y1="86" x2="340" y2="290" class="arr" marker-end="url(#arrow)"/>
+<text class="ts" x="360" y="200" text-anchor="start">or references REST directly</text>
+
+<rect class="coral-fill" x="70" y="170" width="200" height="56" rx="8" stroke-width="0.5"/>
+<text class="th coral-text" x="170" y="190" text-anchor="middle" dominant-baseline="central">MCP layer</text>
+<text class="ts coral-text" x="170" y="208" text-anchor="middle" dominant-baseline="central">For agent tool calls</text>
+<path d="M170 226 L170 310 L230 310" fill="none" class="arr" marker-end="url(#arrow)"/>
+<text class="ts" x="180" y="250" text-anchor="start">MCP also references REST</text>
+
+<rect class="purple-fill" x="230" y="290" width="220" height="56" rx="8" stroke-width="0.5"/>
+<text class="th purple-text" x="340" y="310" text-anchor="middle" dominant-baseline="central">REST layer</text>
+<text class="ts purple-text" x="340" y="328" text-anchor="middle" dominant-baseline="central">Envelope + caching + HTTP</text>
+<line x1="340" y1="346" x2="340" y2="388" class="arr" marker-end="url(#arrow)"/>
+<text class="ts" x="460" y="368" text-anchor="start">imports functions from 9 IDPs</text>
+
+<rect class="dashed" x="40" y="388" width="600" height="188" rx="16" stroke-width="1"/>
+<text class="th gray-text" x="60" y="410">IDP layer, 9 sources</text>
+
+<rect class="teal-fill" x="50" y="428" width="180" height="40" rx="8" stroke-width="0.5"/>
+<text class="th teal-text" x="140" y="448" text-anchor="middle" dominant-baseline="central">MNFI</text>
+<rect class="teal-fill" x="250" y="428" width="180" height="40" rx="8" stroke-width="0.5"/>
+<text class="th teal-text" x="340" y="448" text-anchor="middle" dominant-baseline="central">LCSCG</text>
+<rect class="teal-fill" x="450" y="428" width="180" height="40" rx="8" stroke-width="0.5"/>
+<text class="th teal-text" x="540" y="448" text-anchor="middle" dominant-baseline="central">Ann Arbor NPN</text>
+
+<rect class="teal-fill" x="50" y="482" width="180" height="40" rx="8" stroke-width="0.5"/>
+<text class="th teal-text" x="140" y="502" text-anchor="middle" dominant-baseline="central">Coefficient of C</text>
+<rect class="teal-fill" x="250" y="482" width="180" height="40" rx="8" stroke-width="0.5"/>
+<text class="th teal-text" x="340" y="502" text-anchor="middle" dominant-baseline="central">Wetland Indicator</text>
+<rect class="teal-fill" x="450" y="482" width="180" height="40" rx="8" stroke-width="0.5"/>
+<text class="th teal-text" x="540" y="502" text-anchor="middle" dominant-baseline="central">WUCOLS</text>
+
+<rect class="teal-fill" x="50" y="536" width="180" height="40" rx="8" stroke-width="0.5"/>
+<text class="th teal-text" x="140" y="556" text-anchor="middle" dominant-baseline="central">S2C Washtenaw</text>
+<rect class="teal-fill" x="250" y="536" width="180" height="40" rx="8" stroke-width="0.5"/>
+<text class="th teal-text" x="340" y="556" text-anchor="middle" dominant-baseline="central">Wildtype Natives</text>
+<rect class="teal-fill" x="450" y="536" width="180" height="40" rx="8" stroke-width="0.5"/>
+<text class="th teal-text" x="540" y="556" text-anchor="middle" dominant-baseline="central">Google Images</text>
+</svg>
