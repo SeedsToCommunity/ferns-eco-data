@@ -18,7 +18,7 @@ const TIMEOUT_MS = 10_000;
 // ── Exported types ─────────────────────────────────────────────────────────────
 
 /** One record from flora_search_sp */
-export interface MichiganFloraSpeciesRecord {
+export interface MifloraSpeciesRecord {
   plant_id: number;
   scientific_name: string;
   family_name: string | null;
@@ -33,64 +33,64 @@ export interface MichiganFloraSpeciesRecord {
   common_name: string[];
 }
 
-/** Result from getMichiganFloraFloraSearchSp */
-export interface MichiganFloraFloraSearchSpResult {
+/** Result from getMifloraFloraSearchSp */
+export interface MifloraFloraSearchSpResult {
   found: boolean;
   upstreamUrl: string;
-  records: MichiganFloraSpeciesRecord[];
+  records: MifloraSpeciesRecord[];
 }
 
-/** Result from getMichiganFloraLocsSp */
-export interface MichiganFloraLocsSpResult {
+/** Result from getMifloraLocsSp */
+export interface MifloraLocsSpResult {
   found: boolean;
   upstreamUrl: string;
   locations: string[];
 }
 
 /** One image record — from allimage_info or pimage_info */
-export interface MichiganFloraImageRecord {
+export interface MifloraImageRecord {
   image_id: number | string;
   image_name: string | null;
   caption: string | null;
   photographer: string | null;
 }
 
-/** Result from getMichiganFloraAllimageInfo */
-export interface MichiganFloraAllimageInfoResult {
+/** Result from getMifloraAllimageInfo */
+export interface MifloraAllimageInfoResult {
   found: boolean;
   upstreamUrl: string;
-  images: MichiganFloraImageRecord[];
+  images: MifloraImageRecord[];
 }
 
-/** Result from getMichiganFloraSpecText */
-export interface MichiganFloraSpecTextResult {
+/** Result from getMifloraSpecText */
+export interface MifloraSpecTextResult {
   found: boolean;
   upstreamUrl: string;
   text: string | null;
 }
 
-/** Result from getMichiganFloraSynonyms */
-export interface MichiganFloraSynonymsResult {
+/** Result from getMifloraSynonyms */
+export interface MifloraSynonymsResult {
   found: boolean;
   upstreamUrl: string;
   synonyms: Array<{ synonym: string; author: string | null }>;
 }
 
-/** Result from getMichiganFloraPimageInfo */
-export interface MichiganFloraPimageInfoResult {
+/** Result from getMifloraPimageInfo */
+export interface MifloraPimageInfoResult {
   found: boolean;
   upstreamUrl: string;
-  image: MichiganFloraImageRecord | null;
+  image: MifloraImageRecord | null;
 }
 
 /** Thrown when the Michigan Flora API returns a non-OK response or times out */
-export class MichiganFloraApiError extends Error {
+export class MifloraApiError extends Error {
   constructor(
     message: string,
     public readonly statusCode?: number,
   ) {
     super(message);
-    this.name = "MichiganFloraApiError";
+    this.name = "MifloraApiError";
   }
 }
 
@@ -98,7 +98,7 @@ export class MichiganFloraApiError extends Error {
 
 /**
  * Shared HTTP fetch with standard headers, 10 s timeout.
- * Throws MichiganFloraApiError on any non-OK response.
+ * Throws MifloraApiError on any non-OK response.
  */
 async function michiganFloraFetch(url: string): Promise<unknown> {
   let resp: Response;
@@ -111,11 +111,11 @@ async function michiganFloraFetch(url: string): Promise<unknown> {
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
   } catch (err) {
-    throw new MichiganFloraApiError(`Network error fetching ${url}: ${String(err)}`);
+    throw new MifloraApiError(`Network error fetching ${url}: ${String(err)}`);
   }
 
   if (!resp.ok) {
-    throw new MichiganFloraApiError(
+    throw new MifloraApiError(
       `HTTP ${resp.status} from Michigan Flora: ${url}`,
       resp.status,
     );
@@ -125,10 +125,10 @@ async function michiganFloraFetch(url: string): Promise<unknown> {
 }
 
 /**
- * Maps a raw API object to MichiganFloraSpeciesRecord.
+ * Maps a raw API object to MifloraSpeciesRecord.
  * Normalizes st: "NULL" → null.
  */
-function parseSpeciesRecord(raw: Record<string, unknown>): MichiganFloraSpeciesRecord {
+function parseSpeciesRecord(raw: Record<string, unknown>): MifloraSpeciesRecord {
   const st = raw["st"];
   return {
     plant_id: raw["plant_id"] as number,
@@ -154,11 +154,11 @@ function parseSpeciesRecord(raw: Record<string, unknown>): MichiganFloraSpeciesR
  * Searches Michigan Flora species by scientific name.
  * Upstream: GET /flora_search_sp?scientific_name=...
  * Does NOT read or write any database table.
- * Throws MichiganFloraApiError on HTTP error or timeout.
+ * Throws MifloraApiError on HTTP error or timeout.
  */
-export async function getMichiganFloraFloraSearchSp(
+export async function getMifloraFloraSearchSp(
   scientificName: string,
-): Promise<MichiganFloraFloraSearchSpResult> {
+): Promise<MifloraFloraSearchSpResult> {
   const url = `${BASE_URL}/flora_search_sp?scientific_name=${encodeURIComponent(scientificName)}`;
   const data = await michiganFloraFetch(url);
 
@@ -191,11 +191,11 @@ export async function getMichiganFloraFloraSearchSp(
  * Returns county occurrence data for a Michigan Flora plant_id.
  * Upstream: GET /locs_sp?id=...
  * Does NOT read or write any database table.
- * Throws MichiganFloraApiError on HTTP error or timeout.
+ * Throws MifloraApiError on HTTP error or timeout.
  */
-export async function getMichiganFloraLocsSp(
+export async function getMifloraLocsSp(
   plantId: number,
-): Promise<MichiganFloraLocsSpResult> {
+): Promise<MifloraLocsSpResult> {
   const url = `${BASE_URL}/locs_sp?id=${plantId}`;
   const data = await michiganFloraFetch(url);
 
@@ -215,16 +215,16 @@ export async function getMichiganFloraLocsSp(
  * Returns all image records for a Michigan Flora plant_id.
  * Upstream: GET /allimage_info?id=...
  * Does NOT read or write any database table.
- * Throws MichiganFloraApiError on HTTP error or timeout.
+ * Throws MifloraApiError on HTTP error or timeout.
  */
-export async function getMichiganFloraAllimageInfo(
+export async function getMifloraAllimageInfo(
   plantId: number,
-): Promise<MichiganFloraAllimageInfoResult> {
+): Promise<MifloraAllimageInfoResult> {
   const url = `${BASE_URL}/allimage_info?id=${plantId}`;
   const data = await michiganFloraFetch(url);
 
   const rawArr = Array.isArray(data) ? (data as Record<string, unknown>[]) : [];
-  const images: MichiganFloraImageRecord[] = rawArr.map((r) => ({
+  const images: MifloraImageRecord[] = rawArr.map((r) => ({
     image_id: r["image_id"] as number | string,
     image_name: (r["image_name"] as string | null) ?? null,
     caption: (r["caption"] as string | null) ?? null,
@@ -242,11 +242,11 @@ export async function getMichiganFloraAllimageInfo(
  * Returns the botanical description text for a Michigan Flora plant_id.
  * Upstream: GET /spec_text?id=...
  * Does NOT read or write any database table.
- * Throws MichiganFloraApiError on HTTP error or timeout.
+ * Throws MifloraApiError on HTTP error or timeout.
  */
-export async function getMichiganFloraSpecText(
+export async function getMifloraSpecText(
   plantId: number,
-): Promise<MichiganFloraSpecTextResult> {
+): Promise<MifloraSpecTextResult> {
   const url = `${BASE_URL}/spec_text?id=${plantId}`;
   const data = await michiganFloraFetch(url);
 
@@ -264,11 +264,11 @@ export async function getMichiganFloraSpecText(
  * Returns the synonym list for a Michigan Flora plant_id.
  * Upstream: GET /synonyms?id=...
  * Does NOT read or write any database table.
- * Throws MichiganFloraApiError on HTTP error or timeout.
+ * Throws MifloraApiError on HTTP error or timeout.
  */
-export async function getMichiganFloraSynonyms(
+export async function getMifloraSynonyms(
   plantId: number,
-): Promise<MichiganFloraSynonymsResult> {
+): Promise<MifloraSynonymsResult> {
   const url = `${BASE_URL}/synonyms?id=${plantId}`;
   const data = await michiganFloraFetch(url);
 
@@ -290,11 +290,11 @@ export async function getMichiganFloraSynonyms(
  * Upstream: GET /pimage_info?id=...
  * found: false when upstream returns { message } (no primary image).
  * Does NOT read or write any database table.
- * Throws MichiganFloraApiError on HTTP error or timeout.
+ * Throws MifloraApiError on HTTP error or timeout.
  */
-export async function getMichiganFloraPimageInfo(
+export async function getMifloraPimageInfo(
   plantId: number,
-): Promise<MichiganFloraPimageInfoResult> {
+): Promise<MifloraPimageInfoResult> {
   const url = `${BASE_URL}/pimage_info?id=${plantId}`;
   const data = await michiganFloraFetch(url);
 
@@ -309,7 +309,7 @@ export async function getMichiganFloraPimageInfo(
     };
   }
 
-  const image: MichiganFloraImageRecord = {
+  const image: MifloraImageRecord = {
     image_id: raw["image_id"] as number | string,
     image_name: (raw["image_name"] as string | null) ?? null,
     caption: (raw["caption"] as string | null) ?? null,

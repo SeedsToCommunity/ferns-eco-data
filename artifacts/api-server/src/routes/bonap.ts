@@ -1,9 +1,9 @@
 import { Router, type IRouter } from "express";
 import { GetBonapMapQueryParams } from "@workspace/api-zod";
 import {
-  getBonapNapaMapUrl,
-  BonapNapaNetworkError,
-} from "@workspace/external-data-providers/bonap-napa";
+  getBonapMapUrl,
+  BonapNetworkError,
+} from "@workspace/external-data-providers/bonap";
 import { buildCacheKey, type MapType } from "../services/bonap/connector.js";
 import { lookupCache, storeCache } from "../services/bonap/cache.js";
 import {
@@ -102,9 +102,9 @@ router.get("/bonap/map", async (req, res) => {
 
   let result;
   try {
-    result = await getBonapNapaMapUrl(normalizedGenus, normalizedSpecies, resolvedMapType);
+    result = await getBonapMapUrl(normalizedGenus, normalizedSpecies, resolvedMapType);
   } catch (err: unknown) {
-    if (err instanceof BonapNapaNetworkError) {
+    if (err instanceof BonapNetworkError) {
       res.status(503).json({ error: "upstream_unavailable", message: err.message });
       return;
     }

@@ -11,7 +11,7 @@
 
  */
 export interface FernsProvenance {
-  /** Stable identifier for this data source (e.g. bonap-napa) */
+  /** Stable identifier for this data source (e.g. bonap) */
   source_id: string;
   /** When this record was obtained from the source */
   fetched_at: Date;

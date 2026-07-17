@@ -28,7 +28,7 @@ export interface ToolDef {
   handler: ToolHandler;
 }
 
-const INAT_SOURCE_ID = "inaturalist";
+const INAT_SOURCE_ID = "inat";
 const INAT_API_BASE = "https://api.inaturalist.org/v1";
 const INAT_USER_AGENT = "FERNS/1.0";
 const INAT_REQUEST_TIMEOUT_MS = 30000;
@@ -166,7 +166,7 @@ const InatPlacesNearbyRaw = _passthroughRaw() satisfies zod.ZodType<zod.infer<ty
 export const inatToolDefs: ToolDef[] = [
   {
     tool: {
-      name: "inaturalist__places_autocomplete",
+      name: "inat__places_autocomplete",
       description:
         "Searches iNaturalist's place index by name and returns matching place records with place IDs. Place IDs are required by other iNaturalist tools to filter results geographically.",
       inputSchema: {
@@ -212,7 +212,7 @@ export const inatToolDefs: ToolDef[] = [
 
   {
     tool: {
-      name: "inaturalist__observations_histogram",
+      name: "inat__observations_histogram",
       description:
         "Returns a monthly phenology histogram of iNaturalist observation counts for a taxon, optionally filtered by place and phenological stage. Use term_id=12 to restrict to Flowers and Fruits annotations only (stage-filtered histogram), producing a curve that reflects flowering/fruiting activity rather than all observations. Useful for understanding seasonal bloom, fruiting, or leaf-out patterns.",
       inputSchema: {
@@ -260,7 +260,7 @@ export const inatToolDefs: ToolDef[] = [
 
   {
     tool: {
-      name: "inaturalist__observations_popular_field_values",
+      name: "inat__observations_popular_field_values",
       description:
         "Returns observer-submitted field values (e.g., habitat, plant height) for a taxon from iNaturalist, optionally filtered by place and verification status.",
       inputSchema: {
@@ -304,7 +304,7 @@ export const inatToolDefs: ToolDef[] = [
 
   {
     tool: {
-      name: "inaturalist__observations",
+      name: "inat__observations",
       description:
         "Returns one page of iNaturalist observation records as a curated field subset (id, uri, observed_on, quality_grade, taxon_name, common_name, place_guess, location, observer, photo_url, photo_attribution). This is NOT the full iNat record — follow the uri field for the complete observation. Supports pagination via page and per_page. The iNat API enforces a hard ceiling of 10,000 accessible results (page × per_page ≤ 10,000). No caching — every call is live.",
       inputSchema: {
@@ -395,7 +395,7 @@ export const inatToolDefs: ToolDef[] = [
 
   {
     tool: {
-      name: "inaturalist__observations_species_counts",
+      name: "inat__observations_species_counts",
       description:
         "Returns species ranked by observation count from iNaturalist. Useful for identifying which species are most frequently observed in a given place or under specific filters. Supports filtering by place, quality grade, iconic taxon group (e.g. Plantae), nativity (native/introduced), phenology annotations (term_id/term_value_id), month window, and geographic constraints (lat/lng radius or bounding box). No caching — every call is live.",
       inputSchema: {
@@ -471,7 +471,7 @@ export const inatToolDefs: ToolDef[] = [
 
   {
     tool: {
-      name: "inaturalist__controlled_terms",
+      name: "inat__controlled_terms",
       description:
         "Returns the full list of iNaturalist controlled annotation terms and their possible values. Use this to look up term_id and term_value_id pairs (e.g. term_id=12 for Flowers and Fruits, with values Flowering, Fruiting, etc). The list is essentially static and rarely changes. Live call, no cache.",
       inputSchema: {
@@ -499,7 +499,7 @@ export const inatToolDefs: ToolDef[] = [
 
   {
     tool: {
-      name: "inaturalist__controlled_terms_for_taxon",
+      name: "inat__controlled_terms_for_taxon",
       description:
         "Returns the controlled annotation terms applicable to a specific iNaturalist taxon (e.g. Flowers and Fruits applies to plants, not birds). Cached permanently by taxon_id. Use this to know which term_id values are valid for a given taxon before filtering histograms or species counts.",
       inputSchema: {
@@ -529,7 +529,7 @@ export const inatToolDefs: ToolDef[] = [
 
   {
     tool: {
-      name: "inaturalist__taxa_autocomplete",
+      name: "inat__taxa_autocomplete",
       description:
         "Fast partial-name taxon search on iNaturalist with photo thumbnails and observation counts. Designed for type-ahead search. Returns up to 10 results. No cache — every call is live. Use this to find taxon IDs for use in other iNaturalist tools.",
       inputSchema: {
@@ -573,7 +573,7 @@ export const inatToolDefs: ToolDef[] = [
 
   {
     tool: {
-      name: "inaturalist__taxa_by_id",
+      name: "inat__taxa_by_id",
       description:
         "Returns the full iNaturalist taxon record for a known taxon ID, including Wikipedia summary, listed_taxa (nativity per place — the canonical source of native/introduced/endemic status), children, conservation_status, and default_photo. Live call, no cache.",
       inputSchema: {
@@ -605,7 +605,7 @@ export const inatToolDefs: ToolDef[] = [
 
   {
     tool: {
-      name: "inaturalist__places_by_id",
+      name: "inat__places_by_id",
       description:
         "Returns the full iNaturalist place record for a known place ID, including display name, place type, centroid, bounding box, and admin hierarchy. Live call, no cache.",
       inputSchema: {
@@ -641,7 +641,7 @@ export const inatToolDefs: ToolDef[] = [
 
   {
     tool: {
-      name: "inaturalist__observations_taxon_summary",
+      name: "inat__observations_taxon_summary",
       description:
         "Returns the Wikipedia summary, place-specific nativity (establishment_means), and conservation status for the taxon associated with a specific iNaturalist observation. The observation_id determines which location context is used for nativity data. Live call, no cache.",
       inputSchema: {
@@ -671,7 +671,7 @@ export const inatToolDefs: ToolDef[] = [
 
   {
     tool: {
-      name: "inaturalist__identifications_similar_species",
+      name: "inat__identifications_similar_species",
       description:
         "Returns species commonly confused with a given taxon from iNaturalist's identification history, ranked by co-confusion count. Useful for disambiguation and quality identification work. Optionally filtered by place and geography. Live call, no cache.",
       inputSchema: {
@@ -722,7 +722,7 @@ export const inatToolDefs: ToolDef[] = [
 
   {
     tool: {
-      name: "inaturalist__identifications_species_counts",
+      name: "inat__identifications_species_counts",
       description:
         "Returns species ranked by identification activity on iNaturalist — a community engagement signal distinct from raw observation count. Use taxon_of=identification (default) to rank by the identified taxon, or taxon_of=community to rank by the community-agreed taxon. Live call, no cache.",
       inputSchema: {
@@ -794,7 +794,7 @@ export const inatToolDefs: ToolDef[] = [
 
   {
     tool: {
-      name: "inaturalist__identifications_recent_taxa",
+      name: "inat__identifications_recent_taxa",
       description:
         "Returns taxa recently identified in a given iNaturalist place — 'what's being documented right now'. Useful for real-time biodiversity monitoring queries. Optionally filtered by taxon, quality grade, and date range. Live call, no cache.",
       inputSchema: {
@@ -838,7 +838,7 @@ export const inatToolDefs: ToolDef[] = [
 
   {
     tool: {
-      name: "inaturalist__identifications",
+      name: "inat__identifications",
       description:
         "Returns a paged list of individual iNaturalist identification records — who identified what taxon on which observation. Distinct from observations: one observation can have many identifications. Useful for understanding the community identification process for a taxon. Live call, no cache. Supports pagination via page and per_page.",
       inputSchema: {
@@ -927,7 +927,7 @@ export const inatToolDefs: ToolDef[] = [
 
   {
     tool: {
-      name: "inaturalist__identifications_by_id",
+      name: "inat__identifications_by_id",
       description:
         "Returns the full iNaturalist identification record for a known identification ID. An identification is a community taxon determination on an observation. Live call, no cache.",
       inputSchema: {
@@ -957,7 +957,7 @@ export const inatToolDefs: ToolDef[] = [
 
   {
     tool: {
-      name: "inaturalist__places_nearby",
+      name: "inat__places_nearby",
       description:
         "Returns standard (admin) and community places within a bounding box from iNaturalist. Useful for discovering what iNaturalist place IDs cover a given geographic area. No cache — live call. Provide all four bounding box corners: nelat, nelng (NE corner) and swlat, swlng (SW corner).",
       inputSchema: {

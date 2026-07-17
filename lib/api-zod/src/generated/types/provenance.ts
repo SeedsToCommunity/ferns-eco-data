@@ -14,7 +14,7 @@ import type { ProvenanceDerivedFromItem } from './provenanceDerivedFromItem';
 
  */
 export interface Provenance {
-  /** Stable identifier of the registered FERNS source (e.g. bonap-napa). */
+  /** Stable identifier of the registered FERNS source (e.g. bonap). */
   source_id: string;
   /** Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.
  */

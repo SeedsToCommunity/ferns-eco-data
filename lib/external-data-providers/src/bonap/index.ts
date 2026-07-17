@@ -9,7 +9,7 @@
  */
 
 /** Result returned on success. */
-export interface BonapNapaMapUrlResult {
+export interface BonapMapUrlResult {
   found: boolean;
   mapUrl: string | null;
   upstreamUrl: string;
@@ -17,10 +17,10 @@ export interface BonapNapaMapUrlResult {
 }
 
 /** Thrown when bonap.net cannot be reached or returns an inconclusive response. */
-export class BonapNapaNetworkError extends Error {
+export class BonapNetworkError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = "BonapNapaNetworkError";
+    this.name = "BonapNetworkError";
   }
 }
 
@@ -60,7 +60,7 @@ function buildSourcePageUrl(genus: string, species: string): string {
  *
  * Returns true when the image is confirmed present (200 + image/png).
  * Returns false when the image is confirmed absent (404 or 410).
- * Throws BonapNapaNetworkError on network failure or any response that
+ * Throws BonapNetworkError on network failure or any response that
  * cannot be definitively classified as found or not_found.
  */
 async function checkImageUrl(url: string): Promise<boolean> {
@@ -80,7 +80,7 @@ async function checkImageUrl(url: string): Promise<boolean> {
       return false;
     }
   } catch (err) {
-    throw new BonapNapaNetworkError(
+    throw new BonapNetworkError(
       `Network error reaching bonap.net: ${String(err)}`,
     );
   }
@@ -101,12 +101,12 @@ async function checkImageUrl(url: string): Promise<boolean> {
     ) {
       return false;
     }
-    throw new BonapNapaNetworkError(
+    throw new BonapNetworkError(
       `Inconclusive response from bonap.net: HTTP ${status}`,
     );
   } catch (err) {
-    if (err instanceof BonapNapaNetworkError) throw err;
-    throw new BonapNapaNetworkError(
+    if (err instanceof BonapNetworkError) throw err;
+    throw new BonapNetworkError(
       `Network error reaching bonap.net: ${String(err)}`,
     );
   }
@@ -128,14 +128,14 @@ async function checkImageUrl(url: string): Promise<boolean> {
  * - `mapType`: "county_species" or "state_species"
  *
  * Does NOT read or write any database table.
- * Throws BonapNapaNetworkError on timeout, connection failure, or any
+ * Throws BonapNetworkError on timeout, connection failure, or any
  * response that cannot be definitively classified as found or not_found.
  */
-export async function getBonapNapaMapUrl(
+export async function getBonapMapUrl(
   genus: string,
   species: string,
   mapType: "county_species" | "state_species",
-): Promise<BonapNapaMapUrlResult> {
+): Promise<BonapMapUrlResult> {
   const pngUrl = buildMapPngUrl(genus, species, mapType);
 
   const found = await checkImageUrl(pngUrl);

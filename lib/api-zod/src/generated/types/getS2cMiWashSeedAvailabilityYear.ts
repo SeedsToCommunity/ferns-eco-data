@@ -6,10 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetSeedsToCommunityWashtenawSeedAvailabilityYear = typeof GetSeedsToCommunityWashtenawSeedAvailabilityYear[keyof typeof GetSeedsToCommunityWashtenawSeedAvailabilityYear];
+export type GetS2cMiWashSeedAvailabilityYear = typeof GetS2cMiWashSeedAvailabilityYear[keyof typeof GetS2cMiWashSeedAvailabilityYear];
 
 
-export const GetSeedsToCommunityWashtenawSeedAvailabilityYear = {
+export const GetS2cMiWashSeedAvailabilityYear = {
   NUMBER_2023: 2023,
   NUMBER_2024: 2024,
   NUMBER_2025: 2025,

@@ -22,7 +22,7 @@ export const HealthCheckResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -67,7 +67,7 @@ export const GetBonapMapResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -104,7 +104,7 @@ export const GetBonapMetadataResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -171,7 +171,7 @@ export const GetGbifMatchResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -224,7 +224,7 @@ export const GetGbifOccurrencesResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -264,7 +264,7 @@ export const GetGbifSearchResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -306,7 +306,7 @@ export const GetGbifSpeciesResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -356,7 +356,7 @@ export const GetGbifSpeciesSynonymsResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -406,7 +406,7 @@ export const GetGbifSpeciesVernacularNamesResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -438,7 +438,7 @@ export const GetGbifMetadataResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -514,7 +514,7 @@ export const GetInatPlacesAutocompleteResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -563,7 +563,7 @@ export const GetInatObservationsHistogramResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -603,7 +603,7 @@ export const GetInatObservationsPopularFieldValuesResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -657,7 +657,7 @@ export const GetInatObservationsResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -716,7 +716,7 @@ export const GetInatObservationsSpeciesCountsResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -750,7 +750,7 @@ export const GetInatControlledTermsResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -785,7 +785,7 @@ export const GetInatControlledTermsForTaxonResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -829,7 +829,7 @@ export const GetInatTaxaAutocompleteResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -867,7 +867,7 @@ export const GetInatTaxaByIdResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -906,7 +906,7 @@ export const GetInatPlacesByIdResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -948,7 +948,7 @@ export const GetInatPlacesNearbyResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -982,7 +982,7 @@ export const GetInatObservationsTaxonSummaryResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -1025,7 +1025,7 @@ export const GetInatIdentificationsSimilarSpeciesResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -1072,7 +1072,7 @@ export const GetInatIdentificationsSpeciesCountsResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -1116,7 +1116,7 @@ export const GetInatIdentificationsRecentTaxaResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -1165,7 +1165,7 @@ export const GetInatIdentificationsResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -1199,7 +1199,7 @@ export const GetInatIdentificationsByIdResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -1229,7 +1229,7 @@ export const GetInatMetadataResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -1265,7 +1265,7 @@ export const GetMifloraCountiesResponse = zod.object({
   "queried_at": zod.date(),
   "data": zod.unknown().nullish().describe('Raw passthrough response from the Michigan Flora county API endpoint. Array of county records for all 83 Michigan counties. Each record includes county name, FIPS code, and occurrence status. All source fields unchanged.\n'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -1303,7 +1303,7 @@ export const GetMifloraImagesResponse = zod.object({
   "thumbnail_url": zod.string().describe('Absolute URL to the thumbnail image on Michigan Flora\'s server. Constructed as: https:\/\/michiganflora.net\/static\/species_images\/_pid_{plant_id}\/thumb_{image_id}.jpg\n')
 }).describe('A single image record from the Michigan Flora allimage_info endpoint, enriched with constructed absolute image_url and thumbnail_url fields.\n')).nullish().describe('Array of image records from Michigan Flora allimage_info, each enriched with image_url and thumbnail_url. Null when found is false.\n'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -1347,7 +1347,7 @@ export const GetMifloraFloraSearchResponse = zod.object({
   "common_name": zod.array(zod.string()).describe('Array of common names for this species')
 }).describe('A single species record from the Michigan Flora flora_search_sp endpoint.')).nullable().describe('Array of matching species records from the Michigan Flora flora_search_sp endpoint. Verbatim upstream array. Null when found is false.\n'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -1380,7 +1380,7 @@ export const GetMifloraSpecTextResponse = zod.object({
   "text": zod.string().nullish().describe('Raw HTML botanical description from Michigan Flora')
 }).nullable(),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -1414,7 +1414,7 @@ export const GetMifloraSynonymsResponse = zod.object({
   "author": zod.string().nullish().describe('Taxonomic authority for the synonym')
 }).describe('A single taxonomic synonym from the Michigan Flora synonyms endpoint.')).nullable().describe('Bare array of synonym records from the Michigan Flora synonyms endpoint. Empty array if no synonyms exist. Null when found is false.\n'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -1452,7 +1452,7 @@ export const GetMifloraPImageInfoResponse = zod.object({
   "thumbnail_url": zod.string().describe('Absolute URL to the thumbnail image on Michigan Flora\'s server. Constructed as: https:\/\/michiganflora.net\/static\/species_images\/_pid_{plant_id}\/thumb_{image_id}.jpg\n')
 }).nullable().describe('Flat primary image record from the Michigan Flora pimage_info endpoint. Null when found is false or no image exists.\n'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -1495,7 +1495,7 @@ export const GetMifloraMetadataResponse = zod.object({
 }).optional().describe('Full registry entry for the Michigan Flora service'),
   "queried_at": zod.date(),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -1524,7 +1524,7 @@ export const GetCoefficientByValueResponse = zod.object({
   "queried_at": zod.date(),
   "source_url": zod.string().nullish(),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -1553,7 +1553,7 @@ export const GetCoefficientOfConservatismListResponse = zod.object({
   "queried_at": zod.date(),
   "source_url": zod.string().nullish(),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -1596,7 +1596,7 @@ export const GetCoefficientMetadataResponse = zod.object({
 }).optional().describe('Full registry entry for this vocabulary source'),
   "queried_at": zod.date(),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -1622,7 +1622,7 @@ export const GetWetlandIndicatorStatusByCodeResponse = zod.object({
   "queried_at": zod.date(),
   "source_url": zod.string().nullish(),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -1656,7 +1656,7 @@ export const GetWetlandIndicatorStatusByWResponse = zod.object({
   "queried_at": zod.date(),
   "source_url": zod.string().nullish(),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -1686,7 +1686,7 @@ export const GetWetlandIndicatorStatusListResponse = zod.object({
   "queried_at": zod.date(),
   "source_url": zod.string().nullish(),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -1730,7 +1730,7 @@ export const GetWetlandIndicatorMetadataResponse = zod.object({
 }).optional().describe('Full registry entry for this vocabulary source'),
   "queried_at": zod.date(),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -1756,7 +1756,7 @@ export const GetWucolsWaterUseByCodeResponse = zod.object({
   "queried_at": zod.date(),
   "source_url": zod.string().nullish(),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -1787,7 +1787,7 @@ export const GetWucolsWaterUseListResponse = zod.object({
   "queried_at": zod.date(),
   "source_url": zod.string().nullish(),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -1832,7 +1832,7 @@ export const GetWucolsWaterUseMetadataResponse = zod.object({
 }).optional().describe('Full registry entry for this vocabulary source'),
   "queried_at": zod.date(),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -1848,11 +1848,11 @@ export const GetWucolsWaterUseMetadataResponse = zod.object({
 
  * @summary Get seed availability list for a given Seeds to Community Washtenaw program year
  */
-export const GetSeedsToCommunityWashtenawSeedAvailabilityQueryParams = zod.object({
+export const GetS2cMiWashSeedAvailabilityQueryParams = zod.object({
   "year": zod.union([zod.literal(2023),zod.literal(2024),zod.literal(2025),zod.literal(2026)]).describe('Program year (2023–2026).')
 })
 
-export const GetSeedsToCommunityWashtenawSeedAvailabilityResponse = zod.object({
+export const GetS2cMiWashSeedAvailabilityResponse = zod.object({
   "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
   "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
   "pagination": zod.union([zod.object({
@@ -1861,7 +1861,7 @@ export const GetSeedsToCommunityWashtenawSeedAvailabilityResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -1893,11 +1893,11 @@ export const GetSeedsToCommunityWashtenawSeedAvailabilityResponse = zod.object({
 
  * @summary Get per-species growing information for a Seeds to Community Washtenaw species
  */
-export const GetSeedsToCommunityWashtenawSpeciesInformationQueryParams = zod.object({
+export const GetS2cMiWashSpeciesInformationQueryParams = zod.object({
   "species": zod.string().describe('Botanical name of the species, e.g. Aquilegia canadensis.')
 })
 
-export const GetSeedsToCommunityWashtenawSpeciesInformationResponse = zod.object({
+export const GetS2cMiWashSpeciesInformationResponse = zod.object({
   "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
   "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
   "pagination": zod.union([zod.object({
@@ -1906,7 +1906,7 @@ export const GetSeedsToCommunityWashtenawSpeciesInformationResponse = zod.object
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -1945,11 +1945,11 @@ export const GetSeedsToCommunityWashtenawSpeciesInformationResponse = zod.object
 
 
 /**
- * Returns all available program years with species counts and source notes. Use this to discover what data is available before querying /seeds-to-community-washtenaw/seed-availability?year=. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
+ * Returns all available program years with species counts and source notes. Use this to discover what data is available before querying /s2c-mi-wash/seed-availability?year=. Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
 
  * @summary List available Seeds to Community Washtenaw program years
  */
-export const GetSeedsToCommunityWashtenawYearsResponse = zod.object({
+export const GetS2cMiWashYearsResponse = zod.object({
   "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
   "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
   "pagination": zod.union([zod.object({
@@ -1958,7 +1958,7 @@ export const GetSeedsToCommunityWashtenawYearsResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -1988,7 +1988,7 @@ export const GetSeedsToCommunityWashtenawYearsResponse = zod.object({
 
  * @summary Seeds to Community Washtenaw source metadata
  */
-export const GetSeedsToCommunityWashtenawMetadataResponse = zod.object({
+export const GetS2cMiWashMetadataResponse = zod.object({
   "found": zod.boolean().describe('Did the source have the thing that was asked for? True = data is present. False = the lookup ran correctly but the source holds no record (honest absence, not an error).\n'),
   "permission_granted": zod.boolean().describe('Is the consumer cleared to use this data? Always present, per-endpoint.'),
   "pagination": zod.union([zod.object({
@@ -1997,7 +1997,7 @@ export const GetSeedsToCommunityWashtenawMetadataResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -2045,7 +2045,7 @@ export const GetLcscgMetadataResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -2075,7 +2075,7 @@ export const GetLcscgGuidesResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -2133,7 +2133,7 @@ export const GetLcscgGuideResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -2213,7 +2213,7 @@ export const GetLcscgSpeciesResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -2266,7 +2266,7 @@ export const GetSourcesIndexResponse = zod.object({
   "found": zod.boolean(),
   "data": zod.object({
   "sources": zod.array(zod.object({
-  "source_id": zod.string().describe('Stable identifier for this service (e.g. bonap-napa, gbif)'),
+  "source_id": zod.string().describe('Stable identifier for this service (e.g. bonap, gbif)'),
   "name": zod.string().describe('Human-readable service name'),
   "knowledge_type": zod.string().describe('source_wrapper | derived_synthesis | aggregation | system | vocabulary_reference'),
   "status": zod.string().describe('live | draft | deprecated'),
@@ -2284,7 +2284,7 @@ export const GetSourcesIndexResponse = zod.object({
 }))
 }),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -2317,7 +2317,7 @@ export const GetTrustGroupsResponse = zod.object({
 }))
 }),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -2361,7 +2361,7 @@ export const GetTrustGroupResponse = zod.object({
 }))
 }).nullish(),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -2396,7 +2396,7 @@ export const GetTrustGroupSourcesResponse = zod.object({
   "position": zod.number().describe('Ascending sort order; lower = higher trust priority'),
   "name": zod.string(),
   "sources": zod.array(zod.object({
-  "source_id": zod.string().describe('Stable identifier for this service (e.g. bonap-napa, gbif)'),
+  "source_id": zod.string().describe('Stable identifier for this service (e.g. bonap, gbif)'),
   "name": zod.string().describe('Human-readable service name'),
   "knowledge_type": zod.string().describe('source_wrapper | derived_synthesis | aggregation | system | vocabulary_reference'),
   "status": zod.string().describe('live | draft | deprecated'),
@@ -2415,7 +2415,7 @@ export const GetTrustGroupSourcesResponse = zod.object({
 }))
 }).nullish(),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -2440,7 +2440,7 @@ export const GetUniversalFqaMetadataResponse = zod.object({
   "registry_entry": zod.record(zod.string(), zod.unknown()),
   "queried_at": zod.date().optional(),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -2462,7 +2462,7 @@ export const GetUniversalFqaDatabasesResponse = zod.object({
   "queried_at": zod.date(),
   "source_url": zod.string(),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -2493,7 +2493,7 @@ export const GetUniversalFqaDatabaseResponse = zod.object({
   "queried_at": zod.date(),
   "source_url": zod.string(),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -2524,7 +2524,7 @@ export const GetUniversalFqaAssessmentsResponse = zod.object({
   "queried_at": zod.date(),
   "source_url": zod.string(),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -2555,7 +2555,7 @@ export const GetUniversalFqaAssessmentResponse = zod.object({
   "queried_at": zod.date(),
   "source_url": zod.string(),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -2580,7 +2580,7 @@ export const GetSourcesMetadataResponse = zod.object({
   "source_url": zod.string(),
   "found": zod.boolean(),
   "data": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this service (e.g. bonap-napa, gbif)'),
+  "source_id": zod.string().describe('Stable identifier for this service (e.g. bonap, gbif)'),
   "name": zod.string().describe('Human-readable service name'),
   "knowledge_type": zod.string().describe('source_wrapper | derived_synthesis | aggregation | system | vocabulary_reference'),
   "status": zod.string().describe('live | draft | deprecated'),
@@ -2597,7 +2597,7 @@ export const GetSourcesMetadataResponse = zod.object({
   "technical_details": zod.string().optional().describe('Technical description of how this source works, including data model, method, upstream URL, caching behavior, and known edge cases.\n')
 }),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -2637,7 +2637,7 @@ export const GetSourceRelationshipsResponse = zod.object({
   "filtered_by_source_id": zod.string().nullish()
 }),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -2662,7 +2662,7 @@ export const GetMnfiMetadataResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -2699,7 +2699,7 @@ export const GetMnfiCommunitiesResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -2736,7 +2736,7 @@ export const GetMnfiCommunityResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -2783,7 +2783,7 @@ export const GetMnfiSpeciesListResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -2820,7 +2820,7 @@ export const GetMnfiSpeciesResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -2857,7 +2857,7 @@ export const GetMnfiSpeciesCommunitiesResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -2894,7 +2894,7 @@ export const GetMnfiSpeciesCountiesResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -2924,7 +2924,7 @@ export const GetMnfiCountiesResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -2967,7 +2967,7 @@ export const GetMnfiCountyResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -2997,7 +2997,7 @@ export const GetNatureserveMetadataResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -3050,7 +3050,7 @@ export const GetNatureserveSpeciesSearchResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -3103,7 +3103,7 @@ export const GetNatureserveSearchResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -3148,7 +3148,7 @@ export const GetNatureserveTaxonResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -3183,7 +3183,7 @@ export const GetGobotanyUrlResponse = zod.object({
   "queried_at": zod.date(),
   "source_url": zod.string().optional(),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -3214,7 +3214,7 @@ export const GetGobotanyMetadataResponse = zod.object({
   "registry_entry": zod.record(zod.string(), zod.unknown()).optional(),
   "queried_at": zod.date().optional(),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -3245,7 +3245,7 @@ export const GetGobotanySpeciesInformationResponse = zod.object({
   "cache_status": zod.enum(['hit', 'miss', 'not_in_species_list']).describe('\"hit\" — returned from cache. \"miss\" — live scrape performed and cached. \"not_in_species_list\" — species URL not in the imported species list; scrape skipped.\n'),
   "fetch_error": zod.string().optional().describe('Present only when a transient upstream error (network failure, timeout, 5xx) prevented the scrape. The result was NOT cached in this case and the next call will retry the live request.\n'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -3281,7 +3281,7 @@ export const GetGoogleImagesSearchResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -3316,7 +3316,7 @@ export const GetGoogleImagesMetadataResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -3371,7 +3371,7 @@ export const GetIllinoisWildflowersUrlResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -3411,7 +3411,7 @@ export const GetIllinoisWildflowersMetadataResponse = zod.object({
   "registry_entry": zod.record(zod.string(), zod.unknown()).optional(),
   "queried_at": zod.date().optional(),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -3442,7 +3442,7 @@ export const GetIllinoisWildflowersSpeciesInformationResponse = zod.object({
   "cache_status": zod.enum(['hit', 'miss', 'not_in_species_list']).describe('\"hit\" — returned from cache. \"miss\" — live scrape performed and cached. \"not_in_species_list\" — species URL not in the imported species list; scrape skipped.\n'),
   "fetch_error": zod.string().optional().describe('Present only when a transient upstream error (network failure, timeout, 5xx) prevented the scrape. The result was NOT cached in this case and the next call will retry the live request.\n'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -3474,7 +3474,7 @@ export const GetMinnesotaWildflowersUrlResponse = zod.object({
   "queried_at": zod.date(),
   "source_url": zod.string().optional(),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -3505,7 +3505,7 @@ export const GetMinnesotaWildflowersMetadataResponse = zod.object({
   "registry_entry": zod.record(zod.string(), zod.unknown()).optional(),
   "queried_at": zod.date().optional(),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -3536,7 +3536,7 @@ export const GetMinnesotaWildflowersSpeciesInformationResponse = zod.object({
   "cache_status": zod.enum(['hit', 'miss', 'not_in_species_list']).describe('\"hit\" — returned from cache. \"miss\" — live scrape performed and cached. \"not_in_species_list\" — species URL not in the imported species list; scrape skipped.\n'),
   "fetch_error": zod.string().optional().describe('Present only when a transient upstream error (network failure, timeout, 5xx) prevented the scrape. The result was NOT cached in this case and the next call will retry the live request.\n'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -3568,7 +3568,7 @@ export const GetMissouriPlantsUrlResponse = zod.object({
   "queried_at": zod.date(),
   "source_url": zod.string().optional(),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -3599,7 +3599,7 @@ export const GetMissouriPlantsMetadataResponse = zod.object({
   "registry_entry": zod.record(zod.string(), zod.unknown()).optional(),
   "queried_at": zod.date().optional(),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -3630,7 +3630,7 @@ export const GetMissouriPlantsSpeciesInformationResponse = zod.object({
   "cache_status": zod.enum(['hit', 'miss', 'not_in_species_list']).describe('\"hit\" — returned from cache. \"miss\" — live scrape performed and cached. \"not_in_species_list\" — species URL not in the imported species list; scrape skipped.\n'),
   "fetch_error": zod.string().optional().describe('Present only when a transient upstream error (network failure, timeout, 5xx) prevented the scrape. The result was NOT cached in this case and the next call will retry the live request.\n'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -3662,7 +3662,7 @@ export const GetPrairieMoonUrlResponse = zod.object({
   "queried_at": zod.date(),
   "source_url": zod.string().optional(),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -3693,7 +3693,7 @@ export const GetPrairieMoonMetadataResponse = zod.object({
   "registry_entry": zod.record(zod.string(), zod.unknown()).optional(),
   "queried_at": zod.date().optional(),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -3724,7 +3724,7 @@ export const GetPrairieMoonSpeciesInformationResponse = zod.object({
   "cache_status": zod.enum(['hit', 'miss', 'not_in_species_list']).describe('\"hit\" — returned from cache. \"miss\" — live scrape performed and cached. \"not_in_species_list\" — species URL not in the imported species list; scrape skipped.\n'),
   "fetch_error": zod.string().optional().describe('Present only when a transient upstream error (network failure, timeout, 5xx) prevented the scrape. The result was NOT cached in this case and the next call will retry the live request.\n'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -3761,7 +3761,7 @@ export const GetUsdaPlantsPlantSearchResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -3804,7 +3804,7 @@ export const GetUsdaPlantsProfileResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -3847,7 +3847,7 @@ export const GetUsdaPlantsSearchResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -3888,7 +3888,7 @@ export const GetUsdaPlantsMetadataResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -3927,7 +3927,7 @@ export const GetLadyBirdJohnsonUrlResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -3969,7 +3969,7 @@ export const GetLadyBirdJohnsonSpeciesInformationResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -4004,7 +4004,7 @@ export const GetLadyBirdJohnsonMetadataResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -4030,7 +4030,7 @@ export const GetLadyBirdJohnsonMetadataResponse = zod.object({
   "registry_entry": zod.record(zod.string(), zod.unknown()).optional(),
   "queried_at": zod.date().optional(),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap-napa)'),
+  "source_id": zod.string().describe('Stable identifier for this data source (e.g. bonap)'),
   "fetched_at": zod.date().describe('When this record was obtained from the source'),
   "method": zod.string().describe('How the data was obtained: api_fetch | blob_import | llm_synthesis'),
   "upstream_url": zod.string().describe('Where this data came from (API endpoint, file path, or registry entry)'),
@@ -4056,7 +4056,7 @@ export const GetAnnArborNpnMetadataResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -4094,7 +4094,7 @@ export const GetAnnArborNpnSpeciesListResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -4156,7 +4156,7 @@ export const GetAnnArborNpnSpeciesByKeyResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -4209,7 +4209,7 @@ export const GetAnnArborNpnNameGroupsResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -4256,7 +4256,7 @@ export const GetAnnArborNpnSpeciesSourceUrlResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -4291,7 +4291,7 @@ export const GetAnnArborNpnDocumentationResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -4329,7 +4329,7 @@ export const GetWildTypeNativePlantsPlantGuideResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -4391,7 +4391,7 @@ export const GetWildTypeNativePlantsPlantGuideByScientificNameResponse = zod.obj
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -4442,7 +4442,7 @@ export const GetWildTypeNativePlantsNoteCodesResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),
@@ -4480,7 +4480,7 @@ export const GetWildTypeNativePlantsMetadataResponse = zod.object({
   "total": zod.number().nullable().describe('Total record count across all pages, if known; null when not provided by the source.')
 }).describe('Pagination metadata for responses that represent one page of a larger set. Present (object) when the response could continue; null when the response is inherently whole. See replit.md \"Top-level field definitions\".\n'),zod.null()]).describe('Pagination metadata, or null when the response is inherently whole.'),
   "provenance": zod.object({
-  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap-napa).'),
+  "source_id": zod.string().describe('Stable identifier of the registered FERNS source (e.g. bonap).'),
   "source_url": zod.string().url().nullable().describe('Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.\n'),
   "method": zod.enum(['api_fetch', 'cache_hit', 'computed']).describe('How FERNS obtained the data for this response. Coupled with cache_status — only specific pairs are valid: api_fetch+miss, cache_hit+hit, cache_hit+stale, computed+bypass, computed+hit. See replit.md \"Refinement #7 — method and cache_status are coupled\".\n'),
   "cache_status": zod.enum(['hit', 'miss', 'stale', 'bypass']).describe('Cache outcome for this response. Coupled with method — see EnvelopeMethod description for valid pairs.\n'),

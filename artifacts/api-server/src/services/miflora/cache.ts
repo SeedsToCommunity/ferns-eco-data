@@ -16,13 +16,13 @@ import {
 import { eq } from "drizzle-orm";
 import { MIFLORA_SOURCE_ID } from "./metadata.js";
 import type {
-  MichiganFloraLocsSpResult,
-  MichiganFloraAllimageInfoResult,
-  MichiganFloraFloraSearchSpResult,
-  MichiganFloraSpecTextResult,
-  MichiganFloraSynonymsResult,
-  MichiganFloraPimageInfoResult,
-} from "@workspace/external-data-providers/michigan-flora";
+  MifloraLocsSpResult,
+  MifloraAllimageInfoResult,
+  MifloraFloraSearchSpResult,
+  MifloraSpecTextResult,
+  MifloraSynonymsResult,
+  MifloraPimageInfoResult,
+} from "@workspace/external-data-providers/miflora";
 
 // ── locs_sp (counties) ────────────────────────────────────────────────────────
 
@@ -38,7 +38,7 @@ export async function lookupLocsSp(cacheKey: string): Promise<MifloraCounties | 
 export async function storeLocsSp(
   cacheKey: string,
   plantId: number,
-  result: MichiganFloraLocsSpResult,
+  result: MifloraLocsSpResult,
 ): Promise<MifloraCounties> {
   const now = new Date();
   const insert = {
@@ -85,7 +85,7 @@ export async function lookupAllimageInfo(cacheKey: string): Promise<MifloraImage
 export async function storeAllimageInfo(
   cacheKey: string,
   plantId: number,
-  result: MichiganFloraAllimageInfoResult,
+  result: MifloraAllimageInfoResult,
 ): Promise<MifloraImages> {
   const now = new Date();
   const insert = {
@@ -131,7 +131,7 @@ export async function lookupFloraSearch(cacheKey: string): Promise<MifloraFloraS
 
 export async function storeFloraSearch(
   cacheKey: string,
-  result: MichiganFloraFloraSearchSpResult,
+  result: MifloraFloraSearchSpResult,
 ): Promise<MifloraFloraSearch> {
   const now = new Date();
   const insert = {
@@ -172,7 +172,7 @@ export async function lookupSpecText(cacheKey: string): Promise<MifloraSpecText 
 
 export async function storeSpecText(
   cacheKey: string,
-  result: MichiganFloraSpecTextResult,
+  result: MifloraSpecTextResult,
 ): Promise<MifloraSpecText> {
   const now = new Date();
   const insert = {
@@ -213,7 +213,7 @@ export async function lookupSynonyms(cacheKey: string): Promise<MifloraSynonyms 
 
 export async function storeSynonyms(
   cacheKey: string,
-  result: MichiganFloraSynonymsResult,
+  result: MifloraSynonymsResult,
 ): Promise<MifloraSynonyms> {
   const now = new Date();
   const insert = {
@@ -254,7 +254,7 @@ export async function lookupPImage(cacheKey: string): Promise<MifloraPImage | nu
 
 export async function storePImage(
   cacheKey: string,
-  result: MichiganFloraPimageInfoResult,
+  result: MifloraPimageInfoResult,
 ): Promise<MifloraPImage> {
   const now = new Date();
   const insert = {

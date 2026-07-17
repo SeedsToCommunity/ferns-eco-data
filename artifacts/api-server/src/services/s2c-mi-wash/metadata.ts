@@ -1,12 +1,12 @@
-export const S2C_SOURCE_ID = "seeds-to-community-washtenaw";
+export const S2C_MI_WASH_SOURCE_ID = "s2c-mi-wash";
 
-export const S2C_LICENSES = ["cc-by"];
+export const S2C_MI_WASH_LICENSES = ["cc-by"];
 
-export const S2C_LICENSE_NOTES =
+export const S2C_MI_WASH_LICENSE_NOTES =
   "GRANTED — Seeds to Community Washtenaw is operated by the data owner. " +
   "Data is public-facing and published for community use. Permission to serve via FERNS explicitly granted by the program organizer.";
 
-export const S2C_GENERAL_SUMMARY =
+export const S2C_MI_WASH_GENERAL_SUMMARY =
   "Species availability records and per-species growing information for Seeds to Community Washtenaw, " +
   "a native plant seed-growing program run by a Washtenaw County, Michigan community organization; " +
   "FERNS serves this data with the program organizer's permission. " +
@@ -24,7 +24,7 @@ export const S2C_GENERAL_SUMMARY =
   "the 2023 list is from workshop PDFs (24 species) and may be incomplete. " +
   "Botanical names reflect S2C program usage and are not formally reconciled to any single taxonomic authority.";
 
-export const S2C_TECHNICAL_DETAILS =
+export const S2C_MI_WASH_TECHNICAL_DETAILS =
   "Source: Seeds to Community Washtenaw native plant program, Washtenaw County, Michigan. " +
   "Data owner: program organizer. Permission: granted explicitly. " +
   "Method: static_data. Species lists extracted from program documents per year: " +
@@ -32,7 +32,7 @@ export const S2C_TECHNICAL_DETAILS =
   "2024 — Google Sheets 'All Species For Growing Events' tab (file: 12DX2dQ96KUyEeNKREfpNoGHtTBxczan6uZNP3uQYyJk); 96 species; neat_and_tidy from Neat column. " +
   "2025 — Google Sheets 'Species' tab, filter Barn S3=TRUE (file: 121a1HIhNPJwyM1fr_OWgi4jMKRipF9EKDeT7_zo4mA8); 151 species; neat_and_tidy from Neat column. " +
   "2026 — Google Sheets 'Species' tab, filter Collected=TRUE (file: 1sVNi4MuqSI6tugCgDodiUJZMTMkDuK1FEXojexI5f-E); 166 species; neat_and_tidy and sweet_and_simple from S2C Lists column. " +
-  "Species information endpoint: source file S2C_SpeciesInfo.csv; ~220 species after excluding 17 rows " +
+  "Species information endpoint: source file S2C_MI_WASH_SpeciesInfo.csv; ~220 species after excluding 17 rows " +
   "(13 flagged as Old Name, 4 Non-Native); " +
   "19 ingested fields per species: botanical_name, common_name, special_collect, s2c_lists, " +
   "start_seed_watch, growth_habit, germination_code, strat_notes, planting_notes, process_notes, " +
@@ -41,8 +41,8 @@ export const S2C_TECHNICAL_DETAILS =
   "Botanical names reflect S2C program usage; not formally reconciled to a single taxonomic authority. " +
   "No upstream API. No cache TTL — data is in-memory static reference.";
 
-export const S2C_REGISTRY_ENTRY = {
-  source_id: S2C_SOURCE_ID,
+export const S2C_MI_WASH_REGISTRY_ENTRY = {
+  source_id: S2C_MI_WASH_SOURCE_ID,
   name: "Seeds to Community Washtenaw — Annual Native Plant Species Availability",
   knowledge_type: "source_wrapper",
   status: "live",
@@ -66,16 +66,16 @@ export const S2C_REGISTRY_ENTRY = {
     "2023 data sourced from PDF plant sheets — may not represent the complete program offering for that year. " +
     "Botanical names reflect S2C program usage and are not formally reconciled to BONAP, GBIF, or Michigan Flora taxonomies. " +
     "Neat & Tidy flag not tracked for 2023. Sweet & Simple flag only available from 2026 onward.",
-  metadata_url: "/api/seeds-to-community-washtenaw/metadata",
-  licenses: S2C_LICENSES,
-  license_notes: S2C_LICENSE_NOTES,
-  general_summary: S2C_GENERAL_SUMMARY,
-  technical_details: S2C_TECHNICAL_DETAILS,
+  metadata_url: "/api/s2c-mi-wash/metadata",
+  licenses: S2C_MI_WASH_LICENSES,
+  license_notes: S2C_MI_WASH_LICENSE_NOTES,
+  general_summary: S2C_MI_WASH_GENERAL_SUMMARY,
+  technical_details: S2C_MI_WASH_TECHNICAL_DETAILS,
   non_passthrough_endpoints: [
-    { endpoint: "/api/seeds-to-community-washtenaw/metadata", kind: "metadata" },
-    { endpoint: "/api/seeds-to-community-washtenaw/seed-availability", kind: "in_memory" },
-    { endpoint: "/api/seeds-to-community-washtenaw/species-information", kind: "in_memory" },
-    { endpoint: "/api/seeds-to-community-washtenaw/years", kind: "in_memory" },
+    { endpoint: "/api/s2c-mi-wash/metadata", kind: "metadata" },
+    { endpoint: "/api/s2c-mi-wash/seed-availability", kind: "in_memory" },
+    { endpoint: "/api/s2c-mi-wash/species-information", kind: "in_memory" },
+    { endpoint: "/api/s2c-mi-wash/years", kind: "in_memory" },
   ],
   permission_granted: true,
 };

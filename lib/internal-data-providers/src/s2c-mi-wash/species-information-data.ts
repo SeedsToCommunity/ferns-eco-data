@@ -1,4 +1,4 @@
-export interface SeedsToCommunityWashtenawSpeciesInformationEntry {
+export interface S2cMiWashSpeciesInformationEntry {
   botanical_name: string;
   common_name: string | null;
   special_collect: boolean | null;
@@ -20,7 +20,7 @@ export interface SeedsToCommunityWashtenawSpeciesInformationEntry {
   species_comments: string | null;
 }
 
-export const SEEDS_TO_COMMUNITY_WASHTENAW_SPECIES_INFORMATION: SeedsToCommunityWashtenawSpeciesInformationEntry[] = [
+export const S2C_MI_WASH_SPECIES_INFORMATION: S2cMiWashSpeciesInformationEntry[] = [
   {
     botanical_name: "Achillea millefolium",
     common_name: "Common Yarrow",

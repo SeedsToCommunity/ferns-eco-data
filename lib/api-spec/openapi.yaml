@@ -30,7 +30,7 @@ tags:
     description: Wetland Indicator Status & Coefficient of Wetness — USDA NRCS NWPL Reference
   - name: wucols-water-use
     description: WUCOLS — Water Use Classifications of Landscape Species
-  - name: seeds-to-community-washtenaw
+  - name: s2c-mi-wash
     description: Seeds to Community Washtenaw — Annual Native Plant Species Availability
   - name: universal-fqa
     description: Universal FQA — Federated Floristic Quality Assessment Databases
@@ -2322,10 +2322,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/VocabularyMetadataResponse"
 
-  /seeds-to-community-washtenaw/seed-availability:
+  /s2c-mi-wash/seed-availability:
     get:
-      operationId: getSeedsToCommunityWashtenawSeedAvailability
-      tags: [seeds-to-community-washtenaw]
+      operationId: getS2cMiWashSeedAvailability
+      tags: [s2c-mi-wash]
       summary: Get seed availability list for a given Seeds to Community Washtenaw program year
       description: >
         Returns the list of botanical names offered by Seeds to Community Washtenaw
@@ -2361,10 +2361,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /seeds-to-community-washtenaw/species-information:
+  /s2c-mi-wash/species-information:
     get:
-      operationId: getSeedsToCommunityWashtenawSpeciesInformation
-      tags: [seeds-to-community-washtenaw]
+      operationId: getS2cMiWashSpeciesInformation
+      tags: [s2c-mi-wash]
       summary: Get per-species growing information for a Seeds to Community Washtenaw species
       description: >
         Returns rich per-species growing information for a given botanical name from the
@@ -2405,15 +2405,15 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /seeds-to-community-washtenaw/years:
+  /s2c-mi-wash/years:
     get:
-      operationId: getSeedsToCommunityWashtenawYears
-      tags: [seeds-to-community-washtenaw]
+      operationId: getS2cMiWashYears
+      tags: [s2c-mi-wash]
       summary: List available Seeds to Community Washtenaw program years
       description: >
         Returns all available program years with species counts and source notes.
         Use this to discover what data is available before querying
-        /seeds-to-community-washtenaw/seed-availability?year=.
+        /s2c-mi-wash/seed-availability?year=.
         Response is wrapped in the FERNS Response Envelope (FernsEnvelope).
       responses:
         "200":
@@ -2428,10 +2428,10 @@ paths:
                       data:
                         $ref: "#/components/schemas/S2CYearsData"
 
-  /seeds-to-community-washtenaw/metadata:
+  /s2c-mi-wash/metadata:
     get:
-      operationId: getSeedsToCommunityWashtenawMetadata
-      tags: [seeds-to-community-washtenaw]
+      operationId: getS2cMiWashMetadata
+      tags: [s2c-mi-wash]
       summary: Seeds to Community Washtenaw source metadata
       description: >
         Returns the registry entry for the Seeds to Community Washtenaw source,
@@ -4553,7 +4553,7 @@ components:
       properties:
         source_id:
           type: string
-          description: Stable identifier for this data source (e.g. bonap-napa)
+          description: Stable identifier for this data source (e.g. bonap)
         fetched_at:
           type: string
           format: date-time
@@ -4644,7 +4644,7 @@ components:
       properties:
         source_id:
           type: string
-          description: Stable identifier of the registered FERNS source (e.g. bonap-napa).
+          description: Stable identifier of the registered FERNS source (e.g. bonap).
         source_url:
           type: string
           format: uri
@@ -5454,7 +5454,7 @@ components:
       properties:
         source_id:
           type: string
-          description: Stable identifier for this service (e.g. bonap-napa, gbif)
+          description: Stable identifier for this service (e.g. bonap, gbif)
         name:
           type: string
           description: Human-readable service name

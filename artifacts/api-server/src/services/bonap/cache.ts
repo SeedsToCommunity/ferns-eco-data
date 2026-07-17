@@ -1,6 +1,6 @@
 import { db, bonapMapsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
-import type { BonapNapaMapUrlResult } from "@workspace/external-data-providers/bonap-napa";
+import type { BonapMapUrlResult } from "@workspace/external-data-providers/bonap";
 import type { BonapMap, InsertBonapMap } from "@workspace/db";
 import { BONAP_SOURCE_ID } from "./metadata.js";
 
@@ -26,7 +26,7 @@ export async function lookupCache(cacheKey: string): Promise<BonapMap | null> {
 
 export async function storeCache(
   cacheKey: string,
-  result: BonapNapaMapUrlResult,
+  result: BonapMapUrlResult,
   input: { genus: string; species: string },
 ): Promise<BonapMap> {
   const expiresAt = result.found

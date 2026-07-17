@@ -19,7 +19,7 @@ export interface ErrorResponse {
 
  */
 export interface FernsProvenance {
-  /** Stable identifier for this data source (e.g. bonap-napa) */
+  /** Stable identifier for this data source (e.g. bonap) */
   source_id: string;
   /** When this record was obtained from the source */
   fetched_at: string;
@@ -101,7 +101,7 @@ export type ProvenanceDerivedFromItem = {
 
  */
 export interface Provenance {
-  /** Stable identifier of the registered FERNS source (e.g. bonap-napa). */
+  /** Stable identifier of the registered FERNS source (e.g. bonap). */
   source_id: string;
   /** Absolute upstream URL FERNS contacted. Null for in-memory or pure-algorithm sources that contact no external system. On a cache hit, this is the original fetch URL (refinement #1) — not null.
  */
@@ -538,7 +538,7 @@ export interface InatAttribution {
 export type InatMetadataResponse = FernsEnvelope;
 
 export interface SourceSummary {
-  /** Stable identifier for this service (e.g. bonap-napa, gbif) */
+  /** Stable identifier for this service (e.g. bonap, gbif) */
   source_id: string;
   /** Human-readable service name */
   name: string;
@@ -2968,43 +2968,43 @@ export const GetWucolsWaterUseByCodeCode = {
   H: 'H',
 } as const;
 
-export type GetSeedsToCommunityWashtenawSeedAvailabilityParams = {
+export type GetS2cMiWashSeedAvailabilityParams = {
 /**
  * Program year (2023–2026).
  */
-year: GetSeedsToCommunityWashtenawSeedAvailabilityYear;
+year: GetS2cMiWashSeedAvailabilityYear;
 };
 
-export type GetSeedsToCommunityWashtenawSeedAvailabilityYear = typeof GetSeedsToCommunityWashtenawSeedAvailabilityYear[keyof typeof GetSeedsToCommunityWashtenawSeedAvailabilityYear];
+export type GetS2cMiWashSeedAvailabilityYear = typeof GetS2cMiWashSeedAvailabilityYear[keyof typeof GetS2cMiWashSeedAvailabilityYear];
 
 
-export const GetSeedsToCommunityWashtenawSeedAvailabilityYear = {
+export const GetS2cMiWashSeedAvailabilityYear = {
   NUMBER_2023: 2023,
   NUMBER_2024: 2024,
   NUMBER_2025: 2025,
   NUMBER_2026: 2026,
 } as const;
 
-export type GetSeedsToCommunityWashtenawSeedAvailability200 = FernsEnvelope & {
+export type GetS2cMiWashSeedAvailability200 = FernsEnvelope & {
   data?: S2CSeedAvailabilityData;
 };
 
-export type GetSeedsToCommunityWashtenawSpeciesInformationParams = {
+export type GetS2cMiWashSpeciesInformationParams = {
 /**
  * Botanical name of the species, e.g. Aquilegia canadensis.
  */
 species: string;
 };
 
-export type GetSeedsToCommunityWashtenawSpeciesInformation200 = FernsEnvelope & {
+export type GetS2cMiWashSpeciesInformation200 = FernsEnvelope & {
   data?: S2CSpeciesInformationData;
 };
 
-export type GetSeedsToCommunityWashtenawYears200 = FernsEnvelope & {
+export type GetS2cMiWashYears200 = FernsEnvelope & {
   data?: S2CYearsData;
 };
 
-export type GetSeedsToCommunityWashtenawMetadata200 = FernsEnvelope & {
+export type GetS2cMiWashMetadata200 = FernsEnvelope & {
   data?: SourceMetadataData;
 };
 
